@@ -4,7 +4,7 @@ import { join } from 'node:path';
 import {
   builtHtml,
   DIST_DIR,
-  POST_ROUTES,
+  PUBLISHED_POST_ROUTES,
   frontmatterDay,
   postFrontmatter,
   ROUTES,
@@ -160,7 +160,7 @@ test.describe('JSON-LD structured data', NODE, () => {
       const html = pages.get(route)!;
       const graph = graphOf(html, route);
       const posting = nodeOfType(graph, 'BlogPosting');
-      const isPost = (POST_ROUTES as readonly string[]).includes(route);
+      const isPost = PUBLISHED_POST_ROUTES.includes(route);
 
       if (!isPost) {
         expect
@@ -261,7 +261,7 @@ test.describe('a post says when it was revised, and only then', NODE, () => {
     const checked: string[] = [];
 
     for (const [route, html] of builtHtml()) {
-      if (!(POST_ROUTES as readonly string[]).includes(route)) continue;
+      if (!PUBLISHED_POST_ROUTES.includes(route)) continue;
 
       const posting = graphOf(html, route).find(
         (node) => node['@type'] === 'BlogPosting',
@@ -296,7 +296,7 @@ test.describe('a post says when it was revised, and only then', NODE, () => {
       "dateModified, article:modified_time and the post's own `updated` disagree.",
     ).toEqual([]);
     expect(checked.sort(), 'every post should be read here').toEqual(
-      [...POST_ROUTES].sort(),
+      [...PUBLISHED_POST_ROUTES].sort(),
     );
   });
 });

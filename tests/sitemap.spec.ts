@@ -8,6 +8,7 @@ import {
   builtPages,
   DIST_DIR,
   POST_ROUTES,
+  PUBLISHED_POST_ROUTES,
   routesFromBuild,
   TAG_ROUTES,
 } from './routes';
@@ -25,7 +26,12 @@ const ROBOTS_FILE = join(DIST_DIR, 'robots.txt');
 const SITEMAP_PATH = '/sitemap-index.xml';
 
 /* `/404` is dropped by the integration; the rest by src/lib/sitemap-filter.ts. */
-const EXCLUDED_ROUTES: string[] = ['/404', '/contact/sent', ...TAG_ROUTES];
+const EXCLUDED_ROUTES: string[] = [
+  '/404',
+  '/contact/sent',
+  ...TAG_ROUTES,
+  ...POST_ROUTES.filter((route) => !PUBLISHED_POST_ROUTES.includes(route)),
+];
 
 /** Every `<loc>` in the built sitemap, as pathnames, sorted. */
 const sitemapPaths = (origin: string): string[] => {
@@ -207,7 +213,7 @@ test.describe('the sitemap dates what it can', NODE, () => {
     const found = entries();
     const wrong: string[] = [];
 
-    for (const route of POST_ROUTES) {
+    for (const route of PUBLISHED_POST_ROUTES) {
       const slug = route.split('/').pop()!;
       const expected = postDay(slug, 'updated') ?? postDay(slug, 'date');
       const lastmod = found.get(route);
@@ -232,7 +238,7 @@ test.describe('the sitemap dates what it can', NODE, () => {
     const found = entries();
     const wrong: string[] = [];
 
-    for (const route of POST_ROUTES) {
+    for (const route of PUBLISHED_POST_ROUTES) {
       const published = postDay(route.split('/').pop()!, 'date');
       const lastmod = found.get(route);
 
@@ -257,8 +263,7 @@ test.describe('the sitemap dates what it can', NODE, () => {
     const invented = [...found]
       .filter(
         ([route, lastmod]) =>
-          lastmod !== undefined &&
-          !(POST_ROUTES as readonly string[]).includes(route),
+          lastmod !== undefined && !PUBLISHED_POST_ROUTES.includes(route),
       )
       .map(([route]) => route);
 

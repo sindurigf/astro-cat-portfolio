@@ -294,6 +294,10 @@ Commits, copy rules and process: [AGENTS.md](AGENTS.md).
   `webServer` builds, so a literal subset of `ROUTES` is unavoidable; a second
   test derives the real list from the build and fails when the literal falls
   behind. `FRAME_ROUTES` in `tests/failed-images.spec.ts` is the pattern.
+- Post, category and tag routes in `tests/routes.ts` are read from
+  `src/content/blog/` frontmatter, which exists at collection. A test that
+  needs a particular post picks it by property (`CONTENTS_POST_ROUTE`,
+  `PHOTO_POST_ROUTES`), never by position or slug.
 - A guard that can match nothing needs a floor: two empty lists compare equal.
 - **Route walks.** A check on built HTML is one test over `ROUTES` with
   `expect.soft`, pushing each route onto `checked` and asserting it equals

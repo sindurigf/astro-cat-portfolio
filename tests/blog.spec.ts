@@ -6,16 +6,16 @@ import { blogCategories } from './source';
 import {
   CATEGORY_ROUTES,
   DIST_DIR,
-  frontmatterTags,
   POST_ROUTES,
+  POSTS,
   postCountByCategory,
-  postFrontmatter,
+  PUBLISHED_POST_ROUTES,
   TAG_ROUTES,
 } from './routes';
 import { pageCount } from '../src/lib/pagination';
 import { NODE } from './tags';
 
-const POST_COUNT = POST_ROUTES.length;
+const POST_COUNT = PUBLISHED_POST_ROUTES.length;
 const PAGE_COUNT = pageCount(POST_COUNT);
 const PAGINATES = PAGE_COUNT > 1;
 
@@ -40,7 +40,7 @@ test.describe('the blog index while every post fits on one page', () => {
     expect(
       hrefs.sort(),
       '/blog should list every post once while they fit on one page',
-    ).toEqual(POST_ROUTES.map((route) => `${route}/`).sort());
+    ).toEqual(PUBLISHED_POST_ROUTES.map((route) => `${route}/`).sort());
 
     await expect(
       page.getByRole('navigation', { name: /pagination/i }),
@@ -88,7 +88,7 @@ test.describe('the category filter', () => {
     expect(
       filter.total,
       'the filter should offer every category with a post, plus "All posts"',
-    ).toBe(LISTED_ROUTES.length + 1);
+    ).toBe(CATEGORY_ROUTES.length + 1);
     expect(filter.currentCount, 'exactly one option is current').toBe(1);
     expect(filter.href, '"All posts" is current on /blog').toBe('/blog/');
 
@@ -102,11 +102,6 @@ test.describe('the category filter', () => {
   });
 
   const counts = postCountByCategory();
-
-  /* Derived from the Markdown, so it also catches CATEGORY_ROUTES drifting. */
-  const LISTED_ROUTES = [...counts.keys()].map(
-    (category) => `/blog/${category}`,
-  );
 
   const cardCategoryLabels = (page: Page): Promise<string[]> =>
     page.evaluate(() =>
@@ -162,7 +157,7 @@ test.describe('the category filter', () => {
     const filter = page.getByRole('navigation', {
       name: /filter posts by category/i,
     });
-    const target = LISTED_ROUTES[0] as string;
+    const target = CATEGORY_ROUTES[0]!;
     const option = filter.locator(`a[href="${target}/"]`);
 
     await option.focus();
@@ -208,31 +203,20 @@ test('a category with no posts has no page of its own', NODE, () => {
   ).toEqual([]);
 });
 
-/** A post's `tags`, read from its frontmatter's one-line array. */
-const tagsOf = (route: string): string[] =>
-  frontmatterTags(postFrontmatter(route.split('/').pop()!));
+/** A published post with tags, so its tag links lead to built listings. */
+const TAGGED = POSTS.find((post) => post.published && post.tags.length > 0);
 
 test.describe('tag listings', () => {
-  test('every tag route matches a tag on a post', NODE, () => {
-    const fromPosts = [
-      ...new Set(POST_ROUTES.flatMap((route) => tagsOf(route))),
-    ].map((tag) => `/blog/tag/${tag}`);
-    expect(fromPosts.length, 'no post declares a tag').toBeGreaterThan(0);
-    expect(
-      [...TAG_ROUTES].sort(),
-      'TAG_ROUTES and the tags the posts carry disagree',
-    ).toEqual(fromPosts.sort());
-  });
-
   test("a post's tags are links to their listings", async ({ page }) => {
-    await gotoSettled(page, POST_ROUTES[0]);
+    expect(TAGGED, 'no published post has a tag').toBeDefined();
+    const { route, tags: declared } = TAGGED!;
+    await gotoSettled(page, route);
 
     const tags = page.locator('main a[href^="/blog/tag/"]');
     const count = await tags.count();
-    expect(
-      count,
-      `${POST_ROUTES[0]} should render each of its tags as a link`,
-    ).toBe(tagsOf(POST_ROUTES[0]).length);
+    expect(count, `${route} should render each of its tags as a link`).toBe(
+      declared.length,
+    );
 
     const href = await tags.first().getAttribute('href');
     expect(
@@ -249,13 +233,13 @@ test.describe('tag listings', () => {
     expect(
       hrefs,
       'the tag listing should hold the post the tag was followed from',
-    ).toContain(`${POST_ROUTES[0]}/`);
+    ).toContain(`${route}/`);
   });
 
   test('a tag listing marks no category filter option current', async ({
     page,
   }) => {
-    await gotoSettled(page, TAG_ROUTES[1]);
+    await gotoSettled(page, TAG_ROUTES[0]!);
 
     await expect(
       page
