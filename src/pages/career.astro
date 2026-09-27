@@ -6,7 +6,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import CloseRow from '../components/CloseRow.astro';
 import PageHero from '../components/PageHero.astro';
 import Section from '../components/Section.astro';
-import { JOURNEY_POST_HREF } from '../lib/paths';
+import { closeRowLinks } from '../lib/blog';
 import { CV_PATH, PERSON_NAME } from '../lib/profiles';
 
 /* Placeholder copy; keep it in step with the CV when one is published. */
@@ -115,6 +115,10 @@ const OPEN_SOURCE = [
       'Duis aute irure dolor in reprehenderit in 2023, then in voluptate velit esse cillum dolore eu fugiat nulla pariatur.',
   },
 ] as const;
+const closeRow = await closeRowLinks({
+  href: '/about/',
+  label: 'Learn more about me',
+});
 ---
 
 <BaseLayout
@@ -268,10 +272,5 @@ const OPEN_SOURCE = [
     </div>
   </Section>
 
-  <CloseRow
-    readHref={JOURNEY_POST_HREF}
-    readLabel="Sample post"
-    actionHref="/about/"
-    actionLabel="Learn more about me"
-  />
+  <CloseRow {...closeRow} />
 </BaseLayout>

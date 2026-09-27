@@ -1,6 +1,7 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
 import { BLOG_CATEGORIES, type BlogCategory } from '../content.config';
 import { BLOG_PATH, categoryHref, postHref } from './paths';
+import { JOURNEY_POST } from './site';
 
 export type BlogPost = CollectionEntry<'blog'>;
 
@@ -102,3 +103,33 @@ export const CATEGORY_FILTERS: readonly CategoryFilterOption[] = [
     category,
   })),
 ];
+
+interface CloseRowLink {
+  href: string;
+  label: string;
+}
+
+/** `journeyPost` from src/site.config.ts; a slug that is no published post fails the build. */
+const getJourneyPost = async (): Promise<CloseRowLink | null> => {
+  if (JOURNEY_POST === null) return null;
+  const post = (await getSortedPosts()).find(({ id }) => id === JOURNEY_POST);
+  if (post === undefined) {
+    throw new Error(
+      `src/site.config.ts: journeyPost is "${JOURNEY_POST}", which is no published post in src/content/blog/. Name one, or set it to null.`,
+    );
+  }
+  return { href: postHref(post.id), label: post.data.title };
+};
+
+/** A close row's links: the journey post, then `next` as its button; or `next` alone. */
+export const closeRowLinks = async (next: CloseRowLink) => {
+  const journey = await getJourneyPost();
+  return journey
+    ? {
+        readHref: journey.href,
+        readLabel: journey.label,
+        actionHref: next.href,
+        actionLabel: next.label,
+      }
+    : { eyebrow: 'Next', readHref: next.href, readLabel: next.label };
+};

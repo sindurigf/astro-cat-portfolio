@@ -30,6 +30,3 @@ export const PAGED_SEGMENT = 'page';
 
 export const indexPageHref = (page: number): string =>
   page <= 1 ? BLOG_PATH : `${BLOG_PATH}${PAGED_SEGMENT}/${page}/`;
-
-/* The post /about, /career and /contact/sent point to for the longer story. */
-export const JOURNEY_POST_HREF = postHref('sample-post');

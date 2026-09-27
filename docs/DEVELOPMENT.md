@@ -179,9 +179,10 @@ validates frontmatter against `src/content.config.ts` and fails on a mismatch.
 - Tests read the new post's routes, category and tags from its frontmatter.
 - A spec that needs a post or talk with some property (a cover, a tag, a
   paired talk PDF) skips, naming the property, while none has it.
-- `/about`, `/career` and `/contact/sent` link `JOURNEY_POST_HREF` in
-  `src/lib/paths.ts`. Point it at one of your posts, or at `BLOG_PATH` while
-  there is none.
+- `journeyPost` in `src/site.config.ts` is the post `/about`, `/career` and
+  `/contact/sent` end on, by slug. Deleting that post fails the build: name
+  another published post, or set it to `null` to end those pages on their
+  next page only.
 
 ## Writing a talk
 

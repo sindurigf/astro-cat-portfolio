@@ -7,8 +7,8 @@ interface Props {
   eyebrow?: string;
   readHref: string;
   readLabel: string;
-  actionHref: string;
-  actionLabel: string;
+  actionHref?: string;
+  actionLabel?: string;
 }
 
 const {
@@ -39,9 +39,11 @@ const {
           {readLabel}
         </a>
       </p>
-      <a href={actionHref} class="btn-gold-primary">
-        {actionLabel}
-      </a>
+      {actionHref && (
+        <a href={actionHref} class="btn-gold-primary">
+          {actionLabel}
+        </a>
+      )}
     </div>
   </div>
 </div>

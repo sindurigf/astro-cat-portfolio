@@ -27,7 +27,7 @@ import catCardCalico from '../assets/photos/cat-card-calico.jpg';
 import catCardBlack from '../assets/photos/cat-card-black.jpg';
 import { photographerHref, type Photographer } from '../lib/credits';
 import { DENSITIES, WIDTHS } from '../lib/image-densities';
-import { JOURNEY_POST_HREF } from '../lib/paths';
+import { closeRowLinks } from '../lib/blog';
 import { SITE_NAME } from '../lib/site';
 
 /* Jump links repeat the headings verbatim. */
@@ -137,6 +137,10 @@ const catInfo: CatInfo[] = await Promise.all(
     };
   }),
 );
+const closeRow = await closeRowLinks({
+  href: '/career/',
+  label: 'Career and CV',
+});
 ---
 
 <BaseLayout
@@ -411,12 +415,7 @@ const catInfo: CatInfo[] = await Promise.all(
     </div>
   </Section>
 
-  <CloseRow
-    readHref={JOURNEY_POST_HREF}
-    readLabel="Sample post"
-    actionHref="/career/"
-    actionLabel="Career and CV"
-  />
+  <CloseRow {...closeRow} />
 
   <PhotoViewer />
   <AboutCats
