@@ -2,13 +2,13 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { expect, test, type Page } from './test';
 import { gotoSettled } from './settle';
-import { deckOf, TALK_ROUTES, TALKS_DIR } from './routes';
+import { deckOf, NO_TALK, TALK_ROUTES, TALKS_DIR } from './routes';
 import { NARROW_WIDTH } from './wcag';
 import { DECK_FILE, splitDeck } from '../src/lib/slides';
 
 /** src/scripts/slideshow.ts driven by buttons, keys, slide links, full screen, print, and without JavaScript. */
 
-const [ROUTE] = TALK_ROUTES;
+const ROUTE = TALK_ROUTES[0] ?? '';
 
 const deckSlides = () => {
   const file = join(TALKS_DIR, deckOf(ROUTE), DECK_FILE);
@@ -49,6 +49,8 @@ const open = async (page: Page, hash = '') => {
 };
 
 test.describe('the talk slideshow', () => {
+  test.skip(!ROUTE, NO_TALK);
+
   test('without JavaScript every slide is on the page and no control is', async ({
     browser,
   }) => {

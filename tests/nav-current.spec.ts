@@ -8,7 +8,7 @@ import {
 } from '../src/lib/nav';
 import { NON_TEXT, PAGE_HELPERS } from './contrast';
 import { BLOG_PATH, indexPageHref } from '../src/lib/paths';
-import { CATEGORY_ROUTES, POST_ROUTES, ROUTES } from './routes';
+import { CATEGORY_ROUTES, NO_POST, POST_ROUTES, ROUTES } from './routes';
 import { gotoSettled } from './settle';
 import { DESKTOP_VIEWPORT, NARROW_WIDTH } from './wcag';
 import { NODE } from './tags';
@@ -290,9 +290,10 @@ test.describe('the current page, as the navigation reports it', () => {
   test('on a post, every navigation marks Blog as the section, not the page', async ({
     page,
   }) => {
+    test.skip(POST_ROUTES.length === 0, NO_POST);
     const blog = '/blog/';
     await page.setViewportSize(DESKTOP_VIEWPORT);
-    await gotoSettled(page, POST_ROUTES[0]);
+    await gotoSettled(page, POST_ROUTES[0]!);
 
     for (const selector of [
       `${HEADER_NAV} a[href="${blog}"]`,

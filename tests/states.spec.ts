@@ -3,6 +3,11 @@ import { gotoSettled } from './settle';
 import { CONTACT_FORM_ON } from '../src/lib/contact';
 import { AA_TEXT, NON_TEXT, PAGE_HELPERS } from './contrast';
 import { DESKTOP_VIEWPORT, PHONE_VIEWPORT } from './wcag';
+import {
+  CATEGORY_ROUTES,
+  NO_PUBLISHED_POST,
+  PUBLISHED_POST_ROUTES,
+} from './routes';
 
 type Look = { paint: string; text: number | null };
 
@@ -66,6 +71,10 @@ const expectHoverReadsAndDiffers = async (
 
 const HOVERED_ON_MAIN = {
   'a linked card': async (page: Page) => {
+    test.skip(
+      PUBLISHED_POST_ROUTES.length < 2,
+      'fewer than two published posts, so /blog has no card beside the feature',
+    );
     await gotoSettled(page, '/blog/');
     // A solid block's hover is measured in tests/solid-block.spec.ts.
     const card = page
@@ -151,8 +160,9 @@ test('the current page stands apart from its siblings and reads', async ({
 test('a focused chip ring stays clear of the chips beside it', async ({
   page,
 }) => {
+  test.skip(CATEGORY_ROUTES.length === 0, NO_PUBLISHED_POST);
   await page.setViewportSize(DESKTOP_VIEWPORT);
-  await gotoSettled(page, '/blog/open-source/');
+  await gotoSettled(page, `${CATEGORY_ROUTES[0]}/`);
   const { count, overlaps } = await page.evaluate(() => {
     const chips = [...document.querySelectorAll<HTMLElement>('main a.chip')];
     const reach = (el: HTMLElement) => {

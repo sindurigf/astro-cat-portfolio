@@ -2,7 +2,13 @@ import { readFileSync } from 'node:fs';
 import { expect, test } from './test';
 import { gotoSettled } from './settle';
 import { AA_TEXT, NON_TEXT, PAGE_HELPERS } from './contrast';
-import { builtPages, DIST_DIR, ROUTES } from './routes';
+import {
+  builtPages,
+  DIST_DIR,
+  HOME_FEATURES_POST,
+  PUBLISHED_POST_ROUTES,
+  ROUTES,
+} from './routes';
 import { NODE } from './tags';
 
 /**
@@ -19,9 +25,9 @@ const SOLID_ROUTES: Record<string, number> = {
   /* The current role. A card of facts, with nothing focusable in it. */
   '/career': 0,
   /* The featured post, whose title is a `.card-link`. */
-  '/blog': 1,
+  ...(PUBLISHED_POST_ROUTES.length > 0 && { '/blog': 1 }),
   /* The first featured post, the same card as on /blog. */
-  '/': 1,
+  ...(HOME_FEATURES_POST && { '/': 1 }),
 };
 
 /** Routes whose built HTML carries a `.card-solid`, read from `dist/`. */

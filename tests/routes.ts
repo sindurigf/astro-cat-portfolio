@@ -75,6 +75,7 @@ interface PostSummary {
   category: string;
   tags: string[];
   hasCover: boolean;
+  featured: boolean;
 }
 
 /** Every post in src/content/blog/, newest first. Source exists at collection; "route coverage" holds it to dist/. */
@@ -94,6 +95,7 @@ export const POSTS: readonly PostSummary[] = readdirSync(BLOG_CONTENT_DIR)
       category,
       tags: frontmatterTags(frontmatter),
       hasCover: frontmatterField(frontmatter, 'cover') !== undefined,
+      featured: frontmatterField(frontmatter, 'featured') === 'true',
     };
   })
   .sort(
@@ -101,6 +103,16 @@ export const POSTS: readonly PostSummary[] = readdirSync(BLOG_CONTENT_DIR)
   );
 
 const PUBLISHED = POSTS.filter((post) => post.published);
+
+export const NO_POST = `no post in ${BLOG_CONTENT_DIR}`;
+
+export const NO_PUBLISHED_POST = `no published post in ${BLOG_CONTENT_DIR}`;
+
+/** `/blog` features the newest published post, whose cover is its one photo. */
+export const BLOG_FEATURES_COVER = PUBLISHED[0]?.hasCover === true;
+
+/** The homepage features published posts marked `featured`. */
+export const HOME_FEATURES_POST = PUBLISHED.some((post) => post.featured);
 
 /** Posts, from `src/pages/blog/[slug].astro`, placeholders included. Newest first. */
 export const POST_ROUTES: readonly string[] = POSTS.map((post) => post.route);
@@ -136,19 +148,12 @@ export const postsWhere = (matches: (source: string) => boolean): string[] =>
 const postsMatching = (pattern: RegExp): string[] =>
   postsWhere((source) => pattern.test(source));
 
-const firstPostMatching = (pattern: RegExp, what: string): string => {
-  const route = postsMatching(pattern)[0];
-  if (route === undefined) {
-    throw new Error(`No post in ${BLOG_CONTENT_DIR} ${what}.`);
-  }
-  return route;
-};
-
 /** A post with a level-2 heading, so its page has a contents list. */
-export const CONTENTS_POST_ROUTE = firstPostMatching(
-  /^## /m,
-  'has a level-2 heading, so no post page has a contents list',
-);
+export const CONTENTS_POST_ROUTE: string | undefined =
+  postsMatching(/^## /m)[0];
+
+export const NO_CONTENTS_POST =
+  'no post has a level-2 heading, so no page has a contents list';
 
 /** Posts with a Markdown image, which post-figure.mjs frames and loads first. */
 export const PHOTO_POST_ROUTES = postsMatching(/!\[[^\]]*\]\(/);
@@ -166,6 +171,8 @@ export const TALK_ROUTES: readonly string[] = existsSync(TALKS_DIR)
       .map((entry) => `/talks/${entry.name}`)
       .sort()
   : [];
+
+export const NO_TALK = `no deck in ${TALKS_DIR}`;
 
 /** The deck directory a talk route is built from. */
 export const deckOf = (route: string): string => route.split('/').at(-1)!;

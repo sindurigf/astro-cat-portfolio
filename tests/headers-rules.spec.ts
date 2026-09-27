@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto';
 import { readFileSync, readdirSync } from 'node:fs';
 import { extname, join, relative, sep } from 'node:path';
 import { expect, test } from './test';
-import { builtPages, DIST_DIR } from './routes';
+import { builtPages, DIST_DIR, PUBLISHED_POST_ROUTES } from './routes';
 import { UMAMI_HOST_URL, UMAMI_SCRIPT_PATH } from '../src/lib/analytics';
 import { ANALYTICS_ON } from '../src/lib/analytics-site';
 import { asServed, headersFor, MIME, type Rule } from './policy-server';
@@ -266,6 +266,10 @@ test.describe('security headers as declared and served', NODE, () => {
   });
 
   test("each post's Markdown copy is kept out of search", () => {
+    test.skip(
+      PUBLISHED_POST_ROUTES.length === 0,
+      'no published post, so no Markdown copy is built',
+    );
     const copies = builtFiles(join(DIST_DIR, 'blog'))
       .filter((file) => file.endsWith('.md'))
       .map(servedPath);

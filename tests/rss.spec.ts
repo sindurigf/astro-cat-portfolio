@@ -10,6 +10,8 @@ import {
   postFrontmatter,
   TAG_ROUTES,
   builtHtml,
+  NO_PUBLISHED_POST,
+  PUBLISHED_POST_ROUTES,
 } from './routes';
 import { NODE } from './tags';
 
@@ -122,6 +124,7 @@ test.describe('the feeds', () => {
   test('the site feed lists every published post, newest first', async ({
     page,
   }) => {
+    test.skip(PUBLISHED_POST_ROUTES.length === 0, NO_PUBLISHED_POST);
     const posts = publishedPosts();
     expect(
       posts.length,
