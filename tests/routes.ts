@@ -73,6 +73,7 @@ interface PostSummary {
   published: boolean;
   category: string;
   tags: string[];
+  hasCover: boolean;
 }
 
 /** Every post in src/content/blog/, newest first. Source exists at collection; "route coverage" holds it to dist/. */
@@ -91,6 +92,7 @@ export const POSTS: readonly PostSummary[] = readdirSync(BLOG_CONTENT_DIR)
       published: frontmatterField(frontmatter, 'placeholder') !== 'true',
       category,
       tags: frontmatterTags(frontmatter),
+      hasCover: frontmatterField(frontmatter, 'cover') !== undefined,
     };
   })
   .sort(
