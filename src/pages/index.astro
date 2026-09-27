@@ -175,64 +175,70 @@ const STATS = [
     </Section>
   </div>
 
-  <Section title="What I write about">
-    <ul class="card-block grid gap-grid sm:grid-cols-2 lg:grid-cols-3">
-      {CATEGORY_CARDS.map((card, index) => (
-        <li
-          class:list={[
-            'card flex flex-col',
-            index === 0 && 'card-raised',
-            index === 0 && leadSpansSm && 'sm:col-span-2',
-            index === 0 && leadSpansLg && 'lg:col-span-2',
-          ]}
-        >
-          <span
-            aria-hidden="true"
+  {CATEGORY_CARDS.length > 0 && (
+    <Section title="What I write about">
+      <ul class="card-block grid gap-grid sm:grid-cols-2 lg:grid-cols-3">
+        {CATEGORY_CARDS.map((card, index) => (
+          <li
             class:list={[
-              'flex size-16 -rotate-3 items-center justify-center border-4 border-border text-section-number font-black leading-none',
-              card.accent.tile,
+              'card flex flex-col',
+              index === 0 && 'card-raised',
+              index === 0 && leadSpansSm && 'sm:col-span-2',
+              index === 0 && leadSpansLg && 'lg:col-span-2',
             ]}
           >
-            {card.glyph}
-          </span>
+            <span
+              aria-hidden="true"
+              class:list={[
+                'flex size-16 -rotate-3 items-center justify-center border-4 border-border text-section-number font-black leading-none',
+                card.accent.tile,
+              ]}
+            >
+              {card.glyph}
+            </span>
 
-          <h3 class="card-title mt-8">
-            <a href={categoryHref(card.category)} class="card-link">
-              {categoryLabel(card.category)}
-            </a>
-          </h3>
+            <h3 class="card-title mt-8">
+              <a href={categoryHref(card.category)} class="card-link">
+                {categoryLabel(card.category)}
+              </a>
+            </h3>
 
-          <p class="mt-4 text-body text-pretty">{card.teaser}</p>
-        </li>
-      ))}
-    </ul>
+            <p class="mt-4 text-body text-pretty">{card.teaser}</p>
+          </li>
+        ))}
+      </ul>
 
-    <p class="mt-head">
-      <a href={BLOG_PATH} class="btn-secondary">
-        View all posts
-      </a>
-    </p>
-  </Section>
+      <p class="mt-head">
+        <a href={BLOG_PATH} class="btn-secondary">
+          View all posts
+        </a>
+      </p>
+    </Section>
+  )}
 
-  <Section title="Featured posts">
-    {/* Class names written out in full: Tailwind scans source text. */}
-    <ul
-      class:list={[
-        'card-block grid gap-grid',
-        featured.length >= FEATURED_LIMIT ? 'lg:grid-cols-3' : 'lg:grid-cols-2',
-      ]}
-    >
-      {featured.map((post, index) => (
-        <li class="flex min-w-0">
-          <BlogCard
-            {...cardProps(post)}
-            headingLevel={3}
-            class:list={['w-full', index === 0 && 'card-solid']}
-          />
-        </li>
-      ))}
-    </ul>
-  </Section>
+  {featured.length > 0 && (
+    <Section title="Featured posts">
+      {/* Class names written out in full: Tailwind scans source text. */}
+      <ul
+        class:list={[
+          'card-block grid gap-grid',
+          featured.length >= FEATURED_LIMIT
+            ? 'lg:grid-cols-3'
+            : 'lg:grid-cols-2',
+        ]}
+      >
+        {featured.map((post, index) => (
+          <li class="flex min-w-0">
+            <BlogCard
+              {...cardProps(post)}
+              headingLevel={3}
+              class:list={['w-full', index === 0 && 'card-solid']}
+            />
+          </li>
+        ))}
+      </ul>
+    </Section>
+  )}
 
   <CloseRow
     eyebrow="Next"
