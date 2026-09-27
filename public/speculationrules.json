@@ -1,0 +1,15 @@
+{
+  "prefetch": [
+    {
+      "where": {
+        "and": [
+          { "href_matches": "/*" },
+          { "not": { "href_matches": "/contact/send/*" } },
+          { "not": { "href_matches": "/videos/*" } },
+          { "not": { "selector_matches": "[href$='.pdf'], [download]" } }
+        ]
+      },
+      "eagerness": "moderate"
+    }
+  ]
+}

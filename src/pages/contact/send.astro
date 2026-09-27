@@ -1,0 +1,111 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ContactForm from '../../components/ContactForm.astro';
+import PageHero from '../../components/PageHero.astro';
+import { env } from 'cloudflare:workers';
+import { rateLimitKey } from '../../lib/rate-limit-key';
+import { readCappedForm } from '../../lib/request-body';
+import { FORM_MEDIA_TYPE, MAX_BODY_BYTES } from '../../lib/contact-form';
+import {
+  handleSubmission,
+  type SubmissionKind,
+} from '../../lib/contact-submission';
+import { CONTACT_PATH, CONTACT_SENT_PATH } from '../../lib/paths';
+import { CONTACT_FORM_ON } from '../../lib/contact';
+
+/*
+ * The only on-demand page. Renders only on failure, refilling the form;
+ * success redirects to the static /contact/sent/. A separate route keeps
+ * /contact static and under public/_headers.
+ */
+export const prerender = false;
+
+/* Error pages repeat what was typed, so no cache may keep them. */
+Astro.response.headers.set('Cache-Control', 'no-store, no-transform');
+
+if (!CONTACT_FORM_ON) {
+  return new Response('Not found.\n', {
+    status: 404,
+    headers: Astro.response.headers,
+  });
+}
+
+if (Astro.request.method !== 'POST') {
+  return Astro.redirect(CONTACT_PATH, 303);
+}
+
+const body = await readCappedForm(
+  Astro.request,
+  MAX_BODY_BYTES,
+  FORM_MEDIA_TYPE,
+);
+
+if (body.kind === 'unsupported' || body.kind === 'unreadable') {
+  return Astro.redirect(CONTACT_PATH, 303);
+}
+
+/* Plain text, not the page: the body was never read, so there is nothing to refill. */
+if (body.kind === 'too-large') {
+  return new Response('Your message is too long to accept.\n', {
+    status: 413,
+    headers: Astro.response.headers,
+  });
+}
+
+const form = body.form;
+
+const outcome = await handleSubmission(
+  form,
+  env,
+  Date.now(),
+  await rateLimitKey(Astro.request),
+);
+
+if (outcome.kind === 'sent') {
+  return Astro.redirect(CONTACT_SENT_PATH, 303);
+}
+
+const STATUS: Record<Exclude<SubmissionKind, 'sent'>, number> = {
+  invalid: 422,
+  limited: 429,
+  failed: 503,
+};
+Astro.response.status = STATUS[outcome.kind];
+
+/* Names the cause; the error summary below says the message was not sent. */
+const HEADING: Record<Exclude<SubmissionKind, 'sent'>, string> = {
+  invalid: 'Check your message',
+  limited: 'Too many messages',
+  failed: 'Message not saved',
+};
+const heading = HEADING[outcome.kind];
+---
+
+<BaseLayout
+  title={`Error: ${heading}`}
+  description="Something went wrong sending your message."
+  noCanonical
+>
+  <PageHero title={heading} titleSize="h2">
+    <p class="standfirst">
+      Nothing has been sent yet. What you wrote is still here.
+    </p>
+  </PageHero>
+
+  <section class="band py-section">
+    <div class="mx-auto max-w-page">
+      <div class="card max-w-3xl">
+        <ContactForm
+          errors={outcome.errors}
+          values={outcome.values}
+          summaryHeading="h2"
+          notSent={
+            outcome.kind === 'limited' || outcome.kind === 'failed'
+              ? outcome.kind
+              : undefined
+          }
+        />
+      </div>
+    </div>
+  </section>
+</BaseLayout>

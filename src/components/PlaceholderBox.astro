@@ -1,0 +1,25 @@
+---
+/*
+ * Stands in for a missing `cover` on a featured BlogCard, holding the photo
+ * ratio. The label is real text so a screen reader is told the frame is empty.
+ */
+
+interface Props {
+  /** What belongs in this slot, in sentence case. Uppercased by `.label`. */
+  label: string;
+  class?: string;
+}
+
+const { label, class: className = '' } = Astro.props;
+---
+
+<div
+  class:list={[
+    'flex aspect-photo items-center justify-center border-8 border-dashed border-border bg-surface',
+    className,
+  ]}
+>
+  <p class="label max-w-full px-6 text-center text-subtle">
+    Placeholder: {label}
+  </p>
+</div>

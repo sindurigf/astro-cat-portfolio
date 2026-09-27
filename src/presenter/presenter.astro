@@ -1,0 +1,106 @@
+---
+import '../styles/global.css';
+import TalkSlide from '../components/TalkSlide.astro';
+import DeckBar from '../components/DeckBar.astro';
+import { talkDecks } from '../lib/talk-deck';
+import { splitDeck } from '../lib/slides';
+import { SITE_LANGUAGE } from '../lib/site-language';
+
+/*
+ * Dev server only (see integration.mjs). Notes come from slides.md, not the
+ * collection, so they never enter the loader store. Vite glob, not node:fs:
+ * the dev server renders on-demand routes in workerd, which has no file system.
+ */
+/* Ends in DECK_FILE (slides.ts); tests/presenter.spec.ts checks the two agree. */
+const SOURCES = import.meta.glob<string>('../content/talks/*/slides.md', {
+  query: '?raw',
+  import: 'default',
+});
+
+const deck = Astro.params.deck ?? '';
+const slides = (await talkDecks()).get(deck);
+if (!slides) {
+  return new Response(`No talk named ${deck}.`, { status: 404 });
+}
+
+const file = `../content/talks/${deck}/slides.md`;
+const source = SOURCES[file];
+if (!source) {
+  return new Response(`No slides.md for ${deck}.`, { status: 404 });
+}
+const notes = new Map(
+  splitDeck(await source(), file).map(({ number, note }) => [
+    number,
+    note?.split(/\n\s*\n/) ?? [],
+  ]),
+);
+const notesFor = (number: number): string[] => notes.get(number) ?? [];
+const title = slides[0].slide.data.title;
+---
+
+<html lang={SITE_LANGUAGE}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>Presenter: {title}</title>
+  </head>
+  <body>
+    <main class="page-gutter">
+      <h1 class="sr-only">Presenter view: {title}</h1>
+      <div class="deck presenter" data-deck={deck}>
+        <DeckBar total={slides.length}>
+          <a
+            class="btn-secondary"
+            href={`/talks/${deck}/`}
+            target="_blank"
+            aria-describedby="presenter-new-tab"
+          >
+            Open the slideshow
+          </a>
+          <span id="presenter-new-tab" hidden>
+            opens in a new tab
+          </span>
+          <button type="button" class="btn-secondary" data-timer-toggle>
+            Start timer
+          </button>
+          <time class="deck-count" data-timer datetime="PT0S">
+            0:00
+          </time>
+        </DeckBar>
+        <div class="presenter-grid">
+          <div class="deck-stage">
+            {slides.map(({ slide, part }) => (
+              <TalkSlide slide={slide} part={part} coverHeading="h2" />
+            ))}
+          </div>
+          <aside class="presenter-notes" aria-labelledby="presenter-notes">
+            <h2 id="presenter-notes" class="label">
+              Notes
+            </h2>
+            {slides.map(({ slide }) => (
+              <div
+                class="prose presenter-note"
+                data-for-slide={slide.data.number}
+              >
+                {notesFor(slide.data.number).length ? (
+                  notesFor(slide.data.number).map((paragraph) => (
+                    <p>{paragraph}</p>
+                  ))
+                ) : (
+                  <p class="text-subtle">No notes for this slide.</p>
+                )}
+              </div>
+            ))}
+            <h2 class="label mt-8">Next</h2>
+            <p class="presenter-upcoming" data-deck-upcoming></p>
+          </aside>
+        </div>
+      </div>
+    </main>
+    <script>
+      import '../scripts/slideshow';
+      import '../scripts/presenter-timer';
+    </script>
+  </body>
+</html>

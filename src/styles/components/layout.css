@@ -1,0 +1,368 @@
+@layer components {
+  /*
+   * The one page gutter for header, main and footer. The 16px base is what the
+   * heading floors are calibrated against at 305px and 320px; the `sm` step is
+   * free.
+   */
+  .page-gutter {
+    @apply px-4 sm:px-6;
+  }
+
+  /*
+   * Full-bleed band: negative margins out of <main>'s gutter, gutter re-applied
+   * inside. The four values must match .page-gutter's breakpoints (@apply
+   * cannot compose a component class). tests/reflow.spec.ts.
+   */
+  .band {
+    @apply -mx-4 px-4 sm:-mx-6 sm:px-6;
+  }
+
+  /*
+   * PageHero photo crossing the slab's bottom edge: --spacing-section clears
+   * the slab padding, --spacing-head is the overhang.
+   */
+  .hero-photo {
+    position: relative;
+    margin-bottom: calc(-1 * (var(--spacing-section) + var(--spacing-head)));
+  }
+
+  /*
+   * The next section keeps its usual distance from the photo, not the slab.
+   * On a landscape `lg` window the slab fills it less the overhang, so the
+   * photo's shadow lands on the fold: its 8px lift cancels the slab's border.
+   */
+  .page-hero-photo {
+    margin-block-end: var(--spacing-head);
+
+    @media (width >= 64rem) and (orientation: landscape) {
+      display: flex;
+      flex-direction: column;
+      min-height: calc(
+        100svh - var(--spacing-header) - var(--hero-pad-block) -
+          var(--spacing-head)
+      );
+
+      > div {
+        flex-grow: 1;
+      }
+    }
+  }
+
+  /* Full-row card: box spans both tracks, text keeps the half-width measure. */
+  .card-wide :is(h2, h3, p) {
+    max-width: var(--container-measure);
+  }
+
+  /*
+   * Title to teaser when stacked. From `lg` it starts level with the h1, both
+   * 24px below the breadcrumb's `mb-6`.
+   */
+  .post-slab-aside {
+    @apply mt-6 lg:mt-0;
+  }
+
+  /*
+   * Facts divided by rules between cells only; they turn horizontal when
+   * stacked. Padding on the rule side keeps the first cell on the column edge.
+   */
+  .fact-strip > * + * {
+    @apply mt-6 border-t-8 border-border pt-6;
+
+    @media (width >= 64rem) {
+      @apply mt-0 border-t-0 border-l-8 pl-6 pt-0;
+    }
+  }
+
+  /*
+   * `display: contents` from `lg` so title and aside become grid tracks. Safe
+   * here: a plain div with no role.
+   */
+  .hero-head {
+    @media (width >= 64rem) {
+      display: contents;
+    }
+  }
+
+  /*
+   * No top margin beside the title. Title and standfirst caps align without
+   * nudging: Lexend's cap is `size * (line-height / 2 - 0.325)` below its box,
+   * 11.6px and 11.7px.
+   */
+  .hero-aside {
+    @media (width >= 64rem) {
+      & > :first-child {
+        margin-top: 0;
+      }
+    }
+  }
+
+  /*
+   * Thin at the top only. The bottom stays --spacing-section, the only padding
+   * that clears the roundel (half the disc, its lift and 24px: 92px at 1280).
+   */
+  .page-hero-thin,
+  .post-slab {
+    @apply pt-head pb-section;
+  }
+
+  .page-hero-thin .standfirst {
+    @apply text-post-teaser;
+  }
+
+  /*
+   * No gold ground: the column is set in PageHero to match the page body, so
+   * the title shares the prose's left edge.
+   */
+  .page-hero-plain .standfirst {
+    @apply text-post-teaser;
+  }
+
+  /* Bottom room for the roundel's upper half plus 24px. */
+  .plain-slab {
+    padding-block: var(--spacing-head)
+      calc(var(--spacing-roundel) / 2 + --spacing(6));
+  }
+
+  .page-hero-plain .hero-intro {
+    margin-top: calc(var(--spacing-roundel) / 2 + --spacing(8));
+  }
+
+  .page-hero-plain .hero-intro:empty {
+    margin-top: calc(var(--spacing-roundel) / 2);
+  }
+
+  /*
+   * Roundel across the slab's bottom edge, right edge on the page column. Hangs
+   * 48px or 64px into the next section's top padding (at least 56px).
+   */
+  .hero-roundel {
+    position: absolute;
+    right: max(--spacing(4), calc((100% - var(--container-page)) / 2));
+    bottom: 0;
+    translate: 0 calc(50% - --spacing(1));
+
+    @media (width >= 40rem) {
+      right: max(--spacing(6), calc((100% - var(--container-page)) / 2));
+    }
+  }
+
+  /*
+   * On a `.gold-column`: right side on the text's right edge, centre on the 8px
+   * border's outer edge.
+   */
+  .gold-column .hero-roundel {
+    right: var(--hero-column-pad-inline);
+    bottom: calc(-1 * var(--hero-column-edge));
+  }
+
+  /*
+   * `vh` fallback; `.v-column .hero` sets the real height. `min-height` so it
+   * grows at 200% zoom. `svh`: `dvh` reflows mid-scroll, `lvh` hides the pause
+   * control under the toolbar.
+   */
+  .hero {
+    min-height: calc(100vh - var(--spacing-header));
+    min-height: calc(100svh - var(--spacing-header));
+
+    @apply isolate flex flex-col;
+  }
+
+  /*
+   * A region of the column: no border, extrusion or ground. `isolate` because
+   * the canvases stack inside.
+   */
+  .hero-window {
+    @apply relative isolate flex-1;
+  }
+
+  /*
+   * Hero plus the section under it, one gold area. Two rings, since no colour
+   * clears SC 1.4.11 on both sides: gold-border inside, border outside. Top
+   * margin is the name's overhang.
+   */
+  .v-column {
+    position: relative;
+    background-color: var(--color-gold);
+    /*
+     * Smaller name in the column: a wrapped family name moves the break off the
+     * rule.
+     */
+    --text-hero-h1: var(--text-hero-h1-column);
+    /*
+     * Rule, clearance and the given name's line box above its letters. Here, not
+     * @theme, because it reads the column's own --text-hero-h1.
+     */
+    --hero-name-overhang: calc(
+      var(--hero-rule) + var(--hero-name-clearance) +
+        (var(--text-hero-h1--line-height) - var(--hero-name-ink-foot)) *
+        var(--text-hero-h1)
+    );
+    margin-block-start: calc(var(--hero-name-overhang) + var(--hero-pad-block));
+  }
+
+  /*
+   * Every whole-section gold area: starts at the rail, ends
+   * --hero-column-screen-clear from the screen edge or at the rail, whichever
+   * is further out. Drawn like a card: 8px `border`, 8px pink shadow.
+   */
+  .gold-column {
+    --hero-column-rail: max(0px, calc((100% - var(--container-page)) / 2));
+    margin-inline: var(--hero-column-rail)
+      min(
+        var(--hero-column-rail),
+        calc(var(--hero-column-screen-clear) - --spacing(6))
+      );
+    padding-inline: 0;
+    border-color: var(--color-border);
+
+    /*
+     * The utility, not `var(--shadow-hard-pink-8)`: the token resolves on
+     * :root, where light mode's <main> colours do not reach.
+     */
+    @apply border-8 shadow-hard-pink-8;
+  }
+
+  /*
+   * Space above a page's opening slab so it clears the header. The homepage
+   * column sets its own.
+   */
+  .gold-column:is(.page-hero, .post-slab) {
+    margin-block-start: var(--hero-pad-block);
+  }
+
+  /*
+   * The column's top margin and edge come off the hero's height so the window's
+   * bottom rule lands on the fold; the final --spacing(1) absorbs rounding.
+   */
+  .v-column .hero {
+    padding-block: 0;
+    min-height: calc(
+      100svh - var(--spacing-header) - var(--hero-name-overhang) -
+        var(--hero-pad-block) - var(--hero-column-edge) - --spacing(1)
+    );
+  }
+
+  /*
+   * Cancel `.band`'s negative margins and padding inside the column, or the
+   * gold spills over the column edge.
+   */
+  .v-column section.hero + section {
+    margin-inline: 0;
+    padding-inline: 0;
+    padding-block: var(--hero-column-pad-block);
+  }
+
+  /*
+   * Phone: the column sits inside the band gutter, the 16px its shadow needs.
+   * tests/reflow.spec.ts checks sideways scroll.
+   */
+  @media (width < 40rem) {
+    .gold-column {
+      margin-inline: 0;
+    }
+
+    .v-column {
+      --text-hero-h1: var(--text-hero-h1-column-phone);
+    }
+  }
+  /*
+   * Front canvas sits between the mascot and the type; the large h1 holds SC
+   * 1.4.3 at worst over the field. No `z-index`: a stacking context would cap
+   * the pause control's `z-30` (tests/motion.spec.ts).
+   */
+  .hero-field {
+    @apply pointer-events-none absolute inset-0;
+  }
+
+  .hero-field-layer {
+    @apply absolute inset-0 block h-full w-full;
+  }
+
+  /*
+   * The SC 2.2.2 pause control, bottom-right of the window at every width.
+   * `pointer-events-auto` because `.hero-field` disables them.
+   */
+  .hero-motion-toggle {
+    @apply pointer-events-auto right-4 bottom-4 z-30 sm:right-6 sm:bottom-6;
+  }
+
+  @media (width >= 40rem) {
+    .hero-motion-toggle {
+      top: auto;
+      bottom: --spacing(6);
+      bottom: max(
+        --spacing(6),
+        calc(100% + var(--spacing-header) - 100svh + --spacing(6))
+      );
+    }
+  }
+
+  /*
+   * Hidden in forced colours: a canvas is a bitmap the mode cannot repaint.
+   * With nothing moving, the pause control goes too.
+   */
+  @media (forced-colors: active) {
+    .hero-field {
+      @apply hidden;
+    }
+  }
+
+  /*
+   * Line gap: the 12px rule plus clearance each side, less the line boxes'
+   * empty leading; not `em` alone because the rule is px. `top` offsets by half
+   * the leading difference so the letters, not the boxes, centre on the rule.
+   */
+  .hero-plate span:last-child {
+    margin-top: calc(
+      var(--hero-rule) + 2 * var(--hero-name-clearance) -
+        (var(--hero-name-ink-foot) + var(--hero-name-ink-head)) *
+        var(--text-hero-h1)
+    );
+  }
+
+  /*
+   * `translateY(-50%)` puts the line break on the column's top rule only while
+   * the name is two lines (tests/hero-fit.spec.ts). `right` reserves the stickers.
+   */
+  .hero-plate {
+    top: calc(
+      var(--hero-rule) / -2 +
+        (var(--hero-name-ink-foot) - var(--hero-name-ink-head)) / 2 *
+        var(--text-hero-h1)
+    );
+    right: calc(var(--hero-marks-reserve) + var(--hero-inset));
+    left: var(--hero-inset);
+    transform: translateY(-50%);
+
+    @apply absolute z-30 flex min-w-0 flex-col;
+  }
+
+  /* Top right, below the rule; never at the foot, over the field. */
+  .hero-marks {
+    top: var(--hero-gap);
+    right: var(--hero-inset);
+
+    @apply absolute z-20 flex flex-col items-end gap-4 p-0;
+  }
+
+  /*
+   * Below `sm` the name takes full width and the words drop under it, still at
+   * the top.
+   */
+  @media (width < 40rem) {
+    .hero-plate {
+      right: var(--hero-inset);
+    }
+
+    .hero-marks {
+      top: calc(var(--hero-gap) + var(--text-hero-h1));
+    }
+  }
+
+  .hero-sticker {
+    font-size: var(--text-hero-sticker);
+    line-height: var(--text-hero-sticker--line-height);
+
+    @apply border-4 px-4 py-2 font-black uppercase;
+  }
+}

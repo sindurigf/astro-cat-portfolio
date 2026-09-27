@@ -1,0 +1,277 @@
+@layer components {
+  /*
+   * The About cats (AboutCats.vue). A perch reserves a cat's band above its
+   * card; the card sits on top so a cat can duck behind it. Colours are
+   * classes on the SVG parts because the CSP refuses `style` attributes.
+   */
+  /*
+   * Padding, not margin, so it cannot collapse into the section's `mt-head`:
+   * the band starts below that gap and never reaches the text above it.
+   */
+  .cat-perch {
+    @apply relative pt-cat-band;
+  }
+
+  .cat-perch > :not(.cat-spot) {
+    @apply relative z-1;
+  }
+
+  .cat-spot {
+    @apply pointer-events-none absolute inset-x-0 top-0 h-cat-band;
+  }
+
+  /* The band is empty page; only the drawn cat and the toggle take the pointer. */
+  .cat-button {
+    @apply pointer-events-none absolute inset-0 border-0 bg-transparent p-0;
+  }
+
+  .cat-svg {
+    @apply block size-full overflow-visible;
+  }
+
+  /*
+   * Chromium defaults inline SVG to `preserve-parent-color`, and forced colours
+   * drop the transparent button's edge (tests/forced-colors.spec.ts).
+   */
+  .cat-svg,
+  .cat-svg *,
+  .cat-nap-icon,
+  .cat-nap-icon * {
+    forced-color-adjust: auto;
+  }
+
+  @media (forced-colors: active) {
+    .cat-button {
+      border-color: ButtonText;
+
+      @apply border-4 border-solid;
+    }
+  }
+
+  .cat-hit {
+    @apply pointer-events-auto cursor-pointer;
+  }
+
+  /* Each cat's SC 2.2.2 control, in the band's corner, which the cat's track stops short of. */
+  .cat-nap {
+    @apply pointer-events-auto top-0 right-0;
+  }
+
+  .cat-nap-icon {
+    @apply size-6;
+
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .cat-nap-icon .cat-nap-solid {
+    fill: currentColor;
+    stroke: none;
+  }
+
+  /* Unpainted, so `all`: the box takes clicks between the legs and around the tail. */
+  .cat-hit-area {
+    fill: none;
+    pointer-events: all;
+  }
+
+  .cat-button[data-cat='pepper'] {
+    --cat-fur: var(--color-cat-pepper);
+    --cat-far: var(--color-cat-pepper-far);
+    --cat-mark: var(--color-cat-pepper-stripe);
+    --cat-patch: var(--color-cat-pepper);
+    --cat-eye: var(--color-cat-pepper-eye);
+    --cat-lid: var(--color-gold-text);
+  }
+
+  .cat-button[data-cat='mochi'] {
+    --cat-fur: var(--color-cat-mochi);
+    --cat-far: var(--color-cat-mochi-far);
+    --cat-mark: var(--color-cat-mochi-black);
+    --cat-patch: var(--color-cat-mochi-orange);
+    --cat-eye: var(--color-gold-text);
+    --cat-lid: var(--color-gold-text);
+  }
+
+  /* Closed eyes are light lines, since Biscuit's fur is near black. */
+  .cat-button[data-cat='biscuit'] {
+    --cat-fur: var(--color-cat-biscuit);
+    --cat-far: var(--color-cat-biscuit-far);
+    --cat-mark: transparent;
+    --cat-patch: var(--color-cat-biscuit);
+    --cat-eye: var(--color-cat-biscuit-eye);
+    --cat-lid: var(--color-cat-mochi);
+  }
+
+  /* Shadow and edge follow the site's depth and ink, so light mode turns both ink. */
+  .cat-shadow {
+    fill: var(--color-pink);
+    stroke: var(--color-pink);
+  }
+
+  .cat-edge {
+    fill: var(--color-text);
+    stroke: var(--color-text);
+  }
+
+  .cat-svg
+    :is(
+      [class^='cat-line-'],
+      .cat-prop-string,
+      .cat-prop-rope,
+      .cat-prop-feather,
+      .cat-prop-yarn-end
+    ) {
+    fill: none;
+  }
+
+  .cat-fill .cat-solid-fur {
+    fill: var(--cat-fur);
+  }
+
+  .cat-fill .cat-line-fur {
+    stroke: var(--cat-fur);
+  }
+
+  .cat-fill .cat-line-far {
+    stroke: var(--cat-far);
+  }
+
+  .cat-fill .cat-line-patch {
+    stroke: var(--cat-patch);
+  }
+
+  .cat-line-mark {
+    stroke: var(--cat-mark);
+  }
+
+  .cat-solid-mark {
+    fill: var(--cat-mark);
+  }
+
+  .cat-solid-patch {
+    fill: var(--cat-patch);
+  }
+
+  .cat-solid-eye {
+    fill: var(--cat-eye);
+  }
+
+  /* The same near-black in dark and light mode. */
+  .cat-solid-pupil {
+    fill: var(--color-gold-text);
+  }
+
+  .cat-line-lid {
+    stroke: var(--cat-lid);
+  }
+
+  .cat-solid-mouth {
+    fill: var(--color-cat-mouth);
+  }
+
+  .cat-line-whisker,
+  .cat-line-z {
+    stroke: var(--color-text);
+  }
+
+  .cat-prop-solid {
+    stroke: var(--color-text);
+  }
+
+  .cat-prop-toy {
+    fill: var(--color-mark);
+  }
+
+  .cat-prop-feather {
+    stroke: var(--color-gold);
+  }
+
+  .cat-prop-string {
+    stroke: var(--color-text);
+  }
+
+  .cat-prop-cup,
+  .cat-prop-wing {
+    fill: var(--color-subtle);
+  }
+
+  .cat-prop-blanket {
+    fill: var(--color-cat-mochi-orange);
+  }
+
+  .cat-prop-fold {
+    fill: var(--color-cat-cardboard);
+  }
+
+  .cat-prop-stripe {
+    fill: none;
+    stroke: var(--color-cat-mochi);
+  }
+
+  .cat-prop-card {
+    fill: var(--color-cat-cardboard);
+  }
+
+  .cat-prop-rope {
+    stroke: var(--color-cat-cardboard-line);
+  }
+
+  .cat-prop-body {
+    fill: var(--color-text);
+  }
+
+  .cat-prop-yarn-end {
+    stroke: var(--color-mark);
+  }
+
+  /*
+   * A small card over the page, which stays in view behind a light scrim. The
+   * dialog scrolls when the viewport is short (SC 1.4.10); its padding is the
+   * card's shadow, and AboutCats.vue closes only on clicks outside the card.
+   */
+  .cat-dialog {
+    @apply m-auto overflow-y-auto border-0 bg-transparent p-0 pr-1 pb-1
+      text-text;
+  }
+
+  .cat-card {
+    @apply border-4 border-border bg-surface p-4 shadow-hard-pink-4;
+  }
+
+  /* The site button, small: still a 24px target (SC 2.5.8). */
+  .cat-close {
+    @apply min-h-target px-3 py-1;
+  }
+
+  .cat-photo {
+    @apply relative mt-3;
+  }
+
+  /* The home hero's gold sticker (gold-text on gold), hung off the photo's edge. */
+  .cat-name {
+    @apply absolute -bottom-4 -left-2 -rotate-3 border-4 border-border bg-gold
+      px-3 py-1 text-label font-black uppercase tracking-label text-gold-text
+      shadow-hard-mark-4;
+  }
+
+  /* AboutCats.vue sets these beside the cat; until then the dialog centres itself. */
+  .cat-dialog[data-placed] {
+    @apply m-0;
+
+    inset: auto;
+    left: var(--cat-card-x);
+    top: var(--cat-card-y);
+  }
+
+  .cat-dialog::backdrop {
+    @apply bg-background/60;
+  }
+
+  .cat-dialog-body {
+    @apply w-48 max-w-full md:w-72;
+  }
+}

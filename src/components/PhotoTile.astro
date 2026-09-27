@@ -1,0 +1,136 @@
+---
+import type { ImageMetadata } from 'astro';
+import { getImage, Picture } from 'astro:assets';
+import { PHOTO_FORMATS } from '../lib/photo-formats';
+import { WIDTHS } from '../lib/image-densities';
+
+/*
+ * Links to the full-size file; src/scripts/photo-viewer.ts opens it in the
+ * viewer, stepping through its `group`. `fluid` fills the tile; `natural`
+ * keeps the photo's shape for a `.photo-strip`.
+ */
+interface Props {
+  image: ImageMetadata;
+  alt: string;
+  group: string;
+  size?: 'fluid' | 'natural';
+  /** `fluid` only. */
+  sizes?: string;
+  aspect?: 'square' | 'video';
+}
+
+const {
+  image,
+  alt,
+  group,
+  size = 'fluid',
+  sizes,
+  aspect = 'square',
+} = Astro.props;
+
+/*
+ * Size via getImage, not `image.width`: reading the imported Proxy marks the
+ * original as used and the build ships the .jpg (check:untransformed).
+ */
+const { options: untransformed } = await getImage({ src: image });
+if (untransformed.width === undefined || untransformed.height === undefined) {
+  throw new Error(
+    `PhotoTile: no size for ${image.src}. Every photo is an imported file, ` +
+      'which carries one.',
+  );
+}
+const master = {
+  width: untransformed.width,
+  height: untransformed.height,
+};
+
+const NATURAL_HEIGHT = 320;
+
+/* Gutter, panel and strip borders and padding; tests/image-size.spec.ts fails on drift. */
+const STRIP_INSET = '7rem';
+/* From `sm` (40rem) the section and card padding grow. */
+const STRIP_INSET_SM = '10.5rem';
+
+const naturalWidth = Math.round(
+  NATURAL_HEIGHT * (master.width / master.height),
+);
+const naturalSizes = `(min-width: 40rem) min(${naturalWidth}px, calc(100vw - ${STRIP_INSET_SM})), min(${naturalWidth}px, calc(100vw - ${STRIP_INSET}))`;
+
+const naturalWidths = [
+  ...new Set([
+    ...WIDTHS.filter((width) => width <= master.width),
+    naturalWidth,
+  ]),
+].sort((a, b) => a - b);
+
+const FULL_WIDTH = 1600;
+
+const full = await getImage({
+  src: image,
+  ...(master.width > FULL_WIDTH && { width: FULL_WIDTH }),
+  format: 'webp',
+});
+
+const ASPECT = { square: 'aspect-square', video: 'aspect-video' } as const;
+const RATIO = { square: 1, video: 16 / 9 } as const;
+
+/* Crop files to the box: CSS-only cropping ships pixels tests/image-size.spec.ts flags as oversized. */
+const cropWidth = Math.min(
+  master.width,
+  Math.floor(master.height * RATIO[aspect]),
+);
+const crop = {
+  width: cropWidth,
+  height: Math.round(cropWidth / RATIO[aspect]),
+};
+const cropWidths = [
+  ...new Set([...WIDTHS.filter((width) => width < crop.width), crop.width]),
+];
+const hasCaption = Astro.slots.has('default');
+---
+
+<figure class="min-w-0 bg-background p-2">
+  {/* `.aspect-frame` is relative, so the sr-only span cannot escape a scrolled strip. */}
+  <a
+    href={full.src}
+    class:list={['aspect-frame block', size !== 'natural' && ASPECT[aspect]]}
+    data-photo={group}
+  >
+    {size === 'natural' ? (
+      <Fragment>
+        <svg
+          class="strip-photo"
+          width={naturalWidth}
+          viewBox={`0 0 ${master.width} ${master.height}`}
+          aria-hidden="true"
+          focusable="false"
+        />
+        <Picture
+          {...PHOTO_FORMATS}
+          src={image}
+          alt={alt}
+          width={naturalWidth}
+          widths={naturalWidths}
+          sizes={naturalSizes}
+        />
+      </Fragment>
+    ) : (
+      <Picture
+        {...PHOTO_FORMATS}
+        src={image}
+        alt={alt}
+        width={crop.width}
+        height={crop.height}
+        fit="cover"
+        widths={cropWidths}
+        sizes={sizes}
+      />
+    )}
+    <span class="sr-only">, opens full size</span>
+  </a>
+  {hasCaption && (
+    <figcaption class="mt-3 bg-background p-card-tight text-body text-text text-pretty">
+      <slot />
+    </figcaption>
+  )}
+</figure>

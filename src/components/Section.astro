@@ -1,0 +1,66 @@
+---
+/*
+ * Use the `title` slot for a heading that needs markup. `panel` wraps the
+ * whole section in one card. `headless` leaves the heading to the default
+ * slot, which must render an h2 with id `${id}-heading`.
+ */
+interface Props {
+  title?: string;
+  id?: string;
+  lead?: string;
+  panel?: boolean;
+  headless?: boolean;
+  /* In a gold section, `text-text` and `text-gold` fail SC 1.4.3; tests/gold-surface.spec.ts catches them. */
+  surface?: 'page' | 'gold';
+  class?: string;
+}
+
+const {
+  title,
+  id,
+  lead,
+  panel = false,
+  headless = false,
+  surface = 'page',
+  class: className = '',
+} = Astro.props;
+
+const gold = surface === 'gold';
+const titleTone = gold ? 'text-gold-text' : 'text-text';
+
+const headingId = id ? `${id}-heading` : undefined;
+---
+
+<section
+  id={id}
+  aria-labelledby={headingId}
+  class:list={['band py-section', gold && 'surface-gold', className]}
+>
+  <div class="mx-auto max-w-page">
+    {headless ? (
+      <slot />
+    ) : panel ? (
+      <div class="card">
+        <h2 id={headingId} class:list={['text-h2', titleTone]}>
+          <slot name="title">{title}</slot>
+        </h2>
+        {lead && <p class="panel-lead">{lead}</p>}
+        <slot name="lead" />
+        <div class="mt-8">
+          <slot />
+        </div>
+      </div>
+    ) : (
+      <>
+        <h2 id={headingId} class:list={['text-h2', titleTone]}>
+          <slot name="title">{title}</slot>
+        </h2>
+        {lead && <p class="lead">{lead}</p>}
+        <slot name="lead" />
+        <div class="mt-head">
+          <slot />
+        </div>
+      </>
+    )}
+  </div>
+</section>

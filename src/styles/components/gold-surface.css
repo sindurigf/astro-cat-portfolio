@@ -1,0 +1,100 @@
+@layer components {
+  /*
+   * The only gold surface: recolours text, focus ring and borders (SC 1.4.3,
+   * 1.4.11) and underlines links (SC 1.4.1); a utility inside still wins.
+   * tests/gold-surface.spec.ts measures every gold section.
+   */
+  .surface-gold {
+    @apply bg-gold text-gold-text;
+  }
+
+  .surface-gold,
+  .surface-gold *,
+  .surface-gold ::before,
+  .surface-gold ::after {
+    border-color: var(--color-gold-border);
+  }
+
+  /*
+   * These three set `text-text` themselves, which fails on gold; a later component
+   * rule overrides them, a markup utility would not.
+   */
+  .surface-gold :is(.lead, .panel-lead, .standfirst) {
+    color: var(--color-gold-text);
+  }
+
+  /* `surface` vanishes on gold and pink fails SC 1.4.11 there, so both change. */
+  .surface-gold .card {
+    background-color: transparent;
+
+    @apply shadow-hard-gold-border-8;
+  }
+
+  .surface-gold a {
+    color: var(--color-gold-link);
+    text-decoration: underline;
+    text-underline-offset: var(--underline-offset);
+  }
+
+  /* Hover marker: see @layer utilities. */
+
+  /*
+   * Wins on specificity and layer. The gap is gold; gold-text is 11.32 against
+   * it.
+   */
+  .surface-gold :focus-visible {
+    outline-color: var(--color-gold-text);
+  }
+
+  /*
+   * Scoped to .surface-gold so it renders unstyled elsewhere. Label, fill and
+   * `gold-text` edge pass SC 1.4.3 and 1.4.11 on gold. The pink shadow fails
+   * and is decoration: it must never delimit the control.
+   */
+  .surface-gold .btn-gold-primary {
+    @apply inline-block border-4 border-gold-text bg-gold-text
+      px-8 py-4 text-button font-black uppercase
+      tracking-label text-gold-btn-label shadow-hard-mark-4 lift-control;
+  }
+
+  .surface-gold .btn-gold-secondary {
+    @apply inline-block border-4 border-gold-text bg-transparent
+      px-8 py-4 text-button font-black uppercase
+      tracking-label text-gold-text;
+  }
+
+  /*
+   * Two-tone ring, since the fill equals the ring colour: #FFFFFF inside
+   * (18.58), #131313 outside (11.32). The pink shadow stays in the same
+   * `box-shadow`.
+   */
+  .surface-gold .btn-gold-primary:focus-visible {
+    box-shadow: var(--inset-shadow-gold-btn-ring), var(--shadow-hard-mark-4);
+  }
+
+  .surface-gold .btn-gold-primary:focus-visible:active {
+    box-shadow: var(--inset-shadow-gold-btn-ring);
+  }
+
+  /* No underline: the box already marks it as a control (SC 1.4.1). */
+  .surface-gold a.btn-gold-primary,
+  .surface-gold a.btn-gold-secondary {
+    text-decoration: none;
+  }
+
+  /*
+   * Keeps its dark fill and `text` label; edge `gold-text` like
+   * the gold buttons.
+   */
+  .surface-gold a.chip {
+    @apply border-gold-text text-text no-underline;
+  }
+
+  .surface-gold a.btn-gold-primary:hover {
+    color: var(--color-gold-btn-label);
+  }
+
+  .surface-gold a.btn-gold-secondary:hover {
+    color: var(--color-gold-text);
+  }
+}

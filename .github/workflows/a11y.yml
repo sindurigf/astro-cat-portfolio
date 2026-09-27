@@ -1,0 +1,198 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# A newer push to a pull request makes its in-flight run pointless. On main every
+# commit keeps its own result, so a red commit can still be found.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+permissions:
+  contents: read
+
+jobs:
+  # Runs beside the shards, not before them, so both report together.
+  checks:
+    name: Conventions, build, typecheck and format
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+
+    steps:
+      - name: Check out
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # check-commits.sh walks base..HEAD.
+          fetch-depth: 0
+
+      - name: Set up Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          # Workers Builds reads .nvmrc too.
+          node-version-file: '.nvmrc'
+          cache: npm
+
+      # A pull request's commits are checked by `npm run check`, whose
+      # origin/main..HEAD is the pull request here. A push needs its own range.
+      # `before` is all zeros on a branch's first push, and absent from history
+      # after a force push; then only the pushed commit is checked.
+      - name: Verify pushed commit messages
+        if: ${{ github.event_name == 'push' }}
+        env:
+          BEFORE: ${{ github.event.before }}
+          # Only a maintainer merges into main, after the pull request's own check.
+          TRUST_DEPENDABOT: 1
+        run: |
+          if git cat-file -e "$BEFORE^{commit}" 2>/dev/null; then
+            sh scripts/check-commits.sh "$BEFORE..HEAD"
+          else
+            sh scripts/check-commits.sh 'HEAD^!'
+          fi
+
+      - name: Verify the pull request description
+        if: ${{ github.event_name == 'pull_request' }}
+        env:
+          # Via env, never `${{ }}` in the script: user text would be injected.
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: |
+          if printf '%s\n%s\n' "$PR_TITLE" "$PR_BODY" |
+            grep -qiE 'co-authored-by:.*(claude|anthropic)|generated with \[?claude code'
+          then
+            echo "::error::The pull request title or description carries AI attribution."
+            exit 1
+          fi
+          echo "Pull request description: no AI attribution."
+
+      # Not path-filtered: a workflow `paths:` would stop `Required checks`
+      # reporting, blocking merges. docs/MANUAL_TESTING.md §13 covers the rest.
+      - name: Validate every published PDF against PDF/UA-1
+        run: npm run check:pdf
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      # One script, so CI and a local run cannot list different checks. After
+      # the build: check:classes and check:untransformed read dist/.
+      - name: Conventions and formatting
+        run: npm run check
+        env:
+          # From GitHub's event, which a contributor cannot set, unlike an email.
+          TRUST_DEPENDABOT: ${{ github.event.pull_request.user.login == 'dependabot[bot]' && '1' || '' }}
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Read the pinned Playwright version
+        id: playwright
+        run: echo "version=$(node -p "require('./package.json').devDependencies['@playwright/test']")" >> "$GITHUB_OUTPUT"
+
+      # Own key: a Chromium-only entry under the shards' key would be restored
+      # there as a hit and never saved with Firefox and WebKit.
+      - name: Cache Chromium
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-chromium-${{ steps.playwright.outputs.version }}
+
+      # Chromium only, for the contact error pages; the rest is HTTP.
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      # Once here rather than in every shard. A test that passes only on retry
+      # fails the run: AGENTS.md has every flaky test fixed, not retried away.
+      - name: Contact endpoint tests
+        run: npm run test:worker -- --fail-on-flaky-tests
+
+  # `fullyParallel` splits shards by test count, not run time.
+  test:
+    name: Playwright (${{ matrix.shard }}/${{ strategy.job-total }})
+    # Not ubuntu-latest: WebKit needs ICU 74, which only 24.04 has.
+    runs-on: ubuntu-24.04
+    # Above the slowest shard's run time, so only a hung run hits it.
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4, 5, 6]
+
+    steps:
+      - name: Check out
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: '.nvmrc'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Read, not repeated: a range would key the cache to a stale version.
+      - name: Read the pinned Playwright version
+        id: playwright
+        run: |
+          version=$(node -p "require('./package.json').devDependencies['@playwright/test']")
+          if ! printf '%s' "$version" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "::error::@playwright/test is \"$version\" in package.json, not an exact version. The pin is deliberate; see playwright.config.ts."
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      # No restore-keys: `playwright install` prunes other versions' builds.
+      - name: Cache Playwright browsers
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ steps.playwright.outputs.version }}
+
+      # WebKit runs here; locally it needs `npm run test:webkit` (Docker).
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium firefox webkit
+
+      # No axe rule is excluded.
+      - name: Accessibility tests
+        run: npm run test:a11y -- --shard=${{ matrix.shard }}/${{ strategy.job-total }} --fail-on-flaky-tests
+
+      - name: Upload Playwright report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: playwright-report-${{ matrix.shard }}
+          path: playwright-report/
+          retention-days: 14
+          # The html reporter always writes one; its absence means the run broke.
+          if-no-files-found: error
+
+  required:
+    # `name` is the status context the `main` ruleset requires. Rename both
+    # together, or every pull request stops being mergeable.
+    name: Required checks
+    runs-on: ubuntu-24.04
+    needs: [checks, test]
+
+    # A skipped required check counts as passed; `always()` stops a red shard
+    # from skipping this job.
+    if: ${{ always() }}
+    timeout-minutes: 5
+
+    steps:
+      - name: Require every job above to have succeeded
+        env:
+          CHECKS: ${{ needs.checks.result }}
+          TESTS: ${{ needs.test.result }}
+        run: |
+          echo "checks: $CHECKS"
+          echo "tests:  $TESTS"
+          if [ "$CHECKS" != "success" ] || [ "$TESTS" != "success" ]; then
+            echo "::error::A required job did not succeed (checks=$CHECKS, tests=$TESTS)."
+            exit 1
+          fi

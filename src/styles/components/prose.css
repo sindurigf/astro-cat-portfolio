@@ -1,0 +1,148 @@
+@layer components {
+  /*
+   * Rendered Markdown. Restores the list markers and spacing preflight strips
+   * (no typography plugin). Headings keep the uppercase base style and its
+   * reflow limits (tests/reflow.spec.ts).
+   */
+  .prose > :first-child {
+    @apply mt-0;
+  }
+
+  .prose h2 {
+    @apply mt-16 text-h2 text-text;
+  }
+
+  .prose h3 {
+    @apply mt-12 text-h3 text-text;
+  }
+
+  .prose p {
+    @apply mt-6 text-body text-text;
+  }
+
+  .prose :is(ul, ol) {
+    @apply mt-6 pl-6 text-text;
+  }
+
+  .prose ul {
+    @apply list-disc;
+  }
+
+  .prose ol {
+    @apply list-decimal;
+  }
+
+  .prose li {
+    @apply mt-3;
+  }
+
+  .prose li::marker {
+    color: var(--color-gold);
+  }
+
+  /*
+   * Marked by src/plugins/link-list-item.mjs, as CSS cannot tell it from an
+   * inline link (SC 2.5.8, tests/target-size.spec.ts). `top` keeps the bullet
+   * on a wrapped link's first line: an inline-block's baseline is its last.
+   */
+  .prose li.link-item a {
+    display: inline-block;
+    min-height: var(--spacing-target);
+    vertical-align: top;
+  }
+
+  .prose strong {
+    @apply font-black text-text;
+  }
+
+  /*
+   * Fill, no border: a 4px border would outweigh the glyphs and grow the line
+   * box. `text` on `surface`, 13.51.
+   */
+  .prose code {
+    @apply bg-surface px-1 font-mono text-code text-text;
+  }
+
+  /*
+   * Scrolls, never wraps. src/plugins/code-block.mjs adds tabindex,
+   * `role="group"` and a label so keyboards can scroll it (SC 2.1.1); `region`
+   * would make every block a landmark.
+   */
+  .prose pre {
+    @apply mt-6 min-w-0 overflow-x-auto border-4 border-border bg-surface p-4
+      font-mono text-code text-text;
+  }
+
+  .prose pre code {
+    @apply bg-transparent p-0 text-code;
+  }
+
+  /*
+   * Blockquote, table and hr, which preflight leaves worse than unstyled.
+   * `mt-6` matches `.prose p`.
+   */
+  .prose blockquote {
+    @apply mt-6 border-l-8 border-gold pl-6;
+  }
+
+  /*
+   * 900 weight marks the quote where the border is lost (forced colours). Not
+   * italic: Lexend ships none, so it would be synthesised.
+   */
+  .prose blockquote p {
+    @apply font-black text-text;
+  }
+
+  .prose blockquote > :first-child {
+    @apply mt-0;
+  }
+
+  .prose hr {
+    @apply mt-16 border-0 border-t-8 border-border;
+  }
+
+  /* Built by src/plugins/post-figure.mjs. Caption is the credit, `subtle`. */
+  .prose figure {
+    @apply mt-8;
+  }
+
+  /*
+   * A ring, not a border: a border sits inside the box tests/image-size.spec.ts
+   * measures.
+   */
+  .prose figure :is(.aspect-frame, video) {
+    @apply block h-auto w-full ring-4 ring-border;
+  }
+
+  .prose figcaption {
+    @apply mt-4 text-label text-subtle;
+  }
+
+  /*
+   * `table-layout: fixed` keeps a table in the 273px box at 305px
+   * (tests/reflow.spec.ts). `hyphens: auto` works here because cell text is not
+   * uppercased.
+   */
+  .prose table {
+    @apply mt-6 w-full border-4 border-border text-body text-text;
+    border-collapse: collapse;
+    table-layout: fixed;
+    hyphens: auto;
+  }
+
+  /*
+   * `wrap-anywhere` for words with no hyphenation break, which would otherwise
+   * cross into the next cell under text spacing at 320px.
+   */
+  .prose :is(th, td) {
+    @apply border-4 border-border px-4 py-3 text-left align-top wrap-anywhere;
+  }
+
+  /*
+   * `surface` ground. Not uppercased: it would widen the narrowest columns on
+   * the page.
+   */
+  .prose th {
+    @apply bg-surface font-black text-text;
+  }
+}

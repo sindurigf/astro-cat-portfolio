@@ -1,0 +1,166 @@
+---
+import type { ImageMetadata } from 'astro';
+import { Picture } from 'astro:assets';
+import { PHOTO_FORMATS } from '../lib/photo-formats';
+import Roundel from './Roundel.astro';
+import { WIDTHS } from '../lib/image-densities';
+
+/*
+ * Tiers: docs/STYLEGUIDE.md "The slab tiers". Slotted content in a gold tier
+ * must use gold-surface controls and colours (tests/gold-surface.spec.ts).
+ */
+interface Props {
+  title: string;
+  /* Size only; the element stays h1. For data titles such as tags. */
+  titleSize?: 'h1' | 'h2';
+  slab?: 'full' | 'thin' | 'none';
+  /* Without an image, the roundel sits on the slab's bottom edge instead. */
+  image?: ImageMetadata;
+  imageAlt?: string;
+  /* `reading` picks the prose pages' title scale; layout is unchanged. */
+  measure?: 'page' | 'reading';
+  /* Read before the title by assistive technology only. */
+  hiddenPrefix?: string;
+  /* Plain tier only: stars across the slab, cleared behind every line of text. */
+  starfield?: boolean;
+}
+
+const {
+  title,
+  titleSize = 'h1',
+  slab = 'full',
+  image,
+  imageAlt = '',
+  measure = 'page',
+  hiddenPrefix,
+  starfield = false,
+} = Astro.props;
+
+const reading = measure === 'reading' && !image;
+const gold = slab !== 'none';
+
+const TITLE_CLASS = { h1: 'text-h1', h2: 'text-h2' } as const;
+const fullTitle =
+  reading && titleSize === 'h1' ? 'text-reading-h1' : TITLE_CLASS[titleSize];
+/* The plain tier keeps the full scale, or the first `text-h2` below outranks it. */
+const titleClass = slab === 'thin' ? 'text-post-title' : fullTitle;
+
+/*
+ * Fitted to measured drawn widths, 320 to 2560px. Arms turn where the
+ * `.gold-column` passes the rail (1396px) and its `vw` inset caps (1829px).
+ * tests/image-size.spec.ts fails on drift.
+ */
+const IMAGE_SIZES =
+  '(min-width: 1829px) calc(20.93vw + 174px), (min-width: 1396px) calc(17.9vw + 230px), (min-width: 83rem) 480px, (min-width: 64rem) calc(39vw - 37px), min(calc(100vw - 6rem), 24rem)';
+---
+
+{/*
+  From `lg`, a gold slab without a photo puts title and slot side by side.
+  The plain tier always stacks: beside the title a standfirst outweighs it.
+*/}
+{!gold && (
+  <section class="page-hero page-hero-plain band relative isolate pt-head pb-section">
+    {Astro.slots.has('eyebrow') && (
+      <div
+        class:list={['mx-auto mb-8', reading ? 'max-w-measure' : 'max-w-page']}
+      >
+        <slot name="eyebrow" />
+      </div>
+    )}
+    <div class="plain-slab gold-column relative bg-surface">
+      {starfield && (
+        <span aria-hidden="true" class="plain-slab-stars starfield" />
+      )}
+      <div class:list={['max-w-page', starfield && 'relative']}>
+        <slot name="kicker" />
+        <h1 class:list={[titleClass, 'text-text']}>
+          {hiddenPrefix && <span class="sr-only">{hiddenPrefix} </span>}
+          <span class:list={[starfield && 'star-clear']}>{title}</span>
+        </h1>
+      </div>
+      <div class="hero-roundel">
+        <Roundel eager variant="hero" />
+      </div>
+    </div>
+    <div
+      class:list={[
+        'hero-intro mx-auto',
+        reading ? 'max-w-measure' : 'max-w-page',
+      ]}
+    >
+      <slot />
+    </div>
+  </section>
+)}
+
+{gold && (
+  <section
+    class:list={[
+      'page-hero band relative isolate',
+      'surface-gold gold-column',
+      image && 'page-hero-photo',
+      slab === 'full' && 'py-section',
+      slab === 'thin' && 'page-hero-thin',
+    ]}
+  >
+    <div
+      class:list={[
+        'relative mx-auto',
+        'max-w-page lg:grid lg:grid-cols-12 lg:items-start',
+      ]}
+    >
+      {/* `.hero-head` is `display: contents` from `lg`; safe on a role-less div. */}
+      <div class:list={[image ? 'lg:col-span-6 lg:self-center' : 'hero-head']}>
+        {Astro.slots.has('eyebrow') && (
+          <div class:list={[!image && 'lg:col-span-12 lg:row-start-1']}>
+            <slot name="eyebrow" />
+          </div>
+        )}
+        <h1
+          class:list={[
+            titleClass,
+            'text-gold-text',
+            !image && 'lg:col-span-6 lg:col-start-1 lg:row-start-2',
+          ]}
+        >
+          {title}
+        </h1>
+        <div
+          class:list={[
+            !image && 'hero-aside lg:col-span-6 lg:col-start-7 lg:row-start-2',
+          ]}
+        >
+          <slot />
+        </div>
+      </div>
+
+      {image && (
+        <figure class="hero-photo mt-12 max-w-sm lg:col-span-5 lg:col-start-8 lg:mt-0 lg:max-w-none lg:self-end">
+          <div class="aspect-frame aspect-portrait border-4 border-gold-text shadow-hard-pink-8">
+            <Picture
+              {...PHOTO_FORMATS}
+              src={image}
+              alt={imageAlt}
+              widths={WIDTHS}
+              sizes={IMAGE_SIZES}
+              priority
+              class="text-body text-text"
+            />
+          </div>
+          {Astro.slots.has('credit') && (
+            <figcaption class="mt-4 text-body">
+              <slot name="credit" />
+            </figcaption>
+          )}
+        </figure>
+      )}
+    </div>
+
+    {/* A child of the section, so it sits on the slab's bottom edge. */}
+    {!image && (
+      <div class="hero-roundel">
+        <Roundel eager variant="hero" />
+      </div>
+    )}
+  </section>
+)}

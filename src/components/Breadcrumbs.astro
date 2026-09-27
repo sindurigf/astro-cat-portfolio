@@ -1,0 +1,36 @@
+---
+import type { Crumb } from '../lib/breadcrumbs';
+
+/*
+ * Separators are aria-hidden spans: CSS generated-content alt text is not
+ * honoured in every engine. `py-2 -my-2` meets SC 2.5.8 (24px) without moving
+ * the layout; `gap-y-4` keeps wrapped rows' 32.8px link boxes from overlapping.
+ */
+interface Props {
+  crumbs: readonly Crumb[];
+  /* `gold` on a gold slab: `gold-muted`, since `subtle` fails SC 1.4.3 there. */
+  tone?: 'page' | 'gold';
+}
+
+const { crumbs, tone = 'page' } = Astro.props;
+
+const TONE_CLASS = { page: 'text-subtle', gold: 'text-gold-muted' } as const;
+---
+
+<nav aria-label="Breadcrumb" class="mb-6">
+  <ol
+    class:list={[
+      'label flex flex-wrap items-center gap-x-2 gap-y-4',
+      TONE_CLASS[tone],
+    ]}
+  >
+    {crumbs.map((crumb, index) => (
+      <li class="flex items-center gap-x-2">
+        {index > 0 && <span aria-hidden="true">/</span>}
+        <a href={crumb.href} class="link -my-2 inline-block py-2">
+          {crumb.label}
+        </a>
+      </li>
+    ))}
+  </ol>
+</nav>

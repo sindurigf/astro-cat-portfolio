@@ -1,0 +1,8 @@
+# Prettier also reads .gitignore, so build output, dependencies and worktrees
+# are not repeated here.
+
+# lockfile
+package-lock.json
+
+# binary assets
+public/

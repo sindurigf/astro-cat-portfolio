@@ -1,0 +1,178 @@
+---
+import { Image } from 'astro:assets';
+import markDark from '../assets/mark-dark.png';
+import {
+  CTA,
+  HEADER_LINKS,
+  HOME_HREF,
+  NAV_LINKS,
+  ariaCurrent,
+} from '../lib/nav';
+import { DENSITIES } from '../lib/image-densities';
+import { SITE_NAME } from '../lib/site';
+import NavList from './NavList.astro';
+import ThemeSwitch from './ThemeSwitch.astro';
+
+/* Drawn height, `h-6` in px; tests/image-size.spec.ts fails if they drift. */
+const MARK_HEIGHT = 24;
+
+/* A line break is allowed after the first dot, as in `example.<wbr>com`. */
+const dot = SITE_NAME.indexOf('.');
+const [wordmarkHead, wordmarkTail] =
+  dot === -1
+    ? [SITE_NAME, undefined]
+    : [SITE_NAME.slice(0, dot + 1), SITE_NAME.slice(dot + 1)];
+
+const currentPath = Astro.url.pathname;
+
+const current = (href: string) => ariaCurrent(currentPath, href);
+
+const LINK_ACTIVE = 'border-border bg-text text-background';
+const LINK_REST = 'border-transparent text-text hover:text-cyan';
+---
+
+{/* Gutter on <header>, not the column, so its content box matches <main> and the footer. */}
+<header class="page-gutter sticky top-0 z-50 h-header border-b-8 border-border bg-background short:static">
+  {/* Grid from `lg`, not `md`: between 768 and 1023px the row barely fits and centring wastes slack. */}
+  <div class="mx-auto flex h-full max-w-page items-center justify-between lg:grid lg:grid-cols-header">
+    {/*
+      The desktop nav has no Home item, so this link carries aria-current on `/`.
+      aria-label repeats the wordmark exactly (SC 2.5.3): the <wbr> below makes
+      Chromium compute "example. com". `justify-self-start` stops it stretching.
+    */}
+    <a
+      href={HOME_HREF}
+      aria-label={SITE_NAME}
+      aria-current={current(HOME_HREF)}
+      class="logo-link lift-object flex min-w-0 items-center gap-4 max-xs:gap-2 lg:justify-self-start"
+    >
+      <span class="logo-tile flex h-12 w-12 rotate-3 items-center justify-center rounded-nav border-4 border-tile-edge bg-gold shadow-hard-mark-8">
+        <Image
+          src={markDark}
+          alt=""
+          height={MARK_HEIGHT}
+          densities={DENSITIES}
+          loading="eager"
+          class="h-6 w-auto"
+        />
+      </span>
+      {/*
+        Untracked below xs so it fits at 305px; under SC 1.4.12 spacing it
+        breaks after the dot instead of pushing the row off screen.
+      */}
+      {/* prettier-ignore */}
+      <span class="label min-w-0 text-text max-xs:tracking-normal">{wordmarkHead}{wordmarkTail !== undefined && <Fragment><wbr />{wordmarkTail}</Fragment>}</span>
+    </a>
+
+    {/*
+      `py-2` is for SC 2.5.8: 16.8px line box to 40.8px with border-4.
+      `border-transparent` reserves the current-page box so the row never shifts.
+    */}
+    <nav class="hidden md:block lg:justify-self-center" aria-label="Primary">
+      {/* The md-to-lg trims (gap, px) let the row fit; tests/header-fit.spec.ts fails if it overlaps or scrolls. */}
+      <NavList
+        links={HEADER_LINKS}
+        class="flex items-center gap-1 lg:gap-3"
+        linkClass="label block border-4 px-2 py-2 lg:px-4"
+        activeClass={LINK_ACTIVE}
+        restClass={LINK_REST}
+      />
+    </nav>
+
+    {/*
+      The CTA is outside the Primary nav so the nav stays centred; `ml-auto`
+      inside the list would push the links off-centre by half its width.
+    */}
+    <div class="flex items-center gap-4 lg:justify-self-end">
+      <ThemeSwitch />
+      <div class="hidden md:block">
+        <a
+          href={CTA.href}
+          aria-current={current(CTA.href)}
+          class="nav-cta block whitespace-nowrap px-4 py-3 lg:px-6"
+        >
+          {CTA.label}
+        </a>
+      </div>
+
+      {/*
+      The script loads at every width: 400% zoom crosses `md` (SC 1.4.10). The
+      name stays "Menu"; aria-expanded carries the state and drives the icon.
+    */}
+      <div class="mobile-menu md:hidden" data-mobile-menu>
+        <button
+          type="button"
+          class="group flex size-12 items-center justify-center border-4 border-border bg-surface max-xs:size-10"
+          aria-expanded="false"
+          aria-controls="mobile-menu-panel"
+          aria-label="Menu"
+          data-menu-trigger
+        >
+          <span aria-hidden="true" class="relative block h-4 w-6">
+            <span class="absolute left-0 top-0 block h-menu-bar w-6 bg-gold group-aria-expanded:top-menu-bar-mid group-aria-expanded:rotate-45" />
+            <span class="absolute left-0 top-menu-bar-mid block h-menu-bar w-6 bg-gold opacity-100 group-aria-expanded:opacity-0" />
+            <span class="absolute left-0 top-menu-bar-end block h-menu-bar w-6 bg-gold group-aria-expanded:top-menu-bar-mid group-aria-expanded:-rotate-45" />
+          </span>
+        </button>
+
+        {/* aria-label, not an sr-only h2, which would precede the page h1. */}
+        <dialog
+          id="mobile-menu-panel"
+          class="mobile-menu-dialog"
+          aria-label="Menu"
+        >
+          <div class="mobile-menu-content">
+            {/* Unnamed: "Primary" would duplicate the header nav's landmark name (SC 1.3.1). */}
+            <nav>
+              <NavList
+                links={NAV_LINKS}
+                class="flex flex-col gap-8"
+                linkClass="block border-4 px-4 py-2 font-black uppercase tracking-title"
+                activeClass={LINK_ACTIVE}
+                restClass={LINK_REST}
+              />
+
+              <a
+                href={CTA.href}
+                aria-current={current(CTA.href)}
+                class="nav-cta mt-12 block px-8 py-4 text-center"
+              >
+                {CTA.label}
+              </a>
+            </nav>
+
+            <button
+              type="button"
+              class="btn-secondary mt-12 w-full"
+              data-menu-close
+            >
+              Close
+            </button>
+          </div>
+        </dialog>
+      </div>
+    </div>
+  </div>
+</header>
+
+{/*
+  No-JavaScript nav, shown by `@media (scripting: none)`, not <noscript>
+  (a WAVE alert). Outside <header>: inside, wrapped links overflow the fixed
+  --spacing-header. `md:hidden` avoids two "Primary" navs (tests/no-script.spec.ts).
+*/}
+<nav
+  class="noscript-nav page-gutter border-b-4 border-border bg-background py-4 md:hidden"
+  aria-label="Primary"
+>
+  <NavList
+    links={[...NAV_LINKS, CTA]}
+    class="mx-auto flex max-w-page flex-wrap items-center gap-6"
+    linkClass="label block border-4 border-border px-4 py-2"
+    activeClass="bg-text text-background"
+    restClass="text-text hover:text-cyan"
+  />
+</nav>
+
+<script>
+  import '../scripts/mobile-menu';
+</script>

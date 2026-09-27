@@ -1,0 +1,170 @@
+---
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import { formatPostDate, isoDateTime } from '../../lib/post-date';
+import { isoDate } from '../../lib/time';
+import Roundel from '../../components/Roundel.astro';
+import { postTrail } from '../../lib/breadcrumbs';
+import { markdownSourcePath, tagHref } from '../../lib/paths';
+import { coverOgImage } from '../../lib/og-image';
+import type { GetStaticPaths, InferGetStaticPropsType } from 'astro';
+import { getCollection, render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { tagLabel } from '../../lib/blog';
+
+export const getStaticPaths = (async () => {
+  const posts = await getCollection('blog');
+
+  return posts.map((post) => ({
+    params: { slug: post.id },
+    props: { post },
+  }));
+}) satisfies GetStaticPaths;
+
+type Props = InferGetStaticPropsType<typeof getStaticPaths>;
+
+const { post } = Astro.props;
+const { Content, headings } = await render(post);
+
+const {
+  title,
+  date,
+  category,
+  tags,
+  teaser,
+  cover,
+  coverAlt,
+  coverCardAlt,
+  readingTime,
+  placeholder,
+  updated,
+} = post.data;
+
+const CONTENTS_DEPTH = 2;
+const contents = headings.filter((heading) => heading.depth === CONTENTS_DEPTH);
+
+const formattedDate = formatPostDate(date);
+
+/* The schema requires coverAlt whenever there is a cover. */
+const ogImage =
+  cover && coverAlt
+    ? await coverOgImage(cover, coverCardAlt ?? coverAlt)
+    : undefined;
+const machineDate = isoDate(date);
+const trail = postTrail(category, title);
+
+/* Placeholders get no BlogPosting, plus noindex and no sitemap entry (src/lib/sitemap-filter.ts). */
+const article = placeholder
+  ? undefined
+  : {
+      headline: title,
+      datePublished: isoDateTime(date),
+      ...(updated ? { dateModified: isoDateTime(updated) } : {}),
+      keywords: tags.map(tagLabel),
+    };
+---
+
+<BaseLayout
+  title={post.data.seoTitle ?? title}
+  description={post.data.seoDescription ?? teaser}
+  ogImage={ogImage}
+  article={article}
+  trail={trail}
+  markdownSource={placeholder ? undefined : markdownSourcePath(post.id)}
+  noindex={placeholder}
+>
+  {/*
+    Not a PageHero: the title uses the article scale `--text-post-title`, and
+    tests/page-hero.spec.ts excludes posts. The crumbs use tone="gold" because
+    `text-gold` fails SC 1.4.3 on this ground.
+  */}
+  <article>
+    <section class="post-slab band surface-gold gold-column relative isolate">
+      <header class="mx-auto max-w-page lg:grid lg:grid-cols-12 lg:items-start">
+        <div class="lg:col-span-12 lg:row-start-1">
+          <Breadcrumbs crumbs={trail.crumbs} tone="gold" />
+        </div>
+        <h1 class="text-post-title post-title text-gold-text lg:col-span-6 lg:col-start-1 lg:row-start-2">
+          {title}
+        </h1>
+        <div class="post-slab-aside lg:col-span-6 lg:col-start-7 lg:row-start-2">
+          <p class="text-post-teaser font-normal text-pretty">{teaser}</p>
+          <p class="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-label text-gold-muted">
+            <time datetime={machineDate}>{formattedDate}</time>
+            {readingTime ? <span>{readingTime} min read</span> : null}
+          </p>
+        </div>
+      </header>
+
+      {/* The disc hangs 48 to 64px below the slab; less than --spacing-section below it overlaps the contents on a phone. */}
+      <div class="hero-roundel">
+        <Roundel eager variant="hero" />
+      </div>
+    </section>
+
+    <div class="band py-section">
+      <div class="post-layout mx-auto max-w-page">
+        {contents.length > 0 ? (
+          <nav aria-labelledby="post-contents" class="post-contents">
+            {/*
+            Opened from `xl` by src/scripts/post-contents.ts. The summary is
+            not a heading: it names the landmark, and an h2 here would precede
+            the article's first section in the outline.
+          */}
+            <details data-post-contents>
+              <summary id="post-contents" class="post-contents-summary">
+                <span>In this post</span>
+                <span class="post-contents-marker" aria-hidden="true" />
+              </summary>
+              <ol>
+                {contents.map((heading) => (
+                  <li>
+                    <a
+                      href={`#${heading.slug}`}
+                      class="block px-card-tight py-3 text-contents font-normal text-text"
+                    >
+                      {heading.text}
+                    </a>
+                  </li>
+                ))}
+              </ol>
+            </details>
+          </nav>
+        ) : null}
+
+        <div class="prose">
+          <Content />
+        </div>
+
+        {tags.length > 0 ? (
+          <nav
+            aria-labelledby="post-tags"
+            class="border-t-4 border-border pt-8"
+          >
+            <span id="post-tags" class="label block text-subtle">
+              Tags
+            </span>
+            <ul class="mt-4 flex flex-wrap gap-6">
+              {tags.map((tag, index) => (
+                <li>
+                  <a
+                    href={tagHref(tag)}
+                    class:list={[
+                      'chip chip-sticker',
+                      index % 2 ? 'rotate-3' : '-rotate-3',
+                    ]}
+                  >
+                    {tagLabel(tag)}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        ) : null}
+      </div>
+    </div>
+  </article>
+</BaseLayout>
+
+<script>
+  import '../../scripts/post-contents';
+</script>

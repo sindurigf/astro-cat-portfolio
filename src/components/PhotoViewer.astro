@@ -1,0 +1,50 @@
+---
+/*
+ * One per page, driven by src/scripts/photo-viewer.ts; without JavaScript a
+ * tile's link opens the file. Count and caption are polite live regions, set
+ * only after the photo decodes, so nothing is announced before it is on screen.
+ */
+---
+
+<dialog id="photo-viewer" class="photo-viewer" aria-label="Photo">
+  <div class="photo-viewer-frame">
+    <div class="flex items-center justify-between gap-4">
+      <p class="label text-subtle" data-viewer-count aria-live="polite"></p>
+      <button type="button" class="btn-secondary" data-viewer-close>
+        Close
+      </button>
+    </div>
+
+    {/*
+      The script adds the <img> on first open; an empty one cannot decode.
+      The message is aria-hidden because the count already announces it.
+    */}
+    <figure class="photo-viewer-figure" data-viewer-figure>
+      <p
+        class="photo-viewer-message"
+        data-viewer-message
+        aria-hidden="true"
+      ></p>
+    </figure>
+
+    <div>
+      <p
+        class="mx-auto max-w-prose text-center text-body text-text text-pretty"
+        data-viewer-caption
+        aria-live="polite"
+      ></p>
+      <div class="actions mt-6 justify-center" data-viewer-steps>
+        <button type="button" class="btn-secondary" data-viewer-step="-1">
+          Previous
+        </button>
+        <button type="button" class="btn-secondary" data-viewer-step="1">
+          Next
+        </button>
+      </div>
+    </div>
+  </div>
+</dialog>
+
+<script>
+  import '../scripts/photo-viewer';
+</script>

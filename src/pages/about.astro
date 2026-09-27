@@ -1,0 +1,430 @@
+---
+import { getImage, Image, Picture } from 'astro:assets';
+import { PHOTO_FORMATS } from '../lib/photo-formats';
+import markDark from '../assets/mark-dark.png';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import CloseRow from '../components/CloseRow.astro';
+import PageHero from '../components/PageHero.astro';
+import PhotoTile from '../components/PhotoTile.astro';
+import PhotoViewer from '../components/PhotoViewer.astro';
+import Section from '../components/Section.astro';
+import AboutCats from '../components/ui/AboutCats.vue';
+import type { CatInfo } from '../lib/about-cats';
+import { THANKS } from '../lib/credits';
+import hero from '../assets/photos/calico-cushion.jpg';
+import panorama from '../assets/photos/calico-pillow.jpg';
+import halfBlack from '../assets/photos/black-cat-bed.jpg';
+import halfTabby from '../assets/photos/tabby-blanket.jpg';
+import stripPortrait from '../assets/photos/tabby-duvet-portrait.jpg';
+import stripPair from '../assets/photos/two-cats-blanket.jpg';
+import stripBed from '../assets/photos/tabby-round-bed.jpg';
+import stripDuvet from '../assets/photos/calico-floral-duvet.jpg';
+import food from '../assets/photos/calico-fabric-bed.jpg';
+import videoStill from '../assets/photos/tabby-parquet.jpg';
+import profilePortrait from '../assets/photos/tabby-duvet.jpg';
+import catCardTabby from '../assets/photos/cat-card-tabby.jpg';
+import catCardCalico from '../assets/photos/cat-card-calico.jpg';
+import catCardBlack from '../assets/photos/cat-card-black.jpg';
+import { photographerHref, type Photographer } from '../lib/credits';
+import { DENSITIES, WIDTHS } from '../lib/image-densities';
+import { JOURNEY_POST_HREF } from '../lib/paths';
+import { SITE_NAME } from '../lib/site';
+
+/* Jump links repeat the headings verbatim. */
+
+/*
+ * Drawn widths net of gutter and padding. The `lg` terms omit the fluid column
+ * gap, so they overstate by at most half a gap. tests/image-size.spec.ts fails on drift.
+ */
+const SIZES = {
+  panorama:
+    '(min-width: 40rem) min(calc(100vw - 9rem), 74rem), calc(100vw - 6rem)',
+  food: '(min-width: 64rem) min(calc(50vw - 120px), 34rem), (min-width: 40rem) calc(100vw - 9rem), calc(100vw - 6rem)',
+  half: '(min-width: 40rem) min(calc(50vw - 6rem), 35.5rem), calc(100vw - 7rem)',
+  /* A half with no gap beside it. */
+  single:
+    '(min-width: 40rem) min(calc(50vw - 5.5rem), 36rem), calc(100vw - 7rem)',
+} as const;
+
+/* Matches `lg:h-16`. */
+const MARK_HEIGHT = 64;
+
+const PHOTOGRAPHER: Photographer = 'Alex Example';
+
+const SECTIONS = [
+  { id: 'motto', title: 'Why Lorem Ipsum' },
+  { id: 'believe', title: 'Dolor sit amet' },
+  { id: 'people', title: 'Consectetur elit' },
+  { id: 'important-things', title: 'Sed do eiusmod' },
+  { id: 'journey', title: 'Tempor to incididunt' },
+] as const;
+
+/* On the `.aspect-frame`, so the border stays when a failed photo fades out. */
+const PHOTO = 'border-4 border-border';
+
+/* Uncaptioned; the alt text says what is in each. */
+const PLACES = [
+  {
+    src: stripPortrait,
+    alt: 'A tabby cat lying on a white duvet, looking at the camera.',
+  },
+  {
+    src: stripPair,
+    alt: 'A calico cat and a black cat lying side by side on a checked blanket.',
+  },
+  {
+    src: stripBed,
+    alt: 'A tabby cat curled in a round cat bed beside an orange plush toy.',
+  },
+  {
+    src: stripDuvet,
+    alt: 'A calico cat asleep on a floral duvet.',
+  },
+] as const;
+
+const CATS = [
+  {
+    id: 'pepper',
+    src: catCardTabby,
+    name: 'Pepper',
+    role: 'Lorem ipsum dolor.',
+    alt: 'Pepper, a tabby cat, asleep with its face pressed into a blue blanket.',
+  },
+  {
+    id: 'mochi',
+    src: catCardCalico,
+    name: 'Mochi',
+    role: 'Sit amet.',
+    alt: 'Mochi, a calico cat, lying on a paisley pillow, mouth open.',
+  },
+  {
+    id: 'biscuit',
+    src: catCardBlack,
+    name: 'Biscuit',
+    role: 'Consectetur adipiscing elit.',
+    alt: 'Biscuit, a black cat, lying on its back in a round cat bed, eyes wide.',
+  },
+] as const;
+
+/* Match `.cat-dialog-body`: w-48 on phones, w-72 from md (48rem). */
+const CAT_PHOTO_WIDTHS = [192, 288, 384, 576];
+const CAT_PHOTO_SIZES = '(min-width: 48rem) 288px, 192px';
+
+/* Thanked in each cat's card for the idea; the link comes from the Credits list. */
+const catInspiration = THANKS.find((person) => person.name === 'Robin Example');
+if (!catInspiration) throw new Error('No THANKS entry for "Robin Example".');
+
+const catInfo: CatInfo[] = await Promise.all(
+  CATS.map(async (cat) => {
+    const photo = await getImage({
+      src: cat.src,
+      widths: CAT_PHOTO_WIDTHS,
+      sizes: CAT_PHOTO_SIZES,
+      format: 'webp',
+    });
+    return {
+      id: cat.id,
+      name: cat.name,
+      role: cat.role,
+      photo: {
+        src: photo.src,
+        srcset: photo.srcSet.attribute,
+        sizes: CAT_PHOTO_SIZES,
+        width: Number(photo.attributes['width']),
+        height: Number(photo.attributes['height']),
+        alt: cat.alt,
+      },
+    };
+  }),
+);
+---
+
+<BaseLayout
+  title="About"
+  description="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+  profile={{ portrait: profilePortrait }}
+>
+  <PageHero
+    title="About me"
+    image={hero}
+    imageAlt="A calico cat asleep, curled against a grey cushion."
+  >
+    <p class="standfirst">
+      Lorem ipsum dolor sit amet, consectetur adipiscing elit, and a very
+      serious sed do eiusmod fan.
+    </p>
+
+    <nav aria-label="On this page" class="mt-8">
+      <ul class="flex flex-wrap gap-6">
+        {SECTIONS.map((section) => (
+          <li>
+            <a href={`#${section.id}`} class="chip">
+              {section.id === 'motto' ? (
+                <>
+                  Why <span lang="la">Lorem Ipsum</span>
+                </>
+              ) : (
+                section.title
+              )}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  </PageHero>
+
+  <Section id={SECTIONS[0].id} headless>
+    <div class="flex flex-wrap items-center gap-6 lg:gap-8">
+      <span class="flex size-20 shrink-0 rotate-3 items-center justify-center rounded-nav border-4 border-tile-edge bg-gold shadow-hard-mark-8 lg:size-28 lg:shadow-hard-mark-12">
+        <Image
+          src={markDark}
+          alt=""
+          height={MARK_HEIGHT}
+          densities={DENSITIES}
+          class="h-11 w-auto lg:h-16"
+        />
+      </span>
+      <div class="min-w-0">
+        <h2 id="motto-heading" class="text-h2 text-text">
+          {/* &nbsp;: an ordinary space beside `.sr-only` collapses and Chromium copies "WHYLOREM IPSUM". */}
+          <span class="sr-only">Why&nbsp;</span>
+          <span lang="la">Lorem Ipsum</span>
+        </h2>
+        <p class="mt-3 text-body text-text text-pretty">
+          Latin for &ldquo;dolor sit amet&rdquo;
+        </p>
+      </div>
+    </div>
+
+    <div class="cat-perch mt-head">
+      <div class="cat-spot" id="cat-spot-pepper"></div>
+      <div class="card">
+        <p class="text-h3 font-black text-text text-pretty">
+          Lorem ipsum dolor sit amet. Consectetur adipiscing elit sed do eiusmod
+          tempor.
+        </p>
+        <p class="mt-4 max-w-prose text-body text-text text-pretty">
+          Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.
+        </p>
+        <p class="mt-8">
+          <a href="/credits/#name" class="chip">
+            Where the name {SITE_NAME} comes from
+          </a>
+        </p>
+      </div>
+    </div>
+  </Section>
+
+  <Section id={SECTIONS[1].id} title={SECTIONS[1].title}>
+    <div class="card-block grid">
+      <div class="card">
+        <div class="aspect-frame aspect-video lg:aspect-2/1">
+          <Picture
+            {...PHOTO_FORMATS}
+            src={panorama}
+            alt="A calico cat lying on a paisley pillow, mouth open."
+            widths={WIDTHS}
+            sizes={SIZES.panorama}
+          />
+        </div>
+      </div>
+      <blockquote class="card surface-gold">
+        <p class="max-w-3xl text-h2 font-black text-pretty">
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+        </p>
+      </blockquote>
+    </div>
+  </Section>
+
+  <Section
+    id={SECTIONS[2].id}
+    title={SECTIONS[2].title}
+    lead="Lorem ipsum dolor sit amet in 2017. Consectetur adipiscing elit, sed do eiusmod, and tempor incididunt ut labore et dolore magna aliqua."
+  >
+    <div class="cat-perch">
+      <div class="cat-spot" id="cat-spot-mochi"></div>
+      <div class="card">
+        <div class="grid gap-4 sm:grid-cols-2">
+          <PhotoTile
+            image={halfBlack}
+            alt="A black cat lying on its back in a round cat bed, eyes wide."
+            group="people"
+            sizes={SIZES.half}
+          />
+          <PhotoTile
+            image={halfTabby}
+            alt="A tabby cat asleep with its chin on a blue blanket."
+            group="people"
+            sizes={SIZES.half}
+          />
+        </div>
+
+        <div class="mb-4 mt-8 flex items-center justify-between gap-4">
+          <span class="label block text-subtle">More photos</span>
+          {/* Unhidden by src/scripts/photo-viewer.ts. */}
+          <div class="flex gap-3">
+            <button
+              type="button"
+              class="strip-button"
+              aria-controls="people-photos"
+              aria-label="Scroll photos left"
+              data-strip-scroll="-1"
+              hidden
+            >
+              <span aria-hidden="true">&larr;</span>
+            </button>
+            <button
+              type="button"
+              class="strip-button"
+              aria-controls="people-photos"
+              aria-label="Scroll photos right"
+              data-strip-scroll="1"
+              hidden
+            >
+              <span aria-hidden="true">&rarr;</span>
+            </button>
+          </div>
+        </div>
+        {/* accesslint focus-order flags tabindex="0" here: false positive, a keyboard can only scroll a focusable region. */}
+        <ul
+          id="people-photos"
+          class="photo-strip"
+          tabindex="0"
+          aria-label="More photos, scrolls sideways"
+        >
+          {PLACES.map((place) => (
+            <li>
+              <PhotoTile
+                image={place.src}
+                alt={place.alt}
+                group="people"
+                size="natural"
+              />
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  </Section>
+
+  <Section id={SECTIONS[3].id} title={SECTIONS[3].title}>
+    {/* A <dl>, so short bold values are not paragraphs WAVE reads as headings. */}
+    <div class="cat-perch">
+      <div class="cat-spot" id="cat-spot-biscuit"></div>
+      <div class="card-block flex flex-col lg:flex-row">
+        <dl class="card min-w-0 divide-y-4 divide-border lg:flex-1">
+          <div class="pb-6">
+            <dt class="label text-gold">Lorem ipsum</dt>
+            <dd class="mt-4">
+              <span class="card-title block">Dolor sit amet</span>
+              <span class="mt-2 block text-body text-text">
+                Consectetur adipiscing elit, sed do
+              </span>
+            </dd>
+          </div>
+          <div class="py-6">
+            <dt class="label text-gold">Tempor</dt>
+            <dd class="card-title mt-4 text-pretty">
+              Incididunt, ut labore, et dolore
+            </dd>
+          </div>
+          <div class="py-6">
+            <dt class="label text-gold">Magna</dt>
+            <dd class="card-title mt-4">Aliqua ut enim</dd>
+          </div>
+          <div class="pt-6">
+            <dt class="label text-gold">Minim</dt>
+            <dd class="mt-4">
+              <span class="card-title block">Veniam quis</span>
+              <span class="mt-2 block text-body text-text">
+                Nostrud exercitation ullamco
+              </span>
+            </dd>
+          </div>
+        </dl>
+        <div class="card card-raised lg:flex lg:w-1/2 lg:shrink-0 lg:flex-col lg:justify-center">
+          <div class:list={['aspect-frame aspect-square', PHOTO]}>
+            <Picture
+              {...PHOTO_FORMATS}
+              src={food}
+              alt="A calico cat lying in a fabric cat bed, looking at the camera."
+              widths={WIDTHS}
+              sizes={SIZES.food}
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p class="mt-grid text-body text-subtle">
+      The moving cats are drawn with AI.
+    </p>
+  </Section>
+
+  <Section id={SECTIONS[4].id} title={SECTIONS[4].title}>
+    <p slot="lead" class="lead">
+      Lorem ipsum dolor sit amet{' '}
+      <a href={photographerHref(PHOTOGRAPHER)}>{PHOTOGRAPHER}</a>, consectetur
+      adipiscing elit.
+    </p>
+
+    <div class="card">
+      <div class="flex flex-col gap-8 sm:flex-row">
+        <div class="min-w-0 sm:flex-1">
+          <span class="label block text-gold">Before</span>
+          <p class="mt-3 text-body text-text text-pretty">
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+            eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
+            ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+            aliquip ex ea commodo consequat. Duis aute irure dolor in
+            reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
+            pariatur, excepteur sint occaecat cupidatat.
+          </p>
+        </div>
+        <div class="min-w-0 sm:flex-1">
+          <span class="label block text-gold">After</span>
+          <p class="mt-3 text-body text-text text-pretty">
+            Sed ut perspiciatis unde omnis iste natus error sit voluptatem
+            accusantium doloremque laudantium, totam rem aperiam. Eaque ipsa
+            quae ab illo inventore veritatis et quasi architecto beatae vitae
+            dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit
+            aspernatur aut odit aut fugit, sed quia consequuntur magni dolores
+            in 2025.
+          </p>
+        </div>
+      </div>
+
+      <div class="mt-8">
+        <div class="min-w-0 sm:w-1/2">
+          <PhotoTile
+            image={videoStill}
+            alt="A tabby cat lying on its back on a parquet floor, a wand toy by its paw."
+            group="journey"
+            sizes={SIZES.single}
+            aspect="video"
+          >
+            <span class="block font-black text-text">Lorem ipsum dolor</span>
+            Photo: <a href={photographerHref(PHOTOGRAPHER)}>{PHOTOGRAPHER}</a>
+          </PhotoTile>
+        </div>
+      </div>
+    </div>
+  </Section>
+
+  <CloseRow
+    readHref={JOURNEY_POST_HREF}
+    readLabel="Sample post"
+    actionHref="/career/"
+    actionLabel="Career and CV"
+  />
+
+  <PhotoViewer />
+  <AboutCats
+    client:load
+    cats={catInfo}
+    inspiration={{
+      name: catInspiration.name.split(' ')[0] ?? catInspiration.name,
+      href: catInspiration.href,
+    }}
+  />
+</BaseLayout>

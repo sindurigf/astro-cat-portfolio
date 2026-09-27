@@ -1,0 +1,39 @@
+---
+import { ariaCurrent, isActive, type NavLink } from '../lib/nav';
+
+interface Props {
+  links: readonly NavLink[];
+  class: string;
+  linkClass: string;
+  /** Added to the current page's or section's link; `restClass` to the others. */
+  activeClass: string;
+  restClass: string;
+}
+
+const {
+  links,
+  class: listClass,
+  linkClass,
+  activeClass,
+  restClass,
+} = Astro.props;
+
+const currentPath = Astro.url.pathname;
+---
+
+<ul class={listClass}>
+  {links.map((link) => (
+    <li>
+      <a
+        href={link.href}
+        aria-current={ariaCurrent(currentPath, link.href)}
+        class:list={[
+          linkClass,
+          isActive(currentPath, link.href) ? activeClass : restClass,
+        ]}
+      >
+        {link.label}
+      </a>
+    </li>
+  ))}
+</ul>

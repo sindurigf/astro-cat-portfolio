@@ -1,0 +1,197 @@
+---
+import { CONTACT_EMAIL, CONTACT_MAILTO } from '../lib/contact';
+import {
+  FIELDS,
+  LIMITS,
+  type ContactSubmission,
+  type FieldError,
+  type FieldName,
+} from '../lib/contact-form';
+import { CONTACT_SEND_PATH } from '../lib/paths';
+
+interface Props {
+  errors?: FieldError[];
+  values?: Partial<ContactSubmission>;
+  summaryHeading?: 'h2' | 'h3';
+  /* Valid but not stored: rate-limited, or the database write failed. */
+  notSent?: 'limited' | 'failed';
+}
+
+const {
+  errors = [],
+  values = {},
+  summaryHeading = 'h3',
+  notSent,
+} = Astro.props;
+const SummaryHeading = summaryHeading;
+
+const errorFor = (field: FieldName): string | undefined =>
+  errors.find((error) => error.field === field)?.message;
+
+const nameError = errorFor('name');
+const emailError = errorFor('email');
+const bodyError = errorFor('body');
+
+const CONTROL_ID: Record<FieldName, string> = {
+  name: 'contact-name',
+  email: 'contact-email',
+  body: 'contact-message',
+};
+
+const idsFor = (field: FieldName) => ({
+  control: CONTROL_ID[field],
+  error: `${CONTROL_ID[field]}-error`,
+  hint: `${CONTROL_ID[field]}-hint`,
+});
+const NAME = idsFor('name');
+const EMAIL = idsFor('email');
+const BODY = idsFor('body');
+---
+
+{notSent && (
+  <div class="error-summary" tabindex="-1" autofocus>
+    <SummaryHeading class="text-h3 text-text">
+      Your message was not sent
+    </SummaryHeading>
+    <p class="mt-4 text-body text-text text-pretty">
+      {notSent === 'limited'
+        ? 'That is a lot of messages in a short time. Wait a few minutes and try again, or email '
+        : 'Your message could not be saved, so it has not been received. Email '}
+      <a href={CONTACT_MAILTO}>{CONTACT_EMAIL}</a>
+      {notSent === 'limited'
+        ? ' instead. What you wrote is still in the form.'
+        : ' instead: what you wrote is still in the form, so you can copy it.'}
+    </p>
+  </div>
+)}
+
+{errors.length > 0 && (
+  /* No role="alert": focus already announces it, and some screen readers would read it twice. */
+  <div class="error-summary" tabindex="-1" autofocus>
+    <SummaryHeading class="text-h3 text-text">
+      {errors.length === 1
+        ? 'There is one problem with this form'
+        : `There are ${errors.length} problems with this form`}
+    </SummaryHeading>
+    <ul class="mt-4 list-disc pl-6">
+      {errors.map((error) => (
+        <li class="mt-2 text-body">
+          <a href={`#${CONTROL_ID[error.field]}`}>{error.message}</a>
+        </li>
+      ))}
+    </ul>
+  </div>
+)}
+
+{/*
+  novalidate: the error summary replaces engine-specific bubbles. `required`
+  stays for autofill and the accessibility tree; the server enforces it.
+*/}
+<form
+  method="post"
+  action={CONTACT_SEND_PATH}
+  novalidate
+  data-contact-form
+  class:list={[(errors.length > 0 || notSent) && 'mt-8']}
+>
+  <div class="field">
+    <label class="field-label" for={NAME.control}>
+      Name <span class="field-required">(required)</span>
+    </label>
+    <input
+      class="field-control"
+      id={NAME.control}
+      name={FIELDS.name}
+      type="text"
+      autocomplete="name"
+      maxlength={LIMITS.nameMax}
+      required
+      value={values.name ?? ''}
+      aria-invalid={nameError ? 'true' : undefined}
+      aria-describedby={nameError ? NAME.error : undefined}
+    />
+    {nameError && (
+      <p class="field-error" id={NAME.error}>
+        {nameError}
+      </p>
+    )}
+  </div>
+
+  <div class="field">
+    <label class="field-label" for={EMAIL.control}>
+      Email <span class="field-required">(required)</span>
+    </label>
+    <input
+      class="field-control"
+      id={EMAIL.control}
+      name={FIELDS.email}
+      type="email"
+      autocomplete="email"
+      maxlength={LIMITS.emailMax}
+      required
+      value={values.email ?? ''}
+      aria-invalid={emailError ? 'true' : undefined}
+      aria-describedby={
+        emailError ? `${EMAIL.error} ${EMAIL.hint}` : EMAIL.hint
+      }
+    />
+    <p class="mt-3 text-body text-text" id={EMAIL.hint}>
+      Used to reply, and nothing else.
+    </p>
+    {emailError && (
+      <p class="field-error" id={EMAIL.error}>
+        {emailError}
+      </p>
+    )}
+  </div>
+
+  <div class="field">
+    <label class="field-label" for={BODY.control}>
+      Message <span class="field-required">(required)</span>
+    </label>
+    <textarea
+      class="field-control"
+      id={BODY.control}
+      name={FIELDS.body}
+      rows="8"
+      required
+      aria-invalid={bodyError ? 'true' : undefined}
+      aria-describedby={bodyError ? `${BODY.error} ${BODY.hint}` : BODY.hint}
+    >{values.body ?? ''}</textarea>
+    {/* No maxlength: it cuts pasted text silently; the server names the limit instead. */}
+    <p class="mt-3 text-body text-text" id={BODY.hint}>
+      Between {LIMITS.bodyMin} and {LIMITS.bodyMax} characters.
+    </p>
+    {bodyError && (
+      <p class="field-error" id={BODY.error}>
+        {bodyError}
+      </p>
+    )}
+  </div>
+
+  {/*
+    Honeypot uses `hidden`. Off-screen fails tests/focus.spec.ts and
+    tests/forced-colors.spec.ts. CSS hiding (rejected) shows it when the
+    stylesheet fails, and a person who fills it loses their message.
+  */}
+  <div hidden>
+    <label for="contact-website">Website</label>
+    <input
+      id="contact-website"
+      name={FIELDS.honeypot}
+      type="text"
+      autocomplete="off"
+    />
+  </div>
+
+  <button class="btn-primary mt-8" type="submit">
+    Send message
+  </button>
+
+  {/* Present and empty from load so the live region is registered before the script writes to it. */}
+  <p class="mt-3 text-body text-text" role="status" data-contact-status></p>
+</form>
+
+<script>
+  import '../scripts/contact-sending';
+</script>

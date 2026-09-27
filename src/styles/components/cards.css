@@ -1,0 +1,237 @@
+@layer components {
+  /*
+   * `min-w-0` is required: `overflow-wrap` does not reduce min-content, so a
+   * long word would widen the grid track and scroll the page at 320px under
+   * text spacing.
+   */
+  .card {
+    @apply min-w-0 border-8 border-border bg-surface p-card-tight
+      shadow-hard-pink-8 sm:p-card;
+  }
+
+  /*
+   * Solid card: a light third surface where only `background` passes (14.42),
+   * so everything inside is `background`. Holds text, never a form. In a
+   * `.card-block` the raised-brick rule gives it an edge and shadow.
+   */
+  .card-solid {
+    background-color: var(--color-text);
+    color: var(--color-background);
+    border-color: var(--color-text);
+  }
+
+  .card-solid
+    :is(
+      .card-title,
+      .card-link,
+      .label,
+      .badge,
+      a,
+      dt,
+      dd,
+      p,
+      li,
+      time,
+      span,
+      strong,
+      em
+    ) {
+    color: var(--color-background);
+  }
+
+  .card-solid :is(ul, ol) li::marker {
+    color: var(--color-background);
+  }
+
+  /*
+   * Inner edges too: `border` fails SC 1.4.11 on this ground.
+   * tests/failed-images.spec.ts.
+   */
+  .card-solid * {
+    border-color: var(--color-background);
+  }
+
+  /*
+   * Except what paints its own dark fill: the badge, and a failed photo's alt
+   * text on `surface`. tests/failed-images.spec.ts.
+   */
+  .card-solid .badge {
+    background-color: var(--color-background);
+    color: var(--color-text);
+  }
+
+  .card-solid .aspect-frame-alt {
+    color: var(--color-text);
+  }
+
+  /*
+   * Hover on a solid card keeps the title `background`: cyan is 1.29 here; the
+   * cyan shadow is the hover. `.card` in the selector wins on specificity over
+   * the later hover rule.
+   */
+  .card.card-solid:has(.card-link):hover .card-link {
+    color: var(--color-background);
+  }
+
+  .card-solid :focus-visible {
+    outline-color: var(--color-background);
+  }
+
+  /*
+   * One size for every card title, so a card is never louder than its section.
+   */
+  .card-title {
+    @apply text-h3 font-black text-text;
+  }
+
+  /* Keeps its written case; uppercase makes a sentence loud. */
+  .post-title {
+    @apply normal-case tracking-title;
+  }
+
+  /*
+   * Reading column centred between equal tracks; contents list on the right
+   * from `xl`. Not sticky: a tall list hides links, and a scrolling one is an
+   * extra Firefox tab stop (tests/focus.spec.ts).
+   */
+  .post-layout {
+    @apply grid gap-y-head;
+
+    /*
+     * `minmax(0, 1fr)`, not the implicit `auto`, so an unwrapped code block
+     * cannot widen the track past the viewport (SC 1.4.10).
+     */
+    grid-template-columns: minmax(0, 1fr);
+
+    & > * {
+      @apply mx-auto w-full min-w-0 max-w-measure;
+    }
+
+    @media (width >= 80rem) {
+      grid-template-columns:
+        minmax(0, 1fr) min(100%, var(--container-measure))
+        minmax(0, 1fr);
+      column-gap: var(--spacing-grid);
+
+      & > * {
+        grid-column: 2;
+      }
+
+      /*
+       * Row 1, beside the article's first block. The width cap keeps the
+       * reading column centred.
+       */
+      & > .post-contents {
+        grid-column: 3;
+        grid-row: 1;
+        width: min(100%, var(--container-rail));
+      }
+    }
+  }
+
+  /*
+   * The parts draw the edges, not the box: forced colours drop shadow and
+   * background, and the summary needs its own edge
+   * (tests/forced-colors.spec.ts).
+   */
+  .post-contents {
+    @apply self-start bg-surface shadow-hard-pink-8;
+  }
+
+  .post-contents ol {
+    @apply border-4 border-t-0 border-border;
+  }
+
+  .post-contents li + li {
+    @apply border-t-4 border-border;
+  }
+
+  /*
+   * Summary label `text`, cyan on hover, 24px target (SC 2.5.8). The
+   * +/- marker is aria-hidden; the expanded state is announced natively.
+   */
+  .post-contents-summary {
+    @apply flex min-h-target cursor-pointer list-none items-center
+      justify-between gap-4 border-4 border-border px-card-tight py-4
+      text-label font-black uppercase tracking-label text-text;
+
+    &::-webkit-details-marker {
+      display: none;
+    }
+
+    &:hover {
+      @apply text-cyan;
+    }
+  }
+
+  .post-contents-marker::before {
+    @apply text-h3 leading-none font-black;
+
+    content: '+';
+  }
+
+  [open] > .post-contents-summary .post-contents-marker::before {
+    content: '\2212';
+  }
+
+  /*
+   * Reading heading scale for posts, privacy and accessibility: text-h2 is too
+   * close to the title's size to read as a level below it.
+   */
+  :is(.post-layout, .reading-layout) .prose h2 {
+    @apply text-post-h2;
+  }
+
+  :is(.post-layout, .reading-layout) .prose h3 {
+    @apply text-post-h3;
+  }
+
+  /*
+   * The whole card is clickable via an empty layer over the title link, which
+   * stays the only link. The card must hold no other link.
+   */
+  .card:has(.card-link) {
+    @apply relative;
+  }
+
+  .card-link::after {
+    @apply absolute inset-0;
+
+    content: '';
+  }
+
+  /*
+   * Colour here, not a utility, which would beat the hover below. Inline-block
+   * so a wrapped title's focus ring is one box, and so it can meet SC 2.5.8.
+   */
+  .card-link {
+    @apply inline-block min-h-target text-text;
+  }
+
+  /*
+   * Title and shadow turn cyan on hover. No underline: on a wrapped title it
+   * crosses the next line. Inside a card block the hover is restored in @layer
+   * utilities.
+   */
+  .card:has(.card-link):hover {
+    @apply shadow-hard-cyan-8;
+  }
+
+  .card:has(.card-link):hover .card-link {
+    @apply text-cyan;
+  }
+
+  /* Reading size at 400; on a slab the colour comes from the slab. */
+  .lead {
+    @apply mt-6 max-w-2xl text-h3 font-normal text-text text-pretty;
+  }
+
+  .standfirst {
+    @apply mt-8 max-w-2xl text-standfirst font-normal text-pretty;
+  }
+
+  /* A talk cover's subtitle and speaker as separate blocks (TalkSlide.astro). */
+  .talk-cover > * + * {
+    @apply mt-4;
+  }
+}

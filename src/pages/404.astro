@@ -1,0 +1,55 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import { BLOG_PATH } from '../lib/paths';
+
+/*
+ * Served with status 404 via `not_found_handling: "404-page"` in wrangler.jsonc.
+ * noCanonical: it answers every dead URL. noindex: /404 itself is a route that
+ * answers 200, and would otherwise be indexable.
+ */
+---
+
+<BaseLayout
+  title="Page not found"
+  description="These are not the droids you are looking for: that address does not lead anywhere on this site."
+  noCanonical
+  noindex
+>
+  <PageHero
+    title="These are not the droids you are looking for."
+    titleSize="h2"
+    hiddenPrefix="Page not found:"
+    slab="none"
+    starfield
+  >
+    <span slot="eyebrow" class="badge">
+      Episode 404
+    </span>
+
+    <p slot="kicker" class="mb-6 text-post-teaser text-text text-pretty">
+      <span class="star-clear">
+        A long time ago, on a website not so far, far away&hellip;
+      </span>
+    </p>
+
+    <p class="standfirst">
+      This page does not exist. It may have moved, or the address has a typo.
+      Nothing is broken on your end, so move along. If a link on this site
+      brought you here, <a href="/contact/">tell me about the broken link</a>.
+    </p>
+
+    <ul class="actions mt-head">
+      <li>
+        <a href="/" class="btn-primary">
+          Go to the homepage
+        </a>
+      </li>
+      <li>
+        <a href={BLOG_PATH} class="btn-secondary">
+          Read the blog
+        </a>
+      </li>
+    </ul>
+  </PageHero>
+</BaseLayout>

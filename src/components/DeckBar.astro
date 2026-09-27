@@ -1,0 +1,36 @@
+---
+/*
+ * Wired by src/scripts/slideshow.ts, which unhides it. Before the slides in
+ * source order so keyboard and screen reader reach it first; `order-last`
+ * draws it below.
+ */
+interface Props {
+  total: number;
+}
+
+const { total } = Astro.props;
+---
+
+<nav class="deck-bar" aria-label="Slides" data-deck-bar>
+  <button type="button" class="btn-secondary" data-deck-previous>
+    Previous
+  </button>
+  <button type="button" class="btn-primary" data-deck-next>
+    Next
+  </button>
+  <span class="deck-part" data-deck-part></span>
+  <span class="deck-count" data-deck-count>
+    1 / {total}
+  </span>
+  <slot />
+  <button
+    type="button"
+    class="btn-secondary"
+    aria-pressed="false"
+    hidden
+    data-deck-fullscreen
+  >
+    Full screen
+  </button>
+</nav>
+<p class="sr-only" aria-live="polite" data-deck-status></p>

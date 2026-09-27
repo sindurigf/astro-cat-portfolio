@@ -1,0 +1,35 @@
+@layer components {
+  .label {
+    @apply text-label font-black uppercase tracking-label;
+  }
+
+  /*
+   * Translated off-screen until focused. Not `sr-only` or `display: none`: both
+   * stay hidden on focus.
+   */
+  .skip-link {
+    @apply absolute left-4 top-4 z-60 border-4 border-border bg-gold px-6 py-4
+      text-label font-black uppercase tracking-label text-background;
+
+    transform: translateY(calc(-100% - --spacing(6)));
+  }
+
+  .skip-link:focus,
+  .skip-link:focus-visible {
+    transform: translateY(0);
+  }
+
+  /*
+   * The SC 2.2.2 pause control, 40px square at every viewport. `bg-surface` so
+   * its fill differs from the ground (tests/gold-surface.spec.ts). Each call
+   * site adds a positioning class.
+   */
+  .motion-toggle {
+    @apply absolute grid h-10 w-10 place-items-center border-4 border-border
+      bg-surface text-gold;
+  }
+
+  .motion-toggle:hover {
+    @apply bg-gold text-gold-text;
+  }
+}

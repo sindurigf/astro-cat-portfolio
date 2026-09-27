@@ -1,0 +1,47 @@
+---
+/*
+ * `.card.surface-gold` on one element is safe: `.surface-gold .card` is a
+ * descendant selector and does not match it (tests/gold-surface.spec.ts).
+ */
+interface Props {
+  eyebrow?: string;
+  readHref: string;
+  readLabel: string;
+  actionHref: string;
+  actionLabel: string;
+}
+
+const {
+  eyebrow = 'Continue reading',
+  readHref,
+  readLabel,
+  actionHref,
+  actionLabel,
+} = Astro.props;
+---
+
+{/*
+  `py-section`, not `pb-section`: the gap above must come from the one-gap
+  rule in base.css, or after a gold band the whole gap turns gold.
+*/}
+<div class="band py-section">
+  <div class="mx-auto max-w-page">
+    {/* `pt-card` at every width: the sticker reaches 34px into the row, past a phone's 24px padding. */}
+    <div class="card surface-gold relative flex flex-wrap items-center justify-between gap-x-inline gap-y-8 pt-card">
+      <p>
+        <span
+          class="sticker absolute top-0 left-8 -translate-y-1/2 -rotate-3"
+          data-close-row
+        >
+          {eyebrow}
+        </span>
+        <a href={readHref} class="link block min-h-target text-h3 font-black">
+          {readLabel}
+        </a>
+      </p>
+      <a href={actionHref} class="btn-gold-primary">
+        {actionLabel}
+      </a>
+    </div>
+  </div>
+</div>

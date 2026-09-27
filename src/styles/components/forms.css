@@ -1,0 +1,53 @@
+@layer components {
+  /* Contact form controls. Focus and forced colours are covered globally. */
+  .field {
+    @apply mt-8 block;
+  }
+
+  .field-label {
+    @apply block text-label font-black uppercase tracking-label text-text;
+  }
+
+  /* `required` alone is invisible (SC 3.3.2). */
+  .field-required {
+    @apply font-normal normal-case tracking-normal text-subtle;
+  }
+
+  /* 8px edge, like every object on the site. */
+  .field-control {
+    @apply mt-3 block w-full border-8 border-border bg-surface px-4 py-3
+      font-sans text-body text-text;
+  }
+
+  /* Not `field-sizing: content`: it collapses to one row before input. */
+  textarea.field-control {
+    @apply min-h-40 resize-y;
+  }
+
+  /*
+   * Invalid by shape, not only colour (SC 1.4.1: pink and `border` look alike
+   * in luminance): a 4px inset ring inside the 8px edge.
+   */
+  .field-control[aria-invalid='true'] {
+    @apply border-pink inset-shadow-invalid;
+  }
+
+  .field-error {
+    @apply mt-3 text-body text-pink-text;
+  }
+
+  /* Decoration beside the words: empty alt text. */
+  .field-error::before {
+    content: '\2715\00a0' / '';
+    @apply font-black;
+  }
+
+  /* Takes focus on render. */
+  .error-summary {
+    @apply mt-8 border-8 border-pink bg-surface p-6;
+  }
+
+  .error-summary a {
+    @apply text-pink-text;
+  }
+}

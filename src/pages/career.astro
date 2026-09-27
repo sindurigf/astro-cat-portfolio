@@ -1,0 +1,277 @@
+---
+import { statSync } from 'node:fs';
+import { join } from 'node:path';
+
+import BaseLayout from '../layouts/BaseLayout.astro';
+import CloseRow from '../components/CloseRow.astro';
+import PageHero from '../components/PageHero.astro';
+import Section from '../components/Section.astro';
+import { JOURNEY_POST_HREF } from '../lib/paths';
+import { CV_PATH, PERSON_NAME } from '../lib/profiles';
+
+/* Placeholder copy; keep it in step with the CV when one is published. */
+const PUBLIC_DIR = 'public';
+const BYTES_PER_KB = 1024;
+
+/* From cwd, not import.meta.url: this runs bundled in dist/.prerender/chunks/. */
+const cvKb = (path: string): number =>
+  Math.round(
+    statSync(join(process.cwd(), PUBLIC_DIR, path)).size / BYTES_PER_KB,
+  );
+
+const EXPERIENCE = [
+  {
+    dates: 'Jan 2026–Present',
+    where: 'Example Organisation',
+    title: 'Lorem Ipsum Engineer',
+    current: true,
+    points: [
+      'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+      'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
+      'Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.',
+    ],
+  },
+  {
+    dates: 'Jun 2023–Nov 2025',
+    where: 'Example Company',
+    title: 'Dolor Sit Manager',
+    current: false,
+    points: [
+      'Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
+      'Sed ut perspiciatis unde omnis iste natus error sit voluptatem.',
+      'Accusantium doloremque laudantium, totam rem aperiam eaque ipsa.',
+      'Quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.',
+      'Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores.',
+      'Neque porro quisquam est in 2025.',
+    ],
+  },
+  {
+    dates: 'Jan 2021–May 2023',
+    where: 'Example Agency',
+    title: 'Consectetur Developer & Adipiscing Manager',
+    current: false,
+    points: [
+      'Qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit.',
+      'Sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam.',
+      'Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur, quis autem vel eum iure.',
+    ],
+  },
+] as const;
+
+const SKILLS = [
+  'Lorem ipsum and dolor sit',
+  'Amet consectetur',
+  'Adipiscing elit',
+  'Sed do eiusmod',
+  'Tempor',
+  'Incididunt and ut labore',
+] as const;
+
+/* `honour` renders in `lang="la"` (SC 3.1.2). */
+const EDUCATION = [
+  {
+    award: 'Lorem Ipsum',
+    detail: 'Example School, 2020.',
+    honour: 'Summa cum laude',
+  },
+  {
+    award: 'Dolor Sit Amet Consectetur',
+    detail:
+      'Example School, 2019. Lorem, ipsum, dolor, sit, amet, consectetur, adipiscing, elit, sed.',
+    honour: 'Summa cum laude',
+  },
+  { award: 'Eiusmod', detail: 'Short course, 2019.' },
+  {
+    award: 'Tempor Incididunt, Master of Science',
+    detail: 'Example University, 2006–2009.',
+  },
+  {
+    award: 'Labore et Dolore, Bachelor of Arts',
+    detail: 'Example College, 2001–2005.',
+  },
+] as const;
+
+const LANGUAGES = [
+  { language: 'English', level: 'Fluent' },
+  { language: 'Latin', level: 'A2' },
+] as const;
+
+const OPEN_SOURCE = [
+  {
+    award: 'Lorem Ipsum Award',
+    detail: 'Dolor sit category, 2025.',
+  },
+  {
+    award: 'Example Association',
+    detail: 'Consectetur adipiscing elit. Sed do eiusmod tempor in 2026.',
+  },
+  {
+    award: 'Example Community',
+    detail: 'Ut enim ad minim veniam, quis nostrud exercitation ullamco.',
+  },
+  {
+    award: 'Event organising',
+    detail:
+      'Duis aute irure dolor in reprehenderit in 2023, then in voluptate velit esse cillum dolore eu fugiat nulla pariatur.',
+  },
+] as const;
+---
+
+<BaseLayout
+  title="Career"
+  description={`${PERSON_NAME}: work history, education and skills. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod.`}
+>
+  <PageHero title="Career">
+    <p class="standfirst">
+      <span class="block">Lorem Ipsum Dolor Sit.</span>{' '}
+      <span class="block">Amet Consectetur Elit.</span>{' '}
+      <span class="block">Sed Do Eiusmod Tempor.</span>
+    </p>
+
+    {/* Size, not only colour, carries the hierarchy: forced colours flattens colour. */}
+    <p class="mt-4 text-body text-gold-muted">
+      Lorem ipsum, dolor sit amet, consectetur adipiscing elit.
+    </p>
+
+    {/* No `download` attribute: the browser's viewer is the more accessible default. */}
+    <p class="actions mt-head">
+      {CV_PATH !== null && (
+        <a href={CV_PATH} class="btn-gold-primary">
+          Download my CV (PDF, {cvKb(CV_PATH)} KB)
+        </a>
+      )}
+      <a
+        href="/contact/"
+        class:list={[
+          CV_PATH === null ? 'btn-gold-primary' : 'btn-gold-secondary',
+        ]}
+      >
+        Get in touch
+      </a>
+    </p>
+  </PageHero>
+
+  <Section title="Summary" panel>
+    <p slot="lead" class="lead max-w-3xl">
+      Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
+      tempor incididunt. Ut labore et dolore magna aliqua ut enim ad minim
+      veniam: quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
+      commodo consequat, duis aute irure dolor in reprehenderit in voluptate
+      velit.
+    </p>
+    <p class="max-w-3xl text-body text-text text-pretty">
+      Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia
+      deserunt mollit anim. Id est laborum sed ut perspiciatis unde omnis iste
+      natus.
+    </p>
+  </Section>
+
+  <Section title="Work experience">
+    <ol class="card-block flex flex-col gap-grid">
+      {
+        /* Title first, so heading navigation lands before the employer. */
+        EXPERIENCE.map((role) => (
+          <li
+            class:list={[
+              'card grid gap-8 lg:grid-cols-12',
+              role.current && 'card-solid',
+            ]}
+          >
+            <div class="flex min-w-0 flex-col items-start gap-4 lg:col-span-12">
+              {role.current && <span class="badge">Current</span>}
+              <h3 class="card-title">{role.title}</h3>
+            </div>
+
+            {/* No `text-*` inside the solid block: a utility beats its rule (tests/solid-block.spec.ts). */}
+            <p class="flex min-w-0 flex-col gap-2 lg:col-span-3">
+              <span class:list={['label', !role.current && 'text-subtle']}>
+                {role.dates}
+              </span>
+              <span class:list={['label', !role.current && 'text-subtle']}>
+                {role.where}
+              </span>
+            </p>
+
+            <ul class="bullet-list min-w-0 lg:col-span-9">
+              {role.points.map((point) => (
+                <li class="mt-3 text-body text-pretty first:mt-0">{point}</li>
+              ))}
+            </ul>
+          </li>
+        ))
+      }
+    </ol>
+  </Section>
+
+  <Section title="Skills and education">
+    <div class="grid gap-grid lg:grid-cols-2">
+      <div class="card">
+        <h3 class="card-title">Education</h3>
+        <ul class="mt-8 flex flex-col gap-4">
+          {EDUCATION.map((item) => (
+            <li class="text-body text-text text-pretty">
+              <strong class="font-black text-text">{item.award}</strong>
+              {': '}
+              {item.detail}
+              {'honour' in item ? (
+                <>
+                  {' '}
+                  <span lang="la">{item.honour}</span>.
+                </>
+              ) : null}
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div class="flex min-w-0 flex-col gap-grid">
+        <div class="card">
+          <h3 class="card-title">Skills</h3>
+          <ul class="mt-8 flex flex-wrap gap-3">
+            {SKILLS.map((skill) => (
+              <li class="badge">{skill}</li>
+            ))}
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3 class="card-title">Languages</h3>
+          <ul class="mt-8 flex flex-col gap-4">
+            {LANGUAGES.map((item) => (
+              <li class="text-body text-text">
+                <strong class="font-black text-text">{item.language}</strong>
+                {': '}
+                {item.level}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </div>
+  </Section>
+
+  <Section title="Open source" surface="gold" class="gold-column">
+    <div class="grid gap-grid lg:grid-cols-12 lg:items-start">
+      <p class="lead mt-0 lg:col-span-5">
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
+        tempor, not incididunt. Ut labore et dolore magna aliqua.
+      </p>
+      <dl class="grid gap-grid sm:grid-cols-2 lg:col-span-7">
+        {OPEN_SOURCE.map((item) => (
+          <div class="card">
+            {/* `text-gold` and `text-text` fail SC 1.4.3 on this ground. */}
+            <dt class="label text-gold-muted">{item.award}</dt>
+            <dd class="mt-4 text-body text-pretty">{item.detail}</dd>
+          </div>
+        ))}
+      </dl>
+    </div>
+  </Section>
+
+  <CloseRow
+    readHref={JOURNEY_POST_HREF}
+    readLabel="Sample post"
+    actionHref="/about/"
+    actionLabel="Learn more about me"
+  />
+</BaseLayout>

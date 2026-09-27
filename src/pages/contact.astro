@@ -1,0 +1,141 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ContactForm from '../components/ContactForm.astro';
+import PageHero from '../components/PageHero.astro';
+import Section from '../components/Section.astro';
+import { CONTACT_EMAIL, CONTACT_FORM_ON, CONTACT_MAILTO } from '../lib/contact';
+import { PERSON_NAME, SOCIAL_PROFILES } from '../lib/profiles';
+
+/*
+ * Placeholder copy. The form needs `form-action 'self'`
+ * in public/_headers: at `'none'` the browser blocks the POST silently.
+ */
+
+type ProfileLabel = (typeof SOCIAL_PROFILES)[number]['label'];
+
+const profileHref = (label: ProfileLabel): string => {
+  const profile = SOCIAL_PROFILES.find((entry) => entry.label === label);
+  if (!profile) throw new Error(`No ${label} profile in lib/profiles.ts.`);
+  return profile.href;
+};
+
+const profilePath = (label: ProfileLabel): string =>
+  new URL(profileHref(label)).pathname.replace(/^\/|\/$/g, '');
+
+const CONTACT_METHODS = [
+  {
+    label: 'Email',
+    value: CONTACT_EMAIL,
+    href: CONTACT_MAILTO,
+  },
+  {
+    label: 'LinkedIn',
+    value: profilePath('LinkedIn'),
+    href: profileHref('LinkedIn'),
+  },
+  {
+    label: 'GitHub',
+    value: `@${profilePath('GitHub')}`,
+    href: profileHref('GitHub'),
+  },
+] as const;
+
+const REASONS = [
+  'Lorem ipsum and dolor sit amet',
+  'Consectetur adipiscing and elit',
+  'Sed do eiusmod, tempor and incididunt',
+  'Ut labore, et dolore, magna aliqua and ut enim',
+  'Cats, especially Pepper, Mochi and Biscuit',
+] as const;
+---
+
+<BaseLayout
+  title="Contact"
+  description={`Write to ${PERSON_NAME} by email or on LinkedIn or GitHub${CONTACT_FORM_ON ? ', or with the contact form' : ''}.`}
+>
+  <PageHero title="Get in touch">
+    <p class="standfirst">
+      Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
+      tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim
+      veniam.
+    </p>
+  </PageHero>
+
+  <Section title="Write to me">
+    {/*
+      "The same inbox" holds only while the registrar forwards CONTACT_EMAIL to
+      CONTACT_NOTIFY_TO (src/lib/platform-facts.ts).
+    */}
+    <p slot="lead" class="lead">
+      {CONTACT_FORM_ON
+        ? 'This goes to the same inbox as the email address on this page.'
+        : 'Email is the way to reach me.'}{' '}
+      If something on this site blocks you, that is worth sending even if you
+      cannot say which part is wrong, and you do not need to explain why you are
+      writing.
+    </p>
+
+    <div class="grid gap-grid lg:grid-cols-12 lg:items-start">
+      <div class="card min-w-0 lg:col-span-7">
+        {CONTACT_FORM_ON ? (
+          <ContactForm />
+        ) : (
+          <p class="text-body text-pretty">
+            Write to <a href={CONTACT_MAILTO}>{CONTACT_EMAIL}</a>. Every message
+            is read.
+          </p>
+        )}
+      </div>
+
+      <div class="flex min-w-0 flex-col gap-grid lg:col-span-5">
+        <div>
+          <h3 class="card-title">Or find me here</h3>
+
+          {/* Whole-card links, unlike BlogCard: the name stays short ("Email hello@example.com"). */}
+          <ul class="mt-6 flex flex-col gap-6">
+            {CONTACT_METHODS.map((method) => (
+              <li class="flex min-w-0">
+                <a
+                  href={method.href}
+                  class="lift-object flex w-full min-w-0 items-center justify-between gap-6 border-8 border-border bg-surface p-card-tight text-text shadow-hard-pink-8 hover:text-cyan hover:shadow-hard-cyan-8"
+                >
+                  <span class="flex min-w-0 flex-col gap-2">
+                    <span class="label text-gold">{method.label}</span>
+                    <span class="text-h3 font-black">{method.value}</span>
+                  </span>
+                  <span aria-hidden="true" class="text-h3 leading-none">
+                    &rarr;
+                  </span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3 class="card-title">Write to me about</h3>
+          <ul class="bullet-list mt-6">
+            {REASONS.map((reason) => (
+              <li class="mt-3 text-body text-pretty">{reason}</li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </div>
+  </Section>
+
+  {/*
+    No dark-set tokens inside `.surface-gold`: `text-text` fails SC 1.4.3 here
+    and `.btn-primary` is gold on gold. tests/gold-surface.spec.ts enforces both.
+  */}
+  <section class="surface-gold gold-column band py-section">
+    <div class="mx-auto flex max-w-page flex-wrap items-center justify-between gap-grid">
+      <p class="max-w-3xl text-h2 font-black text-pretty">
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+      </p>
+      <a href="/about/" class="btn-gold-primary">
+        More about me
+      </a>
+    </div>
+  </section>
+</BaseLayout>

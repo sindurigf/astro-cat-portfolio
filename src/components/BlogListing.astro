@@ -1,0 +1,162 @@
+---
+import type { BlogCategory } from '../content.config';
+import {
+  cardProps,
+  CATEGORY_FILTERS,
+  getCategoriesWithPosts,
+  type BlogPost,
+} from '../lib/blog';
+import { ariaCurrent } from '../lib/nav';
+import { BLOG_PATH, categoryHref, indexPageHref } from '../lib/paths';
+import BlogCard from './BlogCard.astro';
+
+/*
+ * The filter is links to built routes, not a Vue island: filtering is
+ * navigation, so nothing hydrates. The active option has aria-current and a
+ * square marker, not colour alone (SC 1.4.1).
+ */
+
+/* A tag listing marks no filter option current. */
+type ListingFilter =
+  | { kind: 'all' }
+  | { kind: 'category'; category: BlogCategory }
+  | { kind: 'tag'; tag: string };
+
+interface Props {
+  posts: BlogPost[];
+  filter: ListingFilter;
+  currentPage: number;
+  totalPages: number;
+  /** Wide lead card; page 1 of the unfiltered index only. */
+  featureFirst?: boolean;
+}
+
+const {
+  posts,
+  filter,
+  currentPage,
+  totalPages,
+  featureFirst = false,
+} = Astro.props;
+
+const pageNumbers = Array.from({ length: totalPages }, (_, i) => i + 1);
+
+/* A lone last card spans the row. The feature card already spans, so it is not counted. */
+const GRID_COLUMNS = 2;
+const singleCellCards = featureFirst ? posts.length - 1 : posts.length;
+const lastFillsRow = singleCellCards % GRID_COLUMNS === 1;
+
+const withPosts = await getCategoriesWithPosts();
+const filterOptions = CATEGORY_FILTERS.filter(
+  (option) => option.category === null || withPosts.includes(option.category),
+);
+
+const activeHref =
+  filter.kind === 'all'
+    ? BLOG_PATH
+    : filter.kind === 'category'
+      ? categoryHref(filter.category)
+      : null;
+
+/* `true` past page 1: the pagination link, not the filter, is the page. */
+const currentPath = Astro.url.pathname;
+
+/* Only `/blog` can be empty: category and tag pages exist only with posts. */
+const EMPTY_BLOG = {
+  sentence: 'Nothing has been published here yet.',
+  action: { href: '/', label: 'Go to the homepage' },
+} as const;
+---
+
+<nav aria-label="Filter posts by category">
+  <ul class="flex flex-wrap gap-6">
+    {filterOptions.map((option) => {
+      const isActive = option.href === activeHref;
+      return (
+        <li>
+          <a
+            href={option.href}
+            aria-current={
+              isActive ? ariaCurrent(currentPath, option.href) : undefined
+            }
+            class="chip"
+          >
+            {isActive ? (
+              <span aria-hidden="true" class="block size-2 bg-background" />
+            ) : null}
+            {option.label}
+          </a>
+        </li>
+      );
+    })}
+  </ul>
+</nav>
+
+{posts.length === 0 ? (
+  <div class="card mt-head" data-empty-listing>
+    <h2 class="card-title">No posts yet</h2>
+    <p class="mt-4 max-w-prose text-body text-text text-pretty">
+      {EMPTY_BLOG.sentence}
+    </p>
+    <p class="actions mt-head">
+      <a href={EMPTY_BLOG.action.href} class="btn-primary">
+        {EMPTY_BLOG.action.label}
+      </a>
+    </p>
+  </div>
+) : (
+  <ul class="card-block mt-head grid gap-grid lg:grid-cols-2">
+    {posts.map((post, index) => {
+      const feature = featureFirst && index === 0;
+      const fillsRow = !feature && lastFillsRow && index === posts.length - 1;
+      return (
+        <li
+          class:list={[
+            'flex min-w-0',
+            (feature || fillsRow) && 'lg:col-span-2',
+          ]}
+        >
+          <BlogCard
+            {...cardProps(post)}
+            feature={feature}
+            cover={post.data.cover}
+            coverAlt={post.data.coverAlt}
+            headingLevel={2}
+            class:list={[
+              'w-full',
+              fillsRow && 'card-wide',
+              feature && 'card-solid',
+            ]}
+          />
+        </li>
+      );
+    })}
+  </ul>
+)}
+
+{totalPages > 1 ? (
+  <nav aria-label="Pagination" class="mt-head">
+    {/* No Previous/Next: beside a number to the same URL, WAVE flags a redundant link. */}
+    <ul class="flex flex-wrap items-center gap-6">
+      {pageNumbers.map((page) => {
+        const isCurrent = page === currentPage;
+        return (
+          <li>
+            {/* The current page stays a link. sr-only "Page", not aria-label, keeps the visible number in the name. */}
+            <a
+              href={indexPageHref(page)}
+              aria-current={isCurrent ? 'page' : undefined}
+              class="chip"
+            >
+              {isCurrent ? (
+                <span aria-hidden="true" class="block size-2 bg-background" />
+              ) : null}
+              <span class="sr-only">Page&nbsp;</span>
+              {page}
+            </a>
+          </li>
+        );
+      })}
+    </ul>
+  </nav>
+) : null}

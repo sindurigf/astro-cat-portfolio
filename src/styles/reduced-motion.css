@@ -1,0 +1,16 @@
+/*
+ * Backstop for anything animated. SC 2.2.2 needs a real control, which the hero
+ * field has (HeroField.vue); the field also reads this preference itself and
+ * draws once.
+ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

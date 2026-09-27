@@ -1,0 +1,68 @@
+{
+  "name": "astro-cat-portfolio",
+  "private": true,
+  "license": "SEE LICENSE IN README.md",
+  "type": "module",
+  "engines": {
+    "node": ">=24.20.0"
+  },
+  "scripts": {
+    "dev": "astro dev --force",
+    "build": "astro build --force",
+    "preview": "astro preview",
+    "typecheck": "astro check --minimumFailingSeverity hint && vue-tsc --noEmit -p tsconfig.vue.json",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "npm run test:a11y && npm run test:worker",
+    "test:a11y": "playwright test",
+    "test:worker": "playwright test -c playwright.worker.config.ts",
+    "test:webkit": "sh scripts/test-webkit.sh",
+    "test:a11y:ui": "playwright test --ui",
+    "test:coverage": "COVERAGE=1 playwright test -c playwright.coverage.config.ts",
+    "check:tokens": "node scripts/check-tokens.mjs",
+    "check:links": "node scripts/check-links.mjs",
+    "check:pins": "node scripts/check-pins.mjs",
+    "check:pdf": "node scripts/check-pdf.mjs",
+    "check:classes": "node scripts/check-classes.mjs",
+    "check:untransformed": "node scripts/check-untransformed.mjs",
+    "check:commits": "sh scripts/check-commits.sh",
+    "check:exif": "node scripts/check-exif.mjs",
+    "check:leaks": "node scripts/check-leaks.mjs",
+    "check:live": "sh scripts/check-live.sh",
+    "check:live:console": "playwright test -c playwright.live.config.ts",
+    "check:umami": "sh scripts/check-umami.sh",
+    "publish:talk": "node scripts/publish-talk.mjs",
+    "og": "node scripts/make-og.mjs",
+    "check": "npm run check:tokens && npm run check:links && npm run check:pins && npm run check:classes && npm run check:untransformed && npm run check:exif && npm run format:check && npm run check:commits && npm run check:leaks"
+  },
+  "dependencies": {
+    "@astrojs/cloudflare": "^14.3.3",
+    "@astrojs/markdown-satteri": "^0.4.2",
+    "@astrojs/rss": "^4.0.19",
+    "@astrojs/sitemap": "^3.7.4",
+    "@astrojs/vue": "^7.0.2",
+    "@fontsource-variable/lexend": "^5.3.0",
+    "@tailwindcss/vite": "^4.3.3",
+    "astro": "^7.3.4",
+    "js-yaml": "^5.4.2",
+    "tailwindcss": "^4.3.3",
+    "vue": "^3.5.42"
+  },
+  "allowScripts": {
+    "esbuild": true,
+    "workerd": true
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.10",
+    "@axe-core/playwright": "^4.13.0",
+    "@fontsource/lexend": "^5.3.0",
+    "@playwright/test": "1.62.1",
+    "@types/node": "^24.13.6",
+    "monocart-reporter": "^2.13.1",
+    "prettier": "^3.9.9",
+    "prettier-plugin-astro": "^1.0.0",
+    "typescript": "^6.0.3",
+    "vue-tsc": "3.3.11",
+    "wrangler": "4.136.3"
+  }
+}

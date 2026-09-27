@@ -1,0 +1,242 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import { CONTACT_EMAIL, CONTACT_FORM_ON, CONTACT_MAILTO } from '../lib/contact';
+import { RETENTION_DAYS } from '../lib/contact-form';
+import { UMAMI_HOST_URL } from '../lib/analytics';
+import { ANALYTICS_ON } from '../lib/analytics-site';
+import { SITE_NAME } from '../lib/site';
+import { THEME_STORAGE_KEY } from '../lib/theme';
+import {
+  D1_RESTORE_WINDOW_DAYS,
+  UMAMI_RETENTION_MONTHS,
+  WORKER_LOG_RETENTION_DAYS,
+} from '../lib/platform-facts';
+
+/*
+ * Every claim is asserted by tests/privacy.spec.ts, and "Visit counts" by
+ * tests/analytics.spec.ts. Cloudflare's own logging is not claimed, only linked.
+ */
+
+/* Set by hand when the policy text changes; a build date would re-date it on every deploy. */
+const lastUpdated = '2026-09-26';
+
+const CLOUDFLARE_PRIVACY = 'https://www.cloudflare.com/privacypolicy/';
+const CLOUDFLARE_NEL =
+  'https://developers.cloudflare.com/network-error-logging/';
+const NEL_REPORT_HOST = 'a.nel.cloudflare.com';
+const UMAMI_PRIVACY = 'https://umami.is/privacy';
+const UMAMI_HOST = new URL(UMAMI_HOST_URL).host;
+
+const description = ANALYTICS_ON
+  ? 'This site sets no cookies, loads nothing from anywhere else, and counts visits with cookie-free analytics.'
+  : 'This site sets no cookies, loads nothing from anywhere else, and counts no visits.';
+---
+
+<BaseLayout title="Privacy" description={description}>
+  <PageHero title="Privacy" measure="reading" slab="none">
+    <p class="standfirst">
+      This site sets no cookies and loads nothing from any other domain.{' '}
+      {ANALYTICS_ON
+        ? 'It counts visits with Umami, which does not use cookies either.'
+        : 'It counts no visits.'}{' '}
+      {CONTACT_FORM_ON &&
+        `It stores what you type into the contact form, so that there is something to reply to, and each form submission's request, including your IP address, is logged for ${WORKER_LOG_RETENTION_DAYS} days.`}
+    </p>
+
+    <p class="mt-6 text-body">
+      Last updated <time datetime={lastUpdated}>{lastUpdated}</time>.
+    </p>
+  </PageHero>
+
+  <section class="reading-layout band py-section">
+    <div class="mx-auto max-w-page">
+      <div class="prose mx-auto max-w-measure">
+        <h2>What this site does not do</h2>
+
+        <ul>
+          <li>
+            <strong>No cookies.</strong> Nothing on {SITE_NAME} sets a cookie,
+            and nothing reads one.
+          </li>
+          <li>
+            <strong>One browser setting.</strong> When you press the colour
+            switch, your choice, light or dark, is kept in local storage under
+            the name <code>{THEME_STORAGE_KEY}</code>, so the next page opens
+            the same way. It never leaves your browser. Nothing else is written
+            to local storage, session storage or a database in your browser.{' '}
+            {ANALYTICS_ON &&
+              "The analytics script reads one local storage setting, named umami.disabled, which is Umami's own off switch, and writes nothing."}
+          </li>
+          <li>
+            <strong>Nothing loaded from other domains.</strong> Every file a
+            page loads comes from this domain:{' '}
+            {ANALYTICS_ON
+              ? 'the fonts, the images and the analytics script.'
+              : 'the fonts, the images and the scripts.'}{' '}
+            There are no embeds, no tag manager and no advertising.{' '}
+            {ANALYTICS_ON
+              ? `The site's own security policy blocks every other domain, with one exception: the analytics script may send visit counts to Umami at ${UMAMI_HOST}.`
+              : "The site's own security policy blocks every other domain."}{' '}
+            Error reports your browser sends to Cloudflare on its own are
+            described under Hosting.
+          </li>
+          <li>
+            <strong>No accounts.</strong> There is nothing to sign up for and
+            nothing to log in to.{' '}
+            {CONTACT_FORM_ON &&
+              'What the contact form stores, and the log kept of each submission, are described below.'}
+          </li>
+        </ul>
+        {ANALYTICS_ON && (
+          <Fragment>
+            <h2>Visit counts</h2>
+
+            <p>
+              This site counts visits with <a href="https://umami.is/">Umami</a>
+              , an analytics service that uses no cookies and does not follow
+              you from site to site. The script runs from this domain, and what
+              it sends goes to Umami at {UMAMI_HOST}, which stores it on servers
+              in the European Union and keeps it for {UMAMI_RETENTION_MONTHS}{' '}
+              months. It is the only place a page here sends anything to.
+            </p>
+
+            <p>
+              For each page you open, it sends the page's address and title, the
+              address of the page that linked you here if your browser shares
+              it, your screen size and your browser's language. Both addresses
+              are sent without anything after a ? or #.
+            </p>
+
+            <p>
+              When you click a link or a button, it also sends what kind of
+              control it was, its label, which part of the page it is in and,
+              for a link, where it goes. For an email link the address is left
+              out. Nothing you type is ever sent.
+            </p>
+
+            <p>
+              Like any server, Umami receives your IP address and your browser's
+              details with each request. Umami says it uses the IP address to
+              work out your country, region and city, and your browser details
+              to work out your browser, operating system and type of device, and
+              that it does not store the IP address. How Umami handles that is
+              covered by <a href={UMAMI_PRIVACY}>Umami's privacy policy</a>.
+            </p>
+
+            <p>
+              If your browser sends Do Not Track, nothing is sent at all.
+              Blocking JavaScript for this site stops it too.
+            </p>
+          </Fragment>
+        )}
+
+        <h2>Links away from here</h2>
+
+        <p>
+          The footer links to profiles on other sites, and posts may link
+          elsewhere. Those are ordinary links: nothing is sent when the page
+          loads, only when you follow one. Once you do, that site's own policy
+          applies and this one does not.
+        </p>
+
+        <h2>Hosting</h2>
+
+        <p>
+          This site is served by a Cloudflare Worker. Delivering a page means
+          Cloudflare receives the request for it, including your IP address, in
+          the same way any web server does. What they keep, and for how long, is
+          covered by{' '}
+          <a href={CLOUDFLARE_PRIVACY}>Cloudflare's privacy policy</a> rather
+          than by this one.
+        </p>
+
+        <p>
+          {CONTACT_FORM_ON
+            ? "Requests that run this site's own code, which in practice means sending the contact form, are also logged"
+            : "Requests that run this site's own code are also logged"}{' '}
+          to this site's Cloudflare account so that problems can be fixed. A log
+          entry holds the request and response, which can include your IP
+          address, and your browser and approximate location: city, country and
+          network provider. A trace of the same request records its timing and
+          status, the address requested, your browser and device, approximate
+          location and network provider, and the database queries it ran. Logs
+          and traces are deleted automatically after {WORKER_LOG_RETENTION_DAYS}{' '}
+          days and are not stored with your message. Loading a page in a browser
+          is not logged this way.
+        </p>
+
+        <p>
+          Cloudflare also asks your browser to report requests to this site that
+          fail, a feature called Network Error Logging. Only failures are
+          reported, never a successful visit, and only by browsers that support
+          it. Your browser sends the report itself, to {NEL_REPORT_HOST}, not to
+          this site, and the page's own security policy does not apply to it. A
+          report holds the address requested, the type of error and its timing.
+          Cloudflare says it stores no IP address or other personal data from
+          these reports; its{' '}
+          <a href={CLOUDFLARE_NEL}>Network Error Logging documentation</a> says
+          how.
+        </p>
+
+        {CONTACT_FORM_ON && (
+          <Fragment>
+            <h2>The contact form</h2>
+
+            <p>
+              The form on <a href="/contact/">the contact page</a> stores the
+              name, email address and message you type, so that there is
+              something to reply to. Stored with it are the time it was sent,
+              the time the emailed copy below went out, how many times a failed
+              copy has been retried, and a random ID that only tells one message
+              from another. No IP address, browser or referrer is stored with
+              it. It is stored in a database restricted to the European Union,
+              and a copy is emailed to the site owner's inbox, so that the
+              message is seen and can be answered.
+            </p>
+
+            <p>
+              To stop the form being used for bulk submissions, the number of
+              submissions from one network address is limited to five a minute.
+              For an IPv6 address the limit covers its whole /64 network, the
+              block a single connection is normally given. The limit is counted
+              by Cloudflare's rate limiter against a SHA-256 hash of your IPv4
+              address, or of your IPv6 /64, and the current date. This site
+              writes the hash nowhere else: it is not stored with your message
+              or linked to it. A hash of an address is not anonymous. The date
+              is no secret, so anyone holding the hash of an IPv4 address could
+              recover the address by hashing every possible one.
+            </p>
+
+            <p>
+              A daily job deletes messages from the database once they are{' '}
+              {RETENTION_DAYS} days old. A run that fails is not retried, so a
+              message can outlast {RETENTION_DAYS} days until the next day's run
+              succeeds. The database keeps point-in-time backups for{' '}
+              {D1_RESTORE_WINDOW_DAYS} days, so a deleted message can still be
+              restored for {D1_RESTORE_WINDOW_DAYS} days after it is deleted.
+              The emailed copy is kept like any other email, for as long as it
+              is needed to reply. To have both removed sooner, write to{' '}
+              <a href={CONTACT_MAILTO}>{CONTACT_EMAIL}</a> and say so; you do
+              not need to give a reason.
+            </p>
+          </Fragment>
+        )}
+
+        <h2>Email</h2>
+
+        <p>
+          If you write to <a href={CONTACT_MAILTO}>{CONTACT_EMAIL}</a>, that
+          message is kept in order to reply to it. It is not added to any list
+          and it is not passed on.
+        </p>
+
+        <h2>Questions</h2>
+
+        <p>
+          Ask at <a href={CONTACT_MAILTO}>{CONTACT_EMAIL}</a>.
+        </p>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

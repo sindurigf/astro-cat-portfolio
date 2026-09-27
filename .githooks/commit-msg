@@ -1,0 +1,33 @@
+#!/bin/sh
+# Strips Claude/Anthropic attribution trailers; human co-authors are kept.
+# Backstop for .claude/settings.json; scripts/check-commits.sh checks in CI.
+# Enable with `git config core.hooksPath .githooks`.
+
+set -eu
+
+msg_file=${1:?commit-msg: called without a message file}
+tmp_file="${msg_file}.noai"
+
+awk '
+  {
+    lowered = tolower($0)
+    if (lowered ~ /^[[:space:]]*co-authored-by:.*(anthropic|claude)/) next
+    if (lowered ~ /generated with \[?claude code/) next
+    lines[++kept] = $0
+  }
+  END {
+    last = 0
+    for (i = 1; i <= kept; i++) {
+      if (lines[i] ~ /[^[:space:]]/) last = i
+    }
+    for (i = 1; i <= last; i++) print lines[i]
+  }
+' "$msg_file" > "$tmp_file"
+
+if ! grep -q '[^[:space:]]' "$tmp_file"; then
+  rm -f "$tmp_file"
+  echo "commit-msg: the message is only attribution; refusing to empty it." >&2
+  exit 1
+fi
+
+mv "$tmp_file" "$msg_file"

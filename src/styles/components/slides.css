@@ -1,0 +1,292 @@
+@layer components {
+  /*
+   * Talk slideshow, src/pages/talks/[deck].astro. Every slide shows without
+   * JavaScript and in print; src/scripts/slideshow.ts shows one. Slides grow
+   * rather than scroll, so none is a tab stop.
+   */
+  .deck {
+    @apply mx-auto flex w-full max-w-page flex-col gap-6 py-6;
+  }
+
+  /*
+   * Wider at the sides than top and bottom: projection loses edges, and height
+   * is the constraint (tests/slideshow.spec.ts).
+   */
+  .deck:fullscreen {
+    @apply max-w-none overflow-y-auto bg-background px-12 py-6;
+  }
+
+  .deck-stage {
+    @apply grid gap-12;
+  }
+
+  /*
+   * Before the script is ready, show only the slide it will open on: the linked
+   * one, or the cover. Without JavaScript every slide stays on the page.
+   */
+  @media screen {
+    .deck[data-deck-ready] .slide:not([data-current]),
+    :root.js
+      .deck:not([data-deck-ready])
+      .deck-stage:not(:has(> .slide:target))
+      > .slide:not(:first-child),
+    :root.js
+      .deck:not([data-deck-ready])
+      .deck-stage:has(> .slide:target)
+      > .slide:not(:target) {
+      display: none;
+    }
+  }
+
+  /*
+   * `--deck-chrome`: deck padding, the gap above the control row, the row, and
+   * the slide's 8px shadow.
+   */
+  .slide {
+    @apply flex flex-col justify-center lg:px-16;
+    --deck-chrome: calc(var(--spacing-deck-bar) + --spacing(20));
+    min-height: calc(100svh - var(--spacing-header) - var(--deck-chrome));
+  }
+
+  .deck:fullscreen .slide {
+    min-height: calc(100svh - var(--deck-chrome));
+  }
+
+  /* Keeps the case slides.md uses; capitals at slide size read as shouting. */
+  .slide-title {
+    @apply text-slide-title font-black normal-case tracking-title text-pretty;
+  }
+
+  /* Gold passes SC 1.4.3 on `surface` and on the ground. */
+  .slide-label {
+    @apply mb-2 block text-label font-black uppercase tracking-label text-gold;
+  }
+
+  /* Number in gold above a centred title; the line under it `subtle`. */
+  .slide-opener {
+    @apply items-center text-center;
+  }
+
+  .slide-number {
+    @apply mb-4 text-slide-number font-black text-gold;
+  }
+
+  .slide-opener .slide-body p {
+    @apply text-subtle;
+  }
+
+  .slide-cover .slide-title {
+    @apply text-h1;
+  }
+
+  /*
+   * Page body size on the page; --text-slide in full screen, presenter and
+   * print. On the page, larger text trips WAVE's possible-heading alert
+   * (tests/wave-alerts.spec.ts). Wins on source order after `.prose`.
+   */
+  .slide-body {
+    @apply mt-4;
+  }
+
+  /* A bare URL as link text has no break point; at 305px it widens the page. */
+  .slide a {
+    @apply wrap-anywhere;
+  }
+
+  /*
+   * Room comes from `px-6` and the gap, not taller rows, so long tables fit
+   * 1280x720. Two classes to outrank `.prose > :first-child`.
+   */
+  .prose.slide-body > table {
+    @apply mt-3 mb-6;
+  }
+
+  .slide-body :is(th, td) {
+    @apply px-6 py-2;
+  }
+
+  /* A bold label opens a group: wide gap above, tight below. */
+  .slide-body > p:has(> strong:only-child):not(:first-child) {
+    @apply mt-head;
+  }
+
+  .slide-body > p:has(> strong:only-child) + :is(ul, ol, p) {
+    @apply mt-2;
+  }
+
+  .slide-body :is(p, ul, ol, table) {
+    @apply mt-4;
+  }
+
+  :is(.deck:fullscreen, .presenter) .slide-body :is(p, ul, ol, table) {
+    @apply text-slide;
+  }
+
+  @media print {
+    .slide-body :is(p, ul, ol, table) {
+      @apply text-slide;
+    }
+  }
+
+  /* Gold plus weight, so colour is not the only cue (SC 1.4.1). */
+  .slide-body strong {
+    @apply text-gold;
+  }
+
+  /*
+   * Group cards from `cardGroups` in src/lib/slides.ts: the site card one size
+   * down, 4px edge and pink shadow. They wrap on narrow screens.
+   */
+  .slide-cards {
+    @apply mt-6 grid items-start gap-6;
+    grid-template-columns: repeat(
+      auto-fit,
+      minmax(min(100%, var(--container-slide-card)), 1fr)
+    );
+  }
+
+  .slide-card {
+    @apply border-4 border-border bg-background px-6 py-4 shadow-hard-pink-4;
+  }
+
+  .slide-body > .slide-card {
+    @apply mt-6;
+  }
+
+  /* Under `.slide-body` to outrank its margin rule. */
+  .slide-body .slide-card > :first-child {
+    @apply mt-0;
+  }
+
+  .slide-body .slide-card > p:first-child + * {
+    @apply mt-2;
+  }
+
+  .slide-body li {
+    @apply mt-1;
+  }
+
+  /*
+   * Six or more blocks run in two columns from `lg` to fit 1280x720; a list or
+   * a label and its list is never split.
+   */
+  .slide-body:has(> :nth-child(6)):not(:has(> p > .aspect-frame, table)) {
+    @apply lg:columns-2 lg:gap-12;
+  }
+
+  .slide-body > :is(ul, ol) {
+    break-inside: avoid;
+  }
+
+  .slide-body > p:has(> strong:only-child) {
+    break-after: avoid;
+  }
+
+  /*
+   * From `lg`, a picture (post-figure.mjs's lone-image paragraph) sits beside
+   * the text, spanning all its rows.
+   */
+  .slide-body:has(> p > .aspect-frame) {
+    @apply lg:grid lg:grid-cols-12 lg:items-center lg:gap-x-12;
+  }
+
+  .slide-body:has(> p > .aspect-frame) > * {
+    @apply lg:col-span-7;
+  }
+
+  /* Capped by screen height too, so a square portrait fits 1280x720. */
+  .slide-body > p:has(> .aspect-frame) {
+    @apply mx-auto w-full lg:col-span-5 lg:col-start-8 lg:mt-0;
+    max-width: min(var(--container-md), 55svh);
+    grid-row: 1 / span 12;
+  }
+
+  .deck-bar {
+    @apply order-last flex flex-wrap items-center gap-4;
+    min-height: var(--spacing-deck-bar);
+  }
+
+  /*
+   * Holds its place, unseen and unfocusable, until the script is ready, so it
+   * cannot push the footer after first paint. No JavaScript, no controls.
+   */
+  .deck:not([data-deck-ready]) .deck-bar {
+    @apply invisible;
+  }
+
+  :root:not(.js) .deck:not([data-deck-ready]) .deck-bar {
+    @apply hidden;
+  }
+
+  .deck-count {
+    @apply ml-auto text-label font-black uppercase tabular-nums tracking-label;
+  }
+
+  .deck-part {
+    @apply text-label font-black uppercase tracking-label text-subtle
+      max-sm:hidden;
+  }
+
+  /*
+   * src/presenter/presenter.astro: slide beside notes from `lg`, 7/5.
+   * Non-current notes hide like slides.
+   */
+  .presenter-grid {
+    @apply grid gap-8 lg:grid-cols-12;
+  }
+
+  .presenter-grid > .deck-stage {
+    @apply lg:col-span-7;
+  }
+
+  .presenter-notes {
+    @apply lg:col-span-5;
+  }
+
+  .presenter .slide {
+    min-height: 0;
+  }
+
+  .presenter-note {
+    @apply mt-4;
+  }
+
+  .presenter-note p {
+    @apply text-slide;
+  }
+
+  @media screen {
+    .deck[data-deck-ready] .presenter-note:not([data-current]) {
+      display: none;
+    }
+  }
+
+  .presenter-upcoming {
+    @apply mt-4 text-h3 font-black;
+  }
+
+  /* One slide per 16:9 page; nothing else prints. */
+  @media print {
+    @page {
+      margin: 0;
+    }
+
+    body > :not(main),
+    .skip-link,
+    .deck-bar {
+      display: none !important;
+    }
+
+    .deck,
+    .deck-stage {
+      @apply block p-0;
+    }
+
+    .slide {
+      @apply m-0 shadow-none;
+      break-after: page;
+      height: 100vh;
+      min-height: 0;
+    }
+  }
+}

@@ -1,0 +1,171 @@
+@layer components {
+  /* A label with no break opportunity, like an email address, still reflows (SC 1.4.10). */
+  .btn-primary {
+    @apply lift-control inline-block border-4 border-border bg-gold px-8 py-4
+      text-button font-black uppercase tracking-label text-gold-text
+      shadow-hard-pink-4 wrap-anywhere;
+  }
+
+  .btn-secondary {
+    @apply lift-control inline-block border-4 border-border bg-surface px-8 py-4
+      text-button font-black uppercase tracking-label text-text
+      shadow-hard-pink-4 wrap-anywhere;
+  }
+
+  /*
+   * Hover fills cyan (SC 1.4.3). Unavailable is `aria-disabled`, never
+   * `disabled`, so it stays focusable; drawn dashed, no shadow, label `subtle`.
+   */
+  :is(.btn-primary, .btn-secondary, .nav-cta):not(
+      [aria-disabled='true']
+    ):hover {
+    @apply bg-cyan text-background;
+  }
+
+  /*
+   * Everything with the 4px pink shadow drops it while pressed. The logo tile's
+   * press is in @layer utilities.
+   */
+  :is(.btn-primary, .btn-secondary, .nav-cta, a.chip, .footer-sticker):not(
+      [aria-disabled='true'],
+      [aria-current]
+    ):active,
+  .surface-gold .btn-gold-primary:active {
+    @apply shadow-none;
+  }
+
+  /*
+   * The 4px press move, opt-in for no-preference. `::after` fills the vacated
+   * strip so a press near the top-left edge still lands on the control.
+   * tests/press.spec.ts.
+   */
+  @media (prefers-reduced-motion: no-preference) {
+    :is(.btn-primary, .btn-secondary, .nav-cta, a.chip, .footer-sticker):not(
+        [aria-disabled='true'],
+        [aria-current]
+      ):active,
+    .surface-gold .btn-gold-primary:active {
+      @apply relative translate-x-1 translate-y-1;
+    }
+
+    :is(.btn-primary, .btn-secondary, .nav-cta, a.chip, .footer-sticker):not(
+        [aria-disabled='true'],
+        [aria-current]
+      ):active::after,
+    .surface-gold .btn-gold-primary:active::after {
+      content: '';
+      position: absolute;
+      inset: calc(--spacing(2) * -1) 0 0 calc(--spacing(2) * -1);
+    }
+  }
+
+  :is(.btn-primary, .btn-secondary)[aria-disabled='true'] {
+    @apply cursor-not-allowed border-dashed bg-background text-subtle
+      shadow-none;
+  }
+
+  /*
+   * Sending is working, not unavailable: held pressed and gold, not dashed.
+   */
+  form[data-sending='true'] .btn-primary[aria-disabled='true'] {
+    @apply cursor-progress border-solid bg-gold text-gold-text;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    form[data-sending='true'] .btn-primary[aria-disabled='true'] {
+      @apply translate-x-1 translate-y-1;
+    }
+  }
+
+  /* Row gap clears the 4px shadow and focus ring when buttons wrap. */
+  .actions {
+    @apply flex flex-wrap items-start gap-x-inline gap-y-8;
+  }
+
+  /*
+   * No-JavaScript nav, shown via `@media (scripting: none)` rather than
+   * <noscript>, which WAVE flags. `md:hidden` still wins above `md`.
+   * tests/no-script.spec.ts.
+   */
+  .noscript-nav {
+    display: none;
+  }
+
+  @media (scripting: none) {
+    .noscript-nav {
+      display: block;
+    }
+
+    .mobile-menu {
+      display: none;
+    }
+  }
+
+  /*
+   * Gold tile, no border: the fill is the edge (SC 1.4.11). Hidden
+   * without data-theme, which the head script always sets when JavaScript runs.
+   */
+  .theme-switch {
+    @apply lift-control grid size-12 shrink-0 cursor-pointer place-items-center
+      bg-gold text-gold-text shadow-hard-pink-4 max-xs:size-10;
+  }
+
+  :root:not([data-theme]) .theme-switch {
+    @apply hidden;
+  }
+
+  .theme-switch svg {
+    @apply pointer-events-none size-6;
+  }
+
+  .theme-switch:hover {
+    @apply bg-cyan text-background;
+  }
+
+  .theme-switch-moon,
+  :root[data-theme='light'] .theme-switch-sun {
+    @apply hidden;
+  }
+
+  :root[data-theme='light'] .theme-switch-moon {
+    @apply block;
+  }
+
+  /*
+   * Forced colours drop the gold fill, so the box takes a ButtonText border.
+   * SVGs back to `auto`: Chromium defaults inline SVG to
+   * `preserve-parent-color` (tests/forced-colors.spec.ts).
+   */
+  .theme-switch svg,
+  .theme-switch svg * {
+    forced-color-adjust: auto;
+  }
+
+  @media (forced-colors: active) {
+    .theme-switch {
+      border-color: ButtonText;
+
+      @apply border-4 border-solid;
+    }
+
+    .theme-switch svg {
+      color: ButtonText;
+    }
+  }
+
+  /*
+   * Nav call to action, shared by the header row and the mobile dialog so both
+   * get the state rules. On its own page an inset ring replaces the shadow;
+   * same layer, so source order settles `box-shadow`.
+   */
+  .nav-cta {
+    @apply lift-control border-4 border-border bg-gold text-label font-black
+      uppercase tracking-label text-gold-text shadow-hard-pink-4;
+  }
+
+  .nav-cta[aria-current],
+  .nav-cta[aria-current]:hover {
+    --lift: 0px;
+    box-shadow: var(--inset-shadow-cta-current);
+  }
+}

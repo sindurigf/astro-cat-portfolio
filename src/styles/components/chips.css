@@ -1,0 +1,62 @@
+@layer components {
+  .panel-lead {
+    @apply mt-3 max-w-2xl text-body text-text text-pretty;
+  }
+
+  .bullet-list {
+    @apply list-disc pl-6 text-text marker:text-gold;
+  }
+
+  /*
+   * Always a link, with a 24px target (SC 2.5.8). The current filter carries
+   * `aria-current` and a marker. A non-link fact is a `.badge`.
+   */
+  .chip {
+    @apply inline-flex min-h-target items-center gap-2 border-4 border-border
+      bg-surface px-4 py-2 text-label font-black uppercase tracking-label
+      text-text;
+  }
+
+  /*
+   * Carries its own dark ground, so on gold it stays pink-text on dark (SC
+   * 1.4.3).
+   * Tilt comes from markup.
+   */
+  .sticker {
+    @apply inline-block border-4 border-border bg-surface px-4 py-2 text-label
+      font-black uppercase tracking-label text-pink-text shadow-hard-mark-4;
+  }
+
+  .surface-gold .sticker {
+    border-color: var(--color-border);
+    color: var(--color-pink-text);
+  }
+
+  .chip-sticker {
+    @apply text-pink-text;
+  }
+
+  a.chip {
+    @apply lift-control shadow-hard-pink-4;
+  }
+
+  a.chip:not([aria-current]):hover {
+    @apply text-cyan;
+  }
+
+  /*
+   * Current: a flat text-colour block without shadow (14.42); the marker
+   * inverts.
+   */
+  a.chip[aria-current] {
+    @apply bg-text text-background shadow-none;
+
+    --lift: 0px;
+  }
+
+  /* background on text: 14.42. */
+  .badge {
+    @apply inline-flex items-center bg-text px-2 py-1 text-label font-black
+      uppercase tracking-label text-background;
+  }
+}

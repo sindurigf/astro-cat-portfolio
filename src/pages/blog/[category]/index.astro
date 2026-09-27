@@ -1,0 +1,60 @@
+---
+import Breadcrumbs from '../../../components/Breadcrumbs.astro';
+import { blogTrail } from '../../../lib/breadcrumbs';
+import type { GetStaticPaths, InferGetStaticPropsType } from 'astro';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import PageHero from '../../../components/PageHero.astro';
+import BlogListing from '../../../components/BlogListing.astro';
+import {
+  categoryLabel,
+  headingLabel,
+  getCategoriesWithPosts,
+  getSortedPosts,
+} from '../../../lib/blog';
+import { CATEGORIES } from '../../../lib/categories';
+
+export const getStaticPaths = (async () => {
+  const posts = await getSortedPosts();
+  const withPosts = await getCategoriesWithPosts();
+
+  return withPosts.map((category) => ({
+    params: { category },
+    props: {
+      category,
+      posts: posts.filter((post) => post.data.category === category),
+    },
+  }));
+}) satisfies GetStaticPaths;
+
+type Props = InferGetStaticPropsType<typeof getStaticPaths>;
+
+const { category, posts } = Astro.props;
+
+const label = categoryLabel(category);
+const trail = blogTrail(label);
+
+/* Not paginated: no category fills a screen, and an unused page route would ship untested. */
+---
+
+<BaseLayout
+  title={label}
+  description={`${CATEGORIES[category].teaser} Posts filed under ${label}, newest first.`}
+  trail={trail}
+>
+  {/* No "All posts" link here: the filter's first option already is one. */}
+  <PageHero title={headingLabel(label)} titleSize="h2" slab="none">
+    <Breadcrumbs slot="eyebrow" crumbs={trail.crumbs} />
+  </PageHero>
+
+  <div class="mx-auto max-w-page py-section">
+    <BlogListing
+      posts={posts}
+      filter={{
+        kind: 'category',
+        category,
+      }}
+      currentPage={1}
+      totalPages={1}
+    />
+  </div>
+</BaseLayout>

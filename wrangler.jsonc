@@ -1,0 +1,89 @@
+// The adapter writes dist/client/wrangler.json from this, which is deployed.
+// Placeholders to replace before a deploy: `name`, `routes`, `database_name`
+// and the sender. The account comes from `wrangler login` or
+// CLOUDFLARE_ACCOUNT_ID, never this file. Local builds and tests need none.
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+
+  // Must match the dashboard's Worker name, or Workers Builds refuses to deploy.
+  "name": "example-site",
+  "compatibility_date": "2026-09-11",
+
+  // Adds the scheduled handler; the adapter's default entry has fetch only.
+  "main": "./src/worker.ts",
+
+  // Daily retention sweep, not retried on failure. /privacy states the timing.
+  "triggers": { "crons": ["17 3 * * *"] },
+
+  // Worker requests only, not static assets; /privacy discloses the contents.
+  // Set here, not in the dashboard, which a deploy overwrites.
+  "observability": {
+    "logs": {
+      "enabled": true,
+      "head_sampling_rate": 1,
+      "invocation_logs": true,
+      "persist": true,
+    },
+    "traces": {
+      "enabled": true,
+      "head_sampling_rate": 1,
+      "persist": true,
+    },
+  },
+
+  // Off: the workers.dev address would be a second copy of the site.
+  "workers_dev": false,
+
+  // Explicit: it defaults to `workers_dev`, which would turn PR previews off.
+  "preview_urls": true,
+
+  // A deploy replaces routes with this list, dropping dashboard-only domains.
+  "routes": [{ "pattern": "example.com", "custom_domain": true }],
+
+  // No `database_id`: deploy finds the database by `database_name`, or creates
+  // it. Create it first in the EU, as /privacy states: docs/DEPLOYMENT.md#d1.
+  "d1_databases": [
+    {
+      "binding": "MESSAGES_DB",
+      "database_name": "example-site",
+    },
+  ],
+
+  // Must match `contact.notificationSender` in src/site.config.ts.
+  "send_email": [
+    {
+      "name": "CONTACT_MAILER",
+      "allowed_sender_addresses": ["contact-form@example.com"],
+    },
+  ],
+
+  // Keyed on a hash, never the address: src/lib/contact-env.ts.
+  "ratelimits": [
+    {
+      "name": "CONTACT_RATE_LIMIT",
+      "namespace_id": "1001",
+      "simple": { "limit": 5, "period": 60 },
+    },
+  ],
+
+  "assets": {
+    // No `build` key: `npm run build` already builds it.
+    "directory": "./dist/client",
+
+    // Navigations to asset-less paths skip the Worker, so a form POST gets 405.
+    // /videos/*: the asset layer ignores Range; Safari needs a 206.
+    // /_image: images on on-demand pages, which the asset layer answers with 404.html.
+    "run_worker_first": [
+      "/contact/send",
+      "/contact/send/",
+      "/videos/*",
+      "/_image",
+    ],
+
+    // Workers does not serve 404.html by default: tests/not-found.spec.ts.
+    "not_found_handling": "404-page",
+
+    // The default: /about redirects to /about/ with a 307.
+    "html_handling": "auto-trailing-slash",
+  },
+}

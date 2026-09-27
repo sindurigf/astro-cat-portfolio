@@ -1,0 +1,41 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import BlogListing from '../../components/BlogListing.astro';
+import CloseRow from '../../components/CloseRow.astro';
+import PageHero from '../../components/PageHero.astro';
+import { getSortedPosts } from '../../lib/blog';
+import { pageCount, postsOnPage } from '../../lib/pagination';
+import { SITE_NAME } from '../../lib/site';
+
+/* Page 1; pages 2+ are src/pages/blog/page/[page].astro. */
+const posts = await getSortedPosts();
+const totalPages = pageCount(posts.length);
+---
+
+<BaseLayout
+  title="Blog"
+  description={`Every post on ${SITE_NAME}, newest first, with a filter for each category.`}
+>
+  <PageHero title="Blog" />
+
+  {/* `.band`: base.css collapses the gap to the close row to one --spacing-section. */}
+  <div class="band py-section">
+    <div class="mx-auto max-w-page">
+      <BlogListing
+        posts={postsOnPage(posts, 1)}
+        filter={{ kind: 'all' }}
+        currentPage={1}
+        totalPages={totalPages}
+        featureFirst
+      />
+    </div>
+  </div>
+
+  <CloseRow
+    eyebrow="Next"
+    readHref="/about/"
+    readLabel="About me"
+    actionHref="/contact/"
+    actionLabel="Get in touch"
+  />
+</BaseLayout>

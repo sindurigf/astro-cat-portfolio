@@ -1,0 +1,11 @@
+// A deck is one file of many slides, so three document rules misread it.
+{
+  // Every slide opens with a # heading; the page renders each as an h3.
+  "MD025": false,
+  // A closing slide may repeat the talk's title, as this deck's slide 28 does.
+  "MD024": false,
+  // A bold label stands in for a column heading: an h4 cannot meet the 19px
+  // floor and 0.8 step tests/headings.spec.ts holds at 320px, and
+  // src/lib/slides.ts rejects a second heading on a slide for that reason.
+  "MD036": false,
+}

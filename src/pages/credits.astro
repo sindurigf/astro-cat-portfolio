@@ -1,0 +1,244 @@
+---
+import CloseRow from '../components/CloseRow.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import { CONTACT_EMAIL, CONTACT_MAILTO } from '../lib/contact';
+import { NAME_INSPIRATION, PHOTOGRAPHERS, THANKS } from '../lib/credits';
+import { SITE_NAME } from '../lib/site';
+
+/* The project this template was extracted from; scripts/check-leaks.mjs allows this one line. */
+// prettier-ignore
+const ORIGIN = { text: 'Based on sinduri-lol by Sinduri Guntupalli, MIT licence.', href: 'https://github.com/sindurigf/sinduri-lol' } as const;
+
+/* Keep in step with package.json, wrangler.jsonc, src/assets/social-icons.svg and AI_DISCLOSURE.md. */
+const BUILT_WITH = [
+  { name: 'Astro', href: 'https://astro.build/' },
+  { name: 'Vue', href: 'https://vuejs.org/' },
+  { name: 'Tailwind CSS', href: 'https://tailwindcss.com/' },
+  { name: 'Lexend', href: 'https://www.lexend.com/' },
+  { name: 'Fontsource', href: 'https://fontsource.org/' },
+  { name: 'Simple Icons', href: 'https://simpleicons.org/' },
+  { name: 'Cloudflare Workers', href: 'https://workers.cloudflare.com/' },
+  { name: 'Cloudflare D1', href: 'https://developers.cloudflare.com/d1/' },
+  {
+    name: 'Cloudflare Email Routing',
+    href: 'https://developers.cloudflare.com/email-routing/',
+  },
+  { name: 'Umami', href: 'https://umami.is/' },
+  { name: 'Playwright', href: 'https://playwright.dev/' },
+  { name: 'axe-core', href: 'https://github.com/dequelabs/axe-core' },
+  { name: 'Claude Code', href: 'https://claude.com/product/claude-code' },
+] as const;
+
+const DESIGNED_WITH = [
+  {
+    name: 'Stitch',
+    href: 'https://stitch.withgoogle.com/',
+    role: 'For design',
+  },
+  {
+    name: 'Claude Design',
+    href: 'https://claude.com/product/design',
+    role: 'For refinement',
+  },
+] as const;
+
+const GUIDES = [
+  {
+    name: 'ACCESSIBILITY.md',
+    href: 'https://github.com/mgifford/ACCESSIBILITY.md',
+    author: { name: 'Mike Gifford', href: 'https://ox.ca/' },
+    use: 'The format this site uses for its accessibility statement.',
+  },
+  {
+    name: 'The Website Specification',
+    href: 'https://specification.website/',
+    author: { name: 'Joost de Valk', href: 'https://joost.blog/' },
+    use: 'The checklist used to check the SEO, security and agent readiness of this site.',
+  },
+] as const;
+
+const photographers = Object.entries(PHOTOGRAPHERS).map(([name, href]) => ({
+  name,
+  href,
+}));
+
+/* `min-h-target`: the SC 2.5.8 inline exception does not cover a bare link. */
+const LINK_ITEM = 'link inline-flex min-h-target items-center';
+const CARD_HEADING = 'text-h2 text-text';
+
+const NAMED_LIST = 'mt-6 grid gap-4';
+/* `min-w-0`: otherwise "ACCESSIBILITY.md" under SC 1.4.12 spacing overflows its grid track at 305px. */
+const NAMED_ENTRY = 'min-w-0 bg-background p-card-tight';
+---
+
+<BaseLayout
+  title="Credits"
+  description={`Where the name ${SITE_NAME} comes from, who helped, who took the photos, and what the site was designed, built and tested with.`}
+>
+  <PageHero title="Credits">
+    <p class="standfirst">
+      Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
+      tempor incididunt ut labore et dolore magna aliqua.
+    </p>
+  </PageHero>
+
+  <section class="band py-section">
+    <div class="mx-auto max-w-page">
+      <div id="name" class="card">
+        <h2 class={CARD_HEADING}>Where the name comes from</h2>
+        <p class="mt-6 max-w-4xl text-h3 font-normal text-text text-pretty">
+          Lorem ipsum dolor sit amet{' '}
+          <a href={NAME_INSPIRATION.href}>{NAME_INSPIRATION.site}</a>,
+          consectetur adipiscing elit sed do {NAME_INSPIRATION.name}.
+        </p>
+        <p class="mt-6 max-w-prose text-body text-text text-pretty">
+          Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris
+          nisi ut aliquip, <a href={CONTACT_MAILTO}>{CONTACT_EMAIL}</a>. Duis
+          aute irure dolor!
+        </p>
+        <p class="mt-8">
+          <a href="/about/#motto" class="chip">
+            Lorem ipsum dolor
+          </a>
+        </p>
+      </div>
+
+      <div id="not-found" class="card mt-grid">
+        <h2 class={CARD_HEADING}>The 404 page</h2>
+        <p class="mt-6 max-w-4xl text-h3 font-normal text-text text-pretty">
+          The 404 page is a nod to <cite>Star Wars</cite> (1977), the film later
+          called <cite>Episode IV: A New Hope</cite>.
+        </p>
+        <p class="mt-6 max-w-prose text-body text-text text-pretty">
+          Its opening line is the film's own, with a website in place of the
+          galaxy. The headline comes from a checkpoint in Mos Eisley, where
+          stormtroopers stop Obi-Wan Kenobi and Luke Skywalker with R2-D2 and
+          C-3PO right there in the speeder. Obi-Wan waves his hand and says
+          &ldquo;These aren't the droids you're looking for.&rdquo; It is a Jedi
+          mind trick: the stormtrooper repeats it and waves them through. Here
+          it means the page you wanted is not here, so move along.
+        </p>
+      </div>
+
+      <div class="card mt-grid">
+        <h2 class={CARD_HEADING}>Thank you</h2>
+        <dl class:list={[NAMED_LIST, 'md:grid-cols-2']}>
+          {THANKS.map((person) => (
+            <div class={NAMED_ENTRY}>
+              <dt class="text-body font-black">
+                <a href={person.href} class={LINK_ITEM}>
+                  {person.name}
+                </a>
+              </dt>
+              <dd class="mt-1 max-w-prose text-body text-text text-pretty">
+                {person.reason}
+              </dd>
+            </div>
+          ))}
+        </dl>
+      </div>
+
+      <div class="card mt-grid">
+        <h2 class={CARD_HEADING}>Photos</h2>
+
+        <p class="mt-6 text-body text-text text-pretty">
+          Photos on this site and in its posts are by:
+        </p>
+
+        <ul class="bullet-list mt-4 gap-x-12 sm:columns-2">
+          {photographers.map((photographer) => (
+            <li class="break-inside-avoid">
+              <a href={photographer.href} class={LINK_ITEM}>
+                {photographer.name}
+              </a>
+            </li>
+          ))}
+        </ul>
+
+        <p class="mt-4 text-body text-text text-pretty">And more.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="band pb-section">
+    <div class="mx-auto grid max-w-page gap-grid lg:grid-cols-2">
+      <div class="card">
+        <h2 class={CARD_HEADING}>Design tools</h2>
+
+        <dl class={NAMED_LIST}>
+          {DESIGNED_WITH.map((tool) => (
+            <div class={NAMED_ENTRY}>
+              <dt class="text-body font-black">
+                <a href={tool.href} class={LINK_ITEM}>
+                  {tool.name}
+                </a>
+              </dt>
+              <dd class="mt-1 text-body text-text">{tool.role}</dd>
+            </div>
+          ))}
+          <div class={NAMED_ENTRY}>
+            <dt class="text-body font-black text-text">
+              Lorem ipsum dolor sit amet
+            </dt>
+            <dd class="mt-1 text-body text-text">
+              Consectetur adipiscing elit
+            </dd>
+          </div>
+        </dl>
+      </div>
+
+      <div class="card">
+        <h2 class={CARD_HEADING}>Guides</h2>
+
+        <dl class={NAMED_LIST}>
+          {GUIDES.map((guide) => (
+            <div class={NAMED_ENTRY}>
+              <dt class="text-body font-black">
+                <a href={guide.href} class={LINK_ITEM}>
+                  {guide.name}
+                </a>
+              </dt>
+              <dd class="mt-1 text-body text-text text-pretty">
+                By <a href={guide.author.href}>{guide.author.name}</a>.{' '}
+                {guide.use}
+              </dd>
+            </div>
+          ))}
+        </dl>
+      </div>
+
+      <div class="card lg:col-span-2">
+        <h2 class={CARD_HEADING}>Built and tested with</h2>
+
+        <ul class="bullet-list mt-6 gap-x-12 sm:columns-2 lg:columns-3">
+          {BUILT_WITH.map((tool) => (
+            <li class="break-inside-avoid">
+              <a href={tool.href} class={LINK_ITEM}>
+                {tool.name}
+              </a>
+            </li>
+          ))}
+        </ul>
+
+        <p class="mt-6 text-body text-text text-pretty">
+          The licence of every package, script and font this site sends to your
+          browser is in <a href="/licenses.txt">the licences file</a>.
+        </p>
+        <p class="mt-6 text-body text-text text-pretty">
+          <a href={ORIGIN.href} class={LINK_ITEM}>
+            {ORIGIN.text}
+          </a>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <CloseRow
+    eyebrow="Next"
+    readHref="/accessibility/"
+    readLabel="Accessibility statement"
+    actionHref="/contact/"
+    actionLabel="Get in touch"
+  />
+</BaseLayout>

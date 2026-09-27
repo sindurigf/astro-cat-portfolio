@@ -1,0 +1,54 @@
+---
+import type { GetStaticPaths, InferGetStaticPropsType } from 'astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import TalkSlide from '../../components/TalkSlide.astro';
+import DeckBar from '../../components/DeckBar.astro';
+import { talkDecks } from '../../lib/talk-deck';
+import { getSortedPosts } from '../../lib/blog';
+import { postHref } from '../../lib/paths';
+
+/*
+ * Every slide is in the HTML; without JavaScript the page is a plain document.
+ * Slides are h2, not h3 under a part h2: shown one at a time, a part heading
+ * would sit on no slide, so DeckBar names the part instead.
+ */
+
+/* A deck's post shares its slug; a deck with none links nowhere. */
+export const getStaticPaths = (async () => {
+  const posts = await getSortedPosts();
+  return [...(await talkDecks())].map(([deck, slides]) => ({
+    params: { deck },
+    props: { slides, post: posts.find((post) => post.id === deck) },
+  }));
+}) satisfies GetStaticPaths;
+
+type Props = InferGetStaticPropsType<typeof getStaticPaths>;
+
+const { slides, post } = Astro.props;
+const cover = slides[0]?.slide;
+const description = cover?.data.info;
+if (!cover || description === undefined) {
+  throw new Error('A deck needs a cover slide with info: (talk-loader.ts).');
+}
+---
+
+<BaseLayout title={`${cover.data.title}, the slides`} description={description}>
+  <div class="deck" data-deck={cover.data.deck}>
+    <DeckBar total={slides.length} />
+    <div class="deck-stage">
+      {slides.map(({ slide, part }) => (
+        <TalkSlide slide={slide} part={part} />
+      ))}
+    </div>
+  </div>
+  {post && (
+    <p class="mx-auto max-w-page pb-section text-body text-text print:hidden">
+      This talk is also a post:{' '}
+      <a href={postHref(post.id)}>{post.data.title}</a>.
+    </p>
+  )}
+</BaseLayout>
+
+<script>
+  import '../../scripts/slideshow';
+</script>

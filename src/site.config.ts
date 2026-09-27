@@ -1,0 +1,193 @@
+/*
+ * Everything that names the site or its owner. Replace every value before
+ * publishing; the placeholders use RFC 2606 reserved names. Validated on
+ * import, so a bad value fails the build and the tests, not a visitor.
+ */
+
+/** Labels with an icon in src/assets/social-icons.svg. */
+export const PROFILE_LABELS = [
+  'GitHub',
+  'LinkedIn',
+  'Instagram',
+  'Bluesky',
+  'Mastodon',
+] as const;
+
+export type ProfileLabel = (typeof PROFILE_LABELS)[number];
+
+export interface SiteConfig {
+  site: {
+    /** Shown in titles, the header, the feed and the manifest. */
+    name: string;
+    /** The home screen label: the manifest's short_name and iOS's app title. */
+    shortName: string;
+    /** Origin only, https, no path: canonicals, feeds and the sitemap. */
+    url: string;
+    /** BCP 47, e.g. `en-GB`. */
+    locale: string;
+    /** The year of first publication, for the footer's copyright line. */
+    firstPublished: number;
+    /** One or two lines of at most 40 characters: the sharing image, `npm run og`. */
+    tagline: ReadonlyArray<string>;
+    /** The public source repository, https; /accessibility links its record. */
+    repository: string;
+  };
+  person: {
+    /** The homepage `<h1>` sets each name on its own line. */
+    givenName: string;
+    familyName: string;
+    jobTitle: string;
+    /** Public: in the footer, security.txt, llms.txt and JSON-LD. */
+    email: string;
+    /** Root-relative path of a CV under public/, or null for none. */
+    cv: string | null;
+  };
+  /** JSON-LD `sameAs` and the footer, in this order. */
+  profiles: ReadonlyArray<{ label: ProfileLabel; href: string }>;
+  /** Umami Cloud; null loads no tracker. */
+  analytics: { umamiWebsiteId: string } | null;
+  contact: {
+    /**
+     * `cloudflare-d1`: the form, stored in D1 and mailed by Email Routing.
+     * `none`: /contact shows the email address only. docs/DEPLOYMENT.md.
+     */
+    form: 'cloudflare-d1' | 'none';
+    /** Must equal `allowed_sender_addresses` in wrangler.jsonc. */
+    notificationSender: string;
+  };
+}
+
+const config: SiteConfig = {
+  site: {
+    name: 'example.com',
+    shortName: 'example',
+    url: 'https://example.com',
+    locale: 'en-GB',
+    firstPublished: 2026,
+    tagline: ['Lorem ipsum dolor sit amet', 'Consectetur adipiscing elit'],
+    repository: 'https://github.example/alex-example/example-site',
+  },
+  person: {
+    givenName: 'Alex',
+    familyName: 'Example',
+    jobTitle: 'Job Title',
+    email: 'hello@example.com',
+    cv: null,
+  },
+  profiles: [
+    { label: 'GitHub', href: 'https://github.example/alex-example' },
+    { label: 'LinkedIn', href: 'https://linkedin.example/in/alex-example' },
+    { label: 'Instagram', href: 'https://instagram.example/alex-example/' },
+    { label: 'Bluesky', href: 'https://bluesky.example/profile/alex-example' },
+    { label: 'Mastodon', href: 'https://mastodon.example/@alex-example' },
+  ],
+  analytics: null,
+  contact: {
+    form: 'cloudflare-d1',
+    notificationSender: 'contact-form@example.com',
+  },
+};
+
+const CONTACT_FORMS: ReadonlyArray<string> = ['cloudflare-d1', 'none'];
+const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+const EARLIEST_YEAR = 1991;
+const TAGLINE_MAX_LINES = 2;
+/* What fits the sharing image at its text size. */
+const TAGLINE_MAX_LENGTH = 40;
+
+const invalid = (path: string, why: string): never => {
+  throw new Error(`src/site.config.ts: ${path} ${why}`);
+};
+
+const text = (path: string, value: string) => {
+  if (value.trim() === '' || value !== value.trim()) {
+    invalid(path, 'must be non-empty text without surrounding spaces.');
+  }
+};
+
+const httpsUrl = (path: string, value: string): URL => {
+  let url: URL;
+  try {
+    url = new URL(value);
+  } catch {
+    return invalid(path, `is not a URL: ${value}`);
+  }
+  if (url.protocol !== 'https:') invalid(path, 'must use https.');
+  return url;
+};
+
+const email = (path: string, value: string) => {
+  if (!EMAIL.test(value)) invalid(path, `is not an email address: ${value}`);
+};
+
+export const validateSiteConfig = (value: SiteConfig): SiteConfig => {
+  const { site, person, profiles, analytics, contact } = value;
+
+  text('site.name', site.name);
+  text('site.shortName', site.shortName);
+  const origin = httpsUrl('site.url', site.url);
+  if (origin.href !== `${origin.origin}/` || site.url.endsWith('/')) {
+    invalid('site.url', 'must be an origin with no path or trailing slash.');
+  }
+  try {
+    if (Intl.getCanonicalLocales(site.locale)[0] !== site.locale) {
+      invalid('site.locale', `is not in canonical BCP 47 form: ${site.locale}`);
+    }
+  } catch (error) {
+    if (error instanceof RangeError) {
+      invalid('site.locale', `is not a BCP 47 tag: ${site.locale}`);
+    }
+    throw error;
+  }
+  httpsUrl('site.repository', site.repository);
+  if (site.tagline.length < 1 || site.tagline.length > TAGLINE_MAX_LINES) {
+    invalid('site.tagline', `must be one or two lines.`);
+  }
+  site.tagline.forEach((line, index) => {
+    text(`site.tagline[${index}]`, line);
+    if (line.length > TAGLINE_MAX_LENGTH) {
+      invalid(
+        `site.tagline[${index}]`,
+        `is over ${TAGLINE_MAX_LENGTH} characters.`,
+      );
+    }
+  });
+  if (
+    !Number.isInteger(site.firstPublished) ||
+    site.firstPublished < EARLIEST_YEAR
+  ) {
+    invalid('site.firstPublished', 'must be a four-digit year.');
+  }
+
+  text('person.givenName', person.givenName);
+  text('person.familyName', person.familyName);
+  text('person.jobTitle', person.jobTitle);
+  email('person.email', person.email);
+  if (person.cv !== null && !/^\/[^/].*\.pdf$/.test(person.cv)) {
+    invalid('person.cv', 'must be null or a root-relative path to a PDF.');
+  }
+
+  const labels = new Set<string>();
+  profiles.forEach(({ label, href }, index) => {
+    if (!PROFILE_LABELS.includes(label)) {
+      invalid(`profiles[${index}].label`, `has no icon: ${label}`);
+    }
+    if (labels.has(label)) invalid(`profiles[${index}]`, `repeats ${label}.`);
+    labels.add(label);
+    httpsUrl(`profiles[${index}].href`, href);
+  });
+
+  if (analytics !== null && !UUID.test(analytics.umamiWebsiteId)) {
+    invalid('analytics.umamiWebsiteId', 'must be the UUID Umami shows.');
+  }
+
+  if (!CONTACT_FORMS.includes(contact.form)) {
+    invalid('contact.form', `names no known backend: ${String(contact.form)}`);
+  }
+  email('contact.notificationSender', contact.notificationSender);
+
+  return value;
+};
+
+export const SITE_CONFIG = validateSiteConfig(config);

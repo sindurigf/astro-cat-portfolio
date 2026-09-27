@@ -1,0 +1,41 @@
+# Static assets only. Why each header: ARCHITECTURE.md#security-headers.
+# Cloudflare applies every matching rule and comma-joins a repeated header,
+# so each name belongs to one rule; `! Cache-Control` detaches the global one.
+
+/*
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'sha256-QzWFZi+FLIx23tnm9SBU4aEgx4x8DsuASP07mfqol/c=' 'sha256-Ya0pUYrC7nM5Cn/056TyVuEiz6dFGrzmkWzgON0pF0U=' 'sha256-lKeNULkT5u+YuZ/PnuAeywY5kNBdBI9/mwuLzfPq6Ro='; style-src 'self' 'sha256-vv9IoKo7BSLbWcUHr3tNmfNVmm5L/9Cfn2H6LMk7/ow='; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests
+  Strict-Transport-Security: max-age=15552000; includeSubDomains
+  Referrer-Policy: strict-origin-when-cross-origin
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()
+  Cross-Origin-Opener-Policy: same-origin
+  Cache-Control: no-transform
+  Speculation-Rules: "/speculationrules.json"
+  Link: </llms.txt>; rel="describedby"; type="text/plain", </sitemap-index.xml>; rel="sitemap"; type="application/xml", </rss.xml>; rel="alternate"; type="application/rss+xml"
+
+# Content-hashed filenames only: an unhashed file here is frozen for a year.
+/_astro/*
+  ! Cache-Control
+  Cache-Control: public, max-age=31536000, immutable
+  Cross-Origin-Resource-Policy: same-origin
+
+# Drop `no-transform` so Cloudflare compresses these. The tracker's URL is not
+# hashed, so an hour: no revalidation per page, and an update lands within it.
+/vendor/*
+  ! Cache-Control
+  Cache-Control: public, max-age=3600
+
+/favicon.*
+  ! Cache-Control
+
+/*rss.xml
+  ! Cache-Control
+
+# Agents' copy of each post; the HTML page stays canonical.
+/blog/*.md
+  X-Robots-Tag: noindex
+
+# Chromium ignores the file under any other type.
+/speculationrules.json
+  Content-Type: application/speculationrules+json

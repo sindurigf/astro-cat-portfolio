@@ -1,0 +1,65 @@
+---
+import { render, type CollectionEntry } from 'astro:content';
+
+/* The cover heading is h1 on the slideshow and h2 in the presenter view, which has its own h1. */
+interface Props {
+  slide: CollectionEntry<'talks'>;
+  part: string;
+  coverHeading?: 'h1' | 'h2';
+}
+
+const { slide, part, coverHeading = 'h1' } = Astro.props;
+const { number, layout, label, title } = slide.data;
+const isCover = layout === 'cover';
+const isOpener = layout === 'section';
+
+/* "2" from "Part 2: The Fellowship"; aria-hidden since DeckBar names the part. */
+const partNumber = isOpener ? /\bPart (\d+)\b/.exec(part)?.[1] : undefined;
+const Heading = isCover ? coverHeading : 'h2';
+const { Content } = await render(slide);
+
+/*
+ * <p> to <div>: short lines at standfirst size trip WAVE's "Possible heading"
+ * alert (tests/wave-alerts.spec.ts). The loader keeps the cover text-only.
+ */
+const coverLines = isCover
+  ? (slide.rendered?.html ?? '').replace(/<(\/?)p>/g, '<$1div>')
+  : '';
+---
+
+<section
+  class:list={[
+    'card slide',
+    isCover && 'slide-cover',
+    isOpener && 'slide-opener',
+  ]}
+  id={`slide-${number}`}
+  data-part={part}
+>
+  {/*
+    The label is inside the heading so heading navigation reaches it. The
+    hidden colon separates it in the accessible name (aria-label would replace
+    visible text); inside the span it fails tests/word-spacing.spec.ts.
+  */}
+  {partNumber && (
+    <div class="slide-number" aria-hidden="true">
+      {partNumber}
+    </div>
+  )}
+  <Heading class="slide-title">
+    {label && (
+      <>
+        <span class="slide-label">{label}</span>
+        <span class="sr-only">:</span>
+      </>
+    )}{' '}
+    {title}
+  </Heading>
+  {isCover ? (
+    <div class="standfirst talk-cover" set:html={coverLines} />
+  ) : (
+    <div class="prose slide-body">
+      <Content />
+    </div>
+  )}
+</section>

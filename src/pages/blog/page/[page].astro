@@ -1,0 +1,58 @@
+---
+import Breadcrumbs from '../../../components/Breadcrumbs.astro';
+import { blogTrail } from '../../../lib/breadcrumbs';
+import type { GetStaticPaths, InferGetStaticPropsType } from 'astro';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import PageHero from '../../../components/PageHero.astro';
+import BlogListing from '../../../components/BlogListing.astro';
+import { getCategoriesWithPosts, getSortedPosts } from '../../../lib/blog';
+import { pageCount, postsOnPage } from '../../../lib/pagination';
+import { SITE_LANGUAGE } from '../../../lib/site-language';
+
+export const getStaticPaths = (async () => {
+  /* Inside the function: Astro hoists getStaticPaths, so frontmatter consts are undefined here. */
+  const FIRST_PAGED_ROUTE = 2;
+
+  const posts = await getSortedPosts();
+  const totalPages = pageCount(posts.length);
+
+  return Array.from(
+    { length: Math.max(0, totalPages - FIRST_PAGED_ROUTE + 1) },
+    (_, index) => {
+      const page = index + FIRST_PAGED_ROUTE;
+      return {
+        params: { page: String(page) },
+        props: { posts: postsOnPage(posts, page), page, totalPages },
+      };
+    },
+  );
+}) satisfies GetStaticPaths;
+
+type Props = InferGetStaticPropsType<typeof getStaticPaths>;
+
+const { posts, page, totalPages } = Astro.props;
+const trail = blogTrail(`Blog, page ${page}`);
+const withPosts = await getCategoriesWithPosts();
+const topics = new Intl.ListFormat(SITE_LANGUAGE).format(
+  withPosts.map((category) => category.replaceAll('-', ' ')),
+);
+---
+
+<BaseLayout
+  title={`Blog, page ${page}`}
+  description={`Page ${page} of my posts on ${topics}.`}
+  trail={trail}
+>
+  <PageHero title={`Blog, page ${page}`} titleSize="h2">
+    <Breadcrumbs slot="eyebrow" crumbs={trail.crumbs} tone="gold" />
+  </PageHero>
+
+  <div class="mx-auto max-w-page py-section">
+    <BlogListing
+      posts={posts}
+      filter={{ kind: 'all' }}
+      currentPage={page}
+      totalPages={totalPages}
+    />
+  </div>
+</BaseLayout>

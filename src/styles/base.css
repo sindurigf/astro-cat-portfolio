@@ -1,0 +1,172 @@
+@layer base {
+  /*
+   * Tailwind v4 defaults borders to currentColor; this design uses `border`
+   * everywhere.
+   */
+  *,
+  ::before,
+  ::after {
+    border-color: var(--color-border);
+    border-radius: 0;
+  }
+
+  html {
+    /*
+     * SC 2.4.11: keep scroll targets below the sticky header. On the scroller,
+     * not scroll-margin per element: WebKit ignores scroll-margin when
+     * revealing a focused <input>'s caret.
+     */
+    scroll-padding-top: calc(var(--spacing-header) + --spacing(4));
+    /* SC 2.4.7: room for the ring when a focused control scrolls to the bottom edge. */
+    scroll-padding-bottom: calc(
+      var(--focus-width) + var(--focus-gap) + var(--lift-object)
+    );
+
+    @variant short {
+      scroll-padding-top: --spacing(4);
+    }
+
+    background-color: var(--color-background);
+    -webkit-text-size-adjust: 100%;
+    /*
+     * UA-painted parts (scrollbar, selection, form controls). `dark` alone:
+     * light mode sets `light` on <main> only. BaseLayout's <meta> repeats it
+     * for before this file loads.
+     */
+    color-scheme: dark;
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-text);
+    font-family: var(--font-sans);
+    font-size: var(--text-body);
+    /* 400, not 300: light strokes halate on a dark ground. */
+    font-weight: 400;
+    line-height: 1.62;
+  }
+
+  /*
+   * overflow-wrap is the last guard against heading overflow at 320px. Never
+   * `hyphens: none`: it kills soft hyphens (U+00AD), the only hyphenation
+   * uppercase headings get.
+   */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    text-transform: uppercase;
+    font-weight: 900;
+    letter-spacing: var(--tracking-heading);
+    -webkit-hyphens: auto;
+    hyphens: auto;
+    overflow-wrap: break-word;
+  }
+
+  h1 {
+    font-size: var(--text-h1);
+    line-height: 0.94;
+  }
+
+  h2 {
+    font-size: var(--text-h2);
+    line-height: 0.96;
+  }
+
+  h3 {
+    font-size: var(--text-h3);
+    line-height: var(--text-h3--line-height);
+    letter-spacing: var(--tracking-title);
+  }
+
+  /*
+   * Links are text-coloured; the underline or a box shape says "link", never
+   * gold or cyan alone.
+   */
+  a {
+    color: var(--color-text);
+    text-decoration: none;
+  }
+
+  a:hover {
+    color: var(--color-cyan);
+  }
+
+  /*
+   * Preflight leaves buttons on `cursor: default`; every button here is an
+   * action.
+   */
+  button:not(:disabled) {
+    cursor: pointer;
+  }
+
+  /*
+   * SC 1.4.1: links in running text are underlined, and hover thickens it.
+   * `:not([class])` targets Markdown links; a classed link that is not a box
+   * uses `.link`.
+   */
+  .prose a,
+  p a:not([class]),
+  li a:not([class]),
+  dd a:not([class]),
+  figcaption a:not([class]),
+  .link {
+    text-decoration: underline;
+    text-underline-offset: var(--underline-offset);
+    text-decoration-thickness: var(--underline-thin);
+  }
+
+  .prose a:hover,
+  p a:not([class]):hover,
+  li a:not([class]):hover,
+  dd a:not([class]):hover,
+  figcaption a:not([class]):hover,
+  .link:hover {
+    text-decoration-thickness: var(--underline-thick);
+  }
+
+  /*
+   * See --focus-width: one ring for the site, cleared past shadows by `--lift`.
+   * Never set outline-offset to 0.
+   */
+  :focus-visible {
+    outline: var(--focus-width) solid var(--color-cyan);
+    outline-offset: calc(var(--focus-gap) + var(--lift, 0px));
+  }
+
+  :is(video, audio)[controls]:is(:focus, :focus-within) {
+    outline: var(--focus-width) solid var(--color-cyan);
+    outline-offset: var(--focus-gap);
+  }
+}
+
+/*
+ * Adjacent sections share one --spacing-section gap: the second drops its top
+ * padding. Unlayered to beat py-section. Gold bands are excluded: their padding
+ * is inside their own ground.
+ */
+.band:is(.py-section, .pb-section):not(.surface-gold)
+  + .band:is(.py-section, .pb-section):not(.surface-gold) {
+  padding-top: 0;
+}
+
+/*
+ * Content in a `.gold-column` starts at the column's inset, not a centred
+ * 1280px box. Unlayered because `mx-auto` and `max-w-page` are utilities.
+ */
+.gold-column .max-w-page {
+  margin-inline: 0;
+  padding-inline: var(--hero-column-pad-inline);
+  max-width: none;
+}
+
+/* The shadow offset, restated for the focus ring; see --focus-width. */
+@utility lift-control {
+  --lift: var(--lift-control);
+}
+
+@utility lift-object {
+  --lift: var(--lift-object);
+}

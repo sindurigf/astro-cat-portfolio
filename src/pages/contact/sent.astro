@@ -1,0 +1,48 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import CloseRow from '../../components/CloseRow.astro';
+import PageHero from '../../components/PageHero.astro';
+import { CONTACT_EMAIL, CONTACT_MAILTO } from '../../lib/contact';
+import { RETENTION_DAYS } from '../../lib/contact-form';
+import { JOURNEY_POST_HREF } from '../../lib/paths';
+
+/*
+ * Prerendered, so success is a static asset with public/_headers applied.
+ * Reached by a 303 from /contact/send/, so a refresh cannot resubmit.
+ * noindex: from a search result it would confirm a message nobody sent.
+ */
+---
+
+<BaseLayout
+  title="Message sent"
+  description="Your message has been received."
+  noindex
+>
+  <PageHero title="Message sent" titleSize="h2" slab="thin">
+    <p class="standfirst">
+      Your message has been received. A reply will come to the email address you
+      gave, usually within a few days.
+    </p>
+  </PageHero>
+
+  <section class="band py-section">
+    <div class="mx-auto max-w-page">
+      <div class="card">
+        <p class="max-w-3xl text-body text-text text-pretty">
+          Your name, email address and message are stored for {RETENTION_DAYS}{' '}
+          days, and you were not added to any list. The{' '}
+          <a href="/privacy/">privacy page</a> says what else is recorded when
+          you send the form. If you need to add something, write to{' '}
+          <a href={CONTACT_MAILTO}>{CONTACT_EMAIL}</a>.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <CloseRow
+    readHref={JOURNEY_POST_HREF}
+    readLabel="Sample post"
+    actionHref="/contact/"
+    actionLabel="Back to contact"
+  />
+</BaseLayout>

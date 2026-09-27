@@ -1,0 +1,153 @@
+@layer components {
+  /*
+   * Full-viewport <dialog>. Here, not in PhotoViewer.astro, because Astro
+   * inlines small component styles and the CSP would need a hash.
+   */
+  .photo-viewer {
+    @apply m-0 size-full max-h-none max-w-none border-0 bg-background p-4 text-text;
+  }
+
+  .photo-viewer::backdrop {
+    @apply bg-background;
+  }
+
+  .photo-viewer-frame {
+    @apply mx-auto grid h-full max-w-page gap-4;
+
+    grid-template-rows: auto minmax(0, 1fr) auto;
+  }
+
+  /*
+   * Photo and message share one explicit grid cell: a message never moves the
+   * photo, and `max-h-full` resolves (an auto row lets a portrait overflow).
+   */
+  .photo-viewer-figure {
+    @apply m-0 grid min-h-0 place-items-center overflow-hidden;
+
+    grid-template: minmax(0, 1fr) / minmax(0, 1fr);
+  }
+
+  .photo-viewer-figure > * {
+    grid-area: 1 / 1;
+  }
+
+  .photo-viewer-figure img {
+    @apply h-auto max-h-full w-auto max-w-full object-contain;
+  }
+
+  /*
+   * A failed photo fades out and the message reads on `background` (14.42),
+   * never over the photo. `loading` draws nothing: the previous photo stays
+   * while the count says "Loading".
+   */
+  .photo-viewer-figure[data-state='failed'] img {
+    @apply opacity-0;
+  }
+
+  .photo-viewer-message {
+    @apply hidden max-w-measure text-center text-body text-text text-pretty;
+  }
+
+  .photo-viewer-figure[data-state='failed'] .photo-viewer-message {
+    @apply block;
+  }
+
+  /*
+   * The frame holds the aspect ratio, never the image: WebKit draws a failed
+   * image square (tests/replaced-elements.spec.ts). `min-w-0`: WebKit gives an
+   * aspect-ratio grid item a min width wider than its track.
+   */
+  .aspect-frame {
+    @apply relative min-w-0 bg-surface;
+  }
+
+  /* A <picture> adds no box, so its <img> positions against the frame. */
+  .aspect-frame > picture {
+    display: contents;
+  }
+
+  .aspect-frame > img,
+  .aspect-frame > picture > img {
+    @apply absolute inset-0 size-full object-cover;
+  }
+
+  .aspect-sizer {
+    @apply block h-auto w-full;
+  }
+
+  /*
+   * Chromium defaults inline SVG to `preserve-parent-color`, which
+   * tests/forced-colors.spec.ts counts.
+   */
+  .aspect-frame > svg {
+    forced-color-adjust: auto;
+  }
+
+  /*
+   * Set by src/scripts/failed-frame.ts: the image fades (`opacity` keeps it in
+   * the a11y tree) and its alt copy reads on `surface` (13.51), clamped to
+   * `--alt-lines`. Inset, not padded: overflow clips at the padding edge.
+   */
+  .aspect-frame[data-failed] > img,
+  .aspect-frame[data-failed] > picture > img {
+    @apply opacity-0;
+  }
+
+  .aspect-frame-alt {
+    @apply absolute inset-x-4 top-4 overflow-hidden text-body text-text text-pretty;
+
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: var(--alt-lines);
+    line-clamp: var(--alt-lines);
+  }
+
+  .aspect-frame-alt[data-size='small'] {
+    @apply inset-x-3 top-3 text-label;
+  }
+
+  /*
+   * A focusable scroll strip with snapping. The transparent 4px border becomes
+   * the edge in forced colours (tests/forced-colors.spec.ts).
+   */
+  .photo-strip {
+    @apply flex snap-x snap-mandatory items-start gap-4 overflow-x-auto
+      border-4 border-transparent pb-3;
+
+    container-type: inline-size;
+
+    /* Room for the 8px focus ring (4px outline, 4px offset) at either edge. */
+    scroll-padding-inline: --spacing(2);
+
+    scrollbar-color: var(--color-border) transparent;
+  }
+
+  .photo-strip > * {
+    @apply shrink-0 snap-start;
+  }
+
+  /* Natural-ratio tile, capped to the strip; `h-auto` keeps the ratio. */
+  .strip-photo {
+    @apply block h-auto;
+
+    max-width: calc(100cqi - --spacing(4));
+  }
+
+  /* 44px square, past SC 2.5.8. */
+  .strip-button {
+    @apply grid size-11 place-items-center border-4 border-border bg-surface
+      font-black text-text;
+  }
+
+  .strip-button:not([aria-disabled='true']):hover {
+    @apply text-cyan;
+  }
+
+  .strip-button[aria-disabled='true'] {
+    @apply cursor-not-allowed border-dashed bg-background text-subtle;
+  }
+
+  .strip-button[hidden] {
+    @apply hidden;
+  }
+}

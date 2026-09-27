@@ -1,0 +1,56 @@
+name: Scheduled
+
+# Drift with no commit: the live site, the vendored tracker, a vulnerable
+# dependency, security.txt expiry. Not on pull requests: a network hiccup would
+# fail unrelated work, and the deploy has not run yet.
+on:
+  schedule:
+    - cron: '17 6 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  scheduled:
+    name: Live site, tracker, dependencies and security.txt
+    # Matches a11y.yml: the image the exact Playwright pin is tested on.
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+
+    steps:
+      - name: Check out
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: '.nvmrc'
+          cache: npm
+
+      - name: Install dependencies
+        id: install
+        run: npm ci
+
+      - name: Audit production dependencies
+        run: npm audit --omit=dev --audit-level=high
+
+      # Each check below runs even if an earlier check failed; the job still fails.
+      # Rule 10 reads production D1, which needs a token and the account ID
+      # (a D1-only token cannot look the account up); without both it is skipped by name.
+      # Off until the site is deployed: set the repository variable CHECK_LIVE to 1.
+      - name: Compare the deployed site with the repository
+        if: ${{ !cancelled() && steps.install.outcome == 'success' && vars.CHECK_LIVE == '1' }}
+        run: npm run check:live
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+          CHECK_LIVE_SKIP_D1: ${{ (secrets.CLOUDFLARE_API_TOKEN == '' || vars.CLOUDFLARE_ACCOUNT_ID == '') && '1' || '' }}
+
+      - name: Compare the vendored tracker with Umami's
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: npm run check:umami
+
+      - name: Check security.txt has not lapsed
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: npx playwright test tests/security-txt.spec.ts --project=node

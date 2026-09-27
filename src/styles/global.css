@@ -1,0 +1,494 @@
+@import 'tailwindcss';
+
+@font-face {
+  /*
+   * Latin subset only, copied from @fontsource-variable/lexend's index.css:
+   * importing that file ships latin-ext and vietnamese too, 48 KB no route
+   * uses. The unicode-range is upstream's.
+   */
+  font-family: 'Lexend Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url('@fontsource-variable/lexend/files/lexend-latin-wght-normal.woff2')
+    format('woff2-variations');
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+    U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212,
+    U+2215, U+FEFF, U+FFFD;
+}
+
+/*
+ * Tailwind scans from the repo root, so class names in prose would ship as CSS.
+ * The .md exclusion also covers src/content/blog/: safe only while no post uses
+ * a class attribute.
+ */
+
+@source not '../../**/*.md';
+@source not '../../.claude';
+@source not '../../tests';
+@source not '../../scripts';
+
+/*
+ * Dark tokens; light mode overrides a subset on <main> at the end of this file.
+ * `static` emits every token, used or not, so a `var()` never resolves to
+ * nothing.
+ */
+
+/*
+ * Under 30rem tall (a landscape phone, 200% zoom): the sticky header scrolls
+ * away (`short:static` in Header.astro). tests/sticky-header.spec.ts.
+ */
+@custom-variant short (@media (height < 30rem));
+
+@theme static {
+  --color-background: #131313;
+  --color-surface: #1a1a1a;
+  --color-border: #5a87a8;
+  --color-text: #e5e2e1;
+  --color-subtle: #9bb4c6;
+  --color-gold: #ffc000;
+  --color-cyan: #00dcfd;
+  /*
+   * Two pinks, split by role, not size: `pink` passes SC 1.4.11 and is for
+   * non-text only; `pink-text` is every pink glyph, AAA (SC 1.4.6) at any size.
+   * Every ratio is in docs/STYLEGUIDE.md's generated table.
+   */
+  --color-pink: #ff007a;
+  --color-pink-text: #ff79b6;
+  /*
+   * the logo marks and the dark gold-slab button's shadow. Same hexes as
+   * `pink` and `border`, kept apart because light mode turns those two ink and
+   * these stay.
+   */
+  --color-mark: #ff007a;
+  --color-tile-edge: #5a87a8;
+  /*
+   * The About cats, read by about-cats.css. Fills are decoration: the sticker
+   * edge (`text`) carries SC 1.4.11, so none of these delimits a control.
+   */
+  --color-cat-pepper: #a57a4d;
+  --color-cat-pepper-far: #7e5b39;
+  --color-cat-pepper-stripe: #3b2716;
+  --color-cat-pepper-eye: #a4c94a;
+  --color-cat-mochi: #f4efe8;
+  --color-cat-mochi-far: #cfc6ba;
+  --color-cat-mochi-orange: #d38b45;
+  --color-cat-mochi-black: #262626;
+  --color-cat-biscuit: #211e1d;
+  --color-cat-biscuit-far: #3a3431;
+  --color-cat-biscuit-eye: #e0a52a;
+  --color-cat-mouth: #4a0f1c;
+  --color-cat-cardboard: #b0773a;
+  --color-cat-cardboard-line: #6b4520;
+  /*
+   * Light mode's values, swapped in on <main> at the end of this file. Defined
+   * here so each colour exists once: src/lib/css-token.ts fails on a second
+   * definition.
+   */
+  --color-light-ground: #ffffff;
+  --color-light-ink: #131313;
+  --color-light-subtle: #3f4650;
+  --color-light-focus: #008194;
+  --color-light-pink-text: #b00054;
+  --color-light-hero-veil: rgba(19, 19, 19, 0.025);
+  --color-light-hero-floor: rgba(19, 19, 19, 0.035);
+
+  /*
+   * The gold surface: an inverted set, since only near-blacks read on gold.
+   * Build one with .surface-gold; ratios in docs/STYLEGUIDE.md.
+   */
+  /*
+   * Same hex as --color-background, a different job: do not retone it with the
+   * background.
+   */
+  --color-gold-text: #131313;
+  --color-gold-muted: #3a3020;
+  /*
+   * Not #131313, which is gold-text and would paint every border the colour of
+   * body copy.
+   */
+  --color-gold-border: #22394d;
+  /*
+   * Fails on gold: label and inner focus ring of .btn-gold-primary's dark fill
+   * only. Body copy is `text`, since pure white halates on dark.
+   */
+  --color-gold-btn-label: #ffffff;
+
+  /*
+   * Links on gold: no contrast against gold-text, so the underline on
+   * .surface-gold a is what satisfies SC 1.4.1. Never drop the underline for a
+   * stronger colour.
+   */
+  --color-gold-link: #1e0d16;
+
+  /* The homepage canvas's buds on gold. Decoration only; not the link colour. */
+  --color-gold-bud: #00363f;
+  /*
+   * Not `gold` directly: light mode keeps gold for fills while this ground goes
+   * white.
+   */
+  --color-hero-ground: var(--color-gold);
+
+  /*
+   * The canvas's veil and floor, read by HeroField.vue. Ink, not border-blue,
+   * because the field draws on gold. One setting with the near-plane blur in
+   * hero-field-scene.ts: change them together.
+   */
+  --color-hero-veil: rgba(19, 19, 19, 0.07);
+  --color-hero-veil-edge: rgba(19, 19, 19, 0);
+  --color-hero-floor: rgba(19, 19, 19, 0.1);
+  --color-hero-floor-edge: rgba(19, 19, 19, 0);
+
+  /*
+   * Family name from @fontsource-variable/lexend: one wght axis file, latin
+   * subset, declared in the @font-face above.
+   */
+  --font-sans:
+    'Lexend Variable', system-ui, -apple-system, 'Segoe UI', Roboto,
+    'Helvetica Neue', Arial, sans-serif;
+
+  /*
+   * System monospace only: no webfont for one rarely used style. Metrics differ
+   * per platform, which is accepted; blocks must only read as code and not
+   * overflow.
+   */
+  --font-mono:
+    ui-monospace, 'SFMono-Regular', 'Menlo', 'Consolas', 'Liberation Mono',
+    monospace;
+
+  /*
+   * Floors are a reflow limit (SC 1.4.10, tests/reflow.spec.ts); never shrink
+   * the gutter instead.
+   */
+  /* The ceiling keeps a PageHero title and its standfirst reading as a pair. */
+  --text-h1: clamp(2.0625rem, 9vw, 5rem);
+  --text-h1--line-height: 0.94;
+  /*
+   * The homepage h1 only. `9vw` / `13svh` fit the viewport. 28px floor: a ten-letter family name must stay one line in the
+   * window's 241px at 305px, and a third line breaks the layout.
+   */
+  --text-hero-h1: clamp(1.75rem, min(9vw, 13svh), 4.375rem);
+  --text-hero-h1--line-height: 0.94;
+  /*
+   * Ink offsets inside the name's 0.94 line boxes, as fractions of font size,
+   * for Lexend 900 uppercase only. tests/hero-fit.spec.ts fails if face, weight
+   * or line height changes.
+   */
+  --hero-name-ink-foot: 0.0831;
+  --hero-name-ink-head: 0.1188;
+  /*
+   * Titles of Privacy and Accessibility, in the 576px `max-w-measure` column.
+   * 70px keeps ACCESSIBILITY (557px) on one line; must stay above text-h2's
+   * 64px ceiling.
+   */
+  --text-reading-h1: clamp(2.0625rem, 9vw, 4.375rem);
+  --text-reading-h1--line-height: 0.94;
+  /*
+   * Blog post title, in its own case, beside the teaser on the slab: 52 over
+   * --text-post-teaser's 26 is 2:1.
+   */
+  --text-post-title: clamp(1.75rem, 4.8vw, 3.25rem);
+  --text-post-title--line-height: 1.06;
+  /* The post teaser beside the title on its slab, read as a standfirst. */
+  --text-post-teaser: clamp(1.3125rem, 2vw, 1.625rem);
+  --text-post-teaser--line-height: 1.35;
+  /*
+   * Floor 24px so the 19px h3 below it is 0.79 of it, not 0.86
+   * (tests/headings.spec.ts runs at 320px).
+   */
+  --text-post-h2: clamp(1.5rem, 3vw, 2.25rem);
+  --text-post-h2--line-height: 1.02;
+  /* 24 against 36, the page scale's 1.5 ratio. */
+  --text-post-h3: clamp(1.1875rem, 2vw, 1.5rem);
+  --text-post-h3--line-height: 1.15;
+  --text-contents: 16px;
+  --text-contents--line-height: 1.35;
+  /* Card titles are h2s: floor 19px, the smallest heading's. */
+  --text-post-card: clamp(1.1875rem, 2.6vw, 2rem);
+  --text-post-card--line-height: 1.15;
+  --text-post-card-feature: clamp(1.625rem, calc(5.6vw - 4px), 4rem);
+  --text-post-card-feature--line-height: 1.02;
+  --text-h2: clamp(1.625rem, 5.6vw, 4rem);
+  --text-h2--line-height: 0.96;
+  --text-h3: clamp(1.25rem, 2.6vw, 2rem);
+  --text-h3--line-height: 1.1;
+  /*
+   * PageHero standfirst. Its own token because --text-h3 also sizes card titles
+   * and section leads. Floor matches --text-h3's 20px.
+   */
+  --text-standfirst: clamp(1.25rem, 2.8vw, 2.25rem);
+  --text-standfirst--line-height: 1.3;
+  /*
+   * Talk slides, height-aware for 16:9 projectors: 23px text and 56px title at
+   * 1280x720. Floors are --text-body's and --text-h2's.
+   */
+  --text-slide: clamp(1.0625rem, min(1.9vw, 3.2svh), 2.125rem);
+  --text-slide--line-height: 1.35;
+  --text-slide-title: clamp(1.625rem, min(4.4vw, 7.8svh), 4.0625rem);
+  --text-slide-title--line-height: 1;
+  /* A part opener's number, height-aware like the two above. */
+  --text-slide-number: clamp(4.5rem, 16svh, 10rem);
+  --text-slide-number--line-height: 1;
+  /* Height-aware like --text-hero-h1, so the stickers shrink with the name. */
+  --text-hero-sticker: clamp(1.125rem, min(2.1vw, 3.4svh), 1.875rem);
+  --text-hero-sticker--line-height: 1.02;
+  --text-menu: clamp(2.125rem, 8vw, 3.5rem);
+  --text-menu--line-height: 1;
+  --text-body: clamp(1.125rem, 1.2vw, 1.1875rem);
+  --text-body--line-height: 1.62;
+
+  /*
+   * A ratio, not a clamp, so code tracks every step of --text-body's clamp and
+   * scales inside headings. 1.5 leading: short lines, indentation carries the
+   * shape.
+   */
+  --text-code: 0.92em;
+  --text-code--line-height: 1.5;
+  /*
+   * 16px to 40rem, 14px from 48rem, where the desktop nav needs the room.
+   * tests/text-size.spec.ts holds the 16px floor.
+   */
+  --text-label: clamp(0.875rem, calc(26px - 1.5625vw), 1rem);
+  --text-label--line-height: 1.2;
+  /* Same curve as a label: a button and the label beside it read together. */
+  --text-button: var(--text-label);
+  --text-button--line-height: 1.2;
+  /* Just under the 22px footer icons; one line, so a label's line height. */
+  --text-copyright: 20px;
+  --text-copyright--line-height: 1.2;
+  /*
+   * "Lorem Ipsum" in the footer, one line in the 288px phone box: 32px
+   * uppercase Lexend 900 is about 250px wide.
+   */
+  --text-footer-name: clamp(2rem, 3vw, 2.5rem);
+  --text-footer-name--line-height: 1;
+  /* The glyph in a homepage category tile; colours in src/lib/categories.ts. */
+  --text-section-number: clamp(1.3125rem, 2.4vw, 1.75rem);
+  --text-section-number--line-height: 1;
+
+  /*
+   * Tokens because components may not carry arbitrary values; aspect-video
+   * covers the hero.
+   */
+  --aspect-portrait: 4 / 5;
+  --aspect-photo: 4 / 3;
+
+  --tracking-heading: -0.05em;
+  /* -0.05em suits capitals and crowds lowercase. */
+  --tracking-title: -0.02em;
+  --tracking-label: 0.1em;
+
+  /* Zero everywhere except the logo tile and its copies. */
+  --radius-nav: 14px;
+
+  /*
+   * Hard offset shadows, one job per colour: pink is depth and pressables, cyan
+   * is hover and focus. Gold casts none: gold on gold shows nothing, and pink is
+   * visible on gold and on #131313.
+   */
+  --shadow-hard-pink-4: 4px 4px 0 var(--color-pink);
+  --shadow-hard-pink-8: 8px 8px 0 var(--color-pink);
+  --shadow-hard-mark-4: 4px 4px 0 var(--color-mark);
+  --shadow-hard-mark-8: 8px 8px 0 var(--color-mark);
+  --shadow-hard-mark-12: 12px 12px 0 var(--color-mark);
+  --shadow-hard-cyan-8: 8px 8px 0 var(--color-cyan);
+  /* A card on gold: `gold-border` passes SC 1.4.11 there, pink does not. */
+  --shadow-hard-gold-border-8: 8px 8px 0 var(--color-gold-border);
+
+  /*
+   * Inner half of .btn-gold-primary's two-tone focus ring, visible against the
+   * dark fill (SC 1.4.11). A shadow because an element has one outline.
+   */
+  --inset-shadow-gold-btn-ring: inset 0 0 0 3px var(--color-gold-btn-label);
+
+  /*
+   * Current-page ring on .nav-cta: clears SC 1.4.11 on gold, on the cyan hover
+   * and against the border.
+   */
+  --inset-shadow-cta-current: inset 0 0 0 4px var(--color-background);
+
+  /* The second 4px of a failing field's 8px edge, inside the border. */
+  --inset-shadow-invalid: inset 0 0 0 4px var(--color-pink);
+
+  /*
+   * Header, main and footer all carry the gutter outside and this width inside;
+   * put the gutter inside on one and it drifts by one gutter above 80rem.
+   */
+  --container-page: 80rem;
+  /*
+   * Below this the header row's four items (295px at full size) do not fit the
+   * 273px box at 305px, so they step down. tests/header-fit.spec.ts.
+   */
+  --breakpoint-xs: 21rem;
+  /*
+   * Reading measure: at most 75 characters per line at 17px in Chromium and
+   * Firefox. rem, not `ch`: Lexend's `ch` differs by engine, which an image's
+   * `sizes` cannot express. tests/post-page.spec.ts.
+   */
+  --container-measure: 36rem;
+  /*
+   * The rail beside a post that holds its contents list. A width in a `1fr`
+   * track, so the reading column stays centred.
+   */
+  --container-rail: 18rem;
+  /*
+   * Narrowest slide card before wrapping: three per row down to a 1024x768
+   * projector.
+   */
+  --container-slide-card: 13rem;
+  /*
+   * Clears the nav's 40.8px current-page box and 4px shadow. Fixed px so it
+   * stays small at 400% zoom; html's scroll-padding-top derives from it (SC
+   * 2.4.11).
+   */
+  --spacing-header: 96px;
+  /* The slideshow's control row: a ~59px button plus its 4px shadow. */
+  --spacing-deck-bar: 4.5rem;
+
+  /*
+   * Focus ring: 4px cyan, clearing SC 1.4.11 on background and surface. A
+   * shadowed element sets `--lift` to its shadow offset so the ring clears it:
+   * cyan over pink fails SC 1.4.11. Never set outline-offset to 0.
+   */
+  --focus-width: 4px;
+  --focus-gap: 4px;
+  --lift-control: 4px;
+  --lift-object: 8px;
+
+  --underline-offset: 0.2em;
+  --underline-thin: 2px;
+  --underline-thick: 4px;
+
+  /*
+   * How far a gold-surface link's hover fill reaches past its box, via spread
+   * shadow, so it covers the underline. 3px cuts the underline at 32px.
+   * tests/gold-link.spec.ts.
+   */
+  --gold-marker-pad: 4px;
+
+  /*
+   * Homepage hero padding, gap and inset. `--hero-pad-block` also spaces a
+   * page's opening slab below the header (layout.css).
+   */
+  --hero-pad-block: clamp(12px, 3svh, 144px);
+  --hero-gap: clamp(10px, 2.2svh, 40px);
+  --hero-inset: clamp(8px, 3vw, 56px);
+
+  /*
+   * 48px from the screen edge to the extrusion tip, plus the 8px of
+   * --shadow-hard-pink-8.
+   */
+  --hero-column-screen-clear: 56px;
+
+  --hero-column-pad-block: clamp(32px, 5vw, 72px) clamp(32px, 5vw, 80px);
+  --hero-column-pad-inline: clamp(20px, 3.5vw, 64px);
+
+  --hero-column-edge: 8px;
+  --hero-rule: var(--hero-column-edge);
+  /*
+   * At least the given name's leading under its letters (0.0831em, 7px at 84px), or
+   * its line box reaches the gold at 1.27. tests/hero-fit.spec.ts.
+   */
+  --hero-name-clearance: 8px;
+
+  /*
+   * Its own vw: the column is narrower, and the family name wrapping moves the
+   * break off the top rule.
+   */
+  --text-hero-h1-column: clamp(1.75rem, min(6.6vw, 13svh), 4.375rem);
+  /*
+   * Below `sm`: 34px at 390, 28px at 305. tests/hero-fit.spec.ts counts lines
+   * at 305 and 390.
+   */
+  --text-hero-h1-column-phone: clamp(1.75rem, 8.7vw, 2.125rem);
+  /*
+   * Reserved for the two sticker words at the top right, since `max-width` on
+   * the name cannot see them. Holds the widest sticker plus border, padding,
+   * shadow and tilt.
+   */
+  --hero-marks-reserve: clamp(9rem, 14vw, 13rem);
+
+  /* Where each 404 star's gradient stops dead, so no point glows. */
+  --star-small: 1px;
+  --star: 2px;
+  --star-large: 3px;
+  /* Cycled over starfield.css's layers; no two sides share a factor, so no repeat lines up. */
+  --starfield-tiles: 307px 263px, 409px 353px, 509px 443px;
+
+  /*
+   * Footer profile tiles (48px, 56px from `lg`, each past SC 2.5.8's 24px),
+   * icon, edge, and tuft (266px from `md`). Size tokens, so no utilities are
+   * generated.
+   */
+  --size-sticker: 48px;
+  --size-sticker-lg: 56px;
+  --size-sticker-icon: 22px;
+  --border-width-sticker: 4px;
+  --size-tuft: 220px;
+  --size-tuft-md: 266px;
+  /*
+   * Header row above `md`: equal outer tracks centre the nav. A token because
+   * components allow no arbitrary values.
+   */
+  --grid-template-columns-header: 1fr auto 1fr;
+  /*
+   * Card padding: at 40px a card at 305px leaves 177px of content, where a post
+   * title runs to six lines.
+   */
+  --spacing-card-tight: 24px;
+  --spacing-card: 40px;
+  /*
+   * Vertical rhythm, one token per job, fluid up to 1200px. Grid gap stays at
+   * least 28px so an 8px card shadow never reads as touching.
+   */
+  --spacing-section: clamp(56px, 8vw, 96px);
+
+  /*
+   * PageHero roundel: twice --spacing-section less 56px, so it keeps 24px from
+   * the hero text and 32px from the next section. Floor in rem so it zooms.
+   * tests/page-hero.spec.ts fails if it covers any text.
+   */
+  --spacing-roundel: clamp(3.5rem, 16vw - 3.5rem, 8rem);
+  --spacing-roundel-mark: clamp(1.75rem, 8vw - 1.75rem, 4rem);
+  /* Heading to content, and content to the actions under it. */
+  --spacing-head: clamp(32px, 4vw, 48px);
+  --spacing-grid: clamp(28px, 3.4vw, 40px);
+  --spacing-inline: clamp(16px, 2vw, 24px);
+  /*
+   * The strip above a card where an About cat lives. Holds the tallest pose
+   * plus the highest jump in about-cats-moves.ts: change them together.
+   */
+  --spacing-cat-band: 112px;
+
+  /* SC 2.5.8 floor. Keep equal to MIN_TARGET in tests/target-size.spec.ts. */
+  --spacing-target: 24px;
+
+  /*
+   * Menu bars in a 24x16 box; they end at 17px, so they are absolutely
+   * positioned. The 7px offset is the rotation point, so the open bars cross at
+   * the centre.
+   */
+  --spacing-menu-bar: 3px;
+  --spacing-menu-bar-mid: 7px;
+  --spacing-menu-bar-end: 14px;
+}
+
+@import './base.css';
+@import './components/buttons-nav.css';
+@import './components/layout.css';
+@import './components/cards.css';
+@import './components/photos.css';
+@import './components/about-cats.css';
+@import './components/chips.css';
+@import './components/prose.css';
+@import './components/slides.css';
+@import './components/gold-surface.css';
+@import './components/labels-controls.css';
+@import './components/footer.css';
+@import './reduced-motion.css';
+@import './components/forms.css';
+@import './components/starfield.css';
+@import './components/mobile-menu.css';
+@import './utilities.css';
+@import './light-mode.css';

@@ -1,0 +1,63 @@
+/*
+ * Light mode: `data-theme="light"` on <html>. Only <main> changes; ink is
+ * #131313, gold stays a fill. On white: text 18.58, subtle 9.53, pink-text
+ * 7.06, cyan 4.60 (tests/light-mode.spec.ts). Utilities layer beats `.text-gold`.
+ */
+@layer utilities {
+  :root[data-theme='light'] main {
+    --color-background: var(--color-light-ground);
+    --color-surface: var(--color-light-ground);
+    --color-text: var(--color-light-ink);
+    --color-subtle: var(--color-light-subtle);
+    --color-border: var(--color-light-ink);
+    --color-cyan: var(--color-light-focus);
+    --color-pink: var(--color-light-ink);
+    --color-pink-text: var(--color-light-pink-text);
+    --color-gold-border: var(--color-light-ink);
+    --color-gold-bud: var(--color-light-ink);
+    --color-hero-ground: var(--color-light-ground);
+    --color-hero-veil: var(--color-light-hero-veil);
+    --color-hero-floor: var(--color-light-hero-floor);
+    color-scheme: light;
+    color: var(--color-text);
+    background-color: var(--color-background);
+  }
+
+  :root[data-theme='light'] main :is(.surface-gold, .v-column) {
+    background-color: var(--color-background);
+  }
+
+  /*
+   * Gold text fails SC 1.4.3 on white, so it is ink with a gold square before
+   * the word.
+   */
+  :root[data-theme='light']
+    main
+    :is(
+      .text-gold,
+      .motion-toggle,
+      .slide-label,
+      .slide-number,
+      .slide-body strong
+    ),
+  :root[data-theme='light'] main :is(.prose, .bullet-list) li::marker {
+    color: var(--color-text);
+  }
+
+  :root[data-theme='light'] main :is(.label.text-gold, .slide-label)::before {
+    content: '';
+
+    @apply mr-2 inline-block size-2.5 bg-gold;
+  }
+
+  /* The header's edge in its own text colour, not blue. */
+  :root[data-theme='light'] body > header {
+    border-bottom-color: var(--color-text);
+  }
+
+  /* RIDET and `.sticker` are black blocks in light mode. */
+  :root[data-theme='light'] main .hero-sticker:not(.bg-gold),
+  :root[data-theme='light'] main .sticker {
+    @apply border-text bg-text text-background;
+  }
+}

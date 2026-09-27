@@ -1,0 +1,244 @@
+---
+import { Picture } from 'astro:assets';
+import { PHOTO_FORMATS } from '../lib/photo-formats';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import BlogCard from '../components/BlogCard.astro';
+import CloseRow from '../components/CloseRow.astro';
+import Roundel from '../components/Roundel.astro';
+import Section from '../components/Section.astro';
+import HeroField from '../components/ui/HeroField.vue';
+import portrait from '../assets/photos/tabby-duvet.jpg';
+import { BLOG_CATEGORIES, type BlogCategory } from '../content.config';
+import {
+  cardProps,
+  categoryLabel,
+  getCategoriesWithPosts,
+  getFeaturedPosts,
+} from '../lib/blog';
+import { WIDTHS } from '../lib/image-densities';
+import { CATEGORIES } from '../lib/categories';
+import { BLOG_PATH, categoryHref } from '../lib/paths';
+import {
+  JOB_TITLE,
+  PERSON_FAMILY_NAME,
+  PERSON_GIVEN_NAME,
+  PERSON_NAME,
+} from '../lib/profiles';
+
+/* Editorial copy is placeholder text; replace it with your own. */
+
+const FEATURED_LIMIT = 3;
+const featured = await getFeaturedPosts(FEATURED_LIMIT);
+
+/* The topic the tagline opens with. */
+const LEAD_CATEGORY: BlogCategory = 'open-source';
+
+const withPosts = await getCategoriesWithPosts();
+
+const CATEGORY_CARDS = [
+  LEAD_CATEGORY,
+  ...BLOG_CATEGORIES.filter((category) => category !== LEAD_CATEGORY),
+]
+  .filter((category) => withPosts.includes(category))
+  .map((category) => ({ category, ...CATEGORIES[category] }));
+
+/* The lead card spans two columns only where the rest then fill whole rows. */
+const SM_COLUMNS = 2;
+const LG_COLUMNS = 3;
+const LEAD_SPAN = 2;
+const leadSpansSm = (CATEGORY_CARDS.length - 1) % SM_COLUMNS === 0;
+const leadSpansLg =
+  CATEGORY_CARDS.length >= LEAD_SPAN &&
+  (CATEGORY_CARDS.length - LEAD_SPAN) % LG_COLUMNS === 0;
+
+/*
+ * Fitted to measured drawn widths (320 to 2560px, within 1.00 to 1.05). The
+ * photo shrinks between 83rem and 1396px as the gold column's `vw` padding
+ * grows. tests/image-size.spec.ts fails on drift.
+ */
+const TEASER_PHOTO_SIZES =
+  '(min-width: 1829px) calc(25vw + 193px), (min-width: 1396px) calc(21.5vw + 257px), (min-width: 83rem) calc(606px - 3.5vw), (min-width: 64rem) calc(45.7vw - 48px), (min-width: 40rem) calc(93vw - 71px), calc(100vw - 6rem)';
+
+const STATS = [
+  {
+    value: '3 lorem',
+    label: '1 ipsum, 1 dolor, 1 sit',
+  },
+  {
+    value: '1 amet',
+    label: 'Consectetur adipiscing elit',
+  },
+] as const;
+---
+
+<BaseLayout
+  title={`${PERSON_NAME}, ${JOB_TITLE}`}
+  titleSuffix={false}
+  description="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+>
+  {/*
+    One gold area for the hero and the section below. No `.surface-gold` on the
+    column: its halves carry it, and nesting double-counts controls in
+    tests/gold-surface.spec.ts.
+  */}
+  <div class="v-column gold-column">
+    {/*
+    The name's line break sits on the window's top rule: no colour clears 4.5:1
+    on both grounds, so each line takes its own.
+  */}
+    <section class="band hero relative">
+      <div class="hero-window surface-gold">
+        {/*
+        Motion starts on mount only, so it never runs without its SC 2.2.2
+        pause control. client:load: `client:visible` fires at once above the fold.
+      */}
+        <HeroField client:load />
+
+        {/*
+        Spans, not <p>: WAVE reads short bold paragraphs as headings. No
+        `border-border`: it fails SC 1.4.11 here and would beat `.surface-gold`'s.
+      */}
+        <div class="hero-marks" aria-hidden="true">
+          <span class="hero-sticker -rotate-3 bg-gold text-gold-text shadow-hard-mark-8">
+            Lorem
+          </span>
+          <span class="hero-sticker rotate-3 bg-surface text-pink-text shadow-hard-mark-8">
+            Ipsum
+          </span>
+        </div>
+
+        {/*
+        Engines that inherit ancestor backgrounds report the first line below 4.5:1, a
+        false positive: it is drawn on the page (tests/hero-fit.spec.ts).
+        `w-full` lets reflow tests measure the real box; `{' '}` keeps the words apart.
+      */}
+        <div class="hero-plate">
+          <h1 class="w-full text-hero-h1">
+            <span class="block text-text">{PERSON_GIVEN_NAME}</span>{' '}
+            <span class="block text-gold-text">{PERSON_FAMILY_NAME}</span>
+          </h1>
+        </div>
+      </div>
+    </section>
+
+    {/* `surface="gold"` is what swaps the heading's `text-text` utility. */}
+    <Section surface="gold">
+      {/* Not in the hero: over the moving field it fails SC 1.4.3. The sr-only comma separates the roles. */}
+      <Fragment slot="title">
+        <span class="block">Lorem Ipsum Dolor</span>
+        <span class="sr-only">,</span> <span class="block">Sit Amet Elit</span>
+      </Fragment>
+
+      <div class="grid gap-grid lg:grid-cols-2 lg:items-start">
+        <div class="relative">
+          <div class="aspect-frame aspect-square border-4">
+            <Picture
+              {...PHOTO_FORMATS}
+              src={portrait}
+              alt="A tabby cat lying on a white duvet, looking at the camera."
+              widths={WIDTHS}
+              sizes={TEASER_PHOTO_SIZES}
+            />
+          </div>
+          {/* The tilted box and shadow reach about 17px past the disc; these offsets keep it in the gutter (tests/reflow.spec.ts). */}
+          <Roundel class="absolute -bottom-8 right-0 sm:-right-3" />
+        </div>
+
+        <div class="card lg:mt-16">
+          <ul class="grid sm:grid-cols-2">
+            {STATS.map((stat, index) => (
+              <li
+                class:list={[
+                  'flex min-w-0 flex-col items-center border-4 p-card-tight text-center',
+                  index > 0 && 'border-t-0 sm:border-t-4 sm:border-l-0',
+                ]}
+              >
+                <span class="text-h3 font-black">{stat.value}</span>
+                <span class="label mt-2">{stat.label}</span>
+              </li>
+            ))}
+          </ul>
+
+          <p class="mt-8 text-body text-pretty">
+            Lorem ipsum dolor sit amet in 2021, consectetur adipiscing elit sed
+            do eiusmod tempor. Incididunt ut labore et dolore magna aliqua ut
+            enim.
+          </p>
+
+          <p class="mt-head">
+            <a href="/about/" class="btn-gold-secondary">
+              Learn more about me
+            </a>
+          </p>
+        </div>
+      </div>
+    </Section>
+  </div>
+
+  <Section title="What I write about">
+    <ul class="card-block grid gap-grid sm:grid-cols-2 lg:grid-cols-3">
+      {CATEGORY_CARDS.map((card, index) => (
+        <li
+          class:list={[
+            'card flex flex-col',
+            index === 0 && 'card-raised',
+            index === 0 && leadSpansSm && 'sm:col-span-2',
+            index === 0 && leadSpansLg && 'lg:col-span-2',
+          ]}
+        >
+          <span
+            aria-hidden="true"
+            class:list={[
+              'flex size-16 -rotate-3 items-center justify-center border-4 border-border text-section-number font-black leading-none',
+              card.accent.tile,
+            ]}
+          >
+            {card.glyph}
+          </span>
+
+          <h3 class="card-title mt-8">
+            <a href={categoryHref(card.category)} class="card-link">
+              {categoryLabel(card.category)}
+            </a>
+          </h3>
+
+          <p class="mt-4 text-body text-pretty">{card.teaser}</p>
+        </li>
+      ))}
+    </ul>
+
+    <p class="mt-head">
+      <a href={BLOG_PATH} class="btn-secondary">
+        View all posts
+      </a>
+    </p>
+  </Section>
+
+  <Section title="Featured posts">
+    {/* Class names written out in full: Tailwind scans source text. */}
+    <ul
+      class:list={[
+        'card-block grid gap-grid',
+        featured.length >= FEATURED_LIMIT ? 'lg:grid-cols-3' : 'lg:grid-cols-2',
+      ]}
+    >
+      {featured.map((post, index) => (
+        <li class="flex min-w-0">
+          <BlogCard
+            {...cardProps(post)}
+            headingLevel={3}
+            class:list={['w-full', index === 0 && 'card-solid']}
+          />
+        </li>
+      ))}
+    </ul>
+  </Section>
+
+  <CloseRow
+    eyebrow="Next"
+    readHref="/career/"
+    readLabel="Career and CV"
+    actionHref="/contact/"
+    actionLabel="Get in touch"
+  />
+</BaseLayout>

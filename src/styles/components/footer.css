@@ -1,0 +1,331 @@
+@layer components {
+  /*
+   * Footer layout; Footer.astro has the content. Below `md` stacked and
+   * centred; from `md` three columns; from `lg` 56px tiles and a 32px inset.
+   */
+
+  .footer-inner {
+    padding-top: --spacing(12);
+  }
+
+  .footer-top {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+  }
+
+  .footer-name {
+    font-size: var(--text-footer-name);
+    line-height: var(--text-footer-name--line-height);
+    letter-spacing: var(--tracking-title);
+    text-align: center;
+
+    @apply font-black uppercase text-text;
+  }
+
+  /*
+   * Phone: one full-width 40.8px target per row (16.8px line plus 12px each
+   * side).
+   */
+  .footer-pages,
+  .footer-policies {
+    justify-self: stretch;
+  }
+
+  .footer-pages {
+    margin-top: --spacing(8);
+  }
+
+  .footer-pages a,
+  .footer-policies a {
+    display: block;
+    padding-block: --spacing(3);
+  }
+
+  .footer-social {
+    margin-top: --spacing(8);
+  }
+
+  /*
+   * Phone: rows of four and three, the second offset by half a tile and gap.
+   * Offset the row, not its first tile. Padding keeps tilt and shadow
+   * unclipped.
+   */
+  .footer-stickers {
+    display: grid;
+    grid-template-columns: repeat(4, var(--size-sticker));
+    gap: --spacing(6);
+    padding: --spacing(2) --spacing(2) --spacing(4);
+  }
+
+  .footer-stickers li:nth-child(n + 5) {
+    position: relative;
+    left: --spacing(8);
+  }
+
+  /*
+   * Tilt as a custom property so hover can straighten any tile (see
+   * tests/tilt.spec.ts). Colour in components so base `a:hover` cannot recolour
+   * the icon.
+   */
+  .footer-sticker {
+    display: grid;
+    place-items: center;
+    width: var(--size-sticker);
+    height: var(--size-sticker);
+    border: var(--border-width-sticker) solid var(--color-border);
+    --lift: var(--lift-control);
+    rotate: var(--tilt, 0deg);
+  }
+
+  .footer-sticker:is(:hover, :focus-visible) {
+    rotate: 0deg;
+  }
+
+  /*
+   * The icon never takes hits: WebKit re-hit-tests mid-press and dropped
+   * :active when it landed on a path. tests/press.spec.ts.
+   */
+  .footer-sticker svg {
+    width: var(--size-sticker-icon);
+    height: var(--size-sticker-icon);
+    fill: currentColor;
+    pointer-events: none;
+  }
+
+  /*
+   * One treatment for all seven: the `.badge` inversion and the pink
+   * press shadow.
+   */
+  .footer-sticker {
+    background-color: var(--color-text);
+    color: var(--color-background);
+    box-shadow: var(--shadow-hard-pink-4);
+  }
+
+  .footer-stickers li:nth-child(1) {
+    --tilt: -3deg;
+  }
+  .footer-stickers li:nth-child(2) {
+    --tilt: 3deg;
+  }
+  .footer-stickers li:nth-child(3) {
+    --tilt: -3deg;
+  }
+  .footer-stickers li:nth-child(4) {
+    --tilt: 3deg;
+  }
+  .footer-stickers li:nth-child(5) {
+    --tilt: -3deg;
+  }
+  .footer-stickers li:nth-child(6) {
+    --tilt: 3deg;
+  }
+  .footer-stickers li:nth-child(7) {
+    --tilt: -3deg;
+  }
+
+  .footer-base {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: --spacing(4);
+    margin-top: --spacing(8);
+  }
+
+  .footer-notes {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: --spacing(2);
+  }
+
+  /* The link's own box reaches SC 2.5.8 without the spacing exception. */
+  .footer-ai a {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--spacing-target);
+
+    @apply text-body text-subtle;
+  }
+
+  .footer-ai a:hover {
+    @apply text-cyan;
+  }
+
+  .footer-copyright {
+    font-size: var(--text-copyright);
+    line-height: var(--text-copyright--line-height);
+    text-align: center;
+
+    @apply font-black uppercase tracking-label text-subtle;
+  }
+
+  /*
+   * 266x102 viewBox, 220px wide on a phone, 1:1 from `md`; the mascot's ground
+   * sits 8 units up, on the footer's bottom edge. Gold with gold-text lines.
+   */
+  .footer-tuft {
+    display: block;
+    width: var(--size-tuft);
+    height: auto;
+    overflow: visible;
+  }
+
+  .footer-tuft .tuft-back {
+    fill: var(--color-border);
+  }
+
+  .footer-tuft .tuft-front {
+    fill: var(--color-subtle);
+  }
+
+  .footer-tuft .mascot-shadow {
+    fill: var(--color-pink);
+  }
+
+  .footer-tuft .mascot {
+    fill: var(--color-gold);
+    stroke: var(--color-gold-text);
+    stroke-width: 1.9;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .footer-tuft .mascot-line {
+    fill: none;
+  }
+
+  .footer-tuft .mascot-nose {
+    fill: var(--color-gold-text);
+    stroke: none;
+  }
+
+  /*
+   * Source order is name, pages, policies, stickers, and reads the same
+   * row-major. `space-between` equalises the gaps; the column gap is a floor,
+   * kept small so the row fits at the md breakpoint.
+   */
+  @media (width >= 48rem) {
+    .footer-top {
+      grid-template-columns: repeat(3, auto);
+      grid-template-rows: auto 1fr;
+      justify-content: space-between;
+      justify-items: start;
+      align-items: start;
+      column-gap: --spacing(8);
+    }
+
+    .footer-name {
+      grid-column: 1;
+      grid-row: 1;
+      text-align: left;
+    }
+
+    .footer-pages,
+    .footer-policies {
+      grid-row: 1 / span 2;
+      justify-self: start;
+      margin-top: 0;
+      padding-top: --spacing(2);
+    }
+
+    .footer-pages {
+      grid-column: 2;
+    }
+
+    .footer-policies {
+      grid-column: 3;
+    }
+
+    /* 32.8px targets: 16.8px line plus 8px each side. */
+    .footer-pages a,
+    .footer-policies a {
+      padding-block: --spacing(2);
+    }
+
+    .footer-social {
+      grid-column: 1;
+      grid-row: 2;
+      margin-top: --spacing(6);
+    }
+
+    .footer-stickers {
+      grid-template-columns: repeat(7, var(--size-sticker));
+      gap: --spacing(4);
+      padding: --spacing(2) --spacing(2) --spacing(2) 0;
+    }
+
+    .footer-stickers li:nth-child(n + 5) {
+      left: 0;
+    }
+
+    .footer-base {
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+
+    .footer-notes {
+      align-items: flex-start;
+      padding-bottom: --spacing(6);
+    }
+
+    .footer-copyright {
+      text-align: left;
+    }
+
+    .footer-tuft {
+      width: var(--size-tuft-md);
+    }
+  }
+
+  @media (width >= 64rem) {
+    .footer-inner {
+      padding-inline: --spacing(8);
+    }
+
+    .footer-stickers {
+      grid-template-columns: repeat(7, var(--size-sticker-lg));
+      gap: --spacing(6);
+    }
+
+    .footer-sticker {
+      width: var(--size-sticker-lg);
+      height: var(--size-sticker-lg);
+    }
+  }
+
+  /*
+   * Forced colours: SVGs back to `auto` from Chromium's `preserve-parent-color`
+   * (tests/forced-colors.spec.ts); icons get LinkText because `auto` does not
+   * force `fill`. The tuft drops its shadow.
+   */
+  .footer-tuft,
+  .footer-tuft *,
+  .footer-sticker svg,
+  .footer-sticker svg * {
+    forced-color-adjust: auto;
+  }
+
+  @media (forced-colors: active) {
+    .footer-tuft .tuft-back,
+    .footer-tuft .tuft-front,
+    .footer-tuft .mascot-nose {
+      fill: CanvasText;
+    }
+
+    .footer-tuft .mascot {
+      fill: Canvas;
+      stroke: CanvasText;
+    }
+
+    .footer-tuft .mascot-shadow {
+      display: none;
+    }
+
+    .footer-sticker svg {
+      fill: LinkText;
+    }
+  }
+}

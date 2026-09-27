@@ -1,0 +1,3 @@
+# Crawlers and people often try the conventional sitemap name first. The
+# sitemap integration writes an index instead, which robots.txt points at.
+/sitemap.xml /sitemap-index.xml 301

@@ -1,0 +1,32 @@
+# Weekly update pull requests. Dependabot's commits skip the subject and
+# attribution checks in scripts/check-commits.sh only when CI confirms from
+# GitHub's event that Dependabot opened the pull request; the required job
+# still has to pass before a human merges.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    # Longer than GitHub's 3-day default: time for a registry to pull a bad release.
+    cooldown:
+      default-days: 7
+    groups:
+      minor-and-patch:
+        update-types: [minor, patch]
+    ignore:
+      # Pinned exactly and moved by hand; playwright.config.ts says why.
+      - dependency-name: '@playwright/test'
+      # @astrojs/check supports TypeScript 5 and 6 only.
+      - dependency-name: typescript
+        versions: ['>=7']
+      # Node 24 types, matching .nvmrc.
+      - dependency-name: '@types/node'
+        update-types: ['version-update:semver-major']
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
