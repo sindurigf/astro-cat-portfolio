@@ -177,6 +177,11 @@ validates frontmatter against `src/content.config.ts` and fails on a mismatch.
 - The newest published post needs `cover` and `coverAlt`: `/blog` features
   it. `src/content.config.ts` fails the build on a cover of another ratio.
 - Tests read the new post's routes, category and tags from its frontmatter.
+- A spec that needs a post or talk with some property (a cover, a tag, a
+  paired talk PDF) skips, naming the property, while none has it.
+- `/about`, `/career` and `/contact/sent` link `JOURNEY_POST_HREF` in
+  `src/lib/paths.ts`. Point it at one of your posts, or at `BLOG_PATH` while
+  there is none.
 
 ## Writing a talk
 
