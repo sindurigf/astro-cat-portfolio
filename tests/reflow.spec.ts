@@ -313,6 +313,48 @@ for (const { width, contentBox, note } of REFLOW_WIDTHS) {
   });
 }
 
+/* No break point, like an email address: only wrap-anywhere can break it. */
+const UNBROKEN_LABEL =
+  'Email averylongmailboxnamewithnobreak@anexampledomainfortesting.example';
+
+test.describe('button labels reflow at 305px (SC 1.4.10)', () => {
+  test.use({ viewport: { width: NARROW_WIDTH, height: REFLOW_HEIGHT } });
+
+  for (const button of ['.btn-primary', '.btn-secondary']) {
+    test(`a ${button} with an unbroken label wraps inside its column`, async ({
+      page,
+    }) => {
+      await gotoSettled(page, '/404');
+      await page.evaluate(() => document.fonts.ready);
+      const fit = await page.evaluate(
+        ({ selector, label }) => {
+          const el = document.querySelector<HTMLElement>(`main ${selector}`);
+          const column = el?.closest('ul, div, section');
+          if (!el || !column) return null;
+          el.textContent = label;
+          return {
+            right: el.getBoundingClientRect().right,
+            columnRight: column.getBoundingClientRect().right,
+            scrollWidth: document.documentElement.scrollWidth,
+            clientWidth: document.documentElement.clientWidth,
+          };
+        },
+        { selector: button, label: UNBROKEN_LABEL },
+      );
+
+      expect(fit, `/404 has no ${button} in a column`).not.toBeNull();
+      expect(
+        fit!.scrollWidth,
+        `a long ${button} label makes the page scroll sideways at 305px.`,
+      ).toBeLessThanOrEqual(fit!.clientWidth);
+      expect(
+        fit!.right,
+        `a long ${button} label pushes the button past its column.`,
+      ).toBeLessThanOrEqual(fit!.columnRight + EDGE_TOLERANCE_PX);
+    });
+  }
+});
+
 /* The scripted deck shows one slide at a time, so each slide is opened by its link. */
 for (const route of TALK_ROUTES) {
   test.describe(`every slide of ${route} reflows at 305px`, () => {

@@ -1,11 +1,12 @@
 import { expect, test } from './test';
 import { gotoSettled } from './settle';
-import { DESKTOP_VIEWPORT } from './wcag';
+import { DESKTOP_VIEWPORT, NARROW_WIDTH } from './wcag';
 
 /** PhotoViewer.astro and src/scripts/photo-viewer.ts. */
 
 const ROUTE = '/about';
 const STRIP = '#people-photos';
+const ARROWS = '[data-strip-scroll]';
 
 /** Sub-pixel layout rounding, in CSS px. */
 const ROUNDING_PX = 1;
@@ -198,6 +199,60 @@ test.describe('the photo strip', () => {
         clipped.push(`photo ${i + 1}: ${overshoot}px`);
     }
     expect(clipped, 'focus rings cut off by the strip edge').toEqual([]);
+  });
+
+  // SC 2.1.1 and 2.4.11: no tab stop that scrolls nothing.
+  // One photo always fits: `.strip-photo` caps it to the strip.
+  test('a strip that fits on load shows no arrows and keeps them out of the tab order', async ({
+    page,
+  }) => {
+    await page.route(`**${ROUTE}`, async (route) => {
+      const html = await (await route.fetch()).text();
+      const open = html.indexOf('<ul id="people-photos"');
+      const close = html.indexOf('</ul>', open);
+      const [head, first] = html.slice(open, close).split('<li>');
+      await route.fulfill({
+        contentType: 'text/html',
+        body: `${html.slice(0, open)}${head}<li>${first}${html.slice(close)}`,
+      });
+    });
+    await gotoSettled(page, ROUTE);
+
+    const strip = page.locator(STRIP);
+    await expect(strip.locator('li'), 'the route kept one photo').toHaveCount(
+      1,
+    );
+    await expect(page.locator(ARROWS)).toHaveCount(2);
+    for (const arrow of await page.locator(ARROWS).all()) {
+      await expect(arrow, 'an arrow shows on a strip that fits').toBeHidden();
+    }
+
+    await strip.focus();
+    await page.keyboard.press('Shift+Tab');
+    await expect(
+      page.locator(`${ARROWS}:focus`),
+      'Shift+Tab reached a hidden arrow',
+    ).toHaveCount(0);
+  });
+
+  test('arrows hide when a resize makes the strip fit, and focus on one moves to the strip', async ({
+    page,
+  }) => {
+    await page.setViewportSize(DESKTOP_VIEWPORT);
+    await gotoSettled(page, ROUTE);
+    const strip = page.locator(STRIP);
+    const right = page.getByRole('button', { name: 'Scroll photos right' });
+    await expect(right).toBeVisible();
+    await right.focus();
+
+    await strip.evaluate((el) => {
+      while (el.children.length > 1) el.lastElementChild!.remove();
+    });
+    await page.setViewportSize({ ...DESKTOP_VIEWPORT, width: NARROW_WIDTH });
+    for (const arrow of await page.locator(ARROWS).all()) {
+      await expect(arrow, 'an arrow stays on a strip that fits').toBeHidden();
+    }
+    await expect(strip, 'focus on a hidden arrow is lost').toBeFocused();
   });
 
   test('without JavaScript the arrow buttons stay hidden', async ({

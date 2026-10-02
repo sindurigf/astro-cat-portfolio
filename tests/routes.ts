@@ -1,6 +1,7 @@
 import { readdirSync, existsSync, readFileSync } from 'node:fs';
 import { join, relative, sep } from 'node:path';
 import { BLOG_CONTENT_DIR } from '../src/lib/paths';
+import { DECK_FILE } from '../src/lib/slides';
 
 const FRONTMATTER = /^---\r?\n([\s\S]*?)\r?\n---/;
 
@@ -74,11 +75,17 @@ interface PostSummary {
   category: string;
   tags: string[];
   hasCover: boolean;
+  featured: boolean;
 }
 
+/** Markdown files in src/content/blog/; git drops the folder once every post is deleted. */
+export const postFileNames = (): string[] =>
+  existsSync(BLOG_CONTENT_DIR)
+    ? readdirSync(BLOG_CONTENT_DIR).filter((name) => name.endsWith('.md'))
+    : [];
+
 /** Every post in src/content/blog/, newest first. Source exists at collection; "route coverage" holds it to dist/. */
-export const POSTS: readonly PostSummary[] = readdirSync(BLOG_CONTENT_DIR)
-  .filter((name) => name.endsWith('.md'))
+export const POSTS: readonly PostSummary[] = postFileNames()
   .map((name) => {
     const frontmatter = postFrontmatter(name);
     const date = frontmatterDay(frontmatter, 'date');
@@ -93,6 +100,7 @@ export const POSTS: readonly PostSummary[] = readdirSync(BLOG_CONTENT_DIR)
       category,
       tags: frontmatterTags(frontmatter),
       hasCover: frontmatterField(frontmatter, 'cover') !== undefined,
+      featured: frontmatterField(frontmatter, 'featured') === 'true',
     };
   })
   .sort(
@@ -100,6 +108,16 @@ export const POSTS: readonly PostSummary[] = readdirSync(BLOG_CONTENT_DIR)
   );
 
 const PUBLISHED = POSTS.filter((post) => post.published);
+
+export const NO_POST = `no post in ${BLOG_CONTENT_DIR}`;
+
+export const NO_PUBLISHED_POST = `no published post in ${BLOG_CONTENT_DIR}`;
+
+/** `/blog` features the newest published post, whose cover is its one photo. */
+export const BLOG_FEATURES_COVER = PUBLISHED[0]?.hasCover === true;
+
+/** The homepage features published posts marked `featured`. */
+export const HOME_FEATURES_POST = PUBLISHED.some((post) => post.featured);
 
 /** Posts, from `src/pages/blog/[slug].astro`, placeholders included. Newest first. */
 export const POST_ROUTES: readonly string[] = POSTS.map((post) => post.route);
@@ -135,30 +153,46 @@ export const postsWhere = (matches: (source: string) => boolean): string[] =>
 const postsMatching = (pattern: RegExp): string[] =>
   postsWhere((source) => pattern.test(source));
 
-const firstPostMatching = (pattern: RegExp, what: string): string => {
-  const route = postsMatching(pattern)[0];
-  if (route === undefined) {
-    throw new Error(`No post in ${BLOG_CONTENT_DIR} ${what}.`);
-  }
-  return route;
-};
-
 /** A post with a level-2 heading, so its page has a contents list. */
-export const CONTENTS_POST_ROUTE = firstPostMatching(
-  /^## /m,
-  'has a level-2 heading, so no post page has a contents list',
-);
+export const CONTENTS_POST_ROUTE: string | undefined =
+  postsMatching(/^## /m)[0];
+
+export const NO_CONTENTS_POST =
+  'no post has a level-2 heading, so no page has a contents list';
 
 /** Posts with a Markdown image, which post-figure.mjs frames and loads first. */
 export const PHOTO_POST_ROUTES = postsMatching(/!\[[^\]]*\]\(/);
 
-/** One per deck directory in `src/content/talks/`. */
-export const TALK_ROUTES = ['/talks/sample-talk'] as const;
-
 export const TALKS_DIR = 'src/content/talks';
+
+/** One per deck directory holding a deck file, as `src/lib/talk-loader.ts` reads them. */
+export const TALK_ROUTES: readonly string[] = existsSync(TALKS_DIR)
+  ? readdirSync(TALKS_DIR, { withFileTypes: true })
+      .filter(
+        (entry) =>
+          entry.isDirectory() &&
+          existsSync(join(TALKS_DIR, entry.name, DECK_FILE)),
+      )
+      .map((entry) => `/talks/${entry.name}`)
+      .sort()
+  : [];
+
+export const NO_TALK = `no deck in ${TALKS_DIR}`;
 
 /** The deck directory a talk route is built from. */
 export const deckOf = (route: string): string => route.split('/').at(-1)!;
+
+/** A talk and the post sharing its deck's name that links the talk's PDF. */
+export interface PairedTalk {
+  talk: string;
+  post: string;
+}
+
+export const PAIRED_TALKS: readonly PairedTalk[] = TALK_ROUTES.flatMap((talk) =>
+  postsWhere((source) => source.includes(`](${talk}.pdf)`))
+    .filter((post) => deckOf(post) === deckOf(talk))
+    .map((post) => ({ talk, post })),
+);
 
 /**
  * No `/blog/page/2` until a tenth post (POSTS_PER_PAGE). The `page` segment keeps

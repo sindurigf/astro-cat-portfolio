@@ -6,7 +6,7 @@ import {
   type Page,
 } from './test';
 import { AA_TEXT, NON_TEXT, PAGE_HELPERS } from './contrast';
-import { builtHtml, PHOTO_POST_ROUTES } from './routes';
+import { BLOG_FEATURES_COVER, builtHtml, PHOTO_POST_ROUTES } from './routes';
 import { gotoSettled } from './settle';
 import { NODE } from './tags';
 import { IMAGE_REQUEST } from './html';
@@ -19,7 +19,12 @@ import { DESKTOP_VIEWPORT, REFLOW_VIEWPORT } from './wcag';
  */
 
 /* Routes whose build has a framed photo; the last test keeps this honest. */
-const FRAME_ROUTES = ['/', '/about', '/blog', ...PHOTO_POST_ROUTES];
+const FRAME_ROUTES = [
+  '/',
+  '/about',
+  ...(BLOG_FEATURES_COVER ? ['/blog'] : []),
+  ...PHOTO_POST_ROUTES,
+];
 
 /* How long to hold the page's scripts back so the images fail first. */
 const SCRIPT_DELAY_MS = 1_500;

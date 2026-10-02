@@ -21,9 +21,12 @@ const FALLBACK_WIDTHS = [NARROW_WIDTH, PHONE_VIEWPORT.width, 767] as const;
 
 /*
  * One route per layout the fallback renders in: the home page, the error page,
- * a post and a talk. The build check below holds every other page to the markup.
+ * and a post and a talk when there are any. The build check below holds every
+ * other page to the markup.
  */
-const LAYOUT_ROUTES = ['/', '/404', POST_ROUTES[0], TALK_ROUTES[0]] as const;
+const LAYOUT_ROUTES = ['/', '/404', POST_ROUTES[0], TALK_ROUTES[0]].filter(
+  (route) => route !== undefined,
+);
 
 test(
   'every built page carries the fallback nav with every destination',

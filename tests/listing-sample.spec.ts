@@ -1,5 +1,11 @@
 import { expect, test } from './test';
-import { builtHtml, listingPosts, POST_ROUTES, SAMPLED_ROUTES } from './routes';
+import {
+  builtHtml,
+  listingPosts,
+  POST_ROUTES,
+  SAMPLED_ROUTES,
+  TAG_ROUTES,
+} from './routes';
 import { NODE } from './tags';
 
 /* SAMPLED_ROUTES groups listings by the posts they show; the build must agree. */
@@ -33,7 +39,7 @@ test(
     expect(wrong).toEqual([]);
     expect(
       SAMPLED_ROUTES.some((route) => route.startsWith('/blog/tag/')),
-      'the sample keeps no tag listing',
-    ).toBe(true);
+      'the sample keeps no tag listing, or keeps one no post has',
+    ).toBe(TAG_ROUTES.length > 0);
   },
 );

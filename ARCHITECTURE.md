@@ -48,6 +48,7 @@ validated on import, so a bad value fails the build and the tests.
 | `site.repository`            | `/accessibility`'s link to the full statement                                                |
 | `person.*`                   | Homepage `<h1>` (one name per line), JSON-LD `Person`, contact address, CV                   |
 | `profiles`                   | Footer tiles and JSON-LD `sameAs`; each label needs an icon                                  |
+| `journeyPost`                | The close row of `/about`, `/career`, `/contact/sent`; must name a published post, or `null` |
 | `analytics`                  | `null` loads no tracker; an Umami website id turns it on ([Umami](docs/DEPLOYMENT.md#umami)) |
 | `contact.form`               | `cloudflare-d1` (the form) or `none` (email only)                                            |
 | `contact.notificationSender` | Must equal `allowed_sender_addresses` in `wrangler.jsonc`                                    |
@@ -56,8 +57,8 @@ validated on import, so a bad value fails the build and the tests.
   `contact.ts`, `analytics-site.ts`); code imports those, not the config.
 - The browser bundle never imports the config: the click tracker reads
   `analytics.ts`, which does not.
-- Tests read the same constants, and the ones for analytics, the contact form
-  and the CV skip when the feature is off.
+- Tests read the same constants, and the ones for analytics, the contact form,
+  the journey post and the CV skip when the feature is off.
 
 ## Browser support
 

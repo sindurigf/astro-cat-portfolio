@@ -1,9 +1,11 @@
-import { pathToFileURL } from 'node:url';
-import { resolve } from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
+import { dirname, relative, resolve } from 'node:path';
 import { expect, test } from './test';
 import { linkListItem } from '../src/plugins/link-list-item.mjs';
 import { postFigure } from '../src/plugins/post-figure.mjs';
 import { NODE } from './tags';
+import { BLOG_CONTENT_DIR, TALKS_DIR } from './routes';
+import { DECK_FILE } from '../src/lib/slides';
 
 type Node = {
   type: string;
@@ -72,11 +74,13 @@ test.describe('link-list-item', NODE, () => {
   });
 });
 
-const POST_URL = pathToFileURL(resolve('src/content/blog/sample-post.md'));
-const TALK_URL = pathToFileURL(
-  resolve('src/content/talks/sample-talk/slides.md'),
+/* Paths only: the plugin reads the image, never the document, so no post or deck need exist. */
+const POST_URL = pathToFileURL(resolve(BLOG_CONTENT_DIR, 'any-post.md'));
+const TALK_URL = pathToFileURL(resolve(TALKS_DIR, 'any-deck', DECK_FILE));
+const PHOTO = relative(
+  dirname(fileURLToPath(POST_URL)),
+  resolve('tests/fixtures/photo-4x3.png'),
 );
-const PHOTO = '../../assets/blog/sample-post/cover.jpg';
 
 test.describe('post-figure', NODE, () => {
   test('a captioned photo alone in its paragraph becomes a figure with a credit', async () => {

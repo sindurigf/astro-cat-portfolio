@@ -27,8 +27,9 @@ cd "$(dirname "$0")/.."
 CONFIG=src/site.config.ts
 HEADERS_FILE=public/_headers
 
-# The one non-placeholder post; a rename fails rule 6.
-POST_PATH=/blog/sample-talk/
+BLOG_DIR=src/content/blog
+# Only the Markdown copy of a post matches this public/_headers rule.
+POST_MARKDOWN_PATTERN='/blog/*.md'
 UNKNOWN_PATH=/check-live-no-such-page/
 TIMEOUT_SECONDS=20
 
@@ -65,6 +66,18 @@ case "$TARGET" in
   https://?*) ;;
   *) die "the origin must be https: $TARGET" ;;
 esac
+
+# The first post, by file name, whose first frontmatter block says
+# `placeholder: false`: only published posts get a Markdown copy.
+POST_FILE=$(for file in "$BLOG_DIR"/*.md; do
+  [ -f "$file" ] || continue
+  awk 'NR == 1 && $0 != "---" { exit 1 }
+    NR > 1 && $0 == "---" { exit 1 }
+    /^placeholder:[ ]*false[ ]*$/ { found = 1; exit }
+    END { exit !found }' "$file" && printf '%s\n' "$file" && break
+done || true)
+POST_PATH=
+[ -z "$POST_FILE" ] || POST_PATH="/blog/$(basename "$POST_FILE" .md)/"
 
 TMP=$(mktemp -d)
 trap 'rm -rf "$TMP"' EXIT
@@ -414,7 +427,12 @@ ASSET=$(grep -o '/_astro/[A-Za-z0-9._-]*\.css' "$LAST_BODY" | head -n 1 || true)
 VENDOR_SCRIPT=$(grep -o '/vendor/[A-Za-z0-9._-]*\.js' "$LAST_BODY" | head -n 1 || true)
 
 check_response /privacy/ 200
-check_response "$POST_PATH" 200
+NO_POST="no published post in $BLOG_DIR"
+if [ -n "$POST_PATH" ]; then
+  check_response "$POST_PATH" 200
+else
+  printf 'skip  %s\n' "a post page and its Markdown copy: $NO_POST"
+fi
 
 if [ -n "$ASSET" ]; then
   check_response "$ASSET" 200
@@ -436,7 +454,7 @@ check_response /speculationrules.json 200
 check_response /favicon.ico 200
 check_response /favicon.svg 200
 check_response /rss.xml 200
-check_response "${POST_PATH%/}.md" 200
+[ -z "$POST_PATH" ] || check_response "${POST_PATH%/}.md" 200
 
 check_response "$UNKNOWN_PATH" 404
 
@@ -483,8 +501,12 @@ while IFS= read -r pattern; do
     # shellcheck disable=SC2254
     case "$path" in $pattern) covered=1 && break ;; esac
   done < "$TMP/requested"
-  [ -n "$covered" ] ||
+  if [ -z "$covered" ] && [ -z "$POST_PATH" ] &&
+    [ "$pattern" = "$POST_MARKDOWN_PATTERN" ]; then
+    printf 'skip  %s\n' "$pattern: $NO_POST"
+  elif [ -z "$covered" ]; then
     fail "$pattern" "no request in this script matches this rule in $HEADERS_FILE, so its headers are never compared; add one"
+  fi
 done < "$TMP/patterns"
 
 # Rule 10. RESEND_AFTER_MS in src/lib/contact-resend.ts;

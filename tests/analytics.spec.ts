@@ -10,7 +10,7 @@ import { ANALYTICS_ON, UMAMI_WEBSITE_ID } from '../src/lib/analytics-site';
 import { CONTACT_EMAIL } from '../src/lib/contact';
 import { SOCIAL_PROFILES } from '../src/lib/profiles';
 import { usePolicyServer } from './headers-fixture';
-import { builtPages, DIST_DIR, TALK_ROUTES } from './routes';
+import { builtPages, DIST_DIR, PAIRED_TALKS } from './routes';
 import { waitForHydration } from './settle';
 import { configuredSite } from './source';
 import { fakeCollector, type UmamiSend } from './umami';
@@ -50,9 +50,8 @@ const SEND_TIMEOUT_MS = 10_000;
 
 const ANALYTICS_OFF = 'analytics is off in src/site.config.ts';
 
-/* The post that links the talk's PDF: tests/slides.spec.ts. */
-const DOWNLOAD_ROUTE = '/blog/sample-talk/';
-const DOWNLOAD_TARGET = `${TALK_ROUTES[0]}.pdf`;
+/* A post that links its talk's PDF: tests/slides.spec.ts. */
+const [PAIRED] = PAIRED_TALKS;
 
 const policy = usePolicyServer();
 
@@ -89,6 +88,17 @@ const openAsProduction = async (
 
 const events = (sent: UmamiSend[]): Record<string, unknown>[] =>
   sent.filter(({ payload }) => 'name' in payload).map(({ payload }) => payload);
+
+const expectOnlyDisclosedData = (recorded: Record<string, unknown>[]): void => {
+  for (const event of recorded) {
+    const extra = Object.keys(event.data as object).filter(
+      (key) => !EVENT_DATA_KEYS.includes(key),
+    );
+    expect(extra, 'a click event sends data /privacy does not list').toEqual(
+      [],
+    );
+  }
+};
 
 const PROBE_EVENT = 'silence-probe';
 
@@ -305,17 +315,14 @@ test.describe('analytics', () => {
       );
   });
 
-  test('outbound, download, email and button clicks are counted', async ({
-    page,
-  }) => {
+  test('outbound, email and button clicks are counted', async ({ page }) => {
     await page.setViewportSize(REFLOW_VIEWPORT);
-    const sent = await openAsProduction(page, DOWNLOAD_ROUTE);
+    const sent = await openAsProduction(page, '/');
 
     const [profile] = SOCIAL_PROFILES;
     const outbound = `footer a[href="${profile.href}"]`;
-    const download = 'a[href$=".pdf"]';
     const email = 'footer a[href^="mailto:"]';
-    for (const selector of [outbound, download, email]) {
+    for (const selector of [outbound, email]) {
       await holdNavigation(page, selector);
       await page.locator(selector).first().click();
     }
@@ -324,7 +331,7 @@ test.describe('analytics', () => {
     const recorded = (): Record<string, unknown>[] => events(sent);
     await expect
       .poll(() => recorded().length, { timeout: SEND_TIMEOUT_MS })
-      .toBeGreaterThanOrEqual(4);
+      .toBeGreaterThanOrEqual(3);
 
     const byName = (name: string) =>
       recorded().find((event) => event.name === name);
@@ -335,9 +342,6 @@ test.describe('analytics', () => {
         target: `${new URL(profile.href).origin}${new URL(profile.href).pathname}`,
       },
     });
-    expect(byName(CLICK_EVENTS.download)).toMatchObject({
-      data: { target: DOWNLOAD_TARGET },
-    });
     expect(
       (byName(CLICK_EVENTS.email)?.data as Record<string, unknown>)?.target,
       'an email click should not send the address',
@@ -345,15 +349,26 @@ test.describe('analytics', () => {
     expect(byName(CLICK_EVENTS.button)).toMatchObject({
       data: { area: 'header' },
     });
+    expectOnlyDisclosedData(recorded());
+  });
 
-    for (const event of recorded()) {
-      const extra = Object.keys(event.data as object).filter(
-        (key) => !EVENT_DATA_KEYS.includes(key),
-      );
-      expect(extra, 'a click event sends data /privacy does not list').toEqual(
-        [],
-      );
-    }
+  test('a download click is counted', async ({ page }) => {
+    test.skip(!PAIRED, 'no post links a talk PDF to download');
+    const target = `${PAIRED!.talk}.pdf`;
+    const sent = await openAsProduction(page, `${PAIRED!.post}/`);
+
+    const download = `a[href="${target}"]`;
+    await holdNavigation(page, download);
+    await page.locator(download).first().click();
+
+    await expect
+      .poll(
+        () =>
+          events(sent).find((event) => event.name === CLICK_EVENTS.download),
+        { timeout: SEND_TIMEOUT_MS },
+      )
+      .toMatchObject({ data: { target } });
+    expectOnlyDisclosedData(events(sent));
   });
 
   test('only the mobile menu reports area menu; the photo viewer and cat card report main', async ({
