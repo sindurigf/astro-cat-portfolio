@@ -15,6 +15,7 @@ import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import { SITE_FEED_PATH, SITEMAP_PATH } from '../lib/paths';
 import { requireSite, SITE_NAME, SITE_SHORT_NAME } from '../lib/site';
+import { BUILD_ENV } from '../lib/build-env';
 
 interface Props {
   /** The page's own name; the site name is appended unless `titleSuffix` is false. */
@@ -118,7 +119,9 @@ const articleData = article && {
     {noindex && <meta name="robots" content="noindex, follow" />}
 
     {/* tests/sitemap.spec.ts checks this, robots.txt and the build agree. */}
-    <link rel="sitemap" type="application/xml" href={SITEMAP_PATH} />
+    {!BUILD_ENV.noindex && (
+      <link rel="sitemap" type="application/xml" href={SITEMAP_PATH} />
+    )}
     <link
       rel="alternate"
       type="application/rss+xml"

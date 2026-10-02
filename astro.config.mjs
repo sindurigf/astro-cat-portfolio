@@ -18,6 +18,8 @@ import { recordFingerprint } from './scripts/build-fingerprint.mjs';
 import { licenses } from './scripts/licenses.mjs';
 import { presenter } from './src/presenter/integration.mjs';
 import { SITE_CONFIG } from './src/site.config.ts';
+import { BUILD_ENV, BUILD_ENV_NAMES } from './src/lib/build-env.ts';
+import { noindex } from './scripts/noindex.mjs';
 import {
   isAdvertised,
   lastmodFor,
@@ -95,15 +97,17 @@ export default defineConfig({
      * `sitemap-index.xml` must match BaseLayout and robots.txt:
      * tests/sitemap.spec.ts. The integration drops /404 itself.
      */
-    sitemap({
-      filter: (page) => isAdvertised(page, posts),
+    BUILD_ENV.noindex
+      ? noindex()
+      : sitemap({
+          filter: (page) => isAdvertised(page, posts),
 
-      /* Config time: `getCollection` is unavailable, so frontmatter is read. */
-      serialize: (item) => {
-        const lastmod = lastmodFor(item.url, posts);
-        return lastmod ? { ...item, lastmod } : item;
-      },
-    }),
+          /* Config time: `getCollection` is unavailable, so frontmatter is read. */
+          serialize: (item) => {
+            const lastmod = lastmodFor(item.url, posts);
+            return lastmod ? { ...item, lastmod } : item;
+          },
+        }),
   ],
 
   /* Only images with a `layout` read this: those post-figure.mjs marks. */
@@ -123,6 +127,13 @@ export default defineConfig({
     define: {
       __VIDEO_SIZES__: JSON.stringify(videoSizes),
       __THEME_COLOR__: JSON.stringify(themeColor),
+      /* src/lib/build-env.ts reads these; the Worker has no `process`. */
+      ...Object.fromEntries(
+        BUILD_ENV_NAMES.map((name) => [
+          `process.env.${name}`,
+          JSON.stringify(process.env[name] ?? ''),
+        ]),
+      ),
     },
     build: {
       cssTarget: CSS_TARGET,

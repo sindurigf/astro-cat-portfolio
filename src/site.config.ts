@@ -4,6 +4,8 @@
  * import, so a bad value fails the build and the tests, not a visitor.
  */
 
+import { BUILD_ENV, CONTACT_FORMS, type ContactForm } from './lib/build-env';
+
 /** Labels with an icon in src/assets/social-icons.svg. */
 export const PROFILE_LABELS = [
   'GitHub',
@@ -21,7 +23,10 @@ export interface SiteConfig {
     name: string;
     /** The home screen label: the manifest's short_name and iOS's app title. */
     shortName: string;
-    /** Origin only, https, no path: canonicals, feeds and the sitemap. */
+    /**
+     * Origin only, https, no path: canonicals, feeds and the sitemap. The
+     * `SITE_URL` build variable overrides it.
+     */
     url: string;
     /** BCP 47, e.g. `en-GB`. */
     locale: string;
@@ -55,8 +60,9 @@ export interface SiteConfig {
     /**
      * `cloudflare-d1`: the form, stored in D1 and mailed by Email Routing.
      * `none`: /contact shows the email address only. docs/DEPLOYMENT.md.
+     * The `CONTACT_FORM` build variable overrides it.
      */
-    form: 'cloudflare-d1' | 'none';
+    form: ContactForm;
     /** Must equal `allowed_sender_addresses` in wrangler.jsonc. */
     notificationSender: string;
   };
@@ -94,7 +100,6 @@ const config: SiteConfig = {
   },
 };
 
-const CONTACT_FORMS: ReadonlyArray<string> = ['cloudflare-d1', 'none'];
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 /* A file name in src/content/blog/, as the glob loader turns it into an id. */
 const SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
@@ -202,4 +207,10 @@ export const validateSiteConfig = (value: SiteConfig): SiteConfig => {
   return value;
 };
 
-export const SITE_CONFIG = validateSiteConfig(config);
+const withBuildEnv = ({ site, contact, ...rest }: SiteConfig): SiteConfig => ({
+  ...rest,
+  site: { ...site, url: BUILD_ENV.siteUrl ?? site.url },
+  contact: { ...contact, form: BUILD_ENV.contactForm ?? contact.form },
+});
+
+export const SITE_CONFIG = validateSiteConfig(withBuildEnv(config));

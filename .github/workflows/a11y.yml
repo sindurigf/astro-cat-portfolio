@@ -172,12 +172,48 @@ jobs:
           # The html reporter always writes one; its absence means the run broke.
           if-no-files-found: error
 
+  # Its own build with the demo's variables, so it cannot share a shard's dist/.
+  demo:
+    name: Demo build (NOINDEX, SITE_URL, CONTACT_FORM=none)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+
+    steps:
+      - name: Check out
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: '.nvmrc'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Read the pinned Playwright version
+        id: playwright
+        run: echo "version=$(node -p "require('./package.json').devDependencies['@playwright/test']")" >> "$GITHUB_OUTPUT"
+
+      # The checks job's key: both install Chromium only.
+      - name: Cache Chromium
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-chromium-${{ steps.playwright.outputs.version }}
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Demo tests
+        run: npm run test:demo -- --fail-on-flaky-tests
+
   required:
     # `name` is the status context the `main` ruleset requires. Rename both
     # together, or every pull request stops being mergeable.
     name: Required checks
     runs-on: ubuntu-24.04
-    needs: [checks, test]
+    needs: [checks, test, demo]
 
     # A skipped required check counts as passed; `always()` stops a red shard
     # from skipping this job.
@@ -189,10 +225,12 @@ jobs:
         env:
           CHECKS: ${{ needs.checks.result }}
           TESTS: ${{ needs.test.result }}
+          DEMO: ${{ needs.demo.result }}
         run: |
           echo "checks: $CHECKS"
           echo "tests:  $TESTS"
-          if [ "$CHECKS" != "success" ] || [ "$TESTS" != "success" ]; then
-            echo "::error::A required job did not succeed (checks=$CHECKS, tests=$TESTS)."
+          echo "demo:   $DEMO"
+          if [ "$CHECKS" != "success" ] || [ "$TESTS" != "success" ] || [ "$DEMO" != "success" ]; then
+            echo "::error::A required job did not succeed (checks=$CHECKS, tests=$TESTS, demo=$DEMO)."
             exit 1
           fi

@@ -602,6 +602,9 @@ evidence.
 - **Move every `href` in page markup into `paths.ts`:** a route used by code
   (redirects, nav, sitemap, `llms.txt`) is a constant there; a link in prose
   stays markup, and `tests/internal-links.spec.ts` fails on a broken one.
+- **Disallow `/` in `robots.txt` on a `NOINDEX` build:** a blocked crawler
+  never fetches the page, so it never sees `X-Robots-Tag: noindex`, and Google
+  indexes the URL from links alone.
 - **Cap stored contact messages across all senders:** the per-address limit
   cannot stop a flood spread over many addresses, but the worst case is a
   temporary 503 when D1's writes run out; nothing stored is lost or exposed.

@@ -16,6 +16,7 @@
     "test": "npm run test:a11y && npm run test:worker",
     "test:a11y": "playwright test",
     "test:worker": "playwright test -c playwright.worker.config.ts",
+    "test:demo": "playwright test -c playwright.demo.config.ts",
     "test:webkit": "sh scripts/test-webkit.sh",
     "test:a11y:ui": "playwright test --ui",
     "test:coverage": "COVERAGE=1 playwright test -c playwright.coverage.config.ts",

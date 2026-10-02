@@ -1,11 +1,13 @@
 import type { APIRoute } from 'astro';
 import { requireSite } from '../lib/site';
 import { SITEMAP_PATH } from '../lib/paths';
+import { BUILD_ENV } from '../lib/build-env';
 
 /*
  * `Sitemap:` must be absolute, so it derives from `site`. @astrojs/sitemap
  * emits `sitemap-index.xml`; tests/sitemap.spec.ts checks this line and
- * BaseLayout agree.
+ * BaseLayout agree. NOINDEX keeps `Allow: /`: a crawler blocked here never
+ * reads the noindex header, and Google then indexes the bare URL.
  */
 
 /** Training-only user agents; search crawlers stay allowed. */
@@ -32,8 +34,9 @@ export const GET: APIRoute = ({ site: configuredSite }) => {
     'User-agent: *',
     'Allow: /',
     '',
-    `Sitemap: ${new URL(SITEMAP_PATH, site).href}`,
-    '',
+    ...(BUILD_ENV.noindex
+      ? []
+      : [`Sitemap: ${new URL(SITEMAP_PATH, site).href}`, '']),
   ].join('\n');
 
   return new Response(body, {
