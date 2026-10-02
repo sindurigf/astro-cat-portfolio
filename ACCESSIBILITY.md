@@ -42,10 +42,10 @@ status is still "Target only. No conformance claim."
 
 ### AAA criteria in scope
 
-| Criterion                         | What we do                                                                                                                                                                                                                           |
-| --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| 1.4.6 Contrast (Enhanced)         | Every text token at rest clears 7:1 on every ground it is used on, dark, light and gold. Exception: light-mode hover `cyan` is AA only. `pink` is never text; `pink-text` is. Ratios: [contrast table](docs/STYLEGUIDE.md#contrast). |
-| 2.3.3 Animation from Interactions | Under `prefers-reduced-motion: reduce` a pressed control does not move into its shadow, the hero field is drawn once and held, and the About cats sit still (`tests/motion.spec.ts`, `tests/about-cats.spec.ts`).                    |
+| Criterion                         | What we do                                                                                                                                                                                                                               |
+| --------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1.4.6 Contrast (Enhanced)         | Every text token at rest clears 7:1 on every ground it is used on, dark, light and gold. Exception: light-mode hover `cyan` is AA only. `pink` is never text; `pink-text` is. Ratios: [contrast table](docs/STYLEGUIDE.md#contrast).     |
+| 2.3.3 Animation from Interactions | Under `prefers-reduced-motion: reduce` a pressed control does not move into its shadow, the hero field is drawn once and held, and the About cats sit still (`tests/press.spec.ts`, `tests/motion.spec.ts`, `tests/about-cats.spec.ts`). |
 
 Out of scope: SC 2.4.13 Focus Appearance and SC 2.5.5 Target Size (Enhanced,
 44px). axe's `wcag2aaa` rules are not run.
@@ -119,8 +119,8 @@ view (development server only, never published), and forks.
   `/about` a sleep control (SC 2.2.2). Both are still under reduced motion;
   nothing else animates ([STYLEGUIDE Motion](docs/STYLEGUIDE.md#motion)).
 - **Forced colours.** Every non-link control keeps a painted border or opaque
-  background, links are distinct from body text, and the focus ring keeps its
-  width.
+  background, links are distinct from body text, and every focus stop on `/`
+  keeps an outline.
 - **Contact form.** Labels with "(required)" in words, `autocomplete` on name
   and email (SC 1.3.5), a focused error summary on failure, typed values kept
   on a 422, `aria-disabled` on the button and a `role="status"` message while
@@ -226,6 +226,9 @@ Limits:
   reports `forced-colors: active` and paints the author palette anyway. The
   remaining test fails if that changes in any engine.
 - Headless WebKit is not Safari and says nothing about VoiceOver.
+- `tests/contact.spec.ts` needs the Worker and runs in Chromium only
+  (`playwright.worker.config.ts`). Specs tagged `@node` read the build with no
+  browser.
 
 ### Manual
 
@@ -259,18 +262,20 @@ template ships with none of it run; record your own results. Not automated:
    with §6.4 in Chrome for the uppercase question. An Orca pass narrows this
    gap; it does not close it.
 3. **The gold surface has been measured, not looked at.**
-   `tests/gold-surface.spec.ts` measures the `/contact` band at 305px:
+   `tests/gold-surface.spec.ts` measures every route at desktop width, and
+   the `/contact` button at 305px:
 
-   | Measured on `/contact`          | Result                                       |
-   | ------------------------------- | -------------------------------------------- |
-   | `.btn-gold-primary`             | its fill delimits it on gold                 |
-   | its focus ring                  | inner `#FFFFFF` ring, 18.58 against the fill |
-   | every string on the gold ground | nothing below 4.5:1                          |
+   | Measured                                    | Result                                     |
+   | ------------------------------------------- | ------------------------------------------ |
+   | `.btn-gold-primary` on `/contact`, at 305px | its fill delimits it on gold               |
+   | its focus ring                              | inner `#FFFFFF` ring, at least 3:1 on fill |
+   | every string on a gold ground, every route  | nothing below 4.5:1                        |
 
    `.btn-gold-secondary` (on `/` and `/career`) is measured by its border edge
    on gold, in the same spec.
    Nobody has tabbed, zoomed or listened to a gold band.
-   [MANUAL_TESTING.md](docs/MANUAL_TESTING.md) §5 closes this.
+   [MANUAL_TESTING.md](docs/MANUAL_TESTING.md) §5 checks the ring on gold by
+   eye; nothing there covers zooming or listening to a gold band.
 
 4. **Fixture and in-situ gold tests cover different mistakes.** Fixtures can be
    broken on purpose; only the in-situ test catches a mistake in a shipped
