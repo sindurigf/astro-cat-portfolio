@@ -23,6 +23,8 @@ interface Props {
   hiddenPrefix?: string;
   /* Plain tier only: stars across the slab, cleared behind every line of text. */
   starfield?: boolean;
+  /* 3 only for /brand's examples, so the page keeps one h1. */
+  headingLevel?: 1 | 3;
 }
 
 const {
@@ -34,7 +36,9 @@ const {
   measure = 'page',
   hiddenPrefix,
   starfield = false,
+  headingLevel = 1,
 } = Astro.props;
+const Title = `h${headingLevel}` as 'h1' | 'h3';
 
 const reading = measure === 'reading' && !image;
 const gold = slab !== 'none';
@@ -73,10 +77,10 @@ const IMAGE_SIZES =
       )}
       <div class:list={['max-w-page', starfield && 'relative']}>
         <slot name="kicker" />
-        <h1 class:list={[titleClass, 'text-text']}>
+        <Title class:list={[titleClass, 'text-text']}>
           {hiddenPrefix && <span class="sr-only">{hiddenPrefix} </span>}
           <span class:list={[starfield && 'star-clear']}>{title}</span>
-        </h1>
+        </Title>
       </div>
       <div class="hero-roundel">
         <Roundel eager variant="hero" />
@@ -116,7 +120,7 @@ const IMAGE_SIZES =
             <slot name="eyebrow" />
           </div>
         )}
-        <h1
+        <Title
           class:list={[
             titleClass,
             'text-gold-text',
@@ -124,7 +128,7 @@ const IMAGE_SIZES =
           ]}
         >
           {title}
-        </h1>
+        </Title>
         <div
           class:list={[
             !image && 'hero-aside lg:col-span-6 lg:col-start-7 lg:row-start-2',
