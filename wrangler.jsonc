@@ -86,4 +86,17 @@
     // The default: /about redirects to /about/ with a 307.
     "html_handling": "auto-trailing-slash",
   },
+
+  // A demo copy: docs/DEPLOYMENT.md#run-a-demo. The hostname is the deploy
+  // command's `--domain`, which wrangler adds to `routes`. Build with
+  // CLOUDFLARE_ENV=demo.
+  "env": {
+    "demo": {
+      "name": "astro-cat-portfolio-demo",
+      "routes": [],
+      // Bindings are not inherited, so the demo has none: the build warns, by
+      // design. CONTACT_FORM=none needs no database, mailer or rate limit.
+      "triggers": { "crons": [] },
+    },
+  },
 }
