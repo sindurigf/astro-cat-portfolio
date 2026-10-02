@@ -1,6 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 import { assertPortFree, TEST_PORT } from './tests/ports';
 import { WORKER_SPECS } from './playwright.worker.config';
+import { DEMO_SPECS } from './playwright.demo.config';
 import { NODE_TAG } from './tests/tags';
 
 /*
@@ -27,8 +28,8 @@ const NODE_ONLY = new RegExp(NODE_TAG);
 
 export default defineConfig({
   testDir: './tests',
-  /* These need the Worker: playwright.worker.config.ts. */
-  testIgnore: [...WORKER_SPECS],
+  /* These need their own build: playwright.worker.config.ts, playwright.demo.config.ts. */
+  testIgnore: [...WORKER_SPECS, ...DEMO_SPECS],
   fullyParallel: true,
   forbidOnly: Boolean(process.env.CI),
   /* For the Firefox stall above; a retried pass still fails CI (--fail-on-flaky-tests). */

@@ -12,6 +12,7 @@ npm run check        # tokens, links, pins, classes, images, format, commits, le
 npm run test:a11y    # Chromium, Firefox; WebKit in CI or with WEBKIT=1
 npm run test:webkit  # test:a11y in WebKit via Docker
 npm run test:worker  # WORKER_SPECS through the Worker
+npm run test:demo    # DEMO_SPECS against a NOINDEX demo build
 ```
 
 - CI runs all of it; `Required checks` is the one required status.
@@ -40,7 +41,7 @@ security and privacy, or build correctness. "Looks as designed" is not one.
 
 CI runs the full gate on every pull request. Locally, before opening one:
 
-- `build`, `typecheck`, `check` and `test:worker`.
+- `build`, `typecheck`, `check`, `test:worker` and `test:demo`.
 - The specs the change touches or whose behaviour it changes, in every engine:
   `npx playwright test <specs>` and `npm run test:webkit -- <specs>`.
 
