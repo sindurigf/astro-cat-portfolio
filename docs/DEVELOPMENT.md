@@ -174,6 +174,16 @@ Add a Markdown file to `src/content/blog/`; the filename is the slug. The build
 validates frontmatter against `src/content.config.ts` and fails on a mismatch.
 `sample-talk.md` is a complete example.
 
+- The newest published post needs `cover` and `coverAlt`: `/blog` features
+  it. `src/content.config.ts` fails the build on a cover of another ratio.
+- Tests read the new post's routes, category and tags from its frontmatter.
+- A spec that needs a post or talk with some property (a cover, a tag, a
+  paired talk PDF) skips, naming the property, while none has it.
+- `journeyPost` in `src/site.config.ts` is the post `/about`, `/career` and
+  `/contact/sent` end on, by slug. Deleting that post fails the build: name
+  another published post, or set it to `null` to end those pages on their
+  next page only.
+
 ## Writing a talk
 
 One deck per talk: `src/content/talks/<deck>/slides.md`, in Slidev's Markdown

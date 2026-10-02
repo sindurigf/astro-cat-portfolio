@@ -2,7 +2,7 @@ import { expect, test, type Page } from './test';
 import { NON_TEXT, PAGE_HELPERS } from './contrast';
 import { gotoSettled } from './settle';
 import { FOCUSABLE_SELECTOR, NARROW_WIDTH } from './wcag';
-import { tabWalk } from './tab-walk';
+import { settleFocusScroll, tabWalk } from './tab-walk';
 import { SAMPLED_ROUTES } from './routes';
 
 /**
@@ -149,36 +149,6 @@ const readFocused = (page: Page): Promise<Stop> =>
     };
   })()`) as Promise<Stop>;
 
-/**
- * `keyboard.press` resolves before focus scrolling settles, so probing races it
- * (WebKit, CI run 33979308331). Waits for two frames with unchanged `scrollY`,
- * within a frame budget.
- */
-const SETTLE_FRAMES = 60;
-
-const settleScroll = (page: Page): Promise<void> =>
-  page.evaluate((budget) => {
-    return new Promise<void>((resolve) => {
-      let previous: number | null = null;
-      let frames = 0;
-      const check = () => {
-        const y = window.scrollY;
-        if (previous === y) {
-          resolve();
-          return;
-        }
-        previous = y;
-        frames += 1;
-        if (frames >= budget) {
-          resolve();
-          return;
-        }
-        requestAnimationFrame(check);
-      };
-      requestAnimationFrame(check);
-    });
-  }, SETTLE_FRAMES);
-
 interface Coverage {
   focusable: number;
   visited: number;
@@ -228,7 +198,7 @@ const walk = (page: Page, key: 'Tab' | 'Shift+Tab'): Promise<Stop[]> =>
   tabWalk(page, () => readFocused(page), {
     key,
     max: MAX_STOPS,
-    settle: () => settleScroll(page),
+    settle: () => settleFocusScroll(page),
   });
 
 const report = (stops: Stop[]): string =>

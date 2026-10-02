@@ -4,13 +4,17 @@ import CloseRow from '../../components/CloseRow.astro';
 import PageHero from '../../components/PageHero.astro';
 import { CONTACT_EMAIL, CONTACT_MAILTO } from '../../lib/contact';
 import { RETENTION_DAYS } from '../../lib/contact-form';
-import { JOURNEY_POST_HREF } from '../../lib/paths';
+import { closeRowLinks } from '../../lib/blog';
 
 /*
  * Prerendered, so success is a static asset with public/_headers applied.
  * Reached by a 303 from /contact/send/, so a refresh cannot resubmit.
  * noindex: from a search result it would confirm a message nobody sent.
  */
+const closeRow = await closeRowLinks({
+  href: '/contact/',
+  label: 'Back to contact',
+});
 ---
 
 <BaseLayout
@@ -39,10 +43,5 @@ import { JOURNEY_POST_HREF } from '../../lib/paths';
     </div>
   </section>
 
-  <CloseRow
-    readHref={JOURNEY_POST_HREF}
-    readLabel="Sample post"
-    actionHref="/contact/"
-    actionLabel="Back to contact"
-  />
+  <CloseRow {...closeRow} />
 </BaseLayout>

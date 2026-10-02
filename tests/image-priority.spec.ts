@@ -1,8 +1,10 @@
 import { expect, test } from './test';
-import { builtHtml } from './routes';
+import { BLOG_FEATURES_COVER, builtHtml, PHOTO_POST_ROUTES } from './routes';
 import { NODE } from './tags';
 
 const PRIORITY = /<img\b[^>]*\bfetchpriority="high"[^>]*>/g;
+
+const BLOG_PHOTO_ROUTES = BLOG_FEATURES_COVER ? ['/blog'] : [];
 
 /** The first content image, after the header's logo. */
 const firstContentImage = (html: string): string | undefined =>
@@ -23,8 +25,13 @@ test.describe('image priority', NODE, () => {
   });
 
   test('the blog feature cover and a post’s first photo load eagerly and first', () => {
+    const routes = [...BLOG_PHOTO_ROUTES, ...PHOTO_POST_ROUTES];
+    test.skip(
+      routes.length === 0,
+      'no feature cover and no post with a Markdown image',
+    );
     const pages = builtHtml();
-    for (const route of ['/blog', '/blog/sample-post']) {
+    for (const route of routes) {
       const image = firstContentImage(pages.get(route) ?? '');
       expect(image, `${route} has no content image`).toBeDefined();
       expect(
@@ -46,7 +53,7 @@ test.describe('image priority', NODE, () => {
         picture,
       })),
     );
-    for (const route of ['/', '/about', '/blog']) {
+    for (const route of ['/', '/about', ...BLOG_PHOTO_ROUTES]) {
       expect(
         pictures.some((p) => p.route === route),
         `${route} has no <picture>, so its photos send WebP only.`,

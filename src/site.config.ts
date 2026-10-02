@@ -51,6 +51,11 @@ export interface SiteConfig {
   profiles: ReadonlyArray<{ label: ProfileLabel; href: string }>;
   /** Umami Cloud; null loads no tracker. */
   analytics: { umamiWebsiteId: string } | null;
+  /**
+   * Slug of the published post /about, /career and /contact/sent end on, or
+   * null to end them on their next page only. The build fails on any other slug.
+   */
+  journeyPost: string | null;
   contact: {
     /**
      * `cloudflare-d1`: the form, stored in D1 and mailed by Email Routing.
@@ -88,6 +93,7 @@ const config: SiteConfig = {
     { label: 'Mastodon', href: 'https://mastodon.example/@alex-example' },
   ],
   analytics: null,
+  journeyPost: 'sample-post',
   contact: {
     form: 'cloudflare-d1',
     notificationSender: 'contact-form@example.com',
@@ -95,6 +101,8 @@ const config: SiteConfig = {
 };
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+/* A file name in src/content/blog/, as the glob loader turns it into an id. */
+const SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 const EARLIEST_YEAR = 1991;
 const TAGLINE_MAX_LINES = 2;
@@ -127,7 +135,7 @@ const email = (path: string, value: string) => {
 };
 
 export const validateSiteConfig = (value: SiteConfig): SiteConfig => {
-  const { site, person, profiles, analytics, contact } = value;
+  const { site, person, profiles, analytics, journeyPost, contact } = value;
 
   text('site.name', site.name);
   text('site.shortName', site.shortName);
@@ -185,6 +193,10 @@ export const validateSiteConfig = (value: SiteConfig): SiteConfig => {
 
   if (analytics !== null && !UUID.test(analytics.umamiWebsiteId)) {
     invalid('analytics.umamiWebsiteId', 'must be the UUID Umami shows.');
+  }
+
+  if (journeyPost !== null && !SLUG.test(journeyPost)) {
+    invalid('journeyPost', `must be null or a post's slug: ${journeyPost}`);
   }
 
   if (!CONTACT_FORMS.includes(contact.form)) {

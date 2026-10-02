@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { expect, test } from './test';
 import { gotoSettled } from './settle';
 import { codeBlock } from '../src/plugins/code-block.mjs';
-import { POST_ROUTES } from './routes';
+import { NO_POST, POST_ROUTES } from './routes';
 import { REFLOW_VIEWPORT } from './wcag';
 import { NODE } from './tags';
 
@@ -102,8 +102,9 @@ test.describe('code in a post, as it renders', () => {
     test(`reads as code and keeps its overflow to itself at ${width}px`, async ({
       page,
     }) => {
+      test.skip(POST_ROUTES.length === 0, NO_POST);
       await page.setViewportSize({ width, height: 900 });
-      await gotoSettled(page, POST_ROUTES[0]);
+      await gotoSettled(page, POST_ROUTES[0]!);
 
       const measured = await page.evaluate((html) => {
         const prose = document.querySelector('.prose');

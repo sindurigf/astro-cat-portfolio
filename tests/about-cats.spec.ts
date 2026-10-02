@@ -10,6 +10,7 @@ import { AA_TEXT, NON_TEXT, PAGE_HELPERS } from './contrast';
 import { NODE } from './tags';
 import { readFileSync } from 'node:fs';
 import {
+  EDGE_MOVES,
   MOVES,
   type MoveName,
   duration,
@@ -23,10 +24,12 @@ import {
   POST_HEIGHT,
   highestPoint,
   reachOf,
+  stepTail,
 } from '../src/lib/about-cats-rig';
 import {
   CONTROL_ROOM,
   MAX_OVERHANG,
+  TAIL_REST,
   TRACK_MARGIN,
   cupPush,
   planMove,
@@ -116,6 +119,20 @@ const expectMood = (
   expect(catButton(page, id), why).toHaveAttribute('data-cat-state', mood, {
     timeout: NAP_TIMEOUT_MS,
   });
+
+/**
+ * Brings a cat's band on screen and waits for the colony to report it: until then
+ * data-cat-state reads "hidden" whatever the cat is doing, so a test reads only its own state.
+ */
+const showCat = async (page: Page, id: (typeof CATS)[number]) => {
+  await page.locator(`#cat-spot-${id}`).scrollIntoViewIfNeeded();
+  await expectMood(
+    page,
+    id,
+    /^(playing|holding|asleep)$/,
+    `${NAMES[id]} stayed hidden on screen`,
+  );
+};
 
 /** Points at a cat and waits for it to stop, as a person aiming at it would. */
 const pointAt = async (page: Page, id: (typeof CATS)[number]) => {
@@ -224,7 +241,7 @@ test(
       const min = TRACK_MARGIN;
       const max = width - TRACK_MARGIN - CONTROL_ROOM;
       for (const name of Object.keys(MOVES) as MoveName[]) {
-        if (MOVES[name]().edge) continue;
+        if (EDGE_MOVES.has(name)) continue;
         for (let i = 0; i <= TRACK_STEPS; i += 1) {
           const x = min + ((max - min) * i) / TRACK_STEPS;
           for (const facing of [1, -1]) {
@@ -261,7 +278,7 @@ test(
         for (let i = 0; i <= TRACK_STEPS; i += 1) {
           const x = min + ((max - min) * i) / TRACK_STEPS;
           for (const facing of [1, -1]) {
-            const plan = MOVES[name]().edge
+            const plan = EDGE_MOVES.has(name)
               ? { move: cupPush(x), dir: -1 }
               : planMove(name, x, facing, min, max);
             if (!plan) continue;
@@ -320,7 +337,7 @@ test(
         const end = x - poseAt(push, start, duration(push)).x;
         expect(end, 'the cat ends off its track').toBeGreaterThanOrEqual(min);
         const next = (Object.keys(MOVES) as MoveName[]).filter(
-          (name) => !MOVES[name]().edge && planMove(name, end, 1, min, max),
+          (name) => !EDGE_MOVES.has(name) && planMove(name, end, 1, min, max),
         );
         expect(next, 'no move fits once the cup is pushed').not.toEqual([]);
       }
@@ -329,16 +346,59 @@ test(
 );
 
 test(
-  'lying down and getting up each take 5 s or less, a turn to face the band included (SC 2.2.2)',
+  'lying down and getting up end within 5 s with two slow frames to spare, a turn to face the band included (SC 2.2.2)',
   NODE,
   () => {
-    for (const name of ['sleep', 'wake'] as const) {
-      const turned = withTurn(MOVES[name](), { ...pose('sit'), face: -1 });
+    const facingAway = { ...pose('sit'), face: -1 };
+    const moves: [string, Move][] = [
+      ['sleep', MOVES.sleep()],
+      ['sleep after a turn', withTurn(MOVES.sleep(true), facingAway)],
+      ['wake', withTurn(MOVES.wake(), facingAway)],
+    ];
+    for (const [name, move] of moves) {
       expect(
-        duration(turned),
-        `${name} keeps moving past 5 s, so a stopped or napping cat does not settle`,
-      ).toBeLessThanOrEqual(SC_2_2_2_MS);
+        duration(move),
+        `${name} leaves no room within 5 s for a slow device's last frames`,
+      ).toBeLessThanOrEqual(SC_2_2_2_MS - SLOW_FRAMES_SPARE * SLOW_FRAME_MS);
     }
+    expect(
+      duration(withTurn(MOVES.sleep(true), facingAway)),
+      'turning before lying down takes longer than lying down',
+    ).toBeLessThanOrEqual(duration(MOVES.sleep()));
+  },
+);
+
+/** Frames this far apart, as a loaded device drew them in CI; the tail must still settle in time. */
+const SLOW_FRAME_MS = 530;
+/** Frames a slow device may still draw after a move ends: the move's last, and the tail's. */
+const SLOW_FRAMES_SPARE = 2;
+/** A tail swung this far, in degrees per segment, then left to settle. */
+const TAIL_SWING = 40;
+const TAIL_SEGMENTS = 8;
+
+test(
+  'a tail settles in real time even at two frames a second, so a sleeping cat is still within 5 s (SC 2.2.2)',
+  NODE,
+  () => {
+    const tail = {
+      tailAngle: [] as number[],
+      tailSpeed: [] as number[],
+      physAt: 0,
+    };
+    stepTail(tail, Array(TAIL_SEGMENTS).fill(0), 0);
+    const swung = Array(TAIL_SEGMENTS).fill(TAIL_SWING);
+    let now = 0;
+    do {
+      now += SLOW_FRAME_MS;
+      stepTail(tail, swung, now);
+    } while (
+      now < SC_2_2_2_MS &&
+      tail.tailSpeed.some((v) => Math.abs(v) > TAIL_REST)
+    );
+    expect(
+      now,
+      'the tail was still swinging 5 s after it was left to settle',
+    ).toBeLessThan(SC_2_2_2_MS);
   },
 );
 
@@ -618,6 +678,7 @@ test.describe('About cats', () => {
       ['pepper', 'asleep'],
       ['mochi', /^(playing|holding)$/],
     ] as const) {
+      await showCat(page, id);
       await catButton(page, id).focus();
       await page.keyboard.press('Enter');
       const dialog = page.getByRole('dialog', { name: NAMES[id] });
@@ -680,6 +741,7 @@ test.describe('About cats', () => {
   }) => {
     await gotoSettled(page, ROUTE);
     const id = 'pepper';
+    await showCat(page, id);
     // Holds follow keyboard use, so a key comes first, as it would for a keyboard user.
     await page.keyboard.press('Shift');
     await catButton(page, id).focus();
@@ -820,8 +882,9 @@ test.describe('About cats', () => {
           return {
             icon: icon && own ? ratio(icon, own) : 0,
             ring: ring && ground ? ratio(ring, ground) : 0,
+            drawn: style.outlineStyle !== 'none' && parseFloat(style.outlineWidth) > 0,
           };
-        })()`) as Promise<{ icon: number; ring: number }>;
+        })()`) as Promise<{ icon: number; ring: number; drawn: boolean }>;
       await control.hover();
       expect(
         (await measure()).icon,
@@ -835,6 +898,10 @@ test.describe('About cats', () => {
         focused.icon,
         'the focused sleep icon is under 3:1',
       ).toBeGreaterThanOrEqual(NON_TEXT);
+      /* The outline colour reads as the text colour even with no ring drawn. */
+      expect(focused.drawn, 'the focused sleep control draws no ring').toBe(
+        true,
+      );
       expect(
         focused.ring,
         'the focus ring is under 3:1',
@@ -876,13 +943,29 @@ test.describe('About cats', () => {
     page,
   }) => {
     await gotoSettled(page, ROUTE);
+    const spot = page.locator('#cat-spot-biscuit');
+    await expect(
+      spot,
+      'Biscuit starts on screen, so this proves nothing',
+    ).not.toBeInViewport();
+    /* "hidden" is also the state before any report: wait for an observer made after the page's to report, so the page's has too. */
+    await spot.evaluate(
+      (node) =>
+        new Promise<void>((resolve) => {
+          const seen = new IntersectionObserver(() => {
+            seen.disconnect();
+            requestAnimationFrame(() => resolve());
+          });
+          seen.observe(node);
+        }),
+    );
     await expectMood(
       page,
       'biscuit',
       'hidden',
       'Biscuit claims a state off screen',
     );
-    await page.locator('#cat-spot-biscuit').scrollIntoViewIfNeeded();
+    await spot.scrollIntoViewIfNeeded();
     await expectMood(
       page,
       'biscuit',

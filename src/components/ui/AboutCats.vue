@@ -299,7 +299,6 @@ const onDialogClose = (): void => {
   afterClose();
 };
 
-/* Outside the card is the backdrop; the dialog's own padding keeps the shadow in view. */
 /* A drag that starts on the card, selecting text, may end on the backdrop. */
 let pressedInCard = false;
 const onDialogPointerDown = (event: PointerEvent): void => {
@@ -307,6 +306,7 @@ const onDialogPointerDown = (event: PointerEvent): void => {
     event.target instanceof Node && Boolean(card.value?.contains(event.target));
 };
 
+/* Outside the card is the backdrop; the dialog's own padding keeps the shadow in view. */
 const onDialogClick = (event: MouseEvent): void => {
   /* Only the dialog itself: a click on the link or text inside the card never closes it. */
   if (event.target !== dialog.value || pressedInCard) return;

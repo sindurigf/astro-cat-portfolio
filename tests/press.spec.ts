@@ -2,6 +2,7 @@ import { expect, test, type Page } from './test';
 import { gotoSettled } from './settle';
 import { DESKTOP_VIEWPORT } from './wcag';
 import { CONTACT_FORM_ON } from '../src/lib/contact';
+import { CATEGORY_ROUTES, NO_PUBLISHED_POST } from './routes';
 
 /* The form's send button, or the 404 page's link when there is no form. */
 const PRIMARY_ROUTE = CONTACT_FORM_ON ? '/contact' : '/404';
@@ -12,6 +13,8 @@ interface Pressable {
   route: string;
   control: string;
   moves: string;
+  /** Why the page has no such control, when it has none. */
+  absent?: string;
 }
 
 const PRESSABLE: Pressable[] = [
@@ -38,6 +41,7 @@ const PRESSABLE: Pressable[] = [
     route: '/blog/',
     control: 'main a.chip:not([aria-current])',
     moves: 'main a.chip:not([aria-current])',
+    absent: CATEGORY_ROUTES.length === 0 ? NO_PUBLISHED_POST : undefined,
   },
   {
     name: 'a footer sticker',
@@ -125,6 +129,7 @@ const pressLook = (page: Page, selector: string) =>
 test.describe('a press is drawn', () => {
   for (const p of PRESSABLE) {
     test(`${p.name} looks different pressed than hovered`, async ({ page }) => {
+      test.skip(p.absent !== undefined, p.absent);
       await page.setViewportSize(DESKTOP_VIEWPORT);
       await gotoSettled(page, p.route);
       await page.locator(p.control).first().hover();
@@ -142,6 +147,7 @@ test.describe('a press is drawn', () => {
     test(`${p.name} shows a press under reduced motion without moving`, async ({
       page,
     }) => {
+      test.skip(p.absent !== undefined, p.absent);
       await page.emulateMedia({ reducedMotion: 'reduce' });
       await page.setViewportSize(DESKTOP_VIEWPORT);
       await gotoSettled(page, p.route);
@@ -163,6 +169,7 @@ test.describe('a press is drawn', () => {
 test.describe('a press on the edge still clicks', () => {
   for (const p of PRESSABLE) {
     test(p.name, async ({ page }) => {
+      test.skip(p.absent !== undefined, p.absent);
       await page.setViewportSize(DESKTOP_VIEWPORT);
       await gotoSettled(page, p.route);
       const el = page.locator(p.control).first();
