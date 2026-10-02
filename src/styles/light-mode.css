@@ -60,4 +60,15 @@
   :root[data-theme='light'] main .sticker {
     @apply border-text bg-text text-background;
   }
+
+  /* /brand states each mode's own contrast: the other mode's rows would misstate it. */
+  :root[data-theme='light'] main .contrast-dark,
+  :root:not([data-theme='light']) main .contrast-light {
+    display: none;
+  }
+
+  /* A gold fill on white takes an ink edge, as buttons and tiles do. */
+  :root[data-theme='light'] main .theme-switch {
+    @apply border-4 border-text;
+  }
 }

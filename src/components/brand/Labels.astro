@@ -1,0 +1,70 @@
+---
+import ComponentRow from './ComponentRow.astro';
+import { getSortedPosts, tagLabel } from '../../lib/blog';
+import { tagHref } from '../../lib/paths';
+
+const [post] = await getSortedPosts();
+/* A site may have no tagged post yet; the tag chip row waits for one. */
+const tag = post?.data.tags?.[0];
+const META = 'text-body text-subtle';
+---
+
+<ul class="divide-y-4 divide-border">
+  <ComponentRow
+    id="chips"
+    name="Chips"
+    use="a row of links to pages or sections, such as categories."
+    rule="The current one is a flat block with a marker, never colour alone."
+  >
+    <ul class="flex flex-wrap gap-6">
+      <li>
+        <a href="/brand/" class="chip" aria-current="page">
+          Brand
+        </a>
+      </li>
+      <li>
+        <a href="/credits/" class="chip">
+          Credits
+        </a>
+      </li>
+    </ul>
+  </ComponentRow>
+
+  {tag && (
+    <ComponentRow
+      id="tag-chips"
+      name="Tag chips"
+      use="a post's tags, under the post."
+      rule="Pink-text labels, tilted alternately; each leads to the tag's page."
+    >
+      <ul class="flex flex-wrap gap-6">
+        <li>
+          <a href={tagHref(tag)} class="chip chip-sticker -rotate-3">
+            {tagLabel(tag)}
+          </a>
+        </li>
+      </ul>
+    </ComponentRow>
+  )}
+
+  <ComponentRow
+    id="badges"
+    name="Badge"
+    use="a short fact on a card that is not a link, such as Current."
+    rule="Dark block, light label. Never a link: a link in a row is a chip."
+  >
+    <span class="badge">Current</span>
+  </ComponentRow>
+
+  <ComponentRow
+    id="stickers"
+    name="Sticker"
+    use="a small eyebrow pinned to a card's edge."
+    rule="Pink-text label with a mark shadow, slightly tilted; one per card."
+  >
+    <span class="sticker -rotate-3">Continue reading</span>
+    <p class:list={[META, 'mt-6']}>
+      On a close row it sits across the card's top edge.
+    </p>
+  </ComponentRow>
+</ul>

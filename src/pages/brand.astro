@@ -1,0 +1,452 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import Section from '../components/Section.astro';
+import { accessibilityFacts } from '../lib/accessibility-facts';
+import ContrastTable from '../components/ContrastTable.astro';
+import Grounds from '../components/brand/Grounds.astro';
+import Actions from '../components/brand/Actions.astro';
+import Labels from '../components/brand/Labels.astro';
+import Navigation from '../components/brand/Navigation.astro';
+import Heroes from '../components/brand/Heroes.astro';
+import Cards from '../components/brand/Cards.astro';
+import Forms from '../components/brand/Forms.astro';
+import Photos from '../components/brand/Photos.astro';
+import Text from '../components/brand/Text.astro';
+import Controls from '../components/brand/Controls.astro';
+import {
+  colours,
+  contrast,
+  lightContrast,
+  shadows,
+  spacing,
+  type,
+} from '../lib/brand';
+import {
+  REPOSITORY_URL,
+  SITE_NAME,
+  sourceUrl,
+  templateUseUrl,
+} from '../lib/site';
+
+/* This site's own repository, so a site made from the template points at itself. */
+const SOURCE_URL = sourceUrl(REPOSITORY_URL);
+const USE_TEMPLATE_URL = SOURCE_URL && templateUseUrl(SOURCE_URL);
+/* The template's live demo; the link renders once this is set. */
+const DEMO_URL: string | null = null;
+const HAS_LINKS = Boolean(SOURCE_URL ?? DEMO_URL);
+const ACCESSIBILITY_MD_URL = `${REPOSITORY_URL}/blob/main/ACCESSIBILITY.md`;
+
+const SECTIONS = [
+  { id: 'grounds', title: 'Grounds' },
+  { id: 'colour', title: 'Colour' },
+  { id: 'contrast', title: 'Contrast' },
+  { id: 'type', title: 'Type' },
+  { id: 'spacing', title: 'Spacing' },
+  { id: 'shadows', title: 'Borders and shadows' },
+  { id: 'actions', title: 'Buttons and links' },
+  { id: 'labels', title: 'Chips and labels' },
+  { id: 'navigation', title: 'Navigation' },
+  { id: 'heroes', title: 'Heroes' },
+  { id: 'cards', title: 'Cards' },
+  { id: 'forms', title: 'Forms' },
+  { id: 'photos', title: 'Photos' },
+  { id: 'text', title: 'Text' },
+  { id: 'controls', title: 'Controls' },
+  { id: 'motion', title: 'Motion' },
+  { id: 'accessibility', title: 'Accessibility' },
+  { id: 'use', title: 'The template' },
+] as const;
+/* The pairings every page is read in, shown before the full list. */
+const READING = {
+  fg: ['text', 'subtle'],
+  bg: ['background', 'surface'],
+  needs: '4.5',
+};
+const readingPairs = contrast.filter(
+  (row) =>
+    READING.fg.includes(row.fg) &&
+    READING.bg.includes(row.bg) &&
+    row.needs === READING.needs,
+);
+
+const section = (id: (typeof SECTIONS)[number]['id']) =>
+  SECTIONS.find((s) => s.id === id)!;
+
+/*
+ * Each colour shown doing its own job. Class names are literal so Tailwind
+ * builds them; a token in the Colour tokens table with no entry fails the build.
+ */
+const SWATCH: Record<string, string | null> = {
+  /* Framed in `text`: a ground's fill alone is lost against the card. */
+  background: 'bg-background border-8 border-text',
+  surface: 'bg-surface border-8 border-text',
+  border: 'border-8 border-border',
+  text: 'text-text',
+  subtle: 'text-subtle',
+  /* A fill: light mode turns gold text to ink, but keeps gold fills. */
+  gold: 'bg-gold border-4 border-border',
+  /* Never at rest: it shows in Controls under the pointer and the keyboard. */
+  cyan: null,
+  pink: 'border-4 border-border shadow-hard-pink-8',
+  'pink-text': 'text-pink-text',
+  mark: 'border-4 border-border shadow-hard-mark-8',
+  'tile-edge': 'border-8 border-tile-edge',
+};
+const GLYPH = /^text-/;
+for (const { token } of colours) {
+  if (!(token in SWATCH)) {
+    throw new Error(
+      `/brand: ${token} is in the Colour tokens table but has no swatch in src/pages/brand.astro`,
+    );
+  }
+}
+
+const TYPE_CLASS: Record<string, string> = {
+  'text-h1': 'text-h1 tracking-heading',
+  'text-h2': 'text-h2 tracking-heading',
+  'text-h3': 'text-h3',
+  'text-standfirst': 'text-standfirst',
+  'text-body': 'text-body',
+  'text-label': 'text-label uppercase tracking-label',
+};
+const WEIGHT_CLASS: Record<string, string> = {
+  '400': 'font-normal',
+  '900': 'font-black',
+};
+
+const SPACING_CLASS: Record<string, string> = {
+  '--spacing-section': 'w-section',
+  '--spacing-head': 'w-head',
+  '--spacing-grid': 'w-grid',
+};
+
+/* Cyan is never at rest, so its shadow shows only on a hovered card. */
+const SHADOW_CLASS: Record<string, string | null> = {
+  'shadow-hard-pink-4': 'shadow-hard-pink-4',
+  'shadow-hard-pink-8': 'shadow-hard-pink-8',
+  'shadow-hard-cyan-8': null,
+  'shadow-hard-gold-border-8': 'shadow-hard-gold-border-8',
+  'shadow-hard-mark-4': 'shadow-hard-mark-4',
+  'shadow-hard-mark-8': 'shadow-hard-mark-8',
+  'shadow-hard-mark-12': 'shadow-hard-mark-12',
+};
+
+for (const [map, keys, what] of [
+  [TYPE_CLASS, type.map((t) => t.token), 'type step'],
+  [SPACING_CLASS, spacing.map((s) => s.token), 'spacing token'],
+  [SHADOW_CLASS, shadows.map((s) => s.utility), 'shadow'],
+] as const) {
+  for (const key of keys) {
+    if (!(key in map)) {
+      throw new Error(
+        `/brand: the ${what} ${key} has no class in src/pages/brand.astro`,
+      );
+    }
+  }
+}
+
+const ROW = 'flex flex-wrap items-center gap-6 py-6';
+const ROWS = 'divide-y-4 divide-border';
+const NAME = 'text-body font-black text-text';
+const META = 'text-body text-subtle';
+const SWATCH_BOX = 'grid size-16 shrink-0 place-items-center';
+---
+
+<BaseLayout
+  title="Brand"
+  description={`The design system behind ${SITE_NAME}: colour, contrast, type, spacing, shadows, controls and motion, drawn from the site's own CSS.`}
+>
+  <PageHero title="Brand">
+    <p class="standfirst">
+      The design system behind this site, drawn from its own CSS.
+    </p>
+    {HAS_LINKS && (
+      <p class="mt-8 flex flex-wrap gap-6">
+        {USE_TEMPLATE_URL && (
+          <a href={USE_TEMPLATE_URL} class="btn-gold-primary">
+            Use this design
+          </a>
+        )}
+        {SOURCE_URL && (
+          <a href={SOURCE_URL} class="btn-gold-secondary">
+            View the source
+          </a>
+        )}
+        {DEMO_URL && (
+          <a href={DEMO_URL} class="btn-gold-secondary">
+            See the demo
+          </a>
+        )}
+      </p>
+    )}
+    <nav aria-label="On this page" class="mt-8">
+      <ul class="flex flex-wrap gap-6">
+        {SECTIONS.map((s) => (
+          <li>
+            <a href={`#${s.id}`} class="chip">
+              {s.title}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  </PageHero>
+
+  <Section
+    id="grounds"
+    title={section('grounds').title}
+    lead="Four grounds carry everything on the site. Each sets which colours may sit on it."
+  >
+    <Grounds />
+  </Section>
+
+  <Section
+    id="colour"
+    title={section('colour').title}
+    lead="Each colour has one job. Light mode swaps the grounds, the ink and the edges."
+  >
+    <ul class:list={['card', ROWS]}>
+      {colours.map(({ token, job, dark, light }) => {
+        const swatch = SWATCH[token];
+        return (
+          <li class={ROW}>
+            {swatch === null ? (
+              <span
+                class:list={[
+                  SWATCH_BOX,
+                  'border-4 border-dashed border-border',
+                ]}
+                aria-hidden="true"
+              />
+            ) : GLYPH.test(swatch) ? (
+              <span
+                class:list={[SWATCH_BOX, 'text-h3 font-black', swatch]}
+                aria-hidden="true"
+              >
+                Aa
+              </span>
+            ) : (
+              <span class:list={[SWATCH_BOX, swatch]} aria-hidden="true" />
+            )}
+            <dl class="min-w-0">
+              <dt class={NAME}>
+                <code>{token}</code>
+              </dt>
+              <dd class={META}>{job}</dd>
+              <dd class={META}>
+                Dark {dark}
+                {light !== dark && <>, light {light}</>}
+              </dd>
+            </dl>
+          </li>
+        );
+      })}
+    </ul>
+  </Section>
+
+  <Section
+    id="contrast"
+    title={section('contrast').title}
+    lead="Measured from the tokens, for the mode you are viewing; switch it in the header to see the other. Text needs 4.5, edges and icons 3."
+  >
+    <div class="contrast-dark">
+      <ContrastTable rows={readingPairs} />
+      <details class="mt-head">
+        <summary class="post-contents-summary">
+          <span>Show all {contrast.length} pairings</span>
+          <span class="post-contents-marker" aria-hidden="true" />
+        </summary>
+        <div class="mt-6">
+          <ContrastTable rows={contrast} />
+        </div>
+      </details>
+    </div>
+    <div class="contrast-light">
+      <ContrastTable rows={lightContrast} />
+      <p class="mt-6 text-body text-text">
+        Gold text turns to ink on white, with a gold square before the word.
+      </p>
+    </div>
+  </Section>
+
+  <Section
+    id="type"
+    title={section('type').title}
+    lead="Lexend, at two weights: 400 for reading, 900 for headings, labels and buttons."
+  >
+    <ul class:list={['card', ROWS]}>
+      {type.map(({ token, min, max, weight, use }) => (
+        <li class="py-6">
+          {/* A specimen at its step's size, not a heading or a paragraph. */}
+          <div
+            class:list={[
+              TYPE_CLASS[token],
+              WEIGHT_CLASS[weight] ?? 'font-normal',
+              'text-text wrap-anywhere',
+            ]}
+          >
+            {use}
+          </div>
+          <p class:list={[META, 'mt-2']}>
+            <code>{token}</code>, {min} to {max}px, weight {weight}
+          </p>
+        </li>
+      ))}
+    </ul>
+  </Section>
+
+  <Section
+    id="spacing"
+    title={section('spacing').title}
+    lead="A 4px base. Each bar below is drawn at its token's width on this screen."
+  >
+    <ul class:list={['card', ROWS]}>
+      {spacing.map(({ token, use, phone, wide }) => (
+        <li class="py-6">
+          <span
+            class:list={['block h-4 bg-text', SPACING_CLASS[token]]}
+            aria-hidden="true"
+          />
+          <dl class="mt-3">
+            <dt class={NAME}>
+              <code>{token}</code>
+            </dt>
+            <dd class={META}>
+              {use}: {phone}px on a phone, {wide}px from 1200px
+            </dd>
+          </dl>
+        </li>
+      ))}
+    </ul>
+  </Section>
+
+  <Section
+    id="shadows"
+    title={section('shadows').title}
+    lead="Borders are 4 or 8px. Shadows are hard offsets with no blur. Corners are square."
+  >
+    <ul class:list={['card', ROWS]}>
+      {shadows.map(({ utility, casts }) => (
+        <li class={ROW}>
+          {SHADOW_CLASS[utility] === null ? (
+            <span
+              class:list={[SWATCH_BOX, 'border-4 border-dashed border-border']}
+              aria-hidden="true"
+            />
+          ) : (
+            <span
+              class:list={[
+                SWATCH_BOX,
+                'border-4 border-border bg-surface',
+                SHADOW_CLASS[utility],
+              ]}
+              aria-hidden="true"
+            />
+          )}
+          <dl class="min-w-0">
+            <dt class={NAME}>
+              <code>{utility}</code>
+            </dt>
+            <dd class={META}>{casts}</dd>
+          </dl>
+        </li>
+      ))}
+    </ul>
+  </Section>
+
+  <Section id="actions" title={section('actions').title}>
+    <Actions />
+  </Section>
+
+  <Section id="labels" title={section('labels').title}>
+    <Labels />
+  </Section>
+
+  <Section id="navigation" title={section('navigation').title}>
+    <Navigation />
+  </Section>
+
+  <Section id="heroes" title={section('heroes').title}>
+    <Heroes />
+  </Section>
+
+  <Section id="cards" title={section('cards').title}>
+    <Cards />
+  </Section>
+
+  <Section id="forms" title={section('forms').title}>
+    <Forms />
+  </Section>
+
+  <Section id="photos" title={section('photos').title}>
+    <Photos />
+  </Section>
+
+  <Section id="text" title={section('text').title}>
+    <Text />
+  </Section>
+
+  <Section id="controls" title={section('controls').title}>
+    <Controls />
+  </Section>
+
+  <Section id="motion" title={section('motion').title}>
+    <div class="card">
+      <ul class="bullet-list text-body text-text">
+        <li>
+          Anything that moves for more than 5 seconds has a pause control.
+        </li>
+        <li>Under reduced motion, nothing moves.</li>
+        <li>Nothing flashes more than three times a second.</li>
+      </ul>
+    </div>
+  </Section>
+
+  <Section id="accessibility" title={section('accessibility').title}>
+    <div class="card">
+      <p class="text-body text-text">
+        The floor for every page is {accessibilityFacts.targetStandard}. The
+        site is tested for it in three browser engines.
+      </p>
+      <p class="mt-6 text-body text-text">
+        <a href="/accessibility/">Accessibility statement</a> and{' '}
+        <a href={ACCESSIBILITY_MD_URL}>ACCESSIBILITY.md</a>
+      </p>
+    </div>
+  </Section>
+
+  <Section id="use" title={section('use').title}>
+    <div class="card">
+      <p class="text-body text-text">
+        This template carries this design system, its tests and its contact
+        form.
+      </p>
+      <ul class="bullet-list mt-6 text-body text-text">
+        <li>Source code and docs: MIT</li>
+        <li>Photographs: CC BY 4.0, credited in its LICENSE-photos</li>
+        <li>Brand icons: Simple Icons, CC0 1.0</li>
+        <li>Lexend: SIL Open Font License 1.1</li>
+      </ul>
+      {HAS_LINKS && (
+        <p class="mt-head flex flex-wrap gap-6">
+          {USE_TEMPLATE_URL && (
+            <a href={USE_TEMPLATE_URL} class="btn-primary">
+              Use this design
+            </a>
+          )}
+          {SOURCE_URL && (
+            <a href={SOURCE_URL} class="btn-secondary">
+              View the source
+            </a>
+          )}
+          {DEMO_URL && (
+            <a href={DEMO_URL} class="btn-secondary">
+              See the demo
+            </a>
+          )}
+        </p>
+      )}
+    </div>
+  </Section>
+</BaseLayout>

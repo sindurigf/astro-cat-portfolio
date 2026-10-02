@@ -155,6 +155,11 @@
     bottom: calc(-1 * var(--hero-column-edge));
   }
 
+  /* A hero shown as a /brand example: room below for the roundel's overhang, as under a real slab. */
+  .hero-example {
+    padding-bottom: calc(var(--spacing-roundel) / 2 + --spacing(2));
+  }
+
   /*
    * `vh` fallback; `.v-column .hero` sets the real height. `min-height` so it
    * grows at 200% zoom. `svh`: `dvh` reflows mid-scroll, `lvh` hides the pause

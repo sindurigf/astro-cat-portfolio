@@ -10,14 +10,16 @@ interface Props {
   crumbs: readonly Crumb[];
   /* `gold` on a gold slab: `gold-muted`, since `subtle` fails SC 1.4.3 there. */
   tone?: 'page' | 'gold';
+  /* Another name only where a page shows a second trail, as /brand's example does. */
+  label?: string;
 }
 
-const { crumbs, tone = 'page' } = Astro.props;
+const { crumbs, tone = 'page', label = 'Breadcrumb' } = Astro.props;
 
 const TONE_CLASS = { page: 'text-subtle', gold: 'text-gold-muted' } as const;
 ---
 
-<nav aria-label="Breadcrumb" class="mb-6">
+<nav aria-label={label} class="mb-6">
   <ol
     class:list={[
       'label flex flex-wrap items-center gap-x-2 gap-y-4',

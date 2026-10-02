@@ -1,6 +1,7 @@
 import { expect, test } from './test';
 import { DEMO_ENV } from '../playwright.demo.config';
 import { NODE } from './tags';
+import { templateUseUrl } from '../src/lib/site';
 
 /*
  * SEO and build correctness of a NOINDEX build with SITE_URL and
@@ -92,4 +93,23 @@ test('CONTACT_FORM=none: /contact offers the email address and no form', async (
   await expect(main.locator('form'), '/contact still has a form.').toHaveCount(
     0,
   );
+});
+
+test('REPOSITORY_URL: both /brand calls to action point at it', async ({
+  page,
+}) => {
+  await page.goto('/brand/');
+  for (const [name, href] of [
+    ['View the source', DEMO_ENV.REPOSITORY_URL],
+    ['Use this design', templateUseUrl(DEMO_ENV.REPOSITORY_URL)],
+  ] as const) {
+    const hrefs = await page
+      .getByRole('link', { name, exact: true })
+      .evaluateAll((all) => all.map((a) => a.getAttribute('href')));
+    expect(hrefs.length, `/brand has no "${name}" link.`).toBeGreaterThan(0);
+    expect(
+      new Set(hrefs),
+      `"${name}" does not point at REPOSITORY_URL.`,
+    ).toEqual(new Set([href]));
+  }
 });

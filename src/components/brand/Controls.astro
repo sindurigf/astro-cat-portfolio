@@ -1,0 +1,79 @@
+---
+import ThemeSwitch from '../ThemeSwitch.astro';
+import ComponentRow from './ComponentRow.astro';
+
+/* Examples only: src/scripts/brand-examples.ts flips their own name and glyph. */
+const MOTION_EXAMPLES = [
+  {
+    id: 'pause-control',
+    name: 'Pause control',
+    use: 'anything that moves for more than 5 seconds, like the homepage hero.',
+    rule: 'Present whenever motion is; gone under reduced motion, where nothing moves.',
+    on: { label: 'Pause the animation', glyph: '❚❚' },
+    off: { label: 'Play the animation', glyph: '▶' },
+  },
+  {
+    id: 'sleep-control',
+    name: 'Sleep control',
+    use: 'stopping one moving figure, like a cat on About.',
+    rule: 'One per figure, beside it; the name says what pressing it will do.',
+    on: { label: 'Put the cat to sleep', glyph: 'z' },
+    off: { label: 'Wake the cat', glyph: '•' },
+  },
+] as const;
+---
+
+<ul class="divide-y-4 divide-border">
+  {MOTION_EXAMPLES.map((example) => (
+    <ComponentRow
+      id={example.id}
+      name={example.name}
+      use={example.use}
+      rule={example.rule}
+    >
+      <div class="relative h-12">
+        <button
+          type="button"
+          class="motion-toggle top-0 left-0"
+          data-example-toggle
+          data-on-label={example.on.label}
+          data-on-glyph={example.on.glyph}
+          data-off-label={example.off.label}
+          data-off-glyph={example.off.glyph}
+        >
+          <span aria-hidden="true" class="text-label leading-none" data-glyph>
+            {example.on.glyph}
+          </span>
+          <span class="sr-only" data-label>
+            {example.on.label}
+          </span>
+        </button>
+      </div>
+      <p class="mt-4 text-body text-subtle">This example moves nothing.</p>
+    </ComponentRow>
+  ))}
+
+  <ComponentRow
+    id="theme-switch"
+    name="Theme switch"
+    use="choosing light or dark."
+    rule="Changes the whole site and is remembered; pressed while light. It is the same switch as the one in the header."
+  >
+    <ThemeSwitch />
+  </ComponentRow>
+
+  <ComponentRow
+    id="focus-ring"
+    name="Focus ring"
+    use="showing where the keyboard is."
+    rule="A 4px cyan ring with a gap on every control; dark on gold and on the solid card. Never removed."
+  >
+    <a href="#focus-ring" class="btn-secondary">
+      Tab to this button
+    </a>
+  </ComponentRow>
+</ul>
+
+<script>
+  import '../../scripts/brand-examples';
+</script>

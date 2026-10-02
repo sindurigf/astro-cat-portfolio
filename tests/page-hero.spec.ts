@@ -23,6 +23,7 @@ const FULL_ROUTES = [
   '/contact',
   '/blog',
   '/credits',
+  '/brand',
 ] as const;
 const THIN_ROUTES = ['/contact/sent'] as const;
 const PLAIN_ROUTES = HERO_ROUTES.filter(
@@ -46,7 +47,10 @@ test('the slab census matches the build', NODE, () => {
     .filter(
       ([route, html]) =>
         (HERO_ROUTES as readonly string[]).includes(route) &&
-        /class="[^"]*\bpage-hero-plain\b/.test(html),
+        /* The opening hero only: /brand shows each tier again as an example. */
+        /\bpage-hero-plain\b/.test(
+          /class="([^"]*\bpage-hero\b[^"]*)"/.exec(html)?.[1] ?? '',
+        ),
     )
     .map(([route]) => route)
     .sort();

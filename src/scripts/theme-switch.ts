@@ -20,15 +20,19 @@ const remember = (theme: Theme): void => {
   }
 };
 
-const toggle = (button: HTMLButtonElement): void => {
+/* Every switch reads the one `data-theme`, so two on a page never disagree. */
+const buttons = [
+  ...document.querySelectorAll<HTMLButtonElement>('.theme-switch'),
+];
+
+const toggle = (): void => {
   const next: Theme = currentTheme() === 'light' ? 'dark' : 'light';
   root.dataset.theme = next;
-  reflect(button);
+  buttons.forEach(reflect);
   remember(next);
 };
 
-const button = document.querySelector<HTMLButtonElement>('.theme-switch');
-if (button) {
+for (const button of buttons) {
   reflect(button);
-  button.addEventListener('click', () => toggle(button));
+  button.addEventListener('click', toggle);
 }

@@ -24,7 +24,7 @@ interface Props {
   date: Date;
   readingTime?: number;
   feature?: boolean;
-  headingLevel?: 2 | 3;
+  headingLevel?: 2 | 3 | 4;
   /** Shown only on a `feature` card, where the placeholder box would be. */
   cover?: ImageMetadata;
   coverAlt?: string;
@@ -45,7 +45,7 @@ const {
   class: className = '',
 } = Astro.props;
 
-const Heading = `h${headingLevel}` as 'h2' | 'h3';
+const Heading = `h${headingLevel}` as 'h2' | 'h3' | 'h4';
 
 /* Half the card from `md`, full width below; tests/image-size.spec.ts fails when it drifts. */
 const COVER_SIZES =

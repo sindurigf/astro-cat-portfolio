@@ -17,6 +17,8 @@ interface Props {
   /** `fluid` only. */
   sizes?: string;
   aspect?: 'square' | 'video';
+  /** `natural` only: one inset at every width, for a strip outside About's layout. */
+  stripInset?: string;
 }
 
 const {
@@ -26,6 +28,7 @@ const {
   size = 'fluid',
   sizes,
   aspect = 'square',
+  stripInset,
 } = Astro.props;
 
 /*
@@ -54,7 +57,9 @@ const STRIP_INSET_SM = '10.5rem';
 const naturalWidth = Math.round(
   NATURAL_HEIGHT * (master.width / master.height),
 );
-const naturalSizes = `(min-width: 40rem) min(${naturalWidth}px, calc(100vw - ${STRIP_INSET_SM})), min(${naturalWidth}px, calc(100vw - ${STRIP_INSET}))`;
+const naturalSizes = stripInset
+  ? `min(${naturalWidth}px, calc(100vw - ${stripInset}))`
+  : `(min-width: 40rem) min(${naturalWidth}px, calc(100vw - ${STRIP_INSET_SM})), min(${naturalWidth}px, calc(100vw - ${STRIP_INSET}))`;
 
 const naturalWidths = [
   ...new Set([

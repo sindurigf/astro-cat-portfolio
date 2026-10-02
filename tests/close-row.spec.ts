@@ -13,6 +13,7 @@ const CLOSE_ROW_ROUTES = [
   '/',
   '/about',
   '/blog',
+  '/brand',
   '/career',
   '/contact/sent',
   '/credits',

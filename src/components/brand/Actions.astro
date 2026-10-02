@@ -1,0 +1,106 @@
+---
+import ComponentRow from './ComponentRow.astro';
+
+const META = 'text-body text-subtle';
+---
+
+<ul class="divide-y-4 divide-border">
+  <ComponentRow
+    id="primary-button"
+    name="Primary button"
+    use="the one main action in a section."
+    rule="One per section. At rest it casts a pink shadow; under the pointer it fills cyan; pressed, it sinks into its shadow."
+  >
+    <a href="#primary-button" class="btn-primary">
+      Primary action
+    </a>
+    <Fragment slot="states">
+      <ul class="space-y-6">
+        <li class="flex flex-wrap items-center gap-6">
+          <button type="button" class="btn-primary" aria-disabled="true">
+            Unavailable
+          </button>
+          <p class={META}>
+            aria-disabled: dashed edge, no shadow, still reachable by keyboard.
+          </p>
+        </li>
+        <li>
+          <p class={META}>
+            Point at, press or Tab to the button above: hover fills it cyan,
+            active presses it in, focus adds the 4px cyan ring.
+          </p>
+        </li>
+      </ul>
+    </Fragment>
+  </ComponentRow>
+
+  <ComponentRow
+    id="secondary-button"
+    name="Secondary button"
+    use="an action beside the primary one."
+    rule="Same shape and states as the primary, on the surface fill; never two primaries side by side."
+  >
+    <p class="flex flex-wrap gap-6">
+      <a href="#primary-button" class="btn-primary">
+        Primary action
+      </a>
+      <a href="#secondary-button" class="btn-secondary">
+        Secondary action
+      </a>
+    </p>
+    <Fragment slot="states">
+      <p class="flex flex-wrap items-center gap-6">
+        <button type="button" class="btn-secondary" aria-disabled="true">
+          Unavailable
+        </button>
+        <span class={META}>aria-disabled, as on the primary.</span>
+      </p>
+    </Fragment>
+  </ComponentRow>
+
+  <ComponentRow
+    id="gold-buttons"
+    name="Buttons on gold"
+    use="actions on a gold slab or close row."
+    rule="Only the gold pair goes on gold: a dark primary with a light label, and an outlined secondary. The focus ring turns dark."
+  >
+    <div class="surface-gold border-8 border-border p-card-tight sm:p-card">
+      <p class="flex flex-wrap gap-6">
+        <a href="#gold-buttons" class="btn-gold-primary">
+          Primary on gold
+        </a>
+        <a href="#ground-gold" class="btn-gold-secondary">
+          Secondary on gold
+        </a>
+      </p>
+    </div>
+  </ComponentRow>
+
+  <ComponentRow
+    id="text-links"
+    name="Links in text"
+    use="a link inside a sentence."
+    rule="Underlined at rest, a thicker underline under the pointer. A visited link looks the same."
+  >
+    <p class="text-body text-text">
+      Read the <a href="/accessibility/">accessibility statement</a> for what is
+      tested and how.
+    </p>
+  </ComponentRow>
+
+  <ComponentRow
+    id="standalone-links"
+    name="Standalone link"
+    use="a link on its own line, outside a sentence."
+    rule="The .link class keeps the underline; a 24px minimum height keeps it a large enough target."
+  >
+    <p class="text-body text-text">
+      <a
+        href="/accessibility/"
+        class="link inline-flex min-h-target items-center"
+      >
+        Accessibility statement
+      </a>
+    </p>
+  </ComponentRow>
+</ul>

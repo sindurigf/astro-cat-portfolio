@@ -1,0 +1,56 @@
+---
+import ComponentRow from './ComponentRow.astro';
+---
+
+<ul class="divide-y-4 divide-border">
+  <ComponentRow
+    id="ground-background"
+    name="Page ground"
+    use="the page itself, behind everything."
+    rule="Background colour; text and subtle text sit on it directly."
+  >
+    <div class="border-8 border-border bg-background p-card-tight sm:p-card">
+      <p class="text-body text-text">Text on the page ground.</p>
+      <p class="mt-2 text-body text-subtle">Subtle text for meta.</p>
+    </div>
+  </ComponentRow>
+
+  <ComponentRow
+    id="ground-surface"
+    name="Surface"
+    use="cards, inputs and anything raised off the page."
+    rule="The surface fill inside an 8px edge with a pink shadow."
+  >
+    <div class="card">
+      <p class="text-body text-text">Text on the surface.</p>
+      <p class="mt-2 text-body text-subtle">Subtle text for meta.</p>
+    </div>
+  </ComponentRow>
+
+  <ComponentRow
+    id="ground-gold"
+    name="Gold slab"
+    use="a page's opening and its closing block."
+    rule="Gold-text on gold, gold-muted for meta, the gold buttons; in light mode the slab turns white and its text ink."
+  >
+    <div class="surface-gold border-8 border-border p-card-tight sm:p-card">
+      <p class="text-body">Text on the gold slab.</p>
+      <p class="mt-6">
+        <a href="#ground-gold" class="btn-gold-primary">
+          Gold primary
+        </a>
+      </p>
+    </div>
+  </ComponentRow>
+
+  <ComponentRow
+    id="ground-solid"
+    name="Solid card"
+    use="one card that leads a group."
+    rule="The light third surface; only background-coloured text passes on it."
+  >
+    <div class="card card-solid">
+      <p class="text-body">Text on the solid card.</p>
+    </div>
+  </ComponentRow>
+</ul>
