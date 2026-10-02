@@ -28,6 +28,8 @@ const SOLID_ROUTES: Record<string, number> = {
   ...(PUBLISHED_POST_ROUTES.length > 0 && { '/blog': 1 }),
   /* The first featured post, the same card as on /blog. */
   ...(HOME_FEATURES_POST && { '/': 1 }),
+  /* The design-system examples: text only. */
+  '/brand': 0,
 };
 
 /** Routes whose built HTML carries a `.card-solid`, read from `dist/`. */
