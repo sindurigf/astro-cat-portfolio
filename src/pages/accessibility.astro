@@ -3,11 +3,17 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import PageHero from '../components/PageHero.astro';
 import { accessibilityFacts } from '../lib/accessibility-facts';
 import { CONTACT_EMAIL, CONTACT_FORM_ON, CONTACT_MAILTO } from '../lib/contact';
-import { REPOSITORY_URL } from '../lib/site';
+import { ACCESSIBILITY_RESPONSE_DAYS, REPOSITORY_URL } from '../lib/site';
 
 /* A summary of ACCESSIBILITY.md; the volatile facts are derived from it at build time. */
 const { targetStandard, conformanceStatus, lastReviewed, publicReporting } =
   accessibilityFacts;
+
+const RESPONSE_TIME = `${ACCESSIBILITY_RESPONSE_DAYS} ${
+  ACCESSIBILITY_RESPONSE_DAYS === 1 ? 'day' : 'days'
+}`;
+
+const W3C_STATEMENTS = 'https://www.w3.org/WAI/planning/statements/';
 
 const FULL_RECORD = `${REPOSITORY_URL}/blob/main/ACCESSIBILITY.md`;
 
@@ -33,7 +39,7 @@ const SUPPORTED = [
 
 /* Not counted: a total this page cannot recount would go stale. */
 const AUTOMATED = [
-  'axe on every route, for WCAG 2.2 A and AA and for best practice, in dark and light mode',
+  'axe on every route, for WCAG 2.2 A and AA in dark and light mode, and for best practice in dark mode',
   'colour contrast measured against the composited background, including every result axe leaves undecided',
   'the keyboard tab order walked in both directions on every page type, with every focus ring measured where it lands',
   'target sizes, reflow, Windows High Contrast Mode, reduced motion, and navigation with JavaScript off',
@@ -118,6 +124,12 @@ const AUTOMATED = [
             an automated check but have not been read with a screen reader.
           </p>
 
+          <p>
+            If any content here does not work for you, email{' '}
+            <a href={CONTACT_MAILTO}>{CONTACT_EMAIL}</a> and we can send it
+            another way, for example as plain text.
+          </p>
+
           <h2>How it is tested</h2>
 
           <p>
@@ -146,6 +158,8 @@ const AUTOMATED = [
             to do are useful, and nothing is required. Anything that stops you
             completing a task is fixed first.
           </p>
+
+          <p>We aim to reply within {RESPONSE_TIME}.</p>
         </div>
 
         <ul class="actions mt-head">
@@ -165,6 +179,12 @@ const AUTOMATED = [
           The full record, including every measured contrast ratio and every
           known gap, is kept with the source:{' '}
           <a href={FULL_RECORD}>ACCESSIBILITY.md</a>.
+        </p>
+
+        <p class="mt-head text-body text-text text-pretty">
+          This is a personal site, so this statement is voluntary. It follows
+          the{' '}
+          <a href={W3C_STATEMENTS}>W3C model for accessibility statements</a>.
         </p>
       </div>
     </div>

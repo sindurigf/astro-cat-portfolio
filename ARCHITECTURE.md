@@ -52,6 +52,7 @@ validated on import, so a bad value fails the build and the tests.
 | `analytics`                  | `null` loads no tracker; an Umami website id turns it on ([Umami](docs/DEPLOYMENT.md#umami)) |
 | `contact.form`               | `cloudflare-d1` (the form) or `none` (email only)                                            |
 | `contact.notificationSender` | Must equal `allowed_sender_addresses` in `wrangler.jsonc`                                    |
+| `accessibility.responseDays` | The reply aim on `/accessibility`, in whole days                                             |
 
 - Libraries re-export these as constants (`src/lib/site.ts`, `profiles.ts`,
   `contact.ts`, `analytics-site.ts`); code imports those, not the config.

@@ -66,6 +66,10 @@ export interface SiteConfig {
     /** Must equal `allowed_sender_addresses` in wrangler.jsonc. */
     notificationSender: string;
   };
+  accessibility: {
+    /** Whole days /accessibility promises a reply to a reported barrier within. */
+    responseDays: number;
+  };
 }
 
 const config: SiteConfig = {
@@ -97,6 +101,9 @@ const config: SiteConfig = {
   contact: {
     form: 'cloudflare-d1',
     notificationSender: 'contact-form@example.com',
+  },
+  accessibility: {
+    responseDays: 7,
   },
 };
 
@@ -135,7 +142,15 @@ const email = (path: string, value: string) => {
 };
 
 export const validateSiteConfig = (value: SiteConfig): SiteConfig => {
-  const { site, person, profiles, analytics, journeyPost, contact } = value;
+  const {
+    site,
+    person,
+    profiles,
+    analytics,
+    journeyPost,
+    contact,
+    accessibility,
+  } = value;
 
   text('site.name', site.name);
   text('site.shortName', site.shortName);
@@ -203,6 +218,16 @@ export const validateSiteConfig = (value: SiteConfig): SiteConfig => {
     invalid('contact.form', `names no known backend: ${String(contact.form)}`);
   }
   email('contact.notificationSender', contact.notificationSender);
+
+  if (
+    !Number.isInteger(accessibility.responseDays) ||
+    accessibility.responseDays < 1
+  ) {
+    invalid(
+      'accessibility.responseDays',
+      'must be a whole number of days, 1 or more.',
+    );
+  }
 
   return value;
 };

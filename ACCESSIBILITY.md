@@ -5,6 +5,9 @@ is tested, what is not, and how to report a barrier. The public summary is the
 site's `/accessibility` page, built from this file. Replace the project,
 owner and reporting rows with your own, and review the rest before you publish.
 
+The statement is voluntary for a personal site and follows the
+[W3C model for accessibility statements](https://www.w3.org/WAI/planning/statements/).
+
 ## 1. Project information
 
 | Field               | Value                                                      |
@@ -16,7 +19,7 @@ owner and reporting rows with your own, and review the rest before you publish.
 | Private reporting   | <hello@example.com>                                        |
 | Target standard     | WCAG 2.2 Level AA, with AAA text contrast where achievable |
 | Conformance status  | **Target only. No conformance claim.**                     |
-| Last reviewed       | 2026-09-27                                                 |
+| Last reviewed       | 2026-10-02                                                 |
 
 `src/lib/accessibility-facts.ts` reads the Target standard, Conformance status,
 Last reviewed and both reporting rows into `/accessibility` at build time and
@@ -39,10 +42,10 @@ status is still "Target only. No conformance claim."
 
 ### AAA criteria in scope
 
-| Criterion                         | What we do                                                                                                                                                                                                                           |
-| --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| 1.4.6 Contrast (Enhanced)         | Every text token at rest clears 7:1 on every ground it is used on, dark, light and gold. Exception: light-mode hover `cyan` is AA only. `pink` is never text; `pink-text` is. Ratios: [contrast table](docs/STYLEGUIDE.md#contrast). |
-| 2.3.3 Animation from Interactions | Under `prefers-reduced-motion: reduce` a pressed control does not move into its shadow, the hero field is drawn once and held, and the About cats sit still (`tests/motion.spec.ts`, `tests/about-cats.spec.ts`).                    |
+| Criterion                         | What we do                                                                                                                                                                                                                               |
+| --------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1.4.6 Contrast (Enhanced)         | Every text token at rest clears 7:1 on every ground it is used on, dark, light and gold. Exception: light-mode hover `cyan` is AA only. `pink` is never text; `pink-text` is. Ratios: [contrast table](docs/STYLEGUIDE.md#contrast).     |
+| 2.3.3 Animation from Interactions | Under `prefers-reduced-motion: reduce` a pressed control does not move into its shadow, the hero field is drawn once and held, and the About cats sit still (`tests/press.spec.ts`, `tests/motion.spec.ts`, `tests/about-cats.spec.ts`). |
 
 Out of scope: SC 2.4.13 Focus Appearance and SC 2.5.5 Target Size (Enhanced,
 44px). axe's `wcag2aaa` rules are not run.
@@ -53,8 +56,8 @@ In scope:
 
 - Every route in `tests/routes.ts`, and the layouts, components, tokens and
   Markdown they are built from.
-- `/contact/send/`, the one on-demand route, tested over HTTP only
-  (`tests/contact.spec.ts`).
+- `/contact/send/`, the one on-demand route, tested over HTTP and, for its
+  error pages, in Chromium (`tests/contact.spec.ts`).
 - Every PDF under `public/`: the sample talk, `public/talks/sample-talk.pdf`,
   and a CV once `person.cv` is set in `src/site.config.ts`.
 
@@ -116,8 +119,8 @@ view (development server only, never published), and forks.
   `/about` a sleep control (SC 2.2.2). Both are still under reduced motion;
   nothing else animates ([STYLEGUIDE Motion](docs/STYLEGUIDE.md#motion)).
 - **Forced colours.** Every non-link control keeps a painted border or opaque
-  background, links are distinct from body text, and the focus ring keeps its
-  width.
+  background, links are distinct from body text, and every focus stop on `/`
+  keeps an outline.
 - **Contact form.** Labels with "(required)" in words, `autocomplete` on name
   and email (SC 1.3.5), a focused error summary on failure, typed values kept
   on a 422, `aria-disabled` on the button and a `role="status"` message while
@@ -223,6 +226,9 @@ Limits:
   reports `forced-colors: active` and paints the author palette anyway. The
   remaining test fails if that changes in any engine.
 - Headless WebKit is not Safari and says nothing about VoiceOver.
+- `tests/contact.spec.ts` needs the Worker and runs in Chromium only
+  (`playwright.worker.config.ts`). Specs tagged `@node` read the build with no
+  browser.
 
 ### Manual
 
@@ -240,32 +246,36 @@ template ships with none of it run; record your own results. Not automated:
 
 1. **The contact form's error path is untested by a person.** Asserted over
    HTTP: labels, a 422 keeping typed values, `aria-invalid`, summary links,
-   "(required)" in each label, honeypot, rate limit. Asserted in the browser:
-   `aria-disabled` and "Sending" on the button, the status text, no busy
-   ancestor, no second submit. In markup only: `novalidate`, the summary's
-   `tabindex="-1" autofocus` (no `role="alert"`, to avoid a double read),
-   `aria-describedby` on a failing field, the inset pink error ring, and the
-   back-forward cache reset. `/contact/send/` is outside `tests/routes.ts`, so
-   no route-level suite renders the error state and nothing checks focus lands
-   on the summary. Nobody has judged whether the messages help (SC 3.3.1,
+   "(required)" in each label, honeypot, rate limit, the summary's
+   `autofocus`. Asserted in the browser: `aria-disabled` and "Sending" on the
+   button, the status text, no busy ancestor, no second submit, the
+   back-forward cache reset. Asserted in Chromium only, on the 422 and 503
+   pages: focus lands on the summary, and axe finds no WCAG 2.2 AA violation.
+   In markup only: `novalidate`, the summary's `tabindex="-1"` (no
+   `role="alert"`, to avoid a double read), `aria-describedby` on a failing
+   field, and the inset pink error ring. `/contact/send/` is outside
+   `tests/routes.ts`, so the route-level suites never render the error state.
+   Nobody has judged whether the messages help (SC 3.3.1,
    3.3.3) or heard them with a screen reader. SC 3.3.7 and 3.3.8 do not apply.
 2. **No screen reader testing.** No NVDA, JAWS, VoiceOver or Orca run.
    [MANUAL_TESTING.md](docs/MANUAL_TESTING.md) §6 is an Orca pass in Firefox,
    with §6.4 in Chrome for the uppercase question. An Orca pass narrows this
    gap; it does not close it.
 3. **The gold surface has been measured, not looked at.**
-   `tests/gold-surface.spec.ts` measures the `/contact` band at 305px:
+   `tests/gold-surface.spec.ts` measures every route at desktop width, and
+   the `/contact` button at 305px:
 
-   | Measured on `/contact`          | Result                                       |
-   | ------------------------------- | -------------------------------------------- |
-   | `.btn-gold-primary`             | its fill delimits it on gold                 |
-   | its focus ring                  | inner `#FFFFFF` ring, 18.58 against the fill |
-   | every string on the gold ground | nothing below 4.5:1                          |
+   | Measured                                    | Result                                     |
+   | ------------------------------------------- | ------------------------------------------ |
+   | `.btn-gold-primary` on `/contact`, at 305px | its fill delimits it on gold               |
+   | its focus ring                              | inner `#FFFFFF` ring, at least 3:1 on fill |
+   | every string on a gold ground, every route  | nothing below 4.5:1                        |
 
    `.btn-gold-secondary` (on `/` and `/career`) is measured by its border edge
    on gold, in the same spec.
    Nobody has tabbed, zoomed or listened to a gold band.
-   [MANUAL_TESTING.md](docs/MANUAL_TESTING.md) §5 closes this.
+   [MANUAL_TESTING.md](docs/MANUAL_TESTING.md) §5 checks the ring on gold by
+   eye; nothing there covers zooming or listening to a gold band.
 
 4. **Fixture and in-situ gold tests cover different mistakes.** Fixtures can be
    broken on purpose; only the in-situ test catches a mistake in a shipped
@@ -291,6 +301,12 @@ WCAG criterion or say anything about yourself.
 
 Useful, never required: the page, what you tried and what happened, your
 browser, operating system and assistive technology, a screenshot.
+
+Replies aim to arrive within the number of days set as
+`accessibility.responseDays` in `src/site.config.ts`.
+
+Content that does not work for someone is sent another way on request, for
+example as plain text.
 
 | Severity | Meaning                                                  | Priority                 |
 | -------- | -------------------------------------------------------- | ------------------------ |
