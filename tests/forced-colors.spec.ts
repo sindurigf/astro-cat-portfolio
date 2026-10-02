@@ -64,10 +64,7 @@ const emulateForcedColours = async (
 const forceColours = async (page: Page, route: string): Promise<void> => {
   const state = await emulateForcedColours(page);
 
-  expect(
-    state.matches,
-    `forced-colors is not active on ${route}; use emulateMedia, not test.use({ forcedColors }).`,
-  ).toBe(true);
+  expect(state.matches, `forced-colors is not active on ${route}.`).toBe(true);
 
   const painted = parseRgb(state.body);
   expect(
