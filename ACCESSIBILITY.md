@@ -42,10 +42,11 @@ status is still "Target only. No conformance claim."
 
 ### AAA criteria in scope
 
-| Criterion                         | What we do                                                                                                                                                                                                                               |
-| --------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1.4.6 Contrast (Enhanced)         | Every text token at rest clears 7:1 on every ground it is used on, dark, light and gold. Exception: light-mode hover `cyan` is AA only. `pink` is never text; `pink-text` is. Ratios: [contrast table](docs/STYLEGUIDE.md#contrast).     |
-| 2.3.3 Animation from Interactions | Under `prefers-reduced-motion: reduce` a pressed control does not move into its shadow, the hero field is drawn once and held, and the About cats sit still (`tests/press.spec.ts`, `tests/motion.spec.ts`, `tests/about-cats.spec.ts`). |
+| Criterion                         | What we do                                                                                                                                                                                                                                                                                                     |
+| --------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1.4.6 Contrast (Enhanced)         | Every text token at rest clears 7:1 on every ground it is used on, dark, light and gold. Exception: light-mode hover `cyan` is AA only. `pink` is never text; `pink-text` is. Ratios: [contrast table](docs/STYLEGUIDE.md#contrast).                                                                           |
+| 1.4.8 Visual Presentation         | Blocks of more than one sentence keep lines to 80 characters, line height 1.5 or more and paragraphs 2.5 lines apart, never justified; `tests/visual-presentation.spec.ts` measures every route at 390, 1280 and 1920. Colours: browsers can override them (G156), and the theme switch offers light and dark. |
+| 2.3.3 Animation from Interactions | Under `prefers-reduced-motion: reduce` a pressed control does not move into its shadow, the hero field is drawn once and held, and the About cats sit still (`tests/press.spec.ts`, `tests/motion.spec.ts`, `tests/about-cats.spec.ts`).                                                                       |
 
 Out of scope: SC 2.4.13 Focus Appearance and SC 2.5.5 Target Size (Enhanced,
 44px). axe's `wcag2aaa` rules are not run.
