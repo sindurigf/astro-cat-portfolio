@@ -64,6 +64,6 @@
     "prettier-plugin-astro": "^1.0.0",
     "typescript": "^6.0.3",
     "vue-tsc": "3.3.11",
-    "wrangler": "4.136.3"
+    "wrangler": "4.147.0"
   }
 }
