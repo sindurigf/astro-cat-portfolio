@@ -11,7 +11,12 @@ import {
   TALK_ROUTES,
   routesFromBuild,
 } from './routes';
-import { AXE_TAGS, AXE_TIMEOUT_MS, REFLOW_VIEWPORT } from './wcag';
+import {
+  AXE_EXPERIMENTAL_RULES,
+  AXE_TAGS,
+  AXE_TIMEOUT_MS,
+  REFLOW_VIEWPORT,
+} from './wcag';
 import { NODE } from './tags';
 
 /* Every test here runs at least one axe scan; see AXE_TIMEOUT_MS. */
@@ -60,8 +65,8 @@ const formatViolations = (route: string, violations: Violation[]): string => {
  * same scan; the best-practice scan does not, so its failures stay separate.
  */
 const SCANS = {
-  wcag: AXE_TAGS,
-  'best-practice': BEST_PRACTICE_TAGS,
+  wcag: { tags: AXE_TAGS, rules: AXE_EXPERIMENTAL_RULES },
+  'best-practice': { tags: BEST_PRACTICE_TAGS, rules: [] },
 } as const;
 
 const analyze = async (
@@ -72,7 +77,8 @@ const analyze = async (
   const response = await gotoSettled(page, route);
   expect(response?.status(), `${route} should serve a 200`).toBe(200);
 
-  const results = await timedScan(page, route, [...SCANS[scan]]);
+  const { tags, rules } = SCANS[scan];
+  const results = await timedScan(page, route, [...tags], [...rules]);
 
   expect
     .soft(results.violations, formatViolations(route, results.violations))
