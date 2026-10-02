@@ -41,7 +41,7 @@ const description = ANALYTICS_ON
         ? 'It counts visits with Umami, which does not use cookies either.'
         : 'It counts no visits.'}{' '}
       {CONTACT_FORM_ON &&
-        `It stores what you type into the contact form, so that there is something to reply to, and each form submission's request, including your IP address, is logged for ${WORKER_LOG_RETENTION_DAYS} days.`}
+        `It stores what you type into the contact form, so that there is something to reply to, and each form submission's request, including your IP address, the internet address of your connection, is logged for ${WORKER_LOG_RETENTION_DAYS} days.`}
     </p>
 
     <p class="mt-6 text-body">
@@ -188,24 +188,27 @@ const description = ANALYTICS_ON
               name, email address and message you type, so that there is
               something to reply to. Stored with it are the time it was sent,
               the time the emailed copy below went out, how many times a failed
-              copy has been retried, and a random ID that only tells one message
-              from another. No IP address, browser or referrer is stored with
-              it. It is stored in a database restricted to the European Union,
-              and a copy is emailed to the site owner's inbox, so that the
-              message is seen and can be answered.
+              copy has been retried, and a random identifier (ID) that only
+              tells one message from another. No IP address, browser or referrer
+              is stored with it. It is stored in a database restricted to the
+              European Union, and a copy is emailed to the site owner's inbox,
+              so that the message is seen and can be answered.
             </p>
 
             <p>
               To stop the form being used for bulk submissions, the number of
               submissions from one network address is limited to five a minute.
-              For an IPv6 address the limit covers its whole /64 network, the
-              block a single connection is normally given. The limit is counted
-              by Cloudflare's rate limiter against a SHA-256 hash of your IPv4
-              address, or of your IPv6 /64, and the current date. This site
-              writes the hash nowhere else: it is not stored with your message
-              or linked to it. A hash of an address is not anonymous. The date
-              is no secret, so anyone holding the hash of an IPv4 address could
-              recover the address by hashing every possible one.
+              For an address in the newer format, Internet Protocol version 6
+              (IPv6), the limit covers its whole /64 network, the block a single
+              connection is normally given. The limit is counted by Cloudflare's
+              rate limiter against a SHA-256 hash, a one-way fingerprint made
+              with Secure Hash Algorithm 256, of your address in the older
+              format, Internet Protocol version 4 (IPv4), or of your IPv6 /64,
+              and the current date. This site writes the hash nowhere else: it
+              is not stored with your message or linked to it. A hash of an
+              address is not anonymous. The date is no secret, so anyone holding
+              the hash of an IPv4 address could recover the address by hashing
+              every possible one.
             </p>
 
             <p>

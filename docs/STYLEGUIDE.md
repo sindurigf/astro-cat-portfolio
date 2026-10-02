@@ -269,33 +269,33 @@ The switch and what it scopes: [ARCHITECTURE.md](../ARCHITECTURE.md#light-mode).
 Lexend Variable, weights 400 and 900 only. Sizes are `clamp()` tokens; the
 copyright and contents list are fixed, and `text-code` is a ratio.
 
-| Token                    | Min px | Max px | Line height | Weight | Use                              |
-| ------------------------ | ------ | ------ | ----------- | ------ | -------------------------------- |
-| `text-hero-h1`           | 28     | 70     | 0.94        | 900    | Homepage name only               |
-| `text-h1`                | 33     | 80     | 0.94        | 900    | Page title                       |
-| `text-reading-h1`        | 33     | 70     | 0.94        | 900    | Privacy, Accessibility title     |
-| `text-h2`                | 26     | 64     | 0.96        | 900    | Section and panel heading        |
-| `text-h3`                | 20     | 32     | 1.1         | 900    | H3, lead, card title             |
-| `text-post-title`        | 28     | 52     | 1.06        | 900    | Post title, in its own case      |
-| `text-post-h2`           | 24     | 36     | 1.02        | 900    | Post section; `.reading-layout`  |
-| `text-post-h3`           | 19     | 24     | 1.15        | 900    | Post subsection, last level      |
-| `text-post-card`         | 19     | 32     | 1.15        | 900    | Post card title (an `h2`)        |
-| `text-post-card-feature` | 26     | 64     | 1.02        | 900    | Featured post card title         |
-| `text-contents`          | 16     | 16     | 1.35        | 400    | A post's contents list           |
-| `text-standfirst`        | 20     | 36     | 1.3         | 400    | Slab aside, `.standfirst`        |
-| `text-post-teaser`       | 21     | 26     | 1.35        | 400    | Post and plain-tier aside        |
-| `text-body`              | 18     | 19     | 1.62        | 400    | Reading text                     |
-| `text-code`              | 0.92em | 0.92em | 1.5         | 400    | Code, `--font-mono`; tracks body |
-| `text-button`            | 14     | 16     | 1.2         | 900    | Buttons; same as `text-label`    |
-| `text-label`             | 14     | 16     | 1.2         | 900    | Labels; 16 to 40rem, 14 at 48rem |
-| `text-hero-sticker`      | 18     | 30     | 1.02        | 900    | Homepage hero stickers           |
-| `text-menu`              | 34     | 56     | 1           | 900    | Mobile menu links                |
-| `text-slide`             | 17     | 34     | 1.35        | 400    | Slide text: full screen, print   |
-| `text-slide-title`       | 26     | 65     | 1           | 900    | Talk slide title, its own case   |
-| `text-slide-number`      | 72     | 160    | 1           | 900    | Talk part number                 |
-| `text-copyright`         | 20     | 20     | 1.2         | 900    | Footer copyright                 |
-| `text-footer-name`       | 32     | 40     | 1           | 900    | Footer name                      |
-| `text-section-number`    | 21     | 28     | 1           | 900    | Category glyph tile              |
+| Token                    | Min px | Max px | Line height | Weight | Use                                   |
+| ------------------------ | ------ | ------ | ----------- | ------ | ------------------------------------- |
+| `text-hero-h1`           | 28     | 70     | 0.94        | 900    | Homepage name only                    |
+| `text-h1`                | 33     | 80     | 0.94        | 900    | Page title                            |
+| `text-reading-h1`        | 33     | 70     | 0.94        | 900    | Privacy, Accessibility title          |
+| `text-h2`                | 26     | 64     | 0.96        | 900    | Section and panel heading             |
+| `text-h3`                | 20     | 32     | 1.1         | 900    | Third-level heading, lead, card title |
+| `text-post-title`        | 28     | 52     | 1.06        | 900    | Post title, in its own case           |
+| `text-post-h2`           | 24     | 36     | 1.02        | 900    | Post section; `.reading-layout`       |
+| `text-post-h3`           | 19     | 24     | 1.15        | 900    | Post subsection, last level           |
+| `text-post-card`         | 19     | 32     | 1.15        | 900    | Post card title (an `h2`)             |
+| `text-post-card-feature` | 26     | 64     | 1.02        | 900    | Featured post card title              |
+| `text-contents`          | 16     | 16     | 1.35        | 400    | A post's contents list                |
+| `text-standfirst`        | 20     | 36     | 1.3         | 400    | Slab aside, `.standfirst`             |
+| `text-post-teaser`       | 21     | 26     | 1.35        | 400    | Post and plain-tier aside             |
+| `text-body`              | 18     | 19     | 1.62        | 400    | Reading text                          |
+| `text-code`              | 0.92em | 0.92em | 1.5         | 400    | Code, `--font-mono`; tracks body      |
+| `text-button`            | 14     | 16     | 1.2         | 900    | Buttons; same as `text-label`         |
+| `text-label`             | 14     | 16     | 1.2         | 900    | Labels; 16 to 40rem, 14 at 48rem      |
+| `text-hero-sticker`      | 18     | 30     | 1.02        | 900    | Homepage hero stickers                |
+| `text-menu`              | 34     | 56     | 1           | 900    | Mobile menu links                     |
+| `text-slide`             | 17     | 34     | 1.35        | 400    | Slide text: full screen, print        |
+| `text-slide-title`       | 26     | 65     | 1           | 900    | Talk slide title, its own case        |
+| `text-slide-number`      | 72     | 160    | 1           | 900    | Talk part number                      |
+| `text-copyright`         | 20     | 20     | 1.2         | 900    | Footer copyright                      |
+| `text-footer-name`       | 32     | 40     | 1           | 900    | Footer name                           |
+| `text-section-number`    | 21     | 28     | 1           | 900    | Category glyph tile                   |
 
 - Lexend, self-hosted from `@fontsource-variable/lexend` (OFL-1.1), family
   `'Lexend Variable'`. Only the latin subset is declared, in the `@font-face`
