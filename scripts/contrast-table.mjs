@@ -91,7 +91,7 @@ const PAIRS = [
   ['text', 'subtle', 'apart', 'The two text colours never carry a state'],
 ];
 
-const readTokens = (css = readFileSync(CSS, 'utf8')) => {
+export const readTokens = (css = readFileSync(CSS, 'utf8')) => {
   const tokens = {};
   for (const [, name, hex] of css.matchAll(
     /--color-([a-z-]+):\s*(#[0-9a-fA-F]{6})\s*;/g,
@@ -122,17 +122,33 @@ const verdict = (job, value) => {
   return value >= needs ? 'pass' : '**FAIL**';
 };
 
-export const renderTable = (tokens = readTokens()) => {
-  const rows = PAIRS.map(([fg, bg, job, use]) => {
+/** Every approved pairing with its ratio and verdict; the table and /brand both render these. */
+export const contrastRows = (tokens = readTokens()) =>
+  PAIRS.map(([fg, bg, job, use]) => {
     if (!tokens[fg] || !tokens[bg]) {
       throw new Error(
         `contrast-table: no token --color-${!tokens[fg] ? fg : bg}`,
       );
     }
     const value = ratio(tokens[fg], tokens[bg]);
-    const needs = NEEDS[job] === null ? 'n/a' : NEEDS[job].toFixed(1);
-    return `| \`${fg}\` ${tokens[fg]} | \`${bg}\` ${tokens[bg]} | ${job} | ${use} | ${needs} | ${value.toFixed(2)} | ${verdict(job, value)} |`;
+    return {
+      fg,
+      bg,
+      fgHex: tokens[fg],
+      bgHex: tokens[bg],
+      job,
+      use,
+      needs: NEEDS[job] === null ? 'n/a' : NEEDS[job].toFixed(1),
+      ratio: value.toFixed(2),
+      result: verdict(job, value),
+    };
   });
+
+export const renderTable = (tokens = readTokens()) => {
+  const rows = contrastRows(tokens).map(
+    (r) =>
+      `| \`${r.fg}\` ${r.fgHex} | \`${r.bg}\` ${r.bgHex} | ${r.job} | ${r.use} | ${r.needs} | ${r.ratio} | ${r.result} |`,
+  );
   return [
     START,
     '',
@@ -152,7 +168,10 @@ export const documentedTable = (doc = readFileSync(DOC, 'utf8')) => {
   return start === -1 || end === -1 ? null : doc.slice(start, end + END.length);
 };
 
-if (import.meta.url === pathToFileURL(process.argv[1]).href) {
+if (
+  process.argv[1] &&
+  import.meta.url === pathToFileURL(process.argv[1]).href
+) {
   const table = renderTable();
   if (process.argv.includes('--write')) {
     const doc = readFileSync(DOC, 'utf8');
