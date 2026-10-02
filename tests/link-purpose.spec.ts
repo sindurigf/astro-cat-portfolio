@@ -8,9 +8,7 @@ import { gotoSettled } from './settle';
  */
 
 /** Post copy is the owner's to reword (AGENTS.md "Copy"); remove an entry once it passes. */
-const OWNER_COPY: readonly { route: string; name: string }[] = [
-  { route: '/blog/open-source-is-not-just-code', name: 'Kubernetes' },
-];
+const OWNER_COPY: readonly { route: string; name: string }[] = [];
 
 interface Link {
   name: string;
