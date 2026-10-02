@@ -223,11 +223,15 @@
 
   /* Reading size at 400; on a slab the colour comes from the slab. */
   .lead {
-    @apply mt-6 max-w-2xl text-h3 font-normal text-text text-pretty;
+    @apply mt-6 max-w-2xl text-lead font-normal text-text text-pretty;
   }
 
   .standfirst {
     @apply mt-8 max-w-2xl text-standfirst font-normal text-pretty;
+  }
+
+  :is(.lead, .standfirst):has(+ p) {
+    @apply mb-paragraph;
   }
 
   /* A talk cover's subtitle and speaker as separate blocks (TalkSlide.astro). */
