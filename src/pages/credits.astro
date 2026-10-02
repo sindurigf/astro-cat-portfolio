@@ -56,6 +56,15 @@ const GUIDES = [
     author: { name: 'Joost de Valk', href: 'https://joost.blog/' },
     use: 'The checklist used to check the SEO, security and agent readiness of this site.',
   },
+  {
+    name: 'A11Y.md',
+    href: 'https://github.com/fecarrico/A11Y.md',
+    author: {
+      name: 'Felipe A. Carriço',
+      href: 'https://www.linkedin.com/in/fecarrico',
+    },
+    use: 'Pointed out that axe ships some WCAG rules switched off; this site turns them on.',
+  },
 ] as const;
 
 const photographers = Object.entries(PHOTOGRAPHERS).map(([name, href]) => ({
