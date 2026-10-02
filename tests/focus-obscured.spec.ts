@@ -32,7 +32,7 @@ const OPEN_STATES: readonly {
     route: '/about',
     widths: ['narrow', 'desktop'],
     open: async (page) => {
-      await page.locator('#cat-spot-minerva .cat-button').focus();
+      await page.locator('.cat-button').first().focus();
       await page.keyboard.press('Enter');
     },
   },
