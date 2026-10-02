@@ -3,6 +3,9 @@
 /** Share of the strip's width. */
 const STRIP_STEP = 0.8;
 
+/** `scrollWidth` is rounded, so a strip that fits can measure 1px over. */
+const SCROLL_ROUNDING_PX = 1;
+
 /* Cached photos decode faster, so they are not announced as loading. */
 const LOADING_DELAY_MS = 200;
 
@@ -155,18 +158,30 @@ const setUpStrips = (): void => {
     );
     if (!strip) continue;
     const direction = Number(button.dataset.stripScroll);
+    const overflows = (): boolean =>
+      strip.scrollWidth - strip.clientWidth > SCROLL_ROUNDING_PX;
     const atEdge = (): boolean =>
       direction < 0
         ? strip.scrollLeft <= 0
-        : strip.scrollLeft >= strip.scrollWidth - strip.clientWidth - 1;
+        : strip.scrollLeft >=
+          strip.scrollWidth - strip.clientWidth - SCROLL_ROUNDING_PX;
     const update = (): void => {
       const disabled = String(atEdge());
       if (button.getAttribute('aria-disabled') !== disabled) {
         button.setAttribute('aria-disabled', disabled);
       }
     };
-    button.hidden = false;
-    update();
+    /* A strip that fits has nothing to scroll, so its arrows leave the tab order. */
+    const fit = (): void => {
+      const hide = !overflows();
+      if (hide && document.activeElement === button) strip.focus();
+      button.hidden = hide;
+      update();
+    };
+    fit();
+    const resizes = new ResizeObserver(fit);
+    resizes.observe(strip);
+    for (const tile of strip.children) resizes.observe(tile);
     strip.addEventListener('scroll', update, { passive: true });
     button.addEventListener('click', () => {
       if (atEdge()) return;
