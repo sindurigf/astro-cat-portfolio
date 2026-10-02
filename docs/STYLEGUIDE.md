@@ -285,7 +285,7 @@ copyright and contents list are fixed, and `text-code` is a ratio.
 | `text-standfirst`        | 20     | 36     | 1.3         | 400    | Slab aside, `.standfirst`        |
 | `text-post-teaser`       | 21     | 26     | 1.35        | 400    | Post and plain-tier aside        |
 | `text-body`              | 18     | 19     | 1.62        | 400    | Reading text                     |
-| `text-code`              | 0.92em | 0.92em | 1.5         | 400    | Code, `--font-mono`; tracks body |
+| `text-code`              | 16     | 0.92em | 1.5         | 400    | Code, `--font-mono`; tracks body |
 | `text-button`            | 14     | 16     | 1.2         | 900    | Buttons; same as `text-label`    |
 | `text-label`             | 14     | 16     | 1.2         | 900    | Labels; 16 to 40rem, 14 at 48rem |
 | `text-hero-sticker`      | 18     | 30     | 1.02        | 900    | Homepage hero stickers           |
