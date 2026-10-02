@@ -56,8 +56,8 @@ In scope:
 
 - Every route in `tests/routes.ts`, and the layouts, components, tokens and
   Markdown they are built from.
-- `/contact/send/`, the one on-demand route, tested over HTTP only
-  (`tests/contact.spec.ts`).
+- `/contact/send/`, the one on-demand route, tested over HTTP and, for its
+  error pages, in Chromium (`tests/contact.spec.ts`).
 - Every PDF under `public/`: the sample talk, `public/talks/sample-talk.pdf`,
   and a CV once `person.cv` is set in `src/site.config.ts`.
 
@@ -243,14 +243,16 @@ template ships with none of it run; record your own results. Not automated:
 
 1. **The contact form's error path is untested by a person.** Asserted over
    HTTP: labels, a 422 keeping typed values, `aria-invalid`, summary links,
-   "(required)" in each label, honeypot, rate limit. Asserted in the browser:
-   `aria-disabled` and "Sending" on the button, the status text, no busy
-   ancestor, no second submit. In markup only: `novalidate`, the summary's
-   `tabindex="-1" autofocus` (no `role="alert"`, to avoid a double read),
-   `aria-describedby` on a failing field, the inset pink error ring, and the
-   back-forward cache reset. `/contact/send/` is outside `tests/routes.ts`, so
-   no route-level suite renders the error state and nothing checks focus lands
-   on the summary. Nobody has judged whether the messages help (SC 3.3.1,
+   "(required)" in each label, honeypot, rate limit, the summary's
+   `autofocus`. Asserted in the browser: `aria-disabled` and "Sending" on the
+   button, the status text, no busy ancestor, no second submit, the
+   back-forward cache reset. Asserted in Chromium only, on the 422 and 503
+   pages: focus lands on the summary, and axe finds no WCAG 2.2 AA violation.
+   In markup only: `novalidate`, the summary's `tabindex="-1"` (no
+   `role="alert"`, to avoid a double read), `aria-describedby` on a failing
+   field, and the inset pink error ring. `/contact/send/` is outside
+   `tests/routes.ts`, so the route-level suites never render the error state.
+   Nobody has judged whether the messages help (SC 3.3.1,
    3.3.3) or heard them with a screen reader. SC 3.3.7 and 3.3.8 do not apply.
 2. **No screen reader testing.** No NVDA, JAWS, VoiceOver or Orca run.
    [MANUAL_TESTING.md](docs/MANUAL_TESTING.md) §6 is an Orca pass in Firefox,
