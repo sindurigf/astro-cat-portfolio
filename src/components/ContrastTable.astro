@@ -1,0 +1,114 @@
+---
+/*
+ * /brand's contrast rows. A row that passes shows its pairing as text (needs
+ * 4.5) or an edge (needs 3), in the live tokens; cyan is never at rest, and
+ * the other results are pairings the site keeps from ever painting.
+ */
+interface Row {
+  fg: string;
+  bg: string;
+  use: string;
+  needs: string;
+  ratio: string;
+  result: string;
+}
+
+interface Props {
+  rows: readonly Row[];
+}
+
+const { rows } = Astro.props;
+
+const SAMPLE_BG: Record<string, string> = {
+  background: 'bg-background',
+  surface: 'bg-surface',
+  gold: 'bg-gold',
+  text: 'bg-text',
+  pink: 'bg-pink',
+  'gold-link': 'bg-gold-link',
+  'gold-text': 'bg-gold-text',
+};
+const SAMPLE_TEXT: Record<string, string> = {
+  text: 'text-text',
+  subtle: 'text-subtle',
+  gold: 'text-gold',
+  'pink-text': 'text-pink-text',
+  background: 'text-background',
+  'gold-text': 'text-gold-text',
+  'gold-muted': 'text-gold-muted',
+  'gold-link': 'text-gold-link',
+  'gold-btn-label': 'text-gold-btn-label',
+};
+const SAMPLE_EDGE: Record<string, string> = {
+  border: 'border-border',
+  pink: 'border-pink',
+  'gold-border': 'border-gold-border',
+  surface: 'border-surface',
+  text: 'border-text',
+};
+const TEXT_NEEDS = '4.5';
+const NEVER_AT_REST = 'cyan';
+
+const sampleOf = (row: Row): string[] | null => {
+  if (row.result !== 'pass') return null;
+  if (row.fg === NEVER_AT_REST || row.bg === NEVER_AT_REST) return null;
+  const fill = SAMPLE_BG[row.bg];
+  const ink = (row.needs === TEXT_NEEDS ? SAMPLE_TEXT : SAMPLE_EDGE)[row.fg];
+  if (!fill || !ink) {
+    throw new Error(
+      `/brand: ${row.fg} on ${row.bg} passes but has no sample class in src/components/ContrastTable.astro`,
+    );
+  }
+  return row.needs === TEXT_NEEDS
+    ? [fill, ink, 'text-label font-black']
+    : [fill, ink, 'border-4'];
+};
+---
+
+<div class="prose max-w-none">
+  <table>
+    <thead>
+      <tr>
+        <th scope="col">Pair</th>
+        <th scope="col">Use</th>
+        <th scope="col">Ratio</th>
+      </tr>
+    </thead>
+    <tbody>
+      {rows.map((row) => {
+        const sample = sampleOf(row);
+        return (
+          <tr
+            data-sample={
+              sample ? (row.needs === TEXT_NEEDS ? 'text' : 'edge') : undefined
+            }
+          >
+            <td>
+              <span class="flex items-center gap-2">
+                {sample && (
+                  <span
+                    class:list={[
+                      'grid size-8 shrink-0 place-items-center',
+                      sample,
+                    ]}
+                    aria-hidden="true"
+                  >
+                    {row.needs === TEXT_NEEDS && 'Aa'}
+                  </span>
+                )}
+                <span>
+                  <code>{row.fg}</code> on <code>{row.bg}</code>
+                </span>
+              </span>
+            </td>
+            <td class="text-subtle">{row.use}</td>
+            <td>
+              {row.ratio} · {row.result}
+              {row.needs !== 'n/a' && ` (${row.needs})`}
+            </td>
+          </tr>
+        );
+      })}
+    </tbody>
+  </table>
+</div>

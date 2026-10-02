@@ -1,0 +1,58 @@
+---
+import PageHero from '../PageHero.astro';
+import Roundel from '../Roundel.astro';
+import ComponentRow from './ComponentRow.astro';
+
+/* Each hero at its real size; the band's gutter is put back around it. */
+const FRAME = 'hero-example px-4 sm:px-6';
+---
+
+<ul class="divide-y-4 divide-border">
+  <ComponentRow
+    id="hero-full"
+    name="Page hero"
+    use="the top of a page: its title and one line on what it holds."
+    rule="One per page, the page's only h1. Full gold slab for a main page; the roundel sits on its bottom edge."
+  >
+    <figure class={FRAME}>
+      <PageHero title="Page title" headingLevel={3}>
+        <p class="standfirst">
+          One or two lines on what the page holds, beside its title.
+        </p>
+      </PageHero>
+    </figure>
+    <Fragment slot="states">
+      <ul class="space-y-12">
+        <li>
+          <p class="mb-6 text-body text-subtle">
+            Thin slab: a post or a tag page.
+          </p>
+          <figure class={FRAME}>
+            <PageHero title="Post title" slab="thin" headingLevel={3} />
+          </figure>
+        </li>
+        <li>
+          <p class="mb-6 text-body text-subtle">
+            Plain: a reading page such as Privacy, with the standfirst below.
+          </p>
+          <figure class={FRAME}>
+            <PageHero title="Reading page" slab="none" headingLevel={3}>
+              <p class="standfirst">
+                One or two lines on what the page holds, below its title.
+              </p>
+            </PageHero>
+          </figure>
+        </li>
+      </ul>
+    </Fragment>
+  </ComponentRow>
+
+  <ComponentRow
+    id="roundel"
+    name="Roundel"
+    use="the logo mark on a slab edge or a closing block."
+    rule="Gold disc, dark mark, mark shadow, tilted; never on its own as a link."
+  >
+    <Roundel />
+  </ComponentRow>
+</ul>

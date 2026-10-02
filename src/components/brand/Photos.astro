@@ -1,0 +1,77 @@
+---
+import PhotoTile from '../PhotoTile.astro';
+import PhotoViewer from '../PhotoViewer.astro';
+import ComponentRow from './ComponentRow.astro';
+import tabbyBed from '../../assets/photos/tabby-round-bed.jpg';
+import calicoDuvet from '../../assets/photos/calico-floral-duvet.jpg';
+
+const STRIP_ID = 'brand-photos';
+/* Gutter, row and card edges around this strip; tests/image-size.spec.ts fails on drift. */
+const STRIP_INSET = '7.5rem';
+const PHOTOS = [
+  {
+    src: tabbyBed,
+    alt: 'A tabby cat curled in a round cat bed beside an orange plush toy.',
+  },
+  {
+    src: calicoDuvet,
+    alt: 'A calico cat asleep on a floral duvet.',
+  },
+];
+---
+
+<ul class="divide-y-4 divide-border">
+  <ComponentRow
+    id="photo-strip"
+    name="Photo strip"
+    use="a row of photos that scrolls sideways."
+    rule="Every photo opens full size in the viewer. Arrows show only while the strip overflows, and the strip itself takes keyboard focus."
+  >
+    <div class="card sm:p-card-tight">
+      <div class="mb-4 flex items-center justify-between gap-4">
+        <span class="label block text-subtle">Photos</span>
+        <div class="flex gap-3">
+          <button
+            type="button"
+            class="strip-button"
+            aria-controls={STRIP_ID}
+            aria-label="Scroll photos left"
+            data-strip-scroll="-1"
+            hidden
+          >
+            <span aria-hidden="true">&larr;</span>
+          </button>
+          <button
+            type="button"
+            class="strip-button"
+            aria-controls={STRIP_ID}
+            aria-label="Scroll photos right"
+            data-strip-scroll="1"
+            hidden
+          >
+            <span aria-hidden="true">&rarr;</span>
+          </button>
+        </div>
+      </div>
+      <ul
+        id={STRIP_ID}
+        class="photo-strip"
+        tabindex="0"
+        aria-label="Photos, scrolls sideways"
+      >
+        {PHOTOS.map((photo) => (
+          <li>
+            <PhotoTile
+              image={photo.src}
+              alt={photo.alt}
+              group="brand"
+              size="natural"
+              stripInset={STRIP_INSET}
+            />
+          </li>
+        ))}
+      </ul>
+    </div>
+    <PhotoViewer />
+  </ComponentRow>
+</ul>

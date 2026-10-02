@@ -1,0 +1,79 @@
+---
+import ComponentRow from './ComponentRow.astro';
+
+const CODE_LABEL = 'Code, scrolls sideways';
+---
+
+<ul class="divide-y-4 divide-border">
+  <ComponentRow
+    id="prose"
+    name="Prose"
+    use="running text: posts and reading pages."
+    rule="A measure of about 70 characters; links underlined; lists keep their markers."
+  >
+    <div class="prose">
+      <p>
+        A paragraph of running text with a <a href="/accessibility/">link</a>{' '}
+        and some <code>inline code</code>.
+      </p>
+      <ul>
+        <li>A list item</li>
+        <li>Another list item</li>
+      </ul>
+    </div>
+  </ComponentRow>
+
+  <ComponentRow
+    id="blockquote"
+    name="Quote"
+    use="words from someone else, set apart from the text."
+    rule="A thick edge on its start side; the source sits below it."
+  >
+    <div class="prose">
+      <blockquote>
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+      </blockquote>
+    </div>
+  </ComponentRow>
+
+  <ComponentRow
+    id="code-block"
+    name="Code block"
+    use="code a reader may copy."
+    rule="Scrolls sideways, never wraps, and takes keyboard focus so a keyboard can scroll it."
+  >
+    <div class="prose">
+      <pre
+        tabindex="0"
+        role="group"
+        aria-label={CODE_LABEL}
+      ><code>npm run build && npm run check</code></pre>
+    </div>
+  </ComponentRow>
+
+  <ComponentRow
+    id="standfirst"
+    name="Standfirst and lead"
+    use="the one or two lines that open a page or a section."
+    rule="Larger than body text at the reading weight; one per page or section."
+  >
+    <p class="standfirst">
+      A standfirst opens a page in a line or two, just under its title.
+    </p>
+    <p class="lead mt-6">
+      A lead opens a section in a line or two, just under its heading.
+    </p>
+  </ComponentRow>
+
+  <ComponentRow
+    id="bullet-list"
+    name="Bullet list"
+    use="short points outside prose."
+    rule="Square pink markers; one point per line."
+  >
+    <ul class="bullet-list text-body text-text">
+      <li>A point</li>
+      <li>Another point</li>
+    </ul>
+  </ComponentRow>
+</ul>

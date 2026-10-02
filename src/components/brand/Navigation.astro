@@ -1,0 +1,123 @@
+---
+import Breadcrumbs from '../Breadcrumbs.astro';
+import CloseRow from '../CloseRow.astro';
+import ComponentRow from './ComponentRow.astro';
+
+const PAGER_PAGES = [1, 2] as const;
+const CONTENTS = [
+  { href: '#close-row', label: 'Close row' },
+  { href: '#footer-links', label: 'Footer link group' },
+];
+---
+
+<ul class="divide-y-4 divide-border">
+  <ComponentRow
+    id="breadcrumb"
+    name="Breadcrumb"
+    use="where a page sits under its section, above its title."
+    rule="Label type in subtle, slashes hidden from screen readers; on gold it turns gold-muted."
+  >
+    <Breadcrumbs
+      label="Example breadcrumb"
+      crumbs={[
+        { href: '/', label: 'Home' },
+        { href: '/brand/', label: 'Brand' },
+      ]}
+    />
+  </ComponentRow>
+
+  <ComponentRow
+    id="pager"
+    name="Pager"
+    use="moving between pages of a long list."
+    rule="Numbered chips only; the current page is a link with a marker, read as Page 1."
+  >
+    {/* Inert: page 1 is this page, the others return to this row. */}
+    <nav aria-label="Example pagination">
+      <ul class="flex flex-wrap items-center gap-6">
+        {PAGER_PAGES.map((page) => (
+          <li>
+            <a
+              href={page === 1 ? '/brand/' : '#pager'}
+              aria-current={page === 1 ? 'page' : undefined}
+              class="chip"
+            >
+              {page === 1 && (
+                <span aria-hidden="true" class="block size-2 bg-background" />
+              )}
+              <span class="sr-only">Page&nbsp;</span>
+              {page}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  </ComponentRow>
+
+  <ComponentRow
+    id="contents-list"
+    name="On this page"
+    use="the sections of a long post."
+    rule="A native details element: closed on narrow screens, open beside the text from wide ones."
+  >
+    <nav aria-labelledby="example-contents" class="post-contents">
+      <details>
+        <summary id="example-contents" class="post-contents-summary">
+          <span>In this post</span>
+          <span class="post-contents-marker" aria-hidden="true" />
+        </summary>
+        <ol>
+          {CONTENTS.map(({ href, label }) => (
+            <li>
+              <a
+                href={href}
+                class="block px-card-tight py-3 text-contents font-normal text-text"
+              >
+                {label}
+              </a>
+            </li>
+          ))}
+        </ol>
+      </details>
+    </nav>
+  </ComponentRow>
+
+  <ComponentRow
+    id="close-row"
+    name="Close row"
+    use="the last block of a page: what to read next and one action."
+    rule="A gold card with a sticker, a link to read on and one gold primary button."
+  >
+    <div class="px-4 sm:px-6">
+      <CloseRow
+        eyebrow="Next"
+        readHref="/accessibility/"
+        readLabel="Accessibility statement"
+        actionHref="/contact/"
+        actionLabel="Get in touch"
+      />
+    </div>
+  </ComponentRow>
+
+  <ComponentRow
+    id="footer-links"
+    name="Footer link group"
+    use="the site's pages and policies, in the footer."
+    rule="Label type; pages in text, policies in subtle; cyan under the pointer."
+  >
+    <nav aria-label="Example footer links" class="footer-pages mt-0">
+      <ul class="flex flex-wrap gap-x-6">
+        <li>
+          <a href="/about/" class="label text-text hover:text-cyan">
+            About
+          </a>
+        </li>
+        <li>
+          <a href="/privacy/" class="label text-subtle hover:text-cyan">
+            Privacy
+          </a>
+        </li>
+      </ul>
+    </nav>
+  </ComponentRow>
+</ul>
