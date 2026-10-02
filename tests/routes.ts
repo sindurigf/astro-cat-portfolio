@@ -79,7 +79,9 @@ interface PostSummary {
 }
 
 /** Every post in src/content/blog/, newest first. Source exists at collection; "route coverage" holds it to dist/. */
-export const POSTS: readonly PostSummary[] = readdirSync(BLOG_CONTENT_DIR)
+export const POSTS: readonly PostSummary[] = (
+  existsSync(BLOG_CONTENT_DIR) ? readdirSync(BLOG_CONTENT_DIR) : []
+)
   .filter((name) => name.endsWith('.md'))
   .map((name) => {
     const frontmatter = postFrontmatter(name);
