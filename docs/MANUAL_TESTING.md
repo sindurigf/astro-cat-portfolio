@@ -542,7 +542,7 @@ the DOM.
 ## 11. Items from external checklists
 
 From the Accessible Astro checklist and
-<https://specification.website/checklist/>.
+<https://specification.website/checklist/>, both opinion, not WCAG.
 
 - **Automated:** heading hierarchy and one `h1`, content in landmarks, skip
   link, page titles, forced colours, reduced motion, focus contrast, duplicate

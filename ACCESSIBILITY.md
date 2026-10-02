@@ -355,6 +355,8 @@ Rules this repository follows. Values and reasons:
   colours: give it a border or an opaque fill.
 - **Reflow.** Never add horizontal padding to a page container. A display
   heading word over twelve characters takes a soft hyphen.
+- **Sources.** WCAG and its Understanding documents are normative. Mark any
+  other source cited here, an article, checklist or tool, as opinion.
 - **This file.** Update it in the same commit as the change. A gap is removed
   when it has been tested, not when it was fixed in passing.
 
