@@ -292,6 +292,9 @@ WCAG criterion or say anything about yourself.
 Useful, never required: the page, what you tried and what happened, your
 browser, operating system and assistive technology, a screenshot.
 
+Replies aim to arrive within the number of days set as
+`accessibility.responseDays` in `src/site.config.ts`.
+
 | Severity | Meaning                                                  | Priority                 |
 | -------- | -------------------------------------------------------- | ------------------------ |
 | Blocker  | You cannot complete a task (read, navigate, send a form) | Above everything else    |

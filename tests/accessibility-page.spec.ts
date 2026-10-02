@@ -2,6 +2,8 @@ import { readFileSync } from 'node:fs';
 import { expect, test } from './test';
 import { builtPages, pagesNotLinking } from './routes';
 import { NODE } from './tags';
+import { SITE_CONFIG, validateSiteConfig } from '../src/site.config';
+import { ACCESSIBILITY_RESPONSE_DAYS } from '../src/lib/site';
 
 /**
  * /accessibility against ACCESSIBILITY.md. The page derives its facts at build
@@ -65,6 +67,16 @@ test.describe('the accessibility statement', NODE, () => {
     }
   });
 
+  test('the page states the configured response time', () => {
+    const days = ACCESSIBILITY_RESPONSE_DAYS;
+    const expected = `reply within ${days} ${days === 1 ? 'day' : 'days'}.`;
+
+    expect(
+      pageText(),
+      `/accessibility does not promise a reply within accessibility.responseDays (${days}).`,
+    ).toContain(expected);
+  });
+
   test('the status is still the honest one', () => {
     // A real change needs HONEST_STATUS updated with the manual testing that justifies it.
     expect(
@@ -93,3 +105,26 @@ test.describe('the accessibility statement', NODE, () => {
     }
   });
 });
+
+test(
+  'accessibility.responseDays must be a whole number of days, 1 or more',
+  NODE,
+  () => {
+    for (const responseDays of [0, -7, 2.5, Number.NaN]) {
+      expect(
+        () =>
+          validateSiteConfig({
+            ...SITE_CONFIG,
+            accessibility: { responseDays },
+          }),
+        `accessibility.responseDays ${responseDays} passed validation.`,
+      ).toThrow(/accessibility\.responseDays must be a whole number of days/);
+    }
+    expect(() =>
+      validateSiteConfig({
+        ...SITE_CONFIG,
+        accessibility: { responseDays: 1 },
+      }),
+    ).not.toThrow();
+  },
+);
