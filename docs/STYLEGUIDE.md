@@ -275,15 +275,16 @@ copyright and contents list are fixed, and `text-code` is a ratio.
 | `text-h1`                | 33     | 80     | 0.94        | 900    | Page title                       |
 | `text-reading-h1`        | 33     | 70     | 0.94        | 900    | Privacy, Accessibility title     |
 | `text-h2`                | 26     | 64     | 0.96        | 900    | Section and panel heading        |
-| `text-h3`                | 20     | 32     | 1.1         | 900    | H3, lead, card title             |
+| `text-h3`                | 20     | 32     | 1.1         | 900    | H3, card title                   |
+| `text-lead`              | 20     | 32     | 1.55        | 400    | Lead; card paragraph at h3 size  |
 | `text-post-title`        | 28     | 52     | 1.06        | 900    | Post title, in its own case      |
 | `text-post-h2`           | 24     | 36     | 1.02        | 900    | Post section; `.reading-layout`  |
 | `text-post-h3`           | 19     | 24     | 1.15        | 900    | Post subsection, last level      |
 | `text-post-card`         | 19     | 32     | 1.15        | 900    | Post card title (an `h2`)        |
 | `text-post-card-feature` | 26     | 64     | 1.02        | 900    | Featured post card title         |
 | `text-contents`          | 16     | 16     | 1.35        | 400    | A post's contents list           |
-| `text-standfirst`        | 20     | 36     | 1.3         | 400    | Slab aside, `.standfirst`        |
-| `text-post-teaser`       | 21     | 26     | 1.35        | 400    | Post and plain-tier aside        |
+| `text-standfirst`        | 20     | 36     | 1.55        | 400    | Slab aside, `.standfirst`        |
+| `text-post-teaser`       | 21     | 26     | 1.55        | 400    | Post and plain-tier aside        |
 | `text-body`              | 18     | 19     | 1.62        | 400    | Reading text                     |
 | `text-code`              | 16     | 0.92em | 1.5         | 400    | Code, `--font-mono`; tracks body |
 | `text-button`            | 14     | 16     | 1.2         | 900    | Buttons; same as `text-label`    |
@@ -302,6 +303,11 @@ copyright and contents list are fixed, and `text-code` is a ratio.
   at the top of `global.css`: importing the package CSS ships all three
   subsets. Never the Google Fonts CDN.
 - `--font-mono` is the platform monospace stack, nothing downloaded.
+- A paragraph of more than one sentence (SC 1.4.8): line height 1.5 or more
+  (`--leading-paragraph` at display size), at most 80 characters a line
+  (`max-w-measure` on body text outside `.prose`), and `--spacing-paragraph`
+  under a lead or standfirst followed by text.
+  `tests/visual-presentation.spec.ts` measures every route.
 - 400 for reading text; 900 for headings, card titles, labels, buttons, names
   and quoted text. Never 300 or `font-bold`.
 - Every size is a token. No breakpoint steps.
@@ -379,6 +385,7 @@ with a comment beside it.
 | `--spacing-grid`                          | card to card                                   | 28     | 40            |
 | `--spacing-inline`; step 6                | inline controls; chips                         | 16; 24 | 24; 24        |
 | `--spacing-card-tight` / `--spacing-card` | card padding                                   | 24     | 40 from 640px |
+| `--spacing-paragraph`                     | under a lead or standfirst followed by text    | 1.1em  | 1.1em         |
 
 ### Gutter and column
 
