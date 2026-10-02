@@ -71,8 +71,14 @@ const GRID_COLUMNS = /(?<![\w-])(?:([a-z0-9]+):)?grid-cols-(\d+)(?![\w-])/g;
 const GRID_ALLOWED = new Set(['1', '2', '3']);
 const GRID_SPLIT = '12';
 
-/* Each with its reason; an entry that no longer matches fails. */
-const PENDING = [];
+/* False positives, each with its reason; an entry that no longer matches fails. */
+const EXCEPTIONS = [
+  {
+    file: 'src/lib/brand.ts',
+    text: 'light-[a-z-]',
+    reason: 'a regex character class naming light-mode tokens, not a class',
+  },
+];
 
 /* Blanks, not deletes, so reported line and column numbers stay true. */
 const blankComments = (source) => {
@@ -159,12 +165,12 @@ const rawLengths = (source, [from, to], [themeFrom, themeTo]) => {
 };
 
 const failures = [];
-const pendingSeen = new Set();
+const exceptionsSeen = new Set();
 
-const isPending = (name, text) =>
-  PENDING.some((entry, i) => {
+const isException = (name, text) =>
+  EXCEPTIONS.some((entry, i) => {
     const hit = entry.file === name && entry.text === text;
-    if (hit) pendingSeen.add(i);
+    if (hit) exceptionsSeen.add(i);
     return hit;
   });
 
@@ -186,6 +192,7 @@ for (const path of sourceFiles) {
   };
 
   for (const hit of scan(source, ARBITRARY_VALUE)) {
+    if (isException(name, hit.text)) continue;
     failures.push(`${name}:${hit.at}  arbitrary value  ${hit.text}`);
   }
 
@@ -240,7 +247,7 @@ for (const path of sourceFiles) {
   for (const match of source.matchAll(SPACING_UTILITY)) {
     if (SPACING_SCALE.has(match[1])) continue;
     const text = match[0];
-    if (isPending(name, text)) continue;
+    if (isException(name, text)) continue;
     failures.push(
       `${name}:${locate(source, match.index)}  off-scale spacing  ${text}`,
     );
@@ -249,7 +256,7 @@ for (const path of sourceFiles) {
   for (const match of source.matchAll(GRID_COLUMNS)) {
     const [text, breakpoint, columns] = match;
     const split = columns === GRID_SPLIT && ['lg', 'xl'].includes(breakpoint);
-    if (GRID_ALLOWED.has(columns) || split || isPending(name, text)) continue;
+    if (GRID_ALLOWED.has(columns) || split || isException(name, text)) continue;
     failures.push(
       `${name}:${locate(source, match.index)}  off-grid columns  ${text}`,
     );
@@ -297,10 +304,10 @@ if (fluidTokens === 0) {
   );
 }
 
-PENDING.forEach((entry, i) => {
-  if (!pendingSeen.has(i)) {
+EXCEPTIONS.forEach((entry, i) => {
+  if (!exceptionsSeen.has(i)) {
     failures.push(
-      `${entry.file}  pending exception "${entry.text}" no longer matches; remove it from PENDING`,
+      `${entry.file}  exception "${entry.text}" no longer matches; remove it from EXCEPTIONS`,
     );
   }
 });
