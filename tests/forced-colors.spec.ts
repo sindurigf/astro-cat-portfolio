@@ -7,7 +7,7 @@ import { tabWalk } from './tab-walk';
 
 /**
  * `forced-colors: active` drops box-shadow, so a control bounded only by `shadow-hard-*`
- * loses its edges. `test.use({ forcedColors })` is a no-op on @playwright/test 1.62.1: use `emulateMedia`.
+ * loses its edges.
  */
 interface Rgb {
   r: number;
@@ -64,10 +64,7 @@ const emulateForcedColours = async (
 const forceColours = async (page: Page, route: string): Promise<void> => {
   const state = await emulateForcedColours(page);
 
-  expect(
-    state.matches,
-    `forced-colors is not active on ${route}; use emulateMedia, not test.use({ forcedColors }).`,
-  ).toBe(true);
+  expect(state.matches, `forced-colors is not active on ${route}.`).toBe(true);
 
   const painted = parseRgb(state.body);
   expect(
