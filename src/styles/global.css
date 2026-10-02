@@ -240,10 +240,10 @@
 
   /*
    * A ratio, not a clamp, so code tracks every step of --text-body's clamp and
-   * scales inside headings. 1.5 leading: short lines, indentation carries the
-   * shape.
+   * scales inside headings; floored at 16px, the site's smallest text. 1.5
+   * leading: short lines, indentation carries the shape.
    */
-  --text-code: 0.92em;
+  --text-code: max(1rem, 0.92em);
   --text-code--line-height: 1.5;
   /*
    * 16px to 40rem, 14px from 48rem, where the desktop nav needs the room.
