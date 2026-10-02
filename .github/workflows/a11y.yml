@@ -103,8 +103,20 @@ jobs:
           key: ${{ runner.os }}-playwright-chromium-${{ steps.playwright.outputs.version }}
 
       # Chromium only, for the contact error pages; the rest is HTTP.
+      # apt can stall silently: each try is cut off and retried once. install-deps
+      # runs as root, so `timeout` can kill a stuck apt and free the dpkg lock.
       - name: Install Chromium
-        run: npx playwright install --with-deps chromium
+        timeout-minutes: 12
+        run: |
+          retry() {
+            for attempt in 1 2; do
+              "$@" && return 0
+              echo "::warning::$* failed or stalled (try $attempt)"
+            done
+            return 1
+          }
+          retry sudo env "PATH=$PATH" timeout --kill-after=30s 5m node_modules/.bin/playwright install-deps chromium
+          retry timeout --kill-after=30s 5m node_modules/.bin/playwright install chromium
 
       # Once here rather than in every shard. A test that passes only on retry
       # fails the run: AGENTS.md has every flaky test fixed, not retried away.
@@ -155,8 +167,20 @@ jobs:
           key: ${{ runner.os }}-playwright-${{ steps.playwright.outputs.version }}
 
       # WebKit runs here; locally it needs `npm run test:webkit` (Docker).
+      # apt can stall silently: each try is cut off and retried once. install-deps
+      # runs as root, so `timeout` can kill a stuck apt and free the dpkg lock.
       - name: Install Playwright browsers
-        run: npx playwright install --with-deps chromium firefox webkit
+        timeout-minutes: 12
+        run: |
+          retry() {
+            for attempt in 1 2; do
+              "$@" && return 0
+              echo "::warning::$* failed or stalled (try $attempt)"
+            done
+            return 1
+          }
+          retry sudo env "PATH=$PATH" timeout --kill-after=30s 5m node_modules/.bin/playwright install-deps chromium firefox webkit
+          retry timeout --kill-after=30s 5m node_modules/.bin/playwright install chromium firefox webkit
 
       # No axe rule is excluded.
       - name: Accessibility tests
