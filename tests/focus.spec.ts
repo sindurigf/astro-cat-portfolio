@@ -36,6 +36,8 @@ interface Stop {
   probed: number;
   /** What was on top, if anything. */
   by: string | null;
+  /** Probe points under the sticky header. */
+  underHeader: number;
   hasRing: boolean;
   outline: string;
   outlineStyle: string;
@@ -73,6 +75,8 @@ const FOCUS_PROBE = `
       let covered = 0;
       let probed = 0;
       let by = null;
+      let underHeader = 0;
+      const header = document.querySelector('body > header');
 
       for (const [x, y] of points) {
         // A point outside the viewport is not evidence either way.
@@ -90,9 +94,10 @@ const FOCUS_PROBE = `
         if (el.contains(hit) || hit.contains(el)) continue;
 
         covered += 1;
+        if (header && header.contains(hit)) underHeader += 1;
         if (by === null) by = label(hit);
       }
-      return { covered, probed, by };
+      return { covered, probed, by, underHeader };
     };
 `;
 
@@ -174,7 +179,7 @@ const readFocused = (page: Page): Promise<Stop> =>
     const rect = el.getBoundingClientRect();
     const style = getComputedStyle(el);
 
-    const { covered, probed, by } = probeCover(el, rect);
+    const { covered, probed, by, underHeader } = probeCover(el, rect);
 
     const hasRing =
       style.outlineStyle !== 'none' && parseFloat(style.outlineWidth) > 0;
@@ -193,6 +198,7 @@ const readFocused = (page: Page): Promise<Stop> =>
       covered,
       probed,
       by,
+      underHeader,
       hasRing,
       outline:
         style.outlineStyle + ' ' + style.outlineWidth + ' ' + style.outlineColor,
@@ -318,6 +324,15 @@ const expectNoneHidden = (route: string, width: number, stops: Stop[]) => {
   ).toEqual([]);
 };
 
+/* SC 2.4.12 (Enhanced): no part of a focused control under the sticky header. */
+const expectNoneUnderHeader = (route: string, width: number, stops: Stop[]) => {
+  const under = stops.filter((s) => s.underHeader > 0);
+  expect(
+    under,
+    `${route} at ${width}px has focused control(s) partly under the sticky header (SC 2.4.12):\n${report(under)}`,
+  ).toEqual([]);
+};
+
 /* SC 2.4.7: every stop has an indicator. */
 const expectAllMarked = (route: string, width: number, stops: Stop[]) => {
   const unmarked = stops.filter((s) => !s.hasRing);
@@ -406,6 +421,7 @@ for (const colorScheme of SCHEMES) {
           }
 
           expectNoneHidden(route, width, stops);
+          expectNoneUnderHeader(route, width, stops);
           expectAllMarked(route, width, stops);
           expectRingsContrast(route, width, stops);
           expectRingsLargeEnough(route, width, stops);
