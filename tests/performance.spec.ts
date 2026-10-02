@@ -32,7 +32,10 @@ const scriptsFetched = async (
   return Promise.all(pending);
 };
 
-/* Each shift with what moved, so a failure names the element: CI's are not reproducible locally. */
+/*
+ * Each shift with what moved, so a failure names the element: CI's are not reproducible locally.
+ * Entries arrive asynchronously, so the reader takes the pending ones first (takeRecords).
+ */
 const LAYOUT_SHIFT = `
   window.__layoutShift = 0;
   window.__shifts = [];
@@ -45,8 +48,8 @@ const LAYOUT_SHIFT = `
     const cls = el && el.classList.length ? '.' + [...el.classList].slice(0, 3).join('.') : '';
     return (node.nodeType === 1 ? '' : 'text in ') + tag + id + cls;
   };
-  new PerformanceObserver((list) => {
-    for (const entry of list.getEntries()) {
+  window.__handleShifts = (entries) => {
+    for (const entry of entries) {
       if (entry.hadRecentInput) continue;
       window.__layoutShift += entry.value;
       for (const s of entry.sources ?? [])
@@ -54,7 +57,9 @@ const LAYOUT_SHIFT = `
           entry.value.toFixed(6) + ' ' + name(s.node) + ' ' + rect(s.previousRect) + ' -> ' + rect(s.currentRect),
         );
     }
-  }).observe({ type: 'layout-shift', buffered: true });
+  };
+  window.__shiftObserver = new PerformanceObserver((list) => window.__handleShifts(list.getEntries()));
+  window.__shiftObserver.observe({ type: 'layout-shift', buffered: true });
 `;
 
 test.describe('page weight and stability', () => {
@@ -80,12 +85,19 @@ test.describe('page weight and stability', () => {
     test(`${route} does not shift while it loads`, async ({ page }) => {
       await page.addInitScript(LAYOUT_SHIFT);
       await gotoSettled(page, route);
+      /* Chromium measures a shift between painted frames; headless can settle before its first paint. */
+      await page.waitForFunction(
+        () => performance.getEntriesByName('first-contentful-paint').length > 0,
+      );
 
       const { shift, sources } = await page.evaluate(() => {
         const w = window as unknown as {
           __layoutShift: number;
           __shifts: string[];
+          __shiftObserver: PerformanceObserver;
+          __handleShifts: (entries: PerformanceEntryList) => void;
         };
+        w.__handleShifts(w.__shiftObserver.takeRecords());
         return { shift: w.__layoutShift, sources: w.__shifts };
       });
       expect(
