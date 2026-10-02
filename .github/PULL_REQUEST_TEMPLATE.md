@@ -7,6 +7,15 @@
 - Commands and specs run, with totals:
 - Manual checks (docs/MANUAL_TESTING.md):
 
+## Docs and pages
+
+Sweep what the change makes stale: `src/lib/credits.ts` (/credits), README,
+ARCHITECTURE, ACCESSIBILITY, AI_DISCLOSURE, SECURITY, `docs/*`,
+`.claude/skills/design-system/SKILL.md`, /accessibility, /privacy, /brand,
+`llms.txt` and `robots.txt`.
+
+- Updated: <files>, or checked: <files>, nothing stale.
+
 ## Upstream port
 
 - Upstream site pull request, or why it does not apply:
