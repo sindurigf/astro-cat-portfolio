@@ -17,6 +17,7 @@ import {
   moveToPlay,
   scaleTravel,
   scaledExtent,
+  EDGE_MOVES,
   TRAVEL_FACTORS,
   TRAVEL_MOVES,
   type Move,
@@ -75,7 +76,7 @@ const SETTLED = 0.01;
 /** ms a prop takes to fade when its move is cut short. */
 const PROP_FADE_MS = 250;
 /** Tail segment speed below which the tail counts as at rest. */
-const TAIL_REST = 0.02;
+export const TAIL_REST = 0.02;
 
 /** One cat as the page passes it in: names, roles and the dialog photo. */
 export interface CatInfo {
@@ -359,7 +360,9 @@ export const createColony = (
   /* Asleep from the first frame, so the control offers to wake it while it lies down. */
   const lieDown = (cat: CatState, now: number): void => {
     setAsleep(cat, true);
-    play(cat, MOVES.sleep(), now, sleepFacing(cat), undefined, true);
+    const dir = sleepFacing(cat);
+    const turning = dir !== (Math.sign(cat.pose.face) || 1);
+    play(cat, MOVES.sleep(turning), now, dir, undefined, true);
   };
 
   const planFor = (cat: CatState, name: MoveName) =>
@@ -382,8 +385,7 @@ export const createColony = (
     if (cat.holds.size > 0 || now < cat.restUntil) return;
     if (Math.random() < LEAP_CHANCE && leap(cat, now)) return;
     const name = pickWeighted(CAT_WEIGHTS[cat.id]);
-    const move = moveToPlay(name);
-    if (move.edge) {
+    if (EDGE_MOVES.has(name)) {
       play(cat, cupPush(cat.pose.x), now, -1);
       return;
     }

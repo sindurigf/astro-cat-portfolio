@@ -459,7 +459,7 @@
    * The strip above a card where an About cat lives. Holds the tallest pose
    * plus the highest jump in about-cats-moves.ts: change them together.
    */
-  --spacing-cat-band: 112px;
+  --spacing-cat-band: 140px;
 
   /* SC 2.5.8 floor. Keep equal to MIN_TARGET in tests/target-size.spec.ts. */
   --spacing-target: 24px;

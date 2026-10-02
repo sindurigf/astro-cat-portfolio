@@ -348,8 +348,6 @@ export interface Move {
   prop?: PropKind;
   /** Prop position relative to the cat's starting point, forward positive. */
   propAt?: (t: number) => PropState;
-  /** Plays at a track end, facing out, so the cup goes over the edge; see withApproach. */
-  edge?: boolean;
 }
 
 const step = (
@@ -438,19 +436,19 @@ const arc = (from: number, to: number, height: number): Mod =>
     p.hr -= HEAD_LAG * Math.cos(Math.PI * k);
     p.ta += TAIL_STREAM * Math.sin(Math.PI * k);
   });
-/* Three slow breaths, ending on an exhale so the pose rests where it started. */
+/* Slow breaths, ending on an exhale so the pose rests where it started; two leave room for a slow device's frames within 5 s. */
 const BREATH_MS = 1000;
-const BREATHS = 3;
+const BREATHS = 2;
 /** Body thickness in px the chest gains at the top of a breath. */
 const BREATH_DEPTH = 1.4;
-const breathing = (from: number): Mod =>
-  between(from, from + BREATH_MS * BREATHS, (p, s) => {
+const breathing = (from: number, breaths: number): Mod =>
+  between(from, from + BREATH_MS * breaths, (p, s) => {
     p.bt += BREATH_DEPTH * Math.sin((2 * Math.PI * s) / BREATH_MS);
   });
 /** The "z" rises once per breath, then rests above the head, not back at the start. */
-const dozing = (from: number): Mod =>
-  between(from, from + BREATH_MS * BREATHS, (p, s) => {
-    p.zz = s >= BREATH_MS * BREATHS ? 1 : (s % BREATH_MS) / BREATH_MS;
+const dozing = (from: number, breaths: number): Mod =>
+  between(from, from + BREATH_MS * breaths, (p, s) => {
+    p.zz = s >= BREATH_MS * breaths ? 1 : (s % BREATH_MS) / BREATH_MS;
   });
 const earFlick = (at: number): Mod =>
   between(at, at + 280, (p, _s, k) => {
@@ -458,15 +456,15 @@ const earFlick = (at: number): Mod =>
   });
 
 /* Arcs in px; with them the tallest move stays under --spacing-cat-band (tests/about-cats.spec.ts). */
-const JUMP_HEIGHT = 39;
-const POUNCE_HEIGHT = 42;
-const LEAP_HEIGHT = 28;
-const HOP_HEIGHT = 38;
-const BOX_HOP_HEIGHT = 32;
+const JUMP_HEIGHT = 58;
+const POUNCE_HEIGHT = 56;
+const LEAP_HEIGHT = 40;
+const HOP_HEIGHT = 50;
+const BOX_HOP_HEIGHT = 42;
 /** The scratching post stands this far ahead of the cat, clear of its chest. */
 const POST_GAP = 34;
-const YARN_BOUND_HEIGHT = 28;
-const FLY_HOP_HEIGHT = 30;
+const YARN_BOUND_HEIGHT = 38;
+const FLY_HOP_HEIGHT = 40;
 /* The fly's route, [ms, x, y] ahead of the cat: it lands, is missed, circles, and escapes. */
 const FLY_PATH: readonly (readonly [number, number, number])[] = [
   [0, 60, -82],
@@ -493,7 +491,7 @@ const TOY_AHEAD = 36;
 /** Degrees the feather may swing back towards the cat. */
 const TOY_BACKSWING = -8;
 /** The cup stands clear of the head and chest; the first tap moves it this much. */
-export const CUP_AHEAD = 36;
+const CUP_AHEAD = 36;
 const CUP_NUDGE = 4;
 /** Where each yarn pounce lands: the front paws reach the ball's near side. */
 const YARN_LAND_1 = 218;
@@ -502,9 +500,9 @@ const YARN_LAND_2 = 308;
 const YARN_HUG = 9;
 const YARN_HUG_Y = -34;
 /** The wand's feather hangs high on the cat tree, just out of a sitting cat's reach. */
-const WAND_HIGH = -84;
+const WAND_HIGH = -108;
 const WAND_AHEAD = 34;
-const WAND_LEAP_HEIGHT = 27;
+const WAND_LEAP_HEIGHT = 44;
 /** Caught at the top of the leap, the feather comes down ahead of the face and is pinned under a paw. */
 const WAND_PULL: readonly (readonly [number, number, number])[] = [
   [2880, WAND_AHEAD, WAND_HIGH],
@@ -730,7 +728,6 @@ export const MOVES = {
     ],
     mods: [],
     prop: 'cup',
-    edge: true,
     propAt: (t) => {
       let x = CUP_AHEAD;
       let y = 0;
@@ -1062,14 +1059,18 @@ export const MOVES = {
     ],
     mods: [],
   }),
-  sleep: (): Move => ({
-    steps: [
-      step(600, 'loaf'),
-      step(800, 'sleep'),
-      step(BREATH_MS * BREATHS, 'sleep'),
-    ],
-    mods: [breathing(1400), dozing(1400)],
-  }),
+  /* A cat that turns first takes a breath fewer, so turning and lying down stay well within 5 s. */
+  sleep: (turning = false): Move => {
+    const breaths = turning ? BREATHS - 1 : BREATHS;
+    return {
+      steps: [
+        step(600, 'loaf'),
+        step(800, 'sleep'),
+        step(BREATH_MS * breaths, 'sleep'),
+      ],
+      mods: [breathing(1400, breaths), dozing(1400, breaths)],
+    };
+  },
   wake: (): Move => ({
     steps: [step(500, 'loaf', { hr: -12 }), step(500, 'sit')],
     mods: [],
@@ -1134,6 +1135,9 @@ export const TRAVEL_MOVES: ReadonlySet<MoveName> = new Set([
   'yarn',
 ]);
 
+/** Moves played at a track end, facing out, so the cup goes over the edge; see withApproach. */
+export const EDGE_MOVES: ReadonlySet<MoveName> = new Set(['knock']);
+
 /** Scales a travel move may shrink to on a short track, largest first. */
 export const TRAVEL_FACTORS = [0.9, 0.8, 0.7, 0.6, 0.5, 0.4] as const;
 
@@ -1167,7 +1171,7 @@ const SCALE_FROM = BASE;
 const extents = new Map<MoveName, readonly [number, number]>();
 
 /** Every move name, to warm moveExtent's cache before any is needed. */
-export const MOVE_NAMES = Object.keys(MOVES) as MoveName[];
+const MOVE_NAMES = Object.keys(MOVES) as MoveName[];
 
 /** The extent of moveToPlay(name), computed on first use and then kept. */
 export const moveExtent = (name: MoveName): readonly [number, number] => {

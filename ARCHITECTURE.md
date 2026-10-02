@@ -362,6 +362,8 @@ in `wrangler.jsonc`).
   from `src/lib/image-densities.ts`. `WIDTHS` steps at most 1.5x; `sizes` is
   the real drawn width. `tests/image-size.spec.ts` fails on stretching,
   more than 1.5x oversize, or `sizes` over 1.1x.
+- Exception: the `/about` cat card photo has two drawn widths, so
+  `about.astro` gives it its own widths and `sizes` (`CAT_PHOTO_WIDTHS`).
 - `/about` photo boxes match their file's ratio (hence CSS-column masonry). No
   text over photos.
 - Markdown images: `post-figure.mjs` sets `layout: 'full-width'` so
