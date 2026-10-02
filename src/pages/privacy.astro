@@ -28,6 +28,11 @@ const NEL_REPORT_HOST = 'a.nel.cloudflare.com';
 const UMAMI_PRIVACY = 'https://umami.is/privacy';
 const UMAMI_HOST = new URL(UMAMI_HOST_URL).host;
 
+/* SC 3.1.4: without the contact form paragraph, this is the first "IP" on the page. */
+const UMAMI_FIRST_IP = CONTACT_FORM_ON
+  ? 'IP address'
+  : 'IP address, the internet address of your connection,';
+
 const description = ANALYTICS_ON
   ? 'This site sets no cookies, loads nothing from anywhere else, and counts visits with cookie-free analytics.'
   : 'This site sets no cookies, loads nothing from anywhere else, and counts no visits.';
@@ -116,12 +121,13 @@ const description = ANALYTICS_ON
             </p>
 
             <p>
-              Like any server, Umami receives your IP address and your browser's
-              details with each request. Umami says it uses the IP address to
-              work out your country, region and city, and your browser details
-              to work out your browser, operating system and type of device, and
-              that it does not store the IP address. How Umami handles that is
-              covered by <a href={UMAMI_PRIVACY}>Umami's privacy policy</a>.
+              Like any server, Umami receives your {UMAMI_FIRST_IP} and your
+              browser's details with each request. Umami says it uses the IP
+              address to work out your country, region and city, and your
+              browser details to work out your browser, operating system and
+              type of device, and that it does not store the IP address. How
+              Umami handles that is covered by{' '}
+              <a href={UMAMI_PRIVACY}>Umami's privacy policy</a>.
             </p>
 
             <p>
