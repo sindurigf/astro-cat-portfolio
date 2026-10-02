@@ -72,17 +72,22 @@ for (const route of ROUTES) {
           matrix.c !== 0
         );
       };
+      const words = (text: string | null | undefined): string[] =>
+        (text ?? '').split(/\s+/).filter(Boolean);
       // An SVG element tilts too and has no innerText.
+      const textOf = (element: Element): string =>
+        (element as HTMLElement).innerText ?? element.textContent ?? '';
+      // Visually hidden text completes a link's name; nobody reads it tilted.
+      const shownWords = (element: Element): number =>
+        words(textOf(element)).length -
+        [...element.querySelectorAll('.sr-only')].reduce(
+          (sum, hidden) => sum + words(textOf(hidden)).length,
+          0,
+        );
       return [...document.querySelectorAll('body *')]
         .filter(tilted)
-        .map((element) =>
-          (
-            (element as HTMLElement).innerText ??
-            element.textContent ??
-            ''
-          ).trim(),
-        )
-        .filter((text) => text.split(/\s+/).filter(Boolean).length > max);
+        .filter((element) => shownWords(element) > max)
+        .map((element) => textOf(element).trim());
     }, MAX_TILTED_WORDS);
 
     expect(
