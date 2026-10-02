@@ -110,7 +110,7 @@ test.describe('robots.txt and the sitemap', NODE, () => {
     ).toBe(true);
   });
 
-  test('robots.txt keeps AI training crawlers out and search crawlers in', () => {
+  test('robots.txt keeps the blocked AI crawlers out and search crawlers in', () => {
     const robots = readFileSync(ROBOTS_FILE, 'utf8');
     const groups = robots.split(/\n\s*\n/).map((group) => group.trim());
 

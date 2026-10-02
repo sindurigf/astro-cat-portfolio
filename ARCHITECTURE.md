@@ -230,12 +230,14 @@ which is not installed.
   would ship the originals.
 - `public/_headers` sends a `Link` header to `/llms.txt`, the sitemap and the
   feed. `tests/agent-readiness.spec.ts`.
-- `robots.txt` (`src/pages/robots.txt.ts`) disallows AI training crawlers
-  (GPTBot, ClaudeBot, CCBot, Google-Extended, Applebot-Extended,
-  Meta-ExternalAgent, Amazonbot, Bytespider) and allows everything else,
-  search crawlers included. Meta-WebIndexer, Amzn-SearchBot and Amzn-User stay
-  allowed. Cloudflare's managed robots.txt stays off so it cannot contradict
-  this. `tests/sitemap.spec.ts`.
+- `robots.txt` (`src/pages/robots.txt.ts`) disallows crawlers that collect
+  pages for AI training (GPTBot, ClaudeBot, CCBot, Google-Extended,
+  Applebot-Extended, Meta-ExternalAgent, Amazonbot, Bytespider); Google-Extended
+  also covers Gemini app grounding. Everything else is allowed, search crawlers
+  included. Meta-WebIndexer, Amzn-SearchBot and Amzn-User stay allowed. Google
+  Search, AI Overviews and AI Mode use Googlebot and are unaffected; Search
+  Console's Search generative AI control stays on Include. Cloudflare's managed
+  robots.txt stays off so it cannot contradict this. `tests/sitemap.spec.ts`.
 
 ### Talks
 
