@@ -12,6 +12,23 @@ export const REPOSITORY_URL = SITE_CONFIG.site.repository;
 
 const GITHUB_HOST = 'github.com';
 
+/* RFC 2606: example.com, .net and .org, and the .example TLD, never resolve to a real repository. */
+const EXAMPLE_DOMAINS = [
+  'example.com',
+  'example.net',
+  'example.org',
+  'example',
+];
+
+const isExampleHost = (host: string): boolean =>
+  EXAMPLE_DOMAINS.some(
+    (domain) => host === domain || host.endsWith(`.${domain}`),
+  );
+
+/** The repository to link to, or null while it is still a placeholder on an example domain. */
+export const sourceUrl = (repository: string): string | null =>
+  isExampleHost(new URL(repository).hostname) ? null : repository;
+
 /** GitHub's "use this template" page for a github.com repository; null elsewhere, where there is none. */
 export const templateUseUrl = (repository: string): string | null => {
   const url = new URL(repository);

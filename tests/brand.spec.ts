@@ -2,7 +2,7 @@ import { expect, test, type Page } from './test';
 import { gotoSettled } from './settle';
 import { PAGE_HELPERS } from './contrast';
 import { contrastRows } from '../scripts/contrast-table.mjs';
-import { REPOSITORY_URL, templateUseUrl } from '../src/lib/site';
+import { REPOSITORY_URL, sourceUrl, templateUseUrl } from '../src/lib/site';
 import { NODE } from './tags';
 
 /*
@@ -375,19 +375,20 @@ test.describe('/brand', () => {
     page,
   }) => {
     await gotoSettled(page, ROUTE);
-    const use = templateUseUrl(REPOSITORY_URL);
+    const source = sourceUrl(REPOSITORY_URL);
     const expected: [string, string | null][] = [
-      ['Use this design', use],
-      ['View the source', REPOSITORY_URL],
+      ['Use this design', source && templateUseUrl(source)],
+      ['View the source', source],
     ];
     for (const [name, href] of expected) {
       const hrefs = await page
         .getByRole('link', { name, exact: true })
         .evaluateAll((all) => all.map((a) => a.getAttribute('href')));
       if (href === null) {
-        expect(hrefs, `"${name}" shows without a GitHub repository`).toEqual(
-          [],
-        );
+        expect(
+          hrefs,
+          `"${name}" shows without a repository to point at`,
+        ).toEqual([]);
         continue;
       }
       expect(hrefs.length, `no "${name}" link`).toBeGreaterThan(0);
@@ -410,5 +411,26 @@ test(
     );
     expect(templateUseUrl('https://codeberg.org/owner/site')).toBeNull();
     expect(templateUseUrl('https://github.com/owner')).toBeNull();
+  },
+);
+
+test(
+  'sourceUrl hides a placeholder repository on an example domain (RFC 2606)',
+  NODE,
+  () => {
+    for (const placeholder of [
+      'https://github.example/owner/site',
+      'https://example.com/owner/site',
+      'https://git.example.org/owner/site',
+      'https://example.net/owner/site',
+    ]) {
+      expect(sourceUrl(placeholder), placeholder).toBeNull();
+    }
+    expect(sourceUrl('https://github.com/owner/site')).toBe(
+      'https://github.com/owner/site',
+    );
+    expect(sourceUrl('https://notexample.com/owner/site')).toBe(
+      'https://notexample.com/owner/site',
+    );
   },
 );

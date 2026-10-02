@@ -22,13 +22,19 @@ import {
   spacing,
   type,
 } from '../lib/brand';
-import { REPOSITORY_URL, SITE_NAME, templateUseUrl } from '../lib/site';
+import {
+  REPOSITORY_URL,
+  SITE_NAME,
+  sourceUrl,
+  templateUseUrl,
+} from '../lib/site';
 
 /* This site's own repository, so a site made from the template points at itself. */
-const SOURCE_URL = REPOSITORY_URL;
-const USE_TEMPLATE_URL = templateUseUrl(REPOSITORY_URL);
+const SOURCE_URL = sourceUrl(REPOSITORY_URL);
+const USE_TEMPLATE_URL = SOURCE_URL && templateUseUrl(SOURCE_URL);
 /* The template's live demo; the link renders once this is set. */
 const DEMO_URL: string | null = null;
+const HAS_LINKS = Boolean(SOURCE_URL ?? DEMO_URL);
 const ACCESSIBILITY_MD_URL = `${REPOSITORY_URL}/blob/main/ACCESSIBILITY.md`;
 
 const SECTIONS = [
@@ -155,21 +161,25 @@ const SWATCH_BOX = 'grid size-16 shrink-0 place-items-center';
     <p class="standfirst">
       The design system behind this site, drawn from its own CSS.
     </p>
-    <p class="mt-8 flex flex-wrap gap-6">
-      {USE_TEMPLATE_URL && (
-        <a href={USE_TEMPLATE_URL} class="btn-gold-primary">
-          Use this design
-        </a>
-      )}
-      <a href={SOURCE_URL} class="btn-gold-secondary">
-        View the source
-      </a>
-      {DEMO_URL && (
-        <a href={DEMO_URL} class="btn-gold-secondary">
-          See the demo
-        </a>
-      )}
-    </p>
+    {HAS_LINKS && (
+      <p class="mt-8 flex flex-wrap gap-6">
+        {USE_TEMPLATE_URL && (
+          <a href={USE_TEMPLATE_URL} class="btn-gold-primary">
+            Use this design
+          </a>
+        )}
+        {SOURCE_URL && (
+          <a href={SOURCE_URL} class="btn-gold-secondary">
+            View the source
+          </a>
+        )}
+        {DEMO_URL && (
+          <a href={DEMO_URL} class="btn-gold-secondary">
+            See the demo
+          </a>
+        )}
+      </p>
+    )}
     <nav aria-label="On this page" class="mt-8">
       <ul class="flex flex-wrap gap-6">
         {SECTIONS.map((s) => (
@@ -418,21 +428,25 @@ const SWATCH_BOX = 'grid size-16 shrink-0 place-items-center';
         <li>Brand icons: Simple Icons, CC0 1.0</li>
         <li>Lexend: SIL Open Font License 1.1</li>
       </ul>
-      <p class="mt-head flex flex-wrap gap-6">
-        {USE_TEMPLATE_URL && (
-          <a href={USE_TEMPLATE_URL} class="btn-primary">
-            Use this design
-          </a>
-        )}
-        <a href={SOURCE_URL} class="btn-secondary">
-          View the source
-        </a>
-        {DEMO_URL && (
-          <a href={DEMO_URL} class="btn-secondary">
-            See the demo
-          </a>
-        )}
-      </p>
+      {HAS_LINKS && (
+        <p class="mt-head flex flex-wrap gap-6">
+          {USE_TEMPLATE_URL && (
+            <a href={USE_TEMPLATE_URL} class="btn-primary">
+              Use this design
+            </a>
+          )}
+          {SOURCE_URL && (
+            <a href={SOURCE_URL} class="btn-secondary">
+              View the source
+            </a>
+          )}
+          {DEMO_URL && (
+            <a href={DEMO_URL} class="btn-secondary">
+              See the demo
+            </a>
+          )}
+        </p>
+      )}
     </div>
   </Section>
 </BaseLayout>
