@@ -48,6 +48,7 @@ validated on import, so a bad value fails the build and the tests.
 | `site.repository`            | `/accessibility`'s link to the full statement                                                |
 | `person.*`                   | Homepage `<h1>` (one name per line), JSON-LD `Person`, contact address, CV                   |
 | `profiles`                   | Footer tiles and JSON-LD `sameAs`; each label needs an icon                                  |
+| `journeyPost`                | The close row of `/about`, `/career`, `/contact/sent`; must name a published post, or `null` |
 | `analytics`                  | `null` loads no tracker; an Umami website id turns it on ([Umami](docs/DEPLOYMENT.md#umami)) |
 | `contact.form`               | `cloudflare-d1` (the form) or `none` (email only)                                            |
 | `contact.notificationSender` | Must equal `allowed_sender_addresses` in `wrangler.jsonc`                                    |
@@ -56,8 +57,8 @@ validated on import, so a bad value fails the build and the tests.
   `contact.ts`, `analytics-site.ts`); code imports those, not the config.
 - The browser bundle never imports the config: the click tracker reads
   `analytics.ts`, which does not.
-- Tests read the same constants, and the ones for analytics, the contact form
-  and the CV skip when the feature is off.
+- Tests read the same constants, and the ones for analytics, the contact form,
+  the journey post and the CV skip when the feature is off.
 
 ## Browser support
 
@@ -294,6 +295,10 @@ Commits, copy rules and process: [AGENTS.md](AGENTS.md).
   `webServer` builds, so a literal subset of `ROUTES` is unavoidable; a second
   test derives the real list from the build and fails when the literal falls
   behind. `FRAME_ROUTES` in `tests/failed-images.spec.ts` is the pattern.
+- Post, category and tag routes in `tests/routes.ts` are read from
+  `src/content/blog/` frontmatter, which exists at collection. A test that
+  needs a particular post picks it by property (`CONTENTS_POST_ROUTE`,
+  `PHOTO_POST_ROUTES`), never by position or slug.
 - A guard that can match nothing needs a floor: two empty lists compare equal.
 - **Route walks.** A check on built HTML is one test over `ROUTES` with
   `expect.soft`, pushing each route onto `checked` and asserting it equals
@@ -357,6 +362,8 @@ in `wrangler.jsonc`).
   from `src/lib/image-densities.ts`. `WIDTHS` steps at most 1.5x; `sizes` is
   the real drawn width. `tests/image-size.spec.ts` fails on stretching,
   more than 1.5x oversize, or `sizes` over 1.1x.
+- Exception: the `/about` cat card photo has two drawn widths, so
+  `about.astro` gives it its own widths and `sizes` (`CAT_PHOTO_WIDTHS`).
 - `/about` photo boxes match their file's ratio (hence CSS-column masonry). No
   text over photos.
 - Markdown images: `post-figure.mjs` sets `layout: 'full-width'` so

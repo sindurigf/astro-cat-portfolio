@@ -1,7 +1,7 @@
 import { existsSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { expect, test } from './test';
-import { builtPages, DIST_DIR, TALK_ROUTES } from './routes';
+import { builtPages, DIST_DIR, PAIRED_TALKS } from './routes';
 import { NODE } from './tags';
 
 /**
@@ -10,8 +10,9 @@ import { NODE } from './tags';
  * `scripts/check-links.mjs` delegates site-absolute hrefs like this one to the suite.
  */
 
-const POST_ROUTE = '/blog/sample-talk';
-const [TALK_ROUTE] = TALK_ROUTES;
+const [PAIRED] = PAIRED_TALKS;
+const POST_ROUTE = PAIRED?.post ?? '';
+const TALK_ROUTE = PAIRED?.talk ?? '';
 const SLIDES_HREF = `${TALK_ROUTE}.pdf`;
 const SLIDESHOW_HREF = `${TALK_ROUTE}/`;
 const BYTES_PER_KB = 1024;
@@ -80,6 +81,8 @@ const slidesPageCount = (): number => {
 };
 
 test.describe('the talk slides', NODE, () => {
+  test.skip(!PAIRED, 'no post shares a deck name and links its PDF');
+
   test('the linked PDF is actually in the build', () => {
     slidesParagraph();
 

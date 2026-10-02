@@ -26,7 +26,8 @@ const DETAIL = 0.9;
 const TAIL_STIFFNESS = 0.12;
 const TAIL_DAMPING = 0.62;
 const PHYS_STEP_MS = 1000 / 60;
-const PHYS_MAX_STEPS = 4;
+/* Catches up to half a second per frame, so the tail keeps real time on a slow device; a longer stall resets it. */
+const PHYS_MAX_STEPS = 30;
 
 const EARS = 'M-11 -4L-12 -19.5L-2 -10.5ZM2 -10.5L10.5 -19.5L11 -4Z';
 /** Mochi's orange front ear, inset from the ear's edge. */
@@ -46,8 +47,8 @@ const PUPIL_AHEAD = 0.4;
 const WHISKERS = 'M11 3l9 -3M11 4.4l10 0.5M11 5.8l9 3.5';
 /** Where Pepper's back stripes cross the body, as fractions of its length. */
 const STRIPES = [0.3, 0.5, 0.7];
-/** The feather wand hangs from here, above the cat's band. */
-const STRING_TOP = -100;
+/** The feather's string hangs from just under the band's top: --spacing-cat-band (140px) must stay above it. */
+const STRING_TOP = -136;
 /** The scratching post's height in px, cap aside; with it, it stays under the band. */
 export const POST_HEIGHT = 92;
 /** A small, snug box: a resting cat's head and back show over its rim. */
@@ -367,7 +368,11 @@ export const createCatRig = (svg: SVGSVGElement, id: CatId): CatRig => {
   };
 };
 
-const stepTail = (rig: CatRig, targets: number[], now: number): void => {
+export const stepTail = (
+  rig: Pick<CatRig, 'tailAngle' | 'tailSpeed' | 'physAt'>,
+  targets: number[],
+  now: number,
+): void => {
   if (rig.tailAngle.length === 0) {
     rig.tailAngle = [...targets];
     rig.tailSpeed = targets.map(() => 0);

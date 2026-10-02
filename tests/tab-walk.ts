@@ -37,6 +37,37 @@ const visitFocused = (
   });
 
 /**
+ * WebKit scrolls to a focused element from a zero-delay timer, so a task queued
+ * after the key press runs after it (`LocalFrameView::scheduleScrollToFocusedElement`).
+ * Then two frames with unchanged `scrollY`, within a frame budget.
+ */
+const SETTLE_FRAMES = 60;
+
+export const settleFocusScroll = (page: Page): Promise<void> =>
+  page.evaluate(async (budget) => {
+    await new Promise((revealed) => setTimeout(revealed, 0));
+    return new Promise<void>((resolve) => {
+      let previous: number | null = null;
+      let frames = 0;
+      const check = () => {
+        const y = window.scrollY;
+        if (previous === y) {
+          resolve();
+          return;
+        }
+        previous = y;
+        frames += 1;
+        if (frames >= budget) {
+          resolve();
+          return;
+        }
+        requestAnimationFrame(check);
+      };
+      requestAnimationFrame(check);
+    });
+  }, SETTLE_FRAMES);
+
+/**
  * Reads each focused stop and presses `key`, from the current focus until focus
  * leaves the document or comes back to a stop already read. Throws at `max`.
  */

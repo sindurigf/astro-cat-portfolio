@@ -1,4 +1,4 @@
-import { readdirSync, readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { load } from 'js-yaml';
 import {
@@ -48,8 +48,9 @@ const frontmatterOf = (raw: string, name: string): Record<string, unknown> => {
   return data;
 };
 
+/* Git keeps no empty folder, so deleting every post removes the directory. */
 export const readPosts = (dir = BLOG_CONTENT_DIR): PostSummary[] =>
-  readdirSync(dir)
+  (existsSync(dir) ? readdirSync(dir) : [])
     .filter((name) => name.endsWith('.md'))
     .map((name) => {
       const data = frontmatterOf(readFileSync(join(dir, name), 'utf8'), name);

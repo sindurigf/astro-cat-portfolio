@@ -1,9 +1,12 @@
 import { test, expect } from './test';
+import { PUBLISHED_POST_ROUTES } from './routes';
+import { SITE_FEED_PATH } from '../src/lib/paths';
 
 /* Run by playwright.worker.config.ts: only the Worker applies public/_headers. HTTP only, no browser. */
 
 const RULES = '/speculationrules.json';
 const RULES_TYPE = 'application/speculationrules+json';
+const [POST] = PUBLISHED_POST_ROUTES;
 
 test.describe('served types', () => {
   test('the speculation rules file carries the type a browser requires', async ({
@@ -26,18 +29,21 @@ test.describe('served types', () => {
     expect(headers.link).toContain('</llms.txt>; rel="describedby"');
   });
 
-  test('the Markdown sources and the feeds carry text types', async ({
+  test('the feed carries an XML type', async ({ request }) => {
+    const response = await request.get(SITE_FEED_PATH);
+    expect(response.status()).toBe(200);
+    expect(response.headers()['content-type']).toContain('xml');
+  });
+
+  test("a post's Markdown source carries the Markdown type", async ({
     request,
   }) => {
-    for (const [path, type] of [
-      ['/blog/sample-post.md', 'text/markdown'],
-      ['/rss.xml', 'xml'],
-    ] as const) {
-      const response = await request.get(path);
-      expect(response.status(), `${path} status`).toBe(200);
-      expect(response.headers()['content-type'], `${path} type`).toContain(
-        type,
-      );
-    }
+    test.skip(!POST, 'no published post, so no Markdown source is built');
+    const path = `${POST}.md`;
+    const response = await request.get(path);
+    expect(response.status(), `${path} status`).toBe(200);
+    expect(response.headers()['content-type'], `${path} type`).toContain(
+      'text/markdown',
+    );
   });
 });

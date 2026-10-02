@@ -1,7 +1,7 @@
-import { expect, test, type Page } from './test';
+import { expect, test } from './test';
 import { gotoSettled } from './settle';
 import { DESKTOP_VIEWPORT, PHONE_VIEWPORT } from './wcag';
-import { tabWalk } from './tab-walk';
+import { settleFocusScroll, tabWalk } from './tab-walk';
 
 /**
  * Below 30rem of viewport height (a landscape phone, or 960px at 200% zoom) the
@@ -50,15 +50,6 @@ const VIEWS = [
   { label: 'a laptop', ...DESKTOP_VIEWPORT, scale: 1, sticky: true },
 ] as const;
 
-/* Two frames, so a scroll into view has been laid out before it is measured. */
-const nextFrames = (page: Page) =>
-  page.evaluate(
-    () =>
-      new Promise<void>((resolve) =>
-        requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
-      ),
-  );
-
 for (const view of VIEWS) {
   test.describe(`the header on ${view.label}`, () => {
     test.use({
@@ -93,7 +84,7 @@ for (const view of VIEWS) {
       }) => {
         await gotoSettled(page, WALK_ROUTE);
         await page.locator('body').press('Tab');
-        await nextFrames(page);
+        await settleFocusScroll(page);
         const stops = await tabWalk(
           page,
           () =>
@@ -113,7 +104,7 @@ for (const view of VIEWS) {
                 text: (el.textContent ?? '').trim().slice(0, 30),
               };
             }),
-          { max: MAX_TAB_STOPS, settle: () => nextFrames(page) },
+          { max: MAX_TAB_STOPS, settle: () => settleFocusScroll(page) },
         );
         expect(stops.length, 'the walk reached nothing').toBeGreaterThan(1);
         expect(

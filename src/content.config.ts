@@ -1,4 +1,8 @@
+import { existsSync } from 'node:fs';
+import { readFile } from 'node:fs/promises';
+import { resolve } from 'node:path';
 import { defineCollection } from 'astro:content';
+import { imageMetadata } from 'astro/assets/utils';
 import { glob } from 'astro/loaders';
 /* `z` from `astro:content` is deprecated and removed in Astro 8. */
 import { z } from 'astro/zod';
@@ -17,6 +21,23 @@ export const BLOG_CATEGORIES = [
 ] as const;
 
 export type BlogCategory = (typeof BLOG_CATEGORIES)[number];
+
+/* `--aspect-photo` in src/styles/global.css, the feature card's crop. */
+const COVER_RATIO = 4 / 3;
+const COVER_RATIO_TOLERANCE = 0.01;
+const COVER_RATIO_ERROR =
+  'Use a 4:3 cover (the feature card crops to aspect-photo)';
+
+/*
+ * In a glob collection `image()` yields a path, not dimensions, so this reads the
+ * file, beside the post (BLOG_FILE_PATTERN). A missing one is left to `image()`.
+ */
+const hasCoverRatio = async (cover: string): Promise<boolean> => {
+  const file = resolve(BLOG_CONTENT_DIR, cover);
+  if (!existsSync(file)) return true;
+  const { width, height } = await imageMetadata(await readFile(file), cover);
+  return Math.abs(width / height - COVER_RATIO) < COVER_RATIO_TOLERANCE;
+};
 
 const blog = defineCollection({
   loader: glob({ base: BLOG_CONTENT_DIR, pattern: BLOG_FILE_PATTERN }),
@@ -40,7 +61,14 @@ const blog = defineCollection({
         seoTitle: z.string().optional(),
         seoDescription: z.string().optional(),
         /* Shown on a featured card; relative to the post so astro:assets resizes it. */
-        cover: image().optional(),
+        cover: z
+          .preprocess(async (cover, context) => {
+            if (typeof cover === 'string' && !(await hasCoverRatio(cover))) {
+              context.addIssue({ code: 'custom', message: COVER_RATIO_ERROR });
+            }
+            return cover;
+          }, image())
+          .optional(),
         coverAlt: z.string().optional(),
         /* Alt for the 1.91:1 og:image crop, when the crop drops something coverAlt names. */
         coverCardAlt: z.string().optional(),

@@ -18,8 +18,8 @@ page. Tested for WCAG 2.2 AA in Chromium, Firefox and WebKit.
    ```
 
 3. Edit [`src/site.config.ts`](src/site.config.ts): site name and URL, your
-   name, job title, email and profiles, and the analytics and contact
-   switches. The build fails on an invalid value.
+   name, job title, email and profiles, the post your pages point to for the
+   longer story (`journeyPost`), and the analytics and contact switches. The build fails on an invalid value.
 4. Replace the placeholder copy (lorem ipsum), the sample posts and talk, and
    the photos. Update [SECURITY.md](SECURITY.md),
    [ACCESSIBILITY.md](ACCESSIBILITY.md) and

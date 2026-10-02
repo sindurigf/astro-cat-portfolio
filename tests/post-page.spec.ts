@@ -1,5 +1,10 @@
 import { expect, test, type Page } from './test';
-import { POST_ROUTES } from './routes';
+import {
+  CONTENTS_POST_ROUTE,
+  NO_CONTENTS_POST,
+  POST_ROUTES,
+  postsWhere,
+} from './routes';
 import { gotoSettled } from './settle';
 import { MIN_TARGET } from './wcag';
 
@@ -53,24 +58,41 @@ for (const route of POST_ROUTES) {
 
 const MEASURE_WIDTH = 1280;
 
-test(`${POST_ROUTES[0]} sets at most ${MAX_CHARACTERS_PER_LINE} characters a line`, async ({
+/** A Markdown line's length as read, link targets and emphasis marks dropped. */
+const readLength = (line: string): number =>
+  line.replace(/\]\([^)]*\)/g, '').replace(/[*_`[\]]/g, '').length;
+
+/** The first post whose body has a paragraph (a line opening with a word) over LONG_PARAGRAPH characters. */
+const LONG_PARAGRAPH_POST = postsWhere((source) =>
+  source
+    .replace(/^---[\s\S]*?\n---/, '')
+    .split('\n')
+    .some(
+      (line) => /^[A-Za-z]/.test(line) && readLength(line) > LONG_PARAGRAPH,
+    ),
+)[0];
+
+test(`a post with a long paragraph sets at most ${MAX_CHARACTERS_PER_LINE} characters a line`, async ({
   page,
 }) => {
+  test.skip(
+    !LONG_PARAGRAPH_POST,
+    'no post has a paragraph long enough to measure',
+  );
   await page.setViewportSize({ width: MEASURE_WIDTH, height: 900 });
-  await gotoSettled(page, POST_ROUTES[0]);
+  await gotoSettled(page, LONG_PARAGRAPH_POST!);
   const longest = await charactersPerLine(page);
   expect(longest, 'no paragraph long enough to measure').not.toBeNull();
   expect(longest!).toBeLessThanOrEqual(MAX_CHARACTERS_PER_LINE);
 });
 
-/* The post with a contents list. */
-const CONTENTS_ROUTE = '/blog/sample-talk';
-
 test.describe('the contents list', () => {
+  test.skip(!CONTENTS_POST_ROUTE, NO_CONTENTS_POST);
+
   for (const width of [320, 1279]) {
     test(`is a closed disclosure at ${width}px`, async ({ page }) => {
       await page.setViewportSize({ width, height: 900 });
-      await gotoSettled(page, CONTENTS_ROUTE);
+      await gotoSettled(page, CONTENTS_POST_ROUTE!);
       const found = await page.evaluate(() => {
         const nav = document.querySelector('nav.post-contents');
         const details = nav?.querySelector('details');
@@ -92,7 +114,7 @@ test.describe('the contents list', () => {
 
   test('opens and shows every section link', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 900 });
-    await gotoSettled(page, CONTENTS_ROUTE);
+    await gotoSettled(page, CONTENTS_POST_ROUTE!);
     const summary = page.locator('nav.post-contents summary');
     await summary.focus();
     await page.keyboard.press('Enter');
@@ -103,7 +125,7 @@ test.describe('the contents list', () => {
 
   test('is open beside the text at 1280px', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 900 });
-    await gotoSettled(page, CONTENTS_ROUTE);
+    await gotoSettled(page, CONTENTS_POST_ROUTE!);
     await expect(page.locator('nav.post-contents details')).toHaveAttribute(
       'open',
       '',
