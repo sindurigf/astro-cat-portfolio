@@ -74,7 +74,6 @@ test.describe('the gold slab in forced colours', () => {
     test(`${route} keeps a bottom border to separate the slab`, async ({
       page,
     }) => {
-      // `emulateMedia`, not `test.use({ forcedColors })`; see tests/forced-colors.spec.ts.
       await page.emulateMedia({ forcedColors: 'active' });
       await gotoSettled(page, route);
       const found = await page.evaluate(() => {

@@ -7,7 +7,7 @@ import { tabWalk } from './tab-walk';
 
 /**
  * `forced-colors: active` drops box-shadow, so a control bounded only by `shadow-hard-*`
- * loses its edges. `test.use({ forcedColors })` is a no-op on @playwright/test 1.62.1: use `emulateMedia`.
+ * loses its edges.
  */
 interface Rgb {
   r: number;
