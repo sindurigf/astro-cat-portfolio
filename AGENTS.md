@@ -61,6 +61,9 @@ Record rejected findings beside the code so they are not raised again;
   [the template](.github/PULL_REQUEST_TEMPLATE.md). Never `--fill`.
 - CI must pass. A maintainer reviews and merges.
 - One commit per logical change.
+- In this repository, a generic fix, upgrade, test, tooling or CI change also
+  goes to the upstream site repository (linked on `/credits`) as a pull request
+  there, or the pull request says in one line under "Upstream port" why not.
 - Do not rename the `Required checks` job
   ([why](docs/DEPLOYMENT.md#repository-settings)).
 
