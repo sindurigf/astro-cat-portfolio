@@ -76,7 +76,12 @@ const BODY = idsFor('body');
     <ul class="mt-4 list-disc pl-6">
       {errors.map((error) => (
         <li class="mt-2 text-body">
-          <a href={`#${CONTROL_ID[error.field]}`}>{error.message}</a>
+          <a
+            href={`#${CONTROL_ID[error.field]}`}
+            class="link inline-flex min-h-target items-center"
+          >
+            {error.message}
+          </a>
         </li>
       ))}
     </ul>
