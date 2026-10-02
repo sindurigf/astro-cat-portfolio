@@ -95,6 +95,8 @@ Resizing is not zooming, so this stays manual even though
 - [ ] Tab through: the 96px sticky header never covers the focused element. → SC 2.4.11
 - [ ] Repeat on `/blog/sample-talk`. → SC 1.4.10, 2.4.11
 - [ ] Repeat at 200% and 250%. → SC 1.4.10
+- [ ] Repeat at 400% in a window 1024px tall (256px CSS): the header does not
+      fill the screen and the focused element stays in view. → SC 1.4.10, 2.4.11
 
 ## 4. Reduced motion
 
