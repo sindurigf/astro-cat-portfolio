@@ -17,6 +17,9 @@ const AI_TRAINING_CRAWLERS = [
   'CCBot',
   'Google-Extended',
   'Applebot-Extended',
+  'Meta-ExternalAgent',
+  'Amazonbot',
+  'Bytespider',
 ] as const;
 
 export const GET: APIRoute = ({ site: configuredSite }) => {

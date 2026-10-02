@@ -120,10 +120,20 @@ test.describe('robots.txt and the sitemap', NODE, () => {
       'CCBot',
       'Google-Extended',
       'Applebot-Extended',
+      'Meta-ExternalAgent',
+      'Amazonbot',
+      'Bytespider',
     ]) {
       expect(groups, `robots.txt does not disallow ${agent}.`).toContain(
         `User-agent: ${agent}\nDisallow: /`,
       );
+    }
+
+    for (const agent of ['Meta-WebIndexer', 'Amzn-SearchBot', 'Amzn-User']) {
+      expect(
+        groups.some((group) => group.startsWith(`User-agent: ${agent}\n`)),
+        `robots.txt singles out the search agent ${agent}.`,
+      ).toBe(false);
     }
 
     expect(

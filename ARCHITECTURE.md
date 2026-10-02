@@ -231,9 +231,11 @@ which is not installed.
 - `public/_headers` sends a `Link` header to `/llms.txt`, the sitemap and the
   feed. `tests/agent-readiness.spec.ts`.
 - `robots.txt` (`src/pages/robots.txt.ts`) disallows AI training crawlers
-  (GPTBot, ClaudeBot, CCBot, Google-Extended, Applebot-Extended) and allows
-  everything else, search crawlers included. Cloudflare's managed robots.txt
-  stays off so it cannot contradict this. `tests/sitemap.spec.ts`.
+  (GPTBot, ClaudeBot, CCBot, Google-Extended, Applebot-Extended,
+  Meta-ExternalAgent, Amazonbot, Bytespider) and allows everything else,
+  search crawlers included. Meta-WebIndexer, Amzn-SearchBot and Amzn-User stay
+  allowed. Cloudflare's managed robots.txt stays off so it cannot contradict
+  this. `tests/sitemap.spec.ts`.
 
 ### Talks
 
