@@ -7,6 +7,10 @@
 - Commands and specs run, with totals:
 - Manual checks (docs/MANUAL_TESTING.md):
 
+## Upstream port
+
+- Upstream site pull request, or why it does not apply:
+
 ## Accessibility
 
 Delete this section if the PR touches no markup or CSS.
