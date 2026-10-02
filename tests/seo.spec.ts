@@ -10,6 +10,7 @@ import {
   builtHtml as builtHtmlByRoute,
   DIST_DIR,
   POST_ROUTES,
+  PUBLISHED_POST_ROUTES,
   TAG_ROUTES,
   TALK_ROUTES,
 } from './routes';
@@ -272,10 +273,16 @@ test.describe('link previews', NODE, () => {
         metaContent(html, 'og:image:alt'),
         `${route}'s card alt is not coverCardAlt, falling back to coverAlt.`,
       ).toBe(coverCardAlt ?? coverAlt);
+    }
+
+    const feature = withCover.find(
+      ({ route }) => route === PUBLISHED_POST_ROUTES[0],
+    );
+    if (feature) {
       expect(
         pages.get('/blog') ?? '',
-        `the blog listing no longer shows ${route}'s cover with coverAlt.`,
-      ).toContain(`alt="${coverAlt}"`);
+        `the blog listing's feature card does not show ${feature.route}'s cover with coverAlt.`,
+      ).toContain(`alt="${feature.coverAlt}"`);
     }
   });
 
@@ -314,9 +321,7 @@ const internalPageLinks = (html: string): string[] =>
 test.describe('article previews', NODE, () => {
   test('only posts say og:type article, with their published date', () => {
     for (const { route, html } of builtHtml()) {
-      const isPost = (POST_ROUTES as readonly string[]).includes(
-        route.replace(/\/$/, ''),
-      );
+      const isPost = PUBLISHED_POST_ROUTES.includes(route.replace(/\/$/, ''));
       expect
         .soft(metaContent(html, 'og:type'), `${route} og:type`)
         .toBe(isPost ? 'article' : 'website');

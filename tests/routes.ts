@@ -2,73 +2,6 @@ import { readdirSync, existsSync, readFileSync } from 'node:fs';
 import { join, relative, sep } from 'node:path';
 import { BLOG_CONTENT_DIR } from '../src/lib/paths';
 
-/**
- * Every built route, hardcoded: Playwright collects tests before `webServer` builds,
- * so reading `dist/` at module scope silently generates wrong tests. a11y.spec.ts "route coverage" catches drift.
- */
-const PAGE_ROUTES = [
-  '/',
-  '/404',
-  '/about',
-  '/career',
-  '/contact',
-  // `/contact/send/` is absent: on-demand, renders nothing for a GET, not in the
-  // build. tests/contact.spec.ts covers it.
-  '/contact/sent',
-  // Linked from the footer, so every suite that walks ROUTES measures them.
-  '/accessibility',
-  '/privacy',
-  '/credits',
-] as const;
-
-/** One per category with a published post; empty categories are not built. */
-export const CATEGORY_ROUTES = [
-  '/blog/professional-journey',
-  '/blog/open-source',
-] as const;
-
-/** One per tag any post carries, alphabetical, from `src/pages/blog/tag/[tag]/index.astro`. */
-export const TAG_ROUTES = [
-  '/blog/tag/astro',
-  '/blog/tag/career',
-  '/blog/tag/community',
-  '/blog/tag/examples',
-  '/blog/tag/governance',
-  '/blog/tag/maintainers',
-  '/blog/tag/sustainability',
-  '/blog/tag/talks',
-] as const;
-
-/** Posts, from `src/pages/blog/[slug].astro`. Newest first. */
-export const POST_ROUTES = ['/blog/sample-post', '/blog/sample-talk'] as const;
-
-/** One per deck directory in `src/content/talks/`. */
-export const TALK_ROUTES = ['/talks/sample-talk'] as const;
-
-export const TALKS_DIR = 'src/content/talks';
-
-/** The deck directory a talk route is built from. */
-export const deckOf = (route: string): string => route.split('/').at(-1)!;
-
-/**
- * No `/blog/page/2` until a tenth post (POSTS_PER_PAGE). The `page` segment keeps
- * `/blog/2` from clashing with a numeric category or slug.
- */
-const INDEX_ROUTES = ['/blog'] as const;
-
-export const ROUTES = [
-  ...PAGE_ROUTES,
-  ...INDEX_ROUTES,
-  ...CATEGORY_ROUTES,
-  ...TAG_ROUTES,
-  ...POST_ROUTES,
-  ...TALK_ROUTES,
-] as const;
-
-export const DIST_DIR = 'dist/client';
-
-export { BLOG_CONTENT_DIR };
-
 const FRONTMATTER = /^---\r?\n([\s\S]*?)\r?\n---/;
 
 /**
@@ -116,59 +49,157 @@ export const postFrontmatter = (
 };
 
 /**
- * Post routes from `src/content/blog/`, so a post missing from POST_ROUTES fails
- * with its file name. The `glob()` entry id is the basename; subdirectories break it.
+ * Pages, hardcoded: Playwright collects tests before `webServer` builds, so reading
+ * `dist/` at module scope silently generates wrong tests. a11y.spec.ts "route coverage" catches drift.
  */
-export const postRoutesFromContent = (
-  contentDir = BLOG_CONTENT_DIR,
-): string[] => {
-  if (!existsSync(contentDir)) {
-    throw new Error(`Blog content not found at "${contentDir}".`);
-  }
+const PAGE_ROUTES = [
+  '/',
+  '/404',
+  '/about',
+  '/career',
+  '/contact',
+  // `/contact/send/` is absent: on-demand, renders nothing for a GET, not in the
+  // build. tests/contact.spec.ts covers it.
+  '/contact/sent',
+  // Linked from the footer, so every suite that walks ROUTES measures them.
+  '/accessibility',
+  '/privacy',
+  '/credits',
+] as const;
 
-  return readdirSync(contentDir, { withFileTypes: true })
-    .filter((entry) => entry.isFile() && entry.name.endsWith('.md'))
-    .map((entry) => `/blog/${entry.name.replace(/\.md$/, '')}`)
-    .sort();
+interface PostSummary {
+  route: string;
+  date: string;
+  published: boolean;
+  category: string;
+  tags: string[];
+  hasCover: boolean;
+}
+
+/** Every post in src/content/blog/, newest first. Source exists at collection; "route coverage" holds it to dist/. */
+export const POSTS: readonly PostSummary[] = readdirSync(BLOG_CONTENT_DIR)
+  .filter((name) => name.endsWith('.md'))
+  .map((name) => {
+    const frontmatter = postFrontmatter(name);
+    const date = frontmatterDay(frontmatter, 'date');
+    const category = frontmatterField(frontmatter, 'category');
+    if (!date || !category) {
+      throw new Error(`${name} has no date or no category in its frontmatter.`);
+    }
+    return {
+      route: `/blog/${name.replace(/\.md$/, '')}`,
+      date,
+      published: frontmatterField(frontmatter, 'placeholder') !== 'true',
+      category,
+      tags: frontmatterTags(frontmatter),
+      hasCover: frontmatterField(frontmatter, 'cover') !== undefined,
+    };
+  })
+  .sort(
+    (a, b) => b.date.localeCompare(a.date) || a.route.localeCompare(b.route),
+  );
+
+const PUBLISHED = POSTS.filter((post) => post.published);
+
+/** Posts, from `src/pages/blog/[slug].astro`, placeholders included. Newest first. */
+export const POST_ROUTES: readonly string[] = POSTS.map((post) => post.route);
+
+/** The posts every listing shows. Newest first. */
+export const PUBLISHED_POST_ROUTES: readonly string[] = PUBLISHED.map(
+  (post) => post.route,
+);
+
+/** One per category with a published post; empty categories are not built. */
+export const CATEGORY_ROUTES: readonly string[] = [
+  ...new Set(PUBLISHED.map((post) => `/blog/${post.category}`)),
+].sort();
+
+/** One per tag a published post carries, alphabetical, from `src/pages/blog/tag/[tag]/index.astro`. */
+export const TAG_ROUTES: readonly string[] = [
+  ...new Set(
+    PUBLISHED.flatMap((post) => post.tags.map((tag) => `/blog/tag/${tag}`)),
+  ),
+].sort();
+
+/** Posts, newest first, whose Markdown source passes `matches`. */
+export const postsWhere = (matches: (source: string) => boolean): string[] =>
+  POST_ROUTES.filter((route) =>
+    matches(
+      readFileSync(
+        join(BLOG_CONTENT_DIR, `${route.split('/').pop()}.md`),
+        'utf8',
+      ),
+    ),
+  );
+
+const postsMatching = (pattern: RegExp): string[] =>
+  postsWhere((source) => pattern.test(source));
+
+const firstPostMatching = (pattern: RegExp, what: string): string => {
+  const route = postsMatching(pattern)[0];
+  if (route === undefined) {
+    throw new Error(`No post in ${BLOG_CONTENT_DIR} ${what}.`);
+  }
+  return route;
 };
 
-/** Posts per category from source frontmatter, so a listing cannot pass by showing its empty state. */
-export const postCountByCategory = (
-  contentDir = BLOG_CONTENT_DIR,
-): Map<string, number> => {
+/** A post with a level-2 heading, so its page has a contents list. */
+export const CONTENTS_POST_ROUTE = firstPostMatching(
+  /^## /m,
+  'has a level-2 heading, so no post page has a contents list',
+);
+
+/** Posts with a Markdown image, which post-figure.mjs frames and loads first. */
+export const PHOTO_POST_ROUTES = postsMatching(/!\[[^\]]*\]\(/);
+
+/** One per deck directory in `src/content/talks/`. */
+export const TALK_ROUTES = ['/talks/sample-talk'] as const;
+
+export const TALKS_DIR = 'src/content/talks';
+
+/** The deck directory a talk route is built from. */
+export const deckOf = (route: string): string => route.split('/').at(-1)!;
+
+/**
+ * No `/blog/page/2` until a tenth post (POSTS_PER_PAGE). The `page` segment keeps
+ * `/blog/2` from clashing with a numeric category or slug.
+ */
+const INDEX_ROUTES = ['/blog'] as const;
+
+export const ROUTES = [
+  ...PAGE_ROUTES,
+  ...INDEX_ROUTES,
+  ...CATEGORY_ROUTES,
+  ...TAG_ROUTES,
+  ...POST_ROUTES,
+  ...TALK_ROUTES,
+] as const;
+
+export const DIST_DIR = 'dist/client';
+
+export { BLOG_CONTENT_DIR };
+
+/** Published posts per category, so a listing cannot pass by showing its empty state. */
+export const postCountByCategory = (): Map<string, number> => {
   const counts = new Map<string, number>();
-  for (const name of readdirSync(contentDir)) {
-    if (!name.endsWith('.md')) continue;
-    const category = frontmatterField(
-      postFrontmatter(name, contentDir),
-      'category',
-    );
-    if (!category) {
-      throw new Error(`${name} has no category in its frontmatter.`);
-    }
+  for (const { category } of PUBLISHED) {
     counts.set(category, (counts.get(category) ?? 0) + 1);
   }
   return counts;
 };
 
 /** The posts each category and tag listing shows, read from the posts' frontmatter. */
-export const listingPosts = (
-  contentDir = BLOG_CONTENT_DIR,
-): Map<string, string[]> => {
+export const listingPosts = (): Map<string, string[]> => {
   const listings = new Map<string, string[]>(
     [...CATEGORY_ROUTES, ...TAG_ROUTES].map((route) => [route, []]),
   );
-  for (const name of readdirSync(contentDir)) {
-    if (!name.endsWith('.md')) continue;
-    const slug = name.replace(/\.md$/, '');
-    const frontmatter = postFrontmatter(name, contentDir);
-    const category = frontmatterField(frontmatter, 'category');
-    const tags = frontmatterTags(frontmatter);
-    for (const route of [
+  for (const { route, category, tags } of PUBLISHED) {
+    const slug = route.replace('/blog/', '');
+    for (const listing of [
       `/blog/${category}`,
       ...tags.map((tag) => `/blog/tag/${tag}`),
     ]) {
-      listings.get(route)?.push(slug);
+      listings.get(listing)?.push(slug);
     }
   }
   return listings;

@@ -1,5 +1,5 @@
 import { expect, test } from './test';
-import { builtHtml } from './routes';
+import { builtHtml, PHOTO_POST_ROUTES } from './routes';
 import { NODE } from './tags';
 
 const PRIORITY = /<img\b[^>]*\bfetchpriority="high"[^>]*>/g;
@@ -24,7 +24,11 @@ test.describe('image priority', NODE, () => {
 
   test('the blog feature cover and a post’s first photo load eagerly and first', () => {
     const pages = builtHtml();
-    for (const route of ['/blog', '/blog/sample-post']) {
+    expect(
+      PHOTO_POST_ROUTES.length,
+      'no post has a Markdown image, so no post photo is checked',
+    ).toBeGreaterThan(0);
+    for (const route of ['/blog', ...PHOTO_POST_ROUTES]) {
       const image = firstContentImage(pages.get(route) ?? '');
       expect(image, `${route} has no content image`).toBeDefined();
       expect(

@@ -4,7 +4,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { HEADERS_FILE } from './headers-fixture';
 import { headersFor, parseHeadersFile } from './policy-server';
-import { DIST_DIR, POST_ROUTES, builtHtml } from './routes';
+import { DIST_DIR, PUBLISHED_POST_ROUTES, builtHtml } from './routes';
 import { NODE } from './tags';
 
 /*
@@ -47,7 +47,7 @@ test.describe('agent readiness', NODE, () => {
 
   test('every post links its Markdown source', () => {
     const pages = builtHtml();
-    for (const route of POST_ROUTES) {
+    for (const route of PUBLISHED_POST_ROUTES) {
       expect(
         pages.get(route),
         `${route} should carry <link rel="alternate" type="text/markdown">`,
@@ -58,7 +58,7 @@ test.describe('agent readiness', NODE, () => {
   });
 
   test('every Markdown source stands on its own', () => {
-    for (const route of POST_ROUTES) {
+    for (const route of PUBLISHED_POST_ROUTES) {
       const file = join(DIST_DIR, sourcePath(route));
       expect(existsSync(file), `${sourcePath(route)} was not built`).toBe(true);
       const source = readFileSync(file, 'utf8');
