@@ -32,11 +32,27 @@ const scriptsFetched = async (
   return Promise.all(pending);
 };
 
+/* Each shift with what moved, so a failure names the element: CI's are not reproducible locally. */
 const LAYOUT_SHIFT = `
   window.__layoutShift = 0;
+  window.__shifts = [];
+  const rect = (r) => [r.x, r.y, r.width, r.height].map(Math.round).join(',');
+  const name = (node) => {
+    if (!node) return '(removed)';
+    const el = node.nodeType === 1 ? node : node.parentElement;
+    const tag = el ? el.tagName.toLowerCase() : '?';
+    const id = el && el.id ? '#' + el.id : '';
+    const cls = el && el.classList.length ? '.' + [...el.classList].slice(0, 3).join('.') : '';
+    return (node.nodeType === 1 ? '' : 'text in ') + tag + id + cls;
+  };
   new PerformanceObserver((list) => {
     for (const entry of list.getEntries()) {
-      if (!entry.hadRecentInput) window.__layoutShift += entry.value;
+      if (entry.hadRecentInput) continue;
+      window.__layoutShift += entry.value;
+      for (const s of entry.sources ?? [])
+        window.__shifts.push(
+          entry.value.toFixed(6) + ' ' + name(s.node) + ' ' + rect(s.previousRect) + ' -> ' + rect(s.currentRect),
+        );
     }
   }).observe({ type: 'layout-shift', buffered: true });
 `;
@@ -65,10 +81,17 @@ test.describe('page weight and stability', () => {
       await page.addInitScript(LAYOUT_SHIFT);
       await gotoSettled(page, route);
 
-      const shift = await page.evaluate(
-        () => (window as unknown as { __layoutShift: number }).__layoutShift,
-      );
-      expect(shift, `${route} shifted its layout while loading`).toBe(0);
+      const { shift, sources } = await page.evaluate(() => {
+        const w = window as unknown as {
+          __layoutShift: number;
+          __shifts: string[];
+        };
+        return { shift: w.__layoutShift, sources: w.__shifts };
+      });
+      expect(
+        shift,
+        `${route} shifted its layout while loading (value, element, x,y,w,h before -> after):\n${sources.join('\n')}`,
+      ).toBe(0);
     });
   }
 });
