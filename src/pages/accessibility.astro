@@ -13,6 +13,8 @@ const RESPONSE_TIME = `${ACCESSIBILITY_RESPONSE_DAYS} ${
   ACCESSIBILITY_RESPONSE_DAYS === 1 ? 'day' : 'days'
 }`;
 
+const W3C_STATEMENTS = 'https://www.w3.org/WAI/planning/statements/';
+
 const FULL_RECORD = `${REPOSITORY_URL}/blob/main/ACCESSIBILITY.md`;
 
 const COMMITMENT = [
@@ -177,6 +179,12 @@ const AUTOMATED = [
           The full record, including every measured contrast ratio and every
           known gap, is kept with the source:{' '}
           <a href={FULL_RECORD}>ACCESSIBILITY.md</a>.
+        </p>
+
+        <p class="mt-head text-body text-text text-pretty">
+          This is a personal site, so this statement is voluntary. It follows
+          the{' '}
+          <a href={W3C_STATEMENTS}>W3C model for accessibility statements</a>.
         </p>
       </div>
     </div>

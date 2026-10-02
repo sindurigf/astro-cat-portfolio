@@ -5,6 +5,9 @@ is tested, what is not, and how to report a barrier. The public summary is the
 site's `/accessibility` page, built from this file. Replace the project,
 owner and reporting rows with your own, and review the rest before you publish.
 
+The statement is voluntary for a personal site and follows the
+[W3C model for accessibility statements](https://www.w3.org/WAI/planning/statements/).
+
 ## 1. Project information
 
 | Field               | Value                                                      |
