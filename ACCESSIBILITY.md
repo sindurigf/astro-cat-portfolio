@@ -19,7 +19,7 @@ The statement is voluntary for a personal site and follows the
 | Private reporting   | <hello@example.com>                                        |
 | Target standard     | WCAG 2.2 Level AA, with AAA text contrast where achievable |
 | Conformance status  | **Target only. No conformance claim.**                     |
-| Last reviewed       | 2026-09-27                                                 |
+| Last reviewed       | 2026-10-02                                                 |
 
 `src/lib/accessibility-facts.ts` reads the Target standard, Conformance status,
 Last reviewed and both reporting rows into `/accessibility` at build time and
