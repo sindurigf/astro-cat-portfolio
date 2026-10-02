@@ -78,11 +78,14 @@ interface PostSummary {
   featured: boolean;
 }
 
+/** Markdown files in src/content/blog/; git drops the folder once every post is deleted. */
+export const postFileNames = (): string[] =>
+  existsSync(BLOG_CONTENT_DIR)
+    ? readdirSync(BLOG_CONTENT_DIR).filter((name) => name.endsWith('.md'))
+    : [];
+
 /** Every post in src/content/blog/, newest first. Source exists at collection; "route coverage" holds it to dist/. */
-export const POSTS: readonly PostSummary[] = (
-  existsSync(BLOG_CONTENT_DIR) ? readdirSync(BLOG_CONTENT_DIR) : []
-)
-  .filter((name) => name.endsWith('.md'))
+export const POSTS: readonly PostSummary[] = postFileNames()
   .map((name) => {
     const frontmatter = postFrontmatter(name);
     const date = frontmatterDay(frontmatter, 'date');

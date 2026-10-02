@@ -1,13 +1,13 @@
-import { existsSync, readdirSync, readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { expect, test } from './test';
 import {
-  BLOG_CONTENT_DIR,
   frontmatterField,
   postFrontmatter,
   DIST_DIR,
   POST_ROUTES,
   routesFromBuild,
+  postFileNames,
 } from './routes';
 import { NODE } from './tags';
 
@@ -43,7 +43,7 @@ interface PostSource {
 
 /** Line patterns, not a YAML parser: every post writes these fields on one line. */
 const postSources = (): PostSource[] =>
-  readdirSync(BLOG_CONTENT_DIR)
+  postFileNames()
     .filter((name) => name.endsWith('.md'))
     .map((name) => {
       const frontmatter = postFrontmatter(name);

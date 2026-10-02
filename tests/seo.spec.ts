@@ -1,10 +1,9 @@
-import { readdirSync, readFileSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { SOCIAL_PROFILES } from '../src/lib/profiles';
 import { expect, test } from './test';
 import { configuredSite, pngSize } from './source';
 import {
-  BLOG_CONTENT_DIR,
   frontmatterField,
   postFrontmatter,
   builtHtml as builtHtmlByRoute,
@@ -13,6 +12,7 @@ import {
   PUBLISHED_POST_ROUTES,
   TAG_ROUTES,
   TALK_ROUTES,
+  postFileNames,
 } from './routes';
 import { NODE } from './tags';
 import { metaContent } from './html';
@@ -151,7 +151,7 @@ const postCovers = (): {
   coverAlt: string | null;
   coverCardAlt: string | null;
 }[] =>
-  readdirSync(BLOG_CONTENT_DIR)
+  postFileNames()
     .filter((name) => name.endsWith('.md'))
     .map((name) => {
       const frontmatter = postFrontmatter(name);
@@ -450,7 +450,7 @@ test.describe(
   () => {
     const placeholderPosts = (): Set<string> => {
       const placeholders = new Set<string>();
-      for (const name of readdirSync(BLOG_CONTENT_DIR)) {
+      for (const name of postFileNames()) {
         if (!name.endsWith('.md')) continue;
         if (/^placeholder:\s*true\s*$/m.test(postFrontmatter(name))) {
           placeholders.add(`/blog/${name.replace(/\.md$/, '')}`);

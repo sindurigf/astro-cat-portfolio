@@ -1,9 +1,8 @@
 import { test, expect, type Page } from './test';
 import { configuredSite } from './source';
-import { existsSync, readFileSync, readdirSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import {
-  BLOG_CONTENT_DIR,
   DIST_DIR,
   frontmatterField,
   frontmatterTags,
@@ -12,6 +11,7 @@ import {
   builtHtml,
   NO_PUBLISHED_POST,
   PUBLISHED_POST_ROUTES,
+  postFileNames,
 } from './routes';
 import { NODE } from './tags';
 
@@ -33,7 +33,7 @@ interface PublishedPost {
 
 /** Non-placeholder posts from the Markdown, one frontmatter field per line. */
 const publishedPosts = (): PublishedPost[] =>
-  readdirSync(BLOG_CONTENT_DIR)
+  postFileNames()
     .filter((name) => name.endsWith('.md'))
     .map((name) => {
       const frontmatter = postFrontmatter(name);
