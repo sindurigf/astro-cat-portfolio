@@ -295,6 +295,9 @@ browser, operating system and assistive technology, a screenshot.
 Replies aim to arrive within the number of days set as
 `accessibility.responseDays` in `src/site.config.ts`.
 
+Content that does not work for someone is sent another way on request, for
+example as plain text.
+
 | Severity | Meaning                                                  | Priority                 |
 | -------- | -------------------------------------------------------- | ------------------------ |
 | Blocker  | You cannot complete a task (read, navigate, send a form) | Above everything else    |
