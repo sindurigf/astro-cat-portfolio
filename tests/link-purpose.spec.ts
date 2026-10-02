@@ -117,7 +117,7 @@ const COMPLETED_NAMES: readonly {
   {
     route: POSTS.find((post) => post.published && post.tags.length > 0)!.route,
     links: 'nav[aria-labelledby="post-tags"] a',
-    name: (visible) => `Posts tagged ${visible}`,
+    name: (visible) => `${visible} tag`,
   },
   {
     route: '/blog',
@@ -153,7 +153,12 @@ test.describe('hidden text completes short link names', () => {
         0,
       );
       for (const link of await found.all()) {
-        await expect(link).toHaveAccessibleName(name(await visibleText(link)));
+        const visible = await visibleText(link);
+        expect(
+          name(visible).startsWith(visible),
+          `the name of "${visible}" on ${route} does not open with its visible text.`,
+        ).toBe(true);
+        await expect(link).toHaveAccessibleName(name(visible));
       }
     });
   }
