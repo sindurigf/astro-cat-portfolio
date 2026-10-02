@@ -16,6 +16,7 @@ import {
 import { PERSON_NAME } from '../lib/profiles';
 import { ANALYTICS_ON } from '../lib/analytics-site';
 import { talkDecks } from '../lib/talk-deck';
+import { BUILD_ENV } from '../lib/build-env';
 
 /*
  * Descriptions are structural only; titles and teasers are quoted, never
@@ -66,7 +67,7 @@ const noteLines = (
   absolute: Absolute,
 ): string[] => [
   `- Contact: ${CONTACT_EMAIL}`,
-  `- Full URL list: ${absolute(SITEMAP_PATH)}`,
+  ...(BUILD_ENV.noindex ? [] : [`- Full URL list: ${absolute(SITEMAP_PATH)}`]),
   `- RSS feed: ${absolute(SITE_FEED_PATH)}`,
   `- Security contact: ${absolute('/.well-known/security.txt')}`,
   ...(posts.some((post) => post.data.placeholder)

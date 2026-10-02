@@ -4,6 +4,8 @@
  * checks them on the Worker's own responses.
  */
 import headersFile from '../../public/_headers?raw';
+import { BUILD_ENV } from './build-env';
+import { noindexHeaders } from './noindex-headers';
 
 const GLOBAL_RULE = '/*';
 
@@ -35,8 +37,9 @@ const parseGlobalRule = (source: string): Record<string, string> => {
   return headers;
 };
 
-const GLOBAL_HEADERS: Readonly<Record<string, string>> =
-  parseGlobalRule(headersFile);
+const GLOBAL_HEADERS: Readonly<Record<string, string>> = parseGlobalRule(
+  BUILD_ENV.noindex ? noindexHeaders(headersFile) : headersFile,
+);
 
 /* An empty map would silently ship on-demand pages with no CSP. */
 if (Object.keys(GLOBAL_HEADERS).length === 0) {
