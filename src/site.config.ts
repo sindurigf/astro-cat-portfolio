@@ -34,7 +34,7 @@ export interface SiteConfig {
     firstPublished: number;
     /** One or two lines of at most 40 characters: the sharing image, `npm run og`. */
     tagline: ReadonlyArray<string>;
-    /** The public source repository, https; /accessibility links its record. */
+    /** The public source repository, https; /accessibility links its record. The `REPOSITORY_URL` build variable overrides it. */
     repository: string;
   };
   person: {
@@ -209,7 +209,11 @@ export const validateSiteConfig = (value: SiteConfig): SiteConfig => {
 
 const withBuildEnv = ({ site, contact, ...rest }: SiteConfig): SiteConfig => ({
   ...rest,
-  site: { ...site, url: BUILD_ENV.siteUrl ?? site.url },
+  site: {
+    ...site,
+    url: BUILD_ENV.siteUrl ?? site.url,
+    repository: BUILD_ENV.repositoryUrl ?? site.repository,
+  },
   contact: { ...contact, form: BUILD_ENV.contactForm ?? contact.form },
 });
 

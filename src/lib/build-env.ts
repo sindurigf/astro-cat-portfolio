@@ -12,10 +12,16 @@ export interface BuildEnv {
   siteUrl: string | null;
   contactForm: ContactForm | null;
   noindex: boolean;
+  repositoryUrl: string | null;
 }
 
 /** The variables read, each inlined into the bundles by astro.config.mjs. */
-export const BUILD_ENV_NAMES = ['SITE_URL', 'CONTACT_FORM', 'NOINDEX'] as const;
+export const BUILD_ENV_NAMES = [
+  'SITE_URL',
+  'CONTACT_FORM',
+  'NOINDEX',
+  'REPOSITORY_URL',
+] as const;
 
 type RawBuildEnv = Partial<
   Record<(typeof BUILD_ENV_NAMES)[number], string | undefined>
@@ -46,6 +52,26 @@ const readSiteUrl = (value: string): string => {
   return value;
 };
 
+const readRepositoryUrl = (value: string): string => {
+  let url: URL;
+  try {
+    url = new URL(value);
+  } catch {
+    return invalid('REPOSITORY_URL', value, 'is not a URL.');
+  }
+  if (url.protocol !== 'https:') {
+    invalid('REPOSITORY_URL', value, 'must use https.');
+  }
+  if (url.pathname.endsWith('/') || value !== `${url.origin}${url.pathname}`) {
+    invalid(
+      'REPOSITORY_URL',
+      value,
+      'must be a repository path with no trailing slash, query or fragment.',
+    );
+  }
+  return value;
+};
+
 const readContactForm = (value: string): ContactForm =>
   CONTACT_FORMS.find((form) => form === value) ??
   invalid('CONTACT_FORM', value, `is not one of ${CONTACT_FORMS.join(', ')}.`);
@@ -59,6 +85,9 @@ export const readBuildEnv = (raw: RawBuildEnv): BuildEnv => ({
     ? null
     : readContactForm(raw.CONTACT_FORM),
   noindex: unset(raw.NOINDEX) ? false : readNoindex(raw.NOINDEX),
+  repositoryUrl: unset(raw.REPOSITORY_URL)
+    ? null
+    : readRepositoryUrl(raw.REPOSITORY_URL),
 });
 
 /* Spelled out, not `process.env`: astro.config.mjs replaces each name in the Worker bundle, which has no `process`. */
@@ -66,4 +95,5 @@ export const BUILD_ENV = readBuildEnv({
   SITE_URL: process.env.SITE_URL,
   CONTACT_FORM: process.env.CONTACT_FORM,
   NOINDEX: process.env.NOINDEX,
+  REPOSITORY_URL: process.env.REPOSITORY_URL,
 });

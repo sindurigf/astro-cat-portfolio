@@ -12,11 +12,21 @@ const SITEMAP_ENTRY =
 
 test.describe('readBuildEnv', NODE, () => {
   test('unset or empty variables leave src/site.config.ts as it is', () => {
-    const defaults = { siteUrl: null, contactForm: null, noindex: false };
+    const defaults = {
+      siteUrl: null,
+      contactForm: null,
+      noindex: false,
+      repositoryUrl: null,
+    };
 
     expect(readBuildEnv({})).toEqual(defaults);
     expect(
-      readBuildEnv({ SITE_URL: '', CONTACT_FORM: '', NOINDEX: '' }),
+      readBuildEnv({
+        SITE_URL: '',
+        CONTACT_FORM: '',
+        NOINDEX: '',
+        REPOSITORY_URL: '',
+      }),
     ).toEqual(defaults);
   });
 
@@ -26,11 +36,13 @@ test.describe('readBuildEnv', NODE, () => {
         SITE_URL: 'https://demo.example.com',
         CONTACT_FORM: 'none',
         NOINDEX: '1',
+        REPOSITORY_URL: 'https://github.com/demo-owner/demo-site',
       }),
     ).toEqual({
       siteUrl: 'https://demo.example.com',
       contactForm: 'none',
       noindex: true,
+      repositoryUrl: 'https://github.com/demo-owner/demo-site',
     });
   });
 
@@ -43,6 +55,11 @@ test.describe('readBuildEnv', NODE, () => {
     ['CONTACT_FORM', 'off'],
     ['NOINDEX', 'true'],
     ['NOINDEX', '0'],
+    ['REPOSITORY_URL', 'github.com/demo-owner/demo-site'],
+    ['REPOSITORY_URL', 'http://github.com/demo-owner/demo-site'],
+    ['REPOSITORY_URL', 'https://github.com/demo-owner/demo-site/'],
+    ['REPOSITORY_URL', 'https://github.com/demo-owner/demo-site?tab=readme'],
+    ['REPOSITORY_URL', 'https://github.com'],
   ] as const) {
     test(`rejects ${name}=${value}`, () => {
       expect(() => readBuildEnv({ [name]: value })).toThrow(

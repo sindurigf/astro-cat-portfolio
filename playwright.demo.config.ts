@@ -20,6 +20,7 @@ export const DEMO_ENV = {
   SITE_URL: 'https://demo.example.com',
   CONTACT_FORM: 'none',
   NOINDEX: '1',
+  REPOSITORY_URL: 'https://github.com/demo-owner/demo-site',
 } as const;
 
 const BASE_URL = `http://localhost:${PORT}`;
