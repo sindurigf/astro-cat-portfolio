@@ -18,6 +18,7 @@ import { recordFingerprint } from './scripts/build-fingerprint.mjs';
 import { licenses } from './scripts/licenses.mjs';
 import { presenter } from './src/presenter/integration.mjs';
 import { SITE_CONFIG } from './src/site.config.ts';
+import { BUILD_ENV_NAMES } from './src/lib/build-env.ts';
 import {
   isAdvertised,
   lastmodFor,
@@ -123,6 +124,13 @@ export default defineConfig({
     define: {
       __VIDEO_SIZES__: JSON.stringify(videoSizes),
       __THEME_COLOR__: JSON.stringify(themeColor),
+      /* src/lib/build-env.ts reads these; the Worker has no `process`. */
+      ...Object.fromEntries(
+        BUILD_ENV_NAMES.map((name) => [
+          `process.env.${name}`,
+          JSON.stringify(process.env[name] ?? ''),
+        ]),
+      ),
     },
     build: {
       cssTarget: CSS_TARGET,
