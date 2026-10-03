@@ -6,7 +6,7 @@ import { settleFocusScroll, tabWalk } from './tab-walk';
 import { SAMPLED_ROUTES } from './routes';
 
 /**
- * SC 2.4.7 and 2.4.11 both ways at two widths; Shift-Tab aligns the control under
+ * SC 2.4.7, 2.4.11 and 2.4.13 both ways at two widths; Shift-Tab aligns the control under
  * the sticky header. Hit-testing, as the skip link overlaps the header (`z-60`).
  * `scroll-padding-top` on `html`: WebKit ignores `scroll-margin-top` on text inputs.
  */
@@ -38,6 +38,11 @@ interface Stop {
   by: string | null;
   hasRing: boolean;
   outline: string;
+  outlineStyle: string;
+  /** Ring pixels painted, after any clipping ancestor (SC 2.4.13). */
+  area: number;
+  /** A 2px perimeter of the unfocused control, 4(w + h) per line box. */
+  perimeter: number;
   /** The ring measured against what is painted in the offset gap. */
   ratio: number | null;
   behind: string | null;
@@ -114,6 +119,48 @@ const FOCUS_RING = `
     };
 `;
 
+const FOCUS_AREA = `
+    /* Padding boxes of ancestors that clip; html and body hand overflow to the viewport. */
+    const clipOf = (el) => {
+      let clip = { left: -Infinity, top: -Infinity, right: Infinity, bottom: Infinity };
+      for (let node = el.parentElement; node && node !== document.body; node = node.parentElement) {
+        const s = getComputedStyle(node);
+        if (s.overflowX === 'visible' && s.overflowY === 'visible') continue;
+        const r = node.getBoundingClientRect();
+        clip = {
+          left: Math.max(clip.left, r.left + parseFloat(s.borderLeftWidth)),
+          top: Math.max(clip.top, r.top + parseFloat(s.borderTopWidth)),
+          right: Math.min(clip.right, r.right - parseFloat(s.borderRightWidth)),
+          bottom: Math.min(clip.bottom, r.bottom - parseFloat(s.borderBottomWidth)),
+        };
+      }
+      return clip;
+    };
+
+    const grow = (r, by) => ({
+      left: r.left - by, top: r.top - by, right: r.right + by, bottom: r.bottom + by,
+    });
+
+    const areaWithin = (r, clip) =>
+      Math.max(0, Math.min(r.right, clip.right) - Math.max(r.left, clip.left)) *
+      Math.max(0, Math.min(r.bottom, clip.bottom) - Math.max(r.top, clip.top));
+
+    /* The outline band between offset and offset + width, around each line box. */
+    const ringArea = (el, style) => {
+      const width = parseFloat(style.outlineWidth) || 0;
+      const offset = parseFloat(style.outlineOffset) || 0;
+      const clip = clipOf(el);
+      let area = 0;
+      let perimeter = 0;
+      for (const rect of el.getClientRects()) {
+        if (rect.width === 0 && rect.height === 0) continue;
+        area += areaWithin(grow(rect, offset + width), clip) - areaWithin(grow(rect, offset), clip);
+        perimeter += 4 * (rect.width + rect.height);
+      }
+      return { area, perimeter };
+    };
+`;
+
 /** Read while focused: an outline read after blur is the resting value. */
 const readFocused = (page: Page): Promise<Stop> =>
   page.evaluate(`(() => {
@@ -121,6 +168,7 @@ const readFocused = (page: Page): Promise<Stop> =>
     ${FOCUS_LABEL}
     ${FOCUS_PROBE}
     ${FOCUS_RING}
+    ${FOCUS_AREA}
 
     const el = document.activeElement;
     const rect = el.getBoundingClientRect();
@@ -135,6 +183,10 @@ const readFocused = (page: Page): Promise<Stop> =>
       ? ringContrast(el, style)
       : { ringRatio: null, ringBehind: null };
 
+    const { area, perimeter } = hasRing
+      ? ringArea(el, style)
+      : { area: 0, perimeter: 0 };
+
     return {
       selector: label(el),
       text: (el.textContent ?? '').trim().replace(/\\s+/g, ' ').slice(0, 36),
@@ -144,6 +196,9 @@ const readFocused = (page: Page): Promise<Stop> =>
       hasRing,
       outline:
         style.outlineStyle + ' ' + style.outlineWidth + ' ' + style.outlineColor,
+      outlineStyle: style.outlineStyle,
+      area,
+      perimeter,
       ratio: ringRatio,
       behind: ringBehind,
     };
@@ -295,6 +350,32 @@ const expectRingsContrast = (route: string, width: number, stops: Stop[]) => {
   ).toEqual([]);
 };
 
+/*
+ * SC 2.4.13 Focus Appearance: a solid ring at least as large as a 2px perimeter
+ * of the control. Its change of contrast is the ring against the ground it
+ * replaces, which expectRingsContrast holds at 3:1.
+ */
+const expectRingsLargeEnough = (
+  route: string,
+  width: number,
+  stops: Stop[],
+) => {
+  const small = stops.filter(
+    (s) => s.hasRing && (s.outlineStyle !== 'solid' || s.area < s.perimeter),
+  );
+  expect(
+    small,
+    `${route} at ${width}px has focus indicator(s) smaller than a 2px perimeter or not solid (SC 2.4.13):\n` +
+      small
+        .map(
+          (s) =>
+            `  ${s.selector} ${JSON.stringify(s.text)}, outline: ${s.outline}, ` +
+            `${Math.round(s.area)} px painted against ${Math.round(s.perimeter)}`,
+        )
+        .join('\n'),
+  ).toEqual([]);
+};
+
 /* light-mode.css swaps the focus colour, so the rings are measured in both. */
 const SCHEMES = ['dark', 'light'] as const;
 
@@ -327,6 +408,7 @@ for (const colorScheme of SCHEMES) {
           expectNoneHidden(route, width, stops);
           expectAllMarked(route, width, stops);
           expectRingsContrast(route, width, stops);
+          expectRingsLargeEnough(route, width, stops);
         });
       }
     });

@@ -276,7 +276,7 @@ copyright and contents list are fixed, and `text-code` is `max(1rem, 0.92em)`,
 | `text-h1`                | 33     | 80     | 0.94        | 900    | Page title                       |
 | `text-reading-h1`        | 33     | 70     | 0.94        | 900    | Privacy, Accessibility title     |
 | `text-h2`                | 26     | 64     | 0.96        | 900    | Section and panel heading        |
-| `text-h3`                | 20     | 32     | 1.1         | 900    | H3, card title                   |
+| `text-h3`                | 20     | 32     | 1.1         | 900    | Third-level heading, card title  |
 | `text-lead`              | 20     | 32     | 1.55        | 400    | Lead; card paragraph at h3 size  |
 | `text-post-title`        | 28     | 52     | 1.06        | 900    | Post title, in its own case      |
 | `text-post-h2`           | 24     | 36     | 1.02        | 900    | Post section; `.reading-layout`  |
