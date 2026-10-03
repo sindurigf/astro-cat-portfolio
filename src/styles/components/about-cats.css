@@ -16,8 +16,11 @@
     @apply relative z-1;
   }
 
+  /* Never a scroll anchor: WebKit would scroll the page along with a moving cat. */
   .cat-spot {
     @apply pointer-events-none absolute inset-x-0 top-0 h-cat-band;
+
+    overflow-anchor: none;
   }
 
   /* The band is empty page; only the drawn cat and the toggle take the pointer. */

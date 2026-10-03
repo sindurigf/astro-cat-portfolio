@@ -9,12 +9,16 @@ import {
 } from './contrast';
 
 /*
- * The colour-contrast nodes axe leaves in `incomplete`, decided by walking the
- * paint stack. axe passes a page whose text sits under decoration unmeasured.
+ * The nodes axe leaves in `incomplete`, decided: contrast by walking the paint
+ * stack, since axe passes text under decoration unmeasured; label in name by
+ * whether the visible text is only symbols.
  */
 
-/** The one rule this file knows how to decide. Anything else is a new question. */
-const DECIDABLE = 'color-contrast';
+const CONTRAST = 'color-contrast';
+const LABEL_IN_NAME = 'label-content-name-mismatch';
+
+/** The rules this file knows how to decide. Anything else is a new question. */
+const DECIDABLE = [CONTRAST, LABEL_IN_NAME];
 
 type Decided = {
   selector: string;
@@ -121,7 +125,27 @@ const report = (route: string, failures: Decided[]): string =>
 
 type Results = Awaited<ReturnType<AxeBuilder['analyze']>>;
 
-/** Soft-asserts that every node axe left undecided on this scan clears its floor. */
+const selectorsFor = (results: Results, rule: string): string[] =>
+  results.incomplete
+    .filter((entry) => entry.id === rule)
+    .flatMap((entry) => entry.nodes.map((node) => String(node.target[0])));
+
+/*
+ * SC 2.5.3 does not apply where the only visible text is symbolic, such as an
+ * arrow for "scroll right" (Understanding 2.5.3, "Symbolic text characters").
+ * A node showing any letter or digit is a real question.
+ */
+const worded = (page: Page, selectors: string[]): Promise<string[]> =>
+  page.evaluate(
+    (list) =>
+      list.filter((selector) => {
+        const element = document.querySelector<HTMLElement>(selector);
+        return !element || /[\p{L}\p{N}]/u.test(element.innerText);
+      }),
+    selectors,
+  );
+
+/** Soft-asserts that every node axe left undecided on this scan passes once decided. */
 export const expectIncompleteDecided = async (
   page: Page,
   route: string,
@@ -131,21 +155,29 @@ export const expectIncompleteDecided = async (
     ...new Set(
       results.incomplete
         .map((entry) => entry.id)
-        .filter((id) => id !== DECIDABLE),
+        .filter((id) => !DECIDABLE.includes(id)),
     ),
   ];
   expect
     .soft(
       unknown,
       `axe left ${unknown.join(', ')} undecided on ${route}, and only ` +
-        `${DECIDABLE} can be decided here. Work out what the rule could not ` +
-        `determine; do not widen DECIDABLE to silence this.`,
+        `${DECIDABLE.join(', ')} can be decided here. Work out what the rule ` +
+        `could not determine; do not widen DECIDABLE to silence this.`,
     )
     .toEqual([]);
 
-  const selectors = results.incomplete
-    .filter((entry) => entry.id === DECIDABLE)
-    .flatMap((entry) => entry.nodes.map((node) => String(node.target[0])));
+  const labelSelectors = selectorsFor(results, LABEL_IN_NAME);
+  if (labelSelectors.length > 0) {
+    expect
+      .soft(
+        await worded(page, labelSelectors),
+        `axe could not match these visible labels to their accessible names on ${route} (SC 2.5.3); check each by hand.`,
+      )
+      .toEqual([]);
+  }
+
+  const selectors = selectorsFor(results, CONTRAST);
   if (selectors.length === 0) return;
 
   const failures = (await decide(page, selectors)).filter(

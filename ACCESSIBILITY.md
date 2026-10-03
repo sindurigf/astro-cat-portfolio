@@ -17,7 +17,7 @@ The statement is voluntary for a personal site and follows the
 | Accessibility owner | Alex Example                                               |
 | Public reporting    | <https://github.example/alex-example/example-site/issues>  |
 | Private reporting   | <hello@example.com>                                        |
-| Target standard     | WCAG 2.2 Level AA, with AAA text contrast where achievable |
+| Target standard     | WCAG 2.2 Level AA, with AAA text contrast                  |
 | Conformance status  | **Target only. No conformance claim.**                     |
 | Last reviewed       | 2026-10-02                                                 |
 
@@ -44,7 +44,7 @@ status is still "Target only. No conformance claim."
 
 | Criterion                         | What we do                                                                                                                                                                                                                                                                                                     |
 | --------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1.4.6 Contrast (Enhanced)         | Every text token at rest clears 7:1 on every ground it is used on, dark, light and gold. Exception: light-mode hover `cyan` is AA only. `pink` is never text; `pink-text` is. Ratios: [contrast table](docs/STYLEGUIDE.md#contrast).                                                                           |
+| 1.4.6 Contrast (Enhanced)         | Every text token at rest clears 7:1 on every ground it is used on, dark, light and gold. `pink` is never text; `pink-text` is. Ratios: [contrast table](docs/STYLEGUIDE.md#contrast).                                                                                                                          |
 | 1.4.8 Visual Presentation         | Blocks of more than one sentence keep lines to 80 characters, line height 1.5 or more and paragraphs 2.5 lines apart, never justified; `tests/visual-presentation.spec.ts` measures every route at 390, 1280 and 1920. Colours: browsers can override them (G156), and the theme switch offers light and dark. |
 | 2.3.3 Animation from Interactions | Under `prefers-reduced-motion: reduce` a pressed control does not move into its shadow, the hero field is drawn once and held, and the About cats sit still (`tests/press.spec.ts`, `tests/motion.spec.ts`, `tests/about-cats.spec.ts`).                                                                       |
 
@@ -81,10 +81,14 @@ view (development server only, never published), and forks.
   `wcag21aa` and `wcag22aa` with no rule disabled and no result excluded, in
   dark mode, in light mode, at 320px in both, and with the mobile menu open.
   The photo viewer open, a post's contents open and the talk past its cover
-  are scanned too.
+  are scanned too. The experimental rules in those tags, which axe ships off,
+  are turned on (`AXE_EXPERIMENTAL_RULES` in `tests/wcag.ts`).
 - **axe, best practice.** Every route passes `best-practice` in its own block.
-- **Undecided contrast.** Every `incomplete` result from those scans is decided
-  by walking the paint stack (`tests/incomplete.ts`).
+- **Undecided results.** Every `incomplete` result from those scans is decided
+  (`tests/incomplete.ts`): contrast by walking the paint stack, label in name
+  (SC 2.5.3) by passing only a control whose visible text is symbols, which
+  [Understanding 2.5.3](https://www.w3.org/WAI/WCAG22/Understanding/label-in-name.html)
+  puts out of scope.
 - **Reflow.** No route scrolls sideways at 305px (320px less a classic 15px
   scrollbar, the stricter case), with and without the SC 1.4.12 override, or at
   640px, 1280px and 1920px. The content box matches the
@@ -215,8 +219,8 @@ merge.
 
 Limits:
 
-- Only rules in the WCAG A and AA tags and `best-practice` run. A green suite
-  says nothing about AAA rules.
+- Only rules in the WCAG A and AA tags, experimental ones included, and
+  `best-practice` run. A green suite says nothing about AAA rules.
 - A contrast rule measures a label against its own control, not the control
   against the ground: a control with no visible edge passes axe.
   `tests/gold-surface.spec.ts` checks fill or border against the ground.

@@ -113,6 +113,121 @@ test.describe('light mode keeps every control edge visible', () => {
   }
 });
 
+/* SC 1.4.6 large text: 18pt, or 14pt bold, in CSS px. */
+const LARGE_TEXT_PX = 24;
+const LARGE_BOLD_TEXT_PX = 18.66;
+const BOLD_WEIGHT = 700;
+const AAA_TEXT = 7;
+const AAA_LARGE_TEXT = 4.5;
+const RING_MIN = 3;
+/* Past this gap the ring meets the page, not the control, so its fill no longer sets the contrast. */
+const RING_GAP_PX = 2;
+/* Each kind of control behaves alike, so a few of each cover a route in reasonable time. */
+const SAMPLES_PER_KIND = 3;
+
+const sampleControls = (page: Page, selector: string) =>
+  page.evaluate(
+    ({ selector, perKind }) => {
+      const seen = new Map<string, number>();
+      return [
+        ...document.querySelectorAll<HTMLElement>(`main :is(${selector})`),
+      ]
+        .filter((el) => el.checkVisibility())
+        .flatMap((el, index) => {
+          const kind = `${el.tagName} ${el.className}`;
+          const count = seen.get(kind) ?? 0;
+          seen.set(kind, count + 1);
+          if (count >= perKind) return [];
+          el.dataset.lightSample = String(index);
+          return [String(index)];
+        });
+    },
+    { selector, perKind: SAMPLES_PER_KIND },
+  );
+
+test.describe('light mode reaches AAA contrast under the pointer (SC 1.4.6)', () => {
+  test.use({ colorScheme: 'light' });
+
+  for (const route of ROUTES) {
+    test(`${route}: hovered text is at least 7:1, or 4.5:1 when large`, async ({
+      page,
+    }) => {
+      await gotoSettled(page, route);
+      const failures: string[] = [];
+      for (const id of await sampleControls(page, 'a[href], button, summary')) {
+        const control = page.locator(`[data-light-sample="${id}"]`);
+        await control.scrollIntoViewIfNeeded();
+        await control.hover({ force: true });
+        const found = (await page.evaluate(`(() => {
+          ${PAGE_HELPERS}
+          const el = document.querySelector('[data-light-sample="${id}"]');
+          const out = [];
+          for (const node of [el, ...el.querySelectorAll('*')]) {
+            const text = [...node.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim());
+            if (!text || !node.checkVisibility() || node.closest('.sr-only')) continue;
+            const cs = getComputedStyle(node);
+            const size = parseFloat(cs.fontSize);
+            const large = size >= ${LARGE_TEXT_PX} || (size >= ${LARGE_BOLD_TEXT_PX} && Number(cs.fontWeight) >= ${BOLD_WEIGHT});
+            const ground = effectiveBackground(node);
+            const r = ratio(over(parse(cs.color), ground), ground);
+            const need = large ? ${AAA_LARGE_TEXT} : ${AAA_TEXT};
+            if (r < need) out.push(node.tagName.toLowerCase() + '.' + [...node.classList].slice(0, 3).join('.') + ' "' + node.textContent.trim().slice(0, 30) + '" ' + r.toFixed(2) + ' < ' + need);
+          }
+          return out;
+        })()`)) as string[];
+        failures.push(...found);
+      }
+      await page.mouse.move(0, 0);
+      expect(
+        failures,
+        `${route}: hovered text below AAA in light mode`,
+      ).toEqual([]);
+    });
+  }
+});
+
+test.describe('light mode focus ring stands out from the page, and from the control it touches (SC 2.4.13)', () => {
+  test.use({ colorScheme: 'light' });
+
+  for (const route of ROUTES) {
+    test(`${route}: every ring is at least 3:1 against its ground and its control`, async ({
+      page,
+    }) => {
+      await gotoSettled(page, route);
+      const failures: string[] = [];
+      for (const id of await sampleControls(page, FOCUSABLE_SELECTOR)) {
+        const control = page.locator(`[data-light-sample="${id}"]`);
+        await control.scrollIntoViewIfNeeded();
+        /* A key press first, so the next focus is keyboard focus and shows the ring. */
+        await page.keyboard.press('Shift');
+        await control.focus();
+        const found = (await page.evaluate(`(() => {
+          ${PAGE_HELPERS}
+          const el = document.querySelector('[data-light-sample="${id}"]');
+          const cs = getComputedStyle(el);
+          if (cs.outlineStyle === 'none' || parseFloat(cs.outlineWidth) === 0) return [];
+          const ring = parse(cs.outlineColor);
+          const page = effectiveBackground(el.parentElement);
+          const fill = parse(cs.backgroundColor);
+          const out = [];
+          const name = el.tagName.toLowerCase() + '.' + [...el.classList].slice(0, 3).join('.');
+          const toPage = ratio(over(ring, page), page);
+          if (toPage < ${RING_MIN}) out.push(name + ' ring on its ground ' + toPage.toFixed(2));
+          if (parseFloat(cs.outlineOffset) < ${RING_GAP_PX} && fill && fill.a === 1) {
+            const toFill = ratio(over(ring, fill), fill);
+            if (toFill < ${RING_MIN}) out.push(name + ' ring on its fill ' + toFill.toFixed(2));
+          }
+          return out;
+        })()`)) as string[];
+        failures.push(...found);
+      }
+      expect(failures, `${route}: a focus ring fades into light mode`).toEqual(
+        [],
+      );
+    });
+  }
+});
+
 test.describe('the switch', () => {
   test('follows a dark device until pressed, then remembers', async ({
     page,

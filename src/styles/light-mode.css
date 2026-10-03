@@ -1,7 +1,7 @@
 /*
  * Light mode: `data-theme="light"` on <html>. Only <main> changes; ink is
  * #131313, gold stays a fill. On white: text 18.58, subtle 9.53, pink-text
- * 7.06, cyan 4.60 (tests/light-mode.spec.ts). Utilities layer beats `.text-gold`.
+ * 7.06, cyan 7.28 (tests/light-mode.spec.ts). Utilities layer beats `.text-gold`.
  */
 @layer utilities {
   :root[data-theme='light'] main {
