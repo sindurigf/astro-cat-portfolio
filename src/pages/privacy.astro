@@ -19,7 +19,7 @@ import {
  */
 
 /* Set by hand when the policy text changes; a build date would re-date it on every deploy. */
-const lastUpdated = '2026-09-26';
+const lastUpdated = '2026-10-02';
 
 const CLOUDFLARE_PRIVACY = 'https://www.cloudflare.com/privacypolicy/';
 const CLOUDFLARE_NEL =
@@ -197,15 +197,16 @@ const description = ANALYTICS_ON
 
             <p>
               To stop the form being used for bulk submissions, the number of
-              submissions from one network address is limited to five a minute.
-              For an IPv6 address the limit covers its whole /64 network, the
-              block a single connection is normally given. The limit is counted
-              by Cloudflare's rate limiter against a SHA-256 hash of your IPv4
-              address, or of your IPv6 /64, and the current date. This site
-              writes the hash nowhere else: it is not stored with your message
-              or linked to it. A hash of an address is not anonymous. The date
-              is no secret, so anyone holding the hash of an IPv4 address could
-              recover the address by hashing every possible one.
+              submissions from one network address is limited to about five a
+              minute. For an IPv6 address the limit covers its whole /64
+              network, the block a single connection is normally given. The
+              limit is counted by Cloudflare's rate limiter against a SHA-256
+              hash of your IPv4 address, or of your IPv6 /64, and the current
+              date. This site writes the hash nowhere else: it is not stored
+              with your message or linked to it. A hash of an address is not
+              anonymous. The date is no secret, so anyone holding the hash of an
+              IPv4 address could recover the address by hashing every possible
+              one.
             </p>
 
             <p>

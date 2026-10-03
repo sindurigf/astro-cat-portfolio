@@ -84,10 +84,13 @@ interface WranglerConfig {
 /* Well past the wrangler.jsonc limit, so the assertion is not on the boundary. */
 const RATE_LIMIT_ATTEMPTS = 12;
 
-/* The limit /privacy states: five submissions a minute from one address. */
+/* The limit /privacy and the not-sent message state; "about" because Cloudflare's binding is approximate. */
 const RATE_LIMIT_BINDING = 'CONTACT_RATE_LIMIT';
 const RATE_LIMIT_SUBMISSIONS = 5;
 const RATE_LIMIT_PERIOD_SECONDS = 60;
+const RATE_LIMIT_WORDS = 'about five';
+
+const collapseSpace = (html: string): string => html.replace(/\s+/g, ' ');
 
 /* Enough of a real submission that only the cap can be what refuses it. */
 const FIELDS_PREFIX = 'name=Ada&email=ada%40example.com&message=';
@@ -444,6 +447,10 @@ test.describe('the contact endpoint', () => {
     expectTypedValuesKept(html!, typed);
     expectNotSentSummary(html!);
     expectTitledAndHeaded(html!, 'Too many messages');
+    expect(
+      collapseSpace(html!),
+      `the not-sent message does not state the limit as "${RATE_LIMIT_WORDS} messages a minute".`,
+    ).toContain(`${RATE_LIMIT_WORDS} messages a minute`);
   });
 
   /* D1 failure induced by moving the table aside for one request. */
@@ -616,6 +623,16 @@ test.describe('the contact endpoint', () => {
       limit: RATE_LIMIT_SUBMISSIONS,
       period: RATE_LIMIT_PERIOD_SECONDS,
     });
+  });
+
+  test('/privacy states the wrangler.jsonc rate limit', async ({ request }) => {
+    const privacy = await request.get('/privacy/');
+
+    expect(privacy.status()).toBe(200);
+    expect(
+      collapseSpace(await privacy.text()),
+      `/privacy does not state the limit as "${RATE_LIMIT_WORDS} a minute".`,
+    ).toContain(`${RATE_LIMIT_WORDS} a minute`);
   });
 
   /* The body is counted as it streams, so these really post past the cap. */
