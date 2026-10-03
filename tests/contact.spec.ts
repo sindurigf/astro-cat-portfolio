@@ -24,6 +24,9 @@ const FORM_OFF = 'contact.form is none in src/site.config.ts';
 import { DAY_MS } from '../src/lib/time';
 import { wranglerConfig } from './source';
 import { timedScan } from './axe';
+import { obscuredReport, readObscured } from './obscured';
+import { settleFocusScroll, tabWalk } from './tab-walk';
+import { DESKTOP_VIEWPORT, REFLOW_VIEWPORT } from './wcag';
 
 /**
  * `/contact/send/`, the only on-demand route. Runs under
@@ -99,6 +102,12 @@ const CHUNK = 4096;
 const MESSAGES_ASIDE = 'messages_unavailable';
 const SENT = '/contact/sent/';
 const FORM = '/contact/';
+
+/** Fields with a standing hint: email (what it is for) and message (its length). */
+const HINTED_FIELDS = ['contact-email', 'contact-message'];
+
+/** Far above the error page's tab stops; reaching it fails the walk as a trap. */
+const MAX_PAGE_STOPS = 100;
 
 /** A body that passes every rule in contact-form.ts. */
 const validFields = (): Record<string, string> => ({
@@ -822,6 +831,13 @@ test.describe('the contact error pages in a browser', () => {
     await page.locator('form[data-contact-form] [type=submit]').click();
   };
 
+  /* SC 3.3.6: nothing typed is lost, so a mistake costs one correction. */
+  const expectTypedKept = async (page: Page, typed: Record<string, string>) => {
+    await expect(page.getByLabel('Name')).toHaveValue(typed.name!);
+    await expect(page.getByLabel('Email')).toHaveValue(typed.email!);
+    await expect(page.getByLabel('Message')).toHaveValue(typed.message!);
+  };
+
   const expectSummaryFocusedAndClean = async (page: Page, label: string) => {
     await expect(
       page.locator('.error-summary'),
@@ -832,6 +848,67 @@ test.describe('the contact error pages in a browser', () => {
       violations.map((v) => `${v.id}: ${v.nodes.length} node(s)`),
       `axe found WCAG 2.2 AA violations on the ${label} page`,
     ).toEqual([]);
+  };
+
+  /* SC 3.3.5 Help: each field's hint stays shown and tied to it beside its error. */
+  const expectHelpBesideFields = async (page: Page, label: string) => {
+    const missing = await page
+      .locator('form[data-contact-form] .field-control')
+      .evaluateAll(
+        (controls, hinted) =>
+          controls.flatMap((control) => {
+            const ids = (control.getAttribute('aria-describedby') ?? '')
+              .split(/\s+/)
+              .filter(Boolean);
+            const described = ids
+              .map((id) => document.getElementById(id))
+              .filter((el) => el?.checkVisibility() && el.textContent?.trim());
+            const invalid = control.getAttribute('aria-invalid') === 'true';
+            const needed =
+              (hinted.includes(control.id) ? 1 : 0) + (invalid ? 1 : 0);
+            return described.length >= needed && described.length === ids.length
+              ? []
+              : [
+                  `#${control.id}: ${described.length} of ${needed} shown and tied`,
+                ];
+          }),
+        HINTED_FIELDS,
+      );
+    expect(
+      missing,
+      `the ${label} page drops a hint or error from a field`,
+    ).toEqual([]);
+  };
+
+  /* SC 2.4.12: Tab from the summary, Shift+Tab from the last footer link; no stop is even partly covered. */
+  const WALKS = [
+    { key: 'Tab', start: (page: Page) => page.locator('.error-summary') },
+    {
+      key: 'Shift+Tab',
+      start: (page: Page) => page.locator('footer a').last(),
+    },
+  ] as const;
+
+  const expectFocusUncovered = async (page: Page, label: string) => {
+    for (const viewport of [REFLOW_VIEWPORT, DESKTOP_VIEWPORT]) {
+      for (const { key, start } of WALKS) {
+        await page.setViewportSize(viewport);
+        await start(page).focus();
+        const stops = await tabWalk(page, () => readObscured(page), {
+          key,
+          max: MAX_PAGE_STOPS,
+          settle: () => settleFocusScroll(page),
+        });
+        expect(
+          stops.length,
+          `the ${label} page ${key} walk found no stops`,
+        ).toBeGreaterThan(1);
+        expect(
+          obscuredReport(stops),
+          `the ${label} page at ${viewport.width}px, ${key}, has focused controls partly hidden`,
+        ).toEqual([]);
+      }
+    }
   };
 
   /* On-demand pages point images at /_image, which only the Worker serves. */
@@ -852,11 +929,12 @@ test.describe('the contact error pages in a browser', () => {
   };
 
   test('the rejected-submission page', async ({ page }) => {
-    await submit(page, {
+    const typed = {
       name: 'Ada Lovelace',
       email: 'not-an-address',
       message: 'too short',
-    });
+    };
+    await submit(page, typed);
     await expect(
       page.getByText(/problems? with this form/),
       'the submission was not rejected as invalid, so the 422 page was never scanned',
@@ -864,6 +942,9 @@ test.describe('the contact error pages in a browser', () => {
     await expect(page).toHaveTitle(/^Error: Check your message /);
     await expectSummaryFocusedAndClean(page, 'rejected-submission');
     await expectEveryImageLoaded(page, 'rejected-submission');
+    await expectTypedKept(page, typed);
+    await expectHelpBesideFields(page, 'rejected-submission');
+    await expectFocusUncovered(page, 'rejected-submission');
   });
 
   test('the storage-failure page', async ({ page }) => {
@@ -875,6 +956,9 @@ test.describe('the contact error pages in a browser', () => {
       ).toBeVisible();
       await expectSummaryFocusedAndClean(page, 'storage-failure');
       await expectEveryImageLoaded(page, 'storage-failure');
+      await expectTypedKept(page, validFields());
+      await expectHelpBesideFields(page, 'storage-failure');
+      await expectFocusUncovered(page, 'storage-failure');
     } finally {
       localD1(`ALTER TABLE ${MESSAGES_ASIDE} RENAME TO messages`);
     }

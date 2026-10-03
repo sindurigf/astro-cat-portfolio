@@ -90,7 +90,7 @@ const article = placeholder
           <p class="text-post-teaser font-normal text-pretty">{teaser}</p>
           <p class="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-label text-gold-muted">
             <time datetime={machineDate}>{formattedDate}</time>
-            {readingTime ? <span>{readingTime} min read</span> : null}
+            {readingTime ? <span>{readingTime} minute read</span> : null}
           </p>
         </div>
       </header>
@@ -154,6 +154,7 @@ const article = placeholder
                     ]}
                   >
                     {tagLabel(tag)}
+                    <span class="sr-only">&nbsp;tag</span>
                   </a>
                 </li>
               ))}

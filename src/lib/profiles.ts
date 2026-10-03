@@ -14,3 +14,9 @@ export const JOB_TITLE = SITE_CONFIG.person.jobTitle;
 
 /** Root-relative, or null when no CV is published. */
 export const CV_PATH = SITE_CONFIG.person.cv;
+
+/** SC 2.4.9: the service name alone does not say whose profile it is. */
+export const profileLinkName = (service: string): string =>
+  `${PERSON_GIVEN_NAME} on ${service}`;
+
+export const EMAIL_LINK_NAME = `Email ${PERSON_GIVEN_NAME}`;

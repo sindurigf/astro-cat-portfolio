@@ -18,7 +18,7 @@ const W3C_STATEMENTS = 'https://www.w3.org/WAI/planning/statements/';
 const FULL_RECORD = `${REPOSITORY_URL}/blob/main/ACCESSIBILITY.md`;
 
 const COMMITMENT = [
-  'WCAG 2.2 AA is the floor, with AAA text contrast (7:1) wherever the palette allows it.',
+  'WCAG 2.2 AA is the floor, with AAA text contrast (7:1) everywhere, at rest and under the pointer.',
   'Dark and light mode are both measured. Light mode follows your device, or the switch in the header.',
   'Everything works with a keyboard, and the control you are on is never hidden under the header.',
   'Both animations, the field on the homepage and the cats on the About page, can be paused, and stay still if your device asks for reduced motion.',
@@ -39,7 +39,7 @@ const SUPPORTED = [
 
 /* Not counted: a total this page cannot recount would go stale. */
 const AUTOMATED = [
-  'axe on every route, for WCAG 2.2 A and AA in dark and light mode, and for best practice in dark mode',
+  'axe on every route, for WCAG 2.2 A and AA in dark and light mode, including the rules axe marks experimental, and for best practice in dark mode',
   'colour contrast measured against the composited background, including every result axe leaves undecided',
   'the keyboard tab order walked in both directions on every page type, with every focus ring measured where it lands',
   'target sizes, reflow, Windows High Contrast Mode, reduced motion, and navigation with JavaScript off',
@@ -55,7 +55,9 @@ const AUTOMATED = [
     <p class="standfirst">
       This site aims to be usable with a keyboard, a screen reader, at high
       zoom, and without JavaScript. Where it is not, that is a bug worth
-      reporting.
+      reporting. It aims for the Web Content Accessibility Guidelines (WCAG) 2.2
+      at Level AA, the middle of three levels, and at Level AAA, the highest,
+      for text contrast.
     </p>
   </PageHero>
 
@@ -120,8 +122,9 @@ const AUTOMATED = [
             {CONTACT_FORM_ON &&
               "Nobody has tested the contact form's error messages by hand."}{' '}
             The writing has not been checked for plain language, and the gold
-            sections have only been measured by machine. The published PDFs pass
-            an automated check but have not been read with a screen reader.
+            sections have only been measured by machine. The published Portable
+            Document Format (PDF) files pass an automated check but have not
+            been read with a screen reader.
           </p>
 
           <p>
@@ -183,8 +186,8 @@ const AUTOMATED = [
 
         <p class="mt-head text-body text-text text-pretty">
           This is a personal site, so this statement is voluntary. It follows
-          the{' '}
-          <a href={W3C_STATEMENTS}>W3C model for accessibility statements</a>.
+          the <a href={W3C_STATEMENTS}>model for accessibility statements</a>{' '}
+          from the World Wide Web Consortium (W3C).
         </p>
       </div>
     </div>

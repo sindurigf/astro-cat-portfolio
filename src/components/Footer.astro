@@ -1,7 +1,11 @@
 ---
 import { CONTACT_MAILTO } from '../lib/contact';
 import { NAV_LINKS } from '../lib/nav';
-import { SOCIAL_PROFILES } from '../lib/profiles';
+import {
+  EMAIL_LINK_NAME,
+  SOCIAL_PROFILES,
+  profileLinkName,
+} from '../lib/profiles';
 import { FIRST_PUBLISHED, REPOSITORY_URL, SITE_NAME } from '../lib/site';
 /* Hashed under /_astro/ and cached once, instead of inline on every page. */
 import socialIcons from '../assets/social-icons.svg?url';
@@ -10,9 +14,12 @@ import socialIcons from '../assets/social-icons.svg?url';
 
 /* Email is appended here, not in profiles.ts, which also feeds JSON-LD `sameAs`. */
 const SOCIAL_LINKS = [
-  ...SOCIAL_PROFILES,
-  { href: CONTACT_MAILTO, label: 'Email' },
-] as const;
+  ...SOCIAL_PROFILES.map((profile) => ({
+    ...profile,
+    name: profileLinkName(profile.label),
+  })),
+  { href: CONTACT_MAILTO, label: 'Email', name: EMAIL_LINK_NAME },
+];
 
 const POLICY_LINKS = [
   { href: '/accessibility/', label: 'Accessibility' },
@@ -73,7 +80,7 @@ const copyright = `© ${FIRST_PUBLISHED} ${SITE_NAME}`;
                   <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
                     <use href={`${socialIcons}#${link.label}`} />
                   </svg>
-                  <span class="sr-only">{link.label}</span>
+                  <span class="sr-only">{link.name}</span>
                 </a>
               </li>
             ))}
