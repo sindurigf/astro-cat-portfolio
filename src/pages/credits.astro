@@ -96,12 +96,12 @@ const NAMED_ENTRY = 'min-w-0 bg-background p-card-tight';
     <div class="mx-auto max-w-page">
       <div id="name" class="card">
         <h2 class={CARD_HEADING}>Where the name comes from</h2>
-        <p class="mt-6 max-w-4xl text-h3 font-normal text-text text-pretty">
+        <p class="mt-6 mb-paragraph max-w-4xl text-lead font-normal text-text text-pretty">
           Lorem ipsum dolor sit amet{' '}
           <a href={NAME_INSPIRATION.href}>{NAME_INSPIRATION.site}</a>,
           consectetur adipiscing elit sed do {NAME_INSPIRATION.name}.
         </p>
-        <p class="mt-6 max-w-prose text-body text-text text-pretty">
+        <p class="mt-6 max-w-measure text-body text-text text-pretty">
           Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris
           nisi ut aliquip, <a href={CONTACT_MAILTO}>{CONTACT_EMAIL}</a>. Duis
           aute irure dolor!
@@ -115,11 +115,11 @@ const NAMED_ENTRY = 'min-w-0 bg-background p-card-tight';
 
       <div id="not-found" class="card mt-grid">
         <h2 class={CARD_HEADING}>The 404 page</h2>
-        <p class="mt-6 max-w-4xl text-h3 font-normal text-text text-pretty">
+        <p class="mt-6 mb-paragraph max-w-4xl text-lead font-normal text-text text-pretty">
           The 404 page is a nod to <cite>Star Wars</cite> (1977), the film later
           called <cite>Episode IV: A New Hope</cite>.
         </p>
-        <p class="mt-6 max-w-prose text-body text-text text-pretty">
+        <p class="mt-6 max-w-measure text-body text-text text-pretty">
           Its opening line is the film's own, with a website in place of the
           galaxy. The headline comes from a checkpoint in Mos Eisley, where
           stormtroopers stop Obi-Wan Kenobi and Luke Skywalker with R2-D2 and
@@ -140,7 +140,7 @@ const NAMED_ENTRY = 'min-w-0 bg-background p-card-tight';
                   {person.name}
                 </a>
               </dt>
-              <dd class="mt-1 max-w-prose text-body text-text text-pretty">
+              <dd class="mt-1 max-w-measure text-body text-text text-pretty">
                 {person.reason}
               </dd>
             </div>
