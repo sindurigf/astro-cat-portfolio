@@ -56,6 +56,15 @@ const GUIDES = [
     author: { name: 'Joost de Valk', href: 'https://joost.blog/' },
     use: 'The checklist used to check the search engine optimisation (SEO), security and agent readiness of this site.',
   },
+  {
+    name: 'A11Y.md',
+    href: 'https://github.com/fecarrico/A11Y.md',
+    author: {
+      name: 'Felipe A. Carriço',
+      href: 'https://www.linkedin.com/in/fecarrico',
+    },
+    use: 'Pointed out that axe ships some WCAG rules switched off; this site turns them on.',
+  },
 ] as const;
 
 const photographers = Object.entries(PHOTOGRAPHERS).map(([name, href]) => ({
@@ -146,9 +155,10 @@ const NAMED_ENTRY = 'min-w-0 bg-background p-card-tight';
           Photos on this site and in its posts are by:
         </p>
 
-        <ul class="bullet-list mt-4 gap-x-12 sm:columns-2">
+        {/* Grid, not `columns`, here and below: WebKit does not scroll a focused inline-flex link in a multi-column box into view (SC 2.4.11). */}
+        <ul class="bullet-list mt-4 gap-x-12 sm:grid sm:grid-cols-2">
           {photographers.map((photographer) => (
-            <li class="break-inside-avoid">
+            <li>
               <a href={photographer.href} class={LINK_ITEM}>
                 {photographer.name}
               </a>
@@ -211,9 +221,9 @@ const NAMED_ENTRY = 'min-w-0 bg-background p-card-tight';
       <div class="card lg:col-span-2">
         <h2 class={CARD_HEADING}>Built and tested with</h2>
 
-        <ul class="bullet-list mt-6 gap-x-12 sm:columns-2 lg:columns-3">
+        <ul class="bullet-list mt-6 gap-x-12 sm:grid sm:grid-cols-2 lg:grid-cols-3">
           {BUILT_WITH.map((tool) => (
-            <li class="break-inside-avoid">
+            <li>
               <a href={tool.href} class={LINK_ITEM}>
                 {tool.name}
               </a>

@@ -10,16 +10,16 @@ The statement is voluntary for a personal site and follows the
 
 ## 1. Project information
 
-| Field               | Value                                                                                                                                                 |
-| ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Project             | astro-cat-portfolio                                                                                                                                   |
-| Project type        | Static personal website (Astro, two Vue islands, Tailwind)                                                                                            |
-| Accessibility owner | Alex Example                                                                                                                                          |
-| Public reporting    | <https://github.example/alex-example/example-site/issues>                                                                                             |
-| Private reporting   | <hello@example.com>                                                                                                                                   |
-| Target standard     | Web Content Accessibility Guidelines (WCAG) 2.2 Level AA, the middle of three levels, with Level AAA, the highest, for text contrast where achievable |
-| Conformance status  | **Target only. No conformance claim.**                                                                                                                |
-| Last reviewed       | 2026-10-02                                                                                                                                            |
+| Field               | Value                                                      |
+| ------------------- | ---------------------------------------------------------- |
+| Project             | astro-cat-portfolio                                        |
+| Project type        | Static personal website (Astro, two Vue islands, Tailwind) |
+| Accessibility owner | Alex Example                                               |
+| Public reporting    | <https://github.example/alex-example/example-site/issues>  |
+| Private reporting   | <hello@example.com>                                        |
+| Target standard     | WCAG 2.2 Level AA, with AAA text contrast                  |
+| Conformance status  | **Target only. No conformance claim.**                     |
+| Last reviewed       | 2026-10-02                                                 |
 
 `src/lib/accessibility-facts.ts` reads the Target standard, Conformance status,
 Last reviewed and both reporting rows into `/accessibility` at build time and
@@ -42,17 +42,17 @@ status is still "Target only. No conformance claim."
 
 ### AAA criteria in scope
 
-| Criterion                            | What we do                                                                                                                                                                                                                                                                                                                                                         |
-| ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| 1.4.6 Contrast (Enhanced)            | Every text token at rest clears 7:1 on every ground it is used on, dark, light and gold. Exceptions: the category glyph on `/`, `background` on `pink`, is 4.90:1 and passes as large text only; light-mode hover `cyan`, as text and as the button fill, is AA only. `pink` is never text; `pink-text` is. Ratios: [contrast table](docs/STYLEGUIDE.md#contrast). |
-| 2.2.4 Interruptions                  | Nothing interrupts: no alerts, assertive live regions or automatic refresh.                                                                                                                                                                                                                                                                                        |
-| 2.3.3 Animation from Interactions    | Under `prefers-reduced-motion: reduce` a pressed control does not move into its shadow, the hero field is drawn once and held, and the About cats sit still (`tests/press.spec.ts`, `tests/motion.spec.ts`, `tests/about-cats.spec.ts`).                                                                                                                           |
-| 2.4.9 Link Purpose (Link Only)       | Within a page, one link name leads to one place. Hidden text completes short names: "Community tag", "Alex on GitHub". Exception: link text in posts, listed in `tests/link-purpose.spec.ts`.                                                                                                                                                                      |
-| 2.4.12 Focus Not Obscured (Enhanced) | **Not met.** Met inside the open cat card, photo viewer and mobile menu. Fails on pages: (1) `/about`, the sleep control (`src/components/ui/AboutCats.vue`) covers part of each cat button; (2) Firefox leaves controls partly under the sticky header, mostly at 305px, as if it skips `scroll-padding-top` (`src/styles/base.css`).                             |
-| 2.4.13 Focus Appearance              | One solid ring, `--focus-width` wide. At every focus stop it covers at least a 2px perimeter of the control and reaches 3:1 against the ground it paints over.                                                                                                                                                                                                     |
-| 2.5.6 Concurrent Input Mechanisms    | No input is turned off because another one was detected.                                                                                                                                                                                                                                                                                                           |
-| 3.1.4 Abbreviations                  | On functional pages (statement, privacy, credits, brand, reading time) each abbreviation is spelled out or defined in the sentence where it first appears. Posts, About and Career are the owner's copy and are not yet.                                                                                                                                           |
-| 3.2.5 Change on Request              | No new windows, automatic refresh or navigation by script.                                                                                                                                                                                                                                                                                                         |
+| Criterion                            | What we do                                                                                                                                                                                                                                                                                                                             |
+| ------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1.4.6 Contrast (Enhanced)            | Every text token at rest clears 7:1 on every ground it is used on, dark, light and gold. Exception: the category glyph on `/`, `background` on `pink`, is 4.90:1 and passes as large text only. `pink` is never text; `pink-text` is. Ratios: [contrast table](docs/STYLEGUIDE.md#contrast).                                           |
+| 2.2.4 Interruptions                  | Nothing interrupts: no alerts, assertive live regions or automatic refresh.                                                                                                                                                                                                                                                            |
+| 2.3.3 Animation from Interactions    | Under `prefers-reduced-motion: reduce` a pressed control does not move into its shadow, the hero field is drawn once and held, and the About cats sit still (`tests/press.spec.ts`, `tests/motion.spec.ts`, `tests/about-cats.spec.ts`).                                                                                               |
+| 2.4.9 Link Purpose (Link Only)       | Within a page, one link name leads to one place. Hidden text completes short names: "Community tag", "Alex on GitHub". Exception: link text in posts, listed in `tests/link-purpose.spec.ts`.                                                                                                                                          |
+| 2.4.12 Focus Not Obscured (Enhanced) | **Not met.** Met inside the open cat card, photo viewer and mobile menu. Fails on pages: (1) `/about`, the sleep control (`src/components/ui/AboutCats.vue`) covers part of each cat button; (2) Firefox leaves controls partly under the sticky header, mostly at 305px, as if it skips `scroll-padding-top` (`src/styles/base.css`). |
+| 2.4.13 Focus Appearance              | One solid ring, `--focus-width` wide. At every focus stop it covers at least a 2px perimeter of the control and reaches 3:1 against the ground it paints over.                                                                                                                                                                         |
+| 2.5.6 Concurrent Input Mechanisms    | No input is turned off because another one was detected.                                                                                                                                                                                                                                                                               |
+| 3.1.4 Abbreviations                  | On functional pages (statement, privacy, credits, brand, reading time) each abbreviation is spelled out or defined in the sentence where it first appears. Posts, About and Career are the owner's copy and are not yet.                                                                                                               |
+| 3.2.5 Change on Request              | No new windows, automatic refresh or navigation by script.                                                                                                                                                                                                                                                                             |
 
 Out of scope: SC 2.5.5 Target Size (Enhanced, 44px). axe's `wcag2aaa` rules
 are not run.
@@ -87,10 +87,14 @@ view (development server only, never published), and forks.
   `wcag21aa` and `wcag22aa` with no rule disabled and no result excluded, in
   dark mode, in light mode, at 320px in both, and with the mobile menu open.
   The photo viewer open, a post's contents open and the talk past its cover
-  are scanned too.
+  are scanned too. The experimental rules in those tags, which axe ships off,
+  are turned on (`AXE_EXPERIMENTAL_RULES` in `tests/wcag.ts`).
 - **axe, best practice.** Every route passes `best-practice` in its own block.
-- **Undecided contrast.** Every `incomplete` result from those scans is decided
-  by walking the paint stack (`tests/incomplete.ts`).
+- **Undecided results.** Every `incomplete` result from those scans is decided
+  (`tests/incomplete.ts`): contrast by walking the paint stack, label in name
+  (SC 2.5.3) by passing only a control whose visible text is symbols, which
+  [Understanding 2.5.3](https://www.w3.org/WAI/WCAG22/Understanding/label-in-name.html)
+  puts out of scope.
 - **Reflow.** No route scrolls sideways at 305px (320px less a classic 15px
   scrollbar, the stricter case), with and without the SC 1.4.12 override, or at
   640px, 1280px and 1920px. The content box matches the
@@ -228,8 +232,8 @@ merge.
 
 Limits:
 
-- Only rules in the WCAG A and AA tags and `best-practice` run. A green suite
-  says nothing about AAA rules.
+- Only rules in the WCAG A and AA tags, experimental ones included, and
+  `best-practice` run. A green suite says nothing about AAA rules.
 - A contrast rule measures a label against its own control, not the control
   against the ground: a control with no visible edge passes axe.
   `tests/gold-surface.spec.ts` checks fill or border against the ground.

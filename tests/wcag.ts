@@ -22,6 +22,18 @@ export const AXE_TAGS = [
   'wcag22aa',
 ];
 
+/**
+ * axe's experimental rules tagged WCAG A or AA. axe ships them off and a tag
+ * filter never turns them on, so they are enabled by ID.
+ */
+export const AXE_EXPERIMENTAL_RULES = [
+  'css-orientation-lock',
+  'label-content-name-mismatch',
+  'p-as-heading',
+  'table-fake-caption',
+  'td-has-header',
+];
+
 /** Hard ceiling for one axe scan, above the 30s default: a scan under load runs past it. */
 export const AXE_TIMEOUT_MS = 120_000;
 

@@ -10,13 +10,16 @@ import { BUILD_ENV } from '../lib/build-env';
  * reads the noindex header, and Google then indexes the bare URL.
  */
 
-/** Training-only user agents; search crawlers stay allowed. */
-const AI_TRAINING_CRAWLERS = [
+/** Crawlers that collect pages for AI training; Google-Extended also covers Gemini app grounding. */
+const BLOCKED_AI_CRAWLERS = [
   'GPTBot',
   'ClaudeBot',
   'CCBot',
   'Google-Extended',
   'Applebot-Extended',
+  'Meta-ExternalAgent',
+  'Amazonbot',
+  'Bytespider',
 ] as const;
 
 export const GET: APIRoute = ({ site: configuredSite }) => {
@@ -26,7 +29,7 @@ export const GET: APIRoute = ({ site: configuredSite }) => {
   );
 
   const body = [
-    ...AI_TRAINING_CRAWLERS.flatMap((agent) => [
+    ...BLOCKED_AI_CRAWLERS.flatMap((agent) => [
       `User-agent: ${agent}`,
       'Disallow: /',
       '',
