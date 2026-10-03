@@ -1012,6 +1012,9 @@ Enforced by `tests/nav-current.spec.ts`, `tests/mobile-menu.spec.ts`,
 - Each cat lives in a `.cat-perch` band above its card, sized by
   `--spacing-cat-band`, which no move may rise above
   (`tests/about-cats.spec.ts`).
+- A band is never a scroll anchor (`overflow-anchor: none` on `.cat-spot`):
+  WebKit would scroll the page with a moving cat and carry a focused control
+  out of view (SC 2.4.11).
 - The hero mascot and the About cats are an intended pair. The hero is line
   art, drawn to match the canvas's grass lines; the About cats are stickers,
   flat fills with a hard edge, like the logo tile. Keep each in its own style.
