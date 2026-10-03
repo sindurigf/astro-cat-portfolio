@@ -634,6 +634,11 @@ evidence.
   rule, with its reason, in [STYLEGUIDE.md](docs/STYLEGUIDE.md#motion).
 - **Reset the contact form on a timer after Stop:** invites a double send; Esc
   and `navigateerror` cover it, Firefox's Stop button does not.
+- **Drop uppercase from headings, labels, nav and buttons:** the advice
+  against capitals is about "large amounts of text"
+  ([GOV.UK](https://guidance.publishing.service.gov.uk/writing-to-gov-uk-standards/style-guides/a-to-z-style-guide/));
+  these are a few words each, written in sentence case. How screen readers
+  speak them is checked in the screen-reader pass.
 
 ## Content notes
 
