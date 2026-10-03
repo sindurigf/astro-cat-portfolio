@@ -63,6 +63,11 @@ const FIRST_USES: readonly {
   },
   {
     route: '/credits',
+    abbreviation: 'WCAG',
+    expansion: 'Web Content Accessibility Guidelines',
+  },
+  {
+    route: '/credits',
     abbreviation: 'SEO',
     expansion: 'search engine optimisation',
   },
@@ -105,6 +110,7 @@ const NAMES = [
   'SIL Open Font License',
   'MIT',
   'ACCESSIBILITY.md',
+  'A11Y.md',
   'LICENSE-photos',
 ];
 
