@@ -528,11 +528,11 @@ Not dependencies; nothing here gates CI.
 [keyboard-a11y-tester](https://github.com/ezufelt/keyboard-a11y-tester) (MIT,
 needs an LLM, so it cannot gate a build). One run on `/`:
 
-| Finding                                     | Verdict                                                                                         |
-| ------------------------------------------- | ----------------------------------------------------------------------------------------------- |
-| `sr-duplicate-landmark` (banner, main)      | False: one of each; the count tracks the tool's snapshots                                       |
-| `sr-focusable-not-exposed` (BlogCard links) | False: no `tabindex` or `aria-hidden`; the crawl did not reach them                             |
-| `focus-appearance-weak` (SC 2.4.13, AAA)    | Figure not reproduced; led to ring contrast being measured in `tests/focus.spec.ts` (SC 1.4.11) |
+| Finding                                     | Verdict                                                                                                                   |
+| ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| `sr-duplicate-landmark` (banner, main)      | False: one of each; the count tracks the tool's snapshots                                                                 |
+| `sr-focusable-not-exposed` (BlogCard links) | False: no `tabindex` or `aria-hidden`; the crawl did not reach them                                                       |
+| `focus-appearance-weak` (SC 2.4.13, AAA)    | Figure not reproduced; led to ring contrast (SC 1.4.11) and ring area (SC 2.4.13) being measured in `tests/focus.spec.ts` |
 
 Re-run after a navigation or card redesign, and check every finding against
 the DOM.
