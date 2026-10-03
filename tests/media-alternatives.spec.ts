@@ -87,7 +87,7 @@ const COMPLETE_VIDEO = `<main>
   <a href="/videos/talk-described/" data-media-for="talk" data-media-alternative="extended-description">Described version</a>
 </main>`;
 
-test.describe('time-based media (SC 1.2.6 to 1.2.9, 1.4.7)', NODE, () => {
+test.describe('time-based media (SC 1.2.6 to 1.2.8, 1.4.7)', NODE, () => {
   test('a bare video fails the check', () => {
     expect(mediaGaps(BARE_VIDEO)).toEqual([
       'video#talk: no captions track (SC 1.2.2)',
