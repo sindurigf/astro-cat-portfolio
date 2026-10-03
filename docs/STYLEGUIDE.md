@@ -118,7 +118,8 @@ The gold-ground set is in [Gold surface](#gold-surface), light values in
 
 1. Add it as a token in `@theme`.
 2. Measure it on `#131313` and `#1A1A1A`, on `#FFC000` if it can appear on
-   gold, and its light value on `#ffffff`.
+   gold, and its light value on `#ffffff`. A colour with alpha is measured as
+   it paints: composite it over each ground first, then take the ratio.
 3. Meet 4.5:1 for text (7:1 where achievable), 3:1 for large text, borders,
    focus rings and icons.
 4. Add it to the table above and run `node scripts/contrast-table.mjs --write`.

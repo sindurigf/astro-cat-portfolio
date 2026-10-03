@@ -386,6 +386,16 @@ Rules this repository follows. Values and reasons:
   colours: give it a border or an opaque fill.
 - **Reflow.** Never add horizontal padding to a page container. A display
   heading word over twelve characters takes a soft hyphen.
+- **Conflicting needs.** When one group's need works against another's, name
+  both groups, choose, and record the choice and its reason in this file. A
+  W3C note, opinion here, gives an example:
+  [low vision needs](https://www.w3.org/TR/low-vision-needs/), high contrast
+  against light sensitivity.
+- **Scripts.** Never hold content back behind a script. What a page says is in
+  its HTML; a script only adds to it. Tested for navigation
+  (`tests/no-script.spec.ts`) and the talk slides (`tests/slideshow.spec.ts`).
+- **Sources.** WCAG and its Understanding documents are normative. Mark any
+  other source cited here, an article, checklist or tool, as opinion.
 - **This file.** Update it in the same commit as the change. A gap is removed
   when it has been tested, not when it was fixed in passing.
 

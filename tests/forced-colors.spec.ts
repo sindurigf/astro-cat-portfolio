@@ -196,7 +196,8 @@ test('every engine that can force colours still does, and webkit still cannot', 
 });
 
 test.describe('forced colours', () => {
-  // WebKit matches (forced-colors: active) yet paints `--color-text`. Skipped by
+  // WebKit matches (forced-colors: active) yet paints `--color-text`: it ships the
+  // media query only (https://bugs.webkit.org/show_bug.cgi?id=225281). Skipped by
   // engine name, not capability, so a chromium or firefox regression still fails.
   test.skip(
     ({ browserName }) => browserName === 'webkit',
