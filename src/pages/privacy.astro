@@ -101,27 +101,38 @@ const description = ANALYTICS_ON
               months. It is the only place a page here sends anything to.
             </p>
 
-            <p>
-              For each page you open, it sends the page's address and title, the
-              address of the page that linked you here if your browser shares
-              it, your screen size and your browser's language. Both addresses
-              are sent without anything after a ? or #.
-            </p>
+            <p>For each page you open, it sends:</p>
+            <ul>
+              <li>the page's address and title</li>
+              <li>
+                the address of the page that linked you here, if your browser
+                shares it
+              </li>
+              <li>your screen size</li>
+              <li>your browser's language</li>
+            </ul>
+            <p>Both addresses are sent without anything after a ? or #.</p>
 
+            <p>When you click a link or a button, it also sends:</p>
+            <ul>
+              <li>what kind of control it was</li>
+              <li>its label</li>
+              <li>which part of the page it is in</li>
+              <li>for a link, where it goes</li>
+            </ul>
             <p>
-              When you click a link or a button, it also sends what kind of
-              control it was, its label, which part of the page it is in and,
-              for a link, where it goes. For an email link the address is left
-              out. Nothing you type is ever sent.
+              For an email link the address is left out. Nothing you type is
+              ever sent.
             </p>
 
             <p>
               Like any server, Umami receives your IP address and your browser's
               details with each request. Umami says it uses the IP address to
-              work out your country, region and city, and your browser details
-              to work out your browser, operating system and type of device, and
-              that it does not store the IP address. How Umami handles that is
-              covered by <a href={UMAMI_PRIVACY}>Umami's privacy policy</a>.
+              work out your country, region and city, and does not store the
+              address. It says it uses your browser details to work out your
+              browser, operating system and type of device. How Umami handles
+              that is covered by{' '}
+              <a href={UMAMI_PRIVACY}>Umami's privacy policy</a>.
             </p>
 
             <p>
@@ -186,13 +197,19 @@ const description = ANALYTICS_ON
             <p>
               The form on <a href="/contact/">the contact page</a> stores the
               name, email address and message you type, so that there is
-              something to reply to. Stored with it are the time it was sent,
-              the time the emailed copy below went out, how many times a failed
-              copy has been retried, and a random ID that only tells one message
-              from another. No IP address, browser or referrer is stored with
-              it. It is stored in a database restricted to the European Union,
-              and a copy is emailed to the site owner's inbox, so that the
-              message is seen and can be answered.
+              something to reply to. Stored with it are:
+            </p>
+            <ul>
+              <li>the time it was sent</li>
+              <li>the time the emailed copy below went out</li>
+              <li>how many times a failed copy has been retried</li>
+              <li>a random ID that only tells one message from another</li>
+            </ul>
+            <p>
+              No IP address, browser or referrer is stored with it. It is stored
+              in a database restricted to the European Union. A copy is emailed
+              to the site owner's inbox, so that the message is seen and can be
+              answered.
             </p>
 
             <p>
