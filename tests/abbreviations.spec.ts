@@ -14,6 +14,7 @@ const FIRST_USES: readonly {
   abbreviation: string;
   expansion: string;
 }[] = [
+  { route: '/', abbreviation: 'CV', expansion: 'curriculum vitae' },
   {
     route: '/accessibility',
     abbreviation: 'WCAG',
