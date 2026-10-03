@@ -130,6 +130,10 @@ Rules:
 
 - Functional microcopy (labels, errors, alt text, skip link, empty states) is
   written by whoever builds the UI. Plain, short, second person.
+- Sentences of 25 words or fewer
+  ([GOV.UK](https://insidegovuk.blog.gov.uk/2014/08/04/sentence-length-why-25-words-is-our-limit/)).
+  Active voice, everyday words, no "e.g." or "i.e.".
+- An error message says what is wrong and how to fix it, without blame.
 - Editorial copy (posts, About, Career, taglines, bios) belongs to the site's
   owner. An agent does not invent it: it stays placeholder until a person
   writes it.
