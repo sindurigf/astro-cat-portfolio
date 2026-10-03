@@ -192,7 +192,7 @@
   --text-post-title--line-height: 1.06;
   /* The post teaser beside the title on its slab, read as a standfirst. */
   --text-post-teaser: clamp(1.3125rem, 2vw, 1.625rem);
-  --text-post-teaser--line-height: 1.35;
+  --text-post-teaser--line-height: var(--leading-paragraph);
   /*
    * Floor 24px so the 19px h3 below it is 0.79 of it, not 0.86
    * (tests/headings.spec.ts runs at 320px).
@@ -214,11 +214,19 @@
   --text-h3: clamp(1.25rem, 2.6vw, 2rem);
   --text-h3--line-height: 1.1;
   /*
+   * Display-size text that is a paragraph, not a heading: SC 1.4.8 asks 1.5 of
+   * a block of more than one sentence; 1.55 stays clear after sub-pixel rounding.
+   */
+  --leading-paragraph: 1.55;
+  /* --text-h3's size at paragraph leading: a lead, or a card paragraph at h3 size. */
+  --text-lead: var(--text-h3);
+  --text-lead--line-height: var(--leading-paragraph);
+  /*
    * PageHero standfirst. Its own token because --text-h3 also sizes card titles
    * and section leads. Floor matches --text-h3's 20px.
    */
   --text-standfirst: clamp(1.25rem, 2.8vw, 2.25rem);
-  --text-standfirst--line-height: 1.3;
+  --text-standfirst--line-height: var(--leading-paragraph);
   /*
    * Talk slides, height-aware for 16:9 projectors: 23px text and 56px title at
    * 1280x720. Floors are --text-body's and --text-h2's.
@@ -453,6 +461,11 @@
   --spacing-roundel-mark: clamp(1.75rem, 8vw - 1.75rem, 4rem);
   /* Heading to content, and content to the actions under it. */
   --spacing-head: clamp(32px, 4vw, 48px);
+  /*
+   * Under a paragraph followed by another, so the next line box starts 2.5em
+   * below the last one's top (SC 1.4.8); in em, so it scales with that text.
+   */
+  --spacing-paragraph: 1.1em;
   --spacing-grid: clamp(28px, 3.4vw, 40px);
   --spacing-inline: clamp(16px, 2vw, 24px);
   /*

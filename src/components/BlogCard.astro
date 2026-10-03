@@ -86,7 +86,7 @@ const readableDate = formatPostDate(date);
       </Heading>
 
       {/* No `text-text`: the utility would beat a solid block's rule (tests/solid-block.spec.ts). */}
-      <p class="mt-6 text-body text-pretty">{teaser}</p>
+      <p class="mt-6 max-w-measure text-body text-pretty">{teaser}</p>
 
       <span class="label mt-8 block text-subtle">
         <time datetime={machineDate}>{readableDate}</time>

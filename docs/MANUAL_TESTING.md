@@ -95,6 +95,8 @@ Resizing is not zooming, so this stays manual even though
 - [ ] Tab through: the 96px sticky header never covers the focused element. → SC 2.4.11
 - [ ] Repeat on `/blog/sample-talk`. → SC 1.4.10, 2.4.11
 - [ ] Repeat at 200% and 250%. → SC 1.4.10
+- [ ] Repeat at 400% in a window 1024px tall (256px CSS): the header does not
+      fill the screen and the focused element stays in view. → SC 1.4.10, 2.4.11
 
 ## 4. Reduced motion
 
@@ -460,6 +462,33 @@ drawings are `aria-hidden`.
 
 Heard: `________________________`
 
+## 6a. Voice control → SC 2.5.3
+
+Speech users say the words they see, so a control's name must start with its
+visible label. The rule is
+[Understanding SC 2.5.3](https://www.w3.org/WAI/WCAG22/Understanding/label-in-name.html);
+the method follows the DWP Accessibility Manual's
+[voice controller testing](https://accessibility-manual.dwp.gov.uk/best-practice/voice-controller-testing):
+one common voice controller at least. A visible `<label for>` gives the most
+reliable name (opinion:
+[Adrian Roselli](https://adrianroselli.com/2020/01/my-priority-of-methods-for-labeling-a-control.html)).
+
+Setup: one of Dragon on Windows, Voice Access on Windows 11, or Voice Control
+on macOS, which works fully only in Safari. Record the tool, its version and
+the browser.
+
+- [ ] Say "click About", "click Career" and "click Blog": each header link
+      opens. → SC 2.5.3
+- [ ] At 320px, say "click Menu": the menu opens; say a menu link's words:
+      it opens. → SC 2.5.3
+- [ ] On a post, say a tag chip's word, such as "click Community": the tag page
+      opens. → SC 2.5.3
+- [ ] On `/contact`, say "click Name", "click Email" and "click Message": each
+      field takes focus; dictate into it; say "click Send message". → SC 2.5.3
+- [ ] Icon-only controls (footer profiles, theme switch, hero pause): reachable
+      by the tool's numbers or grid overlay. → SC 2.1.1
+- [ ] Note any command that did nothing, and the words that were said.
+
 ## 7. Text zoom and text spacing
 
 ### 200% text-only zoom → SC 1.4.4
@@ -540,7 +569,7 @@ the DOM.
 ## 11. Items from external checklists
 
 From the Accessible Astro checklist and
-<https://specification.website/checklist/>.
+<https://specification.website/checklist/>, both opinion, not WCAG.
 
 - **Automated:** heading hierarchy and one `h1`, content in landmarks, skip
   link, page titles, forced colours, reduced motion, focus contrast, duplicate

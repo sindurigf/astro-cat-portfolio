@@ -118,7 +118,8 @@ The gold-ground set is in [Gold surface](#gold-surface), light values in
 
 1. Add it as a token in `@theme`.
 2. Measure it on `#131313` and `#1A1A1A`, on `#FFC000` if it can appear on
-   gold, and its light value on `#ffffff`.
+   gold, and its light value on `#ffffff`. A colour with alpha is measured as
+   it paints: composite it over each ground first, then take the ratio.
 3. Meet 4.5:1 for text (7:1 where achievable), 3:1 for large text, borders,
    focus rings and icons.
 4. Add it to the table above and run `node scripts/contrast-table.mjs --write`.
@@ -267,41 +268,50 @@ The switch and what it scopes: [ARCHITECTURE.md](../ARCHITECTURE.md#light-mode).
 ## Type scale
 
 Lexend Variable, weights 400 and 900 only. Sizes are `clamp()` tokens; the
-copyright and contents list are fixed, and `text-code` is a ratio.
+copyright and contents list are fixed, and `text-code` is `max(1rem, 0.92em)`,
+0.92 of the text around it with a 16px floor.
 
-| Token                    | Min px | Max px | Line height | Weight | Use                                   |
-| ------------------------ | ------ | ------ | ----------- | ------ | ------------------------------------- |
-| `text-hero-h1`           | 28     | 70     | 0.94        | 900    | Homepage name only                    |
-| `text-h1`                | 33     | 80     | 0.94        | 900    | Page title                            |
-| `text-reading-h1`        | 33     | 70     | 0.94        | 900    | Privacy, Accessibility title          |
-| `text-h2`                | 26     | 64     | 0.96        | 900    | Section and panel heading             |
-| `text-h3`                | 20     | 32     | 1.1         | 900    | Third-level heading, lead, card title |
-| `text-post-title`        | 28     | 52     | 1.06        | 900    | Post title, in its own case           |
-| `text-post-h2`           | 24     | 36     | 1.02        | 900    | Post section; `.reading-layout`       |
-| `text-post-h3`           | 19     | 24     | 1.15        | 900    | Post subsection, last level           |
-| `text-post-card`         | 19     | 32     | 1.15        | 900    | Post card title (an `h2`)             |
-| `text-post-card-feature` | 26     | 64     | 1.02        | 900    | Featured post card title              |
-| `text-contents`          | 16     | 16     | 1.35        | 400    | A post's contents list                |
-| `text-standfirst`        | 20     | 36     | 1.3         | 400    | Slab aside, `.standfirst`             |
-| `text-post-teaser`       | 21     | 26     | 1.35        | 400    | Post and plain-tier aside             |
-| `text-body`              | 18     | 19     | 1.62        | 400    | Reading text                          |
-| `text-code`              | 0.92em | 0.92em | 1.5         | 400    | Code, `--font-mono`; tracks body      |
-| `text-button`            | 14     | 16     | 1.2         | 900    | Buttons; same as `text-label`         |
-| `text-label`             | 14     | 16     | 1.2         | 900    | Labels; 16 to 40rem, 14 at 48rem      |
-| `text-hero-sticker`      | 18     | 30     | 1.02        | 900    | Homepage hero stickers                |
-| `text-menu`              | 34     | 56     | 1           | 900    | Mobile menu links                     |
-| `text-slide`             | 17     | 34     | 1.35        | 400    | Slide text: full screen, print        |
-| `text-slide-title`       | 26     | 65     | 1           | 900    | Talk slide title, its own case        |
-| `text-slide-number`      | 72     | 160    | 1           | 900    | Talk part number                      |
-| `text-copyright`         | 20     | 20     | 1.2         | 900    | Footer copyright                      |
-| `text-footer-name`       | 32     | 40     | 1           | 900    | Footer name                           |
-| `text-section-number`    | 21     | 28     | 1           | 900    | Category glyph tile                   |
+| Token                    | Min px | Max px | Line height | Weight | Use                              |
+| ------------------------ | ------ | ------ | ----------- | ------ | -------------------------------- |
+| `text-hero-h1`           | 28     | 70     | 0.94        | 900    | Homepage name only               |
+| `text-h1`                | 33     | 80     | 0.94        | 900    | Page title                       |
+| `text-reading-h1`        | 33     | 70     | 0.94        | 900    | Privacy, Accessibility title     |
+| `text-h2`                | 26     | 64     | 0.96        | 900    | Section and panel heading        |
+| `text-h3`                | 20     | 32     | 1.1         | 900    | Third-level heading, card title  |
+| `text-lead`              | 20     | 32     | 1.55        | 400    | Lead; card paragraph at h3 size  |
+| `text-post-title`        | 28     | 52     | 1.06        | 900    | Post title, in its own case      |
+| `text-post-h2`           | 24     | 36     | 1.02        | 900    | Post section; `.reading-layout`  |
+| `text-post-h3`           | 19     | 24     | 1.15        | 900    | Post subsection, last level      |
+| `text-post-card`         | 19     | 32     | 1.15        | 900    | Post card title (an `h2`)        |
+| `text-post-card-feature` | 26     | 64     | 1.02        | 900    | Featured post card title         |
+| `text-contents`          | 16     | 16     | 1.35        | 400    | A post's contents list           |
+| `text-standfirst`        | 20     | 36     | 1.55        | 400    | Slab aside, `.standfirst`        |
+| `text-post-teaser`       | 21     | 26     | 1.55        | 400    | Post and plain-tier aside        |
+| `text-body`              | 18     | 19     | 1.62        | 400    | Reading text                     |
+| `text-code`              | 16     | none   | 1.5         | 400    | Code, `--font-mono`; tracks body |
+| `text-button`            | 14     | 16     | 1.2         | 900    | Buttons; same as `text-label`    |
+| `text-label`             | 14     | 16     | 1.2         | 900    | Labels; 16 to 40rem, 14 at 48rem |
+| `text-hero-sticker`      | 18     | 30     | 1.02        | 900    | Homepage hero stickers           |
+| `text-menu`              | 34     | 56     | 1           | 900    | Mobile menu links                |
+| `text-slide`             | 17     | 34     | 1.35        | 400    | Slide text: full screen, print   |
+| `text-slide-title`       | 26     | 65     | 1           | 900    | Talk slide title, its own case   |
+| `text-slide-number`      | 72     | 160    | 1           | 900    | Talk part number                 |
+| `text-copyright`         | 20     | 20     | 1.2         | 900    | Footer copyright                 |
+| `text-footer-name`       | 32     | 40     | 1           | 900    | Footer name                      |
+| `text-section-number`    | 21     | 28     | 1           | 900    | Category glyph tile              |
 
 - Lexend, self-hosted from `@fontsource-variable/lexend` (OFL-1.1), family
   `'Lexend Variable'`. Only the latin subset is declared, in the `@font-face`
   at the top of `global.css`: importing the package CSS ships all three
   subsets. Never the Google Fonts CDN.
 - `--font-mono` is the platform monospace stack, nothing downloaded.
+- A paragraph of more than one sentence (SC 1.4.8): line height 1.5 or more
+  (`--leading-paragraph` at display size) and at most 80 characters a line
+  (`max-w-measure` on body text outside `.prose`).
+- Two paragraphs in a row: `--spacing-paragraph` under the first when its own
+  leading and margin leave less than 2.5em between line tops (a lead, a
+  standfirst, two `text-body` lines `mt-2` apart).
+  `tests/visual-presentation.spec.ts` measures every route.
 - 400 for reading text; 900 for headings, card titles, labels, buttons, names
   and quoted text. Never 300 or `font-bold`.
 - Every size is a token. No breakpoint steps.
@@ -379,6 +389,7 @@ with a comment beside it.
 | `--spacing-grid`                          | card to card                                   | 28     | 40            |
 | `--spacing-inline`; step 6                | inline controls; chips                         | 16; 24 | 24; 24        |
 | `--spacing-card-tight` / `--spacing-card` | card padding                                   | 24     | 40 from 640px |
+| `--spacing-paragraph`                     | under a paragraph followed by another          | 1.1em  | 1.1em         |
 
 ### Gutter and column
 

@@ -636,6 +636,11 @@ evidence.
   while the band does not.
 - **Let an About cat keep playing while it has keyboard focus:** the hold is a
   rule, with its reason, in [STYLEGUIDE.md](docs/STYLEGUIDE.md#motion).
+- **Disable the contact submit button until the form is valid:** the button
+  is always operable. `aria-disabled` is set only while a send is in flight
+  (`src/scripts/contact-sending.ts`), to stop a double send. Every other press
+  submits, and the server validates (`novalidate` in `ContactForm.astro`), so
+  the error summary says what is missing instead of a silent button.
 - **Reset the contact form on a timer after Stop:** invites a double send; Esc
   and `navigateerror` cover it, Firefox's Stop button does not.
 - **Drop uppercase from headings, labels, nav and buttons:** the advice
