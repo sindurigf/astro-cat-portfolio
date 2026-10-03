@@ -188,7 +188,7 @@ Enim ad minim veniam quis nostrud exercitation ullamco laboris nisi aliquip. Ex 
 
 Nulla pariatur excepteur sint occaecat cupidatat non, _Proident sunt culpa qui officia deserunt: Mollit anim id est Laborum_, curabitur pretium tincidunt [lacus nulla gravida](https://example.org/25/) orci A 10 odio 2026, 09:40 nullam 10:10, varius turpis 3 (et commodo pharetra).
 
-[View the slides](/talks/sample-talk/), or [download them](/talks/sample-talk.pdf) (PDF, 92 KB, 18 pages).
+[View the slides](/talks/sample-talk/), or [download them](/talks/sample-talk.pdf) (PDF, 91 KB, 18 pages).
 
 ---
 

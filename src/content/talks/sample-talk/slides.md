@@ -15,7 +15,7 @@ Alex Example
 part: Introduction
 ```
 
-# About the Speaker
+# About the speaker
 
 Alex Example, Job Title at Example Organisation
 
@@ -26,7 +26,7 @@ Alex Example, Job Title at Example Organisation
 
 ---
 
-# What This Deck Shows
+# What this deck shows
 
 - **Cover**: the first slide, with the talk's title.
 - **Parts**: a section slide opens each part.
@@ -41,16 +41,16 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit.
 
 ```yaml
 layout: section
-part: 'Part 1: Lorem Ipsum'
+part: 'Part 1: Lorem ipsum'
 ```
 
-# Lorem Ipsum
+# Lorem ipsum
 
 Lorem ipsum dolor sit amet, consectetur adipiscing elit.
 
 ---
 
-# Dolor Sit Amet
+# Dolor sit amet
 
 - Lorem ipsum dolor sit amet
 - Consectetur adipiscing elit
@@ -58,7 +58,7 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit.
 
 ---
 
-# Consectetur Adipiscing
+# Consectetur adipiscing
 
 - Ut enim ad minim veniam
 - Quis nostrud exercitation
@@ -69,7 +69,7 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit.
 
 ---
 
-# Sed Do Eiusmod
+# Sed do eiusmod
 
 - Duis aute irure dolor
 - In reprehenderit in voluptate
@@ -77,13 +77,13 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit.
 
 ---
 
-# Tempor Incididunt
+# Tempor incididunt
 
 - Excepteur sint occaecat cupidatat
 - Non proident, sunt in culpa
 - Qui officia deserunt mollit anim
 
-**A Good Model: [Example Project](https://example.net/project/)**
+**A good model: [Example Project](https://example.net/project/)**
 
 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
 
@@ -91,16 +91,16 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor i
 
 ```yaml
 layout: section
-part: 'Part 2: Dolor Sit'
+part: 'Part 2: Dolor sit'
 ```
 
-# Dolor Sit
+# Dolor sit
 
 Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.
 
 ---
 
-# Six Items in Two Columns
+# Six items in two columns
 
 - **Lorem**: ipsum dolor sit amet, consectetur adipiscing elit.
 - **Ipsum**: sed do eiusmod tempor incididunt ut labore.
@@ -115,13 +115,13 @@ Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.
 label: 'Item 1'
 ```
 
-# Labore et Dolore
+# Labore et dolore
 
 - Lorem ipsum dolor sit amet
 - Consectetur adipiscing elit
 - Sed do eiusmod tempor incididunt
 
-**A Good Model: [Example Foundation](https://example.org/)**
+**A good model: [Example Foundation](https://example.org/)**
 
 Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
 
@@ -131,7 +131,7 @@ Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliqu
 label: 'Item 2'
 ```
 
-# Magna Aliqua
+# Magna aliqua
 
 - Duis aute irure dolor in reprehenderit
 - Excepteur sint occaecat cupidatat non proident
@@ -147,7 +147,7 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor.
 label: 'Item 3'
 ```
 
-# Two Labelled Groups
+# Two labelled groups
 
 **Lorem ipsum**
 
@@ -165,16 +165,16 @@ label: 'Item 3'
 
 ```yaml
 layout: section
-part: 'Part 3: Amet Elit'
+part: 'Part 3: Amet elit'
 ```
 
-# Amet Elit
+# Amet elit
 
 Duis aute irure dolor in reprehenderit in voluptate velit esse.
 
 ---
 
-# A Table
+# A table
 
 | Lorem ipsum    | Dolor sit amet    |
 | -------------- | ----------------- |
@@ -203,7 +203,7 @@ part: Closing
 
 ---
 
-# A Link List
+# A link list
 
 - Lorem ipsum dolor sit amet, consectetur adipiscing elit.
 
@@ -211,7 +211,7 @@ part: Closing
 
 ---
 
-# Thank You
+# Thank you
 
 Questions
 
