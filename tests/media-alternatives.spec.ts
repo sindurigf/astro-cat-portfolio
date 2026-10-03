@@ -2,15 +2,9 @@ import { expect, test } from './test';
 import { builtHtml } from './routes';
 import { NODE } from './tags';
 
-/**
- * No video or audio is published, so SC 1.2.x and 1.4.7 do not apply. This
- * guard keeps that true until the first one ships with its alternatives:
- * - `<video id>`: a captions track (1.2.2), and links marked
- *   `data-media-for="<id>"` with `data-media-alternative` of `transcript`
- *   (1.2.8), `sign-language` (1.2.6) and `extended-description` (1.2.7).
- * - `<audio id>`: a `transcript` link (1.2.1); whether background sound stays
- *   20 dB under speech (1.4.7) needs a person, so it is marked `data-background-audio-checked`.
- * - `<iframe>`: an embedded player hides its media from this check, so none.
+/*
+ * No video or audio is published, so SC 1.2.x and 1.4.7 do not apply. This fails
+ * the first one without its alternatives; markup: ACCESSIBILITY.md section 9, Media.
  */
 
 const VIDEO_ALTERNATIVES = [

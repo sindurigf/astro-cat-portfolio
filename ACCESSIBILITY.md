@@ -369,6 +369,13 @@ Rules this repository follows. Values and reasons:
   `aria-expanded` or `aria-pressed` keeps a constant name; the hero's transport
   control is named for its action, "Pause the hero animation" or "Play the
   hero animation".
+- **Media.** No embedded players: an `<iframe>` hides its media from
+  `tests/media-alternatives.spec.ts`. A `<video id>` has a captions track
+  (1.2.2) and links with `data-media-for="<id>"` and `data-media-alternative`
+  of `transcript` (1.2.8), `sign-language` (1.2.6) and `extended-description`
+  (1.2.7). An `<audio id>` has a `transcript` link (1.2.1) and
+  `data-background-audio-checked` once a person has heard background sound
+  stay 20 dB under speech (1.4.7).
 - **Forms.** Visible labels with "(required)" in words, `autocomplete` on
   personal fields, `aria-invalid` and `aria-describedby` on errors, a focused
   error summary. `aria-disabled`, never `disabled`, on buttons.
