@@ -91,7 +91,38 @@ const RATE_LIMIT_ATTEMPTS = 12;
 const RATE_LIMIT_BINDING = 'CONTACT_RATE_LIMIT';
 const RATE_LIMIT_SUBMISSIONS = 5;
 const RATE_LIMIT_PERIOD_SECONDS = 60;
-const RATE_LIMIT_WORDS = 'about five';
+
+const NUMBER_WORDS: Readonly<Record<number, string>> = {
+  1: 'one',
+  2: 'two',
+  3: 'three',
+  4: 'four',
+  5: 'five',
+  6: 'six',
+  7: 'seven',
+  8: 'eight',
+  9: 'nine',
+  10: 'ten',
+};
+/* Cloudflare's simple rate limit takes a period of 10 or 60 seconds; the copy is written for 60. */
+const PERIOD_WORDS: Readonly<Record<number, string>> = { 60: 'a minute' };
+
+const wordFor = (
+  words: Readonly<Record<number, string>>,
+  value: number,
+): string => {
+  const word = words[value];
+  if (word === undefined) {
+    throw new Error(`no copy word for ${value}; add it and update the copy.`);
+  }
+  return word;
+};
+
+const RATE_LIMIT_WORDS = `about ${wordFor(NUMBER_WORDS, RATE_LIMIT_SUBMISSIONS)}`;
+const RATE_LIMIT_PERIOD_WORDS = wordFor(
+  PERIOD_WORDS,
+  RATE_LIMIT_PERIOD_SECONDS,
+);
 
 const collapseSpace = (html: string): string => html.replace(/\s+/g, ' ');
 
@@ -458,8 +489,8 @@ test.describe('the contact endpoint', () => {
     expectTitledAndHeaded(html!, 'Too many messages');
     expect(
       collapseSpace(html!),
-      `the not-sent message does not state the limit as "${RATE_LIMIT_WORDS} messages a minute".`,
-    ).toContain(`${RATE_LIMIT_WORDS} messages a minute`);
+      `the not-sent message does not state the limit as "${RATE_LIMIT_WORDS} messages ${RATE_LIMIT_PERIOD_WORDS}".`,
+    ).toContain(`${RATE_LIMIT_WORDS} messages ${RATE_LIMIT_PERIOD_WORDS}`);
   });
 
   /* D1 failure induced by moving the table aside for one request. */
@@ -627,7 +658,7 @@ test.describe('the contact endpoint', () => {
     ).toBeDefined();
     expect(
       binding?.simple,
-      `/privacy promises ${RATE_LIMIT_SUBMISSIONS} submissions a minute per address.`,
+      `/privacy promises ${RATE_LIMIT_SUBMISSIONS} submissions ${RATE_LIMIT_PERIOD_WORDS} per address.`,
     ).toEqual({
       limit: RATE_LIMIT_SUBMISSIONS,
       period: RATE_LIMIT_PERIOD_SECONDS,
@@ -640,8 +671,8 @@ test.describe('the contact endpoint', () => {
     expect(privacy.status()).toBe(200);
     expect(
       collapseSpace(await privacy.text()),
-      `/privacy does not state the limit as "${RATE_LIMIT_WORDS} a minute".`,
-    ).toContain(`${RATE_LIMIT_WORDS} a minute`);
+      `/privacy does not state the limit as "${RATE_LIMIT_WORDS} ${RATE_LIMIT_PERIOD_WORDS}".`,
+    ).toContain(`${RATE_LIMIT_WORDS} ${RATE_LIMIT_PERIOD_WORDS}`);
   });
 
   /* The body is counted as it streams, so these really post past the cap. */
