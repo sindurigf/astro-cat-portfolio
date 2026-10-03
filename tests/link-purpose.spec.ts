@@ -123,6 +123,16 @@ const COMPLETED_NAMES: readonly {
     name: (visible) => (/posts$/i.test(visible) ? visible : `${visible} posts`),
   },
   {
+    route: '/',
+    links: 'li.card > h3 > a.card-link',
+    name: (visible) => `${visible} posts`,
+  },
+  {
+    route: '/brand',
+    links: '[data-component="tag-chips"] a',
+    name: (visible) => `${visible} tag`,
+  },
+  {
     route: '/about',
     links: 'nav[aria-label="On this page"] a',
     name: (visible) => `${visible} section`,
@@ -152,10 +162,10 @@ test.describe('hidden text completes short link names', () => {
       );
       for (const link of await found.all()) {
         const visible = await visibleText(link);
-        expect(
-          name(visible).startsWith(visible),
+        await expect(
+          link,
           `the name of "${visible}" on ${route} does not open with its visible text.`,
-        ).toBe(true);
+        ).toHaveAccessibleName(new RegExp(`^${RegExp.escape(visible)}`));
         await expect(link).toHaveAccessibleName(name(visible));
       }
     });

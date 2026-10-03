@@ -199,7 +199,7 @@ merge.
 | `tests/sticky-header.spec.ts`      | 2.4.11                                     | Header static under 30rem; no focused control under it                                                                      |
 | `tests/states.spec.ts`             | 1.4.1, 1.4.11                              | Hover drawn; current page is a shape; chip rings clear neighbours                                                           |
 | `tests/nav-current.spec.ts`        | 1.3.1, 4.1.2                               | `aria-current` in all three navs                                                                                            |
-| `tests/link-purpose.spec.ts`       | 2.4.9                                      | One link name, one destination, on every route                                                                              |
+| `tests/link-purpose.spec.ts`       | 2.4.9                                      | One link name, one destination, on every route; hidden text keeps the visible words first                                   |
 | `tests/abbreviations.spec.ts`      | 3.1.4                                      | First use of each listed abbreviation expanded in its sentence; no unlisted abbreviation on functional pages; no "min read" |
 | `tests/target-size.spec.ts`        | 2.5.8                                      | Every target on its own box at 305px and 1280px                                                                             |
 | `tests/reflow.spec.ts`             | 1.4.10, 1.4.12                             | No sideways scroll; content box; heading word fit                                                                           |
