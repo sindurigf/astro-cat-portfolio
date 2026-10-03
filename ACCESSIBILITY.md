@@ -17,7 +17,7 @@ The statement is voluntary for a personal site and follows the
 | Accessibility owner | Alex Example                                               |
 | Public reporting    | <https://github.example/alex-example/example-site/issues>  |
 | Private reporting   | <hello@example.com>                                        |
-| Target standard     | WCAG 2.2 Level AA, with AAA text contrast where achievable |
+| Target standard     | WCAG 2.2 Level AA, with AAA text contrast                  |
 | Conformance status  | **Target only. No conformance claim.**                     |
 | Last reviewed       | 2026-10-02                                                 |
 
@@ -44,7 +44,7 @@ status is still "Target only. No conformance claim."
 
 | Criterion                         | What we do                                                                                                                                                                                                                               |
 | --------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1.4.6 Contrast (Enhanced)         | Every text token at rest clears 7:1 on every ground it is used on, dark, light and gold. Exception: light-mode hover `cyan` is AA only. `pink` is never text; `pink-text` is. Ratios: [contrast table](docs/STYLEGUIDE.md#contrast).     |
+| 1.4.6 Contrast (Enhanced)         | Every text token at rest clears 7:1 on every ground it is used on, dark, light and gold. `pink` is never text; `pink-text` is. Ratios: [contrast table](docs/STYLEGUIDE.md#contrast).                                                    |
 | 2.3.3 Animation from Interactions | Under `prefers-reduced-motion: reduce` a pressed control does not move into its shadow, the hero field is drawn once and held, and the About cats sit still (`tests/press.spec.ts`, `tests/motion.spec.ts`, `tests/about-cats.spec.ts`). |
 
 Out of scope: SC 2.4.13 Focus Appearance and SC 2.5.5 Target Size (Enhanced,
