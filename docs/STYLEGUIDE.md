@@ -267,7 +267,8 @@ The switch and what it scopes: [ARCHITECTURE.md](../ARCHITECTURE.md#light-mode).
 ## Type scale
 
 Lexend Variable, weights 400 and 900 only. Sizes are `clamp()` tokens; the
-copyright and contents list are fixed, and `text-code` is a ratio.
+copyright and contents list are fixed, and `text-code` is `max(1rem, 0.92em)`,
+0.92 of the text around it with a 16px floor.
 
 | Token                    | Min px | Max px | Line height | Weight | Use                              |
 | ------------------------ | ------ | ------ | ----------- | ------ | -------------------------------- |
@@ -304,9 +305,11 @@ copyright and contents list are fixed, and `text-code` is a ratio.
   subsets. Never the Google Fonts CDN.
 - `--font-mono` is the platform monospace stack, nothing downloaded.
 - A paragraph of more than one sentence (SC 1.4.8): line height 1.5 or more
-  (`--leading-paragraph` at display size), at most 80 characters a line
-  (`max-w-measure` on body text outside `.prose`), and `--spacing-paragraph`
-  under a lead or standfirst followed by text.
+  (`--leading-paragraph` at display size) and at most 80 characters a line
+  (`max-w-measure` on body text outside `.prose`).
+- Two paragraphs in a row: `--spacing-paragraph` under the first when its own
+  leading and margin leave less than 2.5em between line tops (a lead, a
+  standfirst, two `text-body` lines `mt-2` apart).
   `tests/visual-presentation.spec.ts` measures every route.
 - 400 for reading text; 900 for headings, card titles, labels, buttons, names
   and quoted text. Never 300 or `font-bold`.
@@ -385,7 +388,7 @@ with a comment beside it.
 | `--spacing-grid`                          | card to card                                   | 28     | 40            |
 | `--spacing-inline`; step 6                | inline controls; chips                         | 16; 24 | 24; 24        |
 | `--spacing-card-tight` / `--spacing-card` | card padding                                   | 24     | 40 from 640px |
-| `--spacing-paragraph`                     | under a lead or standfirst followed by text    | 1.1em  | 1.1em         |
+| `--spacing-paragraph`                     | under a paragraph followed by another          | 1.1em  | 1.1em         |
 
 ### Gutter and column
 
