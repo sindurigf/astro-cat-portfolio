@@ -110,7 +110,7 @@ test.describe('robots.txt and the sitemap', NODE, () => {
     ).toBe(true);
   });
 
-  test('robots.txt keeps AI training crawlers out and search crawlers in', () => {
+  test('robots.txt keeps the blocked AI crawlers out and search crawlers in', () => {
     const robots = readFileSync(ROBOTS_FILE, 'utf8');
     const groups = robots.split(/\n\s*\n/).map((group) => group.trim());
 
@@ -120,10 +120,20 @@ test.describe('robots.txt and the sitemap', NODE, () => {
       'CCBot',
       'Google-Extended',
       'Applebot-Extended',
+      'Meta-ExternalAgent',
+      'Amazonbot',
+      'Bytespider',
     ]) {
       expect(groups, `robots.txt does not disallow ${agent}.`).toContain(
         `User-agent: ${agent}\nDisallow: /`,
       );
+    }
+
+    for (const agent of ['Meta-WebIndexer', 'Amzn-SearchBot', 'Amzn-User']) {
+      expect(
+        groups.some((group) => group.startsWith(`User-agent: ${agent}\n`)),
+        `robots.txt singles out the search agent ${agent}.`,
+      ).toBe(false);
     }
 
     expect(

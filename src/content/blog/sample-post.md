@@ -86,4 +86,4 @@ Pariatur excepteur sint occaecat cupidatat non proident sunt. Culpa qui officia 
 
 ---
 
-Photo credits: [Alex Example](https://example.org/p52/). Everyone who helped make this site is on the [credits page](/credits/).
+Photo credits: [Alex Example](https://example.org/). Everyone who helped make this site is on the [credits page](/credits/).

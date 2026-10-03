@@ -67,6 +67,14 @@ const PAUSES_WINDOW_MS = 8000;
  */
 const MAX_EMPTY_FRAMES_IN_A_ROW = 6;
 
+/*
+ * Scroll anchoring picks its anchor near the top of the viewport, so each band
+ * is tried at every offset from there down, while its drawing jumps a band.
+ */
+const ANCHOR_SWEEP_PX = 200;
+const ANCHOR_STEP_PX = 4;
+const DRAWING_JUMP_PX = 140;
+
 /** Lying down plays out before the name changes; the longest move is well under this. */
 const NAP_TIMEOUT_MS = 10_000;
 
@@ -1154,6 +1162,69 @@ test.describe('About cats', () => {
       await context.close();
     });
   }
+
+  test('a moving cat never scrolls the page under the reader (SC 2.4.11)', async ({
+    browser,
+  }) => {
+    /* Reduced motion keeps the cats still, so only the test's jump moves a drawing. */
+    const context = await browser.newContext({
+      reducedMotion: 'reduce',
+      viewport: DESKTOP_VIEWPORT,
+    });
+    const page = await context.newPage();
+    await gotoSettled(page, ROUTE);
+    await expect(page.locator('svg.cat-svg[viewBox]')).toHaveCount(CATS.length);
+
+    const dragged = await page.evaluate(
+      async ({ cats, sweep, step, jump }) => {
+        const frames = (count: number) =>
+          new Promise<void>((done) => {
+            let left = count;
+            const next = () =>
+              --left <= 0 ? done() : requestAnimationFrame(next);
+            requestAnimationFrame(next);
+          });
+        const found: string[] = [];
+        for (const id of cats) {
+          const spot = document.getElementById(`cat-spot-${id}`);
+          const svg = spot?.querySelector('svg.cat-svg');
+          const box = svg?.getAttribute('viewBox');
+          if (!spot || !svg || !box) throw new Error(`${id} has no drawing.`);
+          const [x, y, width, height] = box.split(' ').map(Number);
+          for (let offset = 0; offset <= sweep; offset += step) {
+            window.scrollTo(
+              0,
+              spot.getBoundingClientRect().top + window.scrollY - offset,
+            );
+            await frames(2);
+            const before = window.scrollY;
+            svg.setAttribute('viewBox', `${x} ${y + jump} ${width} ${height}`);
+            await frames(2);
+            const after = window.scrollY;
+            svg.setAttribute('viewBox', box);
+            await frames(2);
+            if (after !== before) {
+              found.push(
+                `${id} at ${offset}px from the top: scrollY ${before} to ${after}`,
+              );
+            }
+          }
+        }
+        return found;
+      },
+      {
+        cats: CATS,
+        sweep: ANCHOR_SWEEP_PX,
+        step: ANCHOR_STEP_PX,
+        jump: DRAWING_JUMP_PX,
+      },
+    );
+    expect(
+      dragged,
+      'the page scrolled with a cat, so a scroll anchor sits in a cat band',
+    ).toEqual([]);
+    await context.close();
+  });
 
   test('a drawn cat is at least 24 by 24px (SC 2.5.8)', async ({ page }) => {
     await gotoSettled(page, ROUTE);
