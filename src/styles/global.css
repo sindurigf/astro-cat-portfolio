@@ -462,8 +462,8 @@
   /* Heading to content, and content to the actions under it. */
   --spacing-head: clamp(32px, 4vw, 48px);
   /*
-   * Under a display-size paragraph followed by another, so the next starts 2.5
-   * of its lines below the last (SC 1.4.8); in em, so it scales with that text.
+   * Under a paragraph followed by another, so the next line box starts 2.5em
+   * below the last one's top (SC 1.4.8); in em, so it scales with that text.
    */
   --spacing-paragraph: 1.1em;
   --spacing-grid: clamp(28px, 3.4vw, 40px);

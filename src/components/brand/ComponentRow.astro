@@ -18,8 +18,10 @@ const hasStates = Astro.slots.has('states');
   <h3 id={id} class="text-h3 text-text">
     {name}
   </h3>
-  <p class="mt-2 max-w-measure text-body text-text">Use it for {use}</p>
-  <p class="mt-2 max-w-measure text-body text-subtle">{rule}</p>
+  <p class="mt-2 mb-paragraph max-w-measure text-body text-text">
+    Use it for {use}
+  </p>
+  <p class="max-w-measure text-body text-subtle">{rule}</p>
   <div class="mt-6" data-example>
     <slot />
   </div>
