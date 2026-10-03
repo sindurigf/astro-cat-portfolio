@@ -179,44 +179,44 @@ Playwright runs the production build in Chromium and Firefox, and WebKit in
 CI, on every pull request and every push to `main`. Any failure blocks the
 merge.
 
-| Check                               | WCAG                                       | Notes                                                                               |
-| ----------------------------------- | ------------------------------------------ | ----------------------------------------------------------------------------------- |
-| `tests/a11y.spec.ts`                | 2.2 A and AA                               | axe on every route, at 320px, menu open, open states; decides `incomplete` contrast |
-| `tests/light-mode.spec.ts`          | 2.2 A and AA, 1.4.11                       | axe in light mode on every route and at 320px; control edges at 3:1                 |
-| `tests/gold-surface.spec.ts`        | 1.4.3, 1.4.11                              | Text on gold and control edges on every gold section; the `/contact` ring at 305px  |
-| `tests/gold-link.spec.ts`           | 1.4.1, 1.4.3                               | Links on gold at rest and under the pointer                                         |
-| `tests/solid-block.spec.ts`         | 1.4.3, 1.4.11                              | Every state inside `.card-solid`                                                    |
-| `tests/contrast-table.spec.ts`      |                                            | STYLEGUIDE.md contrast table matches the tokens                                     |
-| `tests/focus.spec.ts`               | 2.4.7, 2.4.11, 1.4.11                      | Tab and Shift+Tab on every page at two widths, listings sampled; rings              |
-| `tests/sticky-header.spec.ts`       | 2.4.11                                     | Header static under 30rem; no focused control under it                              |
-| `tests/states.spec.ts`              | 1.4.1, 1.4.11                              | Hover drawn; current page is a shape; chip rings clear neighbours                   |
-| `tests/nav-current.spec.ts`         | 1.3.1, 4.1.2                               | `aria-current` in all three navs                                                    |
-| `tests/target-size.spec.ts`         | 2.5.8                                      | Every target on its own box at 305px and 1280px                                     |
-| `tests/reflow.spec.ts`              | 1.4.10, 1.4.12                             | No sideways scroll; content box; heading word fit                                   |
-| `tests/visual-presentation.spec.ts` | 1.4.8                                      | Line length, line height and paragraph spacing at three widths                      |
-| `tests/hero-fit.spec.ts`            | 1.4.10, 1.4.12, 2.2.2                      | Hero name unclipped and uncovered; pause control on the first screen                |
-| `tests/close-row.spec.ts`           | 1.4.10                                     | The close row's sticker never covers its text, in both modes                        |
-| `tests/mobile-menu.spec.ts`         | 2.1.1, 2.4.3                               | Menu opens, takes focus, returns it                                                 |
-| `tests/no-script.spec.ts`           | 2.1.1, 1.3.1                               | Navigation with scripting off                                                       |
-| `tests/forced-colors.spec.ts`       | 1.4.11, 2.4.7                              | Forced colours, listings sampled; every focus stop on /; not WebKit                 |
-| `tests/motion.spec.ts`              | 2.2.2, 2.3.3                               | Hero field pauses; nothing moves under reduced motion                               |
-| `tests/about-cats.spec.ts`          | 1.4.1, 1.4.3, 1.4.10, 1.4.11, 2.2.2, 2.5.8 | Cat buttons, card dialog, focus return, sleep controls, reduced motion              |
-| `tests/headings.spec.ts`            | 1.3.1, 2.4.6                               | One `h1`, no skipped level, no heading under 19px                                   |
-| `tests/titles.spec.ts`              | 2.4.2                                      | Titles distinct and descriptive                                                     |
-| `tests/site-language.spec.ts`       | 3.1.1                                      | One declared language everywhere                                                    |
-| `tests/alt-text.spec.ts`            | 1.1.1                                      | Every image named or decorative on purpose                                          |
-| `tests/failed-images.spec.ts`       | 1.1.1                                      | A failed photo shows its alt text                                                   |
-| `tests/contact.spec.ts`             | 3.3.1, 3.3.2, 3.3.3                        | 422 keeps input, `aria-invalid`, summary links, honeypot, rate limit                |
-| `tests/contact-sending.spec.ts`     | 4.1.3                                      | Status text, no busy ancestor, no second submit                                     |
-| `tests/slideshow.spec.ts`           | 2.1.1, 4.1.3                               | Buttons, keys, live region, focus, full screen, no JS                               |
-| `tests/word-spacing.spec.ts`        | 1.3.1                                      | No word glued to an inline element                                                  |
-| `tests/wave-alerts.spec.ts`         |                                            | WAVE's possible-heading, redundant-link and noscript alerts                         |
-| `tests/console.spec.ts`             |                                            | No console error, CSP violation or failed request on any route                      |
-| `tests/not-found.spec.ts`           |                                            | An unknown path returns 404, not 200                                                |
-| `tests/accessibility-page.spec.ts`  |                                            | `/accessibility` linked from every page and matches section 1                       |
-| `scripts/check-pdf.mjs`             | PDF/UA-1                                   | veraPDF on every PDF under `public/` (`npm run check:pdf`)                          |
-| `tests/talk-pdf.spec.ts`            |                                            | The talk PDF was printed from the current slides                                    |
-| `npm run typecheck`                 |                                            | Templates, scripts and the Vue islands type-check                                   |
+| Check                               | WCAG                                               | Notes                                                                                                       |
+| ----------------------------------- | -------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `tests/a11y.spec.ts`                | 2.2 A and AA                                       | axe on every route, at 320px, menu open, open states; decides `incomplete` contrast                         |
+| `tests/light-mode.spec.ts`          | 2.2 A and AA, 1.4.11                               | axe in light mode on every route and at 320px; control edges at 3:1                                         |
+| `tests/gold-surface.spec.ts`        | 1.4.3, 1.4.11                                      | Text on gold and control edges on every gold section; the `/contact` ring at 305px                          |
+| `tests/gold-link.spec.ts`           | 1.4.1, 1.4.3                                       | Links on gold at rest and under the pointer                                                                 |
+| `tests/solid-block.spec.ts`         | 1.4.3, 1.4.11                                      | Every state inside `.card-solid`                                                                            |
+| `tests/contrast-table.spec.ts`      |                                                    | STYLEGUIDE.md contrast table matches the tokens                                                             |
+| `tests/focus.spec.ts`               | 2.4.7, 2.4.11, 1.4.11                              | Tab and Shift+Tab on every page at two widths, listings sampled; rings                                      |
+| `tests/sticky-header.spec.ts`       | 2.4.11                                             | Header static under 30rem; no focused control under it                                                      |
+| `tests/states.spec.ts`              | 1.4.1, 1.4.11                                      | Hover drawn; current page is a shape; chip rings clear neighbours                                           |
+| `tests/nav-current.spec.ts`         | 1.3.1, 4.1.2                                       | `aria-current` in all three navs                                                                            |
+| `tests/target-size.spec.ts`         | 2.5.8                                              | Every target on its own box at 305px and 1280px                                                             |
+| `tests/reflow.spec.ts`              | 1.4.10, 1.4.12                                     | No sideways scroll; content box; heading word fit                                                           |
+| `tests/visual-presentation.spec.ts` | 1.4.8                                              | Line length, line height and paragraph spacing at three widths                                              |
+| `tests/hero-fit.spec.ts`            | 1.4.10, 1.4.12, 2.2.2                              | Hero name unclipped and uncovered; pause control on the first screen                                        |
+| `tests/close-row.spec.ts`           | 1.4.10                                             | The close row's sticker never covers its text, in both modes                                                |
+| `tests/mobile-menu.spec.ts`         | 2.1.1, 2.4.3                                       | Menu opens, takes focus, returns it                                                                         |
+| `tests/no-script.spec.ts`           | 2.1.1, 1.3.1                                       | Navigation with scripting off                                                                               |
+| `tests/forced-colors.spec.ts`       | 1.4.11, 2.4.7                                      | Forced colours, listings sampled; every focus stop on /; not WebKit                                         |
+| `tests/motion.spec.ts`              | 2.2.2, 2.3.3                                       | Hero field pauses; nothing moves under reduced motion                                                       |
+| `tests/about-cats.spec.ts`          | 1.4.1, 1.4.3, 1.4.10, 1.4.11, 2.2.2, 2.4.11, 2.5.8 | Cat buttons, card dialog, focus return, sleep controls, reduced motion; a moving cat never scrolls the page |
+| `tests/headings.spec.ts`            | 1.3.1, 2.4.6                                       | One `h1`, no skipped level, no heading under 19px                                                           |
+| `tests/titles.spec.ts`              | 2.4.2                                              | Titles distinct and descriptive                                                                             |
+| `tests/site-language.spec.ts`       | 3.1.1                                              | One declared language everywhere                                                                            |
+| `tests/alt-text.spec.ts`            | 1.1.1                                              | Every image named or decorative on purpose                                                                  |
+| `tests/failed-images.spec.ts`       | 1.1.1                                              | A failed photo shows its alt text                                                                           |
+| `tests/contact.spec.ts`             | 3.3.1, 3.3.2, 3.3.3                                | 422 keeps input, `aria-invalid`, summary links, honeypot, rate limit                                        |
+| `tests/contact-sending.spec.ts`     | 4.1.3                                              | Status text, no busy ancestor, no second submit                                                             |
+| `tests/slideshow.spec.ts`           | 2.1.1, 4.1.3                                       | Buttons, keys, live region, focus, full screen, no JS                                                       |
+| `tests/word-spacing.spec.ts`        | 1.3.1                                              | No word glued to an inline element                                                                          |
+| `tests/wave-alerts.spec.ts`         |                                                    | WAVE's possible-heading, redundant-link and noscript alerts                                                 |
+| `tests/console.spec.ts`             |                                                    | No console error, CSP violation or failed request on any route                                              |
+| `tests/not-found.spec.ts`           |                                                    | An unknown path returns 404, not 200                                                                        |
+| `tests/accessibility-page.spec.ts`  |                                                    | `/accessibility` linked from every page and matches section 1                                               |
+| `scripts/check-pdf.mjs`             | PDF/UA-1                                           | veraPDF on every PDF under `public/` (`npm run check:pdf`)                                                  |
+| `tests/talk-pdf.spec.ts`            |                                                    | The talk PDF was printed from the current slides                                                            |
+| `npm run typecheck`                 |                                                    | Templates, scripts and the Vue islands type-check                                                           |
 
 Limits:
 
