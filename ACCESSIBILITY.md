@@ -270,12 +270,14 @@ template ships with none of it run; record your own results. Not automated:
    back-forward cache reset. Asserted in Chromium only, on the 422 and 503
    pages: focus lands on the summary, axe finds no WCAG 2.2 AA violation,
    typed values stay, each hint and error stays tied to its field, and no
-   focused control is covered at 320px and 1280px. In markup only:
-   `novalidate`, the summary's `tabindex="-1"` (no `role="alert"`, to avoid a
-   double read), and the inset pink error ring. `/contact/send/` is outside
-   `tests/routes.ts`, so the route-level suites never render the error state.
-   Nobody has judged whether the messages help (SC 3.3.1,
-   3.3.3) or heard them with a screen reader. SC 3.3.7 and 3.3.8 do not apply.
+   focused control is covered at 320px and 1280px, Tab and Shift+Tab from the
+   summary. In markup only: `novalidate`, the summary's `tabindex="-1"` (no
+   `role="alert"`, to avoid a double read), and the inset pink error ring.
+   `/contact/send/` is outside `tests/routes.ts`, so the route-level suites
+   never render the error state and Firefox and WebKit never see it, though
+   Firefox leaves `/contact` controls partly under the sticky header (SC 2.4.12
+   above). Nobody has judged whether the messages help (SC 3.3.1, 3.3.3) or
+   heard them with a screen reader. SC 3.3.7 and 3.3.8 do not apply.
 2. **No screen reader testing.** No NVDA, JAWS, VoiceOver or Orca run.
    [MANUAL_TESTING.md](docs/MANUAL_TESTING.md) §6 is an Orca pass in Firefox,
    with §6.4 in Chrome for the uppercase question. An Orca pass narrows this

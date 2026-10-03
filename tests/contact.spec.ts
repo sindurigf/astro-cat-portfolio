@@ -26,7 +26,7 @@ import { wranglerConfig } from './source';
 import { timedScan } from './axe';
 import { obscuredReport, readObscured } from './obscured';
 import { settleFocusScroll, tabWalk } from './tab-walk';
-import { REFLOW_VIEWPORT } from './wcag';
+import { DESKTOP_VIEWPORT, REFLOW_VIEWPORT } from './wcag';
 
 /**
  * `/contact/send/`, the only on-demand route. Runs under
@@ -880,23 +880,34 @@ test.describe('the contact error pages in a browser', () => {
     ).toEqual([]);
   };
 
-  /* SC 2.4.12: no stop on the page, summary first, is even partly covered. */
+  /* SC 2.4.12: Tab from the summary, Shift+Tab from the last footer link; no stop is even partly covered. */
+  const WALKS = [
+    { key: 'Tab', start: (page: Page) => page.locator('.error-summary') },
+    {
+      key: 'Shift+Tab',
+      start: (page: Page) => page.locator('footer a').last(),
+    },
+  ] as const;
+
   const expectFocusUncovered = async (page: Page, label: string) => {
-    for (const viewport of [REFLOW_VIEWPORT, { width: 1280, height: 800 }]) {
-      await page.setViewportSize(viewport);
-      await page.locator('.error-summary').focus();
-      const stops = await tabWalk(page, () => readObscured(page), {
-        max: MAX_PAGE_STOPS,
-        settle: () => settleFocusScroll(page),
-      });
-      expect(
-        stops.length,
-        `the ${label} page walk found no stops`,
-      ).toBeGreaterThan(1);
-      expect(
-        obscuredReport(stops),
-        `the ${label} page at ${viewport.width}px has focused controls partly hidden`,
-      ).toEqual([]);
+    for (const viewport of [REFLOW_VIEWPORT, DESKTOP_VIEWPORT]) {
+      for (const { key, start } of WALKS) {
+        await page.setViewportSize(viewport);
+        await start(page).focus();
+        const stops = await tabWalk(page, () => readObscured(page), {
+          key,
+          max: MAX_PAGE_STOPS,
+          settle: () => settleFocusScroll(page),
+        });
+        expect(
+          stops.length,
+          `the ${label} page ${key} walk found no stops`,
+        ).toBeGreaterThan(1);
+        expect(
+          obscuredReport(stops),
+          `the ${label} page at ${viewport.width}px, ${key}, has focused controls partly hidden`,
+        ).toEqual([]);
+      }
     }
   };
 
