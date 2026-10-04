@@ -144,7 +144,7 @@ const closeRow = await closeRowLinks({
 
 <BaseLayout
   title="About"
-  description="Nico Robin, archaeologist: where she grew up, what she believes about knowledge, the crew she sails with and the cats who keep her company."
+  description="Nico Rubbing, archaeologist: growing up on Ohara, twenty years on the run, and the Straw Hat Pirates, the crew she sails with now."
   profile={{ portrait: profilePortrait }}
 >
   <PageHero
@@ -153,8 +153,8 @@ const closeRow = await closeRowLinks({
     imageAlt="A calico cat asleep, curled against a grey cushion."
   >
     <p class="standfirst">
-      I am an archaeologist and historian, a careful reader of old stones, and a
-      very serious fan of quiet afternoons with a book.
+      I am an archaeologist, the last scholar of Ohara, and a reader of the
+      Poneglyphs, the stones most of the world cannot read.
     </p>
 
     <nav aria-label="On this page" class="mt-8">
@@ -204,12 +204,12 @@ const closeRow = await closeRowLinks({
       <div class="cat-spot" id="cat-spot-pepper"></div>
       <div class="card">
         <p class="mb-paragraph text-lead font-black text-text text-pretty">
-          History is written by everyone who leaves a mark. My work is to read
-          those marks before they wear away.
+          The scholars of Ohara read stones that most of the world cannot. I am
+          the one who is left, so I keep reading them.
         </p>
         <p class="mt-4 max-w-measure text-body text-text text-pretty">
-          The motto reminds me to start with the evidence, and only then tell
-          the story.
+          It reminds me to start with what is carved, and only then tell the
+          story.
         </p>
         <p class="mt-8">
           <a href="/credits/#name" class="chip">
@@ -235,7 +235,7 @@ const closeRow = await closeRowLinks({
       </div>
       <blockquote class="card surface-gold">
         <p class="max-w-3xl text-h2 font-black text-pretty">
-          Knowledge is safest when many people hold it.
+          History belongs to everyone who wants to learn it.
         </p>
       </blockquote>
     </div>
@@ -244,7 +244,7 @@ const closeRow = await closeRowLinks({
   <Section
     id={SECTIONS[2].id}
     title={SECTIONS[2].title}
-    lead="I travelled alone for a long time. Early in 2026 a small crew asked me aboard, and they have been my people since."
+    lead="I was alone for twenty years. After Arabasta I asked the Straw Hat Pirates to let me join, and their captain said yes."
   >
     <div class="cat-perch">
       <div class="cat-spot" id="cat-spot-mochi"></div>
@@ -321,26 +321,28 @@ const closeRow = await closeRowLinks({
           <div class="pb-6">
             <dt class="label text-gold">Reading</dt>
             <dd class="mt-4">
-              <span class="card-title block">Old inscriptions</span>
+              <span class="card-title block">Poneglyphs</span>
               <span class="mt-2 block text-body text-text">
-                And anything with footnotes
+                And any book on any island we reach
               </span>
             </dd>
           </div>
           <div class="py-6">
-            <dt class="label text-gold">Drink</dt>
-            <dd class="card-title mt-4 text-pretty">Black coffee, no sugar</dd>
+            <dt class="label text-gold">Food</dt>
+            <dd class="card-title mt-4 text-pretty">
+              Sandwiches, and cake that is not too sweet
+            </dd>
           </div>
           <div class="py-6">
-            <dt class="label text-gold">Place</dt>
-            <dd class="card-title mt-4">A quiet deck at night</dd>
+            <dt class="label text-gold">Season</dt>
+            <dd class="card-title mt-4">Autumn on a spring island</dd>
           </div>
           <div class="pt-6">
-            <dt class="label text-gold">Habit</dt>
+            <dt class="label text-gold">To cook</dt>
             <dd class="mt-4">
-              <span class="card-title block">Taking notes</span>
+              <span class="card-title block">Paella</span>
               <span class="mt-2 block text-body text-text">
-                Two copies, always
+                And soba, since Wano
               </span>
             </dd>
           </div>
@@ -366,9 +368,8 @@ const closeRow = await closeRowLinks({
 
   <Section id={SECTIONS[4].id} title={SECTIONS[4].title}>
     <p slot="lead" class="lead">
-      My story so far, in two halves. The photo is by{' '}
-      <a href={photographerHref(PHOTOGRAPHER)}>{PHOTOGRAPHER}</a>, who caught a
-      rare lazy afternoon.
+      My story so far, in two halves: the island that raised me, and the crew
+      that came back for me.
     </p>
 
     <div class="card">
@@ -376,19 +377,22 @@ const closeRow = await closeRowLinks({
         <div class="min-w-0 sm:flex-1">
           <span class="label block text-gold">Before</span>
           <p class="mt-3 text-body text-text text-pretty">
-            I grew up on an island of scholars, among books and the people who
-            loved them. When that place was lost, I learned to keep what I knew
-            in my head and my plans to myself. For years I moved from job to
-            job, trusting no one for long and reading every stone I could reach.
+            I grew up on Ohara, reading in the library inside the Tree of
+            Knowledge. Its director, Professor Clover, let me read there, and I
+            passed the archaeology exam at eight. My mother, Olvia, was away
+            searching for Poneglyphs for most of my childhood. That same year a
+            Buster Call destroyed the island, and I was the only one who
+            survived.
           </p>
         </div>
         <div class="min-w-0 sm:flex-1">
           <span class="label block text-gold">After</span>
           <p class="mt-3 text-body text-text text-pretty">
-            I gave my first talk on how records survive in 2025, and this site
-            grew from it. Then, in 2026, a crew asked me to stay, and meant it.
-            Now I share what I find instead of hiding it, and I keep two copies
-            of every note.
+            A giant named Saul protected me and helped me get away. For about
+            twenty years I ran, with a bounty on my head from the age of eight.
+            I worked for Baroque Works as Miss All Sunday, then joined the Straw
+            Hats after Arabasta. At Enies Lobby they came for me, and I told
+            them I wanted to live.
           </p>
         </div>
       </div>
@@ -402,7 +406,7 @@ const closeRow = await closeRowLinks({
             sizes={SIZES.single}
             aspect="video"
           >
-            <span class="block font-black text-text">A lazy afternoon</span>
+            <span class="block font-black text-text">A quiet afternoon</span>
             Photo: <a href={photographerHref(PHOTOGRAPHER)}>{PHOTOGRAPHER}</a>
           </PhotoTile>
         </div>

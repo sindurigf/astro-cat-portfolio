@@ -33,30 +33,30 @@ export const CATEGORIES = {
     accent: ACCENTS.ink,
     glyph: '✦',
     teaser:
-      'Sun, salt and long days on deck: the simple routine that keeps my skin calm at sea.',
+      'Sun, salt and long days on deck: the plain routine I keep between islands.',
   },
   travel: {
     accent: ACCENTS.ink,
     glyph: '✈',
     teaser:
-      'Islands, harbours and the ruins worth the climb, with what to read before you go.',
+      'Islands, their ruins and their records, from Arabasta on, and what to read before you land.',
   },
   'personal-thoughts': {
     accent: ACCENTS.pink,
     glyph: '❋',
     teaser:
-      'Quiet thoughts on reading, memory and the small kindnesses that make a crew feel like home.',
+      'Quiet thoughts on reading, memory, and the crew that gave me a reason to live.',
   },
   'professional-journey': {
     accent: ACCENTS.gold,
     glyph: '◆',
     teaser:
-      'How an archaeologist works: learning old scripts, keeping careful notes and sharing what I find.',
+      'How I work: reading Poneglyphs, keeping records, and studying a century the World Government forbids.',
   },
   'open-source': {
     accent: ACCENTS.gold,
     glyph: '</>',
     teaser:
-      'Why knowledge should be open: shared archives, public records and the many hands that keep history alive.',
+      'Why history should be open: the scholars of Ohara, forbidden records, and the many hands that keep knowledge alive.',
   },
 } as const satisfies Record<BlogCategory, Category>;

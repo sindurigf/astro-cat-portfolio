@@ -21,98 +21,85 @@ const cvKb = (path: string): number =>
 
 const EXPERIENCE = [
   {
-    dates: 'Jan 2026–Present',
-    where: 'The Straw Hat crew',
+    dates: 'Arabasta–Present',
+    where: 'The Straw Hat Pirates',
     title: "Ship's archaeologist",
     current: true,
     points: [
-      'Read and translate the inscriptions we find, and record each one with a drawing, a place and a date.',
-      "Keep the ship's library and charts in order, so anyone aboard can find what they need.",
-      'Brief the crew on the history and customs of each island before we land.',
+      'Read the Poneglyphs the crew finds, and record what each one says.',
+      'Study the records and ruins on every island where we land.',
+      'Joined after Arabasta and stayed. At Enies Lobby, the crew came to take me back.',
     ],
   },
   {
-    dates: 'Jun 2023–Nov 2025',
-    where: 'Independent research',
-    title: 'Freelance historian',
+    dates: 'Before Arabasta',
+    where: 'Baroque Works',
+    title: 'Vice president, Miss All Sunday',
     current: false,
     points: [
-      'Studied ruins and archives on islands across four seas, often alone and often in a hurry.',
-      'Built a personal index of scripts and symbols, and the places they appear.',
-      'Wrote field reports for museums and private collections.',
-      'Repaired and catalogued damaged books and maps.',
-      'Taught reading and writing to children on the islands where I stayed.',
-      'Gave my first public talk in 2025.',
+      'Worked under the codename Miss All Sunday.',
+      "Partner of the agency's leader, Crocodile, known inside it as Mr. 0.",
     ],
   },
   {
-    dates: 'Jan 2021–May 2023',
-    where: 'Example Expedition Society',
-    title: 'Field researcher & expedition planner',
+    dates: 'Age 8–28',
+    where: 'On the run',
+    title: 'Independent archaeologist',
     current: false,
     points: [
-      'Planned routes, supplies and permits for small research expeditions.',
-      'Surveyed sites and photographed carvings before weather and time could wear them away.',
-      'Wrote plain summaries, so the people who funded each trip could see what it found and what was still unknown.',
+      'Wanted by the World Government from the age of eight, with a first bounty of 79,000,000 berries.',
+      'Kept reading Poneglyphs wherever I could find them, for about twenty years.',
     ],
   },
 ] as const;
 
 const SKILLS = [
-  'Ancient scripts and translation',
-  'Field survey',
-  'Archives and cataloguing',
-  'Book and map repair',
-  'Research writing',
-  'Teaching and public talks',
+  'Reading Poneglyphs',
+  'Archaeology',
+  'The Void Century',
+  'Hana Hana no Mi',
+  'Fish-Man Karate',
+  'Cooking paella',
 ] as const;
 
 /* `honour` renders in `lang="la"` (SC 3.1.2). */
 const EDUCATION = [
   {
-    award: 'Advanced Archaeology',
-    detail: 'Ohara Library, 2020.',
-    honour: 'Summa cum laude',
+    award: 'Archaeology exam',
+    detail: 'Passed at the age of eight, on Ohara.',
   },
   {
-    award: 'Reading Ancient Scripts',
+    award: 'Library of Ohara',
     detail:
-      'Ohara Library, 2019. Inscriptions, ciphers, dead languages, translation, dating and record keeping.',
-    honour: 'Summa cum laude',
-  },
-  { award: 'Underwater Survey', detail: 'Short course, 2019.' },
-  {
-    award: 'History, Master of Arts',
-    detail: 'Example University, 2006–2009.',
+      'Read in the library inside the Tree of Knowledge, with the permission of its director, Professor Clover.',
   },
   {
-    award: 'Archaeology, Bachelor of Arts',
-    detail: 'Example College, 2001–2005.',
+    award: 'Poneglyphs',
+    detail: 'Learned to read their ancient script as a child.',
   },
 ] as const;
 
 const LANGUAGES = [
-  { language: 'English', level: 'Fluent' },
-  { language: 'Latin', level: 'Reading knowledge' },
+  { language: 'The Poneglyph script', level: 'Reading' },
 ] as const;
 
 const OPEN_SOURCE = [
   {
-    award: 'Open Archives Award',
-    detail: 'Public records category, 2025.',
-  },
-  {
-    award: 'Example Association',
-    detail: 'Board member for shared research archives since 2026.',
-  },
-  {
-    award: 'Example Community',
-    detail: 'Volunteer translator for an open library of old texts.',
-  },
-  {
-    award: 'Event organising',
+    award: 'The scholars of Ohara',
     detail:
-      'Started a reading circle in 2023, then a yearly meeting for island historians.',
+      'Studied the Poneglyphs together, in the library in the Tree of Knowledge.',
+  },
+  {
+    award: 'The Straw Hat Pirates',
+    detail: 'Archaeologist of the crew since Arabasta.',
+  },
+  {
+    award: 'The Revolutionary Army',
+    detail: 'Spent the two years apart from the crew with them, at Baltigo.',
+  },
+  {
+    award: 'Fish-Man Karate',
+    detail: 'Learned from Koala during the same two years.',
   },
 ] as const;
 const closeRow = await closeRowLinks({
@@ -123,13 +110,13 @@ const closeRow = await closeRowLinks({
 
 <BaseLayout
   title="Career"
-  description={`${PERSON_NAME}: work history, education and skills, from field research to translating old scripts and keeping records that last.`}
+  description={`${PERSON_NAME}: work history, education and skills, from the Library of Ohara to the Straw Hat Pirates.`}
 >
   <PageHero title="Career">
     <p class="standfirst">
-      <span class="block">Reading old scripts.</span>{' '}
-      <span class="block">Keeping careful records.</span>{' '}
-      <span class="block">Sharing what I find.</span>
+      <span class="block">Reading the Poneglyphs.</span>{' '}
+      <span class="block">Studying the Void Century.</span>{' '}
+      <span class="block">Sailing with the Straw Hats.</span>
     </p>
 
     {/* Size, not only colour, carries the hierarchy: forced colours flattens colour. */}
@@ -157,14 +144,13 @@ const closeRow = await closeRowLinks({
 
   <Section title="Summary" panel>
     <p slot="lead" class="lead max-w-3xl">
-      I am an archaeologist who reads what older people carved and wrote, and
-      explains it to the people living now. I work in the field, in archives and
-      on deck: surveying sites, translating inscriptions and keeping records
-      that someone else can pick up after me.
+      I am the archaeologist of the Straw Hat Pirates. I read the Poneglyphs,
+      stones carved in a script that few people alive can read, and I study the
+      Void Century, the hundred years the World Government forbids anyone to
+      research.
     </p>
     <p class="max-w-measure text-body text-text text-pretty">
-      I like slow, careful work and plain explanations. If a find cannot be
-      checked, I say so.
+      I started young: I passed the archaeology exam at eight, on Ohara.
     </p>
   </Section>
 
@@ -255,8 +241,8 @@ const closeRow = await closeRowLinks({
   <Section title="Open source" surface="gold" class="gold-column">
     <div class="grid gap-grid lg:grid-cols-12 lg:items-start">
       <p class="lead mt-0 lg:col-span-5">
-        I share my notes, translations and indexes, so other researchers do not
-        start from nothing. Knowledge kept by one person is easy to lose.
+        The scholars of Ohara studied history together, and lost everything for
+        it. I still believe history belongs to everyone.
       </p>
       <dl class="grid gap-grid sm:grid-cols-2 lg:col-span-7">
         {OPEN_SOURCE.map((item) => (

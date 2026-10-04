@@ -36,26 +36,24 @@ export const THANKS = [
   {
     name: 'Riley Example',
     href: 'https://example.org/riley/',
-    reason:
-      'For the idea of the cats on the About page, and for never once asking me to tidy the library.',
+    reason: 'For the idea of the cats on the About page.',
   },
   {
-    name: 'Kim Example',
-    href: 'https://example.org/kim/',
+    name: 'Clou D. Clover',
+    href: 'https://onepiece.fandom.com/wiki/Clou_D._Clover',
     reason:
-      'For teaching me to read a tide table, and for waiting while I read every plaque in every harbour.',
+      'Director of the Library of Ohara, who let a child read in the Tree of Knowledge.',
   },
   {
-    name: 'Jordan Example',
-    href: 'https://example.org/jordan/',
+    name: 'Nico Olvia',
+    href: 'https://onepiece.fandom.com/wiki/Nico_Olvia',
     reason:
-      'For checking my translations, and for telling me kindly when I was wrong.',
+      'My mother, an archaeologist who went looking for the Poneglyphs before I could.',
   },
   {
-    name: 'Casey Example',
-    href: 'https://example.org/casey/',
-    reason:
-      'For photographs of the carvings I could not reach, and for the climb up to them.',
+    name: 'Jaguar D. Saul',
+    href: 'https://onepiece.fandom.com/wiki/Jaguar_D._Saul',
+    reason: 'For protecting me on Ohara, when nobody else would.',
   },
 ] as const;
 

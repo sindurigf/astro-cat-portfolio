@@ -86,8 +86,8 @@ const config: SiteConfig = {
     locale: 'en-GB',
     firstPublished: 2026,
     tagline: [
-      'Archaeologist and historian',
-      'Reading what the past left behind',
+      'Archaeologist of the Straw Hats',
+      'Reading the stones history forgot',
     ],
     repository: 'https://github.example/nico-rubbing/example-site',
     motto: { text: 'Lege Saxa', lang: 'la' },
