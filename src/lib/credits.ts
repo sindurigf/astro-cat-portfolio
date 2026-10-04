@@ -1,9 +1,13 @@
+/** The /credits card that links LICENSE-photos, which names the sample photos' photographer. */
+export const PHOTO_CREDITS_PATH = '/credits/#photos';
+
 /**
  * Keyed by the name as written after "Photo: "; an unlisted name stays plain
- * text. Link each to the photographer's own site where there is one.
+ * text. Link each to the photographer's own site where there is one. No import:
+ * src/plugins/post-figure.mjs loads this file in Node.
  */
 export const PHOTOGRAPHERS = {
-  'Jamie Example': 'https://example.org/',
+  'Licence and credit': PHOTO_CREDITS_PATH,
 } as const satisfies Readonly<Record<string, string>>;
 
 export type Photographer = keyof typeof PHOTOGRAPHERS;

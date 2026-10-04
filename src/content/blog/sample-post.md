@@ -16,7 +16,7 @@ seoDescription: 'How an archaeologist reads an inscription: looking first, recor
 
 People often ask how I read a stone that nobody has read in centuries. The honest answer is: slowly.
 
-![A tabby cat lying on its back on a parquet floor, a wand toy by its paw.](../../assets/blog/sample-post/tabby-floor.jpg 'Photo: Jamie Example')
+![A tabby cat lying on its back on a parquet floor, a wand toy by its paw.](../../assets/blog/sample-post/tabby-floor.jpg 'Photo: Licence and credit')
 
 ## Look before you touch
 
@@ -67,4 +67,4 @@ Everything else is patience.
 
 ---
 
-Photo credits: [Jamie Example](https://example.org/). Everyone who helped make this site is on the [credits page](/credits/).
+Who took the photos, and their licence, is on the [credits page](/credits/#photos), with everyone who helped make this site.
