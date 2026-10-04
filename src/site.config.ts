@@ -4,7 +4,7 @@
  * import, so a bad value fails the build and the tests, not a visitor.
  */
 
-import { BUILD_ENV, CONTACT_FORMS, type ContactForm } from './lib/build-env';
+import { BUILD_ENV, CONTACT_FORMS, type ContactForm } from './lib/build-env.ts';
 
 /** Labels with an icon in src/assets/social-icons.svg. */
 export const PROFILE_LABELS = [
