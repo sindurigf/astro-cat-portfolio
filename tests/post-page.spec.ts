@@ -201,10 +201,10 @@ test.describe('the cover as the post hero', () => {
   }
 });
 
-/* A photographer is credited under the photo, linked when the site knows them. */
+/* A photographer is credited in the date line, linked when the site knows them. */
 test.describe('the cover credit', () => {
   for (const post of POSTS.filter((p) => p.hasCover && p.coverCredit)) {
-    test(`${post.route} credits ${post.coverCredit} under its cover`, async ({
+    test(`${post.route} credits ${post.coverCredit} in its date line`, async ({
       page,
     }) => {
       await gotoSettled(page, post.route);
