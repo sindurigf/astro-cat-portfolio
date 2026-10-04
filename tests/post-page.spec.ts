@@ -3,6 +3,7 @@ import {
   CONTENTS_POST_ROUTE,
   NO_CONTENTS_POST,
   POST_ROUTES,
+  POSTS,
   postsWhere,
 } from './routes';
 import { gotoSettled } from './settle';
@@ -134,4 +135,67 @@ test.describe('the contents list', () => {
     );
     await expect(page.locator('nav.post-contents a').first()).toBeVisible();
   });
+});
+
+/* A frame within 1% of the photo's own ratio shows it uncropped; the border rounds. */
+const COVER_RATIO_TOLERANCE = 0.01;
+
+/* The cover is the opening's photo and the page's largest paint, so it loads first. */
+test.describe('the cover as the post hero', () => {
+  for (const post of POSTS) {
+    test(`${post.route} ${post.hasCover ? 'opens on its cover' : 'opens on no photo'}`, async ({
+      page,
+    }) => {
+      await gotoSettled(page, post.route);
+      const slabImages = page.locator('main article .post-slab header img');
+      if (!post.hasCover) {
+        await expect(
+          slabImages,
+          'a post without a cover shows a photo in its opening',
+        ).toHaveCount(0);
+        return;
+      }
+      const first = page.locator('main article img').first();
+      await expect(
+        slabImages,
+        'the opening holds more than the cover',
+      ).toHaveCount(1);
+      await expect(
+        first,
+        'the cover is not the first image in the article',
+      ).toHaveAttribute('alt', post.coverAlt ?? '');
+      await expect(
+        first.locator('xpath=ancestor::*[contains(@class, "post-slab")]'),
+      ).toHaveCount(1);
+      await expect(first, 'the cover waits for lazy loading').toHaveAttribute(
+        'loading',
+        'eager',
+      );
+      await expect(first, 'the cover is not fetched first').toHaveAttribute(
+        'fetchpriority',
+        'high',
+      );
+      const reserved = await first.evaluate(
+        (img) =>
+          Number(img.getAttribute('width')) > 0 &&
+          Number(img.getAttribute('height')) > 0,
+      );
+      expect(reserved, 'the cover reserves no space before it loads').toBe(
+        true,
+      );
+
+      const ratios = await first.evaluate(async (img: HTMLImageElement) => {
+        await img.decode();
+        const frame = img.closest('.aspect-frame')!.getBoundingClientRect();
+        return {
+          box: frame.width / frame.height,
+          source: img.naturalWidth / img.naturalHeight,
+        };
+      });
+      expect(
+        Math.abs(ratios.box / ratios.source - 1),
+        'the cover is cropped: its frame differs from the photo',
+      ).toBeLessThanOrEqual(COVER_RATIO_TOLERANCE);
+    });
+  }
 });

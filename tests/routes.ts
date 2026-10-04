@@ -76,6 +76,7 @@ interface PostSummary {
   category: string;
   tags: string[];
   hasCover: boolean;
+  coverAlt: string | undefined;
   featured: boolean;
 }
 
@@ -101,6 +102,7 @@ export const POSTS: readonly PostSummary[] = postFileNames()
       category,
       tags: frontmatterTags(frontmatter),
       hasCover: frontmatterField(frontmatter, 'cover') !== undefined,
+      coverAlt: frontmatterField(frontmatter, 'coverAlt'),
       featured: frontmatterField(frontmatter, 'featured') === 'true',
     };
   })

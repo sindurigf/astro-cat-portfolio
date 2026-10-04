@@ -175,7 +175,7 @@ validates frontmatter against `src/content.config.ts` and fails on a mismatch.
 `sample-talk.md` is a complete example.
 
 - The newest published post needs `cover` and `coverAlt`: `/blog` features
-  it. `src/content.config.ts` fails the build on a cover of another ratio.
+  it. A cover can have any ratio; the post hero and the feature card show it uncropped.
 - Tests read the new post's routes, category and tags from its frontmatter.
 - A spec that needs a post or talk with some property (a cover, a tag, a
   paired talk PDF) skips, naming the property, while none has it.

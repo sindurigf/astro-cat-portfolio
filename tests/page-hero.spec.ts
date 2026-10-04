@@ -1,5 +1,5 @@
 import { expect, test, type Page } from './test';
-import { builtHtml, POST_ROUTES, ROUTES, TALK_ROUTES } from './routes';
+import { builtHtml, POST_ROUTES, POSTS, ROUTES, TALK_ROUTES } from './routes';
 import { gotoSettled } from './settle';
 import { NODE } from './tags';
 
@@ -35,11 +35,11 @@ const PLAIN_ROUTES = HERO_ROUTES.filter(
 /** Every route whose opening is a gold slab, thin or full. */
 const GOLD_ROUTES = [...FULL_ROUTES, ...THIN_ROUTES];
 
-/** A gold slab with a photo has no roundel; a post's slab has one. */
+/** A gold slab with a photo has no roundel: /about, and a post with a cover. */
 const PHOTO_ROUTES: readonly string[] = ['/about'];
 const GOLD_ROUNDEL_ROUTES = [
   ...GOLD_ROUTES.filter((route) => !PHOTO_ROUTES.includes(route)),
-  ...POST_ROUTES,
+  ...POSTS.filter((post) => !post.hasCover).map((post) => post.route),
 ];
 
 test('the slab census matches the build', NODE, () => {
