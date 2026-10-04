@@ -8,7 +8,7 @@
   }
 
   /*
-   * Always a link, with a 24px target (SC 2.5.8). The current filter carries
+   * Always a link, with a 44px target (SC 2.5.5). The current filter carries
    * `aria-current` and a marker. A non-link fact is a `.badge`.
    */
   .chip {

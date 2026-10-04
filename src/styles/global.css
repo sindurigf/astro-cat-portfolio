@@ -425,7 +425,7 @@
   --starfield-tiles: 307px 263px, 409px 353px, 509px 443px;
 
   /*
-   * Footer profile tiles (48px, 56px from `lg`, each past SC 2.5.8's 24px),
+   * Footer profile tiles (48px, 56px from `lg`, each past SC 2.5.5's 44px),
    * icon, edge, and tuft (266px from `md`). Size tokens, so no utilities are
    * generated.
    */
@@ -474,8 +474,8 @@
    */
   --spacing-cat-band: 140px;
 
-  /* SC 2.5.8 floor. Keep equal to MIN_TARGET in tests/target-size.spec.ts. */
-  --spacing-target: 24px;
+  /* SC 2.5.5 target size. Keep equal to MIN_TARGET in tests/wcag.ts. */
+  --spacing-target: 44px;
 
   /*
    * Menu bars in a 24x16 box; they end at 17px, so they are absolutely

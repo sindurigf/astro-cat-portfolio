@@ -95,3 +95,34 @@ for (const [label, viewport] of Object.entries(VIEWPORTS) as [
     }
   });
 }
+
+for (const [label, viewport] of Object.entries(VIEWPORTS) as [
+  Width,
+  (typeof VIEWPORTS)[Width],
+][]) {
+  test.describe(`the About cats, ${label} (SC 2.4.12)`, () => {
+    test.use({ viewport });
+
+    test('each cat button and its sleep control is wholly uncovered when focused', async ({
+      page,
+    }) => {
+      await gotoSettled(page, '/about');
+      const controls = page.locator('.cat-button, .cat-nap');
+      const count = await controls.count();
+      expect(count, '/about shows no cat to focus').toBeGreaterThan(0);
+
+      const stops = [];
+      for (let i = 0; i < count; i += 1) {
+        /* A key press first, so the focus is keyboard focus. */
+        await page.keyboard.press('Shift');
+        await controls.nth(i).focus();
+        await settleFocusScroll(page);
+        stops.push(await readObscured(page));
+      }
+      expect(
+        obscuredReport(stops),
+        `a focused About cat control is partly covered at ${label} width`,
+      ).toEqual([]);
+    });
+  });
+}

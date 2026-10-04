@@ -2,6 +2,7 @@ import { expect, test, type Page } from './test';
 import { gotoSettled } from './settle';
 import {
   MIN_TARGET,
+  SUBPIXEL_TOLERANCE,
   REFLOW_VIEWPORT,
   DESKTOP_VIEWPORT,
   PHONE_VIEWPORT,
@@ -432,11 +433,11 @@ test.describe('About cats', () => {
       expect(
         size?.height,
         'Close target height (SC 2.5.8)',
-      ).toBeGreaterThanOrEqual(MIN_TARGET);
+      ).toBeGreaterThanOrEqual(MIN_TARGET - SUBPIXEL_TOLERANCE);
       expect(
         size?.width,
         'Close target width (SC 2.5.8)',
-      ).toBeGreaterThanOrEqual(MIN_TARGET);
+      ).toBeGreaterThanOrEqual(MIN_TARGET - SUBPIXEL_TOLERANCE);
       await expect(
         dialog.getByRole('heading', { level: 2, name: NAMES[id] }),
         'the name sticker is not the dialog heading',
@@ -836,11 +837,11 @@ test.describe('About cats', () => {
         expect(
           box?.width,
           `${NAMES[id]}'s sleep control width`,
-        ).toBeGreaterThanOrEqual(MIN_TARGET);
+        ).toBeGreaterThanOrEqual(MIN_TARGET - SUBPIXEL_TOLERANCE);
         expect(
           box?.height,
           `${NAMES[id]}'s sleep control height`,
-        ).toBeGreaterThanOrEqual(MIN_TARGET);
+        ).toBeGreaterThanOrEqual(MIN_TARGET - SUBPIXEL_TOLERANCE);
       }
       const ratios = await page.evaluate(`(() => {
         ${PAGE_HELPERS}
@@ -1233,12 +1234,12 @@ test.describe('About cats', () => {
         .locator(`#cat-spot-${id} .cat-hit-area`)
         .boundingBox();
       expect(box?.width, `${NAMES[id]}'s target width`).toBeGreaterThanOrEqual(
-        MIN_TARGET,
+        MIN_TARGET - SUBPIXEL_TOLERANCE,
       );
       expect(
         box?.height,
         `${NAMES[id]}'s target height`,
-      ).toBeGreaterThanOrEqual(MIN_TARGET);
+      ).toBeGreaterThanOrEqual(MIN_TARGET - SUBPIXEL_TOLERANCE);
     }
   });
 

@@ -107,7 +107,7 @@
    */
   .theme-switch {
     @apply lift-control grid size-12 shrink-0 cursor-pointer place-items-center
-      bg-gold text-gold-text shadow-hard-pink-4 max-xs:size-10;
+      bg-gold text-gold-text shadow-hard-pink-4 max-xs:size-target;
   }
 
   :root:not([data-theme]) .theme-switch {

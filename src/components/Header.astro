@@ -65,7 +65,7 @@ const LINK_REST = 'border-transparent text-text hover:text-cyan';
     </a>
 
     {/*
-      `py-2` is for SC 2.5.8: 16.8px line box to 40.8px with border-4.
+      `hit-target` widens the 40.8px link to a 44px pointer area (SC 2.5.5).
       `border-transparent` reserves the current-page box so the row never shifts.
     */}
     <nav class="hidden md:block lg:justify-self-center" aria-label="Primary">
@@ -73,7 +73,7 @@ const LINK_REST = 'border-transparent text-text hover:text-cyan';
       <NavList
         links={HEADER_LINKS}
         class="flex items-center gap-1 lg:gap-3"
-        linkClass="label block border-4 px-2 py-2 lg:px-4"
+        linkClass="hit-target label block border-4 px-2 py-2 lg:px-4"
         activeClass={LINK_ACTIVE}
         restClass={LINK_REST}
       />
@@ -102,7 +102,7 @@ const LINK_REST = 'border-transparent text-text hover:text-cyan';
       <div class="mobile-menu md:hidden" data-mobile-menu>
         <button
           type="button"
-          class="group flex size-12 items-center justify-center border-4 border-border bg-surface max-xs:size-10"
+          class="group flex size-12 items-center justify-center border-4 border-border bg-surface max-xs:size-target"
           aria-expanded="false"
           aria-controls="mobile-menu-panel"
           aria-label="Menu"
@@ -167,7 +167,7 @@ const LINK_REST = 'border-transparent text-text hover:text-cyan';
   <NavList
     links={[...NAV_LINKS, CTA]}
     class="mx-auto flex max-w-page flex-wrap items-center gap-6"
-    linkClass="label block border-4 border-border px-4 py-2"
+    linkClass="hit-target label block border-4 border-border px-4 py-2"
     activeClass="bg-text text-background"
     restClass="text-text hover:text-cyan"
   />

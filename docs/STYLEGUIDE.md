@@ -460,7 +460,7 @@ file per area.
 | `.lead`                                 | Paragraph under a section heading, `text-h3` 400, 24px under it                                      |
 | `.standfirst`                           | Line beside PageHero's title, `text-standfirst` 400                                                  |
 | `.bullet-list`                          | Bulleted list, gold markers                                                                          |
-| `.chip`                                 | Tags, jump links, filters, pager. Always a link. `border-4`, 24px target; a chip list is `gap-6`     |
+| `.chip`                                 | Tags, jump links, filters, pager. Always a link. `border-4`, 44px target; a chip list is `gap-6`     |
 | `.badge`                                | A non-link fact or state. Flat `bg-text`, `background` label, no border or shadow                    |
 | `.nav-cta`                              | Nav call to action: gold, `border-4`, pink 4px shadow; current swaps to `--inset-shadow-cta-current` |
 | `.label`                                | `text-label` 900 uppercase, 0.1em                                                                    |
@@ -953,8 +953,8 @@ Enforced by `tests/nav-current.spec.ts`, `tests/mobile-menu.spec.ts`,
 
 - Links come from `NAV_LINKS` and `CTA` in `src/lib/nav.ts`; the desktop
   header uses `HEADER_LINKS` (no Home; the logo links to `/`).
-- Every nav link is at least 24px tall on its own (`py-2` + `border-4` =
-  40.8px). Never rely on the SC 2.5.8 spacing exception.
+- Every nav link is 40.8px tall (`py-2` + `border-4`) inside a 44px pointer
+  area (`.hit-target`, SC 2.5.5); neighbouring areas never overlap.
 
 ### By height
 
