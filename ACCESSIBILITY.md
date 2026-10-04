@@ -18,13 +18,13 @@ The statement is voluntary for a personal site and follows the
 | Public reporting    | <https://github.example/alex-example/example-site/issues>  |
 | Private reporting   | <hello@example.com>                                        |
 | Target standard     | WCAG 2.2 Level AA, with AAA text contrast                  |
-| Conformance status  | **Target only. No conformance claim.**                     |
+| Conformance status  | **Target only. No claim that the site meets it.**          |
 | Last reviewed       | 2026-10-02                                                 |
 
 `src/lib/accessibility-facts.ts` reads the Target standard, Conformance status,
 Last reviewed and both reporting rows into `/accessibility` at build time and
 throws if a row is missing. `tests/accessibility-page.spec.ts` asserts the
-status is still "Target only. No conformance claim."
+status is still "Target only. No claim that the site meets it."
 
 ## 2. Commitment
 
@@ -53,6 +53,7 @@ status is still "Target only. No conformance claim."
 | 2.4.13 Focus Appearance              | One solid ring, `--focus-width` wide. At every page focus stop it covers at least a 2px perimeter of the control and reaches 3:1 against the ground it paints over.                                                                                                                                                                                                                                                                                                                    |
 | 2.5.5 Target Size (Enhanced)         | Every pointer target outside a sentence has a 44 by 44px area of its own, never shared: controls are drawn at `--spacing-target` (44px); header and breadcrumb links get a pointer area wider than their drawn box (`.hit-target`); footer links are 44px rows. `tests/target-size.spec.ts` hit-tests every target on every page and in every open dialog at 305px and 1280px.                                                                                                         |
 | 2.5.6 Concurrent Input Mechanisms    | No input is turned off because another one was detected.                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| 3.1.3 Unusual Words                  | On functional pages (statement, privacy, credits, brand), jargon is written in plain words, or defined in the sentence of its first use and marked with `<dfn>` (G112, H54). `/404` links its Star Wars lines to their explanation on `/credits` (G55). Posts, About, Career and the contact page's introduction are the site owner's copy and are not checked.                                                                                                                        |
 | 3.1.4 Abbreviations                  | On functional pages (statement, privacy, credits, brand), the Career link on `/` and reading time, each abbreviation is spelled out or defined in the sentence where it first appears. Posts, About and Career are the owner's copy and are not checked.                                                                                                                                                                                                                               |
 | 3.2.5 Change on Request              | No new windows, automatic refresh or navigation by script.                                                                                                                                                                                                                                                                                                                                                                                                                             |
 
@@ -188,50 +189,51 @@ Playwright runs the production build in Chromium and Firefox, and WebKit in
 CI, on every pull request and every push to `main`. Any failure blocks the
 merge.
 
-| Check                               | WCAG                                               | Notes                                                                                                                       |
-| ----------------------------------- | -------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| `tests/a11y.spec.ts`                | 2.2 A and AA                                       | axe on every route, at 320px, menu open, open states; decides `incomplete` contrast                                         |
-| `tests/light-mode.spec.ts`          | 2.2 A and AA, 1.4.11                               | axe in light mode on every route and at 320px; control edges at 3:1                                                         |
-| `tests/gold-surface.spec.ts`        | 1.4.3, 1.4.11                                      | Text on gold and control edges on every gold section; the `/contact` ring at 305px                                          |
-| `tests/gold-link.spec.ts`           | 1.4.1, 1.4.3                                       | Links on gold at rest and under the pointer                                                                                 |
-| `tests/solid-block.spec.ts`         | 1.4.3, 1.4.11                                      | Every state inside `.card-solid`                                                                                            |
-| `tests/contrast-table.spec.ts`      |                                                    | STYLEGUIDE.md contrast table matches the tokens                                                                             |
-| `tests/focus.spec.ts`               | 2.4.7, 2.4.11, 2.4.12, 2.4.13, 1.4.11              | Tab and Shift+Tab on every page at two widths, listings sampled; no stop under the header; ring contrast and area           |
-| `tests/focus-obscured.spec.ts`      | 2.4.12                                             | Every stop in the open cat card, photo viewer and menu, and each About cat control, wholly uncovered                        |
-| `tests/sticky-header.spec.ts`       | 2.4.11                                             | Header static under 30rem; no focused control under it                                                                      |
-| `tests/states.spec.ts`              | 1.4.1, 1.4.11                                      | Hover drawn; current page is a shape; chip rings clear neighbours                                                           |
-| `tests/nav-current.spec.ts`         | 1.3.1, 4.1.2                                       | `aria-current` in all three navs                                                                                            |
-| `tests/link-purpose.spec.ts`        | 2.4.9                                              | One link name, one destination, on every route; hidden text keeps the visible words first                                   |
-| `tests/abbreviations.spec.ts`       | 3.1.4                                              | First use of each listed abbreviation expanded in its sentence; no unlisted abbreviation on functional pages; no "min read" |
-| `tests/target-size.spec.ts`         | 2.5.5                                              | Every target's 44px square, on pages and in open dialogs, at 305px and 1280px                                               |
-| `tests/reflow.spec.ts`              | 1.4.10, 1.4.12                                     | No sideways scroll; content box; heading word fit                                                                           |
-| `tests/visual-presentation.spec.ts` | 1.4.8                                              | Line length, line height and paragraph spacing at three widths                                                              |
-| `tests/hero-fit.spec.ts`            | 1.4.10, 1.4.12, 2.2.2                              | Hero name unclipped and uncovered; pause control on the first screen                                                        |
-| `tests/close-row.spec.ts`           | 1.4.10                                             | The close row's sticker never covers its text, in both modes                                                                |
-| `tests/mobile-menu.spec.ts`         | 2.1.1, 2.4.3                                       | Menu opens, takes focus, returns it                                                                                         |
-| `tests/no-script.spec.ts`           | 2.1.1, 1.3.1                                       | Navigation with scripting off                                                                                               |
-| `tests/forced-colors.spec.ts`       | 1.4.11, 2.4.7                                      | Forced colours, listings sampled; every focus stop on /; not WebKit                                                         |
-| `tests/motion.spec.ts`              | 2.2.2, 2.3.3                                       | Hero field pauses; nothing moves under reduced motion                                                                       |
-| `tests/about-cats.spec.ts`          | 1.4.1, 1.4.3, 1.4.10, 1.4.11, 2.2.2, 2.4.11, 2.5.5 | Cat buttons, card dialog, focus return, sleep controls, reduced motion; a moving cat never scrolls the page                 |
-| `tests/headings.spec.ts`            | 1.3.1, 2.4.6                                       | One `h1`, no skipped level, no heading under 19px                                                                           |
-| `tests/titles.spec.ts`              | 2.4.2                                              | Titles distinct and descriptive                                                                                             |
-| `tests/site-language.spec.ts`       | 3.1.1                                              | One declared language everywhere                                                                                            |
-| `tests/alt-text.spec.ts`            | 1.1.1                                              | Every image named or decorative on purpose                                                                                  |
-| `tests/failed-images.spec.ts`       | 1.1.1                                              | A failed photo shows its alt text                                                                                           |
-| `tests/contact.spec.ts`             | 3.3.1, 3.3.2, 3.3.3, 3.3.5, 3.3.6, 2.4.12          | 422 and 503 in a browser: input kept, hints beside errors, no focus covered; honeypot, rate limit                           |
-| `tests/contact-sending.spec.ts`     | 4.1.3                                              | Status text, no busy ancestor, no second submit                                                                             |
-| `tests/slideshow.spec.ts`           | 2.1.1, 4.1.3                                       | Buttons, keys, live region, focus, full screen, no JS                                                                       |
-| `tests/word-spacing.spec.ts`        | 1.3.1                                              | No word glued to an inline element                                                                                          |
-| `tests/wave-alerts.spec.ts`         |                                                    | WAVE's possible-heading, redundant-link and noscript alerts                                                                 |
-| `tests/console.spec.ts`             |                                                    | No console error, CSP violation or failed request on any route                                                              |
-| `tests/not-found.spec.ts`           |                                                    | An unknown path returns 404, not 200                                                                                        |
-| `tests/accessibility-page.spec.ts`  |                                                    | `/accessibility` linked from every page and matches section 1                                                               |
-| `scripts/check-pdf.mjs`             | PDF/UA-1                                           | veraPDF on every PDF under `public/` (`npm run check:pdf`)                                                                  |
-| `tests/talk-pdf.spec.ts`            |                                                    | The talk PDF was printed from the current slides                                                                            |
-| `tests/media-alternatives.spec.ts`  | 1.2.6, 1.2.7, 1.2.8, 1.4.7                         | Fails any video or audio without its captions, transcript, sign language and description links; no embeds                   |
-| `tests/change-on-request.spec.ts`   | 3.2.5, 2.2.4                                       | No new windows, automatic refresh, script navigation, alerts or assertive live regions                                      |
-| `tests/input-mechanisms.spec.ts`    | 2.5.6                                              | No pointer, hover or touch detection that could turn an input off                                                           |
-| `npm run typecheck`                 |                                                    | Templates, scripts and the Vue islands type-check                                                                           |
+| Check                               | WCAG                                               | Notes                                                                                                                                      |
+| ----------------------------------- | -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| `tests/a11y.spec.ts`                | 2.2 A and AA                                       | axe on every route, at 320px, menu open, open states; decides `incomplete` contrast                                                        |
+| `tests/light-mode.spec.ts`          | 2.2 A and AA, 1.4.11                               | axe in light mode on every route and at 320px; control edges at 3:1                                                                        |
+| `tests/gold-surface.spec.ts`        | 1.4.3, 1.4.11                                      | Text on gold and control edges on every gold section; the `/contact` ring at 305px                                                         |
+| `tests/gold-link.spec.ts`           | 1.4.1, 1.4.3                                       | Links on gold at rest and under the pointer                                                                                                |
+| `tests/solid-block.spec.ts`         | 1.4.3, 1.4.11                                      | Every state inside `.card-solid`                                                                                                           |
+| `tests/contrast-table.spec.ts`      |                                                    | STYLEGUIDE.md contrast table matches the tokens                                                                                            |
+| `tests/focus.spec.ts`               | 2.4.7, 2.4.11, 2.4.12, 2.4.13, 1.4.11              | Tab and Shift+Tab on every page at two widths, listings sampled; no stop under the header; ring contrast and area                          |
+| `tests/focus-obscured.spec.ts`      | 2.4.12                                             | Every stop in the open cat card, photo viewer and menu, and each About cat control, wholly uncovered                                       |
+| `tests/sticky-header.spec.ts`       | 2.4.11                                             | Header static under 30rem; no focused control under it                                                                                     |
+| `tests/states.spec.ts`              | 1.4.1, 1.4.11                                      | Hover drawn; current page is a shape; chip rings clear neighbours                                                                          |
+| `tests/nav-current.spec.ts`         | 1.3.1, 4.1.2                                       | `aria-current` in all three navs                                                                                                           |
+| `tests/link-purpose.spec.ts`        | 2.4.9                                              | One link name, one destination, on every route; hidden text keeps the visible words first                                                  |
+| `tests/unusual-words.spec.ts`       | 3.1.3                                              | Each listed term a `<dfn>` at first use, defined in its sentence; every `<dfn>` listed; replaced jargon stays out; `/404` links its idioms |
+| `tests/abbreviations.spec.ts`       | 3.1.4                                              | First use of each listed abbreviation expanded in its sentence; no unlisted abbreviation on functional pages; no "min read"                |
+| `tests/target-size.spec.ts`         | 2.5.5                                              | Every target's 44px square, on pages and in open dialogs, at 305px and 1280px                                                              |
+| `tests/reflow.spec.ts`              | 1.4.10, 1.4.12                                     | No sideways scroll; content box; heading word fit                                                                                          |
+| `tests/visual-presentation.spec.ts` | 1.4.8                                              | Line length, line height and paragraph spacing at three widths                                                                             |
+| `tests/hero-fit.spec.ts`            | 1.4.10, 1.4.12, 2.2.2                              | Hero name unclipped and uncovered; pause control on the first screen                                                                       |
+| `tests/close-row.spec.ts`           | 1.4.10                                             | The close row's sticker never covers its text, in both modes                                                                               |
+| `tests/mobile-menu.spec.ts`         | 2.1.1, 2.4.3                                       | Menu opens, takes focus, returns it                                                                                                        |
+| `tests/no-script.spec.ts`           | 2.1.1, 1.3.1                                       | Navigation with scripting off                                                                                                              |
+| `tests/forced-colors.spec.ts`       | 1.4.11, 2.4.7                                      | Forced colours, listings sampled; every focus stop on /; not WebKit                                                                        |
+| `tests/motion.spec.ts`              | 2.2.2, 2.3.3                                       | Hero field pauses; nothing moves under reduced motion                                                                                      |
+| `tests/about-cats.spec.ts`          | 1.4.1, 1.4.3, 1.4.10, 1.4.11, 2.2.2, 2.4.11, 2.5.5 | Cat buttons, card dialog, focus return, sleep controls, reduced motion; a moving cat never scrolls the page                                |
+| `tests/headings.spec.ts`            | 1.3.1, 2.4.6                                       | One `h1`, no skipped level, no heading under 19px                                                                                          |
+| `tests/titles.spec.ts`              | 2.4.2                                              | Titles distinct and descriptive                                                                                                            |
+| `tests/site-language.spec.ts`       | 3.1.1                                              | One declared language everywhere                                                                                                           |
+| `tests/alt-text.spec.ts`            | 1.1.1                                              | Every image named or decorative on purpose                                                                                                 |
+| `tests/failed-images.spec.ts`       | 1.1.1                                              | A failed photo shows its alt text                                                                                                          |
+| `tests/contact.spec.ts`             | 3.3.1, 3.3.2, 3.3.3, 3.3.5, 3.3.6, 2.4.12          | 422 and 503 in a browser: input kept, hints beside errors, no focus covered; honeypot, rate limit                                          |
+| `tests/contact-sending.spec.ts`     | 4.1.3                                              | Status text, no busy ancestor, no second submit                                                                                            |
+| `tests/slideshow.spec.ts`           | 2.1.1, 4.1.3                                       | Buttons, keys, live region, focus, full screen, no JS                                                                                      |
+| `tests/word-spacing.spec.ts`        | 1.3.1                                              | No word glued to an inline element                                                                                                         |
+| `tests/wave-alerts.spec.ts`         |                                                    | WAVE's possible-heading, redundant-link and noscript alerts                                                                                |
+| `tests/console.spec.ts`             |                                                    | No console error, CSP violation or failed request on any route                                                                             |
+| `tests/not-found.spec.ts`           |                                                    | An unknown path returns 404, not 200                                                                                                       |
+| `tests/accessibility-page.spec.ts`  |                                                    | `/accessibility` linked from every page and matches section 1                                                                              |
+| `scripts/check-pdf.mjs`             | PDF/UA-1                                           | veraPDF on every PDF under `public/` (`npm run check:pdf`)                                                                                 |
+| `tests/talk-pdf.spec.ts`            |                                                    | The talk PDF was printed from the current slides                                                                                           |
+| `tests/media-alternatives.spec.ts`  | 1.2.6, 1.2.7, 1.2.8, 1.4.7                         | Fails any video or audio without its captions, transcript, sign language and description links; no embeds                                  |
+| `tests/change-on-request.spec.ts`   | 3.2.5, 2.2.4                                       | No new windows, automatic refresh, script navigation, alerts or assertive live regions                                                     |
+| `tests/input-mechanisms.spec.ts`    | 2.5.6                                              | No pointer, hover or touch detection that could turn an input off                                                                          |
+| `npm run typecheck`                 |                                                    | Templates, scripts and the Vue islands type-check                                                                                          |
 
 Limits:
 
@@ -262,6 +264,8 @@ template ships with none of it run; record your own results. Not automated:
 - Reduced motion, 400% zoom and text-only zoom, by hand.
 - Firefox and Safari, by hand.
 - Plain language, cognitive load and reading order.
+- Jargon or idioms not yet listed (SC 3.1.3): no machine tells a term of art
+  from an ordinary word, so a person reads the functional pages for them.
 
 ## 7. Known gaps
 
@@ -396,6 +400,9 @@ Rules this repository follows. Values and reasons:
   (`tests/no-script.spec.ts`) and the talk slides (`tests/slideshow.spec.ts`).
 - **Sources.** WCAG and its Understanding documents are normative. Mark any
   other source cited here, an article, checklist or tool, as opinion.
+- **Unusual words.** On a functional page, write jargon in plain words. Where
+  the term is needed, define it in the sentence of its first use, mark it with
+  `<dfn>`, and list it in `tests/unusual-words.spec.ts`.
 - **This file.** Update it in the same commit as the change. A gap is removed
   when it has been tested, not when it was fixed in passing.
 

@@ -550,6 +550,17 @@ header or nav layout change.
 - [ ] Breadcrumb links above a post `h1` keep a 44px pointer area, and wrapped
       rows do not overlap it.
 
+## 9a. Unusual words → SC 3.1.3
+
+`tests/unusual-words.spec.ts` checks the terms it lists. It cannot find a term
+nobody listed.
+
+- [ ] Read `/accessibility`, `/privacy`, `/credits`, `/brand` and `/contact`:
+      every word of jargon or idiom is plain, or defined in the sentence where
+      it first appears. → SC 3.1.3
+- [ ] On `/404`, the link to the credits explains the Star Wars lines.
+      → SC 3.1.3
+
 ## 10. Exploratory tools
 
 Not dependencies; nothing here gates CI.
