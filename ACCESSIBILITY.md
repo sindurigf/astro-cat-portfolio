@@ -49,14 +49,14 @@ status is still "Target only. No conformance claim."
 | 2.2.4 Interruptions                  | Nothing interrupts: no alerts, assertive live regions or automatic refresh.                                                                                                                                                                                                                                                                                                                                                                                                            |
 | 2.3.3 Animation from Interactions    | Under `prefers-reduced-motion: reduce` a pressed control does not move into its shadow, the hero field is drawn once and held, and the About cats sit still (`tests/press.spec.ts`, `tests/motion.spec.ts`, `tests/about-cats.spec.ts`).                                                                                                                                                                                                                                               |
 | 2.4.9 Link Purpose (Link Only)       | Within a page, one link name leads to one place. Hidden text completes short names: "Community tag", "Alex on GitHub". Exception: link text in posts, listed in `tests/link-purpose.spec.ts`.                                                                                                                                                                                                                                                                                          |
-| 2.4.12 Focus Not Obscured (Enhanced) | **Not met.** Met inside the open cat card, photo viewer and mobile menu. Fails on pages. On `/about`, Tab to each cat button: its sleep control covers part of it, and at 1280px wide a card covers part of the last cat's. No focused control is even partly under the sticky header, in either Tab direction.                                                                                                                                                                        |
+| 2.4.12 Focus Not Obscured (Enhanced) | No focused control is even partly covered. On pages, none sits under the sticky header in either Tab direction (`tests/focus.spec.ts`); the About cats' sleep controls sit beside their cat buttons, and the last cat's band ends at the raised card above it; inside the open cat card, photo viewer and menu, every stop is wholly uncovered (`tests/focus-obscured.spec.ts`).                                                                                                       |
 | 2.4.13 Focus Appearance              | One solid ring, `--focus-width` wide. At every page focus stop it covers at least a 2px perimeter of the control and reaches 3:1 against the ground it paints over.                                                                                                                                                                                                                                                                                                                    |
+| 2.5.5 Target Size (Enhanced)         | Every pointer target outside a sentence has a 44 by 44px area of its own, never shared: controls are drawn at `--spacing-target` (44px); header and breadcrumb links get a pointer area wider than their drawn box (`.hit-target`); footer links are 44px rows. `tests/target-size.spec.ts` hit-tests every target on every page and in every open dialog at 305px and 1280px.                                                                                                         |
 | 2.5.6 Concurrent Input Mechanisms    | No input is turned off because another one was detected.                                                                                                                                                                                                                                                                                                                                                                                                                               |
 | 3.1.4 Abbreviations                  | On functional pages (statement, privacy, credits, brand), the Career link on `/` and reading time, each abbreviation is spelled out or defined in the sentence where it first appears. Posts, About and Career are the owner's copy and are not checked.                                                                                                                                                                                                                               |
 | 3.2.5 Change on Request              | No new windows, automatic refresh or navigation by script.                                                                                                                                                                                                                                                                                                                                                                                                                             |
 
-Out of scope: SC 2.5.5 Target Size (Enhanced, 44px). axe's `wcag2aaa` rules
-are not run.
+axe's `wcag2aaa` rules are not run.
 
 ## 3. Scope and supported environments
 
@@ -101,9 +101,9 @@ view (development server only, never published), and forks.
   640px, 1280px and 1920px. The content box matches the
   [heading floors](docs/STYLEGUIDE.md#heading-floors), no heading word is wider
   than its box, and no text or control sits past either edge.
-- **Target size.** Every target passes SC 2.5.8 on its own size at 305px and
-  1280px (listings sampled as below). The spacing exception is not relied on
-  anywhere, so a spacing change cannot silently break 2.5.8.
+- **Target size.** A 44px square centred on every target outside a sentence
+  hits only that target, at 305px and 1280px, on every page (listings sampled
+  as below) and in the open cat card, photo viewer and menu (SC 2.5.5).
 - **Keyboard.** The tab order is walked in both directions on every page at
   two widths; category and tag listings, one template differing only by label,
   are walked once per group that shows the same posts. Each stop is hit-tested
@@ -197,13 +197,13 @@ merge.
 | `tests/solid-block.spec.ts`         | 1.4.3, 1.4.11                                      | Every state inside `.card-solid`                                                                                            |
 | `tests/contrast-table.spec.ts`      |                                                    | STYLEGUIDE.md contrast table matches the tokens                                                                             |
 | `tests/focus.spec.ts`               | 2.4.7, 2.4.11, 2.4.12, 2.4.13, 1.4.11              | Tab and Shift+Tab on every page at two widths, listings sampled; no stop under the header; ring contrast and area           |
-| `tests/focus-obscured.spec.ts`      | 2.4.12                                             | Every stop in the open cat card, photo viewer and menu wholly uncovered                                                     |
+| `tests/focus-obscured.spec.ts`      | 2.4.12                                             | Every stop in the open cat card, photo viewer and menu, and each About cat control, wholly uncovered                        |
 | `tests/sticky-header.spec.ts`       | 2.4.11                                             | Header static under 30rem; no focused control under it                                                                      |
 | `tests/states.spec.ts`              | 1.4.1, 1.4.11                                      | Hover drawn; current page is a shape; chip rings clear neighbours                                                           |
 | `tests/nav-current.spec.ts`         | 1.3.1, 4.1.2                                       | `aria-current` in all three navs                                                                                            |
 | `tests/link-purpose.spec.ts`        | 2.4.9                                              | One link name, one destination, on every route; hidden text keeps the visible words first                                   |
 | `tests/abbreviations.spec.ts`       | 3.1.4                                              | First use of each listed abbreviation expanded in its sentence; no unlisted abbreviation on functional pages; no "min read" |
-| `tests/target-size.spec.ts`         | 2.5.8                                              | Every target on its own box at 305px and 1280px                                                                             |
+| `tests/target-size.spec.ts`         | 2.5.5                                              | Every target's 44px square, on pages and in open dialogs, at 305px and 1280px                                               |
 | `tests/reflow.spec.ts`              | 1.4.10, 1.4.12                                     | No sideways scroll; content box; heading word fit                                                                           |
 | `tests/visual-presentation.spec.ts` | 1.4.8                                              | Line length, line height and paragraph spacing at three widths                                                              |
 | `tests/hero-fit.spec.ts`            | 1.4.10, 1.4.12, 2.2.2                              | Hero name unclipped and uncovered; pause control on the first screen                                                        |
@@ -212,7 +212,7 @@ merge.
 | `tests/no-script.spec.ts`           | 2.1.1, 1.3.1                                       | Navigation with scripting off                                                                                               |
 | `tests/forced-colors.spec.ts`       | 1.4.11, 2.4.7                                      | Forced colours, listings sampled; every focus stop on /; not WebKit                                                         |
 | `tests/motion.spec.ts`              | 2.2.2, 2.3.3                                       | Hero field pauses; nothing moves under reduced motion                                                                       |
-| `tests/about-cats.spec.ts`          | 1.4.1, 1.4.3, 1.4.10, 1.4.11, 2.2.2, 2.4.11, 2.5.8 | Cat buttons, card dialog, focus return, sleep controls, reduced motion; a moving cat never scrolls the page                 |
+| `tests/about-cats.spec.ts`          | 1.4.1, 1.4.3, 1.4.10, 1.4.11, 2.2.2, 2.4.11, 2.5.5 | Cat buttons, card dialog, focus return, sleep controls, reduced motion; a moving cat never scrolls the page                 |
 | `tests/headings.spec.ts`            | 1.3.1, 2.4.6                                       | One `h1`, no skipped level, no heading under 19px                                                                           |
 | `tests/titles.spec.ts`              | 2.4.2                                              | Titles distinct and descriptive                                                                                             |
 | `tests/site-language.spec.ts`       | 3.1.1                                              | One declared language everywhere                                                                                            |
@@ -354,7 +354,7 @@ Rules this repository follows. Values and reasons:
   against the ground and the element's edge. Never `outline-offset: 0`.
 - **Keyboard.** Check tab order in both directions: Shift+Tab is the direction
   that goes under the sticky header.
-- **Targets.** 24x24px on the target's own box. Never rely on spacing.
+- **Targets.** A 44x44px pointer area of its own, never overlapping another.
 - **Motion.** [STYLEGUIDE Motion](docs/STYLEGUIDE.md#motion).
 - **Semantics.** Native elements first: `<button>`, `<dialog>`, `<details>`.
   One `h1`, no skipped level. Name a `<section>` only with its visible

@@ -534,21 +534,21 @@ Chromium, Firefox and WebKit run the automated suite (WebKit in CI, or
       this. → needs Apple hardware
 - [x] WebKit: covered by CI.
 
-## 9. Target size → SC 2.5.8
+## 9. Target size → SC 2.5.5
 
-Every target passes on its own size; the spacing exception is not used.
-`tests/target-size.spec.ts` measures all of them. Confirm in DevTools after a
+Every target outside a sentence has a 44px pointer area of its own.
+`tests/target-size.spec.ts` hit-tests all of them. Confirm in DevTools after a
 header or nav layout change.
 
 - [ ] At 320px, content sits 16px from both edges on `/about` and a blog
       route. → SC 1.4.10
-- [ ] Header nav links are at least 24px tall (expected 40.8px: 16.8px line,
-      `py-2`, `border-4`) and equal height, current or not.
-- [ ] Mobile menu button 48x48, 40x40 below 21rem (336px).
-- [ ] Footer profile tiles 56x56, 48x48 on a phone.
-- [ ] Mobile menu links at 320px at least 24px tall.
-- [ ] Breadcrumb links above a post `h1` are 32.8px tall (`py-2 -my-2`): the
-      hit area is taller than the words and the gap to the `h1` looks right.
+- [ ] Header nav links are 40.8px tall and equal height, current or not; each
+      `.hit-target` area is 44px tall.
+- [ ] Mobile menu button and theme switch 48x48, 44x44 below 21rem (336px).
+- [ ] Footer profile tiles 56x56, 48x48 on a phone; footer page links 44px
+      rows.
+- [ ] Breadcrumb links above a post `h1` keep a 44px pointer area, and wrapped
+      rows do not overlap it.
 
 ## 10. Exploratory tools
 
@@ -579,8 +579,7 @@ From the Accessible Astro checklist and
   consistent help.
 - **By construction:** content behind the menu is inert (native `<dialog>`
   with `showModal()`).
-- **Rejected:** 44x44 targets (SC 2.5.5, AAA; the target is SC 2.5.8 at 24x24)
-  and "do not link the logo on the homepage" (no WCAG basis).
+- **Rejected:** "do not link the logo on the homepage" (no WCAG basis).
 
 ## 12. What this checklist does not cover
 
