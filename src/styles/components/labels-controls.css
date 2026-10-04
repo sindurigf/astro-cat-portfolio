@@ -20,16 +20,32 @@
   }
 
   /*
-   * The SC 2.2.2 pause control, 40px square at every viewport. `bg-surface` so
+   * The SC 2.2.2 pause control, a --spacing-target square. `bg-surface` so
    * its fill differs from the ground (tests/gold-surface.spec.ts). Each call
    * site adds a positioning class.
    */
   .motion-toggle {
-    @apply absolute grid h-10 w-10 place-items-center border-4 border-border
+    @apply absolute grid size-target place-items-center border-4 border-border
       bg-surface text-gold;
   }
 
   .motion-toggle:hover {
     @apply bg-gold text-gold-text;
+  }
+
+  /*
+   * A --spacing-target pointer area around a text link drawn smaller (SC 2.5.5).
+   * Its neighbours must sit at least that far apart: areas never overlap.
+   */
+  .hit-target {
+    @apply relative;
+
+    &::before {
+      @apply absolute top-1/2 left-1/2 -translate-1/2;
+
+      content: '';
+      width: max(100%, var(--spacing-target));
+      height: max(100%, var(--spacing-target));
+    }
   }
 }

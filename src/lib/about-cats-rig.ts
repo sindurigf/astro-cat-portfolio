@@ -61,7 +61,7 @@ const ZZ_HEIGHT = 14;
 const ZZ_AHEAD = 14;
 const ZZ_ABOVE = 24;
 const ZZ_RISE = 10;
-/** Half the click box's width: the whole cat either way it faces, over 24px (SC 2.5.8). */
+/** Half the click box's width: the whole cat either way it faces, over 44px (SC 2.5.5). */
 export const HIT_HALF_WIDTH = 48;
 const WING_BEAT_MS = 16;
 

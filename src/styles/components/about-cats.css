@@ -245,7 +245,7 @@
     @apply border-4 border-border bg-surface p-4 shadow-hard-pink-4;
   }
 
-  /* The site button, small: still a 24px target (SC 2.5.8). */
+  /* The site button, small: still a 44px target (SC 2.5.5). */
   .cat-close {
     @apply min-h-target px-3 py-1;
   }

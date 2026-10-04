@@ -36,10 +36,12 @@
     margin-top: --spacing(8);
   }
 
+  /* Rows a --spacing-target tall, so stacked links never share pointer area (SC 2.5.5). */
   .footer-pages a,
   .footer-policies a {
-    display: block;
-    padding-block: --spacing(3);
+    display: flex;
+    align-items: center;
+    min-height: var(--spacing-target);
   }
 
   .footer-social {
