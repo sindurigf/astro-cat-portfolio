@@ -16,6 +16,7 @@ import {
   getFeaturedPosts,
 } from '../lib/blog';
 import { WIDTHS } from '../lib/image-densities';
+import { PERSONA_NOTICE_ID, SAMPLE_PERSONA } from '../lib/persona';
 import { CATEGORIES } from '../lib/categories';
 import { BLOG_PATH, categoryHref } from '../lib/paths';
 import {
@@ -62,7 +63,7 @@ const TEASER_PHOTO_SIZES =
 const STATS = [
   {
     value: '1 crew',
-    label: 'Who came back for me',
+    label: 'Whose captain said yes',
   },
   {
     value: '20 years',
@@ -165,6 +166,16 @@ const STATS = [
             with the Straw Hat Pirates, wherever we land. This site is where my
             notes live.
           </p>
+
+          {SAMPLE_PERSONA !== null && (
+            <p class="mt-4 text-body text-pretty">
+              {SAMPLE_PERSONA.tribute}{' '}
+              <a href={`/credits/#${PERSONA_NOTICE_ID}`}>
+                Read the full notice
+              </a>
+              .
+            </p>
+          )}
 
           <p class="mt-head">
             <a href="/about/" class="btn-gold-secondary">

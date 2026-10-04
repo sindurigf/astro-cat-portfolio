@@ -7,10 +7,14 @@ import {
   NAME_INSPIRATION,
   PHOTO_CREDITS_PATH,
   PHOTOGRAPHERS,
-  SAMPLE_PERSONA,
   THANKS,
 } from '../lib/credits';
 import { MOTTO, REPOSITORY_URL, SITE_NAME } from '../lib/site';
+import {
+  PERSONA_NOTICE_ID,
+  SAMPLE_PERSONA,
+  personaNotice,
+} from '../lib/persona';
 
 /* The project this template was extracted from; scripts/check-leaks.mjs allows this one line. */
 // prettier-ignore
@@ -131,6 +135,11 @@ const NAMED_ENTRY = 'min-w-0 bg-background p-card-tight';
   description={`Where the name ${SITE_NAME} comes from, who helped, who took the photos, and what the site was designed, built and tested with.`}
 >
   <PageHero title="Credits">
+    {personaNotice(SAMPLE_PERSONA) !== null && (
+      <p id={PERSONA_NOTICE_ID} class="mt-8 max-w-2xl text-body text-pretty">
+        {personaNotice(SAMPLE_PERSONA)}
+      </p>
+    )}
     <p class="standfirst">
       The people and tools behind this site, and where its name and its sample
       persona come from.
@@ -216,13 +225,6 @@ const NAMED_ENTRY = 'min-w-0 bg-background p-card-tight';
             ))}
           </ul>
         )}
-      </div>
-
-      <div id="sample-persona" class="card mt-grid">
-        <h2 class={CARD_HEADING}>Sample persona</h2>
-        <p class="mt-6 max-w-measure text-body text-text text-pretty">
-          {SAMPLE_PERSONA}
-        </p>
       </div>
     </div>
   </section>

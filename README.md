@@ -20,9 +20,10 @@ page. Tested for WCAG 2.2 AA in Chromium, Firefox and WebKit.
 3. Edit [`src/site.config.ts`](src/site.config.ts): site name and URL, your
    name, job title, email and profiles, the post your pages point to for the
    longer story (`journeyPost`), and the analytics and contact switches. The build fails on an invalid value.
-4. Replace the sample persona: her copy on every page, the sample
-   posts and talk, the sample credit on `/credits`, and the photos. Update [SECURITY.md](SECURITY.md),
-   [ACCESSIBILITY.md](ACCESSIBILITY.md) and
+4. Replace the sample persona: her copy on every page, the sample posts and
+   talk, and the photos. Set `SAMPLE_PERSONA` in `src/lib/persona.ts` to
+   `null`, which removes her notice from `/credits` and the homepage. Update
+   [SECURITY.md](SECURITY.md), [ACCESSIBILITY.md](ACCESSIBILITY.md) and
    [AI_DISCLOSURE.md](AI_DISCLOSURE.md) to describe your site.
    `/brand` shows your design system and links to your `repository`; it is
    optional. To drop it, delete `src/pages/brand.astro`,

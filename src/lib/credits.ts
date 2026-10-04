@@ -28,10 +28,6 @@ export const NAME_INSPIRATION = {
   site: 'example.net',
 } as const;
 
-/** The sample persona's source, credited on /credits and in README.md. */
-export const SAMPLE_PERSONA =
-  'Sample persona based on Nico Robin from One Piece by Eiichiro Oda (Shueisha). A fan tribute used as a placeholder; not affiliated with or endorsed by Eiichiro Oda, Shueisha or Toei Animation.';
-
 export const THANKS = [
   {
     name: 'Riley Example',
