@@ -46,6 +46,11 @@
     line-height: 1.62;
   }
 
+  /* Upright: Lexend ships no italic, so the default would be synthesised. */
+  dfn {
+    font-style: normal;
+  }
+
   /*
    * overflow-wrap is the last guard against heading overflow at 320px. Never
    * `hyphens: none`: it kills soft hyphens (U+00AD), the only hyphenation

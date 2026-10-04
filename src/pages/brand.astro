@@ -252,7 +252,7 @@ const SWATCH_BOX = 'grid size-16 shrink-0 place-items-center';
   <Section
     id="contrast"
     title={section('contrast').title}
-    lead="Measured from the tokens, for the mode you are viewing; switch it in the header to see the other. Text needs 4.5, edges and icons 3."
+    lead="Measured from the colour values in the site's code, for the mode you are viewing; switch it in the header to see the other. Text needs 4.5, edges and icons 3."
   >
     <div class="contrast-dark">
       <ContrastTable rows={readingPairs} />
@@ -328,7 +328,7 @@ const SWATCH_BOX = 'grid size-16 shrink-0 place-items-center';
   <Section
     id="shadows"
     title={section('shadows').title}
-    lead="Borders are 4 or 8px. Shadows are hard offsets with no blur. Corners are square."
+    lead="Borders are 4 or 8px. Shadows are solid offset copies of the shape, with no blur. Corners are square."
   >
     <ul class:list={['card', ROWS]}>
       {shadows.map(({ utility, casts }) => (
