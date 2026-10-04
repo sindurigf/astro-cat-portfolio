@@ -17,6 +17,7 @@ import {
 } from '../lib/blog';
 import { WIDTHS } from '../lib/image-densities';
 import { PERSONA_NOTICE_ID, SAMPLE_PERSONA } from '../lib/persona';
+import { MOTTO } from '../lib/site';
 import { CATEGORIES } from '../lib/categories';
 import { BLOG_PATH, categoryHref } from '../lib/paths';
 import {
@@ -60,6 +61,10 @@ const leadSpansLg =
 const TEASER_PHOTO_SIZES =
   '(min-width: 1829px) calc(25vw + 193px), (min-width: 1396px) calc(21.5vw + 257px), (min-width: 83rem) calc(606px - 3.5vw), (min-width: 64rem) calc(45.7vw - 48px), (min-width: 40rem) calc(93vw - 71px), calc(100vw - 6rem)';
 
+/* The motto across the two stickers: its first word, then the rest. */
+const [firstWord = '', ...restWords] = MOTTO.text.split(' ');
+const MOTTO_STICKERS = [firstWord, restWords.join(' ')] as const;
+
 const STATS = [
   {
     value: '1 crew',
@@ -99,12 +104,12 @@ const STATS = [
         Spans, not <p>: WAVE reads short bold paragraphs as headings. No
         `border-border`: it fails SC 1.4.11 here and would beat `.surface-gold`'s.
       */}
-        <div class="hero-marks" aria-hidden="true">
+        <div class="hero-marks" aria-hidden="true" lang={MOTTO.lang}>
           <span class="hero-sticker -rotate-3 bg-gold text-gold-text shadow-hard-mark-8">
-            Ruins
+            {MOTTO_STICKERS[0]}
           </span>
           <span class="hero-sticker rotate-3 bg-surface text-pink-text shadow-hard-mark-8">
-            Books
+            {MOTTO_STICKERS[1]}
           </span>
         </div>
 
