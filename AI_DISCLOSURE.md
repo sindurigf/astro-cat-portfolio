@@ -30,7 +30,7 @@ file (`tests/ai-label.spec.ts` checks every route). `/about` also labels its
 moving cats where they play.
 
 - The cat photos are real photographs, not generated or edited by AI.
-- The sample persona, Nico Robin, and all her text are written by Claude:
+- The sample persona, Nico Rubbing, and all her text are written by Claude:
   original prose, no text copied from One Piece. Replace it with your own and
   update the footer label.
 

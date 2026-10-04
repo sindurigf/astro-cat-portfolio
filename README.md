@@ -20,7 +20,7 @@ page. Tested for WCAG 2.2 AA in Chromium, Firefox and WebKit.
 3. Edit [`src/site.config.ts`](src/site.config.ts): site name and URL, your
    name, job title, email and profiles, the post your pages point to for the
    longer story (`journeyPost`), and the analytics and contact switches. The build fails on an invalid value.
-4. Replace the sample persona, Nico Robin: her copy on every page, the sample
+4. Replace the sample persona, Nico Rubbing: her copy on every page, the sample
    posts and talk, the sample credit on `/credits`, and the photos. Update [SECURITY.md](SECURITY.md),
    [ACCESSIBILITY.md](ACCESSIBILITY.md) and
    [AI_DISCLOSURE.md](AI_DISCLOSURE.md) to describe your site.
@@ -77,7 +77,7 @@ instead: [SECURITY.md](SECURITY.md). Pull requests use
   vendored script and font sent to a browser (`scripts/licenses.mjs`).
 - When you replace the photos with your own, update `LICENSE-photos`, or
   remove it and its row.
-- Sample persona Nico Robin from One Piece by Eiichiro Oda (Shueisha). Used as a
-  placeholder only; not affiliated with or endorsed by Eiichiro Oda, Shueisha or
-  Toei Animation. The sample text is written with AI
+- Sample persona based on Nico Robin from One Piece by Eiichiro Oda
+  (Shueisha). A fan tribute used as a placeholder; not affiliated with or
+  endorsed by Eiichiro Oda, Shueisha or Toei Animation. The sample text is written with AI
   ([AI_DISCLOSURE.md](AI_DISCLOSURE.md)).

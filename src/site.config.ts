@@ -1,6 +1,6 @@
 /*
  * Everything that names the site or its owner. Replace every value before
- * publishing; the sample persona is Nico Robin and every address uses an
+ * publishing; the sample persona is Nico Rubbing and every address uses an
  * RFC 2606 reserved name. Validated on
  * import, so a bad value fails the build and the tests, not a visitor.
  */
@@ -89,22 +89,22 @@ const config: SiteConfig = {
       'Archaeologist and historian',
       'Reading what the past left behind',
     ],
-    repository: 'https://github.example/nico-robin/example-site',
+    repository: 'https://github.example/nico-rubbing/example-site',
     motto: { text: 'Lege Saxa', lang: 'la' },
   },
   person: {
     givenName: 'Nico',
-    familyName: 'Robin',
+    familyName: 'Rubbing',
     jobTitle: 'Archaeologist',
     email: 'hello@example.com',
     cv: null,
   },
   profiles: [
-    { label: 'GitHub', href: 'https://github.example/nico-robin' },
-    { label: 'LinkedIn', href: 'https://linkedin.example/in/nico-robin' },
-    { label: 'Instagram', href: 'https://instagram.example/nico-robin/' },
-    { label: 'Bluesky', href: 'https://bluesky.example/profile/nico-robin' },
-    { label: 'Mastodon', href: 'https://mastodon.example/@nico-robin' },
+    { label: 'GitHub', href: 'https://github.example/nico-rubbing' },
+    { label: 'LinkedIn', href: 'https://linkedin.example/in/nico-rubbing' },
+    { label: 'Instagram', href: 'https://instagram.example/nico-rubbing/' },
+    { label: 'Bluesky', href: 'https://bluesky.example/profile/nico-rubbing' },
+    { label: 'Mastodon', href: 'https://mastodon.example/@nico-rubbing' },
   ],
   analytics: null,
   journeyPost: 'sample-post',
