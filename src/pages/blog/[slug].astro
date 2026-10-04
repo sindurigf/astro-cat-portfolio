@@ -14,6 +14,8 @@ import type { GetStaticPaths, InferGetStaticPropsType } from 'astro';
 import { getCollection, render } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { tagLabel } from '../../lib/blog';
+import PersonaSources from '../../components/PersonaSources.astro';
+import { PERSONA_SOURCES_ID, SAMPLE_PERSONA } from '../../lib/persona';
 
 export const getStaticPaths = (async () => {
   const posts = await getCollection('blog');
@@ -41,10 +43,18 @@ const {
   readingTime,
   placeholder,
   updated,
+  personaSources,
 } = post.data;
 
+const sources = personaSources ? (SAMPLE_PERSONA?.sources ?? []) : [];
+
 const CONTENTS_DEPTH = 2;
-const contents = headings.filter((heading) => heading.depth === CONTENTS_DEPTH);
+const contents = [
+  ...headings.filter((heading) => heading.depth === CONTENTS_DEPTH),
+  ...(sources.length > 0
+    ? [{ depth: CONTENTS_DEPTH, slug: PERSONA_SOURCES_ID, text: 'Sources' }]
+    : []),
+];
 
 const formattedDate = formatPostDate(date);
 
@@ -186,6 +196,12 @@ const article = placeholder
 
         <div class="prose">
           <Content />
+          {sources.length > 0 && (
+            <>
+              <h2 id={PERSONA_SOURCES_ID}>Sources</h2>
+              <PersonaSources sources={sources} />
+            </>
+          )}
         </div>
 
         {tags.length > 0 ? (

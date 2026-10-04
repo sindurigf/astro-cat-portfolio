@@ -9,7 +9,7 @@ import Section from '../components/Section.astro';
 import { closeRowLinks } from '../lib/blog';
 import { CV_PATH, PERSON_NAME } from '../lib/profiles';
 
-/* Placeholder copy; keep it in step with the CV when one is published. */
+/* The sample persona's copy; keep it in step with the CV when one is published. */
 const PUBLIC_DIR = 'public';
 const BYTES_PER_KB = 1024;
 
@@ -21,98 +21,85 @@ const cvKb = (path: string): number =>
 
 const EXPERIENCE = [
   {
-    dates: 'Jan 2026–Present',
-    where: 'Example Organisation',
-    title: 'Lorem Ipsum Engineer',
+    dates: 'Arabasta–Present',
+    where: 'The Straw Hat Pirates',
+    title: "Ship's archaeologist",
     current: true,
     points: [
-      'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-      'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
-      'Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.',
+      'Read the Poneglyphs the crew finds, and record what each one says.',
+      'Study the records and ruins on every island where we land.',
+      'Asked to join after Arabasta, and the captain said yes.',
     ],
   },
   {
-    dates: 'Jun 2023–Nov 2025',
-    where: 'Example Company',
-    title: 'Dolor Sit Manager',
+    dates: 'Before Arabasta',
+    where: 'Baroque Works',
+    title: 'Vice president, Miss All Sunday',
     current: false,
     points: [
-      'Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
-      'Sed ut perspiciatis unde omnis iste natus error sit voluptatem.',
-      'Accusantium doloremque laudantium, totam rem aperiam eaque ipsa.',
-      'Quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.',
-      'Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores.',
-      'Neque porro quisquam est in 2025.',
+      'Worked under the codename Miss All Sunday.',
+      "Partner of the agency's leader, Crocodile, known inside it as Mr. 0.",
     ],
   },
   {
-    dates: 'Jan 2021–May 2023',
-    where: 'Example Agency',
-    title: 'Consectetur Developer & Adipiscing Manager',
+    dates: 'Age 8–28',
+    where: 'On the run',
+    title: 'Independent archaeologist',
     current: false,
     points: [
-      'Qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit.',
-      'Sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam.',
-      'Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur, quis autem vel eum iure.',
+      'Wanted by the World Government from the age of eight, with a first bounty of 79,000,000 berries.',
+      'Kept reading Poneglyphs wherever I could find them, for about twenty years.',
     ],
   },
 ] as const;
 
 const SKILLS = [
-  'Lorem ipsum and dolor sit',
-  'Amet consectetur',
-  'Adipiscing elit',
-  'Sed do eiusmod',
-  'Tempor',
-  'Incididunt and ut labore',
+  'Reading Poneglyphs',
+  'Archaeology',
+  'The Void Century',
+  'Hana Hana no Mi',
+  'Working undercover',
 ] as const;
 
 /* `honour` renders in `lang="la"` (SC 3.1.2). */
 const EDUCATION = [
   {
-    award: 'Lorem Ipsum',
-    detail: 'Example School, 2020.',
-    honour: 'Summa cum laude',
+    award: 'Archaeology exam',
+    detail: 'Passed at the age of eight, on Ohara.',
   },
   {
-    award: 'Dolor Sit Amet Consectetur',
+    award: 'Library of Ohara',
     detail:
-      'Example School, 2019. Lorem, ipsum, dolor, sit, amet, consectetur, adipiscing, elit, sed.',
-    honour: 'Summa cum laude',
-  },
-  { award: 'Eiusmod', detail: 'Short course, 2019.' },
-  {
-    award: 'Tempor Incididunt, Master of Science',
-    detail: 'Example University, 2006–2009.',
+      'Read in the library inside the Tree of Knowledge, with the permission of its director, Professor Clover.',
   },
   {
-    award: 'Labore et Dolore, Bachelor of Arts',
-    detail: 'Example College, 2001–2005.',
+    award: 'Poneglyphs',
+    detail: 'Learned to read their ancient script as a child.',
   },
 ] as const;
 
 const LANGUAGES = [
-  { language: 'English', level: 'Fluent' },
-  { language: 'Latin', level: 'A2' },
+  { language: 'The Poneglyph script', level: 'Reading' },
 ] as const;
 
 const OPEN_SOURCE = [
   {
-    award: 'Lorem Ipsum Award',
-    detail: 'Dolor sit category, 2025.',
-  },
-  {
-    award: 'Example Association',
-    detail: 'Consectetur adipiscing elit. Sed do eiusmod tempor in 2026.',
-  },
-  {
-    award: 'Example Community',
-    detail: 'Ut enim ad minim veniam, quis nostrud exercitation ullamco.',
-  },
-  {
-    award: 'Event organising',
+    award: 'The scholars of Ohara',
     detail:
-      'Duis aute irure dolor in reprehenderit in 2023, then in voluptate velit esse cillum dolore eu fugiat nulla pariatur.',
+      'Studied the Poneglyphs together, in the library in the Tree of Knowledge.',
+  },
+  {
+    award: 'The Straw Hat Pirates',
+    detail: 'Archaeologist of the crew since Arabasta.',
+  },
+  {
+    award: 'Baroque Works',
+    detail: 'Vice president, under the codename Miss All Sunday.',
+  },
+  {
+    award: 'Professor Clover',
+    detail:
+      'Director of the Library of Ohara, who let me read there as a child.',
   },
 ] as const;
 const closeRow = await closeRowLinks({
@@ -123,18 +110,18 @@ const closeRow = await closeRowLinks({
 
 <BaseLayout
   title="Career"
-  description={`${PERSON_NAME}: work history, education and skills. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod.`}
+  description={`${PERSON_NAME}: work history, education and skills, from the Library of Ohara to the Straw Hat Pirates.`}
 >
   <PageHero title="Career">
     <p class="standfirst">
-      <span class="block">Lorem Ipsum Dolor Sit.</span>{' '}
-      <span class="block">Amet Consectetur Elit.</span>{' '}
-      <span class="block">Sed Do Eiusmod Tempor.</span>
+      <span class="block">Reading the Poneglyphs.</span>{' '}
+      <span class="block">Studying the Void Century.</span>{' '}
+      <span class="block">Sailing with the Straw Hats.</span>
     </p>
 
     {/* Size, not only colour, carries the hierarchy: forced colours flattens colour. */}
     <p class="mt-4 text-body text-gold-muted">
-      Lorem ipsum, dolor sit amet, consectetur adipiscing elit.
+      Archaeology, history and a great deal of careful reading.
     </p>
 
     {/* No `download` attribute: the browser's viewer is the more accessible default. */}
@@ -157,16 +144,13 @@ const closeRow = await closeRowLinks({
 
   <Section title="Summary" panel>
     <p slot="lead" class="lead max-w-3xl">
-      Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
-      tempor incididunt. Ut labore et dolore magna aliqua ut enim ad minim
-      veniam: quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
-      commodo consequat, duis aute irure dolor in reprehenderit in voluptate
-      velit.
+      I am the archaeologist of the Straw Hat Pirates. I read the Poneglyphs,
+      stones carved in a script that few people alive can read, and I study the
+      Void Century, the hundred years the World Government forbids anyone to
+      research.
     </p>
     <p class="max-w-measure text-body text-text text-pretty">
-      Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia
-      deserunt mollit anim. Id est laborum sed ut perspiciatis unde omnis iste
-      natus.
+      I started young: I passed the archaeology exam at eight, on Ohara.
     </p>
   </Section>
 
@@ -257,8 +241,8 @@ const closeRow = await closeRowLinks({
   <Section title="Open source" surface="gold" class="gold-column">
     <div class="grid gap-grid lg:grid-cols-12 lg:items-start">
       <p class="lead mt-0 lg:col-span-5">
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
-        tempor, not incididunt. Ut labore et dolore magna aliqua.
+        The scholars of Ohara studied history together, and lost everything for
+        it. I still believe history belongs to everyone.
       </p>
       <dl class="grid gap-grid sm:grid-cols-2 lg:col-span-7">
         {OPEN_SOURCE.map((item) => (

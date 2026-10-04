@@ -1,13 +1,13 @@
 ---
 layout: cover
-info: 'Every slide of the sample talk, as text: a cover, parts, cards, a table and links, to show what a deck can hold.'
+info: 'Every slide of the talk Reading the Stones, as text: why records disappear, six habits that keep them alive, and what to do this week.'
 ---
 
-# Sample Talk
+# Reading the Stones
 
-Lorem Ipsum Dolor Sit Amet
+What Old Records Teach Open Projects
 
-Alex Example
+Robin Ohara
 
 ---
 
@@ -17,12 +17,12 @@ part: Introduction
 
 # About the speaker
 
-Alex Example, Job Title at Example Organisation
+Robin Ohara, archaeologist of the Straw Hat Pirates
 
-- Lorem ipsum dolor sit amet, consectetur adipiscing elit
-- Sed do eiusmod tempor incididunt ut labore et dolore
-- Ut enim ad minim veniam, quis nostrud exercitation
-- Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur
+- Reads the Poneglyphs
+- Passed the archaeology exam on Ohara at eight
+- Lost a library, and learned from it
+- Believes knowledge is safest when many people hold it, and that every project deserves more than one keeper
 
 ---
 
@@ -35,155 +35,155 @@ Alex Example, Job Title at Example Organisation
 - **Tables**: a header row and plain cells.
 - **Links**: inline, in lists and in cards.
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+This deck is also a sample: each slide shows one thing a deck can hold.
 
 ---
 
 ```yaml
 layout: section
-part: 'Part 1: Lorem ipsum'
+part: 'Part 1: Why records disappear'
 ```
 
-# Lorem ipsum
+# Why records disappear
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-
----
-
-# Dolor sit amet
-
-- Lorem ipsum dolor sit amet
-- Consectetur adipiscing elit
-- Sed do eiusmod tempor
+Most losses are slow, quiet and preventable.
 
 ---
 
-# Consectetur adipiscing
+# The slow losses
 
-- Ut enim ad minim veniam
-- Quis nostrud exercitation
-- Ullamco laboris nisi ut aliquip
-- Ex ea commodo consequat
+- The record lived in one place
+- One person understood it
+- Nobody left a key
+
+---
+
+# The one-keeper problem
+
+- One person knows where everything is
+- Nobody else can read it
+- Then they leave, tire or fall ill
+- The text stops mid-line
 
 <!-- A speaker note: shown in the presenter view, never published. -->
 
 ---
 
-# Sed do eiusmod
+# What survives
 
-- Duis aute irure dolor
-- In reprehenderit in voluptate
-- Velit esse cillum dolore
+- Records that were copied
+- Records in a common script
+- Records that came with a key
 
 ---
 
-# Tempor incididunt
+# Why it survived
 
-- Excepteur sint occaecat cupidatat
-- Non proident, sunt in culpa
-- Qui officia deserunt mollit anim
+- It was read in every generation
+- Strangers made copies
+- Mistakes were corrected in the margin
 
 **A good model: [Example Project](https://example.net/project/)**
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+A public archive that lets anyone copy, read and correct its records, and credits every volunteer by name.
 
 ---
 
 ```yaml
 layout: section
-part: 'Part 2: Dolor sit'
+part: 'Part 2: Six habits'
 ```
 
-# Dolor sit
+# Six habits
 
-Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.
+None of them is new, and all of them are easy to skip.
 
 ---
 
-# Six items in two columns
+# Six habits that keep a record alive
 
-- **Lorem**: ipsum dolor sit amet, consectetur adipiscing elit.
-- **Ipsum**: sed do eiusmod tempor incididunt ut labore.
-- **Dolor**: ut enim ad minim veniam, quis nostrud.
-- **Sit**: exercitation ullamco laboris nisi ut aliquip.
-- **Amet**: duis aute irure dolor in reprehenderit.
-- **Elit**: excepteur sint occaecat cupidatat non proident.
+- **Copies**: more than one, in more than one place.
+- **Plain words**: written for the next reader.
+- **A key**: a glossary and a map of the record.
+- **Readers**: a front door and a friendly reply.
+- **Documentation**: dated, owned and kept true.
+- **Open doors**: anyone may check and correct.
 
 ---
 
 ```yaml
-label: 'Item 1'
+label: 'Habit 1'
 ```
 
-# Labore et dolore
+# Make copies
 
-- Lorem ipsum dolor sit amet
-- Consectetur adipiscing elit
-- Sed do eiusmod tempor incididunt
+- More than one copy
+- In more than one place
+- Held by more than one person
 
 **A good model: [Example Foundation](https://example.org/)**
 
-Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+Copies are made on a schedule and opened once a year, so nobody discovers a broken one during a crisis.
 
 ---
 
 ```yaml
-label: 'Item 2'
+label: 'Habit 2'
 ```
 
-# Magna aliqua
+# Leave a key
 
-- Duis aute irure dolor in reprehenderit
-- Excepteur sint occaecat cupidatat non proident
-- Sunt in culpa qui officia deserunt
+- A glossary of the terms you use
+- A map of where things live
+- A note on why the odd parts are odd
 
 **Example: [Example Community](https://example.net/)**
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor.
+Every page starts with who it is for and where to begin.
 
 ---
 
 ```yaml
-label: 'Item 3'
+label: 'Habit 3'
 ```
 
-# Two labelled groups
+# Welcome readers
 
-**Lorem ipsum**
+**First visit**
 
-- Dolor sit amet
-- Consectetur adipiscing
-- Sed do eiusmod
+- One clear front door
+- A reply within days
+- A small first task
 
-**Ut enim**
+**Every visit after**
 
-- Ad minim veniam
-- Quis nostrud
-- Exercitation ullamco
+- Credit for their work
+- A way to report mistakes
+- A path to becoming a keeper
 
 ---
 
 ```yaml
 layout: section
-part: 'Part 3: Amet elit'
+part: 'Part 3: What to do now'
 ```
 
-# Amet elit
+# What to do now
 
-Duis aute irure dolor in reprehenderit in voluptate velit esse.
+Pick one habit, start it this week and repeat it.
 
 ---
 
-# A table
+# Archives and projects
 
-| Lorem ipsum    | Dolor sit amet    |
-| -------------- | ----------------- |
-| Consectetur    | Adipiscing elit   |
-| Sed do eiusmod | Tempor incididunt |
-| Ut labore      | Et dolore magna   |
-| Ut enim ad     | Minim veniam      |
+| In an archive   | In an open project  |
+| --------------- | ------------------- |
+| Copyists        | Mirrors and backups |
+| A word list     | A glossary          |
+| The last reader | The only maintainer |
+| A margin note   | A review comment    |
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+Every row asks one question: could someone else carry on?
 
 ---
 
@@ -191,21 +191,22 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit.
 part: Closing
 ```
 
-# Sample Talk
+# Reading the Stones
 
-- Lorem ipsum dolor sit amet
-- Consectetur adipiscing elit
+- Copy it, explain it, open it
+- Spread the record before the crisis
 
-**Sed do eiusmod**
+**This week**
 
-- Tempor incididunt ut labore
-- Et dolore magna aliqua
+- Make one second copy
+- Answer one newcomer
 
 ---
 
-# A link list
+# Further reading
 
-- Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+- Sources for every slide are in the post that goes with this talk.
+- The speaker's stories come from the One Piece manga; each chapter is listed under Sources on this site's About page.
 
 * [example.org](https://example.org/)
 

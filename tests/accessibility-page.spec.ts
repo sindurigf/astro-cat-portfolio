@@ -15,7 +15,7 @@ const PAGE = '/accessibility';
 const RECORD = 'ACCESSIBILITY.md';
 
 /** Not derived: deriving it would make the test agree with whatever the file says. */
-const HONEST_STATUS = 'Target only. No conformance claim.';
+const HONEST_STATUS = 'Target only. No claim that the site meets it.';
 
 const tableValue = (field: string): string => {
   const escaped = field.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');

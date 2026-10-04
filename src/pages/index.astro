@@ -16,6 +16,8 @@ import {
   getFeaturedPosts,
 } from '../lib/blog';
 import { WIDTHS } from '../lib/image-densities';
+import { PERSONA_NOTICE_ID, SAMPLE_PERSONA } from '../lib/persona';
+import { MOTTO } from '../lib/site';
 import { CATEGORIES } from '../lib/categories';
 import { BLOG_PATH, categoryHref } from '../lib/paths';
 import {
@@ -25,7 +27,7 @@ import {
   PERSON_NAME,
 } from '../lib/profiles';
 
-/* Editorial copy is placeholder text; replace it with your own. */
+/* Editorial copy belongs to the sample persona; replace it with your own. */
 
 const FEATURED_LIMIT = 3;
 const featured = await getFeaturedPosts(FEATURED_LIMIT);
@@ -59,14 +61,18 @@ const leadSpansLg =
 const TEASER_PHOTO_SIZES =
   '(min-width: 1829px) calc(25vw + 193px), (min-width: 1396px) calc(21.5vw + 257px), (min-width: 83rem) calc(606px - 3.5vw), (min-width: 64rem) calc(45.7vw - 48px), (min-width: 40rem) calc(93vw - 71px), calc(100vw - 6rem)';
 
+/* The motto across the two stickers: its first word, then the rest. */
+const [firstWord = '', ...restWords] = MOTTO.text.split(' ');
+const MOTTO_STICKERS = [firstWord, restWords.join(' ')] as const;
+
 const STATS = [
   {
-    value: '3 lorem',
-    label: '1 ipsum, 1 dolor, 1 sit',
+    value: '1 crew',
+    label: 'Whose captain said yes',
   },
   {
-    value: '1 amet',
-    label: 'Consectetur adipiscing elit',
+    value: '20 years',
+    label: 'On the run before that',
   },
 ] as const;
 ---
@@ -74,7 +80,7 @@ const STATS = [
 <BaseLayout
   title={`${PERSON_NAME}, ${JOB_TITLE}`}
   titleSuffix={false}
-  description="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+  description={`${PERSON_NAME}, archaeologist of the Straw Hat Pirates and the last scholar of Ohara. Notes on Poneglyphs, history and life at sea.`}
 >
   {/*
     One gold area for the hero and the section below. No `.surface-gold` on the
@@ -98,12 +104,12 @@ const STATS = [
         Spans, not <p>: WAVE reads short bold paragraphs as headings. No
         `border-border`: it fails SC 1.4.11 here and would beat `.surface-gold`'s.
       */}
-        <div class="hero-marks" aria-hidden="true">
+        <div class="hero-marks" aria-hidden="true" lang={MOTTO.lang}>
           <span class="hero-sticker -rotate-3 bg-gold text-gold-text shadow-hard-mark-8">
-            Lorem
+            {MOTTO_STICKERS[0]}
           </span>
           <span class="hero-sticker rotate-3 bg-surface text-pink-text shadow-hard-mark-8">
-            Ipsum
+            {MOTTO_STICKERS[1]}
           </span>
         </div>
 
@@ -125,8 +131,9 @@ const STATS = [
     <Section surface="gold">
       {/* Not in the hero: over the moving field it fails SC 1.4.3. The sr-only comma separates the roles. */}
       <Fragment slot="title">
-        <span class="block">Lorem Ipsum Dolor</span>
-        <span class="sr-only">,</span> <span class="block">Sit Amet Elit</span>
+        <span class="block">Reading the past</span>
+        <span class="sr-only">,</span>{' '}
+        <span class="block">One stone at a time</span>
       </Fragment>
 
       <div class="grid gap-grid lg:grid-cols-2 lg:items-start">
@@ -160,10 +167,20 @@ const STATS = [
           </ul>
 
           <p class="mt-8 text-body text-pretty">
-            Lorem ipsum dolor sit amet in 2021, consectetur adipiscing elit sed
-            do eiusmod tempor. Incididunt ut labore et dolore magna aliqua ut
-            enim.
+            I learned to read Poneglyphs as a child on Ohara. Now I read them
+            with the Straw Hat Pirates, wherever we land. This site is where my
+            notes live.
           </p>
+
+          {SAMPLE_PERSONA !== null && (
+            <p class="mt-paragraph text-body text-pretty">
+              {SAMPLE_PERSONA.tribute}{' '}
+              <a href={`/credits/#${PERSONA_NOTICE_ID}`}>
+                Read the full notice
+              </a>
+              .
+            </p>
+          )}
 
           <p class="mt-head">
             <a href="/about/" class="btn-gold-secondary">

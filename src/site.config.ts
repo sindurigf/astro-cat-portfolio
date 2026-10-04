@@ -1,6 +1,7 @@
 /*
  * Everything that names the site or its owner. Replace every value before
- * publishing; the placeholders use RFC 2606 reserved names. Validated on
+ * publishing; the person is the sample persona and every address uses an
+ * RFC 2606 reserved name. Validated on
  * import, so a bad value fails the build and the tests, not a visitor.
  */
 
@@ -36,6 +37,11 @@ export interface SiteConfig {
     tagline: ReadonlyArray<string>;
     /** The public source repository, https; /accessibility links its record. The `REPOSITORY_URL` build variable overrides it. */
     repository: string;
+    /**
+     * The footer's name line and the first section of /about. About 11
+     * characters fit the footer on a phone; `lang` is its BCP 47 language.
+     */
+    motto: { text: string; lang: string };
   };
   person: {
     /** The homepage `<h1>` sets each name on its own line. */
@@ -79,22 +85,26 @@ const config: SiteConfig = {
     url: 'https://example.com',
     locale: 'en-GB',
     firstPublished: 2026,
-    tagline: ['Lorem ipsum dolor sit amet', 'Consectetur adipiscing elit'],
-    repository: 'https://github.example/alex-example/example-site',
+    tagline: [
+      'Archaeologist of the Straw Hats',
+      'Reading the stones history forgot',
+    ],
+    repository: 'https://github.example/robin-ohara/example-site',
+    motto: { text: 'Lege Saxa', lang: 'la' },
   },
   person: {
-    givenName: 'Alex',
-    familyName: 'Example',
-    jobTitle: 'Job Title',
+    givenName: 'Robin',
+    familyName: 'Ohara',
+    jobTitle: 'Archaeologist',
     email: 'hello@example.com',
     cv: null,
   },
   profiles: [
-    { label: 'GitHub', href: 'https://github.example/alex-example' },
-    { label: 'LinkedIn', href: 'https://linkedin.example/in/alex-example' },
-    { label: 'Instagram', href: 'https://instagram.example/alex-example/' },
-    { label: 'Bluesky', href: 'https://bluesky.example/profile/alex-example' },
-    { label: 'Mastodon', href: 'https://mastodon.example/@alex-example' },
+    { label: 'GitHub', href: 'https://github.example/robin-ohara' },
+    { label: 'LinkedIn', href: 'https://linkedin.example/in/robin-ohara' },
+    { label: 'Instagram', href: 'https://instagram.example/robin-ohara/' },
+    { label: 'Bluesky', href: 'https://bluesky.example/profile/robin-ohara' },
+    { label: 'Mastodon', href: 'https://mastodon.example/@robin-ohara' },
   ],
   analytics: null,
   journeyPost: 'sample-post',
@@ -188,6 +198,8 @@ export const validateSiteConfig = (value: SiteConfig): SiteConfig => {
     invalid('site.firstPublished', 'must be a four-digit year.');
   }
 
+  text('site.motto.text', site.motto.text);
+  text('site.motto.lang', site.motto.lang);
   text('person.givenName', person.givenName);
   text('person.familyName', person.familyName);
   text('person.jobTitle', person.jobTitle);

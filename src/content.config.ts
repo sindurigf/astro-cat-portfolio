@@ -37,6 +37,8 @@ const blog = defineCollection({
         teaser: z.string(),
         featured: z.boolean().default(false),
         readingTime: z.number().optional(),
+        /* Ends the post with the sample persona's sources (src/lib/persona.ts). */
+        personaSources: z.boolean().default(false),
         seoTitle: z.string().optional(),
         seoDescription: z.string().optional(),
         /* Any ratio, shown uncropped in its own ratio; only og:image is cropped. Relative to the post. */

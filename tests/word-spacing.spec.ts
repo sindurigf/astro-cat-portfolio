@@ -4,7 +4,7 @@ import { NODE } from './tags';
 
 /**
  * With `compressHTML`, Astro drops the line break between an inline closing tag
- * ending a source line and the next line's text ("Alex Exampleand friends").
+ * ending a source line and the next line's text ("Sam Exampleand friends").
  * Axe, the type checker and the formatter all miss it. Fix with `{' '}`.
  */
 const INLINE = 'a|strong|em|b|i|code';

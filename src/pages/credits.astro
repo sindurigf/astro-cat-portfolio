@@ -3,8 +3,19 @@ import CloseRow from '../components/CloseRow.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PageHero from '../components/PageHero.astro';
 import { CONTACT_EMAIL, CONTACT_MAILTO } from '../lib/contact';
-import { NAME_INSPIRATION, PHOTOGRAPHERS, THANKS } from '../lib/credits';
-import { SITE_NAME } from '../lib/site';
+import {
+  NAME_INSPIRATION,
+  PHOTO_CREDITS_PATH,
+  PHOTOGRAPHERS,
+  THANKS,
+} from '../lib/credits';
+import { MOTTO, REPOSITORY_URL, SITE_NAME } from '../lib/site';
+import {
+  PERSONA_NOTICE_ID,
+  PERSONA_SOURCES_PATH,
+  SAMPLE_PERSONA,
+  personaNotice,
+} from '../lib/persona';
 
 /* The project this template was extracted from; scripts/check-leaks.mjs allows this one line. */
 // prettier-ignore
@@ -54,7 +65,7 @@ const GUIDES = [
     name: 'The Website Specification',
     href: 'https://specification.website/',
     author: { name: 'Joost de Valk', href: 'https://joost.blog/' },
-    use: 'The checklist used to check the search engine optimisation (SEO), security and agent readiness of this site.',
+    use: "The checklist used to check this site's search engine optimisation (SEO) and security, and how well automated assistants can read it.",
   },
   {
     name: 'A11Y.md',
@@ -63,7 +74,7 @@ const GUIDES = [
       name: 'Felipe A. Carriço',
       href: 'https://www.linkedin.com/in/fecarrico',
     },
-    use: 'Pointed out that axe ships some Web Content Accessibility Guidelines (WCAG) rules switched off; this site turns them on. Also informed the rules on conflicting access needs and on content held back by scripts.',
+    use: 'Pointed out that axe, an automated accessibility checker, ships some Web Content Accessibility Guidelines (WCAG) rules switched off; this site turns them on. Also informed the rules on conflicting access needs and on content held back by scripts.',
   },
   {
     name: 'Upstream First',
@@ -72,7 +83,7 @@ const GUIDES = [
       name: 'Upstream First contributors',
       href: 'https://github.com/mgifford/upstream-first/graphs/contributors',
     },
-    use: 'Informed reporting a browser bug upstream and linking it where this site works around it.',
+    use: "Informed reporting a browser bug to the browser's makers, and linking the report where this site works around the bug.",
   },
   {
     name: 'Spec-First Coding',
@@ -87,13 +98,13 @@ const GUIDES = [
     name: 'Intopia Web Accessibility Skill',
     href: 'https://github.com/Intopia/intopia-web-accessibility-skill',
     author: { name: 'Intopia', href: 'https://www.intopia.digital/' },
-    use: 'Ideas only: informed compositing a see-through colour over its ground before measuring contrast, and checking reflow in a window 256px tall.',
+    use: 'Ideas only: informed blending a see-through colour with the colour behind it before measuring contrast, and checking that pages fit a window 256px tall.',
   },
   {
     name: 'accessibility-skills',
     href: 'https://github.com/mgifford/accessibility-skills',
     author: { name: 'Mike Gifford', href: 'https://ox.ca/' },
-    use: 'Ideas only: informed the voice-control pass in the manual tests.',
+    use: 'Ideas only: informed the voice-control check in the manual tests.',
   },
   {
     name: 'Accessibility Agents',
@@ -106,10 +117,10 @@ const GUIDES = [
   },
 ] as const;
 
-const photographers = Object.entries(PHOTOGRAPHERS).map(([name, href]) => ({
-  name,
-  href,
-}));
+/* Named photographers only; the sample's one entry points back to this card. */
+const photographers = Object.entries(PHOTOGRAPHERS)
+  .filter(([, href]) => href !== PHOTO_CREDITS_PATH)
+  .map(([name, href]) => ({ name, href }));
 
 /* `min-h-target` and `min-w-target`: the SC 2.5.5 inline exception does not cover a bare link. */
 const LINK_ITEM = 'link inline-flex min-h-target min-w-target items-center';
@@ -125,10 +136,17 @@ const NAMED_ENTRY = 'min-w-0 bg-background p-card-tight';
   description={`Where the name ${SITE_NAME} comes from, who helped, who took the photos, and what the site was designed, built and tested with.`}
 >
   <PageHero title="Credits">
-    <p class="standfirst">
-      Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
-      tempor incididunt ut labore et dolore magna aliqua.
-    </p>
+    {/* The notice takes the standfirst's place: a body-size paragraph above a standfirst cannot clear SC 1.4.8 spacing. */}
+    {personaNotice(SAMPLE_PERSONA) === null ? (
+      <p class="standfirst">
+        The people and tools behind this site, and where its name comes from.
+      </p>
+    ) : (
+      <p id={PERSONA_NOTICE_ID} class="standfirst">
+        {personaNotice(SAMPLE_PERSONA)}{' '}
+        <a href={PERSONA_SOURCES_PATH}>Sources for her stories</a>.
+      </p>
+    )}
   </PageHero>
 
   <section class="band py-section">
@@ -136,18 +154,17 @@ const NAMED_ENTRY = 'min-w-0 bg-background p-card-tight';
       <div id="name" class="card">
         <h2 class={CARD_HEADING}>Where the name comes from</h2>
         <p class="mt-6 mb-paragraph max-w-4xl text-lead font-normal text-text text-pretty">
-          Lorem ipsum dolor sit amet{' '}
-          <a href={NAME_INSPIRATION.href}>{NAME_INSPIRATION.site}</a>,
-          consectetur adipiscing elit sed do {NAME_INSPIRATION.name}.
+          The name of this site is borrowed, with thanks, from{' '}
+          <a href={NAME_INSPIRATION.href}>{NAME_INSPIRATION.site}</a>, the site
+          of {NAME_INSPIRATION.name}.
         </p>
         <p class="mt-6 max-w-measure text-body text-text text-pretty">
-          Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris
-          nisi ut aliquip, <a href={CONTACT_MAILTO}>{CONTACT_EMAIL}</a>. Duis
-          aute irure dolor!
+          If you know a better story behind a name, write to me at{' '}
+          <a href={CONTACT_MAILTO}>{CONTACT_EMAIL}</a>. I collect them.
         </p>
         <p class="mt-8">
           <a href="/about/#motto" class="chip">
-            Lorem ipsum dolor
+            Why <span lang={MOTTO.lang}>{MOTTO.text}</span>
           </a>
         </p>
       </div>
@@ -187,25 +204,30 @@ const NAMED_ENTRY = 'min-w-0 bg-background p-card-tight';
         </dl>
       </div>
 
-      <div class="card mt-grid">
+      <div id="photos" class="card mt-grid">
         <h2 class={CARD_HEADING}>Photos</h2>
 
-        <p class="mt-6 text-body text-text text-pretty">
-          Photos on this site and in its posts are by:
+        <p class="mt-6 max-w-measure text-body text-text text-pretty">
+          The photos on this site and in its posts are under the Creative
+          Commons Attribution 4.0 licence.{' '}
+          <a href={`${REPOSITORY_URL}/blob/main/LICENSE-photos`}>
+            The photo licence
+          </a>{' '}
+          names the photographer.
         </p>
 
         {/* Grid, not `columns`, here and below: WebKit does not scroll a focused inline-flex link in a multi-column box into view (SC 2.4.11). */}
-        <ul class="bullet-list mt-4 gap-x-12 sm:grid sm:grid-cols-2">
-          {photographers.map((photographer) => (
-            <li>
-              <a href={photographer.href} class={LINK_ITEM}>
-                {photographer.name}
-              </a>
-            </li>
-          ))}
-        </ul>
-
-        <p class="mt-4 text-body text-text text-pretty">And more.</p>
+        {photographers.length > 0 && (
+          <ul class="bullet-list mt-4 gap-x-12 sm:grid sm:grid-cols-2">
+            {photographers.map((photographer) => (
+              <li>
+                <a href={photographer.href} class={LINK_ITEM}>
+                  {photographer.name}
+                </a>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     </div>
   </section>
@@ -227,11 +249,9 @@ const NAMED_ENTRY = 'min-w-0 bg-background p-card-tight';
             </div>
           ))}
           <div class={NAMED_ENTRY}>
-            <dt class="text-body font-black text-text">
-              Lorem ipsum dolor sit amet
-            </dt>
+            <dt class="text-body font-black text-text">Claude (Anthropic)</dt>
             <dd class="mt-1 text-body text-text">
-              Consectetur adipiscing elit
+              Drew the logo mark and the cats
             </dd>
           </div>
         </dl>

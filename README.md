@@ -20,9 +20,10 @@ page. Tested for WCAG 2.2 AA in Chromium, Firefox and WebKit.
 3. Edit [`src/site.config.ts`](src/site.config.ts): site name and URL, your
    name, job title, email and profiles, the post your pages point to for the
    longer story (`journeyPost`), and the analytics and contact switches. The build fails on an invalid value.
-4. Replace the placeholder copy (lorem ipsum), the sample posts and talk, and
-   the photos. Update [SECURITY.md](SECURITY.md),
-   [ACCESSIBILITY.md](ACCESSIBILITY.md) and
+4. Replace the sample persona: her copy on every page, the sample posts and
+   talk, and the photos. Set `SAMPLE_PERSONA` in `src/lib/persona.ts` to
+   `null`, which removes her notice from `/credits` and the homepage. Update
+   [SECURITY.md](SECURITY.md), [ACCESSIBILITY.md](ACCESSIBILITY.md) and
    [AI_DISCLOSURE.md](AI_DISCLOSURE.md) to describe your site.
    `/brand` shows your design system and links to your `repository`; it is
    optional. To drop it, delete `src/pages/brand.astro`,
@@ -77,3 +78,7 @@ instead: [SECURITY.md](SECURITY.md). Pull requests use
   vendored script and font sent to a browser (`scripts/licenses.mjs`).
 - When you replace the photos with your own, update `LICENSE-photos`, or
   remove it and its row.
+- Sample persona based on Nico Robin from One Piece by Eiichiro Oda
+  (Shueisha). A fan tribute used as a placeholder; not affiliated with or
+  endorsed by Eiichiro Oda, Shueisha or Toei Animation. The sample text is written with AI
+  ([AI_DISCLOSURE.md](AI_DISCLOSURE.md)).
