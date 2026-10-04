@@ -249,6 +249,14 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # The same images as the shards; only the demo's variables differ.
+      - name: Restore optimised images
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: node_modules/.astro/assets
+          key: ${{ runner.os }}-astro-images-${{ hashFiles('package-lock.json', 'astro.config.mjs', 'src/**') }}
+          restore-keys: ${{ runner.os }}-astro-images-
+
       - name: Read the pinned Playwright version
         id: playwright
         run: echo "version=$(node -p "require('./package.json').devDependencies['@playwright/test']")" >> "$GITHUB_OUTPUT"
