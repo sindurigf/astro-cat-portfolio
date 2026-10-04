@@ -349,7 +349,7 @@ in `wrangler.jsonc`).
   ([DEVELOPMENT.md](docs/DEVELOPMENT.md#the-sharing-image)). A PNG in `public/`
   because scrapers need a stable URL and format.
 - `artwork/mark-dark.svg`: the mark's source, read by `npm run og`.
-- The mark, icons, sharing image and hero cat are drawn by AI
+- The mark, icons, sharing image and hero ruins are drawn by AI
   ([AI_DISCLOSURE.md](AI_DISCLOSURE.md)).
 - Every placement renders through `<Image>` at its drawn size with `DENSITIES`
   (1x, 2x). The roundel resizes, so it passes `widths` and `sizes`.
@@ -602,9 +602,9 @@ evidence.
 - **Add a `BreadcrumbList` to the talk page:** pages outside `/blog` carry no
   breadcrumbs (`tests/breadcrumbs.spec.ts`); the link to the talk's post
   covers the way back.
-- **Name the numbers in `hero-field-cat.ts`, and the bud, head and shadow
-  ellipses in `hero-field.ts`, as constants:** they are drawing coordinates,
-  geometry in the mascot's own units, not tuning values.
+- **Name the numbers in `hero-field-ruins.ts`, and the bud and head ellipses
+  in `hero-field.ts`, as constants:** they are drawing coordinates, geometry
+  in each ruin's own units, not tuning values.
 - **Move every `href` in page markup into `paths.ts`:** a route used by code
   (redirects, nav, sitemap, `llms.txt`) is a constant there; a link in prose
   stays markup, and `tests/internal-links.spec.ts` fails on a broken one.
