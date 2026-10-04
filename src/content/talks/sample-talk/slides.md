@@ -7,7 +7,7 @@ info: 'Every slide of the talk Reading the Stones, as text: why records disappea
 
 What Old Records Teach Open Projects
 
-Nico Rubbing
+Robin Ohara
 
 ---
 
@@ -17,7 +17,7 @@ part: Introduction
 
 # About the speaker
 
-Nico Rubbing, archaeologist of the Straw Hat Pirates
+Robin Ohara, archaeologist of the Straw Hat Pirates
 
 - Reads the Poneglyphs
 - Passed the archaeology exam on Ohara at eight

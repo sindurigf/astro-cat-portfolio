@@ -604,7 +604,7 @@ test.describe('the contact endpoint', () => {
       {
         name: 'Ada\r\nBcc: victim@example.com',
         email: 'ada@example.com',
-        body: 'Hello there, Nico.',
+        body: 'Hello there, Robin.',
       },
       NOTIFY_TO,
       new Date(0),
