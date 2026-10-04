@@ -134,18 +134,18 @@ const article = placeholder
             <p class="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-label text-gold-muted">
               <time datetime={machineDate}>{formattedDate}</time>
               {readingTime ? <span>{readingTime} minute read</span> : null}
+              {/* Here, not under the photo: the photo hangs below the slab, off the gold ground. */}
+              {coverCredit && (
+                <span data-cover-credit>
+                  {PHOTO_CREDIT_PREFIX}
+                  {coverCreditHref ? (
+                    <a href={coverCreditHref}>{coverCredit}</a>
+                  ) : (
+                    coverCredit
+                  )}
+                </span>
+              )}
             </p>
-            {/* Here, not under the photo: the photo hangs below the slab, off the gold ground. */}
-            {coverCredit && (
-              <p class="mt-4 text-label text-gold-muted" data-cover-credit>
-                {PHOTO_CREDIT_PREFIX}
-                {coverCreditHref ? (
-                  <a href={coverCreditHref}>{coverCredit}</a>
-                ) : (
-                  coverCredit
-                )}
-              </p>
-            )}
           </div>
         </div>
         {cover && coverSize && (

@@ -775,7 +775,7 @@ Enforced by `tests/post-page.spec.ts`.
 - A cover is never cropped: the file keeps its full frame, and the hero and
   the `/blog` feature card show it in its own ratio. Only `og:image` is cropped,
   to the platforms' 1.91:1 (`src/lib/og-image.ts`).
-- `coverCredit` puts "Photo: name" under the date in `text-gold-muted`, linked
+- `coverCredit` puts "Photo: name" in the date line, `text-gold-muted`, linked
   when the name is in `PHOTOGRAPHERS`. Not under the cover: the photo hangs
   below the slab, off the gold ground.
 - Below `xl` they stack at `--spacing-head`; from `xl` the contents list sits
