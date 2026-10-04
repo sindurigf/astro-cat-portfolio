@@ -11,6 +11,7 @@ current once the site is yours.
 | Tool      | Claude Code                                                                               |
 | Code      | Components, scripts, design tokens, tests and docs, written with Claude Code and reviewed |
 | Microcopy | Functional microcopy (labels, errors, alt text, empty states) and the policy pages        |
+| Editorial | The sample persona's text: every page, both posts, the talk and its slides                |
 | Art       | Drawn by Claude as SVG and canvas code, rendered in Chromium; see below                   |
 
 AI-drawn art, all by Claude:
@@ -24,12 +25,14 @@ AI-drawn art, all by Claude:
 - The sharing image, `public/images/og-default.png`, drawn by
   `scripts/make-og.mjs` with the mark.
 
-Every page's footer says "Cat drawings made with AI" and links this file
-(`tests/ai-label.spec.ts` checks every route). `/about` also labels its moving
-cats where they play.
+Every page's footer says "Cat drawings and text made with AI" and links this
+file (`tests/ai-label.spec.ts` checks every route). `/about` also labels its
+moving cats where they play.
 
 - The cat photos are real photographs, not generated or edited by AI.
-- Editorial text is lorem ipsum placeholder, not AI writing.
+- The sample persona, Nico Robin, and all her text are written by Claude:
+  original prose, no text copied from One Piece. Replace it with your own and
+  update the footer label.
 
 ## No AI at runtime
 
@@ -41,8 +44,8 @@ cats where they play.
 
 - Article 50 requires that AI-generated or AI-manipulated images, video, audio
   and text published to inform the public are disclosed as such.
-- This template labels its AI-drawn art on the page where it appears, and lists
-  it here.
+- This template labels its AI-drawn art and AI-written text on every page, and
+  lists them here.
 
 ## Keeping this current
 

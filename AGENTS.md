@@ -137,8 +137,10 @@ Rules:
   Active voice, everyday words, no "e.g." or "i.e.".
 - An error message says what is wrong and how to fix it, without blame.
 - Editorial copy (posts, About, Career, taglines, bios) belongs to the site's
-  owner. An agent does not invent it: it stays placeholder until a person
-  writes it.
+  owner. An agent does not invent it: in a fork it stays the sample persona's
+  until a person writes it.
+- The sample persona's copy is the one exception: AI-written, labelled in the
+  footer and listed in [AI_DISCLOSURE.md](AI_DISCLOSURE.md).
 - New images, video, audio or editorial text: record whether AI made or edited
   it. If so, label it on the page and in
   [AI_DISCLOSURE.md](AI_DISCLOSURE.md#keeping-this-current) (EU AI Act Art. 50).

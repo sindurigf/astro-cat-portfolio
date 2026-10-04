@@ -656,10 +656,11 @@ evidence.
 
 ## Content notes
 
-- Editorial copy (posts, About, Career, taglines, bios) ships as lorem ipsum
-  placeholder. The sample posts show every Markdown feature the site renders.
+- Editorial copy (posts, About, Career, taglines, bios) ships as the sample
+  persona, Nico Robin, written with AI ([AI_DISCLOSURE.md](AI_DISCLOSURE.md)).
+  The sample posts show every Markdown feature the site renders.
 - Homepage section headings, category descriptions and the `/blog` heading
-  and standfirst are placeholder too.
+  and standfirst are hers too.
 - **CV PDF.** Set `person.cv` in `src/site.config.ts` to a PDF under
   `public/`, and `/career` links it with its size; `tests/cv.spec.ts` then
   checks the file's metadata and tags. No CV ships.
