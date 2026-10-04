@@ -206,6 +206,7 @@ part: Closing
 # Further reading
 
 - Sources for every slide are in the post that goes with this talk.
+- The speaker's stories come from the One Piece manga; each chapter is listed under Sources on this site's About page.
 
 * [example.org](https://example.org/)
 

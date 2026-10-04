@@ -8,6 +8,8 @@ import PageHero from '../components/PageHero.astro';
 import PhotoTile from '../components/PhotoTile.astro';
 import PhotoViewer from '../components/PhotoViewer.astro';
 import Section from '../components/Section.astro';
+import PersonaSources from '../components/PersonaSources.astro';
+import { PERSONA_SOURCES_ID, SAMPLE_PERSONA } from '../lib/persona';
 import AboutCats from '../components/ui/AboutCats.vue';
 import type { CatInfo } from '../lib/about-cats';
 import hero from '../assets/photos/calico-cushion.jpg';
@@ -62,6 +64,13 @@ const SECTIONS = [
   { id: 'important-things', title: 'Important things' },
   { id: 'journey', title: 'How I got here' },
 ] as const;
+
+const JUMP_LINKS = [
+  ...SECTIONS,
+  ...(SAMPLE_PERSONA === null
+    ? []
+    : [{ id: PERSONA_SOURCES_ID, title: 'Sources' }]),
+];
 
 /* On the `.aspect-frame`, so the border stays when a failed photo fades out. */
 const PHOTO = 'border-4 border-border';
@@ -160,7 +169,7 @@ const closeRow = await closeRowLinks({
 
     <nav aria-label="On this page" class="mt-8">
       <ul class="flex flex-wrap gap-6">
-        {SECTIONS.map((section) => (
+        {JUMP_LINKS.map((section) => (
           <li>
             <a href={`#${section.id}`} class="chip">
               {section.id === 'motto' ? (
@@ -411,6 +420,21 @@ const closeRow = await closeRowLinks({
       </div>
     </div>
   </Section>
+
+  {SAMPLE_PERSONA !== null && (
+    <Section id={PERSONA_SOURCES_ID} title="Sources">
+      <p slot="lead" class="lead">
+        Every story on this page comes from the One Piece manga. Each is checked
+        against the One Piece Wiki.
+      </p>
+      <div class="card">
+        <PersonaSources
+          sources={SAMPLE_PERSONA.sources}
+          class="bullet-list max-w-measure text-body text-text text-pretty"
+        />
+      </div>
+    </Section>
+  )}
 
   <CloseRow {...closeRow} />
 

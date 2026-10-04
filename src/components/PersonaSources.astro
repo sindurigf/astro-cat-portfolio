@@ -1,0 +1,19 @@
+---
+import { primaryCitation, type PersonaSource } from '../lib/persona';
+
+interface Props {
+  sources: readonly PersonaSource[];
+  class?: string;
+}
+
+const { sources, class: className } = Astro.props;
+---
+
+<ul class={className}>
+  {sources.map((source) => (
+    <li>
+      {source.story}: {primaryCitation(source)}.{' '}
+      <a href={source.wiki.href}>{source.wiki.name}</a>.
+    </li>
+  ))}
+</ul>

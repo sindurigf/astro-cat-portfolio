@@ -12,6 +12,7 @@ import {
 import { MOTTO, REPOSITORY_URL, SITE_NAME } from '../lib/site';
 import {
   PERSONA_NOTICE_ID,
+  PERSONA_SOURCES_PATH,
   SAMPLE_PERSONA,
   personaNotice,
 } from '../lib/persona';
@@ -137,7 +138,8 @@ const NAMED_ENTRY = 'min-w-0 bg-background p-card-tight';
   <PageHero title="Credits">
     {personaNotice(SAMPLE_PERSONA) !== null && (
       <p id={PERSONA_NOTICE_ID} class="mt-8 max-w-2xl text-body text-pretty">
-        {personaNotice(SAMPLE_PERSONA)}
+        {personaNotice(SAMPLE_PERSONA)}{' '}
+        <a href={PERSONA_SOURCES_PATH}>Sources for her stories</a>.
       </p>
     )}
     <p class="standfirst">

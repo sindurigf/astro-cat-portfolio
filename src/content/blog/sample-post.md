@@ -7,6 +7,7 @@ tags: ['archaeology', 'career', 'community', 'ohara']
 teaser: 'How I became an archaeologist. From the library in the Tree of Knowledge to twenty years on the run, and the crew I sail with now.'
 featured: true
 readingTime: 4
+personaSources: true
 seoTitle: 'What Ohara Taught Me'
 cover: '../../assets/blog/sample-post/cover.jpg'
 coverAlt: 'A tabby cat resting its chin on the edge of a cat bed, one paw stretched out.'
