@@ -1,12 +1,12 @@
 /** WCAG 2.2 values shared by specs. Contrast ratios are in contrast.ts. */
 
 /**
- * SC 2.5.8 Target Size (Minimum): 24x24 CSS px on the target's own box. At
- * least 24, so compare with `toBeGreaterThanOrEqual`; a 24.0px target passes.
+ * SC 2.5.5 Target Size (Enhanced): 44x44 CSS px of pointer target. At least 44,
+ * so compare with `toBeGreaterThanOrEqual`; a 44.0px target passes.
  */
-export const MIN_TARGET = 24;
+export const MIN_TARGET = 44;
 
-/** Controls walked by focus.spec.ts (SC 2.4.7, 2.4.11) and sized by target-size.spec.ts (SC 2.5.8). */
+/** Controls walked by focus.spec.ts (SC 2.4.7, 2.4.11) and sized by target-size.spec.ts (SC 2.5.5). */
 export const FOCUSABLE_SELECTOR =
   'a[href], button, input, select, textarea, summary, video[controls], audio[controls], [role="button"], [tabindex]:not([tabindex="-1"])';
 
