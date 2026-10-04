@@ -11,13 +11,13 @@ seoTitle: 'Reading the Stones'
 seoDescription: 'A talk on why old records disappear, what the survivors had in common, and six habits open projects can borrow from them.'
 ---
 
-Most of the records I study did not burn in a single night. They faded. A [library lost its only reader](https://example.org/1/), a [catalogue lived in one person's head](https://example.org/2/), a [script stopped being taught](https://example.org/3/). [Copies were never made](https://example.org/4/), [keys were never written down](https://example.org/5/), and [nobody noticed until it was too late](https://example.org/6/). Open projects fail in the same quiet ways.
+The library I grew up in burned in a single day. Most records are lost more slowly. A [library lost its only reader](https://example.org/1/), a [catalogue lived in one person's head](https://example.org/2/), a [script stopped being taught](https://example.org/3/). [Copies were never made](https://example.org/4/), [keys were never written down](https://example.org/5/), and [nobody noticed until it was too late](https://example.org/6/). Open projects fail in the same quiet ways.
 
 This post is the written version of my talk. It covers why records disappear, what the survivors had in common, and what any project can borrow from them.
 
 ## Why old records disappear
 
-We remember the dramatic losses: the fire, the flood, the order to destroy. They happen, and I have lived through one. But for every record lost in a night, I have found a hundred lost over decades.
+We remember the dramatic losses: the fire, the flood, the order to destroy. They happen, and I lived through one when I was eight. But records also vanish slowly, over decades, and nobody sounds an alarm.
 
 Those slow losses look alike. The record existed in one place. One person understood it. When that person left, or the place was damaged, nobody else could read what remained.
 
@@ -27,7 +27,7 @@ The stone is still there. The meaning is gone.
 
 Every project has a keeper: the person who knows where things are and why they were done that way. Keepers are wonderful, and they are a risk.
 
-When one keeper holds the whole record, the record is only as safe as their health, their patience and their plans. I have read inscriptions where the last carver plainly ran out of time. The text stops mid-line.
+When one keeper holds the whole record, the record is only as safe as their health, their patience and their plans. On Ohara, the scholars kept their research in one library, inside one tree. When the tree burned, the library burned with it.
 
 ## What survives, and why
 
@@ -51,21 +51,21 @@ Copies also need checking. A copy you have never opened may not be a copy at all
 
 Boring is safe.
 
-**A copy nobody can open** is not a copy. Store records in formats that will still open in twenty years, and test that they do. I once found a carefully kept archive written in a cipher whose key was lost with its keeper. It was [complete and useless](https://example.org/9/), a very safe box with nothing anyone could use inside.
+**A copy nobody can open** is not a copy. Store records in formats that will still open in twenty years, and test that they do. The Poneglyphs show the opposite failure: carved in stone that, as far as anyone knows, cannot be destroyed, but in a script almost nobody can read. Without the key they are [complete and useless](https://example.org/9/), a very safe box with nothing most people can use inside.
 
 ### 2. Write plainly
 
-The records I can read fastest were written for ordinary readers, not for experts. Plain words outlive clever ones.
+Records are fastest to read when they were written for ordinary readers, not for experts. Plain words outlive clever ones.
 
 [Plain writing](https://example.org/10/) is not simple thinking. It is careful thinking, set down so the next person does not have to repeat it.
 
 Write the reason next to the decision.
 
-A good test: could someone who joins next year read this without asking you? In 2021 I rewrote my own field notes this way, and I found 45 places where I had written down a result but not how I reached it. Each of those was a small loss waiting to happen. Some I could repair from memory. A few I could not, and those readings are now marked as unchecked.
+A good test: could someone who joins next year read this without asking you? I learned the Poneglyph script at 8, in a library that no longer exists. Ohara's Tree of Knowledge stood for 5,000 years; what it held was lost in one day. Each fact a project writes down plainly is one less thing that can be lost that way.
 
 ### 3. Leave a key
 
-Every old text I have decoded came with some kind of key. Sometimes it was a word list. Sometimes it was the same text in two scripts, carved side by side.
+Old texts are far easier to read when they come with some kind of key. Sometimes it is a word list. Sometimes it is the same text in two scripts, carved side by side.
 
 Projects need keys too. A glossary of terms, a map of where things live, a short note on why the odd parts are odd. [Keys are cheap to write](https://example.org/11/) while you remember, and very expensive to rebuild once you have forgotten.
 
@@ -87,7 +87,7 @@ Three things helped every archive I have seen grow its readers:
 
 Readers become keepers: slowly, then all at once.
 
-A reader once wrote in the margin of an old copy, "checked against the stone, and it is right." That one line made the copy worth more than the stone, which has since cracked.
+On Ohara, the library's director let a child read among the scholars. That is how I became one of its readers, and later the last of its scholars.
 
 ### 5. Documen&shy;tation that lasts
 
@@ -97,7 +97,7 @@ Date every page. Say who looks after it. Delete what is no longer true, because 
 
 ### 6. Leave the doors open
 
-The last habit is the one I learned latest. For years I kept my work closed, because I believed that was safer. It was not. Closed records are lost quietly, and nobody even knows to look for them.
+The last habit is the one I learned latest. For twenty years I kept my work to myself, because I trusted nobody. It was not. Closed records are lost quietly, and nobody even knows to look for them.
 
 Open records get checked, corrected and copied by people you will never meet. That is the strongest protection I know.
 
@@ -118,13 +118,13 @@ None of these is a disaster yet. Each is a disaster that has already been schedu
 
 I am not a programmer. But when I read about open projects, I recognise the stories.
 
-A project grows around one generous person. They answer every question and fix every problem. Over the years the project depends on them more and more, until one day they are tired, or ill, or simply done. Then the project stops, mid-line, like the carver who ran out of time.
+A project grows around one generous person. They answer every question and fix every problem. Over the years the project depends on them more and more, until one day they are tired, or ill, or simply done. Then the project stops, and the people who come later find only fragments.
 
 The fix is not heroism. It is spreading the record out: more copies, more keys, more readers and more keepers. Projects that do this early outlast the people who started them. Projects that wait for a crisis usually find out too late what only one person knew.
 
-I have read too many stones that end mid-sentence. I would like fewer projects to end that way.
+I have spent my life reading fragments. I would like fewer projects to leave only fragments behind.
 
-A colleague who restores old maps once summed it up in a line I [keep on my desk](https://example.org/23/). It is the best short rule I know for [any record that matters](https://example.org/24/):
+I keep one short rule [on my desk](https://example.org/23/). It is the best I know for [any record that matters](https://example.org/24/):
 
 > Make it easy to copy, easy to read, and easy to correct.
 
@@ -172,7 +172,7 @@ That is the question I would like every project to ask, too.
 
 ## The talk
 
-I gave this talk at the _Example Conference: Archives, Records and the People Who Keep Them_, in the [history track](https://example.org/25/), on Friday 10 July 2026, 09:40 to 10:10, in room 3 (with live captions).
+The event is a placeholder, to show how a talk pairs with its post: the _Example Conference: Archives, Records and the People Who Keep Them_, in the [history track](https://example.org/25/), on Friday 10 July 2026, 09:40 to 10:10, in room 3 (with live captions).
 
 [View the slides](/talks/sample-talk/), or [download them](/talks/sample-talk.pdf) (PDF, 91 KB, 18 pages).
 

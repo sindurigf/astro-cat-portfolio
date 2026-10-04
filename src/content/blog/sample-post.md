@@ -1,67 +1,71 @@
 ---
-title: 'Field Notes: How I Read an Old Stone'
+title: 'Field Notes: What Ohara Taught Me'
 date: 2026-09-13
 category: 'professional-journey'
 placeholder: false
-tags: ['archaeology', 'career', 'community', 'research']
-teaser: 'The slow, careful steps I follow before I trust a single carved word, from the first look to the second copy of my notes.'
+tags: ['archaeology', 'career', 'community', 'ohara']
+teaser: 'From the library in the Tree of Knowledge to twenty years on the run and a crew that came back for me: how I became an archaeologist.'
 featured: true
-readingTime: 3
-seoTitle: 'How I Read an Old Stone'
+readingTime: 4
+seoTitle: 'What Ohara Taught Me'
 cover: '../../assets/blog/sample-post/cover.jpg'
 coverAlt: 'A tabby cat resting its chin on the edge of a cat bed, one paw stretched out.'
 coverCardAlt: 'A tabby cat resting its chin on the edge of a cat bed.'
-seoDescription: 'How an archaeologist reads an inscription: looking first, recording carefully, checking every reading and sharing the notes.'
+seoDescription: 'How Nico Rubbing became an archaeologist: the Library of Ohara, the Poneglyphs, twenty years on the run and the Straw Hat Pirates.'
 ---
 
-People often ask how I read a stone that nobody has read in centuries. The honest answer is: slowly.
+People ask how I came to read stones that almost nobody else can read. The answer starts on an island in West Blue.
 
 ![A tabby cat lying on its back on a parquet floor, a wand toy by its paw.](../../assets/blog/sample-post/tabby-floor.jpg 'Photo: Licence and credit')
 
-## Look before you touch
+## The library in the tree
 
-The first hour at a site is for looking. I walk around the stone twice before I open a notebook. I note the light, the weather, the moss and the cracks, because each of them changes what I will see later.
+I grew up on Ohara. Its scholars worked in a library inside the Tree of Knowledge, a tree about 5,000 years old. For a child who loved books, there was no better place on any sea.
 
-Carvings wear unevenly. Rain softens the top edge, and wind scours one side more than the other. A letter that looks broken may be whole, only shallow. I learned in 2019 to wait for low evening light, which throws even faint marks into shadow.
+The library's director, Professor Clover, was a friend of my mother. He let me read there long before I was old enough to understand everything I read. I did not mind. I read it anyway, and came back the next day.
 
-## Record everything twice
+## Learning the stones
 
-I draw the whole face first, then each line, then any sign I do not recognise. Drawing forces me to see the shape instead of guessing the word. Photographs come after the drawing, never instead of it.
+The Poneglyphs are huge stone blocks, carved in an ancient script and, as far as anyone knows, impossible to destroy. I learned to read that script as a child. At eight I passed the archaeology exam and became a scholar of Ohara.
 
-Every record gets a place, a date and the conditions I worked in. Then I copy it. One copy travels with me, and the other stays somewhere safe.
+My mother, Nico Olvia, was an archaeologist too. She left on an expedition to find Poneglyphs when I was two, and I grew up waiting for her to come home.
 
-I keep two copies because I have lost a library before. A single record is only as safe as the place that holds it. A second copy in another place turns a disaster into an inconvenience.
+## The year the island burned
+
+Some of the history in the Poneglyphs comes from the Void Century, a hundred years the World Government does not allow anyone to study. Ohara's scholars studied it anyway.
+
+When I was eight, the Government answered with a Buster Call. The library burned with the tree. My mother came back that day, and stayed with the scholars to the end. I was the only one from Ohara who survived.
 
 ![A calico cat asleep, curled against a grey cushion.](../../assets/blog/sample-post/calico-asleep.jpg)
 
-## Read what is there, not what you hope for
+## Twenty years of running
 
-The hardest part of the work is not the script. It is wanting a stone to say something exciting.
+A giant called Jaguar D. Saul, once a vice admiral of the Marines, protected me on the island. Because of him, I got away.
 
-So I read in passes. The first pass names only the signs I am sure of. The second adds the likely ones, marked as likely. The third tries a translation, and I write down every place where I had to choose between two readings.
+I had a bounty from the age of eight: 79,000,000 berries, for a child who could read. For about twenty years I ran. I learned to trust nobody for long.
 
-When a reading depends on a guess, I say so in the text, not in a footnote nobody opens. A reader should be able to see exactly how much of a translation is evidence and how much is me.
+## Miss All Sunday
 
-## Check it against everything else
+For a time I worked for Baroque Works, under the codename Miss All Sunday. I was its vice president, and partner to its leader, Crocodile.
 
-A single stone rarely explains itself. I compare each sign with my index of where that sign appears, on which islands and in which centuries. If a word only makes sense in one place, I treat it as a question, not an answer.
+I am not proud of all of it. But it brought me to Arabasta, and to the crew I sail with now.
 
-Then I ask someone else to read it cold, without my notes. If we disagree, the disagreement goes into the record too. Some of my best corrections came from people who knew less about the script than I did, but who looked more carefully at the stone.
+## A crew that came back
 
-## Share the notes
+After Arabasta I asked the Straw Hat Pirates to let me join. Their captain said yes, as if it were simple.
 
-For years I kept my work to myself, because sharing it felt dangerous. I was wrong about what was dangerous. Knowledge kept by one person is easy to lose, and easy to bend.
+At Enies Lobby, the crew came to take me back, and I told them that I wanted to live.
 
-Now I publish my drawings, my readings and my doubts. Other researchers can check them, build on them, or tell me where I went wrong. That is how a record becomes history instead of a rumour.
+## What Ohara taught me
 
-## What I carry
+The scholars of Ohara studied the history the world was told to forget, and they lost everything for it. I still think history belongs to everyone.
 
-My kit is small:
+So I keep reading:
 
-- a soft brush and a bottle of water
-- a pencil, never a pen
-- two notebooks, one for each copy
-- a lamp for the low evening light
+- the Poneglyphs, wherever the crew lands
+- the ruins and records of every island
+- any book I can find
+- the Void Century, one stone at a time
 
 Everything else is patience.
 

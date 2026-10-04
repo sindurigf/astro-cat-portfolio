@@ -7,7 +7,7 @@ info: 'Every slide of the talk Reading the Stones, as text: why records disappea
 
 What Old Records Teach Open Projects
 
-Nico Robin
+Nico Rubbing
 
 ---
 
@@ -17,11 +17,11 @@ part: Introduction
 
 # About the speaker
 
-Nico Robin, archaeologist with the Straw Hat crew
+Nico Rubbing, archaeologist of the Straw Hat Pirates
 
-- Reads and translates old inscriptions
-- Keeps two copies of every note
-- Has lost a library, and learned from it
+- Reads the Poneglyphs
+- Passed the archaeology exam on Ohara at eight
+- Lost a library, and learned from it
 - Believes knowledge is safest when many people hold it, and that every project deserves more than one keeper
 
 ---
