@@ -58,3 +58,11 @@ export const THANKS = [
       'For photographs of the carvings I could not reach, and for the climb up to them.',
   },
 ] as const;
+
+/** Thanked in each About cat's card for the idea, by first name; the link is their Credits entry. */
+const catThanks = THANKS.find((person) => person.name === 'Riley Example');
+if (!catThanks) throw new Error('No THANKS entry for "Riley Example".');
+export const CAT_INSPIRATION = {
+  name: catThanks.name.split(' ')[0] ?? catThanks.name,
+  href: catThanks.href,
+} as const;

@@ -10,7 +10,6 @@ import PhotoViewer from '../components/PhotoViewer.astro';
 import Section from '../components/Section.astro';
 import AboutCats from '../components/ui/AboutCats.vue';
 import type { CatInfo } from '../lib/about-cats';
-import { THANKS } from '../lib/credits';
 import hero from '../assets/photos/calico-cushion.jpg';
 import panorama from '../assets/photos/calico-pillow.jpg';
 import halfBlack from '../assets/photos/black-cat-bed.jpg';
@@ -25,7 +24,11 @@ import profilePortrait from '../assets/photos/tabby-duvet.jpg';
 import catCardTabby from '../assets/photos/cat-card-tabby.jpg';
 import catCardCalico from '../assets/photos/cat-card-calico.jpg';
 import catCardBlack from '../assets/photos/cat-card-black.jpg';
-import { photographerHref, type Photographer } from '../lib/credits';
+import {
+  CAT_INSPIRATION,
+  photographerHref,
+  type Photographer,
+} from '../lib/credits';
 import { DENSITIES, WIDTHS } from '../lib/image-densities';
 import { closeRowLinks } from '../lib/blog';
 import { MOTTO, SITE_NAME } from '../lib/site';
@@ -109,10 +112,6 @@ const CATS = [
 /* Match `.cat-dialog-body`: w-48 on phones, w-72 from md (48rem). */
 const CAT_PHOTO_WIDTHS = [192, 288, 384, 576];
 const CAT_PHOTO_SIZES = '(min-width: 48rem) 288px, 192px';
-
-/* Thanked in each cat's card for the idea; the link comes from the Credits list. */
-const catInspiration = THANKS.find((person) => person.name === 'Riley Example');
-if (!catInspiration) throw new Error('No THANKS entry for "Riley Example".');
 
 const catInfo: CatInfo[] = await Promise.all(
   CATS.map(async (cat) => {
@@ -414,12 +413,5 @@ const closeRow = await closeRowLinks({
   <CloseRow {...closeRow} />
 
   <PhotoViewer />
-  <AboutCats
-    client:load
-    cats={catInfo}
-    inspiration={{
-      name: catInspiration.name.split(' ')[0] ?? catInspiration.name,
-      href: catInspiration.href,
-    }}
-  />
+  <AboutCats client:load cats={catInfo} inspiration={CAT_INSPIRATION} />
 </BaseLayout>
