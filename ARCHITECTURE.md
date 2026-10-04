@@ -404,7 +404,7 @@ in `wrangler.jsonc`).
 | ----------------------------------- | ------------ | ---------------------------------------------------- |
 | `public/favicon.svg`                | vector       | Primary icon for modern browsers; source of the rest |
 | `public/favicon.ico`                | 16 / 32 / 48 | Legacy fallback, three frames                        |
-| `artwork/favicon-16x16.png`         | 16           | `favicon.ico` frame; silhouette, no face             |
+| `artwork/favicon-16x16.png`         | 16           | `favicon.ico` frame; silhouette, no cut-outs         |
 | `artwork/favicon-32x32.png`         | 32           | `favicon.ico` frame; mark at 1.25x                   |
 | `artwork/favicon-48x48.png`         | 48           | `favicon.ico` frame; mark at 1.25x                   |
 | `public/favicon-96x96.png`          | 96           | The tile, linked from the head                       |
@@ -413,7 +413,7 @@ in `wrangler.jsonc`).
 | `public/android-chrome-512x512.png` | 512          | PWA icon, from the manifest                          |
 | `public/maskable-icon-512x512.png`  | 512          | `purpose: maskable`, mark inside the 80% safe zone   |
 
-- The small frames draw the mark at 1.25x its tile size; at 16px the face is
+- The small frames draw the mark at 1.25x its tile size; at 16px the cut-outs are
   under a pixel, so that frame is the silhouette alone. Do not downscale the 96.
 - Render the PNGs from `favicon.svg` in Chromium so the tilt and radius match
   the browser's.
