@@ -3,8 +3,8 @@ import type { Crumb } from '../lib/breadcrumbs';
 
 /*
  * Separators are aria-hidden spans: CSS generated-content alt text is not
- * honoured in every engine. `py-2 -my-2` meets SC 2.5.8 (24px) without moving
- * the layout; `gap-y-4` keeps wrapped rows' 32.8px link boxes from overlapping.
+ * honoured in every engine. `hit-target` gives each link a 44px pointer area
+ * (SC 2.5.5); `gap-y-8` keeps wrapped rows' areas from overlapping.
  */
 interface Props {
   crumbs: readonly Crumb[];
@@ -22,14 +22,14 @@ const TONE_CLASS = { page: 'text-subtle', gold: 'text-gold-muted' } as const;
 <nav aria-label={label} class="mb-6">
   <ol
     class:list={[
-      'label flex flex-wrap items-center gap-x-2 gap-y-4',
+      'label flex flex-wrap items-center gap-x-2 gap-y-8',
       TONE_CLASS[tone],
     ]}
   >
     {crumbs.map((crumb, index) => (
       <li class="flex items-center gap-x-2">
         {index > 0 && <span aria-hidden="true">/</span>}
-        <a href={crumb.href} class="link -my-2 inline-block py-2">
+        <a href={crumb.href} class="link hit-target inline-block">
           {crumb.label}
         </a>
       </li>

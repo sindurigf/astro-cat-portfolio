@@ -10,6 +10,7 @@ import { templateUseUrl } from '../src/lib/site';
  */
 
 const SITEMAP_PATH = '/sitemap-index.xml';
+const CONVENTIONAL_SITEMAP_PATH = '/sitemap.xml';
 
 /* A prerendered page, a static asset, and a path run_worker_first sends to the Worker. */
 const RESPONSES = ['/', '/favicon.svg', '/contact/send/'] as const;
@@ -48,6 +49,12 @@ test.describe('NOINDEX build', NODE, () => {
     expect(
       (await request.get(SITEMAP_PATH)).status(),
       `${SITEMAP_PATH} was built.`,
+    ).toBe(404);
+    expect(
+      (
+        await request.get(CONVENTIONAL_SITEMAP_PATH, { maxRedirects: 0 })
+      ).status(),
+      `${CONVENTIONAL_SITEMAP_PATH} still redirects to a sitemap that is not built.`,
     ).toBe(404);
 
     const home = await request.get('/');

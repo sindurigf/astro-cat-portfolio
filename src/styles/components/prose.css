@@ -42,11 +42,12 @@
 
   /*
    * Marked by src/plugins/link-list-item.mjs, as CSS cannot tell it from an
-   * inline link (SC 2.5.8, tests/target-size.spec.ts). `top` keeps the bullet
+   * inline link (SC 2.5.5, tests/target-size.spec.ts). `top` keeps the bullet
    * on a wrapped link's first line: an inline-block's baseline is its last.
    */
   .prose li.link-item a {
     display: inline-block;
+    min-width: var(--spacing-target);
     min-height: var(--spacing-target);
     vertical-align: top;
   }

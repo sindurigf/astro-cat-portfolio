@@ -147,7 +147,7 @@
   }
 
   /*
-   * Summary label `text`, cyan on hover, 24px target (SC 2.5.8). The
+   * Summary label `text`, cyan on hover, 44px target (SC 2.5.5). The
    * +/- marker is aria-hidden; the expanded state is announced natively.
    */
   .post-contents-summary {
@@ -202,7 +202,7 @@
 
   /*
    * Colour here, not a utility, which would beat the hover below. Inline-block
-   * so a wrapped title's focus ring is one box, and so it can meet SC 2.5.8.
+   * so a wrapped title's focus ring is one box, and so it can meet SC 2.5.5.
    */
   .card-link {
     @apply inline-block min-h-target text-text;

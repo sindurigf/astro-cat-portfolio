@@ -2,11 +2,13 @@ import { readFileSync } from 'node:fs';
 import { expect, test } from './test';
 import { readBuildEnv } from '../src/lib/build-env';
 import { noindexHeaders } from '../src/lib/noindex-headers';
+import { noindexRedirects } from '../src/lib/noindex-redirects';
 import { NODE } from './tags';
 
 /* Build correctness: a bad override fails the build, and a NOINDEX build cannot drop noindex. */
 
 const HEADERS = readFileSync('public/_headers', 'utf8');
+const REDIRECTS = readFileSync('public/_redirects', 'utf8');
 const SITEMAP_ENTRY =
   '</sitemap-index.xml>; rel="sitemap"; type="application/xml"';
 
@@ -101,4 +103,28 @@ test.describe('noindexHeaders', NODE, () => {
       expect(() => noindexHeaders(source)).toThrow('public/_headers:');
     });
   }
+});
+
+test.describe('noindexRedirects', NODE, () => {
+  test('drops only the redirect to the sitemap', () => {
+    const rewritten = noindexRedirects(REDIRECTS);
+
+    expect(rewritten, 'the sitemap redirect is still there.').not.toMatch(
+      /^\/sitemap\.xml\s/m,
+    );
+    expect(
+      rewritten,
+      'something other than the sitemap redirect changed.',
+    ).toBe(
+      REDIRECTS.split('\n')
+        .filter((line) => !line.startsWith('/sitemap.xml '))
+        .join('\n'),
+    );
+  });
+
+  test('fails the build when there is no sitemap redirect', () => {
+    expect(() =>
+      noindexRedirects(REDIRECTS.replace(/^\/sitemap\.xml .*$/m, '')),
+    ).toThrow('public/_redirects:');
+  });
 });

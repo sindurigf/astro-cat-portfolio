@@ -216,7 +216,7 @@ which is not installed.
 
 | Visitor                          | Marks                                               |
 | -------------------------------- | --------------------------------------------------- |
-| `src/plugins/link-list-item.mjs` | a list item that is only a link (SC 2.5.8)          |
+| `src/plugins/link-list-item.mjs` | a list item that is only a link (SC 2.5.5)          |
 | `src/plugins/post-figure.mjs`    | a post image: frame, sizer, `widths`, `sizes`       |
 | `src/plugins/code-block.mjs`     | `<pre>` as `tabindex="0"` `role="group"` (SC 2.1.1) |
 

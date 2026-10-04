@@ -1,5 +1,5 @@
 /*
- * Marks an <li> holding only one link, sized in CSS for SC 2.5.8. Not
+ * Marks an <li> holding only one link, sized in CSS for SC 2.5.5. Not
  * `li > a:only-child`: it ignores text nodes. A Sätteri visitor: Astro 7 ignores
  * `markdown.rehypePlugins` without @astrojs/markdown-remark.
  */

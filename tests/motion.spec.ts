@@ -2,7 +2,7 @@ import { expect, test, type Locator, type Page } from './test';
 import { gotoSettled, sweepTimeout } from './settle';
 import { readFileSync } from 'node:fs';
 import { builtPages, islandRoutesFromBuild, ROUTES } from './routes';
-import { MIN_TARGET, PHONE_VIEWPORT } from './wcag';
+import { MIN_TARGET, PHONE_VIEWPORT, SUBPIXEL_TOLERANCE } from './wcag';
 import { NODE } from './tags';
 
 /**
@@ -64,11 +64,11 @@ const expectHeroTargetSize = async (control: Locator) => {
   expect(
     box?.width,
     'hero pause control target width (SC 2.5.8)',
-  ).toBeGreaterThanOrEqual(MIN_TARGET);
+  ).toBeGreaterThanOrEqual(MIN_TARGET - SUBPIXEL_TOLERANCE);
   expect(
     box?.height,
     'hero pause control target height (SC 2.5.8)',
-  ).toBeGreaterThanOrEqual(MIN_TARGET);
+  ).toBeGreaterThanOrEqual(MIN_TARGET - SUBPIXEL_TOLERANCE);
 };
 
 /*

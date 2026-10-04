@@ -117,8 +117,8 @@ const photographers = Object.entries(PHOTOGRAPHERS)
   .filter(([, href]) => href !== PHOTO_CREDITS_PATH)
   .map(([name, href]) => ({ name, href }));
 
-/* `min-h-target`: the SC 2.5.8 inline exception does not cover a bare link. */
-const LINK_ITEM = 'link inline-flex min-h-target items-center';
+/* `min-h-target` and `min-w-target`: the SC 2.5.5 inline exception does not cover a bare link. */
+const LINK_ITEM = 'link inline-flex min-h-target min-w-target items-center';
 const CARD_HEADING = 'text-h2 text-text';
 
 const NAMED_LIST = 'mt-6 grid gap-4';

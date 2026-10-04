@@ -133,7 +133,7 @@
     max-width: calc(100cqi - --spacing(4));
   }
 
-  /* 44px square, past SC 2.5.8. */
+  /* 44px square (SC 2.5.5). */
   .strip-button {
     @apply grid size-11 place-items-center border-4 border-border bg-surface
       font-black text-text;
