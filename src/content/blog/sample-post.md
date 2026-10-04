@@ -1,88 +1,69 @@
 ---
-title: 'Sample Post: What a Post Can Hold'
+title: 'Field Notes: How I Read an Old Stone'
 date: 2026-09-13
 category: 'professional-journey'
 placeholder: false
-tags: ['astro', 'community', 'career', 'examples']
-teaser: 'A sample post with headings, two photos, a caption and a credits line, in placeholder text. Replace it with your own.'
+tags: ['archaeology', 'career', 'community', 'research']
+teaser: 'The slow, careful steps I follow before I trust a single carved word, from the first look to the second copy of my notes.'
 featured: true
-readingTime: 6
-seoTitle: 'Sample Post'
+readingTime: 3
+seoTitle: 'How I Read an Old Stone'
 cover: '../../assets/blog/sample-post/cover.jpg'
 coverAlt: 'A tabby cat resting its chin on the edge of a cat bed, one paw stretched out.'
 coverCardAlt: 'A tabby cat resting its chin on the edge of a cat bed.'
-seoDescription: 'A sample post showing headings, photos with and without a caption, a photo credit and a closing credits line.'
+seoDescription: 'How an archaeologist reads an inscription: looking first, recording carefully, checking every reading and sharing the notes.'
 ---
 
-Magna aliqua enim ad minim veniam quis.
+People often ask how I read a stone that nobody has read in centuries. The honest answer is: slowly.
 
 ![A tabby cat lying on its back on a parquet floor, a wand toy by its paw.](../../assets/blog/sample-post/tabby-floor.jpg 'Photo: Jamie Example')
 
-## Nostrud exercitation
+## Look before you touch
 
-Ullamco laboris nisi aliquip ex ea, commodo consequat duis aute irure in reprehenderit voluptate velit. Esse 2017 cillum fugiat nulla pariatur, excepteur sint occaecat cupidatat non proident sunt culpa.
+The first hour at a site is for looking. I walk around the stone twice before I open a notebook. I note the light, the weather, the moss and the cracks, because each of them changes what I will see later.
 
-Qui officia deserunt mollit anim id est, laborum curabitur pretium tincidunt lacus nulla gravida orci a odio nullam varius turpis et. Commodo, pharetra est eros bibendum elit nec, luctus magna felis sollicitudin mauris integer! In 2019 mauris eu nibh euismod gravida lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod, tempor incididunt ut labore. Et dolore magna aliqua enim ad minim veniam quis-nostrud exercitation ullamco laboris nisi aliquip ex.
+Carvings wear unevenly. Rain softens the top edge, and wind scours one side more than the other. A letter that looks broken may be whole, only shallow. I learned in 2019 to wait for low evening light, which throws even faint marks into shadow.
 
-## Ea commodo consequat
+## Record everything twice
 
-Duis aute, irure in reprehenderit voluptate velit esse cillum fugiat, nulla pariatur excepteur sint occaecat cupidatat non proident sunt culpa qui officia deserunt mollit. Anim id est laborum curabitur pretium-tincidunt lacus nulla gravida orci a odio nullam. Varius turpis et commodo pharetra est eros. Bibendum elit nec luctus magna felis sollicitudin mauris integer in mauris, eu nibh euismod gravida lorem ipsum dolor sit amet.
+I draw the whole face first, then each line, then any sign I do not recognise. Drawing forces me to see the shape instead of guessing the word. Photographs come after the drawing, never instead of it.
 
-Consectetur adipiscing elit sed do eiusmod tempor incididunt ut, labore et dolore magna aliqua enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi aliquip ex ea commodo consequat duis aute irure in.
+Every record gets a place, a date and the conditions I worked in. Then I copy it. One copy travels with me, and the other stays somewhere safe.
 
-Reprehenderit voluptate velit esse cillum fugiat nulla pariatur: Excepteur sint occaecat cupidatat, non proident sunt culpa qui officia deserunt mollit anim id est laborum curabitur pretium tincidunt lacus nulla gravida. Orci A odio, nullam varius turpis, et commodo pharetra est eros bibendum elit nec luctus magna felis sollicitudin mauris integer, in, mauris eu nibh euismod gravida. Lorem ipsum dolor sit amet consectetur adipiscing, elit sed do eiusmod tempor.
+I keep two copies because I have lost a library before. A single record is only as safe as the place that holds it. A second copy in another place turns a disaster into an inconvenience.
 
 ![A calico cat asleep, curled against a grey cushion.](../../assets/blog/sample-post/calico-asleep.jpg)
 
-## Incididunt ut labore et dolore
+## Read what is there, not what you hope for
 
-Magna aliqua enim ad minim, veniam quis nostrud exercitation: ullamco laboris nisi aliquip ex ea commodo consequat, duis aute irure in. reprehenderit voluptate velit esse cillum fugiat nulla, pariatur excepteur sint occaecat cupidatat non proident sunt culpa qui officia deserunt mollit anim id est laborum.
+The hardest part of the work is not the script. It is wanting a stone to say something exciting.
 
-Curabitur pretium tincidunt lacus nulla gravida, orci a odio, nullam varius turpis et commodo pharetra est: eros bibendum elit, nec, luctus magna felis sollicitudin. Mauris integer in mauris eu nibh euismod. Gravida lorem ipsum dolor sit amet, consectetur adipiscing elit sed do eiusmod, tempor incididunt ut labore et dolore magna aliqua enim. Ad minim veniam quis nostrud exercitation ullamco laboris nisi aliquip ex ea 2025!
+So I read in passes. The first pass names only the signs I am sure of. The second adds the likely ones, marked as likely. The third tries a translation, and I write down every place where I had to choose between two readings.
 
-## Commodo consequat duis aute irure
+When a reading depends on a guess, I say so in the text, not in a footnote nobody opens. A reader should be able to see exactly how much of a translation is evidence and how much is me.
 
-In 2023 reprehenderit voluptate velit esse cillum fugiat nulla pariatur excepteur sint. Occaecat cupidatat non proident sunt culpa qui officia deserunt mollit anim id est laborum curabitur pretium tincidunt lacus nulla gravida orci. A odio nullam varius turpis et commodo pharetra, est eros bibendum elit nec luctus, magna felis sollicitudin mauris integer.
+## Check it against everything else
 
-In mauris eu nibh euismod gravida lorem ipsum dolor sit amet consectetur. Adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna. Aliqua enim ad minim veniam quis nostrud exercitation ullamco laboris nisi, aliquip ex 2026 ea commodo consequat duis aute. Irure in reprehenderit voluptate velit esse cillum fugiat nulla pariatur excepteur sint.
+A single stone rarely explains itself. I compare each sign with my index of where that sign appears, on which islands and in which centuries. If a word only makes sense in one place, I treat it as a question, not an answer.
 
-Occaecat cupidatat non proident sunt culpa? Qui officia deserunt mollit anim id: est laborum curabitur pretium tincidunt lacus nulla gravida orci a odio nullam. Varius turpis et commodo pharetra est eros bibendum, elit nec luctus, magna felis sollicitudin mauris integer in mauris eu nibh euismod gravida lorem.
+Then I ask someone else to read it cold, without my notes. If we disagree, the disagreement goes into the record too. Some of my best corrections came from people who knew less about the script than I did, but who looked more carefully at the stone.
 
-Ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt, ut labore et, dolore magna aliqua enim, ad minim veniam quis nostrud exercitation ullamco. Laboris nisi aliquip ex ea commodo, consequat duis aute irure in reprehenderit voluptate: velit esse cillum fugiat nulla pariatur excepteur sint occaecat cupidatat. Non proident sunt culpa qui officia deserunt. Mollit anim id est laborum curabitur. Pretium tincidunt lacus nulla gravida orci a odio nullam varius turpis et commodo pharetra.
+## Share the notes
 
-## Est eros bibendum elit nec
+For years I kept my work to myself, because sharing it felt dangerous. I was wrong about what was dangerous. Knowledge kept by one person is easy to lose, and easy to bend.
 
-Luctus magna felis sollicitudin 2025, mauris integer in mauris eu nibh euismod gravida lorem ipsum dolor. Sit amet consectetur.
+Now I publish my drawings, my readings and my doubts. Other researchers can check them, build on them, or tell me where I went wrong. That is how a record becomes history instead of a rumour.
 
-Adipiscing elit sed do eiusmod tempor incididunt ut. Labore, et, dolore magna aliqua enim ad minim veniam quis nostrud exercitation ullamco laboris nisi aliquip ex, ea commodo consequat duis aute irure in reprehenderit voluptate velit esse cillum.
+## What I carry
 
-Fugiat nulla pariatur excepteur sint occaecat cupidatat non proident sunt culpa qui officia deserunt mollit anim id est laborum. Curabitur pretium tincidunt lacus nulla gravida orci a, odio nullam varius turpis et.
+My kit is small:
 
-Commodo pharetra est eros bibendum elit nec luctus magna felis sollicitudin mauris integer in mauris eu. Nibh euismod gravida lorem ipsum dolor sit amet consectetur, adipiscing elit, sed do eiusmod, tempor incididunt ut labore et dolore magna aliqua. Enim ad minim veniam quis nostrud (exercitation) ullamco laboris nisi aliquip ex ea.
+- a soft brush and a bottle of water
+- a pencil, never a pen
+- two notebooks, one for each copy
+- a lamp for the low evening light
 
-Commodo consequat duis, aute irure in reprehenderit voluptate velit. Esse cillum fugiat nulla pariatur excepteur sint occaecat cupidatat non.
-
-Proident sunt, culpa qui officia deserunt mollit, anim id est laborum curabitur? Pretium tincidunt lacus nulla gravida orci A odio nullam varius turpis et commodo pharetra est. Eros bibendum elit nec luctus magna felis sollicitudin mauris integer in.
-
-Mauris eu nibh, euismod gravida, lorem ipsum, dolor sit amet, consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna.
-
-Aliqua enim ad minim veniam quis: Nostrud exercitation, ullamco laboris, nisi aliquip, ex ea. Commodo, consequat duis-Aute, irure in reprehenderit voluptate velit esse, cillum fugiat nulla pariatur excepteur sint occaecat cupidatat non proident sunt.
-
-Culpa qui officia, deserunt mollit anim, id est, laborum curabitur, pretium tincidunt lacus, nulla gravida orci a odio nullam varius turpis et commodo pharetra est eros bibendum elit.
-
-Nec luctus magna, felis sollicitudin mauris, integer in, mauris eu, nibh euismod, gravida lorem, ipsum dolor, sit, amet, consectetur adipiscing, .elit sed do eiusmod, tempor incididunt ut labore et dolore magna aliqua enim ad minim veniam quis nostrud exercitation ullamco.
-
-Laboris nisi aliquip ex ea, commodo consequat, duis aute, irure in-Reprehenderit, voluptate velit, esse cillum, fugiat nulla, pariatur excepteur sint, occaecat cupidatat non, proident sunt, culpa qui-Officia, deserunt mollit, anim id, est laborum curabitur pretium tincidunt lacus nulla gravida orci a odio nullam varius turpis!
-
-Et commodo pharetra est, eros bibendum elit-Nec, luctus magna felis sollicitudin, mauris integer in mauris eu nibh euismod gravida lorem ipsum-dolor sit, amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua, enim ad minim veniam quis nostrud exercitation ullamco laboris. Nisi aliquip ex ea commodo consequat duis.
-
-## Aute irure in reprehenderit voluptate
-
-Velit esse cillum fugiat nulla pariatur excepteur sint occaecat cupidatat. Non proident sunt culpa qui officia deserunt mollit anim id est laborum curabitur pretium, tincidunt lacus. Nulla gravida orci a odio nullam (varius, turpis, et-commodo pharetra est) eros bibendum elit nec luctus magna.
-
-Felis sollicitudin mauris integer in mauris eu nibh euismod gravida lorem ipsum. Dolor sit amet consectetur adipiscing: elit, sed, do, eiusmod tempor incididunt. Ut labore et dolore magna aliqua enim ad minim, veniam quis nostrud exercitation ullamco laboris, nisi aliquip ex. Ea commodo consequat duis aute irure in reprehenderit voluptate velit esse cillum fugiat nulla.
-
-Pariatur excepteur sint occaecat cupidatat non proident sunt. Culpa qui officia deserunt mollit anim!
+Everything else is patience.
 
 ---
 
