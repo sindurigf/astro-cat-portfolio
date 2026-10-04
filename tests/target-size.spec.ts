@@ -193,7 +193,7 @@ const OPEN_STATES: readonly {
     narrowOnly: false,
     /* The button takes no pointer, only the moving drawn cat does, so open it from the keyboard. */
     open: async (page) => {
-      await page.locator('#cat-spot-minerva .cat-button').focus();
+      await page.locator('.cat-button').first().focus();
       await page.keyboard.press('Enter');
     },
   },
