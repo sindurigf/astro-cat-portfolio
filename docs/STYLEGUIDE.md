@@ -965,6 +965,8 @@ Enforced by `tests/nav-current.spec.ts`, `tests/mobile-menu.spec.ts`,
   `--spacing(4)`.
 - Offset with `scroll-padding-top` on `html`, never `scroll-margin-top` on
   elements: WebKit ignores the latter for focused inputs.
+- `src/scripts/focus-into-view.ts` scrolls a keyboard-focused control into
+  view: Firefox does not scroll one that is partly on screen.
 
 ### States
 
