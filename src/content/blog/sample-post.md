@@ -1,89 +1,73 @@
 ---
-title: 'Sample Post: What a Post Can Hold'
+title: 'Field Notes: What Ohara Taught Me'
 date: 2026-09-13
 category: 'professional-journey'
 placeholder: false
-tags: ['astro', 'community', 'career', 'examples']
-teaser: 'A sample post with headings, two photos, a caption and a credits line, in placeholder text. Replace it with your own.'
+tags: ['archaeology', 'career', 'community', 'ohara']
+teaser: 'How I became an archaeologist. From the library in the Tree of Knowledge to twenty years on the run, and the crew I sail with now.'
 featured: true
-readingTime: 6
-seoTitle: 'Sample Post'
+readingTime: 4
+personaSources: true
+seoTitle: 'What Ohara Taught Me'
 cover: '../../assets/blog/sample-post/cover.jpg'
 coverAlt: 'A tabby cat resting its chin on the edge of a cat bed, one paw stretched out.'
 coverCardAlt: 'A tabby cat resting its chin on the edge of a cat bed.'
-seoDescription: 'A sample post showing headings, photos with and without a caption, a photo credit and a closing credits line.'
+seoDescription: 'How I became an archaeologist: the Library of Ohara, the Poneglyphs, twenty years on the run and the Straw Hat Pirates.'
 ---
 
-Magna aliqua enim ad minim veniam quis.
+People ask how I came to read stones that almost nobody else can read. The answer starts on an island in West Blue.
 
-![A tabby cat lying on its back on a parquet floor, a wand toy by its paw.](../../assets/blog/sample-post/tabby-floor.jpg 'Photo: Alex Example')
+![A tabby cat lying on its back on a parquet floor, a wand toy by its paw.](../../assets/blog/sample-post/tabby-floor.jpg 'Photo: Licence and credit')
 
-## Nostrud exercitation
+## The library in the tree
 
-Ullamco laboris nisi aliquip ex ea, commodo consequat duis aute irure in reprehenderit voluptate velit. Esse 2017 cillum fugiat nulla pariatur, excepteur sint occaecat cupidatat non proident sunt culpa.
+I grew up on Ohara. Its scholars worked in a library inside the Tree of Knowledge, a tree about 5,000 years old. For a child who loved books, there was no better place on any sea.
 
-Qui officia deserunt mollit anim id est, laborum curabitur pretium tincidunt lacus nulla gravida orci a odio nullam varius turpis et. Commodo, pharetra est eros bibendum elit nec, luctus magna felis sollicitudin mauris integer! In 2019 mauris eu nibh euismod gravida lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod, tempor incididunt ut labore. Et dolore magna aliqua enim ad minim veniam quis-nostrud exercitation ullamco laboris nisi aliquip ex.
+The library's director, Professor Clover, was a friend of my mother. He let me read there long before I was old enough to understand everything I read. I did not mind. I read it anyway, and came back the next day.
 
-## Ea commodo consequat
+## Learning the stones
 
-Duis aute, irure in reprehenderit voluptate velit esse cillum fugiat, nulla pariatur excepteur sint occaecat cupidatat non proident sunt culpa qui officia deserunt mollit. Anim id est laborum curabitur pretium-tincidunt lacus nulla gravida orci a odio nullam. Varius turpis et commodo pharetra est eros. Bibendum elit nec luctus magna felis sollicitudin mauris integer in mauris, eu nibh euismod gravida lorem ipsum dolor sit amet.
+The Poneglyphs are huge stone blocks, carved in an ancient script and, as far as anyone knows, impossible to destroy. I learned to read that script as a child. At eight I passed the archaeology exam and became a scholar of Ohara.
 
-Consectetur adipiscing elit sed do eiusmod tempor incididunt ut, labore et dolore magna aliqua enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi aliquip ex ea commodo consequat duis aute irure in.
+My mother, Nico Olvia, was an archaeologist too. She left on an expedition to find Poneglyphs when I was two, and I grew up waiting for her to come home.
 
-Reprehenderit voluptate velit esse cillum fugiat nulla pariatur: Excepteur sint occaecat cupidatat, non proident sunt culpa qui officia deserunt mollit anim id est laborum curabitur pretium tincidunt lacus nulla gravida. Orci A odio, nullam varius turpis, et commodo pharetra est eros bibendum elit nec luctus magna felis sollicitudin mauris integer, in, mauris eu nibh euismod gravida. Lorem ipsum dolor sit amet consectetur adipiscing, elit sed do eiusmod tempor.
+## The year the island burned
+
+Some of the history in the Poneglyphs comes from the Void Century, a hundred years the World Government does not allow anyone to study. Ohara's scholars studied it anyway.
+
+When I was eight, the Government answered with a Buster Call. The library burned with the tree. My mother came back that day, and stayed with the scholars to the end. I was the only one from Ohara who survived.
 
 ![A calico cat asleep, curled against a grey cushion.](../../assets/blog/sample-post/calico-asleep.jpg)
 
-## Incididunt ut labore et dolore
+## Twenty years of running
 
-Magna aliqua enim ad minim, veniam quis nostrud exercitation: ullamco laboris nisi aliquip ex ea commodo consequat, duis aute irure in. reprehenderit voluptate velit esse cillum fugiat nulla, pariatur excepteur sint occaecat cupidatat non proident sunt culpa qui officia deserunt mollit anim id est laborum.
+A giant called Jaguar D. Saul, once a vice admiral of the Marines, protected me on the island. Because of him, I got away.
 
-Curabitur pretium tincidunt lacus nulla gravida, orci a odio, nullam varius turpis et commodo pharetra est: eros bibendum elit, nec, luctus magna felis sollicitudin. Mauris integer in mauris eu nibh euismod. Gravida lorem ipsum dolor sit amet, consectetur adipiscing elit sed do eiusmod, tempor incididunt ut labore et dolore magna aliqua enim. Ad minim veniam quis nostrud exercitation ullamco laboris nisi aliquip ex ea 2025!
+I had a bounty from the age of eight: 79,000,000 berries, for a child who could read. For about twenty years I ran. I learned to trust nobody for long.
 
-## Commodo consequat duis aute irure
+## Miss All Sunday
 
-In 2023 reprehenderit voluptate velit esse cillum fugiat nulla pariatur excepteur sint. Occaecat cupidatat non proident sunt culpa qui officia deserunt mollit anim id est laborum curabitur pretium tincidunt lacus nulla gravida orci. A odio nullam varius turpis et commodo pharetra, est eros bibendum elit nec luctus, magna felis sollicitudin mauris integer.
+For a time I worked for Baroque Works, under the codename Miss All Sunday. I was its vice president, and partner to its leader, Crocodile.
 
-In mauris eu nibh euismod gravida lorem ipsum dolor sit amet consectetur. Adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna. Aliqua enim ad minim veniam quis nostrud exercitation ullamco laboris nisi, aliquip ex 2026 ea commodo consequat duis aute. Irure in reprehenderit voluptate velit esse cillum fugiat nulla pariatur excepteur sint.
+I am not proud of all of it. But it brought me to Arabasta, and to the crew I sail with now.
 
-Occaecat cupidatat non proident sunt culpa? Qui officia deserunt mollit anim id: est laborum curabitur pretium tincidunt lacus nulla gravida orci a odio nullam. Varius turpis et commodo pharetra est eros bibendum, elit nec luctus, magna felis sollicitudin mauris integer in mauris eu nibh euismod gravida lorem.
+## A crew that said yes
 
-Ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt, ut labore et, dolore magna aliqua enim, ad minim veniam quis nostrud exercitation ullamco. Laboris nisi aliquip ex ea commodo, consequat duis aute irure in reprehenderit voluptate: velit esse cillum fugiat nulla pariatur excepteur sint occaecat cupidatat. Non proident sunt culpa qui officia deserunt. Mollit anim id est laborum curabitur. Pretium tincidunt lacus nulla gravida orci a odio nullam varius turpis et commodo pharetra.
+After Arabasta I asked the Straw Hat Pirates to let me join. Their captain said yes, as if it were simple.
 
-## Est eros bibendum elit nec
+## What Ohara taught me
 
-Luctus magna felis sollicitudin 2025, mauris integer in mauris eu nibh euismod gravida lorem ipsum dolor. Sit amet consectetur.
+The scholars of Ohara studied the history the world was told to forget, and they lost everything for it. I still think history belongs to everyone.
 
-Adipiscing elit sed do eiusmod tempor incididunt ut. Labore, et, dolore magna aliqua enim ad minim veniam quis nostrud exercitation ullamco laboris nisi aliquip ex, ea commodo consequat duis aute irure in reprehenderit voluptate velit esse cillum.
+So I keep reading:
 
-Fugiat nulla pariatur excepteur sint occaecat cupidatat non proident sunt culpa qui officia deserunt mollit anim id est laborum. Curabitur pretium tincidunt lacus nulla gravida orci a, odio nullam varius turpis et.
+- the Poneglyphs, wherever the crew lands
+- the ruins and records of every island
+- any book I can find
+- the Void Century, one stone at a time
 
-Commodo pharetra est eros bibendum elit nec luctus magna felis sollicitudin mauris integer in mauris eu. Nibh euismod gravida lorem ipsum dolor sit amet consectetur, adipiscing elit, sed do eiusmod, tempor incididunt ut labore et dolore magna aliqua. Enim ad minim veniam quis nostrud (exercitation) ullamco laboris nisi aliquip ex ea.
-
-Commodo consequat duis, aute irure in reprehenderit voluptate velit. Esse cillum fugiat nulla pariatur excepteur sint occaecat cupidatat non.
-
-Proident sunt, culpa qui officia deserunt mollit, anim id est laborum curabitur? Pretium tincidunt lacus nulla gravida orci A odio nullam varius turpis et commodo pharetra est. Eros bibendum elit nec luctus magna felis sollicitudin mauris integer in.
-
-Mauris eu nibh, euismod gravida, lorem ipsum, dolor sit amet, consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna.
-
-Aliqua enim ad minim veniam quis: Nostrud exercitation, ullamco laboris, nisi aliquip, ex ea. Commodo, consequat duis-Aute, irure in reprehenderit voluptate velit esse, cillum fugiat nulla pariatur excepteur sint occaecat cupidatat non proident sunt.
-
-Culpa qui officia, deserunt mollit anim, id est, laborum curabitur, pretium tincidunt lacus, nulla gravida orci a odio nullam varius turpis et commodo pharetra est eros bibendum elit.
-
-Nec luctus magna, felis sollicitudin mauris, integer in, mauris eu, nibh euismod, gravida lorem, ipsum dolor, sit, amet, consectetur adipiscing, .elit sed do eiusmod, tempor incididunt ut labore et dolore magna aliqua enim ad minim veniam quis nostrud exercitation ullamco.
-
-Laboris nisi aliquip ex ea, commodo consequat, duis aute, irure in-Reprehenderit, voluptate velit, esse cillum, fugiat nulla, pariatur excepteur sint, occaecat cupidatat non, proident sunt, culpa qui-Officia, deserunt mollit, anim id, est laborum curabitur pretium tincidunt lacus nulla gravida orci a odio nullam varius turpis!
-
-Et commodo pharetra est, eros bibendum elit-Nec, luctus magna felis sollicitudin, mauris integer in mauris eu nibh euismod gravida lorem ipsum-dolor sit, amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua, enim ad minim veniam quis nostrud exercitation ullamco laboris. Nisi aliquip ex ea commodo consequat duis.
-
-## Aute irure in reprehenderit voluptate
-
-Velit esse cillum fugiat nulla pariatur excepteur sint occaecat cupidatat. Non proident sunt culpa qui officia deserunt mollit anim id est laborum curabitur pretium, tincidunt lacus. Nulla gravida orci a odio nullam (varius, turpis, et-commodo pharetra est) eros bibendum elit nec luctus magna.
-
-Felis sollicitudin mauris integer in mauris eu nibh euismod gravida lorem ipsum. Dolor sit amet consectetur adipiscing: elit, sed, do, eiusmod tempor incididunt. Ut labore et dolore magna aliqua enim ad minim, veniam quis nostrud exercitation ullamco laboris, nisi aliquip ex. Ea commodo consequat duis aute irure in reprehenderit voluptate velit esse cillum fugiat nulla.
-
-Pariatur excepteur sint occaecat cupidatat non proident sunt. Culpa qui officia deserunt mollit anim!
+Everything else is patience.
 
 ---
 
-Photo credits: [Alex Example](https://example.org/). Everyone who helped make this site is on the [credits page](/credits/).
+Who took the photos, and their licence, is on the [credits page](/credits/#photos), with everyone who helped make this site.

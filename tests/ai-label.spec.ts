@@ -3,16 +3,16 @@ import { builtHtml, ROUTES } from './routes';
 import { NODE } from './tags';
 import { REPOSITORY_URL } from '../src/lib/site';
 
-/** EU AI Act Art. 50: every page labels the AI-drawn cats and links the record. */
+/** EU AI Act Art. 50: every page labels the AI-drawn cats and AI-written text, and links the record. */
 
-const LABEL = 'Cat drawings made with AI';
+const LABEL = 'Cat drawings and text made with AI';
 const DISCLOSURE = `${REPOSITORY_URL}/blob/main/AI_DISCLOSURE.md`;
 
 const footerOf = (html: string): string =>
   html.slice(html.lastIndexOf('<footer'), html.lastIndexOf('</footer>'));
 
 test(
-  'every route labels the AI drawings in its footer and links the disclosure',
+  'every route labels the AI drawings and text in its footer and links the disclosure',
   NODE,
   () => {
     const pages = builtHtml();

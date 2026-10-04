@@ -6,7 +6,7 @@ import {
   SOCIAL_PROFILES,
   profileLinkName,
 } from '../lib/profiles';
-import { FIRST_PUBLISHED, REPOSITORY_URL, SITE_NAME } from '../lib/site';
+import { FIRST_PUBLISHED, MOTTO, REPOSITORY_URL, SITE_NAME } from '../lib/site';
 /* Hashed under /_astro/ and cached once, instead of inline on every page. */
 import socialIcons from '../assets/social-icons.svg?url';
 
@@ -40,8 +40,8 @@ const copyright = `© ${FIRST_PUBLISHED} ${SITE_NAME}`;
     <div class="footer-inner">
       <div class="footer-top">
         {/* A <div>: a <p> trips WAVE's "Possible heading" (tests/wave-alerts.spec.ts). */}
-        <div class="footer-name" lang="la">
-          Lorem Ipsum
+        <div class="footer-name" lang={MOTTO.lang}>
+          {MOTTO.text}
         </div>
 
         <nav aria-label="Site" class="footer-pages">
@@ -91,10 +91,10 @@ const copyright = `© ${FIRST_PUBLISHED} ${SITE_NAME}`;
       <div class="footer-base">
         <div class="footer-notes">
           <small class="footer-copyright">{copyright}</small>
-          {/* EU AI Act Art. 50: the one label for every AI-drawn cat on the site. */}
+          {/* EU AI Act Art. 50: the one label for the AI-drawn cats and the AI-written sample text. */}
           <small class="footer-ai">
             <a href={AI_DISCLOSURE_HREF} class="link">
-              Cat drawings made with AI
+              Cat drawings and text made with AI
             </a>
           </small>
         </div>

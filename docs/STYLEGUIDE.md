@@ -322,7 +322,7 @@ copyright and contents list are fixed, and `text-code` is `max(1rem, 0.92em)`,
 - `text-reading-h1` is for the Privacy and Accessibility titles only. It
   shares `text-h1`'s 33px floor and `9vw` term: change both together.
 - Posts use `text-post-*`. Do not raise them to the page scale.
-- The footer motto's 32px floor keeps "Lorem Ipsum" on one line at 288px.
+- The footer motto's 32px floor keeps about 11 characters on one line at 288px.
 - Tracking: `--tracking-heading` -0.05em on h1 and h2, `--tracking-title`
   -0.02em on h3, post and slide titles and the footer name, `--tracking-label`
   0.1em on labels and buttons.
@@ -892,13 +892,13 @@ Enforced by `tests/footer.spec.ts`.
 
 `<footer class="page-gutter">`, outside `<main>`, no headings:
 
-- the motto "Lorem Ipsum" (`div lang="la"`, not a heading)
+- the motto, `site.motto` (a `div` with its `lang`, not a heading)
 - `nav` "Site": Home, About, Career, Blog
 - `nav` "About this site": Accessibility, Privacy, Credits
 - `nav` "Social": one sticker link per profile plus Email, each an
   `aria-hidden` icon and a visually hidden name
-- the copyright, then "Cat drawings made with AI", an underlined `subtle`
-  link to `AI_DISCLOSURE.md` with a 24px box (EU AI Act Art. 50)
+- the copyright, then "Cat drawings and text made with AI", an underlined
+  `subtle` link to `AI_DISCLOSURE.md` with a 24px box (EU AI Act Art. 50)
 - the `aria-hidden` tuft
 
 ### Footer layout

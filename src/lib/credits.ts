@@ -1,9 +1,13 @@
+/** The /credits card that links LICENSE-photos, which names the sample photos' photographer. */
+export const PHOTO_CREDITS_PATH = '/credits/#photos';
+
 /**
  * Keyed by the name as written after "Photo: "; an unlisted name stays plain
- * text. Link each to the photographer's own site where there is one.
+ * text. Link each to the photographer's own site where there is one. No import:
+ * src/plugins/post-figure.mjs loads this file in Node.
  */
 export const PHOTOGRAPHERS = {
-  'Alex Example': 'https://example.org/',
+  'Licence and credit': PHOTO_CREDITS_PATH,
 } as const satisfies Readonly<Record<string, string>>;
 
 export type Photographer = keyof typeof PHOTOGRAPHERS;
@@ -26,27 +30,33 @@ export const NAME_INSPIRATION = {
 
 export const THANKS = [
   {
-    name: 'Robin Example',
-    href: 'https://example.org/robin/',
-    reason:
-      'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua!',
+    name: 'Riley Example',
+    href: 'https://example.org/riley/',
+    reason: 'For the idea of the cats on the About page.',
   },
   {
-    name: 'Kim Example',
-    href: 'https://example.org/kim/',
+    name: 'Clou D. Clover',
+    href: 'https://onepiece.fandom.com/wiki/Clou_D._Clover',
     reason:
-      'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris. Nisi ut aliquip ex ea commodo consequat!',
+      'Director of the Library of Ohara, who let a child read in the Tree of Knowledge.',
   },
   {
-    name: 'Jordan Example',
-    href: 'https://example.org/jordan/',
+    name: 'Nico Olvia',
+    href: 'https://onepiece.fandom.com/wiki/Nico_Olvia',
     reason:
-      'Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore. Eu fugiat nulla pariatur excepteur sint occaecat.',
+      'My mother, an archaeologist who went looking for the Poneglyphs before I could.',
   },
   {
-    name: 'Casey Example',
-    href: 'https://example.org/casey/',
-    reason:
-      'Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium totam rem aperiam.',
+    name: 'Jaguar D. Saul',
+    href: 'https://onepiece.fandom.com/wiki/Jaguar_D._Saul',
+    reason: 'For protecting me on Ohara, when nobody else would.',
   },
 ] as const;
+
+/** Thanked in each About cat's card for the idea, by first name; the link is their Credits entry. */
+const catThanks = THANKS.find((person) => person.name === 'Riley Example');
+if (!catThanks) throw new Error('No THANKS entry for "Riley Example".');
+export const CAT_INSPIRATION = {
+  name: catThanks.name.split(' ')[0] ?? catThanks.name,
+  href: catThanks.href,
+} as const;

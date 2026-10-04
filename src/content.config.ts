@@ -58,6 +58,8 @@ const blog = defineCollection({
         teaser: z.string(),
         featured: z.boolean().default(false),
         readingTime: z.number().optional(),
+        /* Ends the post with the sample persona's sources (src/lib/persona.ts). */
+        personaSources: z.boolean().default(false),
         seoTitle: z.string().optional(),
         seoDescription: z.string().optional(),
         /* Shown on a featured card; relative to the post so astro:assets resizes it. */

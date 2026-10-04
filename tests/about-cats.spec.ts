@@ -27,6 +27,7 @@ import {
   reachOf,
   stepTail,
 } from '../src/lib/about-cats-rig';
+import { CAT_INSPIRATION } from '../src/lib/credits';
 import {
   CONTROL_ROOM,
   MAX_OVERHANG,
@@ -507,10 +508,10 @@ test.describe('About cats', () => {
       await page.keyboard.press('Enter');
       const dialog = page.getByRole('dialog', { name: NAMES.pepper });
       await expect(dialog).toContainText(
-        'Thank you for the inspiration, Robin.',
+        `Thank you for the inspiration, ${CAT_INSPIRATION.name}.`,
       );
-      const link = dialog.getByRole('link', { name: 'Robin' });
-      await expect(link).toHaveAttribute('href', 'https://example.org/robin/');
+      const link = dialog.getByRole('link', { name: CAT_INSPIRATION.name });
+      await expect(link).toHaveAttribute('href', CAT_INSPIRATION.href);
       const found = await page.evaluate(`(() => {
         const link = document.querySelector('.cat-dialog a');
         ${PAGE_HELPERS}
@@ -538,11 +539,11 @@ test.describe('About cats', () => {
       ).toBeGreaterThanOrEqual(AA_TEXT);
       expect(
         anchor.ratio,
-        'the Robin link is under 4.5:1',
+        'the inspiration link is under 4.5:1',
       ).toBeGreaterThanOrEqual(AA_TEXT);
       expect(
         anchor.underline,
-        'the Robin link is told apart by colour alone',
+        'the inspiration link is told apart by colour alone',
       ).toBe(true);
       await context.close();
     });
@@ -706,7 +707,7 @@ test.describe('About cats', () => {
     await page.keyboard.press('Enter');
     const dialog = page.getByRole('dialog', { name: NAMES.mochi });
     await expect(dialog).toBeVisible();
-    const link = dialog.getByRole('link', { name: 'Robin' });
+    const link = dialog.getByRole('link', { name: CAT_INSPIRATION.name });
     await link.evaluate((node) =>
       node.addEventListener('click', (event) => event.preventDefault()),
     );

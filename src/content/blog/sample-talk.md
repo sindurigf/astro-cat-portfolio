@@ -1,239 +1,226 @@
 ---
-title: 'Sample Talk: A Post Paired With Its Slides'
+title: 'Reading the Stones: What Old Records Teach Open Projects'
 date: 2026-07-10
 category: 'open-source'
 placeholder: false
-tags: ['community', 'governance', 'maintainers', 'sustainability', 'talks']
-teaser: 'A sample post that shares its name with a talk, so the slideshow and its PDF link back here. Replace it with your own.'
+tags: ['archives', 'community', 'history', 'open-knowledge', 'talks']
+teaser: 'Old archives and open projects fail in the same ways. Six habits from the records that survived, and how any project can use them.'
 featured: true
-readingTime: 14
-seoTitle: 'Sample Talk'
-seoDescription: 'A sample post with numbered sections, a table, quotes, link lists, and links to a talk slideshow and its PDF.'
+readingTime: 9
+personaSources: true
+seoTitle: 'Reading the Stones'
+seoDescription: 'A talk on why old records disappear, what the survivors had in common, and six habits open projects can borrow from them.'
 ---
 
-Lorem ipsum dolor sit amet consectetur adipiscing elit. [Sed dolor](https://example.org/1/) do eiusmod tempor incididunt ut labore et dolore magna. [Aliqua amet](https://example.org/2/) enim ad minim veniam quis nostrud exercitation. [ullamco elit](https://example.org/3/) laboris nisi aliquip ex, ea, commodo, consequat duis. [Aute tempor](https://example.org/4/) irure in reprehenderit voluptate velit esse cillum fugiat nulla pariatur. [Excepteur magna](https://example.org/5/) sint occaecat cupidatat non proident sunt culpa qui officia. [Deserunt veniam](https://example.org/6/) mollit anim id est laborum. Curabitur pretium tincidunt lacus nulla gravida orci a odio.
+The library I grew up in burned in a single day. Most records are lost more slowly. A [library lost its only reader](https://example.org/1/), a [catalogue lived in one person's head](https://example.org/2/), a [script stopped being taught](https://example.org/3/). [Copies were never made](https://example.org/4/), [keys were never written down](https://example.org/5/), and [nobody noticed until it was too late](https://example.org/6/). Open projects fail in the same quiet ways.
 
-Nullam varius turpis et commodo pharetra est eros bibendum elit nec luctus magna felis sollicitudin mauris, integer in mauris. Eu nibh euismod gravida lorem ipsum dolor sit amet.
+This post is the written version of my talk. It covers why records disappear, what the survivors had in common, and what any project can borrow from them.
 
-## Consectetur adipiscing elit
+## Why old records disappear
 
-Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua enim ad minim. Veniam quis, nostrud exercitation, ullamco laboris, nisi aliquip ex ea. Commodo consequat duis aute irure, in reprehenderit voluptate velit esse cillum fugiat nulla.
+We remember the dramatic losses: the fire, the flood, the order to destroy. They happen, and I lived through one when I was eight. But records also vanish slowly, over decades, and nobody sounds an alarm.
 
-Pariatur excepteur sint occaecat cupidatat. Non proident sunt culpa qui officia deserunt mollit anim id est laborum curabitur pretium tincidunt lacus nulla gravida orci a odio, nullam varius turpis et commodo pharetra est eros bibendum elit.
+Those slow losses look alike. The record existed in one place. One person understood it. When that person left, or the place was damaged, nobody else could read what remained.
 
-Nec luctus magna felis sollicitudin mauris integer. In mauris eu nibh euismod, gravida lorem ipsum dolor sit amet consectetur adipiscing elit, sed do eiusmod tempor incididunt. Ut labore et dolore magna aliqua, enim ad, minim veniam quis nostrud exercitation ullamco laboris. Nisi aliquip, ex ea commodo consequat duis aute irure in reprehenderit voluptate velit esse cillum. Fugiat nulla pariatur excepteur sint occaecat. Cupidatat non proident sunt culpa, qui officia deserunt mollit anim id est laborum.
+The stone is still there. The meaning is gone.
 
-## Curabitur pretium tincidunt lacus nulla-gravida orci
+## The one-keeper problem
 
-A odio nullam varius turpis-et commodo. Pharetra est eros bibendum elit nec luctus magna felis sollicitudin mauris integer. In mauris eu nibh, euismod gravida lorem ipsum dolor.
+Every project has a keeper: the person who knows where things are and why they were done that way. Keepers are wonderful, and they are a risk.
 
-Sit amet consectetur adipiscing elit, sed do eiusmod. Tempor incididunt ut labore et, dolore magna aliqua, enim ad minim veniam quis nostrud. Exercitation ullamco laboris nisi aliquip ex ea commodo consequat. Duis aute irure in reprehenderit voluptate velit esse.
+When one keeper holds the whole record, the record is only as safe as their health, their patience and their plans. On Ohara, the scholars kept their research in one library, inside one tree. When the tree burned, the library burned with it.
 
-## Cillum fugiat nulla
+## What survives, and why
 
-Pariatur excepteur sint occaecat cupidatat non proident. Sunt culpa qui officia, deserunt mollit anim id est laborum curabitur pretium, tincidunt lacus nulla gravida orci a odio nullam varius. Turpis et commodo pharetra est, eros bibendum elit nec luctus. Magna felis sollicitudin mauris integer in mauris eu nibh euismod gravida lorem.
+The records that reach me have a few things in common. They were copied, often by people who did not fully understand them. They were written in a script many people could read. They came with some kind of key: a word list, a guide, a second text in a better-known language.
 
-Ipsum dolor sit amet consectetur adipiscing elit sed do, eiusmod tempor incididunt ut labore et dolore magna, aliqua enim ad minim veniam quis.
+Above all, they were read. A record that people use is a record people protect.
 
-[Nostrud dolor](https://example.org/7/) exercitation ullamco laboris nisi. Aliquip ex ea commodo consequat duis, aute irure in reprehenderit voluptate velit esse, cillum fugiat nulla pariatur excepteur, sint occaecat cupidatat non proident. Sunt culpa qui officia deserunt, mollit anim id est laborum curabitur pretium tincidunt.
+## Six habits that keep a record alive
 
-## Lacus nulla gravida orci a odio nullam varius
+I sorted what I found into six habits. None of them is new. All of them are easy to skip when you are busy.
 
-Turpis et commodo pharetra est eros bibendum, elit nec luctus magna felis sollicitudin mauris integer in mauris eu. Nibh euismod gravida lorem: ipsum, dolor sit, amet, consectetur adipiscing, elit, sed do. Eiusmod tempor incididunt ut labore et, dolore magna aliqua enim ad minim veniam.
+### 1. Make copies
 
-### 1. Quis
+Keep more than one copy, in more than one place, held by more than one person. A single copy turns any accident into a loss. Two copies turn it into an inconvenience.
 
-Nostrud exercitation ullamco, laboris nisi aliquip ex ea commodo consequat duis aute, irure in reprehenderit voluptate velit esse. Cillum fugiat nulla pariatur, excepteur, sint, occaecat cupidatat, non proident sunt culpa qui officia deserunt mollit. Anim id est laborum curabitur pretium. Tincidunt lacus nulla gravida orci.
+In a project, that means more than backups. It means shared access, more than one person with the keys, and nothing important that only exists on one laptop.
 
-A odio nullam varius turpis et. Commodo pharetra est eros bibendum elit nec, luctus magna felis sollicitudin, mauris integer in mauris. Eu nibh euismod gravida lorem ipsum dolor sit, amet consectetur. Adipiscing elit sed do eiusmod. Tempor incididunt ut labore: et dolore magna aliqua enim, ad minim veniam quis nostrud exercitation-ullamco laboris, nisi aliquip ex ea commodo consequat duis aute.
+Copies also need checking. A copy you have never opened may not be a copy at all.
 
-Irure in reprehenderit voluptate velit esse cillum fugiat nulla pariatur excepteur. Sint occaecat cupidatat non proident sunt culpa, qui officia deserunt mollit anim id est laborum curabitur, pretium tincidunt lacus nulla gravida orci a.
+[Copying in practice](https://example.org/8/) looks dull, and that is the point. It should be a routine, not a rescue. Schedule it, write down who does it, and check it the way you would check a lock before a long voyage. When the routine is boring and reliable, the dramatic day never comes.
 
-[Odio amet](https://example.org/8/) nullam varius turpis et, commodo pharetra est eros bibendum elit nec luctus. Magna felis sollicitudin mauris integer in mauris eu nibh euismod, gravida lorem, ipsum dolor sit amet consectetur adipiscing elit sed do. Eiusmod tempor incididunt ut labore et dolore magna aliqua, enim ad minim veniam quis nostrud exercitation ullamco laboris, nisi aliquip ex ea commodo consequat duis. Aute irure in reprehenderit voluptate velit esse cillum, fugiat nulla pariatur excepteur sint occaecat. Cupidatat non proident sunt culpa: qui officia deserunt mollit anim id, est laborum curabitur. Pretium tincidunt lacus nulla gravida orci a odio, nullam varius turpis et commodo pharetra est eros.
+Boring is safe.
 
-Bibendum elit nec luctus magna felis sollicitudin mauris integer in mauris eu.
+**A copy nobody can open** is not a copy. Store records in formats that will still open in twenty years, and test that they do. The Poneglyphs show the opposite failure: carved in stone that, as far as anyone knows, cannot be destroyed, but in a script almost nobody can read. Without the key they are [complete and useless](https://example.org/9/), a very safe box with nothing most people can use inside.
 
-**Nibh euismod gravida lorem** ipsum dolor sit amet, consectetur adipiscing elit sed do eiusmod, tempor incididunt. Ut labore et dolore, magna aliqua, enim, ad minim, veniam quis nostrud. Exercitation ullamco laboris, nisi aliquip ex ea commodo consequat duis aute irure in reprehenderit voluptate velit: esse cillum fugiat nulla pariatur excepteur sint occaecat. Cupidatat [non proident](https://example.org/9/) sunt culpa qui officia deserunt mollit, anim id est laborum, curabitur pretium, tincidunt lacus nulla gravida orci a odio nullam varius.
+### 2. Write plainly
 
-### 2. Turpis et
+Records are fastest to read when they were written for ordinary readers, not for experts. Plain words outlive clever ones.
 
-Commodo pharetra est eros bibendum elit nec luctus magna felis sollicitudin. Mauris integer in mauris eu nibh euismod. Gravida lorem ipsum dolor. Sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt, ut labore et dolore magna aliqua enim ad minim.
+[Plain writing](https://example.org/10/) is not simple thinking. It is careful thinking, set down so the next person does not have to repeat it.
 
-[Veniam elit](https://example.org/10/) quis nostrud exercitation, ullamco laboris nisi aliquip ex ea commodo consequat duis aute irure, in reprehenderit, voluptate velit esse cillum fugiat nulla pariatur excepteur sint occaecat cupidatat.
+Write the reason next to the decision.
 
-Non proident sunt culpa qui, officia deserunt mollit anim. Id est, laborum curabitur pretium tincidunt lacus.
+A good test: could someone who joins next year read this without asking you? I learned the Poneglyph script at 8, in a library that no longer exists. Ohara's Tree of Knowledge stood for 5,000 years; what it held was lost in one day. Each fact a project writes down plainly is one less thing that can be lost that way.
 
-Nulla gravida orci a odio nullam varius turpis. Et commodo pharetra est eros 2021, bibendum elit, nec luctus magna felis sollicitudin mauris integer in mauris eu nibh euismod gravida lorem ipsum. Dolor sit amet consectetur adipiscing 45 elit. Sed do eiusmod, tempor incididunt ut, labore et dolore magna aliqua enim ad. Minim veniam quis. Nostrud exercitation ullamco laboris nisi aliquip ex ea. Commodo consequat duis aute irure in reprehenderit voluptate velit esse cillum fugiat nulla pariatur excepteur sint occaecat cupidatat non proident sunt.
+### 3. Leave a key
 
-### 3. Culpa
+Old texts are far easier to read when they come with some kind of key. Sometimes it is a word list. Sometimes it is the same text in two scripts, carved side by side.
 
-Qui officia deserunt mollit anim id: est, laborum, curabitur. Pretium tincidunt lacus nulla gravida orci a odio nullam varius turpis. Et, commodo, pharetra, est eros bibendum elit nec luctus magna felis sollicitudin mauris. Integer in mauris eu, nibh euismod gravida lorem ipsum, dolor sit amet consectetur.
+Projects need keys too. A glossary of terms, a map of where things live, a short note on why the odd parts are odd. [Keys are cheap to write](https://example.org/11/) while you remember, and very expensive to rebuild once you have forgotten.
 
-Adipiscing elit sed do eiusmod tempor incididunt. Ut labore et dolore magna aliqua, enim ad minim veniam quis nostrud exercitation ullamco laboris. [Nisi aliquip ex ea](https://example.org/11/) commodo consequat duis aute irure in, reprehenderit voluptate velit esse cillum fugiat nulla pariatur excepteur sint, occaecat cupidatat non proident sunt culpa.
+A key is also a kindness. It tells a newcomer that they are expected, and that nobody is testing them on things they could not have known.
 
-Qui officia deserunt mollit anim id. Est laborum curabitur pretium tincidunt lacus. Nulla gravida orci a odio nullam varius. Turpis et commodo pharetra, est eros bibendum elit nec luctus magna, felis sollicitudin mauris integer in mauris eu. Nibh euismod gravida lorem ipsum dolor sit amet, consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore.
+Write the key for the person who arrives tired, late and alone, because one day that person will be you.
 
-Magna aliqua enim ad minim veniam quis nostrud exercitation ullamco laboris nisi. Aliquip ex ea commodo consequat duis aute irure in. Reprehenderit voluptate velit esse cillum fugiat nulla pariatur excepteur sint occaecat cupidatat non proident sunt, culpa qui officia deserunt mollit anim, id est laborum. Curabitur pretium tincidunt lacus nulla gravida orci.
+### 4. Welcome many readers
 
-### 4. A odio
+A record that only one person reads is one person away from silence. The survivors had readers in every generation: students, copyists, curious travellers.
 
-Nullam varius turpis et commodo pharetra est 2,000-eros bibendum. Elit nec luctus magna felis sollicitudin, mauris integer in, mauris eu. Nibh euismod gravida lorem ipsum dolor sit amet consectetur adipiscing, elit sed do eiusmod.
+[Welcoming readers](https://example.org/12/) means making the first visit easy. A clear starting point, an answer to the obvious questions, and somebody who replies.
 
-Tempor incididunt ut labore et dolore magna. [Aliqua tempor](https://example.org/12/) enim ad minim, veniam quis nostrud exercitation ullamco laboris nisi aliquip, ex ea commodo consequat duis aute irure. In reprehenderit voluptate velit esse cillum fugiat nulla, pariatur excepteur sint occaecat, cupidatat non, proident sunt culpa qui officia deserunt.
+Three things helped every archive I have seen grow its readers:
 
-Mollit anim id est laborum curabitur pretium tincidunt lacus nulla gravida, orci a odio nullam varius turpis et commodo pharetra est eros bibendum:
+- **[A front door](https://example.org/13/)**, one page that says what this is, who it is for and where to begin.
+- **[A friendly reply](https://example.org/14/)**, so a first question gets an answer within days, not months.
+- **[Small first tasks](https://example.org/15/)**, so a newcomer can help before they understand everything.
 
-- **[Elit nec](https://example.org/13/)**, luctus magna felis sollicitudin mauris integer in mauris eu, nibh euismod gravida lorem ipsum dolor sit amet.
-- **[Consectetur adipiscing](https://example.org/14/)**, elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua enim.
-- **[Ad minim veniam quis](https://example.org/15/)**, nostrud exercitation ullamco laboris nisi aliquip ex ea commodo consequat duis aute irure.
+Readers become keepers: slowly, then all at once.
 
-In reprehenderit voluptate velit esse cillum fugiat: nulla, pariatur, excepteur sint.
+On Ohara, the library's director let a child read among the scholars. That is how I became one of its readers, and later the last of its scholars.
 
-Occaecat cupidatat non proident sunt culpa qui, officia deserunt mollit anim id est, laborum curabitur pretium tincidunt lacus nulla gravida orci. A odio, nullam varius, turpis et commodo pharetra est: eros bibendum elit nec luctus magna felis sollicitudin. Mauris integer in "mauris eu nibh euismod, gravida lorem ipsum dolor" sit amet.
+### 5. Documen&shy;tation that lasts
 
-### 5. Consec&shy;tetur
+Documentation is a record of how the record works. It decays exactly like everything else, so it needs the same habits: copies, plain words, a key and readers.
 
-Elit sed do eiusmod tempor incididunt ut labore. Et dolore magna aliqua enim ad minim veniam quis nostrud exercitation ullamco laboris nisi aliquip ex. Ea commodo consequat duis, aute irure in reprehenderit voluptate velit. Esse cillum fugiat nulla pariatur excepteur sint occaecat cupidatat non proident sunt.
+Date every page. Say who looks after it. Delete what is no longer true, because a wrong guide is worse than none.
 
-Culpa qui officia deserunt mollit, anim, id est, laborum, curabitur pretium, tincidunt lacus nulla. Gravida orci a odio nullam varius turpis et. Commodo pharetra est eros bibendum elit nec.
+### 6. Leave the doors open
 
-### 6. Luctus magna felis
+The last habit is the one I learned latest. For twenty years I kept my work to myself, because I trusted nobody. It was not. Closed records are lost quietly, and nobody even knows to look for them.
 
-Sollicitudin mauris integer in mauris eu nibh euismod. Gravida lorem ipsum dolor. Sit amet consectetur, adipiscing elit sed do eiusmod tempor incididunt ut labore. Et dolore magna, aliqua enim ad minim veniam quis nostrud exercitation ullamco laboris nisi.
+Open records get checked, corrected and copied by people you will never meet. That is the strongest protection I know.
 
-Aliquip ex ea, commodo consequat: duis, aute, irure in. Reprehenderit voluptate velit esse cillum fugiat. [Nulla magna](https://example.org/16/) pariatur excepteur sint occaecat cupidatat: non proident sunt culpa qui officia deserunt mollit anim id est laborum, curabitur pretium, tincidunt lacus nulla, gravida orci a odio nullam varius turpis et.
+Open doors can mean many things: [a public reading room](https://example.org/17/), [a shared index](https://example.org/18/), translations that [anyone may reuse](https://example.org/19/), notes that [credit the people who helped](https://example.org/20/), and a clear way to [report a mistake](https://example.org/21/) without feeling foolish.
 
-Commodo pharetra est eros bibendum elit nec luctus magna. Felis sollicitudin mauris integer in mauris eu. Nibh euismod gravida lorem ipsum dolor sit, amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+## Signs a record is in danger
 
-Enim ad minim: [Veniam quis](https://example.org/17/), [nostrud exercitation](https://example.org/18/), ullamco [laboris veniam](https://example.org/19/) nisi aliquip ex, [ea dolor](https://example.org/20/) commodo consequat duis aute irure, in reprehenderit [voluptate velit esse](https://example.org/21/) cillum fugiat nulla pariatur excepteur sint.
+You can usually see the danger coming. These are the warnings I look for:
 
-## Occaecat cupidatat non proident sunt culpa qui
+- **One keeper.** Does only one person know how this works? Then it is one illness away from being lost.
+- **No copies outside one place** you could lose in a single bad night, whether to fire, flood or a broken disk.
+- **No key.** Could a newcomer read it without asking? If not, the meaning lives in someone's head.
+- **No readers.** When did someone last use it? Records that nobody reads are the first to be thrown away.
 
-Officia deserunt mollit anim id est laborum curabitur pretium. Tincidunt lacus nulla gravida orci a odio nullam:
+None of these is a disaster yet. Each is a disaster that has already been scheduled.
 
-- **Varius turpis.** Et commodo pharetra est eros bibendum elit nec luctus magna? Felis sollicitudin mauris integer in, mauris eu nibh euismod gravida lorem ipsum.
-- **Dolor sit amet consectetur** adipiscing elit sed do eiusmod. Tempor incididunt ut labore et dolore magna aliqua enim.
-- **Ad.** Minim veniam-quis nostrud exercitation ullamco, laboris nisi aliquip ex ea commodo consequat duis aute irure?
-- **In reprehenderit.** Voluptate, velit, esse cillum? Fugiat nulla pariatur excepteur sint occaecat cupidatat, non proident sunt culpa qui.
+## What projects can learn
 
-Officia deserunt mollit, anim id est laborum. Curabitur pretium tincidunt lacus nulla gravida orci a odio nullam, varius turpis et commodo pharetra est.
+I am not a programmer. But when I read about open projects, I recognise the stories.
 
-## Eros bibendum elit, nec luctus magna felis
+A project grows around one generous person. They answer every question and fix every problem. Over the years the project depends on them more and more, until one day they are tired, or ill, or simply done. Then the project stops, and the people who come later find only fragments.
 
-Sollicitudin mauris integer in mauris eu nibh.
+The fix is not heroism. It is spreading the record out: more copies, more keys, more readers and more keepers. Projects that do this early outlast the people who started them. Projects that wait for a crisis usually find out too late what only one person knew.
 
-Euismod gravida: lorem ipsum dolor, sit amet consectetur, adipiscing elit sed do eiusmod tempor incididunt ut labore et. Dolore magna aliqua enim ad minim veniam quis nostrud.
+I have spent my life reading fragments. I would like fewer projects to leave only fragments behind.
 
-Exercitation ullamco laboris nisi, aliquip ex ea commodo, consequat duis aute irure in reprehenderit voluptate velit esse. Cillum fugiat nulla pariatur excepteur sint occaecat cupidatat non proident sunt.
+I keep one short rule [on my desk](https://example.org/23/). It is the best I know for [any record that matters](https://example.org/24/):
 
-Culpa qui officia deserunt mollit anim id est laborum curabitur. Pretium tincidunt lacus nulla gravida orci a odio nullam varius turpis et commodo. Pharetra est eros bibendum elit nec luctus magna felis sollicitudin mauris integer in mauris. Eu nibh euismod gravida lorem ipsum dolor sit amet consectetur adipiscing, elit sed do eiusmod tempor incididunt ut labore. Et dolore magna aliqua enim ad, minim veniam quis nostrud exercitation ullamco laboris nisi aliquip ex. Ea commodo consequat duis aute irure in, reprehenderit voluptate velit esse cillum. Fugiat nulla pariatur excepteur sint occaecat. Cupidatat non proident sunt.
+> Make it easy to copy, easy to read, and easy to correct.
 
-## Culpa qui officia
+Everything else in this talk is detail. If a project does those three things, it has a good chance of outliving everyone who works on it today.
 
-Deserunt mollit anim id est laborum curabitur pretium tincidunt, lacus nulla gravida orci a odio.
+## Old archives and open projects
 
-Nullam varius. Turpis et commodo pharetra est eros bibendum elit, nec luctus magna, felis, sollicitudin mauris integer, in mauris eu nibh euismod gravida lorem ipsum dolor sit amet consectetur adipiscing. Elit sed do eiusmod tempor incididunt ut labore et dolore magna, aliqua enim ad minim veniam quis nostrud exercitation ullamco laboris nisi aliquip ex ea commodo consequat.
+The parallels are close enough to put side by side.
 
-Duis aute irure in reprehenderit voluptate. Velit esse cillum fugiat nulla pariatur excepteur, sint occaecat cupidatat non proident sunt culpa qui, officia deserunt mollit anim id est laborum curabitur. Pretium tincidunt lacus nulla. Gravida orci a odio nullam varius turpis-et, commodo pharetra est eros-bibendum elit nec luctus, magna felis sollicitudin mauris integer in-mauris eu nibh euismod gravida. Lorem ipsum dolor sit amet consectetur adipiscing elit.
+| In an archive               | In an open project                      |
+| --------------------------- | --------------------------------------- |
+| Copyists                    | Mirrors, forks and backups              |
+| A word list                 | A glossary and a getting-started guide  |
+| The last reader of a script | The only maintainer of a module         |
+| A margin note               | A review comment                        |
+| A reading room              | A public issue tracker                  |
+| A translation               | Documentation in more than one language |
 
-Sed do eiusmod tempor. Incididunt ut labore et dolore magna aliqua enim, ad minim veniam quis nostrud exercitation ullamco, laboris nisi aliquip, ex ea commodo consequat duis aute irure. in reprehenderit voluptate velit esse. [Cillum fugiat](https://example.org/22/), nulla pariatur excepteur sint occaecat cupidatat, non proident sunt culpa qui officia deserunt mollit anim. Id 2025 est 1 laborum 5 curabitur pretium tincidunt, lacus nulla gravida 1 orci 20 a odio nullam varius turpis et commodo. Pharetra est eros bibendum elit nec luctus magna felis, sollicitudin mauris integer in mauris eu nibh euismod gravida lorem. Ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore.
+The details differ, but every row asks the same question: if this person left tomorrow, could someone else carry on?
 
-Et dolore magna aliqua enim. Ad [minim veniam quis](https://example.org/23/) nostrud exercitation ullamco laboris nisi aliquip ex, ea commodo consequat duis aute irure in. Reprehenderit voluptate velit esse cillum: fugiat nulla pariatur, excepteur sint occaecat, cupidatat non proident sunt culpa qui officia deserunt mollit. Anim id est laborum curabitur pretium [tincidunt lacus nulla gravida orci A odio](https://example.org/24/):
+## What you can do this week
 
-> Nullam varius turpis et commodo pharetra est eros bibendum elit nec luctus magna.
+You do not need a plan to start. Pick one of these:
 
-Felis sollicitudin mauris, integer in mauris eu nibh euismod gravida lorem ipsum dolor sit amet consectetur adipiscing. Elit sed do eiusmod tempor incididunt ut. Labore et dolore. Magna aliqua enim ad minim veniam. Quis nostrud exercitation ullamco laboris nisi aliquip ex ea.
+- Copy one important thing to a second place.
+- Write down one decision and the reason for it.
+- Add one word to a glossary.
+- Answer one newcomer's question.
+- Credit one person whose work nobody sees.
+- Ask one reader what confused them.
 
-## Commodo consequat duis aute irure in reprehenderit
+> Every habit here takes 5 minutes to start and 100 small repeats to become routine. Start with the smallest one, and repeat it.
 
-Voluptate velit esse cillum fugiat nulla pariatur, excepteur sint occaecat.
+Small, steady work is how every surviving record survived.
 
-| Cupidatat non              | Proident sunt                   |
-| -------------------------- | ------------------------------- |
-| Culpa qui                  | Officia deserunt                |
-| Mollit anim id est laborum | Curabitur pretium tincidunt     |
-| Lacus nulla gravida        | Orci a odio nullam varius       |
-| Turpis et commodo          | Pharetra est eros               |
-| Bibendum elit nec          | Luctus magna felis sollicitudin |
-| Mauris integer in          | Mauris eu nibh euismod          |
+## The road ahead
 
-Gravida lorem ipsum dolor sit amet consectetur adipiscing elit sed. Do eiusmod tempor incididunt. Ut labore et dolore magna aliqua enim ad minim.
+Records will keep being lost. Fires still happen, and so do tired keepers. But we can make each loss smaller.
 
-## Veniam quis nostrud exercitation ullamco
+When I find a stone now, I do not only ask what it says. I ask who else can read it, where the copy is, and what I need to leave behind so the next reader does not start from nothing.
 
-Laboris nisi aliquip ex ea commodo consequat duis, aute irure in reprehenderit. Voluptate velit esse cillum fugiat nulla, pariatur excepteur sint occaecat:
-
-- Cupidatat non proident sunt culpa qui officia deserunt mollit.
-- Anim id est laborum.
-- Curabitur pretium tincidunt lacus nulla, gravida orci a odio nullam.
-- Varius turpis et commodo pharetra.
-- Est eros bibendum elit nec luctus, magna felis sollicitudin.
-- Mauris integer in mauris eu nibh euismod gravida lorem ipsum dolor sit.
-
-> Amet consectetur 5 adipiscing, elit 100 sed do eiusmod tempor incididunt. Ut labore et, dolore magna aliqua enim ad minim veniam quis nostrud exercitation, ullamco laboris nisi aliquip ex ea commodo consequat.
-
-Duis aute irure in reprehenderit, voluptate velit esse.
-
-## Cillum
-
-Fugiat nulla pariatur excepteur sint occaecat. Cupidatat non proident sunt culpa qui officia deserunt, mollit anim id est. Laborum curabitur, pretium tincidunt lacus nulla. Gravida orci a odio nullam varius turpis et commodo pharetra.
-
-Est eros bibendum elit nec. Luctus magna felis sollicitudin mauris. Integer in mauris eu nibh euismod gravida, lorem ipsum dolor sit amet consectetur, adipiscing elit sed. Do eiusmod tempor incididunt ut labore, et dolore magna aliqua.
-
-Enim ad minim veniam quis nostrud exercitation ullamco laboris nisi aliquip. Ex ea commodo consequat duis aute irure in, reprehenderit voluptate velit.
+That is the question I would like every project to ask, too.
 
 ---
 
-## Esse cillum fugiat
+## The talk
 
-Nulla pariatur excepteur sint occaecat cupidatat non, _Proident sunt culpa qui officia deserunt: Mollit anim id est Laborum_, curabitur pretium tincidunt [lacus nulla gravida](https://example.org/25/) orci A 10 odio 2026, 09:40 nullam 10:10, varius turpis 3 (et commodo pharetra).
+The event is a placeholder, to show how a talk pairs with its post: the _Example Conference: Archives, Records and the People Who Keep Them_, in the [history track](https://example.org/25/), on Friday 10 July 2026, 09:40 to 10:10, in room 3 (with live captions).
 
-[View the slides](/talks/sample-talk/), or [download them](/talks/sample-talk.pdf) (PDF, 91 KB, 18 pages).
+[View the slides](/talks/sample-talk/), or [download them](/talks/sample-talk.pdf) (PDF, 93 KB, 18 pages).
 
 ---
 
-## Mauris integer in mauris
+## Sources and further reading
 
-### Eu nibh
+### On copies
 
-- Euismod gravida, [lorem ipsum dolor](https://example.org/26/)
-- Sit amet, [consectetur adipiscing elit sed do eiusmod tempor](https://example.org/27/)
-- Incididunt ut, [labore et: Dolore magna aliqua, enim ad minim veniam](https://example.org/28/)
+- Archive practice, [keeping more than one copy](https://example.org/26/)
+- Field guide, [recording a site before it changes](https://example.org/27/)
+- Case study, [a library rebuilt from scattered copies: what was lost and why](https://example.org/28/)
 
-### Quis nostrud
+### On keys and plain writing
 
-- Exercitation, [ullamco laboris nisi](https://example.org/29/)
-- Aliquip ex ea, [commodo consequat duis](https://example.org/30/)
-- Aute irure, [in reprehenderit voluptate](https://example.org/31/)
-- Velit, [esse cillum](https://example.org/32/)
-- Fugiat, [nulla pariatur](https://example.org/33/)
+- Glossaries, [writing a key for newcomers](https://example.org/29/)
+- Plain language, [short sentences and common words](https://example.org/30/)
+- Translation, [notes on uncertain readings](https://example.org/31/)
+- Style, [one idea per paragraph](https://example.org/32/)
+- Dating, [labelling every page](https://example.org/33/)
 
-### Excepteur sint
+### On readers
 
-- [Occaecat cupidatat non proident](https://example.org/34/)
-- [Sunt culpa qui-officia deserunt mollit](https://example.org/35/)
-- [Anim id est laborum](https://example.org/36/)
-- [Curabitur pretium tincidunt lacus nulla gravida orci](https://example.org/37/)
+- [Opening a reading room to the public](https://example.org/34/)
+- [Answering a first question within a week](https://example.org/35/)
+- [Small first tasks for new volunteers](https://example.org/36/)
+- [Crediting the people behind a translation](https://example.org/37/)
 
-### A
+### Open archives
 
-- Odio, [nullam varius](https://example.org/38/)
-- [Turpis et](https://example.org/39/)
-- [Commodo pharetra](https://example.org/40/)
-- [Est amet](https://example.org/41/)
-- [Eros elit](https://example.org/42/)
-- [Bibendum elit nec](https://example.org/43/)
+- Examples, [shared indexes](https://example.org/38/)
+- [Reuse licences](https://example.org/39/)
+- [Public correction logs](https://example.org/40/)
+- [Mirrors](https://example.org/41/)
+- [Volunteer copyists](https://example.org/42/)
+- [Reading circles](https://example.org/43/)
 
-### Luctus magna felis sollicitudin
+### Risk
 
-- Mauris integer, [in mauris](https://example.org/44/)
-- Eu nibh, [euismod gravida lorem ipsum dolor sit amet consectetur adipiscing](https://example.org/45/)
+- Surveys, [records with a single keeper](https://example.org/44/)
+- Studies, [how long an unread archive lasts before someone throws it away](https://example.org/45/)
 
-### Elit sed
+### Community
 
-- [Do tempor](https://example.org/46/)
-- [Eiusmod magna](https://example.org/47/)
-- [tempor veniam](https://example.org/48/)
-- [Incididunt dolor](https://example.org/49/)
-- [Ut amet](https://example.org/50/)
-- [Labore elit](https://example.org/51/)
+- [Island historians](https://example.org/46/)
+- [Map restorers](https://example.org/47/)
+- [Script teachers](https://example.org/48/)
+- [Translators](https://example.org/49/)
+- [Archive volunteers](https://example.org/50/)
+- [Reading circle hosts](https://example.org/51/)
