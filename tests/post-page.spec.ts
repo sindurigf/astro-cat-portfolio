@@ -208,7 +208,9 @@ test.describe('the cover credit', () => {
       page,
     }) => {
       await gotoSettled(page, post.route);
-      const caption = page.locator('main article .post-slab figure figcaption');
+      const caption = page.locator(
+        'main article .post-slab [data-cover-credit]',
+      );
       await expect(caption, 'the cover has no credit').toHaveText(
         `Photo: ${post.coverCredit}`,
       );

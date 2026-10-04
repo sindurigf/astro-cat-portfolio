@@ -135,6 +135,17 @@ const article = placeholder
               <time datetime={machineDate}>{formattedDate}</time>
               {readingTime ? <span>{readingTime} minute read</span> : null}
             </p>
+            {/* Here, not under the photo: the photo hangs below the slab, off the gold ground. */}
+            {coverCredit && (
+              <p class="mt-4 text-label text-gold-muted" data-cover-credit>
+                {PHOTO_CREDIT_PREFIX}
+                {coverCreditHref ? (
+                  <a href={coverCreditHref}>{coverCredit}</a>
+                ) : (
+                  coverCredit
+                )}
+              </p>
+            )}
           </div>
         </div>
         {cover && coverSize && (
@@ -158,16 +169,6 @@ const article = placeholder
                 class="text-body text-text"
               />
             </div>
-            {coverCredit && (
-              <figcaption class="mt-4 text-body">
-                {PHOTO_CREDIT_PREFIX}
-                {coverCreditHref ? (
-                  <a href={coverCreditHref}>{coverCredit}</a>
-                ) : (
-                  coverCredit
-                )}
-              </figcaption>
-            )}
           </figure>
         )}
       </header>
