@@ -16,7 +16,7 @@ seoDescription: 'A sample post showing headings, photos with and without a capti
 
 Magna aliqua enim ad minim veniam quis.
 
-![A tabby cat lying on its back on a parquet floor, a wand toy by its paw.](../../assets/blog/sample-post/tabby-floor.jpg 'Photo: Alex Example')
+![A tabby cat lying on its back on a parquet floor, a wand toy by its paw.](../../assets/blog/sample-post/tabby-floor.jpg 'Photo: Jamie Example')
 
 ## Nostrud exercitation
 
@@ -86,4 +86,4 @@ Pariatur excepteur sint occaecat cupidatat non proident sunt. Culpa qui officia 
 
 ---
 
-Photo credits: [Alex Example](https://example.org/). Everyone who helped make this site is on the [credits page](/credits/).
+Photo credits: [Jamie Example](https://example.org/). Everyone who helped make this site is on the [credits page](/credits/).

@@ -49,7 +49,7 @@ const SIZES = {
 /* Matches `lg:h-16`. */
 const MARK_HEIGHT = 64;
 
-const PHOTOGRAPHER: Photographer = 'Alex Example';
+const PHOTOGRAPHER: Photographer = 'Jamie Example';
 
 const SECTIONS = [
   { id: 'motto', title: `Why ${MOTTO.text}` },
@@ -111,8 +111,8 @@ const CAT_PHOTO_WIDTHS = [192, 288, 384, 576];
 const CAT_PHOTO_SIZES = '(min-width: 48rem) 288px, 192px';
 
 /* Thanked in each cat's card for the idea; the link comes from the Credits list. */
-const catInspiration = THANKS.find((person) => person.name === 'Robin Example');
-if (!catInspiration) throw new Error('No THANKS entry for "Robin Example".');
+const catInspiration = THANKS.find((person) => person.name === 'Riley Example');
+if (!catInspiration) throw new Error('No THANKS entry for "Riley Example".');
 
 const catInfo: CatInfo[] = await Promise.all(
   CATS.map(async (cat) => {

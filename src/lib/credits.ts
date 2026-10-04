@@ -3,7 +3,7 @@
  * text. Link each to the photographer's own site where there is one.
  */
 export const PHOTOGRAPHERS = {
-  'Alex Example': 'https://example.org/',
+  'Jamie Example': 'https://example.org/',
 } as const satisfies Readonly<Record<string, string>>;
 
 export type Photographer = keyof typeof PHOTOGRAPHERS;
@@ -24,10 +24,14 @@ export const NAME_INSPIRATION = {
   site: 'example.net',
 } as const;
 
+/** The sample persona's source, credited on /credits and in README.md. */
+export const SAMPLE_PERSONA =
+  'Sample persona Nico Robin from One Piece by Eiichiro Oda (Shueisha). Used as a placeholder only; not affiliated with or endorsed by Eiichiro Oda, Shueisha or Toei Animation.';
+
 export const THANKS = [
   {
-    name: 'Robin Example',
-    href: 'https://example.org/robin/',
+    name: 'Riley Example',
+    href: 'https://example.org/riley/',
     reason:
       'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua!',
   },

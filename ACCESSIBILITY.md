@@ -14,8 +14,8 @@ The statement is voluntary for a personal site and follows the
 | ------------------- | ---------------------------------------------------------- |
 | Project             | astro-cat-portfolio                                        |
 | Project type        | Static personal website (Astro, two Vue islands, Tailwind) |
-| Accessibility owner | Alex Example                                               |
-| Public reporting    | <https://github.example/alex-example/example-site/issues>  |
+| Accessibility owner | Nico Robin                                                 |
+| Public reporting    | <https://github.example/nico-robin/example-site/issues>    |
 | Private reporting   | <hello@example.com>                                        |
 | Target standard     | WCAG 2.2 Level AA, with AAA text contrast                  |
 | Conformance status  | **Target only. No conformance claim.**                     |
@@ -48,7 +48,7 @@ status is still "Target only. No conformance claim."
 | 1.4.8 Visual Presentation            | `tests/visual-presentation.spec.ts`, every route at 390, 1280 and 1920: a visible `p`, `li` or `dd` of more than one sentence has at most 80 characters a line, line height 1.5 or more and no justification; each `p` followed by a `p` leaves 2.5em of the larger text from its last line box's top to the next one's first. Width at 200%: `tests/reflow.spec.ts`. Colours: browsers can override them (G156); the theme switch offers light and dark (`tests/light-mode.spec.ts`). |
 | 2.2.4 Interruptions                  | Nothing interrupts: no alerts, assertive live regions or automatic refresh.                                                                                                                                                                                                                                                                                                                                                                                                            |
 | 2.3.3 Animation from Interactions    | Under `prefers-reduced-motion: reduce` a pressed control does not move into its shadow, the hero field is drawn once and held, and the About cats sit still (`tests/press.spec.ts`, `tests/motion.spec.ts`, `tests/about-cats.spec.ts`).                                                                                                                                                                                                                                               |
-| 2.4.9 Link Purpose (Link Only)       | Within a page, one link name leads to one place. Hidden text completes short names: "Community tag", "Alex on GitHub". Exception: link text in posts, listed in `tests/link-purpose.spec.ts`.                                                                                                                                                                                                                                                                                          |
+| 2.4.9 Link Purpose (Link Only)       | Within a page, one link name leads to one place. Hidden text completes short names: "Community tag", "Robin on GitHub". Exception: link text in posts, listed in `tests/link-purpose.spec.ts`.                                                                                                                                                                                                                                                                                         |
 | 2.4.12 Focus Not Obscured (Enhanced) | **Not met.** Met inside the open cat card, photo viewer and mobile menu. Fails on pages. On `/about`, Tab to each cat button: its sleep control covers part of it, and at 1280px wide a card covers part of the last cat's. No focused control is even partly under the sticky header, in either Tab direction.                                                                                                                                                                        |
 | 2.4.13 Focus Appearance              | One solid ring, `--focus-width` wide. At every page focus stop it covers at least a 2px perimeter of the control and reaches 3:1 against the ground it paints over.                                                                                                                                                                                                                                                                                                                    |
 | 2.5.6 Concurrent Input Mechanisms    | No input is turned off because another one was detected.                                                                                                                                                                                                                                                                                                                                                                                                                               |
@@ -320,7 +320,7 @@ template ships with none of it run; record your own results. Not automated:
 If something on this site blocks you, report it. You do not need to know the
 WCAG criterion or say anything about yourself.
 
-- **Public:** <https://github.example/alex-example/example-site/issues>
+- **Public:** <https://github.example/nico-robin/example-site/issues>
 - **Private:** <hello@example.com>
 
 Useful, never required: the page, what you tried and what happened, your

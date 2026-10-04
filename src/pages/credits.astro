@@ -3,7 +3,12 @@ import CloseRow from '../components/CloseRow.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PageHero from '../components/PageHero.astro';
 import { CONTACT_EMAIL, CONTACT_MAILTO } from '../lib/contact';
-import { NAME_INSPIRATION, PHOTOGRAPHERS, THANKS } from '../lib/credits';
+import {
+  NAME_INSPIRATION,
+  PHOTOGRAPHERS,
+  SAMPLE_PERSONA,
+  THANKS,
+} from '../lib/credits';
 import { SITE_NAME } from '../lib/site';
 
 /* The project this template was extracted from; scripts/check-leaks.mjs allows this one line. */
@@ -206,6 +211,13 @@ const NAMED_ENTRY = 'min-w-0 bg-background p-card-tight';
         </ul>
 
         <p class="mt-4 text-body text-text text-pretty">And more.</p>
+      </div>
+
+      <div id="sample-persona" class="card mt-grid">
+        <h2 class={CARD_HEADING}>Sample persona</h2>
+        <p class="mt-6 max-w-measure text-body text-text text-pretty">
+          {SAMPLE_PERSONA}
+        </p>
       </div>
     </div>
   </section>

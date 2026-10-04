@@ -1,6 +1,7 @@
 /*
  * Everything that names the site or its owner. Replace every value before
- * publishing; the placeholders use RFC 2606 reserved names. Validated on
+ * publishing; the sample persona is Nico Robin and every address uses an
+ * RFC 2606 reserved name. Validated on
  * import, so a bad value fails the build and the tests, not a visitor.
  */
 
@@ -84,23 +85,26 @@ const config: SiteConfig = {
     url: 'https://example.com',
     locale: 'en-GB',
     firstPublished: 2026,
-    tagline: ['Lorem ipsum dolor sit amet', 'Consectetur adipiscing elit'],
-    repository: 'https://github.example/alex-example/example-site',
-    motto: { text: 'Lorem Ipsum', lang: 'la' },
+    tagline: [
+      'Archaeologist and historian',
+      'Reading what the past left behind',
+    ],
+    repository: 'https://github.example/nico-robin/example-site',
+    motto: { text: 'Lege Saxa', lang: 'la' },
   },
   person: {
-    givenName: 'Alex',
-    familyName: 'Example',
-    jobTitle: 'Job Title',
+    givenName: 'Nico',
+    familyName: 'Robin',
+    jobTitle: 'Archaeologist',
     email: 'hello@example.com',
     cv: null,
   },
   profiles: [
-    { label: 'GitHub', href: 'https://github.example/alex-example' },
-    { label: 'LinkedIn', href: 'https://linkedin.example/in/alex-example' },
-    { label: 'Instagram', href: 'https://instagram.example/alex-example/' },
-    { label: 'Bluesky', href: 'https://bluesky.example/profile/alex-example' },
-    { label: 'Mastodon', href: 'https://mastodon.example/@alex-example' },
+    { label: 'GitHub', href: 'https://github.example/nico-robin' },
+    { label: 'LinkedIn', href: 'https://linkedin.example/in/nico-robin' },
+    { label: 'Instagram', href: 'https://instagram.example/nico-robin/' },
+    { label: 'Bluesky', href: 'https://bluesky.example/profile/nico-robin' },
+    { label: 'Mastodon', href: 'https://mastodon.example/@nico-robin' },
   ],
   analytics: null,
   journeyPost: 'sample-post',
