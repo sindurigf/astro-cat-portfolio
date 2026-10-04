@@ -4,7 +4,7 @@ date: 2026-09-13
 category: 'professional-journey'
 placeholder: false
 tags: ['archaeology', 'career', 'community', 'ohara']
-teaser: 'How I became an archaeologist. From the library in the Tree of Knowledge to twenty years on the run, and a crew that came back for me.'
+teaser: 'How I became an archaeologist. From the library in the Tree of Knowledge to twenty years on the run, and the crew I sail with now.'
 featured: true
 readingTime: 4
 seoTitle: 'What Ohara Taught Me'
@@ -50,11 +50,9 @@ For a time I worked for Baroque Works, under the codename Miss All Sunday. I was
 
 I am not proud of all of it. But it brought me to Arabasta, and to the crew I sail with now.
 
-## A crew that came back
+## A crew that said yes
 
 After Arabasta I asked the Straw Hat Pirates to let me join. Their captain said yes, as if it were simple.
-
-At Enies Lobby, the crew came to take me back, and I told them that I wanted to live.
 
 ## What Ohara taught me
 

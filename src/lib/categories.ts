@@ -44,8 +44,7 @@ export const CATEGORIES = {
   'personal-thoughts': {
     accent: ACCENTS.pink,
     glyph: '❋',
-    teaser:
-      'Quiet thoughts on reading, memory, and the crew that gave me a reason to live.',
+    teaser: 'Quiet thoughts on reading, memory, and the crew that let me join.',
   },
   'professional-journey': {
     accent: ACCENTS.gold,
