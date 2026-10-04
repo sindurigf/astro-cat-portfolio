@@ -657,7 +657,7 @@ evidence.
 ## Content notes
 
 - Editorial copy (posts, About, Career, taglines, bios) ships as the sample
-  persona, Nico Rubbing, written with AI ([AI_DISCLOSURE.md](AI_DISCLOSURE.md)).
+  persona, a tribute to Nico Robin, written with AI ([AI_DISCLOSURE.md](AI_DISCLOSURE.md)).
   The sample posts show every Markdown feature the site renders.
 - Homepage section headings, category descriptions and the `/blog` heading
   and standfirst are hers too.

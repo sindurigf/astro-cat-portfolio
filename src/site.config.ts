@@ -1,6 +1,6 @@
 /*
  * Everything that names the site or its owner. Replace every value before
- * publishing; the sample persona is Nico Rubbing and every address uses an
+ * publishing; the person is the sample persona and every address uses an
  * RFC 2606 reserved name. Validated on
  * import, so a bad value fails the build and the tests, not a visitor.
  */

@@ -11,7 +11,7 @@ seoTitle: 'What Ohara Taught Me'
 cover: '../../assets/blog/sample-post/cover.jpg'
 coverAlt: 'A tabby cat resting its chin on the edge of a cat bed, one paw stretched out.'
 coverCardAlt: 'A tabby cat resting its chin on the edge of a cat bed.'
-seoDescription: 'How Nico Rubbing became an archaeologist: the Library of Ohara, the Poneglyphs, twenty years on the run and the Straw Hat Pirates.'
+seoDescription: 'How I became an archaeologist: the Library of Ohara, the Poneglyphs, twenty years on the run and the Straw Hat Pirates.'
 ---
 
 People ask how I came to read stones that almost nobody else can read. The answer starts on an island in West Blue.

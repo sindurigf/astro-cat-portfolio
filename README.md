@@ -20,7 +20,7 @@ page. Tested for WCAG 2.2 AA in Chromium, Firefox and WebKit.
 3. Edit [`src/site.config.ts`](src/site.config.ts): site name and URL, your
    name, job title, email and profiles, the post your pages point to for the
    longer story (`journeyPost`), and the analytics and contact switches. The build fails on an invalid value.
-4. Replace the sample persona, Nico Rubbing: her copy on every page, the sample
+4. Replace the sample persona: her copy on every page, the sample
    posts and talk, the sample credit on `/credits`, and the photos. Update [SECURITY.md](SECURITY.md),
    [ACCESSIBILITY.md](ACCESSIBILITY.md) and
    [AI_DISCLOSURE.md](AI_DISCLOSURE.md) to describe your site.

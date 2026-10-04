@@ -32,6 +32,7 @@ import {
 import { DENSITIES, WIDTHS } from '../lib/image-densities';
 import { closeRowLinks } from '../lib/blog';
 import { MOTTO, SITE_NAME } from '../lib/site';
+import { PERSON_NAME } from '../lib/profiles';
 
 /* Jump links repeat the headings verbatim. */
 
@@ -144,7 +145,7 @@ const closeRow = await closeRowLinks({
 
 <BaseLayout
   title="About"
-  description="Nico Rubbing, archaeologist: growing up on Ohara, twenty years on the run, and the Straw Hat Pirates, the crew she sails with now."
+  description={`${PERSON_NAME}, archaeologist: growing up on Ohara, twenty years on the run, and the Straw Hat Pirates, the crew she sails with now.`}
   profile={{ portrait: profilePortrait }}
 >
   <PageHero
