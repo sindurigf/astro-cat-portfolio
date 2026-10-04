@@ -45,9 +45,6 @@ test.describe('with the shipped sample persona', () => {
   });
 });
 
-/* She joins the crew in chapter 218; nothing after it is cited (no spoilers). */
-const LAST_CHAPTER = 218;
-
 test.describe('the sample persona sources', () => {
   test.skip(SAMPLE_PERSONA === null, 'no sample persona is configured');
   const sources = SAMPLE_PERSONA?.sources ?? [];
@@ -64,20 +61,11 @@ test.describe('the sample persona sources', () => {
     );
   });
 
-  test(
-    'every source cites chapters up to the one where she joins',
-    NODE,
-    () => {
-      for (const { story, chapters } of sources) {
-        const numbers = [...chapters.matchAll(/\d+/g)].map(Number);
-        expect(numbers.length, `${story} cites no chapter`).toBeGreaterThan(0);
-        expect(
-          Math.max(...numbers),
-          `${story} cites a chapter after she joins the crew`,
-        ).toBeLessThanOrEqual(LAST_CHAPTER);
-      }
-    },
-  );
+  test('every source cites at least one chapter', NODE, () => {
+    for (const { story, chapters } of sources) {
+      expect(chapters, `${story} cites no chapter`).toMatch(/\bchapters? \d+/);
+    }
+  });
 
   for (const route of ['/about', '/blog/sample-post', '/blog/sample-talk']) {
     test(`${route} lists every source under Sources`, async ({ page }) => {

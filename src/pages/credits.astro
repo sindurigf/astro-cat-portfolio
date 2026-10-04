@@ -136,16 +136,17 @@ const NAMED_ENTRY = 'min-w-0 bg-background p-card-tight';
   description={`Where the name ${SITE_NAME} comes from, who helped, who took the photos, and what the site was designed, built and tested with.`}
 >
   <PageHero title="Credits">
-    {personaNotice(SAMPLE_PERSONA) !== null && (
-      <p id={PERSONA_NOTICE_ID} class="mt-8 max-w-2xl text-body text-pretty">
+    {/* The notice takes the standfirst's place: a body-size paragraph above a standfirst cannot clear SC 1.4.8 spacing. */}
+    {personaNotice(SAMPLE_PERSONA) === null ? (
+      <p class="standfirst">
+        The people and tools behind this site, and where its name comes from.
+      </p>
+    ) : (
+      <p id={PERSONA_NOTICE_ID} class="standfirst">
         {personaNotice(SAMPLE_PERSONA)}{' '}
         <a href={PERSONA_SOURCES_PATH}>Sources for her stories</a>.
       </p>
     )}
-    <p class="standfirst">
-      The people and tools behind this site, and where its name and its sample
-      persona come from.
-    </p>
   </PageHero>
 
   <section class="band py-section">

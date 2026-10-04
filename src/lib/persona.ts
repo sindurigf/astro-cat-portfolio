@@ -22,7 +22,7 @@ export const SAMPLE_PERSONA: Persona | null = {
   tribute: `${PERSON_NAME} is a fan tribute to Nico Robin from One Piece by Eiichiro Oda.`,
   rights:
     'One Piece and its characters belong to Eiichiro Oda, Shueisha and Toei Animation. This site is not affiliated with or endorsed by them.',
-  /* Chapters checked against each wiki page's chapter citations; nothing after chapter 218, where she joins the crew. */
+  /* Chapters checked against each wiki page's chapter citations. The stories end where she joins the crew, in chapter 218. */
   sources: [
     {
       story:
