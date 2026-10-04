@@ -24,8 +24,19 @@
   }
 
   /* The band is empty page; only the drawn cat and the toggle take the pointer. */
+  /*
+   * Ends short of the corner the sleep control holds, so the control never
+   * covers a focused cat button (SC 2.4.12).
+   */
   .cat-button {
-    @apply pointer-events-none absolute inset-0 border-0 bg-transparent p-0;
+    @apply pointer-events-none absolute inset-y-0 left-0 border-0 bg-transparent p-0;
+
+    right: calc(var(--spacing-target) + var(--focus-width) + var(--focus-gap));
+  }
+
+  /* Ends at a raised brick's top edge, which lifts --spacing(2) (utilities.css), so the brick never covers it. */
+  .cat-perch:has(.card-block .card-raised) .cat-button {
+    bottom: --spacing(2);
   }
 
   .cat-svg {
