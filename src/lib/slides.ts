@@ -220,7 +220,7 @@ type Block = { text: string; kind: 'label' | 'model' | 'list' | 'other' };
 
 /* Label: a paragraph of one bold run. Model: a label opening an example. */
 const LABEL = /^\*\*[^\n]+\*\*$/;
-const MODEL = /^\*\*(A Good Model|Example)\b/;
+const MODEL = /^\*\*(A good model|Example)\b/;
 const LIST = /^(?:[-*+]|\d+\.)\s/;
 
 const blockOf = (text: string): Block => ({

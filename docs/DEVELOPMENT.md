@@ -199,7 +199,7 @@ slideshow cannot render, naming file, slide and line (`src/lib/slides.ts`).
   part, centred under its number; name it `Part N: Title`.
 - One `#` heading per slide, in the case it should display.
 - A group label is a `**bold**` paragraph. Two or more on a slide become cards.
-  `**A Good Model: ...**` and `**Example: ...**` always become a card. Six or
+  `**A good model: ...**` and `**Example: ...**` always become a card. Six or
   more non-card blocks run two columns on wide screens.
 - `label:` adds a grouping (e.g. a pillar number) inside the heading. Use only
   where the heading alone loses it.

@@ -643,6 +643,16 @@ evidence.
   the error summary says what is missing instead of a silent button.
 - **Reset the contact form on a timer after Stop:** invites a double send; Esc
   and `navigateerror` cover it, Firefox's Stop button does not.
+- **Drop uppercase from headings, labels, nav and buttons:** the advice
+  against capitals is about "large amounts of text"
+  ([GOV.UK](https://guidance.publishing.service.gov.uk/writing-to-gov-uk-standards/style-guides/a-to-z-style-guide/)),
+  "continuous text"
+  ([BDA Dyslexia Style Guide 2023](https://cdn.bdadyslexia.org.uk/uploads/documents/Advice/style-guide/BDA-Style-Guide-2023.pdf))
+  and "longer passages or reading full sentences", while single words
+  glanced at read as fast or faster in capitals
+  ([NN/g, Laubheimer 2017](https://www.nngroup.com/articles/glanceable-fonts/));
+  these are a few words each, written in sentence case. How screen readers
+  speak them is checked in the screen-reader pass.
 
 ## Content notes
 

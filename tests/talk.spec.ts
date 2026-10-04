@@ -201,7 +201,7 @@ test.describe('cardGroups', NODE, () => {
     (cardGroups(body).match(/<div class="slide-cards">/g) ?? []).length;
 
   test('an example and its paragraph are one card, even alone', () => {
-    const body = '- One\n- Two\n\n**A Good Model: [Rust](https://r)**\n\nText.';
+    const body = '- One\n- Two\n\n**A good model: [Rust](https://r)**\n\nText.';
     expect(cards(body)).toBe(1);
     expect(rows(body)).toBe(0);
     expect(cardGroups(body)).toMatch(/Rust[\s\S]*Text\.\n\n<\/div>$/);
