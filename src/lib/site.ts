@@ -10,6 +10,8 @@ export const FIRST_PUBLISHED = SITE_CONFIG.site.firstPublished;
 
 export const REPOSITORY_URL = SITE_CONFIG.site.repository;
 
+export const MOTTO = SITE_CONFIG.site.motto;
+
 const GITHUB_HOST = 'github.com';
 
 /* RFC 2606: example.com, .net and .org, and the .example TLD, never resolve to a real repository. */

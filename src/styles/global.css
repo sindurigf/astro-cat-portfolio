@@ -266,7 +266,7 @@
   --text-copyright: 20px;
   --text-copyright--line-height: 1.2;
   /*
-   * "Lorem Ipsum" in the footer, one line in the 288px phone box: 32px
+   * The motto in the footer, one line in the 288px phone box: 32px
    * uppercase Lexend 900 is about 250px wide.
    */
   --text-footer-name: clamp(2rem, 3vw, 2.5rem);

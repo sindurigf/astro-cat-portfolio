@@ -4,7 +4,7 @@ import {
   SOCIAL_PROFILES,
   profileLinkName,
 } from '../src/lib/profiles';
-import { SITE_NAME } from '../src/lib/site';
+import { MOTTO, SITE_NAME } from '../src/lib/site';
 import { NON_TEXT, PAGE_HELPERS } from './contrast';
 import { gotoSettled } from './settle';
 
@@ -83,8 +83,8 @@ test.describe('the footer', () => {
 
   test('The motto is Latin text, not a heading', async ({ page }) => {
     const name = page.locator('footer .footer-name');
-    await expect(name).toHaveText('Lorem Ipsum');
-    await expect(name).toHaveAttribute('lang', 'la');
+    await expect(name).toHaveText(MOTTO.text);
+    await expect(name).toHaveAttribute('lang', MOTTO.lang);
     await expect(page.locator('footer').getByRole('heading')).toHaveCount(0);
   });
 

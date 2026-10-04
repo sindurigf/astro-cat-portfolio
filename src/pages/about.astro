@@ -28,7 +28,7 @@ import catCardBlack from '../assets/photos/cat-card-black.jpg';
 import { photographerHref, type Photographer } from '../lib/credits';
 import { DENSITIES, WIDTHS } from '../lib/image-densities';
 import { closeRowLinks } from '../lib/blog';
-import { SITE_NAME } from '../lib/site';
+import { MOTTO, SITE_NAME } from '../lib/site';
 
 /* Jump links repeat the headings verbatim. */
 
@@ -52,7 +52,7 @@ const MARK_HEIGHT = 64;
 const PHOTOGRAPHER: Photographer = 'Alex Example';
 
 const SECTIONS = [
-  { id: 'motto', title: 'Why Lorem Ipsum' },
+  { id: 'motto', title: `Why ${MOTTO.text}` },
   { id: 'believe', title: 'Dolor sit amet' },
   { id: 'people', title: 'Consectetur elit' },
   { id: 'important-things', title: 'Sed do eiusmod' },
@@ -165,7 +165,7 @@ const closeRow = await closeRowLinks({
             <a href={`#${section.id}`} class="chip">
               {section.id === 'motto' ? (
                 <>
-                  Why <span lang="la">Lorem Ipsum</span>
+                  Why <span lang={MOTTO.lang}>{MOTTO.text}</span>
                 </>
               ) : (
                 section.title
@@ -191,9 +191,9 @@ const closeRow = await closeRowLinks({
       </span>
       <div class="min-w-0">
         <h2 id="motto-heading" class="text-h2 text-text">
-          {/* &nbsp;: an ordinary space beside `.sr-only` collapses and Chromium copies "WHYLOREM IPSUM". */}
+          {/* &nbsp;: an ordinary space beside `.sr-only` collapses and Chromium glues "WHY" to the motto. */}
           <span class="sr-only">Why&nbsp;</span>
-          <span lang="la">Lorem Ipsum</span>
+          <span lang={MOTTO.lang}>{MOTTO.text}</span>
         </h2>
         <p class="mt-3 text-body text-text text-pretty">
           Latin for &ldquo;dolor sit amet&rdquo;

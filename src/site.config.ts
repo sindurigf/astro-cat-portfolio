@@ -36,6 +36,11 @@ export interface SiteConfig {
     tagline: ReadonlyArray<string>;
     /** The public source repository, https; /accessibility links its record. The `REPOSITORY_URL` build variable overrides it. */
     repository: string;
+    /**
+     * The footer's name line and the first section of /about. About 11
+     * characters fit the footer on a phone; `lang` is its BCP 47 language.
+     */
+    motto: { text: string; lang: string };
   };
   person: {
     /** The homepage `<h1>` sets each name on its own line. */
@@ -81,6 +86,7 @@ const config: SiteConfig = {
     firstPublished: 2026,
     tagline: ['Lorem ipsum dolor sit amet', 'Consectetur adipiscing elit'],
     repository: 'https://github.example/alex-example/example-site',
+    motto: { text: 'Lorem Ipsum', lang: 'la' },
   },
   person: {
     givenName: 'Alex',
@@ -188,6 +194,8 @@ export const validateSiteConfig = (value: SiteConfig): SiteConfig => {
     invalid('site.firstPublished', 'must be a four-digit year.');
   }
 
+  text('site.motto.text', site.motto.text);
+  text('site.motto.lang', site.motto.lang);
   text('person.givenName', person.givenName);
   text('person.familyName', person.familyName);
   text('person.jobTitle', person.jobTitle);
