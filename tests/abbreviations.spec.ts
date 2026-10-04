@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs';
-import { expect, test, type Page } from './test';
+import { expect, test } from './test';
+import { FUNCTIONAL_ROUTES, firstUse, mainText } from './first-use';
 import { builtHtml, builtPages } from './routes';
 import { gotoSettled } from './settle';
 import { NODE } from './tags';
@@ -91,17 +92,6 @@ const FIRST_USES: readonly {
   },
 ];
 
-/** Functional pages: their copy is written by whoever builds the UI (AGENTS.md "Copy"). */
-const FUNCTIONAL_ROUTES = [
-  '/accessibility',
-  '/brand',
-  '/credits',
-  '/privacy',
-  '/contact',
-  '/contact/sent',
-  '/404',
-] as const;
-
 /** Names that are written in capitals, not abbreviations a reader must expand. */
 const NAMES = [
   'Tailwind CSS',
@@ -118,64 +108,10 @@ const NAMES = [
 const ABBREVIATION = /\bCC BY\b|\bIPv[46]\b|\b[A-Z][A-Z0-9]+(?:-\d+)?\b/g;
 const HEX_COLOUR = /^[0-9A-F]{6}$/;
 
-const ENTITIES: Record<string, string> = {
-  amp: '&',
-  nbsp: ' ',
-  quot: '"',
-  lt: '<',
-  gt: '>',
-};
-
-/** `<main>` text of built HTML in source case, so CSS upper-casing is not read as an abbreviation. */
-const mainText = (html: string): string =>
-  (/<main\b[\s\S]*?<\/main>/.exec(html)?.[0] ?? '')
-    .replace(/<(script|style|svg)\b[\s\S]*?<\/\1>/g, ' ')
-    .replace(/<[^>]+>/g, ' ')
-    .replace(/&(#\d+|#x[0-9a-f]+|[a-z]+);/gi, (entity, body: string) =>
-      body.startsWith('#x')
-        ? String.fromCodePoint(parseInt(body.slice(2), 16))
-        : body.startsWith('#')
-          ? String.fromCodePoint(Number(body.slice(1)))
-          : (ENTITIES[body] ?? entity),
-    );
-
 /** Abbreviations replaced by the word itself wherever they would appear. */
 const SPELLED_OUT: readonly { pattern: RegExp; word: string }[] = [
   { pattern: /\d+\s+min read/, word: 'minute' },
 ];
-
-/** The sentence holding the first visible use in `<main>`, or null when there is none. */
-const firstUseSentence = (
-  page: Page,
-  abbreviation: string,
-): Promise<string | null> =>
-  page.evaluate((abbr) => {
-    const escaped = abbr.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
-    const use = new RegExp(`(?<![A-Za-z0-9])${escaped}(?![A-Za-z0-9])`);
-    const main = document.querySelector('main');
-    if (!main) throw new Error('the page has no <main>.');
-
-    const walker = document.createTreeWalker(main, NodeFilter.SHOW_TEXT);
-    for (let node = walker.nextNode(); node; node = walker.nextNode()) {
-      const parent = node.parentElement;
-      if (!parent || !use.test(node.textContent ?? '')) continue;
-      if (!parent.checkVisibility({ visibilityProperty: true })) continue;
-
-      let block: Element = parent;
-      while (
-        block !== main &&
-        block.parentElement &&
-        getComputedStyle(block).display === 'inline'
-      ) {
-        block = block.parentElement;
-      }
-
-      const text = (block.textContent ?? '').replace(/\s+/g, ' ').trim();
-      const sentences = text.split(/(?<=[.!?])\s+(?=[A-Z(])/);
-      return sentences.find((sentence) => use.test(sentence)) ?? text;
-    }
-    return null;
-  }, abbreviation);
 
 test.describe('abbreviations are expanded at first use (SC 3.1.4)', () => {
   const routes = [...new Set(FIRST_USES.map((entry) => entry.route))];
@@ -189,7 +125,7 @@ test.describe('abbreviations are expanded at first use (SC 3.1.4)', () => {
       for (const { abbreviation, expansion } of FIRST_USES.filter(
         (entry) => entry.route === route,
       )) {
-        const sentence = await firstUseSentence(page, abbreviation);
+        const sentence = (await firstUse(page, abbreviation))?.sentence ?? null;
         expect(
           sentence,
           `${abbreviation} no longer appears in ${route}'s <main>; remove its entry.`,
