@@ -775,6 +775,8 @@ Enforced by `tests/post-page.spec.ts`.
 - A cover is never cropped: the file keeps its full frame, and the hero and
   the `/blog` feature card show it in its own ratio. Only `og:image` is cropped,
   to the platforms' 1.91:1 (`src/lib/og-image.ts`).
+- `coverCredit` puts "Photo: name" under the hero cover, linked when the name
+  is in `PHOTOGRAPHERS`.
 - Below `xl` they stack at `--spacing-head`; from `xl` the contents list sits
   right of the text, capped at `--container-rail`.
 - Outline: one `h1`; `h2` per section; `h3` only under an `h2`. The contents

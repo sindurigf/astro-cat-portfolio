@@ -6,6 +6,7 @@ import {
   POSTS,
   postsWhere,
 } from './routes';
+import { PHOTOGRAPHERS } from '../src/lib/credits';
 import { gotoSettled } from './settle';
 import { MIN_TARGET, SUBPIXEL_TOLERANCE } from './wcag';
 
@@ -196,6 +197,28 @@ test.describe('the cover as the post hero', () => {
         Math.abs(ratios.box / ratios.source - 1),
         'the cover is cropped: its frame differs from the photo',
       ).toBeLessThanOrEqual(COVER_RATIO_TOLERANCE);
+    });
+  }
+});
+
+/* A photographer is credited under the photo, linked when the site knows them. */
+test.describe('the cover credit', () => {
+  for (const post of POSTS.filter((p) => p.hasCover && p.coverCredit)) {
+    test(`${post.route} credits ${post.coverCredit} under its cover`, async ({
+      page,
+    }) => {
+      await gotoSettled(page, post.route);
+      const caption = page.locator('main article .post-slab figure figcaption');
+      await expect(caption, 'the cover has no credit').toHaveText(
+        `Photo: ${post.coverCredit}`,
+      );
+      const href = (PHOTOGRAPHERS as Record<string, string>)[post.coverCredit!];
+      if (href) {
+        await expect(
+          caption.getByRole('link', { name: post.coverCredit }),
+          'a known photographer is not linked',
+        ).toHaveAttribute('href', href);
+      }
     });
   }
 });

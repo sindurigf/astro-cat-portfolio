@@ -10,6 +10,7 @@ import { Picture } from 'astro:assets';
 import { PHOTO_FORMATS } from '../../lib/photo-formats';
 import { HERO_PHOTO_SIZES, WIDTHS } from '../../lib/image-densities';
 import { photoSize } from '../../lib/photo-size';
+import { PHOTOGRAPHERS, PHOTO_CREDIT_PREFIX } from '../../lib/credits';
 import type { GetStaticPaths, InferGetStaticPropsType } from 'astro';
 import { getCollection, render } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
@@ -40,6 +41,7 @@ const {
   cover,
   coverAlt,
   coverCardAlt,
+  coverCredit,
   readingTime,
   placeholder,
   updated,
@@ -64,6 +66,10 @@ const ogImage =
     ? await coverOgImage(cover, coverCardAlt ?? coverAlt)
     : undefined;
 const coverSize = cover ? await photoSize(cover) : null;
+const coverCreditHref =
+  coverCredit && Object.hasOwn(PHOTOGRAPHERS, coverCredit)
+    ? PHOTOGRAPHERS[coverCredit as keyof typeof PHOTOGRAPHERS]
+    : undefined;
 const machineDate = isoDate(date);
 const trail = postTrail(category, title);
 
@@ -152,6 +158,16 @@ const article = placeholder
                 class="text-body text-text"
               />
             </div>
+            {coverCredit && (
+              <figcaption class="mt-4 text-body">
+                {PHOTO_CREDIT_PREFIX}
+                {coverCreditHref ? (
+                  <a href={coverCreditHref}>{coverCredit}</a>
+                ) : (
+                  coverCredit
+                )}
+              </figcaption>
+            )}
           </figure>
         )}
       </header>

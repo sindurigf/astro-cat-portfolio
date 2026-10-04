@@ -171,6 +171,7 @@ Headings, alt text, focus rings and axe are checked on the rendered page by
 | `cover`          | image             | no           |         |
 | `coverAlt`       | string            | with `cover` |         |
 | `coverCardAlt`   | string            | no           |         |
+| `coverCredit`    | string            | no           |         |
 
 - Categories: `skincare`, `travel`, `personal-thoughts`,
   `professional-journey`, `open-source`. Rename them in `BLOG_CATEGORIES` and

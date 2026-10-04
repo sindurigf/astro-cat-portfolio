@@ -44,6 +44,8 @@ const blog = defineCollection({
         /* Any ratio, shown uncropped in its own ratio; only og:image is cropped. Relative to the post. */
         cover: image().optional(),
         coverAlt: z.string().optional(),
+        /* The cover's photographer, shown under the hero; a PHOTOGRAPHERS name is linked. */
+        coverCredit: z.string().optional(),
         /* Alt for the 1.91:1 og:image crop, when the crop drops something coverAlt names. */
         coverCardAlt: z.string().optional(),
       })
