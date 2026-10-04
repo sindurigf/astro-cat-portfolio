@@ -88,7 +88,7 @@ blur, uppercase headings, tilted marks.
 | `border`     | `#5A87A8` | Every boundary                                             |
 | `text`       | `#E5E2E1` | Words                                                      |
 | `subtle`     | `#9BB4C6` | Captions, meta, helper text                                |
-| `gold`       | `#FFC000` | The accent, per the register                               |
+| `gold`       | `#FFC000` | The accent, only where the style guide allows              |
 | `cyan`       | `#00DCFD` | Hover and focus only                                       |
 | `pink`       | `#FF007A` | Depth and error; never text                                |
 | `pink-text`  | `#FF79B6` | Every pink glyph; never non-text                           |

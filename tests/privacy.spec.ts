@@ -25,7 +25,7 @@ const PRIVACY_PAGE = '/privacy';
 const CLAIMS = [
   'no cookies',
   'one browser setting',
-  'nothing loaded from other domains',
+  'nothing loaded from other websites',
 ];
 
 // Writes, not mentions: the tracker reads `umami.disabled` from localStorage.

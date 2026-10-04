@@ -18,18 +18,16 @@ const W3C_STATEMENTS = 'https://www.w3.org/WAI/planning/statements/';
 const FULL_RECORD = `${REPOSITORY_URL}/blob/main/ACCESSIBILITY.md`;
 
 const COMMITMENT = [
-  'WCAG 2.2 AA is the floor, with AAA text contrast (7:1) everywhere, at rest and under the pointer.',
+  'WCAG 2.2 AA is the minimum, with AAA text contrast (7:1) everywhere, including under the pointer.',
   'Dark and light mode are both measured. Light mode follows your device, or the switch in the header.',
   'Everything works with a keyboard, and the control you are on is never hidden under the header.',
   'Both animations, the field on the homepage and the cats on the About page, can be paused, and stay still if your device asks for reduced motion.',
 ];
 
 const SUPPORTED = [
-  'navigation without JavaScript',
-  'reflow to 320px wide, which is 400% zoom on a 1280px screen, with or without increased text spacing',
   'paragraphs at most 80 characters wide, with lines 1.5 apart and room between paragraphs',
   'Windows High Contrast Mode',
-  'pointer targets of at least 44 by 44 pixels, never overlapping',
+  'anything you click or tap at least 44 by 44 pixels, with no two overlapping',
   'a distinct, descriptive title on every page',
   ...(CONTACT_FORM_ON
     ? [
@@ -40,9 +38,7 @@ const SUPPORTED = [
 
 /* Not counted: a total this page cannot recount would go stale. */
 const AUTOMATED = [
-  'axe on every route, for WCAG 2.2 A and AA in dark and light mode, including the rules axe marks experimental, and for best practice in dark mode',
-  'colour contrast measured against the composited background, including every result axe leaves undecided',
-  'the keyboard tab order walked in both directions on every page type, with every focus ring measured where it lands',
+  'colour contrast measured against the colour actually behind the text, including every result axe leaves undecided',
   'target sizes, reflow, Windows High Contrast Mode, reduced motion, and navigation with JavaScript off',
   'line length, line spacing and paragraph spacing on every page at three widths',
 ];
@@ -55,11 +51,11 @@ const AUTOMATED = [
   {/* The title carries a U+00AD soft hyphen after "Acces": it only paints at a line break. */}
   <PageHero title="Acces­sibility" measure="reading" slab="none">
     <p class="standfirst">
-      This site aims to be usable with a keyboard, a screen reader, at high
-      zoom, and without JavaScript. Where it is not, that is a bug worth
-      reporting. It aims for the Web Content Accessibility Guidelines (WCAG) 2.2
-      at Level AA, the middle of three levels, and at Level AAA, the highest,
-      for text contrast.
+      This site aims to be usable with a keyboard, a <dfn>screen reader</dfn>
+      (software that reads the page aloud), at high zoom, and without
+      JavaScript. Where it is not, that is a bug worth reporting. It aims for
+      the Web Content Accessibility Guidelines (WCAG) 2.2 at Level AA, the
+      middle of three levels, and at Level AAA, the highest, for text contrast.
     </p>
   </PageHero>
 
@@ -103,6 +99,12 @@ const AUTOMATED = [
           <h2>What works today</h2>
 
           <ul>
+            <li>navigation without JavaScript</li>
+            <li>
+              <dfn>reflow</dfn>: at 320px wide, which is 400% zoom on a 1280px
+              screen, the page fits without scrolling sideways, with or without
+              increased text spacing
+            </li>
             {SUPPORTED.map((item) => (
               <li>{item}</li>
             ))}
@@ -113,7 +115,8 @@ const AUTOMATED = [
           <p>
             Chrome and Edge 111, Firefox 114 and Safari 16.4 or later, on
             desktop and mobile. Every change is tested in Chromium, Firefox and
-            WebKit. No screen reader has been tested yet.
+            WebKit, the <dfn>engines</dfn> those browsers use to draw pages. No
+            screen reader has been tested yet.
           </p>
 
           <h2>Known gaps</h2>
@@ -140,10 +143,20 @@ const AUTOMATED = [
 
           <p>
             These run on every change, in Chromium, Firefox and WebKit, and a
-            failure blocks the change from being merged:
+            failure stops the change from going live:
           </p>
 
           <ul>
+            <li>
+              <dfn>axe</dfn>, an automated accessibility checker, on every page,
+              for WCAG 2.2 A and AA in dark and light mode, including the rules
+              axe marks experimental, and for best practice in dark mode
+            </li>
+            <li>
+              the keyboard order, tabbed through in both directions on every
+              page type, with every <dfn>focus ring</dfn> (the outline on the
+              control you are on) measured where it lands
+            </li>
             {AUTOMATED.map((item) => (
               <li>{item}</li>
             ))}
@@ -176,7 +189,7 @@ const AUTOMATED = [
           </li>
           <li>
             <a href={publicReporting} class="btn-secondary">
-              Open an issue on GitHub
+              Report it on GitHub
             </a>
           </li>
         </ul>
