@@ -4,7 +4,7 @@ date: 2026-09-13
 category: 'professional-journey'
 placeholder: false
 tags: ['archaeology', 'career', 'community', 'ohara']
-teaser: 'From the library in the Tree of Knowledge to twenty years on the run and a crew that came back for me: how I became an archaeologist.'
+teaser: 'How I became an archaeologist. From the library in the Tree of Knowledge to twenty years on the run, and a crew that came back for me.'
 featured: true
 readingTime: 4
 seoTitle: 'What Ohara Taught Me'
