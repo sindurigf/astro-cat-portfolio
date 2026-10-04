@@ -174,7 +174,7 @@ That is the question I would like every project to ask, too.
 
 The event is a placeholder, to show how a talk pairs with its post: the _Example Conference: Archives, Records and the People Who Keep Them_, in the [history track](https://example.org/25/), on Friday 10 July 2026, 09:40 to 10:10, in room 3 (with live captions).
 
-[View the slides](/talks/sample-talk/), or [download them](/talks/sample-talk.pdf) (PDF, 91 KB, 18 pages).
+[View the slides](/talks/sample-talk/), or [download them](/talks/sample-talk.pdf) (PDF, 92 KB, 18 pages).
 
 ---
 
