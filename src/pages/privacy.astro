@@ -19,7 +19,7 @@ import {
  */
 
 /* Set by hand when the policy text changes; a build date would re-date it on every deploy. */
-const lastUpdated = '2026-09-26';
+const lastUpdated = '2026-10-03';
 
 const CLOUDFLARE_PRIVACY = 'https://www.cloudflare.com/privacypolicy/';
 const CLOUDFLARE_NEL =
@@ -46,7 +46,7 @@ const description = ANALYTICS_ON
         ? 'It counts visits with Umami, which does not use cookies either.'
         : 'It counts no visits.'}{' '}
       {CONTACT_FORM_ON &&
-        `It stores what you type into the contact form, so that there is something to reply to, and each form submission's request, including your IP address, the internet address of your connection, is logged for ${WORKER_LOG_RETENTION_DAYS} days.`}
+        `It stores what you type into the contact form, so that there is something to reply to. Each form submission's request is logged for ${WORKER_LOG_RETENTION_DAYS} days, including your IP address, the internet address of your connection.`}
     </p>
 
     <p class="mt-6 text-body">
@@ -106,26 +106,36 @@ const description = ANALYTICS_ON
               months. It is the only place a page here sends anything to.
             </p>
 
-            <p>
-              For each page you open, it sends the page's address and title, the
-              address of the page that linked you here if your browser shares
-              it, your screen size and your browser's language. Both addresses
-              are sent without anything after a ? or #.
-            </p>
+            <p>For each page you open, it sends:</p>
+            <ul>
+              <li>the page's address and title</li>
+              <li>
+                the address of the page that linked you here, if your browser
+                shares it
+              </li>
+              <li>your screen size</li>
+              <li>your browser's language</li>
+            </ul>
+            <p>Both addresses are sent without anything after a ? or #.</p>
 
+            <p>When you click a link or a button, it also sends:</p>
+            <ul>
+              <li>what kind of control it was</li>
+              <li>its label</li>
+              <li>which part of the page it is in</li>
+              <li>for a link, where it goes</li>
+            </ul>
             <p>
-              When you click a link or a button, it also sends what kind of
-              control it was, its label, which part of the page it is in and,
-              for a link, where it goes. For an email link the address is left
-              out. Nothing you type is ever sent.
+              For an email link the address is left out. Nothing you type is
+              ever sent.
             </p>
 
             <p>
               Like any server, Umami receives your {UMAMI_FIRST_IP} and your
               browser's details with each request. Umami says it uses the IP
-              address to work out your country, region and city, and your
-              browser details to work out your browser, operating system and
-              type of device, and that it does not store the IP address. How
+              address to work out your country, region and city, and that it
+              does not store the address. It says it uses your browser details
+              to work out your browser, operating system and type of device. How
               Umami handles that is covered by{' '}
               <a href={UMAMI_PRIVACY}>Umami's privacy policy</a>.
             </p>
@@ -192,29 +202,38 @@ const description = ANALYTICS_ON
             <p>
               The form on <a href="/contact/">the contact page</a> stores the
               name, email address and message you type, so that there is
-              something to reply to. Stored with it are the time it was sent,
-              the time the emailed copy below went out, how many times a failed
-              copy has been retried, and a random identifier (ID) that only
-              tells one message from another. No IP address, browser or referrer
-              is stored with it. It is stored in a database restricted to the
-              European Union, and a copy is emailed to the site owner's inbox,
-              so that the message is seen and can be answered.
+              something to reply to. Stored with it are:
+            </p>
+            <ul>
+              <li>the time it was sent</li>
+              <li>the time the emailed copy below went out</li>
+              <li>how many times a failed copy has been retried</li>
+              <li>
+                a random identifier (ID) that only tells one message from
+                another
+              </li>
+            </ul>
+            <p>
+              No IP address, browser or referrer is stored with it. It is stored
+              in a database restricted to the European Union. A copy is emailed
+              to the site owner's inbox, so that the message is seen and can be
+              answered.
             </p>
 
             <p>
               To stop the form being used for bulk submissions, the number of
-              submissions from one network address is limited to five a minute.
-              For an address in the newer format, Internet Protocol version 6
-              (IPv6), the limit covers its whole /64 network, the block a single
-              connection is normally given. The limit is counted by Cloudflare's
-              rate limiter against a SHA-256 hash, a one-way fingerprint made
-              with Secure Hash Algorithm 256, of your address in the older
-              format, Internet Protocol version 4 (IPv4), or of your IPv6 /64,
-              and the current date. This site writes the hash nowhere else: it
-              is not stored with your message or linked to it. A hash of an
-              address is not anonymous. The date is no secret, so anyone holding
-              the hash of an IPv4 address could recover the address by hashing
-              every possible one.
+              submissions from one network address is limited to about five a
+              minute. For an address in the newer format, Internet Protocol
+              version 6 (IPv6), the limit covers its whole /64 network. That is
+              the block a single connection is normally given. The limit is
+              counted by Cloudflare's rate limiter against a SHA-256 hash, a
+              one-way fingerprint made with Secure Hash Algorithm 256. The hash
+              is made from the current date and your address in the older
+              format, Internet Protocol version 4 (IPv4), or your IPv6 /64. This
+              site writes the hash nowhere else: it is not stored with your
+              message or linked to it. A hash of an address is not anonymous.
+              The date is no secret, so anyone holding the hash of an IPv4
+              address could recover the address by hashing every possible one.
             </p>
 
             <p>
