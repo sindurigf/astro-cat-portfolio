@@ -85,6 +85,8 @@ CLOUDFLARE_ENV=demo SITE_URL=https://demo.example.com CONTACT_FORM=none NOINDEX=
   intended.
 - `NOINDEX` keeps `robots.txt` open: a crawler it blocks never reads the
   noindex header, and Google then indexes the bare URL.
+- `NOINDEX` also drops the `/sitemap.xml` redirect from `_redirects`, so it
+  answers 404 rather than redirect to a sitemap that is not built.
 - Tested by `npm run test:demo` (`playwright.demo.config.ts`).
 
 ## Contact options
