@@ -26,6 +26,8 @@ export interface HeroPalette {
   readonly floor: string;
   /** `--color-hero-floor-edge`. */
   readonly floorEdge: string;
+  /** `--color-pink`: petals. */
+  readonly flower: string;
 }
 
 export interface HeroField {
@@ -61,7 +63,7 @@ export const BOTTOM_DEPTH = GROUND_SPAN / (1 - HORIZON_RATIO);
 
 /*
  * Floor on the aspect factor scaling the projection for narrow frames: lower
- * leaves a phone's sky empty, higher fills the screen with the mascot. Also the
+ * leaves a phone's sky empty, higher fills the screen with the tablet. Also the
  * nearest stem depth, since `z = projection / span`.
  */
 export const FIELD_OF_VIEW_FLOOR = 0.68;
@@ -71,14 +73,8 @@ export const FRONT_DEPTH = 1.55;
 /* Tuned with --color-hero-veil and --color-hero-floor in global.css. */
 export const NEAR_BLUR = 1.4;
 
-/* Deep enough that stems stand in front, so the mascot passes behind cover. */
-export const MASCOT_DEPTH = 2.45;
-
-/** Apparent size to mascot drawing scale: the comp's 1.167 at MASCOT_DEPTH. */
-export const MASCOT_UNIT = 1.167 / (REFERENCE_PROJECTION / MASCOT_DEPTH);
-
-/** Mascot drawing units. */
-export const FOOT_Y = 20;
+/* The tablet's depth: stems this near stand in front of its foot. */
+export const TABLET_DEPTH = 2.45;
 
 export interface Stem {
   readonly z: number;
@@ -96,18 +92,20 @@ export interface Stem {
   /** Sideways offset at the tip, CSS pixels. */
   lean: number;
   leanRate: number;
+  /** Carries a flower instead of a seed head. */
+  readonly flower: boolean;
 }
 
 /*
  * Counts at the reference width; `spread` is clump spread in reference units.
- * `MASCOT` straddles the mascot's depth so it
- * brushes stems. `NEAR.near` is set in `layout` from the aspect factor.
+ * `TABLET` straddles the tablet's depth so weeds grow at its foot.
+ * `NEAR.near` is set in `layout` from the aspect factor.
  */
 export const BANDS = {
   FAR: { count: 69, near: 4.2, far: 62, height: [0.6, 0.75], spread: 150 },
   GRASS: { count: 198, near: 9, far: 62, height: [0.2, 0.52], spread: 105 },
   MIDDLE: { count: 45, near: 2.6, far: 4.2, height: [0.58, 0.72], spread: 190 },
-  MASCOT: { count: 63, near: 1.7, far: 2.9, height: [0.34, 0.6], spread: 190 },
+  TABLET: { count: 63, near: 1.7, far: 2.9, height: [0.34, 0.6], spread: 190 },
   NEAR: { count: 8, near: 0, far: 1.7, height: [0.78, 0.6], spread: 0 },
 } as const;
 
@@ -129,65 +127,11 @@ export const NEAR_VEIL = 0.72;
  */
 export const SPRING = { stiffness: 42, damping: 5, impulse: 9 } as const;
 
-/** Fraction of the mascot's depth. */
-export const REACH_DEPTH = 0.34;
-
-export const REACH_BEHIND = 1.35;
-export const REACH_AHEAD = 0.7;
-
 /** Caps lean on a pathological dt. */
 export const LEAN_LIMIT_RATIO = 110 / REFERENCE_PROJECTION;
 
-/** Faster than this is the route wrapping edge to edge. */
-export const SPEED_LIMIT_RATIO = 900 / REFERENCE_PROJECTION;
-
-export interface Segment {
-  readonly kind: 'hop' | 'rest';
-  readonly duration: number;
-  readonly x0: number;
-  readonly x1: number;
-  readonly hop: number;
-  start: number;
-}
-
-export interface RoutePoint {
-  readonly x: number;
-  /** 0 to 1. */
-  readonly cycle: number;
-  /** 0 to 1. */
-  readonly sit: number;
-  readonly hop: number;
-}
-
-export interface Route {
-  readonly segments: readonly Segment[];
-  readonly total: number;
-}
-
-/** `odds` is cumulative. */
-export const HOPS = [
-  { odds: 0.22, distance: 74, height: 30 },
-  { odds: 0.66, distance: 122, height: 56 },
-  { odds: 0.9, distance: 172, height: 82 },
-  { odds: 1, distance: 228, height: 118 },
-] as const;
-
-/** Seconds per hop: a base plus the distance at this speed (units per second). */
-export const HOP_BASE_SECONDS = 0.34;
-export const HOP_SPEED = 420;
-
-export const REST_ODDS = 0.26;
-export const REST_MIN_HOPS = 3;
-export const REST_LONG_ODDS = 0.42;
-export const REST_LONG = 2.4;
-export const REST_SHORT = 1;
-
-/** Reference units. */
-export const ROUTE_MARGIN = 170;
-
 /* Fixed, so the field is identical on every load and screenshot. */
 export const FIELD_SEED = 4211;
-export const ROUTE_SEED = 8171;
 
 /** Numerical Recipes' LCG. */
 export const random = (seed: number): (() => number) => {
@@ -246,7 +190,7 @@ export const BUD_NOD = { lag: 0.5, amplitude: 0.16 } as const;
 /** Breeze sway in reference units: a base plus a share by stem size. */
 export const SWAY = { base: 3, bySize: 30 } as const;
 
-/* Large enough to see at rest, small enough not to compete with the mascot. */
+/* Large enough to see at rest, small enough not to compete with the tablet. */
 export const WIND_FORCE = 30;
 export const WIND_WAVE = {
   rate: 0.0016,
@@ -254,15 +198,6 @@ export const WIND_WAVE = {
   speed: 0.55,
   floor: 0.35,
 } as const;
-
-/** Seconds between the two route samples the mascot's speed is taken from. */
-export const SPEED_SAMPLE_SECONDS = 0.05;
-
-/** A rest's sit, `sin(min(1, f * rate) * PI) * gain`, clamped to 0..1. */
-export const SIT = { rate: 1.3, gain: 1.7 } as const;
-
-/* About the mascot's body width, so it reads as touch, not a gust. */
-export const REACH = { base: 58, bySize: 110 } as const;
 
 /** Stem tone above which a bud takes the bud, then the muted colour. */
 export const BUD_TONE = { bud: 0.78, subtle: 0.5 } as const;
@@ -290,3 +225,82 @@ export const FLOOR_HEIGHT = 230;
 
 /** Stems deeper than this are painted behind the veil. */
 export const VEIL_DEPTH = 7;
+
+export interface RuinSpec {
+  readonly kind:
+    'column' | 'arch' | 'wall' | 'stair' | 'block' | 'drum' | 'tablet';
+  /** Share of the box width. */
+  readonly x: number;
+  readonly z: number;
+  /** Multiples of the apparent ground span at `z`, as stem heights are. */
+  readonly height: number;
+  readonly width: number;
+  readonly broken?: boolean;
+  /** Left out of frames narrower than `NARROW_ASPECT`. */
+  readonly wide?: boolean;
+}
+
+/** Width over height below which `wide` ruins are dropped. */
+export const NARROW_ASPECT = 1.1;
+
+/*
+ * Far ruins sit behind the veil; the tablet stands at the centre at
+ * `TABLET_DEPTH`. Kept below the h1 and the stickers: tune with tests/hero-fit.spec.ts.
+ */
+export const RUINS: readonly RuinSpec[] = [
+  { kind: 'column', x: 0.05, z: 13, height: 1.2, width: 0.09, wide: true },
+  {
+    kind: 'column',
+    x: 0.085,
+    z: 13,
+    height: 0.8,
+    width: 0.09,
+    broken: true,
+    wide: true,
+  },
+  { kind: 'arch', x: 0.2, z: 15, height: 1.6, width: 0.75 },
+  { kind: 'column', x: 0.33, z: 11, height: 1.1, width: 0.09, broken: true },
+  { kind: 'column', x: 0.6, z: 12, height: 1.3, width: 0.09, wide: true },
+  { kind: 'column', x: 0.64, z: 12, height: 1.3, width: 0.09, wide: true },
+  {
+    kind: 'column',
+    x: 0.68,
+    z: 12,
+    height: 0.9,
+    width: 0.09,
+    broken: true,
+    wide: true,
+  },
+  { kind: 'arch', x: 0.86, z: 14, height: 1.5, width: 0.7, broken: true },
+  { kind: 'wall', x: 0.94, z: 9, height: 0.35, width: 0.9, wide: true },
+  { kind: 'column', x: 0.14, z: 4.4, height: 1.25, width: 0.1, broken: true },
+  { kind: 'column', x: 0.22, z: 5.2, height: 0.75, width: 0.1, broken: true },
+  { kind: 'stair', x: 0.34, z: 4.8, height: 0.32, width: 0.75, wide: true },
+  { kind: 'wall', x: 0.66, z: 4.6, height: 0.36, width: 0.85, wide: true },
+  { kind: 'arch', x: 0.8, z: 4, height: 1.25, width: 0.62, broken: true },
+  { kind: 'drum', x: 0.42, z: 3.6, height: 0.1, width: 0.24 },
+  { kind: 'tablet', x: 0.5, z: TABLET_DEPTH, height: 1.45, width: 0.6 },
+  { kind: 'block', x: 0.13, z: 2.05, height: 0.16, width: 0.34 },
+  { kind: 'drum', x: 0.74, z: 2.2, height: 0.12, width: 0.3, wide: true },
+];
+
+/** Ruins draw a touch firmer than stems at the same depth, so stone reads as solid. */
+export const RUIN_LINE = {
+  width: 1.15,
+  lift: 0.24,
+  maxAlpha: 0.9,
+  detailShare: 0.6,
+  detailWidth: 0.7,
+} as const;
+
+/** Share of stems tall enough for buds that carry a flower. */
+export const FLOWER_ODDS = 0.24;
+/** Seconds per bloom cycle; each flower starts at its own phase. */
+export const BLOOM_PERIOD = 14;
+/** Petal radius and spread in bud units; opening scales both from `closed`. */
+export const PETAL = {
+  radius: 3.4,
+  spread: 4.6,
+  closed: 0.35,
+  count: 5,
+} as const;

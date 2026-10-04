@@ -11,7 +11,7 @@ import type { HeroField, HeroPalette } from '../../lib/hero-field-scene';
  * Reduced motion draws one fixed frame and renders no button.
  */
 
-/** Any fixed time; at this one the cat sits at rest. */
+/** Any fixed time; at this one most flowers are open. */
 const STILL_SECONDS = 3.4;
 
 /*
@@ -61,6 +61,7 @@ const readPalette = (): HeroPalette | null => {
     veilEdge: read('--color-hero-veil-edge'),
     floor: read('--color-hero-floor'),
     floorEdge: read('--color-hero-floor-edge'),
+    flower: read('--color-pink'),
   };
   /* Missing tokens mean no stylesheet yet; draw nothing rather than black on black. */
   return Object.values(palette).every((value) => value.length > 0)
