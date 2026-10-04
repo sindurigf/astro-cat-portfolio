@@ -25,7 +25,7 @@ import {
   PERSON_NAME,
 } from '../lib/profiles';
 
-/* Editorial copy is placeholder text; replace it with your own. */
+/* Editorial copy belongs to the sample persona; replace it with your own. */
 
 const FEATURED_LIMIT = 3;
 const featured = await getFeaturedPosts(FEATURED_LIMIT);
@@ -61,12 +61,12 @@ const TEASER_PHOTO_SIZES =
 
 const STATS = [
   {
-    value: '3 lorem',
-    label: '1 ipsum, 1 dolor, 1 sit',
+    value: '3 cats',
+    label: '1 reader, 1 sleeper, 1 schemer',
   },
   {
-    value: '1 amet',
-    label: 'Consectetur adipiscing elit',
+    value: '1 crew',
+    label: 'Who asked me to stay',
   },
 ] as const;
 ---
@@ -74,7 +74,7 @@ const STATS = [
 <BaseLayout
   title={`${PERSON_NAME}, ${JOB_TITLE}`}
   titleSuffix={false}
-  description="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+  description="Nico Robin is an archaeologist who reads old inscriptions and writes down what they say. Notes, talks and travel from a life at sea."
 >
   {/*
     One gold area for the hero and the section below. No `.surface-gold` on the
@@ -100,10 +100,10 @@ const STATS = [
       */}
         <div class="hero-marks" aria-hidden="true">
           <span class="hero-sticker -rotate-3 bg-gold text-gold-text shadow-hard-mark-8">
-            Lorem
+            Ruins
           </span>
           <span class="hero-sticker rotate-3 bg-surface text-pink-text shadow-hard-mark-8">
-            Ipsum
+            Books
           </span>
         </div>
 
@@ -125,8 +125,9 @@ const STATS = [
     <Section surface="gold">
       {/* Not in the hero: over the moving field it fails SC 1.4.3. The sr-only comma separates the roles. */}
       <Fragment slot="title">
-        <span class="block">Lorem Ipsum Dolor</span>
-        <span class="sr-only">,</span> <span class="block">Sit Amet Elit</span>
+        <span class="block">Reading the past</span>
+        <span class="sr-only">,</span>{' '}
+        <span class="block">One stone at a time</span>
       </Fragment>
 
       <div class="grid gap-grid lg:grid-cols-2 lg:items-start">
@@ -160,9 +161,9 @@ const STATS = [
           </ul>
 
           <p class="mt-8 text-body text-pretty">
-            Lorem ipsum dolor sit amet in 2021, consectetur adipiscing elit sed
-            do eiusmod tempor. Incididunt ut labore et dolore magna aliqua ut
-            enim.
+            I have read old stones since I was a child. In 2021 I began writing
+            down what I learn, so the work outlives me. This site is where those
+            notes live.
           </p>
 
           <p class="mt-head">

@@ -24,7 +24,7 @@ type CategoryAccent = (typeof ACCENTS)[keyof typeof ACCENTS];
 interface Category {
   readonly accent: CategoryAccent;
   readonly glyph: string;
-  /** Placeholder copy; also the category page's meta description. */
+  /** The sample persona's copy; also the category page's meta description. */
   readonly teaser: string;
 }
 
@@ -32,27 +32,31 @@ export const CATEGORIES = {
   skincare: {
     accent: ACCENTS.ink,
     glyph: '✦',
-    teaser: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+    teaser:
+      'Sun, salt and long days on deck: the simple routine that keeps my skin calm at sea.',
   },
   travel: {
     accent: ACCENTS.ink,
     glyph: '✈',
-    teaser: 'Sed do eiusmod tempor incididunt ut labore et dolore magna.',
+    teaser:
+      'Islands, harbours and the ruins worth the climb, with what to read before you go.',
   },
   'personal-thoughts': {
     accent: ACCENTS.pink,
     glyph: '❋',
-    teaser: 'Ut enim ad minim veniam, quis nostrud exercitation ullamco.',
+    teaser:
+      'Quiet thoughts on reading, memory and the small kindnesses that make a crew feel like home.',
   },
   'professional-journey': {
     accent: ACCENTS.gold,
     glyph: '◆',
     teaser:
-      'Duis aute irure dolor in reprehenderit in voluptate velit esse cillum.',
+      'How an archaeologist works: learning old scripts, keeping careful notes and sharing what I find.',
   },
   'open-source': {
     accent: ACCENTS.gold,
     glyph: '</>',
-    teaser: 'Excepteur sint occaecat cupidatat non proident, sunt in culpa.',
+    teaser:
+      'Why knowledge should be open: shared archives, public records and the many hands that keep history alive.',
   },
 } as const satisfies Record<BlogCategory, Category>;

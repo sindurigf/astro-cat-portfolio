@@ -53,10 +53,10 @@ const PHOTOGRAPHER: Photographer = 'Jamie Example';
 
 const SECTIONS = [
   { id: 'motto', title: `Why ${MOTTO.text}` },
-  { id: 'believe', title: 'Dolor sit amet' },
-  { id: 'people', title: 'Consectetur elit' },
-  { id: 'important-things', title: 'Sed do eiusmod' },
-  { id: 'journey', title: 'Tempor to incididunt' },
+  { id: 'believe', title: 'What I believe' },
+  { id: 'people', title: 'My people' },
+  { id: 'important-things', title: 'Important things' },
+  { id: 'journey', title: 'How I got here' },
 ] as const;
 
 /* On the `.aspect-frame`, so the border stays when a failed photo fades out. */
@@ -87,21 +87,21 @@ const CATS = [
     id: 'pepper',
     src: catCardTabby,
     name: 'Pepper',
-    role: 'Lorem ipsum dolor.',
+    role: 'Reads over my shoulder.',
     alt: 'Pepper, a tabby cat, asleep with its face pressed into a blue blanket.',
   },
   {
     id: 'mochi',
     src: catCardCalico,
     name: 'Mochi',
-    role: 'Sit amet.',
+    role: 'Guards the map drawer.',
     alt: 'Mochi, a calico cat, lying on a paisley pillow, mouth open.',
   },
   {
     id: 'biscuit',
     src: catCardBlack,
     name: 'Biscuit',
-    role: 'Consectetur adipiscing elit.',
+    role: 'Sleeps on the warmest book.',
     alt: 'Biscuit, a black cat, lying on its back in a round cat bed, eyes wide.',
   },
 ] as const;
@@ -145,7 +145,7 @@ const closeRow = await closeRowLinks({
 
 <BaseLayout
   title="About"
-  description="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+  description="Nico Robin, archaeologist: where she grew up, what she believes about knowledge, the crew she sails with and the cats who keep her company."
   profile={{ portrait: profilePortrait }}
 >
   <PageHero
@@ -154,8 +154,8 @@ const closeRow = await closeRowLinks({
     imageAlt="A calico cat asleep, curled against a grey cushion."
   >
     <p class="standfirst">
-      Lorem ipsum dolor sit amet, consectetur adipiscing elit, and a very
-      serious sed do eiusmod fan.
+      I am an archaeologist and historian, a careful reader of old stones, and a
+      very serious fan of quiet afternoons with a book.
     </p>
 
     <nav aria-label="On this page" class="mt-8">
@@ -196,7 +196,7 @@ const closeRow = await closeRowLinks({
           <span lang={MOTTO.lang}>{MOTTO.text}</span>
         </h2>
         <p class="mt-3 text-body text-text text-pretty">
-          Latin for &ldquo;dolor sit amet&rdquo;
+          Latin for &ldquo;read the stones&rdquo;
         </p>
       </div>
     </div>
@@ -205,11 +205,12 @@ const closeRow = await closeRowLinks({
       <div class="cat-spot" id="cat-spot-pepper"></div>
       <div class="card">
         <p class="mb-paragraph text-lead font-black text-text text-pretty">
-          Lorem ipsum dolor sit amet. Consectetur adipiscing elit sed do eiusmod
-          tempor.
+          History is written by everyone who leaves a mark. My work is to read
+          those marks before they wear away.
         </p>
         <p class="mt-4 max-w-measure text-body text-text text-pretty">
-          Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.
+          The motto reminds me to start with the evidence, and only then tell
+          the story.
         </p>
         <p class="mt-8">
           <a href="/credits/#name" class="chip">
@@ -235,7 +236,7 @@ const closeRow = await closeRowLinks({
       </div>
       <blockquote class="card surface-gold">
         <p class="max-w-3xl text-h2 font-black text-pretty">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+          Knowledge is safest when many people hold it.
         </p>
       </blockquote>
     </div>
@@ -244,7 +245,7 @@ const closeRow = await closeRowLinks({
   <Section
     id={SECTIONS[2].id}
     title={SECTIONS[2].title}
-    lead="Lorem ipsum dolor sit amet in 2017. Consectetur adipiscing elit, sed do eiusmod, and tempor incididunt ut labore et dolore magna aliqua."
+    lead="I travelled alone for a long time. Early in 2026 a small crew asked me aboard, and they have been my people since."
   >
     <div class="cat-perch">
       <div class="cat-spot" id="cat-spot-mochi"></div>
@@ -319,30 +320,28 @@ const closeRow = await closeRowLinks({
       <div class="card-block flex flex-col lg:flex-row">
         <dl class="card min-w-0 divide-y-4 divide-border lg:flex-1">
           <div class="pb-6">
-            <dt class="label text-gold">Lorem ipsum</dt>
+            <dt class="label text-gold">Reading</dt>
             <dd class="mt-4">
-              <span class="card-title block">Dolor sit amet</span>
+              <span class="card-title block">Old inscriptions</span>
               <span class="mt-2 block text-body text-text">
-                Consectetur adipiscing elit, sed do
+                And anything with footnotes
               </span>
             </dd>
           </div>
           <div class="py-6">
-            <dt class="label text-gold">Tempor</dt>
-            <dd class="card-title mt-4 text-pretty">
-              Incididunt, ut labore, et dolore
-            </dd>
+            <dt class="label text-gold">Drink</dt>
+            <dd class="card-title mt-4 text-pretty">Black coffee, no sugar</dd>
           </div>
           <div class="py-6">
-            <dt class="label text-gold">Magna</dt>
-            <dd class="card-title mt-4">Aliqua ut enim</dd>
+            <dt class="label text-gold">Place</dt>
+            <dd class="card-title mt-4">A quiet deck at night</dd>
           </div>
           <div class="pt-6">
-            <dt class="label text-gold">Minim</dt>
+            <dt class="label text-gold">Habit</dt>
             <dd class="mt-4">
-              <span class="card-title block">Veniam quis</span>
+              <span class="card-title block">Taking notes</span>
               <span class="mt-2 block text-body text-text">
-                Nostrud exercitation ullamco
+                Two copies, always
               </span>
             </dd>
           </div>
@@ -368,9 +367,9 @@ const closeRow = await closeRowLinks({
 
   <Section id={SECTIONS[4].id} title={SECTIONS[4].title}>
     <p slot="lead" class="lead">
-      Lorem ipsum dolor sit amet{' '}
-      <a href={photographerHref(PHOTOGRAPHER)}>{PHOTOGRAPHER}</a>, consectetur
-      adipiscing elit.
+      My story so far, in two halves. The photo is by{' '}
+      <a href={photographerHref(PHOTOGRAPHER)}>{PHOTOGRAPHER}</a>, who caught a
+      rare lazy afternoon.
     </p>
 
     <div class="card">
@@ -378,23 +377,19 @@ const closeRow = await closeRowLinks({
         <div class="min-w-0 sm:flex-1">
           <span class="label block text-gold">Before</span>
           <p class="mt-3 text-body text-text text-pretty">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-            eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
-            ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-            aliquip ex ea commodo consequat. Duis aute irure dolor in
-            reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
-            pariatur, excepteur sint occaecat cupidatat.
+            I grew up on an island of scholars, among books and the people who
+            loved them. When that place was lost, I learned to keep what I knew
+            in my head and my plans to myself. For years I moved from job to
+            job, trusting no one for long and reading every stone I could reach.
           </p>
         </div>
         <div class="min-w-0 sm:flex-1">
           <span class="label block text-gold">After</span>
           <p class="mt-3 text-body text-text text-pretty">
-            Sed ut perspiciatis unde omnis iste natus error sit voluptatem
-            accusantium doloremque laudantium, totam rem aperiam. Eaque ipsa
-            quae ab illo inventore veritatis et quasi architecto beatae vitae
-            dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit
-            aspernatur aut odit aut fugit, sed quia consequuntur magni dolores
-            in 2025.
+            I gave my first talk on how records survive in 2025, and this site
+            grew from it. Then, in 2026, a crew asked me to stay, and meant it.
+            Now I share what I find instead of hiding it, and I keep two copies
+            of every note.
           </p>
         </div>
       </div>
@@ -408,7 +403,7 @@ const closeRow = await closeRowLinks({
             sizes={SIZES.single}
             aspect="video"
           >
-            <span class="block font-black text-text">Lorem ipsum dolor</span>
+            <span class="block font-black text-text">A lazy afternoon</span>
             Photo: <a href={photographerHref(PHOTOGRAPHER)}>{PHOTOGRAPHER}</a>
           </PhotoTile>
         </div>

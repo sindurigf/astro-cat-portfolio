@@ -33,24 +33,24 @@ export const THANKS = [
     name: 'Riley Example',
     href: 'https://example.org/riley/',
     reason:
-      'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua!',
+      'For the idea of the cats on the About page, and for never once asking me to tidy the library.',
   },
   {
     name: 'Kim Example',
     href: 'https://example.org/kim/',
     reason:
-      'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris. Nisi ut aliquip ex ea commodo consequat!',
+      'For teaching me to read a tide table, and for waiting while I read every plaque in every harbour.',
   },
   {
     name: 'Jordan Example',
     href: 'https://example.org/jordan/',
     reason:
-      'Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore. Eu fugiat nulla pariatur excepteur sint occaecat.',
+      'For checking my translations, and for telling me kindly when I was wrong.',
   },
   {
     name: 'Casey Example',
     href: 'https://example.org/casey/',
     reason:
-      'Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium totam rem aperiam.',
+      'For photographs of the carvings I could not reach, and for the climb up to them.',
   },
 ] as const;

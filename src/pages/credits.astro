@@ -9,7 +9,7 @@ import {
   SAMPLE_PERSONA,
   THANKS,
 } from '../lib/credits';
-import { SITE_NAME } from '../lib/site';
+import { MOTTO, SITE_NAME } from '../lib/site';
 
 /* The project this template was extracted from; scripts/check-leaks.mjs allows this one line. */
 // prettier-ignore
@@ -131,8 +131,8 @@ const NAMED_ENTRY = 'min-w-0 bg-background p-card-tight';
 >
   <PageHero title="Credits">
     <p class="standfirst">
-      Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
-      tempor incididunt ut labore et dolore magna aliqua.
+      The people and tools behind this site, and where its name and its sample
+      persona come from.
     </p>
   </PageHero>
 
@@ -141,18 +141,17 @@ const NAMED_ENTRY = 'min-w-0 bg-background p-card-tight';
       <div id="name" class="card">
         <h2 class={CARD_HEADING}>Where the name comes from</h2>
         <p class="mt-6 mb-paragraph max-w-4xl text-lead font-normal text-text text-pretty">
-          Lorem ipsum dolor sit amet{' '}
-          <a href={NAME_INSPIRATION.href}>{NAME_INSPIRATION.site}</a>,
-          consectetur adipiscing elit sed do {NAME_INSPIRATION.name}.
+          The name of this site is borrowed, with thanks, from{' '}
+          <a href={NAME_INSPIRATION.href}>{NAME_INSPIRATION.site}</a>, the site
+          of {NAME_INSPIRATION.name}.
         </p>
         <p class="mt-6 max-w-measure text-body text-text text-pretty">
-          Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris
-          nisi ut aliquip, <a href={CONTACT_MAILTO}>{CONTACT_EMAIL}</a>. Duis
-          aute irure dolor!
+          If you know a better story behind a name, write to me at{' '}
+          <a href={CONTACT_MAILTO}>{CONTACT_EMAIL}</a>. I collect them.
         </p>
         <p class="mt-8">
           <a href="/about/#motto" class="chip">
-            Lorem ipsum dolor
+            Why <span lang={MOTTO.lang}>{MOTTO.text}</span>
           </a>
         </p>
       </div>
@@ -239,11 +238,9 @@ const NAMED_ENTRY = 'min-w-0 bg-background p-card-tight';
             </div>
           ))}
           <div class={NAMED_ENTRY}>
-            <dt class="text-body font-black text-text">
-              Lorem ipsum dolor sit amet
-            </dt>
+            <dt class="text-body font-black text-text">Claude (Anthropic)</dt>
             <dd class="mt-1 text-body text-text">
-              Consectetur adipiscing elit
+              Drew the logo mark and the cats
             </dd>
           </div>
         </dl>

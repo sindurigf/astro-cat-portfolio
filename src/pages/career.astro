@@ -9,7 +9,7 @@ import Section from '../components/Section.astro';
 import { closeRowLinks } from '../lib/blog';
 import { CV_PATH, PERSON_NAME } from '../lib/profiles';
 
-/* Placeholder copy; keep it in step with the CV when one is published. */
+/* The sample persona's copy; keep it in step with the CV when one is published. */
 const PUBLIC_DIR = 'public';
 const BYTES_PER_KB = 1024;
 
@@ -22,97 +22,97 @@ const cvKb = (path: string): number =>
 const EXPERIENCE = [
   {
     dates: 'Jan 2026–Present',
-    where: 'Example Organisation',
-    title: 'Lorem Ipsum Engineer',
+    where: 'The Straw Hat crew',
+    title: "Ship's archaeologist",
     current: true,
     points: [
-      'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-      'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
-      'Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.',
+      'Read and translate the inscriptions we find, and record each one with a drawing, a place and a date.',
+      "Keep the ship's library and charts in order, so anyone aboard can find what they need.",
+      'Brief the crew on the history and customs of each island before we land.',
     ],
   },
   {
     dates: 'Jun 2023–Nov 2025',
-    where: 'Example Company',
-    title: 'Dolor Sit Manager',
+    where: 'Independent research',
+    title: 'Freelance historian',
     current: false,
     points: [
-      'Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
-      'Sed ut perspiciatis unde omnis iste natus error sit voluptatem.',
-      'Accusantium doloremque laudantium, totam rem aperiam eaque ipsa.',
-      'Quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.',
-      'Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores.',
-      'Neque porro quisquam est in 2025.',
+      'Studied ruins and archives on islands across four seas, often alone and often in a hurry.',
+      'Built a personal index of scripts and symbols, and the places they appear.',
+      'Wrote field reports for museums and private collections.',
+      'Repaired and catalogued damaged books and maps.',
+      'Taught reading and writing to children on the islands where I stayed.',
+      'Gave my first public talk in 2025.',
     ],
   },
   {
     dates: 'Jan 2021–May 2023',
-    where: 'Example Agency',
-    title: 'Consectetur Developer & Adipiscing Manager',
+    where: 'Example Expedition Society',
+    title: 'Field researcher & expedition planner',
     current: false,
     points: [
-      'Qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit.',
-      'Sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam.',
-      'Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur, quis autem vel eum iure.',
+      'Planned routes, supplies and permits for small research expeditions.',
+      'Surveyed sites and photographed carvings before weather and time could wear them away.',
+      'Wrote plain summaries, so the people who funded each trip could see what it found and what was still unknown.',
     ],
   },
 ] as const;
 
 const SKILLS = [
-  'Lorem ipsum and dolor sit',
-  'Amet consectetur',
-  'Adipiscing elit',
-  'Sed do eiusmod',
-  'Tempor',
-  'Incididunt and ut labore',
+  'Ancient scripts and translation',
+  'Field survey',
+  'Archives and cataloguing',
+  'Book and map repair',
+  'Research writing',
+  'Teaching and public talks',
 ] as const;
 
 /* `honour` renders in `lang="la"` (SC 3.1.2). */
 const EDUCATION = [
   {
-    award: 'Lorem Ipsum',
-    detail: 'Example School, 2020.',
+    award: 'Advanced Archaeology',
+    detail: 'Ohara Library, 2020.',
     honour: 'Summa cum laude',
   },
   {
-    award: 'Dolor Sit Amet Consectetur',
+    award: 'Reading Ancient Scripts',
     detail:
-      'Example School, 2019. Lorem, ipsum, dolor, sit, amet, consectetur, adipiscing, elit, sed.',
+      'Ohara Library, 2019. Inscriptions, ciphers, dead languages, translation, dating and record keeping.',
     honour: 'Summa cum laude',
   },
-  { award: 'Eiusmod', detail: 'Short course, 2019.' },
+  { award: 'Underwater Survey', detail: 'Short course, 2019.' },
   {
-    award: 'Tempor Incididunt, Master of Science',
+    award: 'History, Master of Arts',
     detail: 'Example University, 2006–2009.',
   },
   {
-    award: 'Labore et Dolore, Bachelor of Arts',
+    award: 'Archaeology, Bachelor of Arts',
     detail: 'Example College, 2001–2005.',
   },
 ] as const;
 
 const LANGUAGES = [
   { language: 'English', level: 'Fluent' },
-  { language: 'Latin', level: 'A2' },
+  { language: 'Latin', level: 'Reading knowledge' },
 ] as const;
 
 const OPEN_SOURCE = [
   {
-    award: 'Lorem Ipsum Award',
-    detail: 'Dolor sit category, 2025.',
+    award: 'Open Archives Award',
+    detail: 'Public records category, 2025.',
   },
   {
     award: 'Example Association',
-    detail: 'Consectetur adipiscing elit. Sed do eiusmod tempor in 2026.',
+    detail: 'Board member for shared research archives since 2026.',
   },
   {
     award: 'Example Community',
-    detail: 'Ut enim ad minim veniam, quis nostrud exercitation ullamco.',
+    detail: 'Volunteer translator for an open library of old texts.',
   },
   {
     award: 'Event organising',
     detail:
-      'Duis aute irure dolor in reprehenderit in 2023, then in voluptate velit esse cillum dolore eu fugiat nulla pariatur.',
+      'Started a reading circle in 2023, then a yearly meeting for island historians.',
   },
 ] as const;
 const closeRow = await closeRowLinks({
@@ -123,18 +123,18 @@ const closeRow = await closeRowLinks({
 
 <BaseLayout
   title="Career"
-  description={`${PERSON_NAME}: work history, education and skills. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod.`}
+  description={`${PERSON_NAME}: work history, education and skills, from field research to translating old scripts and keeping records that last.`}
 >
   <PageHero title="Career">
     <p class="standfirst">
-      <span class="block">Lorem Ipsum Dolor Sit.</span>{' '}
-      <span class="block">Amet Consectetur Elit.</span>{' '}
-      <span class="block">Sed Do Eiusmod Tempor.</span>
+      <span class="block">Reading old scripts.</span>{' '}
+      <span class="block">Keeping careful records.</span>{' '}
+      <span class="block">Sharing what I find.</span>
     </p>
 
     {/* Size, not only colour, carries the hierarchy: forced colours flattens colour. */}
     <p class="mt-4 text-body text-gold-muted">
-      Lorem ipsum, dolor sit amet, consectetur adipiscing elit.
+      Archaeology, history and a great deal of careful reading.
     </p>
 
     {/* No `download` attribute: the browser's viewer is the more accessible default. */}
@@ -157,16 +157,14 @@ const closeRow = await closeRowLinks({
 
   <Section title="Summary" panel>
     <p slot="lead" class="lead max-w-3xl">
-      Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
-      tempor incididunt. Ut labore et dolore magna aliqua ut enim ad minim
-      veniam: quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
-      commodo consequat, duis aute irure dolor in reprehenderit in voluptate
-      velit.
+      I am an archaeologist who reads what older people carved and wrote, and
+      explains it to the people living now. I work in the field, in archives and
+      on deck: surveying sites, translating inscriptions and keeping records
+      that someone else can pick up after me.
     </p>
     <p class="max-w-measure text-body text-text text-pretty">
-      Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia
-      deserunt mollit anim. Id est laborum sed ut perspiciatis unde omnis iste
-      natus.
+      I like slow, careful work and plain explanations. If a find cannot be
+      checked, I say so.
     </p>
   </Section>
 
@@ -257,8 +255,8 @@ const closeRow = await closeRowLinks({
   <Section title="Open source" surface="gold" class="gold-column">
     <div class="grid gap-grid lg:grid-cols-12 lg:items-start">
       <p class="lead mt-0 lg:col-span-5">
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
-        tempor, not incididunt. Ut labore et dolore magna aliqua.
+        I share my notes, translations and indexes, so other researchers do not
+        start from nothing. Knowledge kept by one person is easy to lose.
       </p>
       <dl class="grid gap-grid sm:grid-cols-2 lg:col-span-7">
         {OPEN_SOURCE.map((item) => (
