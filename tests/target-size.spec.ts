@@ -191,7 +191,11 @@ const OPEN_STATES: readonly {
     name: 'the cat card',
     route: '/about',
     narrowOnly: false,
-    open: (page) => page.locator('#cat-spot-minerva .cat-button').click(),
+    /* The button takes no pointer, only the moving drawn cat does, so open it from the keyboard. */
+    open: async (page) => {
+      await page.locator('#cat-spot-minerva .cat-button').focus();
+      await page.keyboard.press('Enter');
+    },
   },
   {
     name: 'the photo viewer',
