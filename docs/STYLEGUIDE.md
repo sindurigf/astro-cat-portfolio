@@ -1033,8 +1033,11 @@ Enforced by `tests/nav-current.spec.ts`, `tests/mobile-menu.spec.ts`,
   them; the About cats are stickers, flat fills with a hard edge, like the logo
   tile. Keep each in its own style.
 - Hero flowers are buds that open: about a quarter of budding stems carry one,
-  each on its own phase, so a few are always opening. The still frame shows
-  most of them open.
+  each on its own phase. Vines climb the columns, the arch and the tablet over
+  `VINE_GROWTH.seconds`, bud as they go and open into flowers, then hold. The
+  still frame shows them fully grown and in flower.
+- Stone carving, weathering hatch and crack tufts use the stems' stroke widths
+  at set shares (`RUIN_LINE`), so ruins stay as fine as the grass.
 
 ## Focus
 
