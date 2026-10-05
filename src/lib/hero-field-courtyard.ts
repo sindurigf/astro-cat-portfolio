@@ -887,7 +887,7 @@ const poneglyph = (
   h: number,
   w: number,
   plinth: boolean,
-): Piece => {
+): Piece[] => {
   const base = plinth ? h * 0.12 : 0;
   const d = w * 0.42;
   const dx = d * 0.62;
@@ -897,6 +897,9 @@ const poneglyph = (
   const p = (px: number, up: number): Point => project(v, px, up, z);
   const stones: Stone[] = [];
   const outline = new Path2D();
+  /* The plinth is its own piece behind the block, so its edges never cross the face. */
+  const plinthStones: Stone[] = [];
+  const plinthOutline = new Path2D();
   if (plinth) {
     const pl = w * 0.22;
     const front = polygon([
@@ -917,12 +920,12 @@ const poneglyph = (
       p(right + pl + dx * 1.3, base + dy * 1.3),
       p(right + pl + dx * 1.3, dy * 1.3),
     ]);
-    stones.push(
+    plinthStones.push(
       { path: front, tone: 1 },
       { path: top, tone: 0 },
       { path: side, tone: 2 },
     );
-    [front, top, side].forEach((f) => outline.addPath(f));
+    [front, top, side].forEach((f) => plinthOutline.addPath(f));
   }
   const front = polygon([
     p(left, base),
@@ -972,7 +975,7 @@ const poneglyph = (
       }
     }
   }
-  return {
+  const block: Piece = {
     z,
     layer: 2,
     stones,
@@ -990,6 +993,20 @@ const poneglyph = (
     ],
     climbs: [],
   };
+  if (!plinth) return [block];
+  return [
+    block,
+    {
+      z: z + 0.02,
+      layer: 2,
+      stones: plinthStones,
+      outline: plinthOutline,
+      detail: new Path2D(),
+      cast: new Path2D(),
+      feet: [],
+      climbs: [],
+    },
+  ];
 };
 
 /* A broken tower: a narrow tall run of masonry with a jagged top. */
@@ -1090,16 +1107,10 @@ const lowSides = (
   profile: readonly Point[],
   near = 2.6,
   far = 10,
+  right: readonly Point[] = profile.map(([t, h]) => [t, h * 0.9] as Point),
 ): Piece[] => [
   sideWall(v, -4.4 * k, near, far, profile, () => []),
-  sideWall(
-    v,
-    4.4 * k,
-    near,
-    far,
-    profile.map(([t, h]) => [t, h * 0.9] as Point),
-    () => [],
-  ),
+  sideWall(v, 4.4 * k, near, far, right, () => []),
 ];
 
 /* Plant kinds per option, so growth styles differ as well as layouts. */
@@ -1151,7 +1162,7 @@ const COMPOSITIONS: Record<string, (v: View) => Piece[]> = {
         2,
         6,
       ),
-      poneglyph(v, 0, 5, 1.9, 1.75, true),
+      ...poneglyph(v, 0, 5, 1.9, 1.75, true),
       ...heap(v, 2.0 * k, 2.3, 0.9),
     ];
   },
@@ -1190,7 +1201,7 @@ const COMPOSITIONS: Record<string, (v: View) => Piece[]> = {
       ...heap(v, 3.2 * k, 3.2, 1.4),
       ...heap(v, 2.4 * k, 5.2, 1.1),
       boulder(v, 3.8 * k, 4.4, 0.7, 0.35, 1),
-      poneglyph(v, 0, 5, 1.9, 1.75, false),
+      ...poneglyph(v, 0, 5, 1.9, 1.75, false),
       ...heap(v, -1.8 * k, 2.3, 0.9),
     ];
   },
@@ -1262,8 +1273,23 @@ const COMPOSITIONS: Record<string, (v: View) => Piece[]> = {
     return [
       frontWall(v, 12, -7, 7, LOW_TOP, 0, 6),
       back,
-      ...lowSides(v, k, LOW_SIDE),
-      poneglyph(v, 0, 7.2, 2.4, 2.2, false),
+      ...lowSides(
+        v,
+        k,
+        LOW_SIDE,
+        2.6,
+        10,
+        stepped([
+          [0, 0.9],
+          [0.15, 0.4],
+          [0.32, 0.35],
+          [0.45, 1.2],
+          [0.6, 0.6],
+          [0.78, 0.3],
+          [1, 0.8],
+        ]),
+      ),
+      ...poneglyph(v, 0, 7.2, 2.4, 2.2, false),
       ...heap(v, -2.2 * k, 3.4, 1.1),
       toppled(v, 2.2 * k, 3.8, 1.4),
     ];
@@ -1304,7 +1330,7 @@ const COMPOSITIONS: Record<string, (v: View) => Piece[]> = {
         7,
       ),
       ...lowSides(v, k, LOW_SIDE),
-      poneglyph(v, 1.35 * k, 3.4, 1.6, 1.5, true),
+      ...poneglyph(v, 1.35 * k, 3.4, 1.6, 1.5, true),
       ...heap(v, -2.6 * k, 3.0, 1.1),
       boulder(v, -1.0 * k, 2.4, 0.6, 0.28, 1),
     ];
@@ -1346,7 +1372,7 @@ const COMPOSITIONS: Record<string, (v: View) => Piece[]> = {
         8,
       ),
       ...lowSides(v, k, LOW_SIDE, 2.6, 6.4),
-      poneglyph(v, 0, 5.2, 1.9, 1.75, true),
+      ...poneglyph(v, 0, 5.2, 1.9, 1.75, true),
       lintel(v, -0.9, 0.6, 4.4, 0, false, 2),
       ...heap(v, 2.2 * k, 3.0, 1.0),
     ];
@@ -1616,7 +1642,7 @@ export const scenePieces = (name: string, v: View): Piece[] => {
     .map((piece) => ({
       ...piece,
       plants: piece.feet
-        .filter((_, i) => i % 2 === 0)
+        .filter((_, i) => kind === 'cover' || i % 2 === 0)
         .map(([x, z]): Plant => {
           n += 1;
           return {
@@ -1798,27 +1824,32 @@ export const drawPlants = (
           tinyFlower(ctx, palette, tx, ty - flowerR, flowerR, bloom);
       });
     } else {
-      /* Creeping cover: a low mound of small leaves spreading outward. */
-      const spread = size * 1.1 * g;
-      const count = Math.round(9 * g);
+      /* Creeping cover: a dense mat of small leaves that spreads out and up the stone it roots against. */
+      const spread = size * (0.5 + 2.1 * g);
+      const rise = size * (0.1 + 0.75 * g);
+      const count = Math.round(10 + 46 * g);
       for (let i = 0; i < count; i += 1) {
         const f = ((i * 41) % count) / count - 0.5;
+        const up = ((i * 23) % 11) / 11;
+        const crown = 1 - (2 * f) ** 2;
         const lx = x + f * spread;
-        const ly = y - Math.abs(Math.cos(f * Math.PI)) * size * 0.18 * g;
-        leaf(ctx, lx, ly, size * 0.11, -Math.PI / 2 + f * 1.6 + sway);
+        const ly = y - up * rise * Math.max(0.15, crown);
+        leaf(
+          ctx,
+          lx,
+          ly,
+          size * (0.1 + 0.05 * g),
+          -Math.PI / 2 + f * 2.2 + (up - 0.5) + sway,
+        );
       }
-      ctx.beginPath();
-      ctx.moveTo(x - spread / 2, y);
-      ctx.quadraticCurveTo(x, y - size * 0.2 * g, x + spread / 2, y);
-      ctx.stroke();
       ctx.globalAlpha = fade;
-      for (let i = 0; i < 2; i += 1) {
+      for (let i = 0; i < 5; i += 1) {
         const f = ((i * 37) % 9) / 9 - 0.5;
         tinyFlower(
           ctx,
           palette,
           x + f * spread * 0.9,
-          y - Math.abs(Math.cos(f * Math.PI)) * size * 0.2 * g - flowerR,
+          y - (1 - (2 * f) ** 2) * rise * 0.8 - flowerR,
           flowerR,
           bloom,
         );
@@ -1831,11 +1862,12 @@ export const drawPlants = (
 /* Tone strength: the line colour over the opaque ground, per tone, then per layer. */
 const TONE_ALPHA: Record<Tone, number> = { 0: 0, 1: 0.1, 2: 0.24, 3: 0.62 };
 const LAYER = [
-  { tone: 0.6, line: 0.42, joint: 0.22 },
+  { tone: 0.8, line: 0.52, joint: 0.28 },
   { tone: 0.85, line: 0.68, joint: 0.3 },
   { tone: 1, line: 0.88, joint: 0.38 },
 ] as const;
 const CAST_ALPHA = 0.12;
+const STONE_BASE = 0.07;
 
 export const drawPiece = (
   ctx: CanvasRenderingContext2D,
@@ -1856,6 +1888,10 @@ export const drawPiece = (
   for (const stone of piece.stones) {
     ctx.globalAlpha = 1;
     ctx.fillStyle = palette.background;
+    ctx.fill(stone.path);
+    /* Every stone sits a step off the ground, so even lit faces read as stone. */
+    ctx.globalAlpha = STONE_BASE * layer.tone;
+    ctx.fillStyle = palette.border;
     ctx.fill(stone.path);
     if (stone.tone) {
       ctx.globalAlpha = TONE_ALPHA[stone.tone] * layer.tone;
