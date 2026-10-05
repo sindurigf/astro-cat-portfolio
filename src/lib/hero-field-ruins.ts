@@ -1686,6 +1686,22 @@ const sidewall = (
   zs.forEach((z, i) => p.outline.lineTo(...at(z, topAt(i))));
   p.outline.lineTo(...at(far, 0));
   p.outline.closePath();
+  /* The wall's thickness: its top surface, set back toward the centre. */
+  const thick = (spec.width ?? 1) * 0.35 * Math.sign(wx);
+  const inner = (z: number, up: number): Point => [
+    cx + ((wx - thick) * box.projection) / z,
+    box.horizon +
+      (box.projection / z) * (1 - (spec.lift ?? 0)) -
+      (up * box.projection) / z,
+  ];
+  const topFace = new Path2D();
+  topFace.moveTo(...at(near, topAt(0)));
+  zs.forEach((z, i) => topFace.lineTo(...at(z, topAt(i))));
+  for (let i = steps; i >= 0; i -= 1)
+    topFace.lineTo(...inner(zs[i]!, topAt(i)));
+  topFace.closePath();
+  p.outline.addPath(topFace);
+  p.light.addPath(topFace);
   const courses = 5;
   for (let c = 1; c < courses; c += 1) {
     const up = (spec.height * c) / courses;
@@ -2052,6 +2068,9 @@ export const drawRuin = (
   ctx.stroke(ruin.back);
   ctx.globalAlpha = 1;
   ctx.fillStyle = palette.background;
+  ctx.fill(ruin.outline);
+  /* Stone a step off the ground, so ruins read solid. */
+  ctx.fillStyle = palette.veil;
   ctx.fill(ruin.outline);
   ctx.globalAlpha = Math.min(1, alpha + RUIN_LINE.darkLift);
   ctx.fillStyle = palette.border;
