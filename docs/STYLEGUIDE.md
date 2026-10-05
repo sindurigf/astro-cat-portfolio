@@ -798,7 +798,8 @@ Enforced by `tests/post-page.spec.ts`.
   or less (`text-h2`'s ceiling).
 - Body figures break out of the measure; the text does not. A landscape
   takes the page column, and from `xl` the measure plus the track right of it,
-  ending on the page column's right edge like the hero photo. A portrait stays
+  from the text's left edge toward the page column's right edge like the hero
+  photo; a height-capped one ends short. A portrait stays
   on the measure, centred.
   Both stop at 80vh tall, uncropped, caption on the image's left edge.
 - Figure `sizes`, from `post-figure.mjs`: that slot, capped by the file's width

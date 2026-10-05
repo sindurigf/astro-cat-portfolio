@@ -121,9 +121,9 @@
 
   /*
    * A landscape post figure breaks out of the measure to `.post-layout`'s
-   * width; from `xl` only rightward, like the hero photo, so it must sit below
-   * the contents rail (tests/post-page.spec.ts). Never cropped: a tall image
-   * stops at `--figure-max-height`.
+   * width; from `xl` only rightward from the text's left edge, like the hero
+   * photo, so it must sit below the contents rail (tests/post-page.spec.ts).
+   * Never cropped: a tall image stops at `--figure-max-height`, ending short.
    */
   .post-layout .prose figure {
     /* FIGURE_MAX_HEIGHT_VH in src/plugins/post-figure.mjs. */
@@ -137,7 +137,7 @@
     margin-inline-start: calc(-1 * var(--figure-outdent));
 
     @media (width >= 80rem) {
-      justify-content: end;
+      justify-content: start;
       width: calc(100% + var(--figure-outdent));
       margin-inline-start: 0;
     }

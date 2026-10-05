@@ -256,6 +256,7 @@ test.describe('body figures', () => {
                 captionLeft: caption?.left ?? frame.left,
                 viewport: document.documentElement.clientWidth,
                 boxRight: box.right,
+                proseLeft: prose.left,
                 columnRight: column.right,
                 hitsRail:
                   rail !== undefined &&
@@ -317,9 +318,13 @@ test.describe('body figures', () => {
               "a landscape figure does not reach the page column's right edge",
             ).toBeLessThanOrEqual(FIGURE_ALIGN_TOLERANCE);
             expect(
-              Math.abs(figure.right - figure.columnRight),
-              "a landscape image does not hang to the page column's right edge",
+              Math.abs(figure.left - figure.proseLeft),
+              "a landscape image does not start at the text's left edge",
             ).toBeLessThanOrEqual(FIGURE_ALIGN_TOLERANCE);
+            expect(
+              figure.right,
+              "a landscape image runs past the page column's right edge",
+            ).toBeLessThanOrEqual(figure.columnRight + FIGURE_ALIGN_TOLERANCE);
           }
         }
       });
