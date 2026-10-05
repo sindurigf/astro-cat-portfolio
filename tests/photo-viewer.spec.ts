@@ -6,7 +6,7 @@ import { DESKTOP_VIEWPORT, NARROW_WIDTH } from './wcag';
 
 const ROUTE = '/about';
 const STRIP = '#people-photos';
-const ARROWS = '[data-strip-scroll]';
+const ARROWS = `[data-strip-scroll][aria-controls="${STRIP.slice(1)}"]`;
 
 /** Sub-pixel layout rounding, in CSS px. */
 const ROUNDING_PX = 1;

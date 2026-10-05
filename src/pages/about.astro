@@ -7,6 +7,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import CloseRow from '../components/CloseRow.astro';
 import PageHero from '../components/PageHero.astro';
 import PhotoTile from '../components/PhotoTile.astro';
+import PhotoStrip from '../components/PhotoStrip.astro';
 import PhotoViewer from '../components/PhotoViewer.astro';
 import Section from '../components/Section.astro';
 import PersonaSources from '../components/PersonaSources.astro';
@@ -307,50 +308,13 @@ const closeRow = await closeRowLinks({
           />
         </div>
 
-        <div class="mb-4 mt-8 flex items-center justify-between gap-4">
-          <span class="label block text-subtle">More photos</span>
-          {/* Unhidden by src/scripts/photo-viewer.ts while the strip overflows. */}
-          <div class="flex gap-3">
-            <button
-              type="button"
-              class="strip-button"
-              aria-controls="people-photos"
-              aria-label="Scroll photos left"
-              data-strip-scroll="-1"
-              hidden
-            >
-              <span aria-hidden="true">&larr;</span>
-            </button>
-            <button
-              type="button"
-              class="strip-button"
-              aria-controls="people-photos"
-              aria-label="Scroll photos right"
-              data-strip-scroll="1"
-              hidden
-            >
-              <span aria-hidden="true">&rarr;</span>
-            </button>
-          </div>
-        </div>
-        {/* accesslint focus-order flags tabindex="0" here: false positive, a keyboard can only scroll a focusable region. */}
-        <ul
+        <PhotoStrip
           id="people-photos"
-          class="photo-strip"
-          tabindex="0"
-          aria-label="More photos, scrolls sideways"
-        >
-          {PLACES.map((place) => (
-            <li>
-              <PhotoTile
-                image={place.src}
-                alt={place.alt}
-                group="people"
-                size="natural"
-              />
-            </li>
-          ))}
-        </ul>
+          label="More photos"
+          noun="photos"
+          group="people"
+          photos={PLACES}
+        />
       </div>
     </div>
   </Section>

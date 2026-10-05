@@ -585,7 +585,7 @@ The grid rule in `scripts/check-tokens.mjs` enforces the grid;
   its card as a focusable region), a tilted mark's corners and any hard shadow
   (up to 12px past the column).
 - **Reflow:** every type is one column below 640px, on the 288px content box
-  at 320px. At 200% zoom a 1280px window is 640 CSS px. Only the photo strip
+  at 320px. At 200% zoom a 1280px window is 640 CSS px. Only photo strips
   and wide tables scroll sideways, each in its own region.
 
 ### Page compositions
