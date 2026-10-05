@@ -133,6 +133,11 @@ const LENGTHS: readonly number[] = [
 /* Masonry course height, world units. */
 const COURSE = 0.26;
 
+/* Pits per stone, cycled: about 1.2 on average. */
+const PIT_COUNT = [1, 2, 0, 1, 2, 1, 0, 2, 1, 2] as const;
+/* Pit radius as a share of the stone's length and course. */
+const PIT = { du: 0.045, dv: 0.13 } as const;
+
 /* Course heights as a share of `course`, so bed lines do not run evenly. */
 const COURSE_RUN: readonly number[] = [1, 0.8, 1.18, 0.9, 1.06, 0.74, 1.12];
 
@@ -149,19 +154,29 @@ const weather = (
   const at = (fu: number, fv: number): Point =>
     map(a + (b - a) * fu, y0 + (y1 - y0) * fv);
   const wear = new Path2D();
-  for (let i = 0; i < 1 + (n % 3); i += 1) {
-    const fu = 0.12 + ((n * 37 + i * 53) % 76) / 100;
-    const fv = 0.18 + ((n * 29 + i * 41) % 62) / 100;
-    const du = 0.035 + ((n + i) % 3) * 0.016;
-    const dv = 0.1 + ((n + i * 2) % 3) * 0.04;
-    wear.addPath(
-      polygon([
-        at(fu - du, fv),
-        at(fu - du * 0.3, fv + dv),
-        at(fu + du, fv + dv * 0.5),
-        at(fu + du * 0.6, fv - dv * 0.7),
-      ]),
-    );
+  const count = PIT_COUNT[n % PIT_COUNT.length]!;
+  for (let i = 0; i < count; i += 1) {
+    const h = (n * 37 + i * 53) % 100;
+    /* Most wear sits on an arris or a joint; the rest is spread over the face. */
+    const edge = h % 3 !== 0;
+    const fu = edge && h % 2 ? (h % 4 ? 0.06 : 0.94) : 0.12 + (h % 76) / 100;
+    const fv =
+      edge && !(h % 2)
+        ? h % 5 > 1
+          ? 0.9
+          : 0.1
+        : 0.18 + ((n * 29 + i * 41) % 62) / 100;
+    const size = 0.5 + ((n * 13 + i * 7) % 11) / 10;
+    const sides = 3 + ((n + i) % 3);
+    const pts: Point[] = [];
+    for (let k = 0; k < sides; k += 1) {
+      const a = (k / sides) * Math.PI * 2 + (((n * 7 + k * 11) % 9) - 4) * 0.12;
+      const r = size * (0.6 + ((n * 3 + k * 17 + i) % 7) * 0.1);
+      pts.push(
+        at(fu + Math.cos(a) * PIT.du * r, fv + Math.sin(a) * PIT.dv * r),
+      );
+    }
+    wear.addPath(polygon(pts));
   }
   if (!full) return { wear };
   const out: { wear: Path2D; chips?: Path2D; crack?: Path2D } = { wear };
