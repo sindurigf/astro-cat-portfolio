@@ -242,7 +242,9 @@ export interface RuinSpec {
     | 'stepped'
     | 'trilithon'
     | 'tree'
-    | 'monolith';
+    | 'monolith'
+    | 'house'
+    | 'aqueduct';
   /** Share of the box width. */
   readonly x: number;
   readonly z: number;

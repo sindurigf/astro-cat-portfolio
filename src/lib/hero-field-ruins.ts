@@ -1464,6 +1464,232 @@ const monolith = (
   }
 };
 
+/*
+ * A city building as a box: front wall with doorway and window rows, a side
+ * face in shade and a lit roof. A broken one loses its upper corner in a
+ * jagged collapse, windows above the break gone.
+ */
+const house = (
+  p: Parts,
+  x: number,
+  root: number,
+  h: number,
+  w: number,
+  rng: () => number,
+  broken: boolean,
+): void => {
+  const depth = w * 0.28;
+  const dx = depth;
+  const dy = -depth * 0.45;
+  const left = x - w / 2;
+  const right = x + w / 2;
+  const top = root - h;
+  /* Break line: from a point on the top edge down to a point on the right wall. */
+  const breakAt = left + w * (0.35 + rng() * 0.3);
+  const breakDown = top + h * (0.25 + rng() * 0.3);
+  const jag: Point[] = [];
+  if (broken) {
+    const steps = 6;
+    for (let i = 0; i <= steps; i += 1) {
+      const f = i / steps;
+      const bx = breakAt + (right - breakAt) * f;
+      const by =
+        top +
+        (breakDown - top) * f +
+        (i % 2 ? -1 : 1) * h * 0.035 * rng() +
+        (i > 0 && i < steps ? h * 0.04 : 0);
+      jag.push([bx, by]);
+    }
+  }
+  /* Side face and roof first, so the front covers their hidden edges. */
+  const sideTop = broken ? breakDown : top;
+  p.outline.moveTo(right, root);
+  p.outline.lineTo(right, sideTop);
+  p.outline.lineTo(right + dx, sideTop + dy);
+  p.outline.lineTo(right + dx, root + dy);
+  p.outline.closePath();
+  p.deep.moveTo(right, root);
+  p.deep.lineTo(right, sideTop);
+  p.deep.lineTo(right + dx, sideTop + dy);
+  p.deep.lineTo(right + dx, root + dy);
+  p.deep.closePath();
+  const roofRight = broken ? breakAt : right;
+  p.outline.moveTo(left, top);
+  p.outline.lineTo(left + dx, top + dy);
+  p.outline.lineTo(roofRight + dx * (broken ? 0.6 : 1), top + dy);
+  p.outline.lineTo(roofRight, top);
+  p.outline.closePath();
+  /* Front wall. */
+  const front = new Path2D();
+  front.moveTo(left, root);
+  front.lineTo(left, top + h * 0.02);
+  chipped(
+    front,
+    [left, top],
+    [broken ? breakAt : right, top],
+    rng,
+    h * 0.04,
+    2,
+  );
+  if (broken) jag.forEach((pt) => front.lineTo(...pt));
+  front.lineTo(right, root);
+  front.closePath();
+  p.outline.addPath(front);
+  /* Cornice band and storey lines. */
+  const storey = Math.max(w * 0.42, h / 4);
+  const floors = Math.max(1, Math.floor(h / storey));
+  const lineTopAt = (bx: number): number => {
+    if (!broken || bx <= breakAt) return top;
+    const f = (bx - breakAt) / (right - breakAt);
+    return top + (breakDown - top) * f + h * 0.05;
+  };
+  p.carve.moveTo(left, top + storey * 0.18);
+  p.carve.lineTo(broken ? breakAt : right, top + storey * 0.18);
+  for (let f = 1; f < floors; f += 1) {
+    const y = root - storey * f;
+    const end =
+      broken && y < breakDown
+        ? breakAt + (right - breakAt) * ((y - top) / (breakDown - top))
+        : right;
+    p.hatch.moveTo(left, y);
+    p.hatch.lineTo(end, y);
+  }
+  /* Windows: a row per storey, arched heads, missing above the break. */
+  const cols = Math.max(1, Math.round(w / (storey * 0.75)));
+  const ww = (w / cols) * 0.26;
+  const wh = storey * 0.34;
+  for (let f = 0; f < floors; f += 1) {
+    const sill = root - storey * f - storey * 0.28;
+    for (let c = 0; c < cols; c += 1) {
+      const wx = left + (w / cols) * (c + 0.5);
+      if (f === 0 && c === Math.floor(cols / 2)) continue;
+      if (sill - wh < lineTopAt(wx) + storey * 0.15) continue;
+      if (rng() < 0.12) continue;
+      p.dark.moveTo(wx - ww / 2, sill);
+      p.dark.lineTo(wx - ww / 2, sill - wh + ww / 2);
+      p.dark.arc(wx, sill - wh + ww / 2, ww / 2, Math.PI, 0);
+      p.dark.lineTo(wx + ww / 2, sill);
+      p.dark.closePath();
+      p.lit.moveTo(wx - ww * 0.7, sill + ww * 0.15);
+      p.lit.lineTo(wx + ww * 0.7, sill + ww * 0.15);
+    }
+  }
+  /* Doorway, centred on the ground floor. */
+  const dw = Math.min(w * 0.22, storey * 0.5);
+  const dh = storey * 0.72;
+  const doorX = left + (w / cols) * (Math.floor(cols / 2) + 0.5);
+  p.dark.moveTo(doorX - dw / 2, root);
+  p.dark.lineTo(doorX - dw / 2, root - dh + dw / 2);
+  p.dark.arc(doorX, root - dh + dw / 2, dw / 2, Math.PI, 0);
+  p.dark.lineTo(doorX + dw / 2, root);
+  p.dark.closePath();
+  /* Weathering, cracks, moss on what is left of the top, a vine. */
+  weather(p.hatch, left, top, w, h, Math.max(2.4, storey * 0.45), rng);
+  if (rng() < 0.6)
+    crack(
+      p.carve,
+      left + w * (0.15 + rng() * 0.6),
+      top + h * 0.2,
+      h * 0.35,
+      rng,
+    );
+  mossCap(
+    p,
+    left,
+    broken ? breakAt : right,
+    top,
+    Math.max(2.5, storey * 0.3),
+    rng,
+  );
+  if (broken)
+    jag.forEach(([jx, jy], i) => {
+      if (i % 2)
+        (p.moss.moveTo(jx, jy),
+          p.moss.lineTo(jx + storey * 0.05, jy - storey * 0.12));
+    });
+  if (rng() < 0.45)
+    hang(p, left + w * (0.15 + rng() * 0.6), top, h * (0.3 + rng() * 0.3), rng);
+  /* Rubble fallen at the foot of the break. */
+  if (broken) {
+    for (let k = 0; k < 3; k += 1) {
+      const rx = right - w * (0.1 + k * 0.12) + rng() * w * 0.05;
+      const rs = storey * (0.12 + rng() * 0.12);
+      p.outline.rect(rx - rs, root - rs, rs * 2, rs);
+    }
+  }
+  tuft(p, left - w * 0.04, root, storey * 0.5, rng);
+};
+
+/* An aqueduct: a row of arches on piers carrying a channel, one span fallen. */
+const aqueduct = (
+  p: Parts,
+  x: number,
+  root: number,
+  h: number,
+  w: number,
+  rng: () => number,
+): void => {
+  const spans = 6;
+  const span = w / spans;
+  const pier = span * 0.22;
+  const deck = h * 0.16;
+  const left = x - w / 2;
+  const gap = 3;
+  for (let i = 0; i < spans; i += 1) {
+    const sx = left + span * i;
+    if (i === gap) continue;
+    const r = (span - pier) / 2;
+    const spring = root - h + deck + r;
+    p.outline.moveTo(sx, root);
+    p.outline.lineTo(sx, root - h);
+    chipped(
+      p.outline,
+      [sx, root - h],
+      [sx + span, root - h],
+      rng,
+      deck * 0.2,
+      1,
+    );
+    p.outline.lineTo(sx + span, root);
+    p.outline.lineTo(sx + span - pier / 2, root);
+    p.outline.lineTo(sx + span - pier / 2, spring);
+    p.outline.arc(sx + span / 2, spring, r, 0, Math.PI, true);
+    p.outline.lineTo(sx + pier / 2, root);
+    p.outline.closePath();
+    p.carve.moveTo(sx, root - h + deck);
+    p.carve.lineTo(sx + span, root - h + deck);
+    for (let k = 1; k < 6; k += 1) {
+      const a = Math.PI + (Math.PI * k) / 6;
+      p.carve.moveTo(sx + span / 2 + Math.cos(a) * r, spring + Math.sin(a) * r);
+      p.carve.lineTo(
+        sx + span / 2 + Math.cos(a) * (r + deck * 0.8),
+        spring + Math.sin(a) * (r + deck * 0.8),
+      );
+    }
+    p.shade.rect(
+      sx + span - pier / 2 - pier * 0.2,
+      spring,
+      pier * 0.2,
+      root - spring,
+    );
+    mossCap(p, sx, sx + span, root - h, deck * 0.9, rng);
+    if (i === gap - 1 || i === gap + 1)
+      hang(p, sx + (i < gap ? span * 0.9 : span * 0.1), root - h, h * 0.4, rng);
+  }
+  /* The fallen span's broken stubs and its rubble. */
+  const gx = left + span * gap;
+  p.outline.moveTo(gx, root);
+  p.outline.lineTo(gx, root - h * 0.55);
+  p.outline.lineTo(gx + pier * 0.3, root - h * 0.6);
+  p.outline.lineTo(gx + pier * 0.5, root);
+  p.outline.closePath();
+  for (let k = 0; k < 4; k += 1) {
+    const rs = deck * (0.5 + rng() * 0.6);
+    p.outline.rect(gx + span * (0.15 + k * 0.2), root - rs, rs * 1.6, rs);
+  }
+  weather(p.hatch, left, root - h, w, h, Math.max(1.6, deck * 0.3), rng);
+};
+
 const tablet = (
   p: Parts,
   x: number,
@@ -1737,6 +1963,9 @@ const build = (spec: RuinSpec, box: Box, seed: number): Ruin => {
   else if (spec.kind === 'trilithon')
     trilithon(p, x, root, h, w, rng, spec.broken ?? false);
   else if (spec.kind === 'tree') tree(p, x, root, h, w, rng);
+  else if (spec.kind === 'house')
+    house(p, x, root, h, w, rng, spec.broken ?? false);
+  else if (spec.kind === 'aqueduct') aqueduct(p, x, root, h, w, rng);
   else if (spec.kind === 'monolith')
     monolith(p, x, root, h, w, rng, spec.vine ?? false);
   else tablet(p, x, root, h, w, rng, spec.vine ?? false);
