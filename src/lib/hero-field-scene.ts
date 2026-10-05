@@ -228,7 +228,7 @@ export const VEIL_DEPTH = 7;
 
 export interface RuinSpec {
   readonly kind:
-    'column' | 'arch' | 'wall' | 'stair' | 'block' | 'drum' | 'tablet';
+    'column' | 'colonnade' | 'arch' | 'wall' | 'block' | 'drum' | 'tablet';
   /** Share of the box width. */
   readonly x: number;
   readonly z: number;
@@ -236,6 +236,10 @@ export interface RuinSpec {
   readonly height: number;
   readonly width: number;
   readonly broken?: boolean;
+  /** Columns in a colonnade. */
+  readonly count?: number;
+  /** A vine climbs it, budding and flowering as it grows. */
+  readonly vine?: boolean;
   /** Left out of frames narrower than `NARROW_ASPECT`. */
   readonly wide?: boolean;
 }
@@ -248,50 +252,91 @@ export const NARROW_ASPECT = 1.1;
  * `TABLET_DEPTH`. Kept below the h1 and the stickers: tune with tests/hero-fit.spec.ts.
  */
 export const RUINS: readonly RuinSpec[] = [
-  { kind: 'column', x: 0.05, z: 13, height: 1.2, width: 0.09, wide: true },
   {
-    kind: 'column',
-    x: 0.085,
+    kind: 'colonnade',
+    x: 0.07,
+    z: 14,
+    height: 1.15,
+    width: 1.3,
+    count: 4,
+    wide: true,
+  },
+  { kind: 'arch', x: 0.24, z: 16, height: 1.5, width: 0.7 },
+  { kind: 'column', x: 0.36, z: 11, height: 1.05, width: 0.15, broken: true },
+  {
+    kind: 'colonnade',
+    x: 0.64,
     z: 13,
-    height: 0.8,
-    width: 0.09,
+    height: 1.25,
+    width: 1.2,
+    count: 4,
     broken: true,
     wide: true,
   },
-  { kind: 'arch', x: 0.2, z: 15, height: 1.6, width: 0.75 },
-  { kind: 'column', x: 0.33, z: 11, height: 1.1, width: 0.09, broken: true },
-  { kind: 'column', x: 0.6, z: 12, height: 1.3, width: 0.09, wide: true },
-  { kind: 'column', x: 0.64, z: 12, height: 1.3, width: 0.09, wide: true },
+  { kind: 'arch', x: 0.88, z: 15, height: 1.4, width: 0.7, broken: true },
+  { kind: 'wall', x: 0.95, z: 9, height: 0.34, width: 0.9, wide: true },
   {
     kind: 'column',
-    x: 0.68,
-    z: 12,
-    height: 0.9,
-    width: 0.09,
+    x: 0.13,
+    z: 4.3,
+    height: 1.5,
+    width: 0.17,
     broken: true,
+    vine: true,
+  },
+  {
+    kind: 'column',
+    x: 0.215,
+    z: 5,
+    height: 1.6,
+    width: 0.16,
+    vine: true,
     wide: true,
   },
-  { kind: 'arch', x: 0.86, z: 14, height: 1.5, width: 0.7, broken: true },
-  { kind: 'wall', x: 0.94, z: 9, height: 0.35, width: 0.9, wide: true },
-  { kind: 'column', x: 0.14, z: 4.4, height: 1.25, width: 0.1, broken: true },
-  { kind: 'column', x: 0.22, z: 5.2, height: 0.75, width: 0.1, broken: true },
-  { kind: 'stair', x: 0.34, z: 4.8, height: 0.32, width: 0.75, wide: true },
-  { kind: 'wall', x: 0.66, z: 4.6, height: 0.36, width: 0.85, wide: true },
-  { kind: 'arch', x: 0.8, z: 4, height: 1.25, width: 0.62, broken: true },
-  { kind: 'drum', x: 0.42, z: 3.6, height: 0.1, width: 0.24 },
-  { kind: 'tablet', x: 0.5, z: TABLET_DEPTH, height: 1.45, width: 0.6 },
-  { kind: 'block', x: 0.13, z: 2.05, height: 0.16, width: 0.34 },
-  { kind: 'drum', x: 0.74, z: 2.2, height: 0.12, width: 0.3, wide: true },
+  { kind: 'block', x: 0.33, z: 4.8, height: 0.22, width: 0.5, wide: true },
+  { kind: 'wall', x: 0.67, z: 4.6, height: 0.38, width: 0.85, wide: true },
+  {
+    kind: 'arch',
+    x: 0.81,
+    z: 4,
+    height: 1.45,
+    width: 0.74,
+    broken: true,
+    vine: true,
+  },
+  { kind: 'block', x: 0.415, z: 3.5, height: 0.11, width: 0.26 },
+  {
+    kind: 'tablet',
+    x: 0.5,
+    z: TABLET_DEPTH,
+    height: 1.5,
+    width: 0.66,
+    vine: true,
+  },
+  { kind: 'block', x: 0.13, z: 2.05, height: 0.17, width: 0.36 },
+  { kind: 'block', x: 0.75, z: 2.2, height: 0.12, width: 0.3, wide: true },
 ];
 
-/** Ruins draw a touch firmer than stems at the same depth, so stone reads as solid. */
+/*
+ * Stone uses the stems' stroke language: outline at `outline` of a stem's width,
+ * carving at `carve`, weathering hatch at `hatch`, each with its own alpha share.
+ */
 export const RUIN_LINE = {
-  width: 1.15,
-  lift: 0.24,
-  maxAlpha: 0.9,
-  detailShare: 0.6,
-  detailWidth: 0.7,
+  outline: 1.1,
+  carve: 0.62,
+  hatch: 0.42,
+  lift: 0.22,
+  maxAlpha: 0.88,
+  carveAlpha: 0.72,
+  hatchAlpha: 0.32,
+  shadowAlpha: 0.5,
 } as const;
+
+/** Vines grow over `seconds`, starting `head` of the way up, then hold. */
+export const VINE_GROWTH = { seconds: 26, head: 0.18 } as const;
+/** Along a vine, in multiples of its stem width: leaf spacing and size, bud spacing. */
+export const VINE_LEAF = { every: 9, length: 4.2, width: 1.8 } as const;
+export const VINE_BUD = { every: 3, opens: 4, size: 0.5 } as const;
 
 /** Share of stems tall enough for buds that carry a flower. */
 export const FLOWER_ODDS = 0.24;

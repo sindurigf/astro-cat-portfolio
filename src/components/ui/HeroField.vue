@@ -11,8 +11,8 @@ import type { HeroField, HeroPalette } from '../../lib/hero-field-scene';
  * Reduced motion draws one fixed frame and renders no button.
  */
 
-/** Any fixed time; at this one most flowers are open. */
-const STILL_SECONDS = 3.4;
+/** Past `VINE_GROWTH.seconds`: the still frame shows the vines grown and in flower. */
+const STILL_SECONDS = 40;
 
 /*
  * Each frame repaints three canvases, so 60fps would double main-thread cost

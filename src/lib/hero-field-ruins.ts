@@ -1,17 +1,48 @@
 /*
- * The ruins among the stems: line art in the stems' own colour and width, filled
- * with the ground so a stem behind is hidden and one in front overlaps.
- * Geometry is built once per layout; a frame only strokes cached paths.
+ * The ruins among the stems, in the stems' stroke language: an outline, finer
+ * carving, finer still weathering hatch, grass tufts in the cracks and vines
+ * that climb, bud and flower. Filled with the ground, so a stem behind is hidden
+ * and one in front overlaps. Geometry is built once per layout.
  */
-import { RUINS, RUIN_LINE, STALK_WIDTH, STEM_ALPHA } from './hero-field-scene';
+import {
+  BUD_NOD,
+  PETAL,
+  RUINS,
+  RUIN_LINE,
+  STALK_WIDTH,
+  STEM_ALPHA,
+  VINE_BUD,
+  VINE_GROWTH,
+  VINE_LEAF,
+  breezeWave,
+  random,
+} from './hero-field-scene';
 import type { HeroPalette, RuinSpec } from './hero-field-scene';
+
+type Point = readonly [number, number];
+
+interface Tuft {
+  readonly x: number;
+  readonly y: number;
+  readonly size: number;
+  readonly phase: number;
+}
+
+interface Vine {
+  readonly points: readonly Point[];
+  /** Cumulative length at each point. */
+  readonly lengths: readonly number[];
+}
 
 export interface Ruin {
   readonly z: number;
   readonly x: number;
-  readonly root: number;
   readonly outline: Path2D;
-  readonly detail: Path2D;
+  readonly carve: Path2D;
+  readonly hatch: Path2D;
+  readonly shadow: Path2D;
+  readonly tufts: readonly Tuft[];
+  readonly vines: readonly Vine[];
   readonly lineWidth: number;
   readonly alpha: number;
 }
@@ -23,227 +54,535 @@ interface Box {
   readonly referenceProjection: number;
 }
 
-/* Jagged tops are fixed per ruin so a broken edge never flickers between layouts. */
-const JAG = [0.05, -0.32, 0.12, -0.18, 0.28, -0.08] as const;
+interface Parts {
+  outline: Path2D;
+  carve: Path2D;
+  hatch: Path2D;
+  shadow: Path2D;
+  tufts: Tuft[];
+  vines: Point[][];
+}
+
+const parts = (): Parts => ({
+  outline: new Path2D(),
+  carve: new Path2D(),
+  hatch: new Path2D(),
+  shadow: new Path2D(),
+  tufts: [],
+  vines: [],
+});
+
+const tuft = (
+  p: Parts,
+  x: number,
+  y: number,
+  size: number,
+  rng: () => number,
+): void => {
+  p.tufts.push({ x, y, size, phase: rng() * Math.PI * 2 });
+};
+
+/* A straight edge with small chips knocked out of it. */
+const chipped = (
+  path: Path2D,
+  from: Point,
+  to: Point,
+  rng: () => number,
+  depth: number,
+  chips: number,
+): void => {
+  const [x0, y0] = from;
+  const [x1, y1] = to;
+  const len = Math.hypot(x1 - x0, y1 - y0) || 1;
+  const nx = (y1 - y0) / len;
+  const ny = -(x1 - x0) / len;
+  const marks = Array.from({ length: chips }, () => 0.1 + rng() * 0.8).sort();
+  for (const m of marks) {
+    const w = 0.03 + rng() * 0.05;
+    const d = depth * (0.4 + rng() * 0.6);
+    const a = m - w / 2;
+    const b = m + w / 2;
+    path.lineTo(x0 + (x1 - x0) * a, y0 + (y1 - y0) * a);
+    path.lineTo(x0 + (x1 - x0) * m + nx * d, y0 + (y1 - y0) * m + ny * d);
+    path.lineTo(x0 + (x1 - x0) * b, y0 + (y1 - y0) * b);
+  }
+  path.lineTo(x1, y1);
+};
+
+/* A crack: a fine zig-zag. */
+const crack = (
+  path: Path2D,
+  x: number,
+  y: number,
+  length: number,
+  rng: () => number,
+): void => {
+  path.moveTo(x, y);
+  let cx = x;
+  let cy = y;
+  for (let i = 0; i < 4; i += 1) {
+    cx += (rng() - 0.5) * length * 0.35;
+    cy += length / 4;
+    path.lineTo(cx, cy);
+  }
+};
+
+/* Weathering: short parallel strokes in a patch, clipped to the stone when drawn. */
+const weather = (
+  path: Path2D,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  step: number,
+  rng: () => number,
+): void => {
+  for (let i = 0; i < w / step; i += 1) {
+    if (rng() < 0.3) continue;
+    const sx = x + i * step + rng() * step * 0.4;
+    const sy = y + rng() * h * 0.3;
+    const len = h * (0.3 + rng() * 0.7);
+    path.moveTo(sx, sy);
+    path.lineTo(sx + len * 0.35, sy + len);
+  }
+};
+
+const shaftEdge = (
+  x: number,
+  base: number,
+  top: number,
+  half: number,
+  topHalf: number,
+  f: number,
+): Point => {
+  /* Entasis: the shaft swells a little a third of the way up. */
+  const y = base + (top - base) * f;
+  const swell = Math.sin(f * Math.PI * 0.85) * half * 0.06;
+  return [x + (half + (topHalf - half) * f + swell), y];
+};
 
 const column = (
+  p: Parts,
   x: number,
   root: number,
   h: number,
   w: number,
   broken: boolean,
-): [Path2D, Path2D] => {
-  const outline = new Path2D();
-  const detail = new Path2D();
-  const plinth = w * 0.24;
-  outline.rect(x - w * 0.78, root - plinth, w * 1.56, plinth);
-  outline.rect(x - w * 0.64, root - plinth * 1.8, w * 1.28, plinth * 0.8);
-  const base = root - plinth * 1.8;
-  const top = root - h;
-  outline.moveTo(x - w * 0.5, base);
+  rng: () => number,
+  vine: boolean,
+): void => {
+  const half = w / 2;
+  const topHalf = half * 0.82;
+  const plinth = w * 0.22;
+  const torus = w * 0.16;
+  const base = root - plinth - torus;
+  const top = root - h + (broken ? 0 : w * 0.55);
+  const step = Math.max(1.6, w * 0.12);
+
+  p.outline.moveTo(x - half * 1.5, root);
+  chipped(
+    p.outline,
+    [x - half * 1.5, root],
+    [x - half * 1.5, root - plinth],
+    rng,
+    w * 0.05,
+    1,
+  );
+  p.outline.lineTo(x - half * 1.25, root - plinth);
+  p.outline.quadraticCurveTo(
+    x - half * 1.42,
+    root - plinth - torus * 0.5,
+    x - half * 1.08,
+    base,
+  );
+  p.outline.lineTo(x - half, base);
+  const steps = 10;
+  for (let i = 1; i <= steps; i += 1) {
+    const [ex, ey] = shaftEdge(0, base, top, half, topHalf, i / steps);
+    p.outline.lineTo(x - ex, ey);
+  }
   if (broken) {
-    JAG.forEach((jag, i) =>
-      outline.lineTo(
-        x - w * 0.46 + (w * 0.92 * i) / (JAG.length - 1),
-        top + w * (0.45 + jag),
+    const left = x - topHalf;
+    const right = x + topHalf;
+    const jag = [0.15, -0.35, 0.05, -0.55, -0.2, 0.25] as const;
+    jag.forEach((j, i) =>
+      p.outline.lineTo(
+        left + ((right - left) * (i + 1)) / (jag.length + 1),
+        top + w * (0.4 + j + rng() * 0.15),
       ),
     );
+    p.outline.lineTo(right, top + w * 0.7);
+    tuft(p, x - topHalf * 0.4, top + w * 0.1, w * 0.9, rng);
   } else {
-    outline.lineTo(x - w * 0.45, top + w * 0.45);
-    outline.quadraticCurveTo(
-      x - w * 0.5,
-      top + w * 0.28,
-      x - w * 0.74,
-      top + w * 0.22,
+    const abacus = w * 0.2;
+    p.outline.lineTo(x - topHalf, top);
+    p.outline.quadraticCurveTo(
+      x - topHalf * 1.05,
+      top - w * 0.25,
+      x - half * 1.45,
+      top - w * 0.32,
     );
-    outline.lineTo(x - w * 0.74, top);
-    outline.lineTo(x + w * 0.74, top);
-    outline.lineTo(x + w * 0.74, top + w * 0.22);
-    outline.quadraticCurveTo(
-      x + w * 0.5,
-      top + w * 0.28,
-      x + w * 0.45,
-      top + w * 0.45,
+    p.outline.lineTo(x - half * 1.45, top - w * 0.32 - abacus);
+    chipped(
+      p.outline,
+      [x - half * 1.45, top - w * 0.32 - abacus],
+      [x + half * 1.45, top - w * 0.32 - abacus],
+      rng,
+      w * 0.08,
+      2,
     );
-    detail.moveTo(x - w * 0.74, top + w * 0.22);
-    detail.lineTo(x + w * 0.74, top + w * 0.22);
+    p.outline.lineTo(x + half * 1.45, top - w * 0.32);
+    p.outline.quadraticCurveTo(
+      x + topHalf * 1.05,
+      top - w * 0.25,
+      x + topHalf,
+      top,
+    );
+    p.carve.moveTo(x - half * 1.45, top - w * 0.32);
+    p.carve.lineTo(x + half * 1.45, top - w * 0.32);
+    p.carve.moveTo(x - topHalf, top);
+    p.carve.lineTo(x + topHalf, top);
+    tuft(p, x + half * 0.9, top - w * 0.32 - abacus, w * 0.7, rng);
   }
-  outline.lineTo(x + w * 0.5, base);
-  outline.closePath();
-  const fluteTop = top + w * (broken ? 1 : 0.6);
-  for (const f of [-0.24, 0, 0.24]) {
-    detail.moveTo(x + f * w, base - w * 0.1);
-    detail.lineTo(x + f * w * 0.92, fluteTop);
+  for (let i = steps; i >= 1; i -= 1) {
+    const [ex, ey] = shaftEdge(0, base, top, half, topHalf, i / steps);
+    p.outline.lineTo(x + ex, ey);
   }
-  return [outline, detail];
+  p.outline.lineTo(x + half, base);
+  p.outline.lineTo(x + half * 1.08, base);
+  p.outline.quadraticCurveTo(
+    x + half * 1.42,
+    root - plinth - torus * 0.5,
+    x + half * 1.25,
+    root - plinth,
+  );
+  p.outline.lineTo(x + half * 1.5, root - plinth);
+  p.outline.lineTo(x + half * 1.5, root);
+  p.outline.closePath();
+
+  p.carve.moveTo(x - half * 1.25, root - plinth);
+  p.carve.lineTo(x + half * 1.25, root - plinth);
+  const flutes = 6;
+  const fluteTop = broken ? top + w * 0.9 : top;
+  for (let k = 1; k < flutes; k += 1) {
+    const share = -1 + (2 * k) / flutes;
+    p.carve.moveTo(x + share * half * 0.92, base - w * 0.06);
+    for (let i = 1; i <= 8; i += 1) {
+      const f = i / 8;
+      const [ex, ey] = shaftEdge(0, base, fluteTop, half, topHalf, f);
+      p.carve.lineTo(x + share * ex * 0.92, ey);
+    }
+  }
+  /* Drums: the shaft is stacked stones. */
+  for (let d = 1; d < 4; d += 1) {
+    const f = d / 4;
+    if (broken && base + (top - base) * f < top + w) continue;
+    const [ex, ey] = shaftEdge(0, base, top, half, topHalf, f);
+    p.carve.moveTo(x - ex, ey);
+    p.carve.lineTo(x + ex, ey + w * 0.02);
+  }
+  crack(
+    p.carve,
+    x + half * 0.3,
+    base + (top - base) * 0.55,
+    (base - top) * 0.22,
+    rng,
+  );
+  weather(p.hatch, x + half * 0.2, top, half * 0.9, base - top, step, rng);
+  tuft(p, x - half * 1.3, root - plinth, w * 0.8, rng);
+
+  if (vine) {
+    const pts: Point[] = [];
+    const turns = 3.2;
+    for (let i = 0; i <= 60; i += 1) {
+      const f = i / 60;
+      const y = root - plinth - (root - plinth - (broken ? top + w : top)) * f;
+      pts.push([x + Math.sin(f * turns * Math.PI * 2 + 0.6) * half * 0.95, y]);
+    }
+    p.vines.push(pts);
+  }
+};
+
+const colonnade = (
+  p: Parts,
+  x: number,
+  root: number,
+  h: number,
+  w: number,
+  count: number,
+  broken: boolean,
+  rng: () => number,
+): void => {
+  const colW = w / (count * 2.6);
+  const span = w / (count - 1);
+  const tops: number[] = [];
+  for (let i = 0; i < count; i += 1) {
+    const isBroken = broken && i === count - 1;
+    const ch = isBroken ? h * 0.55 : h;
+    column(
+      p,
+      x + i * span - w / 2 + span * 0.0,
+      root,
+      ch,
+      colW * 2,
+      isBroken,
+      rng,
+      false,
+    );
+    tops.push(root - h - colW * 0.5);
+  }
+  /* Architrave over the standing columns, broken off at a jagged end. */
+  const lastWhole = broken ? count - 2 : count - 1;
+  const left = x - w / 2 - colW * 1.4;
+  const right =
+    x - w / 2 + lastWhole * span + colW * 1.4 + (broken ? span * 0.35 : 0);
+  const y = (tops[0] ?? root - h) + colW * 0.15;
+  const deep = colW * 1.4;
+  p.outline.moveTo(left, y);
+  chipped(p.outline, [left, y], [right, y], rng, colW * 0.25, 3);
+  if (broken) {
+    p.outline.lineTo(right - colW * 0.6, y + deep * 0.5);
+    p.outline.lineTo(right - colW * 0.2, y + deep);
+  } else {
+    p.outline.lineTo(right, y + deep);
+  }
+  p.outline.lineTo(left, y + deep);
+  p.outline.closePath();
+  p.carve.moveTo(left, y + deep * 0.45);
+  p.carve.lineTo(right - colW * 0.5, y + deep * 0.45);
+  tuft(p, left + (right - left) * 0.3, y, colW * 2, rng);
 };
 
 const arch = (
+  p: Parts,
   x: number,
   root: number,
   h: number,
   w: number,
   broken: boolean,
-): [Path2D, Path2D] => {
-  const outline = new Path2D();
-  const detail = new Path2D();
+  rng: () => number,
+  vine: boolean,
+): void => {
   const pier = w * 0.2;
   const inner = w / 2 - pier;
   const outer = w / 2;
   const spring = root - h + outer;
-  const end = broken ? Math.PI * 1.64 : Math.PI * 2;
-  outline.moveTo(x - outer, root);
-  outline.lineTo(x - outer, spring);
-  outline.arc(x, spring, outer, Math.PI, end);
+  const end = broken ? Math.PI * 1.66 : Math.PI * 2;
+  p.outline.moveTo(x - outer, root);
+  chipped(
+    p.outline,
+    [x - outer, root],
+    [x - outer, spring],
+    rng,
+    pier * 0.12,
+    2,
+  );
+  p.outline.arc(x, spring, outer, Math.PI, end);
+  const back = end - 0.1;
   if (broken) {
-    const back = end - 0.12;
-    outline.lineTo(
-      x + Math.cos(back) * (inner + pier * 0.4),
-      spring + Math.sin(back) * (inner + pier * 0.4) - pier * 0.3,
+    p.outline.lineTo(
+      x + Math.cos(back) * (inner + pier * 0.45),
+      spring + Math.sin(back) * (inner + pier * 0.45) - pier * 0.35,
     );
-    outline.lineTo(x + Math.cos(back) * inner, spring + Math.sin(back) * inner);
-    outline.arc(x, spring, inner, back, Math.PI, true);
+    p.outline.lineTo(
+      x + Math.cos(back) * inner,
+      spring + Math.sin(back) * inner,
+    );
+    p.outline.arc(x, spring, inner, back, Math.PI, true);
   } else {
-    outline.lineTo(x + outer, root);
-    outline.lineTo(x + inner, root);
-    outline.lineTo(x + inner, spring);
-    outline.arc(x, spring, inner, 0, Math.PI, true);
+    p.outline.lineTo(x + outer, root);
+    p.outline.lineTo(x + inner, root);
+    p.outline.lineTo(x + inner, spring);
+    p.outline.arc(x, spring, inner, 0, Math.PI, true);
   }
-  outline.lineTo(x - inner, root);
-  outline.closePath();
+  p.outline.lineTo(x - inner, root);
+  p.outline.closePath();
   if (broken) {
-    const stub = (root - spring) * 0.5;
-    outline.moveTo(x + inner, root);
-    outline.lineTo(x + inner, root - stub);
-    outline.lineTo(x + inner + pier * 0.4, root - stub - pier * 0.5);
-    outline.lineTo(x + inner + pier * 0.75, root - stub + pier * 0.1);
-    outline.lineTo(x + outer, root - stub * 0.8);
-    outline.lineTo(x + outer, root);
-    outline.closePath();
+    const stub = (root - spring) * 0.55;
+    p.outline.moveTo(x + inner, root);
+    p.outline.lineTo(x + inner, root - stub);
+    p.outline.lineTo(x + inner + pier * 0.35, root - stub - pier * 0.55);
+    p.outline.lineTo(x + inner + pier * 0.7, root - stub + pier * 0.15);
+    p.outline.lineTo(x + outer, root - stub * 0.82);
+    p.outline.lineTo(x + outer, root);
+    p.outline.closePath();
+    for (
+      let y = root - pier * 0.9, row = 0;
+      y > root - stub;
+      y -= pier * 0.9, row += 1
+    ) {
+      p.carve.moveTo(x + inner, y);
+      p.carve.lineTo(x + outer, y);
+      p.carve.moveTo(x + inner + pier * (row % 2 ? 0.35 : 0.6), y);
+      p.carve.lineTo(x + inner + pier * (row % 2 ? 0.35 : 0.6), y + pier * 0.9);
+    }
+    weather(
+      p.hatch,
+      x + inner,
+      root - stub,
+      pier,
+      stub,
+      Math.max(1.6, pier * 0.18),
+      rng,
+    );
+    tuft(p, x + inner + pier * 0.4, root - stub - pier * 0.4, pier * 1.4, rng);
   }
-  const stones = 7;
+  /* Voussoirs, a keystone, and one stone slipped out of course. */
+  const stones = 11;
   for (let i = 1; i < stones; i += 1) {
     const a = Math.PI + ((end - Math.PI) * i) / stones;
-    detail.moveTo(x + Math.cos(a) * inner, spring + Math.sin(a) * inner);
-    detail.lineTo(x + Math.cos(a) * outer, spring + Math.sin(a) * outer);
+    if (a > back) break;
+    const slip = i === 3 ? pier * 0.12 : 0;
+    p.carve.moveTo(
+      x + Math.cos(a) * inner,
+      spring + Math.sin(a) * inner + slip,
+    );
+    p.carve.lineTo(
+      x + Math.cos(a) * outer,
+      spring + Math.sin(a) * outer + slip,
+    );
   }
-  for (let y = root - pier * 1.5; y > spring; y -= pier * 1.5) {
-    detail.moveTo(x - outer, y);
-    detail.lineTo(x - inner, y);
+  if (!broken) {
+    p.carve.moveTo(x - pier * 0.35, spring - outer);
+    p.carve.lineTo(x - pier * 0.25, spring - inner + pier * 0.15);
+    p.carve.lineTo(x + pier * 0.25, spring - inner + pier * 0.15);
+    p.carve.lineTo(x + pier * 0.35, spring - outer);
   }
-  return [outline, detail];
+  const course = pier * 0.9;
+  for (let y = root - course, row = 0; y > spring; y -= course, row += 1) {
+    p.carve.moveTo(x - outer, y);
+    p.carve.lineTo(x - inner, y);
+    p.carve.moveTo(x - outer + pier * (row % 2 ? 0.4 : 0.65), y);
+    p.carve.lineTo(x - outer + pier * (row % 2 ? 0.4 : 0.65), y + course);
+  }
+  crack(
+    p.carve,
+    x - outer + pier * 0.5,
+    spring - pier * 0.2,
+    (root - spring) * 0.3,
+    rng,
+  );
+  weather(
+    p.hatch,
+    x - outer,
+    spring,
+    pier,
+    root - spring,
+    Math.max(1.6, pier * 0.18),
+    rng,
+  );
+  tuft(p, x - outer + pier * 0.3, spring - outer * 0.15, pier * 1.3, rng);
+  tuft(p, x - outer, root, pier * 1.6, rng);
+  if (vine) {
+    const pts: Point[] = [];
+    for (let i = 0; i <= 40; i += 1) {
+      const f = i / 40;
+      const y = root - (root - spring) * f;
+      pts.push([
+        x - outer + pier * (0.5 + Math.sin(f * Math.PI * 5) * 0.35),
+        y,
+      ]);
+    }
+    for (let i = 1; i <= 24; i += 1) {
+      const a = Math.PI + ((back - Math.PI) * 0.8 * i) / 24;
+      const r = (inner + outer) / 2 + Math.sin(i * 0.9) * pier * 0.25;
+      pts.push([x + Math.cos(a) * r, spring + Math.sin(a) * r]);
+    }
+    p.vines.push(pts);
+  }
 };
 
 const wall = (
+  p: Parts,
   x: number,
   root: number,
   h: number,
   w: number,
-): [Path2D, Path2D] => {
-  const outline = new Path2D();
-  const detail = new Path2D();
-  const steps = [1, 0.84, 1, 0.58, 0.7, 0.38, 0.5] as const;
+  rng: () => number,
+): void => {
   const left = x - w / 2;
-  const course = h / 3;
-  outline.moveTo(left, root);
-  steps.forEach((s, i) => {
-    outline.lineTo(left + (w * i) / steps.length, root - h * s);
-    outline.lineTo(left + (w * (i + 1)) / steps.length, root - h * s);
+  const rows = 4;
+  const course = h / rows;
+  const profile = [1, 0.9, 1, 0.66, 0.74, 0.42, 0.55, 0.3] as const;
+  p.outline.moveTo(left, root);
+  profile.forEach((s, i) => {
+    const xa = left + (w * i) / profile.length;
+    const xb = left + (w * (i + 1)) / profile.length;
+    const y = root - Math.round((h * s) / course) * course;
+    p.outline.lineTo(xa, y);
+    chipped(p.outline, [xa, y], [xb, y], rng, course * 0.18, 1);
   });
-  outline.lineTo(left + w, root);
-  outline.closePath();
-  for (let c = 1; c < 3; c += 1) {
-    detail.moveTo(left, root - course * c);
-    detail.lineTo(left + w * (c === 1 ? 1 : 0.58), root - course * c);
-  }
-  for (let c = 0; c < 3; c += 1) {
-    for (let b = 1; b < 6; b += 1) {
-      const bx = left + (w * (b + (c % 2) * 0.5)) / 6;
-      if (bx > left + w * (c === 2 ? 0.55 : 0.94)) continue;
-      detail.moveTo(bx, root - course * c);
-      detail.lineTo(bx, root - course * (c + 1));
+  p.outline.lineTo(left + w, root);
+  p.outline.closePath();
+  for (let r = 0; r < rows; r += 1) {
+    const y = root - course * r;
+    let bx = left + (r % 2 ? w * 0.06 : 0);
+    while (bx < left + w) {
+      const bw = w * (0.08 + rng() * 0.08);
+      const reach =
+        profile[
+          Math.min(
+            profile.length - 1,
+            Math.floor(((bx - left) / w) * profile.length),
+          )
+        ]!;
+      if (course * (r + 1) <= h * reach + 0.5) {
+        const out = rng() < 0.12 ? course * 0.12 : 0;
+        p.carve.moveTo(bx + out, y);
+        p.carve.lineTo(bx + out, y - course);
+        p.carve.lineTo(Math.min(left + w, bx + bw) + out, y - course);
+        if (rng() < 0.18)
+          crack(p.hatch, bx + bw * 0.5, y - course, course * 0.9, rng);
+        if (rng() < 0.15) tuft(p, bx, y - course, course * 1.3, rng);
+      }
+      bx += bw;
     }
   }
-  return [outline, detail];
-};
-
-const stair = (
-  x: number,
-  root: number,
-  h: number,
-  w: number,
-): [Path2D, Path2D] => {
-  const outline = new Path2D();
-  const detail = new Path2D();
-  const steps = 5;
-  const rise = h / steps;
-  const run = w / (steps + 1.5);
-  let cx = x - w / 2;
-  let cy = root;
-  outline.moveTo(cx, cy);
-  for (let i = 0; i < steps; i += 1) {
-    cy -= rise;
-    outline.lineTo(cx, cy);
-    cx += run;
-    outline.lineTo(cx, cy);
-    detail.moveTo(cx - run * 0.9, cy + rise * 0.2);
-    detail.lineTo(cx - run * 0.15, cy + rise * 0.2);
-  }
-  outline.lineTo(cx + run * 0.3, cy - rise * 0.4);
-  outline.lineTo(cx + run * 0.7, cy + rise * 0.4);
-  outline.lineTo(x + w / 2 - run * 0.2, cy + rise * 2);
-  outline.lineTo(x + w / 2, root);
-  outline.closePath();
-  return [outline, detail];
 };
 
 const block = (
+  p: Parts,
   x: number,
   root: number,
   h: number,
   w: number,
-): [Path2D, Path2D] => {
-  const outline = new Path2D();
-  const detail = new Path2D();
-  outline.moveTo(x - w / 2, root);
-  outline.lineTo(x - w / 2, root - h * 0.86);
-  outline.lineTo(x - w * 0.36, root - h);
-  outline.lineTo(x + w * 0.22, root - h);
-  outline.lineTo(x + w * 0.3, root - h * 0.8);
-  outline.lineTo(x + w / 2, root - h * 0.76);
-  outline.lineTo(x + w / 2, root);
-  outline.closePath();
-  detail.moveTo(x + w * 0.1, root - h);
-  detail.lineTo(x + w * 0.1, root);
-  detail.moveTo(x - w * 0.15, root - h * 0.7);
-  detail.lineTo(x - w * 0.05, root - h * 0.45);
-  detail.lineTo(x - w * 0.12, root - h * 0.2);
-  return [outline, detail];
+  rng: () => number,
+): void => {
+  p.outline.moveTo(x - w / 2, root);
+  p.outline.lineTo(x - w / 2, root - h * 0.84);
+  p.outline.lineTo(x - w * 0.38, root - h);
+  chipped(
+    p.outline,
+    [x - w * 0.38, root - h],
+    [x + w * 0.22, root - h],
+    rng,
+    h * 0.12,
+    2,
+  );
+  p.outline.lineTo(x + w * 0.3, root - h * 0.8);
+  p.outline.lineTo(x + w / 2, root - h * 0.74);
+  p.outline.lineTo(x + w / 2, root);
+  p.outline.closePath();
+  p.carve.moveTo(x + w * 0.12, root - h * 0.98);
+  p.carve.lineTo(x + w * 0.12, root);
+  p.carve.moveTo(x - w * 0.38, root - h);
+  p.carve.lineTo(x - w * 0.3, root - h * 0.86);
+  p.carve.lineTo(x + w * 0.12, root - h * 0.86);
+  crack(p.carve, x - w * 0.1, root - h * 0.8, h * 0.7, rng);
+  weather(
+    p.hatch,
+    x + w * 0.14,
+    root - h * 0.8,
+    w * 0.36,
+    h * 0.8,
+    Math.max(1.6, w * 0.05),
+    rng,
+  );
+  tuft(p, x - w * 0.45, root, h * 0.9, rng);
+  tuft(p, x - w * 0.1, root - h, h * 0.6, rng);
 };
 
-const drum = (
-  x: number,
-  root: number,
-  h: number,
-  w: number,
-): [Path2D, Path2D] => {
-  const outline = new Path2D();
-  const detail = new Path2D();
-  const r = h / 2;
-  const face = x + w / 2 - r * 0.45;
-  outline.moveTo(face, root - h);
-  outline.lineTo(x - w / 2, root - h);
-  outline.quadraticCurveTo(x - w / 2 - r * 0.3, root - r, x - w / 2, root);
-  outline.lineTo(face, root);
-  outline.closePath();
-  outline.moveTo(face + r * 0.45, root - r);
-  outline.ellipse(face, root - r, r * 0.45, r, 0, 0, Math.PI * 2);
-  detail.moveTo(face + r * 0.22, root - r);
-  detail.ellipse(face, root - r, r * 0.22, r * 0.5, 0, 0, Math.PI * 2);
-  return [outline, detail];
-};
-
-/* An original glyph set: strokes on a 3x3 grid, one row per line of text. */
+/* An original glyph set: strokes on a 3x3 grid. */
 const GLYPHS = [
   [
     [0, 1, 2, 1],
@@ -259,11 +598,6 @@ const GLYPHS = [
     [0, 1, 2, 1],
   ],
   [
-    [0.4, 0, 0.4, 2],
-    [1.6, 0, 1.6, 2],
-    [0.4, 1, 1.6, 1],
-  ],
-  [
     [0, 0, 2, 2],
     [2, 0, 1.2, 0.8],
   ],
@@ -276,26 +610,56 @@ const GLYPHS = [
 ] as const;
 
 const tablet = (
+  p: Parts,
   x: number,
   root: number,
   h: number,
   w: number,
-): [Path2D, Path2D] => {
-  const outline = new Path2D();
-  const detail = new Path2D();
+  rng: () => number,
+  vine: boolean,
+): void => {
+  const plinth = h * 0.055;
+  const side = w * 0.12;
+  const base = root - plinth * 2;
   const top = root - h;
   const r = w * 0.44;
-  const plinth = h * 0.06;
-  outline.rect(x - w * 0.68, root - plinth, w * 1.36, plinth);
-  outline.rect(x - w * 0.6, root - plinth * 2, w * 1.2, plinth);
-  const base = root - plinth * 2;
-  outline.moveTo(x - w / 2, base);
-  outline.lineTo(x - w / 2, top + r);
-  outline.bezierCurveTo(x - w / 2, top + r * 0.3, x - w * 0.28, top, x, top);
-  outline.lineTo(x + w * 0.12, top + h * 0.012);
-  outline.lineTo(x + w * 0.2, top + h * 0.05);
-  outline.lineTo(x + w * 0.27, top + h * 0.035);
-  outline.bezierCurveTo(
+  const bevel = w * 0.045;
+
+  /* Two-step plinth with chamfered top edges. */
+  p.outline.moveTo(x - w * 0.72, root);
+  p.outline.lineTo(x - w * 0.72, root - plinth * 0.8);
+  p.outline.lineTo(x - w * 0.68, root - plinth);
+  chipped(
+    p.outline,
+    [x - w * 0.68, root - plinth],
+    [x + w * 0.76, root - plinth],
+    rng,
+    plinth * 0.25,
+    3,
+  );
+  p.outline.lineTo(x + w * 0.8, root - plinth * 0.8);
+  p.outline.lineTo(x + w * 0.8, root);
+  p.outline.closePath();
+  p.outline.moveTo(x - w * 0.62, root - plinth);
+  p.outline.lineTo(x - w * 0.62, base + plinth * 0.2);
+  p.outline.lineTo(x - w * 0.58, base);
+  p.outline.lineTo(x + w * 0.66, base);
+  p.outline.lineTo(x + w * 0.7, base + plinth * 0.2);
+  p.outline.lineTo(x + w * 0.7, root - plinth);
+  p.outline.closePath();
+  p.carve.moveTo(x - w * 0.68, root - plinth * 0.8);
+  p.carve.lineTo(x + w * 0.76, root - plinth * 0.8);
+
+  /* The slab: front face, a visible right side for its thickness, a chipped crown. */
+  const face = new Path2D();
+  face.moveTo(x - w / 2, base);
+  face.lineTo(x - w / 2, top + r);
+  face.bezierCurveTo(x - w / 2, top + r * 0.3, x - w * 0.28, top, x, top);
+  face.lineTo(x + w * 0.1, top + h * 0.006);
+  face.lineTo(x + w * 0.16, top + h * 0.045);
+  face.lineTo(x + w * 0.21, top + h * 0.02);
+  face.lineTo(x + w * 0.26, top + h * 0.03);
+  face.bezierCurveTo(
     x + w * 0.42,
     top + h * 0.08,
     x + w / 2,
@@ -303,74 +667,179 @@ const tablet = (
     x + w / 2,
     top + r,
   );
-  outline.lineTo(x + w / 2, base);
-  outline.closePath();
-  const inset = w * 0.09;
-  detail.moveTo(x - w / 2 + inset, base - h * 0.06);
-  detail.lineTo(x - w / 2 + inset, top + r + inset * 0.4);
-  detail.bezierCurveTo(
+  face.lineTo(x + w / 2, base);
+  face.closePath();
+  p.outline.addPath(face);
+  p.outline.moveTo(x + w / 2, top + r);
+  p.outline.bezierCurveTo(
+    x + w / 2 + side * 0.5,
+    top + r * 0.55,
+    x + w / 2 + side,
+    top + r * 0.75,
+    x + w / 2 + side,
+    top + r + side * 0.4,
+  );
+  p.outline.lineTo(x + w / 2 + side, base - side * 0.15);
+  p.outline.lineTo(x + w / 2, base);
+  p.outline.closePath();
+  for (
+    let y = top + r + side;
+    y < base - side * 0.4;
+    y += Math.max(1.8, side * 0.22)
+  ) {
+    p.hatch.moveTo(x + w / 2 + side * 0.15, y);
+    p.hatch.lineTo(x + w / 2 + side * 0.85, y - side * 0.35);
+  }
+
+  /* Chamfer: an inner outline joined to the corners. */
+  const inset = bevel;
+  p.carve.moveTo(x - w / 2 + inset, base - inset * 0.4);
+  p.carve.lineTo(x - w / 2 + inset, top + r + inset * 0.3);
+  p.carve.bezierCurveTo(
     x - w / 2 + inset,
-    top + r * 0.45 + inset,
-    x - w * 0.25,
+    top + r * 0.38 + inset,
+    x - w * 0.26,
     top + inset,
     x,
     top + inset,
   );
-  detail.bezierCurveTo(
-    x + w * 0.25,
+  p.carve.bezierCurveTo(
+    x + w * 0.26,
     top + inset,
     x + w / 2 - inset,
-    top + r * 0.45 + inset,
+    top + r * 0.38 + inset,
     x + w / 2 - inset,
-    top + r + inset * 0.4,
+    top + r + inset * 0.3,
   );
-  detail.lineTo(x + w / 2 - inset, base - h * 0.06);
-  detail.closePath();
-  detail.moveTo(x + w * 0.34, top + h * 0.44);
-  detail.lineTo(x + w * 0.27, top + h * 0.52);
-  detail.lineTo(x + w * 0.35, top + h * 0.6);
-  const cols = 4;
-  const rows = 5;
-  const left = x - w / 2 + inset * 2;
-  const right = x + w / 2 - inset * 2;
-  const cell = (right - left) / cols;
-  const glyph = cell * 0.52;
-  const first = top + r * 0.8;
-  const pitch = (base - h * 0.1 - first) / rows;
+  p.carve.lineTo(x + w / 2 - inset, base - inset * 0.4);
+  p.carve.moveTo(x - w / 2, base);
+  p.carve.lineTo(x - w / 2 + inset, base - inset * 0.4);
+  p.carve.moveTo(x + w / 2, base);
+  p.carve.lineTo(x + w / 2 - inset, base - inset * 0.4);
+
+  /* A panel recessed for the text, with its shadowed upper and left edges. */
+  const panelLeft = x - w / 2 + inset * 2.6;
+  const panelRight = x + w / 2 - inset * 2.6;
+  const panelTop = top + r * 0.78;
+  const panelBottom = base - h * 0.08;
+  p.carve.moveTo(panelLeft, panelBottom);
+  p.carve.lineTo(panelLeft, panelTop);
+  p.carve.lineTo(panelRight, panelTop);
+  p.carve.lineTo(panelRight, panelBottom);
+  p.carve.lineTo(panelLeft, panelBottom);
+  p.shadow.moveTo(panelLeft + inset * 0.35, panelBottom);
+  p.shadow.lineTo(panelLeft + inset * 0.35, panelTop + inset * 0.35);
+  p.shadow.lineTo(panelRight, panelTop + inset * 0.35);
+
+  const cols = 5;
+  const rows = 7;
+  const cell = (panelRight - panelLeft) / cols;
+  const pitch = (panelBottom - panelTop) / rows;
+  const glyph = Math.min(cell, pitch) * 0.56;
+  const unit = glyph / 2;
+  const cut = Math.max(0.6, glyph * 0.07);
   for (let i = 0; i < cols * rows; i += 1) {
-    const gx = left + (i % cols) * cell + (cell - glyph) / 2;
-    const gy = first + Math.floor(i / cols) * pitch + (pitch - glyph) / 2;
-    const unit = glyph / 2;
-    for (const part of GLYPHS[(i * 5 + 3) % GLYPHS.length]!) {
-      detail.moveTo(gx + part[0]! * unit, gy + part[1]! * unit);
-      for (let k = 2; k < part.length; k += 2)
-        detail.lineTo(gx + part[k]! * unit, gy + part[k + 1]! * unit);
+    if (i % 11 === 7) continue;
+    const gx = panelLeft + (i % cols) * cell + (cell - glyph) / 2;
+    const gy = panelTop + Math.floor(i / cols) * pitch + (pitch - glyph) / 2;
+    for (const part of GLYPHS[(i * 7 + 3) % GLYPHS.length]!) {
+      p.carve.moveTo(gx + part[0]! * unit, gy + part[1]! * unit);
+      p.shadow.moveTo(gx + part[0]! * unit + cut, gy + part[1]! * unit + cut);
+      for (let k = 2; k < part.length; k += 2) {
+        p.carve.lineTo(gx + part[k]! * unit, gy + part[k + 1]! * unit);
+        p.shadow.lineTo(
+          gx + part[k]! * unit + cut,
+          gy + part[k + 1]! * unit + cut,
+        );
+      }
     }
   }
-  return [outline, detail];
+
+  crack(p.carve, x + w * 0.16, top + h * 0.05, h * 0.3, rng);
+  crack(p.hatch, x - w * 0.36, base - h * 0.32, h * 0.2, rng);
+  weather(
+    p.hatch,
+    x - w / 2 + inset,
+    top + r * 0.4,
+    w * 0.3,
+    h * 0.25,
+    Math.max(1.6, w * 0.035),
+    rng,
+  );
+  tuft(p, x - w * 0.6, root - plinth, h * 0.12, rng);
+  tuft(p, x + w * 0.64, base, h * 0.1, rng);
+  tuft(p, x + w * 0.14, top + h * 0.03, h * 0.07, rng);
+
+  if (vine) {
+    const left: Point[] = [];
+    for (let i = 0; i <= 50; i += 1) {
+      const f = i / 50;
+      const y = base - (base - (top + r * 0.6)) * f;
+      left.push([
+        x - w / 2 + Math.sin(f * Math.PI * 4.5) * inset * 1.6 + inset * 0.4,
+        y,
+      ]);
+    }
+    for (let i = 1; i <= 16; i += 1) {
+      const f = i / 16;
+      left.push([
+        x - w / 2 + w * 0.3 * f,
+        top +
+          r * 0.6 -
+          r * 0.55 * Math.sin(f * Math.PI * 0.5) +
+          Math.sin(f * 9) * inset * 0.5,
+      ]);
+    }
+    p.vines.push(left);
+    const right: Point[] = [];
+    for (let i = 0; i <= 36; i += 1) {
+      const f = i / 36;
+      right.push([
+        x + w / 2 + side * 0.5 + Math.sin(f * Math.PI * 3.5) * side * 0.45,
+        base - (base - top - r) * 0.85 * f,
+      ]);
+    }
+    p.vines.push(right);
+  }
 };
 
-const SHAPES = { column, arch, wall, stair, block, drum, tablet } as const;
+const lengthsOf = (points: readonly Point[]): number[] => {
+  let total = 0;
+  return points.map((pt, i) => {
+    if (i)
+      total += Math.hypot(pt[0] - points[i - 1]![0], pt[1] - points[i - 1]![1]);
+    return total;
+  });
+};
 
-const build = (spec: RuinSpec, box: Box): Ruin => {
+const build = (spec: RuinSpec, box: Box, seed: number): Ruin => {
+  const rng = random(seed);
   const unit = box.projection / spec.z;
   const root = box.horizon + unit;
   const x = spec.x * box.boxWidth;
-  const height = spec.height * unit;
-  const width = spec.width * unit;
-  const shape = SHAPES[spec.kind];
-  const [outline, detail] =
-    spec.kind === 'column' || spec.kind === 'arch'
-      ? (shape as typeof column)(x, root, height, width, spec.broken ?? false)
-      : (shape as typeof wall)(x, root, height, width);
+  const h = spec.height * unit;
+  const w = spec.width * unit;
+  const p = parts();
+  if (spec.kind === 'column')
+    column(p, x, root, h, w, spec.broken ?? false, rng, spec.vine ?? false);
+  else if (spec.kind === 'colonnade')
+    colonnade(p, x, root, h, w, spec.count ?? 3, spec.broken ?? false, rng);
+  else if (spec.kind === 'arch')
+    arch(p, x, root, h, w, spec.broken ?? false, rng, spec.vine ?? false);
+  else if (spec.kind === 'wall') wall(p, x, root, h, w, rng);
+  else if (spec.kind === 'block') block(p, x, root, h, w, rng);
+  else tablet(p, x, root, h, w, rng, spec.vine ?? false);
   const size = unit / box.referenceProjection;
   return {
     z: spec.z,
     x,
-    root,
-    outline,
-    detail,
-    lineWidth: (STALK_WIDTH.min + size * STALK_WIDTH.bySize) * RUIN_LINE.width,
+    outline: p.outline,
+    carve: p.carve,
+    hatch: p.hatch,
+    shadow: p.shadow,
+    tufts: p.tufts,
+    vines: p.vines.map((points) => ({ points, lengths: lengthsOf(points) })),
+    lineWidth: STALK_WIDTH.min + size * STALK_WIDTH.bySize,
     alpha: Math.min(
       RUIN_LINE.maxAlpha,
       STEM_ALPHA.base +
@@ -382,26 +851,186 @@ const build = (spec: RuinSpec, box: Box): Ruin => {
 
 /* Narrow frames drop the ruins marked `wide`, so a phone is not a wall of stone. */
 export const buildRuins = (box: Box, narrow: boolean): Ruin[] =>
-  RUINS.filter((spec) => !(narrow && spec.wide))
-    .map((spec) => build(spec, box))
+  RUINS.map((spec, i) => ({ spec, i }))
+    .filter(({ spec }) => !(narrow && spec.wide))
+    .map(({ spec, i }) => build(spec, box, 9001 + i * 97))
     .sort((a, b) => b.z - a.z);
+
+/* Five petals round a centre in the bud colour; `open` 0 to 1 scales them up from closed. */
+export const drawPetals = (
+  ctx: CanvasRenderingContext2D,
+  palette: HeroPalette,
+  x: number,
+  y: number,
+  bud: number,
+  open: number,
+): void => {
+  const grow = PETAL.closed + (1 - PETAL.closed) * open;
+  const spread = PETAL.spread * bud * grow;
+  const radius = Math.max(0.8, PETAL.radius * bud * grow);
+  ctx.fillStyle = palette.flower;
+  ctx.beginPath();
+  for (let k = 0; k < PETAL.count; k += 1) {
+    const a = -Math.PI / 2 + (k * Math.PI * 2) / PETAL.count;
+    ctx.moveTo(x + Math.cos(a) * spread + radius, y + Math.sin(a) * spread);
+    ctx.arc(
+      x + Math.cos(a) * spread,
+      y + Math.sin(a) * spread,
+      radius,
+      0,
+      Math.PI * 2,
+    );
+  }
+  ctx.fill();
+  ctx.fillStyle = palette.bud;
+  ctx.beginPath();
+  ctx.arc(x, y, Math.max(0.6, radius * 0.75), 0, Math.PI * 2);
+  ctx.fill();
+};
+
+/* Grass in a crack, in the stems' own stroke: a fan of thin blades that sway. */
+const drawTuft = (
+  ctx: CanvasRenderingContext2D,
+  tuft: Tuft,
+  lineWidth: number,
+  seconds: number,
+): void => {
+  const sway = Math.sin(breezeWave(tuft.x, tuft.phase, seconds)) * 0.18;
+  ctx.lineWidth = lineWidth * 0.55;
+  ctx.beginPath();
+  for (let i = 0; i < 5; i += 1) {
+    const a = -Math.PI / 2 + (i - 2) * 0.32 + sway * (0.6 + i * 0.1);
+    const len = tuft.size * (0.55 + ((i * 37) % 5) * 0.1);
+    ctx.moveTo(tuft.x + (i - 2) * lineWidth * 0.6, tuft.y);
+    ctx.quadraticCurveTo(
+      tuft.x + Math.cos(a) * len * 0.3,
+      tuft.y + Math.sin(a) * len * 0.6,
+      tuft.x + Math.cos(a) * len,
+      tuft.y + Math.sin(a) * len,
+    );
+  }
+  ctx.stroke();
+};
+
+const growthAt = (seconds: number): number =>
+  Math.min(
+    1,
+    VINE_GROWTH.head + ((1 - VINE_GROWTH.head) * seconds) / VINE_GROWTH.seconds,
+  );
+
+const drawVine = (
+  ctx: CanvasRenderingContext2D,
+  palette: HeroPalette,
+  vine: Vine,
+  lineWidth: number,
+  alpha: number,
+  seconds: number,
+): void => {
+  const total = vine.lengths[vine.lengths.length - 1] ?? 0;
+  const reach = total * growthAt(seconds);
+  const grownFor = (at: number): number =>
+    ((growthAt(seconds) - at / total) * VINE_GROWTH.seconds) /
+    (1 - VINE_GROWTH.head);
+  ctx.globalAlpha = alpha;
+  ctx.strokeStyle = palette.border;
+  ctx.lineWidth = lineWidth * 0.55;
+  ctx.beginPath();
+  ctx.moveTo(...vine.points[0]!);
+  for (let i = 1; i < vine.points.length && vine.lengths[i]! <= reach; i += 1)
+    ctx.lineTo(...vine.points[i]!);
+  ctx.stroke();
+
+  const leafEvery = lineWidth * VINE_LEAF.every;
+  const nod =
+    Math.sin(breezeWave(vine.points[0]![0], 0, seconds) - BUD_NOD.lag) *
+    BUD_NOD.amplitude;
+  let index = 0;
+  for (let at = leafEvery * 0.6; at < reach; at += leafEvery, index += 1) {
+    let i = 1;
+    while (i < vine.lengths.length - 1 && vine.lengths[i]! < at) i += 1;
+    const [ax, ay] = vine.points[i - 1]!;
+    const [bx, by] = vine.points[i]!;
+    const dir = Math.atan2(by - ay, bx - ax);
+    const side = index % 2 ? 1 : -1;
+    const opening = Math.min(1, grownFor(at) / 1.5);
+    const isBud = index % VINE_BUD.every === VINE_BUD.every - 1;
+    ctx.save();
+    ctx.translate(bx, by);
+    if (isBud) {
+      const bloom = Math.max(
+        0,
+        Math.min(1, (grownFor(at) - 1.5) / VINE_BUD.opens),
+      );
+      const bud = lineWidth * VINE_BUD.size;
+      ctx.rotate(side * 0.4 + nod);
+      ctx.translate(side * bud * 2.5, -bud * 2);
+      if (bloom <= 0) {
+        ctx.fillStyle = palette.bud;
+        ctx.beginPath();
+        ctx.ellipse(
+          0,
+          0,
+          2.4 * bud * opening,
+          4.2 * bud * opening,
+          0,
+          0,
+          Math.PI * 2,
+        );
+        ctx.fill();
+      } else {
+        drawPetals(ctx, palette, 0, 0, bud, bloom);
+      }
+    } else {
+      const length = lineWidth * VINE_LEAF.length * opening;
+      const width = lineWidth * VINE_LEAF.width * opening;
+      ctx.rotate(dir + side * 1.05 + nod * 0.5);
+      ctx.fillStyle = palette.subtle;
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.quadraticCurveTo(length * 0.5, -width, length, 0);
+      ctx.quadraticCurveTo(length * 0.5, width, 0, 0);
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+};
 
 export const drawRuin = (
   ctx: CanvasRenderingContext2D,
   palette: HeroPalette,
   ruin: Ruin,
+  seconds: number,
 ): void => {
+  const { alpha, lineWidth } = ruin;
   ctx.globalAlpha = 1;
   ctx.fillStyle = palette.background;
   ctx.fill(ruin.outline);
   ctx.lineJoin = 'round';
   ctx.lineCap = 'round';
   ctx.strokeStyle = palette.border;
-  ctx.globalAlpha = ruin.alpha * RUIN_LINE.detailShare;
-  ctx.lineWidth = ruin.lineWidth * RUIN_LINE.detailWidth;
-  ctx.stroke(ruin.detail);
-  ctx.globalAlpha = ruin.alpha;
-  ctx.lineWidth = ruin.lineWidth;
+
+  ctx.save();
+  ctx.clip(ruin.outline);
+  ctx.globalAlpha = alpha * RUIN_LINE.hatchAlpha;
+  ctx.lineWidth = lineWidth * RUIN_LINE.hatch;
+  ctx.stroke(ruin.hatch);
+  ctx.globalAlpha = alpha * RUIN_LINE.shadowAlpha;
+  ctx.strokeStyle = palette.subtle;
+  ctx.lineWidth = lineWidth * RUIN_LINE.carve * 1.3;
+  ctx.stroke(ruin.shadow);
+  ctx.strokeStyle = palette.border;
+  ctx.globalAlpha = alpha * RUIN_LINE.carveAlpha;
+  ctx.lineWidth = lineWidth * RUIN_LINE.carve;
+  ctx.stroke(ruin.carve);
+  ctx.restore();
+
+  ctx.globalAlpha = alpha;
+  ctx.lineWidth = lineWidth * RUIN_LINE.outline;
   ctx.stroke(ruin.outline);
+
+  ctx.globalAlpha = alpha * 0.9;
+  for (const tuft of ruin.tufts) drawTuft(ctx, tuft, lineWidth, seconds);
+  for (const vine of ruin.vines)
+    drawVine(ctx, palette, vine, lineWidth, alpha, seconds);
   ctx.globalAlpha = 1;
 };

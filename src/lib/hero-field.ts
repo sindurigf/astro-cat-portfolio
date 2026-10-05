@@ -19,7 +19,6 @@ import {
   NARROW_ASPECT,
   NEAR_BAND_LEFT,
   NEAR_BAND_WIDTH,
-  PETAL,
   STEM_CURVE,
   STRAY_ODDS,
   SWAY,
@@ -49,7 +48,7 @@ import {
   random,
   stemPoint,
 } from './hero-field-scene';
-import { buildRuins, drawRuin } from './hero-field-ruins';
+import { buildRuins, drawPetals, drawRuin } from './hero-field-ruins';
 import type { Ruin } from './hero-field-ruins';
 import type { HeroField, HeroPalette, Stem } from './hero-field-scene';
 
@@ -297,24 +296,7 @@ const drawFlower = (
   seconds: number,
 ): void => {
   const [tx, ty] = stemPoint(stem.x, stem.root, stem.height, lean, 1);
-  const open = bloomOf(stem, seconds);
-  const grow = PETAL.closed + (1 - PETAL.closed) * open;
-  const spread = PETAL.spread * bud * grow;
-  const radius = Math.max(0.8, PETAL.radius * bud * grow);
-  ctx.fillStyle = palette.flower;
-  ctx.beginPath();
-  for (let i = 0; i < PETAL.count; i += 1) {
-    const angle = -Math.PI / 2 + (i * Math.PI * 2) / PETAL.count;
-    const px = tx + Math.cos(angle) * spread;
-    const py = ty + Math.sin(angle) * spread;
-    ctx.moveTo(px + radius, py);
-    ctx.arc(px, py, radius, 0, Math.PI * 2);
-  }
-  ctx.fill();
-  ctx.fillStyle = ctx.strokeStyle;
-  ctx.beginPath();
-  ctx.arc(tx, ty, Math.max(0.6, radius * 0.75), 0, Math.PI * 2);
-  ctx.fill();
+  drawPetals(ctx, palette, tx, ty, bud, bloomOf(stem, seconds));
 };
 
 /* Detail steps down with distance, with a minimum drawn size at each step. */
@@ -386,7 +368,8 @@ const paintWhere = (
   for (const stem of stems) {
     if (!inLayer(stem.z)) continue;
     while (next < ruins.length && ruins[next]!.z >= stem.z) {
-      if (inLayer(ruins[next]!.z)) drawRuin(ctx, palette, ruins[next]!);
+      if (inLayer(ruins[next]!.z))
+        drawRuin(ctx, palette, ruins[next]!, seconds);
       next += 1;
     }
     const wind =
@@ -396,7 +379,7 @@ const paintWhere = (
     drawStem(ctx, palette, scene.world, stem, wind + stem.lean, seconds);
   }
   for (; next < ruins.length; next += 1) {
-    if (inLayer(ruins[next]!.z)) drawRuin(ctx, palette, ruins[next]!);
+    if (inLayer(ruins[next]!.z)) drawRuin(ctx, palette, ruins[next]!, seconds);
   }
   ctx.globalAlpha = 1;
 };
