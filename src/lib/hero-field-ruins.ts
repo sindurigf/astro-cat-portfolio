@@ -1994,6 +1994,8 @@ export const buildRuins = (
 
 /* Five petals round a centre in the bud colour; `open` 0 to 1 scales them up from closed. */
 const BLUSH_ALPHA = 0.45;
+/* Petal rim width, CSS pixels. */
+const PETAL_RIM = 0.7;
 
 export const drawPetals = (
   ctx: CanvasRenderingContext2D,
@@ -2011,7 +2013,6 @@ export const drawPetals = (
   const radius = Math.max(0.8, PETAL.radius * bud * grow);
   const saved = ctx.globalAlpha;
   if (opaque) ctx.globalAlpha = Math.max(saved, PETAL.alpha);
-  ctx.fillStyle = palette.flower;
   ctx.beginPath();
   for (let k = 0; k < PETAL.count; k += 1) {
     const a = -Math.PI / 2 + (k * Math.PI * 2) / PETAL.count;
@@ -2024,6 +2025,11 @@ export const drawPetals = (
       Math.PI * 2,
     );
   }
+  /* An ink rim under the fill: only its outer edge shows, so the flower reads at 3:1 on either ground. */
+  ctx.strokeStyle = palette.border;
+  ctx.lineWidth = PETAL_RIM * 2;
+  ctx.stroke();
+  ctx.fillStyle = palette.flower;
   ctx.fill();
   ctx.fillStyle = palette.background;
   ctx.beginPath();
@@ -2267,7 +2273,8 @@ export const drawRuin = (
 /* An authored piece as a ruin, so it paints in depth order among the stems. */
 export const pieceRuin = (piece: Piece, box: Box): Ruin => {
   const empty = new Path2D();
-  const size = box.projection / piece.z / box.referenceProjection;
+  const size =
+    box.projection / (piece.lineDepth ?? piece.z) / box.referenceProjection;
   return {
     piece,
     z: piece.z,

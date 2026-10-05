@@ -53,6 +53,10 @@ export interface Piece {
   /** Sunlit top edges, drawn as a pale rim just inside the outline. */
   readonly lit?: Path2D;
   readonly castAlpha?: number;
+  /** Shorter copies of a long cast, stacked so the shadow fades toward its far end. */
+  readonly softCast?: readonly Path2D[];
+  /** Depth that sets line width, when the piece spans depths (a side wall). */
+  readonly lineDepth?: number;
   /** A wash of the ground colour over everything already drawn, inside the outline. */
   readonly mist?: number;
 }
@@ -86,6 +90,8 @@ interface Style {
 const PLAIN: Style = { weathered: false, sun: false };
 let style: Style = PLAIN;
 /* Low sun from behind on the left: ground offset per unit of height, so shadows reach toward the viewer. */
+/* Each shorter copy adds a share of the shadow, so its far end is the faintest. */
+const SOFT_REACH = [1, 0.92, 0.84, 0.76, 0.68, 0.6, 0.52, 0.44] as const;
 const SUN = { dx: 0.95, dz: -0.42, cast: 0.22, shade: 0.09 } as const;
 type Map2 = (u: number, up: number) => Point;
 
@@ -124,6 +130,9 @@ const LENGTHS: readonly number[] = [
   0.82, 0.55, 1.1, 0.68, 0.94, 0.6, 1.25, 0.74, 0.5, 0.98,
 ];
 
+/* Masonry course height, world units. */
+const COURSE = 0.26;
+
 /* Course heights as a share of `course`, so bed lines do not run evenly. */
 const COURSE_RUN: readonly number[] = [1, 0.8, 1.18, 0.9, 1.06, 0.74, 1.12];
 
@@ -143,8 +152,8 @@ const weather = (
   for (let i = 0; i < 1 + (n % 3); i += 1) {
     const fu = 0.12 + ((n * 37 + i * 53) % 76) / 100;
     const fv = 0.18 + ((n * 29 + i * 41) % 62) / 100;
-    const du = 0.025 + ((n + i) % 3) * 0.012;
-    const dv = 0.07 + ((n + i * 2) % 3) * 0.03;
+    const du = 0.035 + ((n + i) % 3) * 0.016;
+    const dv = 0.1 + ((n + i * 2) % 3) * 0.04;
     wear.addPath(
       polygon([
         at(fu - du, fv),
@@ -590,9 +599,10 @@ const frontWall = (
   layer: 0 | 1 | 2,
   shift: number,
   opening?: (x: number, up: number) => boolean,
+  unit = 1,
 ): Piece & { masonry: Masonry } => {
   const map: Map2 = (u, up) => project(v, u, up, z);
-  const m = masonry(map, profile, x0, x1, 0.26, 1, shift, opening);
+  const m = masonry(map, profile, x0, x1, COURSE, unit, shift, opening);
   const feet: Foot[] = [];
   for (let x = x0 + 0.5; x < x1; x += 1.1)
     feet.push([map(x, 0)[0], z, (0.45 * v.projection) / z]);
@@ -717,6 +727,7 @@ const sideWall = (
   }
   return {
     z: far + 0.01,
+    lineDepth: near * 1.8,
     layer: 1,
     stones,
     outline: m.outline,
@@ -1136,6 +1147,10 @@ const poneglyph = (
 };
 
 /* A broken tower: a narrow tall run of masonry with a jagged top. */
+/* Courses lost from the top, per stone-width step: the top breaks stone by stone. */
+const TOWER_LOSS = [0, 1, 0, 2, 1, 3, 1, 2, 4] as const;
+const TOWER_STONE = 0.42;
+
 const tower = (
   v: View,
   z: number,
@@ -1144,22 +1159,36 @@ const tower = (
   h: number,
   layer: 0 | 1 | 2,
   shift: number,
-): Piece =>
-  frontWall(
+): Piece => {
+  const slope: readonly Point[] = [
+    [x - w / 2, h * 0.92],
+    [x - w * 0.2, h],
+    [x, h * 0.86],
+    [x + w * 0.15, h * 0.95],
+    [x + w / 2, h * 0.7],
+  ];
+  const steps = Math.ceil(w / (TOWER_STONE * 0.55));
+  const profile: Point[] = [];
+  for (let i = 0; i < steps; i += 1) {
+    const u0 = x - w / 2 + (w * i) / steps;
+    const u1 = x - w / 2 + (w * (i + 1)) / steps;
+    const lost = TOWER_LOSS[i % TOWER_LOSS.length]!;
+    const top =
+      (Math.floor(heightAt(slope, (u0 + u1) / 2) / COURSE) - lost) * COURSE;
+    profile.push([u0, top], [u1 - 0.001, top]);
+  }
+  return frontWall(
     v,
     z,
     x - w / 2,
     x + w / 2,
-    [
-      [x - w / 2, h * 0.92],
-      [x - w * 0.2, h],
-      [x, h * 0.86],
-      [x + w * 0.15, h * 0.95],
-      [x + w / 2, h * 0.7],
-    ],
+    profile,
     layer,
     shift,
+    undefined,
+    TOWER_STONE,
   );
+};
 
 /*
  * Masonry breaks in steps, not slopes: hold each height across its run, drop
@@ -1434,7 +1463,7 @@ const mirror = (pts: readonly Point[]): Point[] =>
 type Caster = readonly [number, number, number];
 
 /* Long low-sun shadows: each [x, z, height] along a base casts to x + h·dx, z + h·dz. */
-const sunCast = (v: View, pts: readonly Caster[]): Path2D => {
+const sunCast = (v: View, pts: readonly Caster[], reach = 1): Path2D => {
   const path = new Path2D();
   for (let i = 1; i < pts.length; i += 1) {
     const [xa, za, ha] = pts[i - 1]!;
@@ -1443,8 +1472,8 @@ const sunCast = (v: View, pts: readonly Caster[]): Path2D => {
       polygon([
         project(v, xa, 0, za),
         project(v, xb, 0, zb),
-        project(v, xb + hb * SUN.dx, 0, zb + hb * SUN.dz),
-        project(v, xa + ha * SUN.dx, 0, za + ha * SUN.dz),
+        project(v, xb + hb * reach * SUN.dx, 0, zb + hb * reach * SUN.dz),
+        project(v, xa + ha * reach * SUN.dx, 0, za + ha * reach * SUN.dz),
       ]),
     );
   }
@@ -1471,7 +1500,14 @@ const heapCasters = (x: number, z: number, w: number): Caster[] => [
 /* Swaps the first piece's cast for a long sun shadow. */
 const sunlit = (v: View, pieces: readonly Piece[], pts: readonly Caster[]) =>
   pieces.map((piece, i) =>
-    i === 0 ? { ...piece, cast: sunCast(v, pts), castAlpha: SUN.cast } : piece,
+    i === 0
+      ? {
+          ...piece,
+          cast: new Path2D(),
+          castAlpha: SUN.cast,
+          softCast: SOFT_REACH.map((reach) => sunCast(v, pts, reach)),
+        }
+      : piece,
   );
 
 /* Far ruined skylines: [width, height] blocks across the frame, in shares of its width. */
@@ -1505,6 +1541,8 @@ const SKYLINES: ReadonlyArray<{
   },
 ];
 const MIST = 0.22;
+/* Skyline windows, world units: spacing across and up, and size. */
+const SKY_WINDOW = { pitch: 1.1, rise: 1.5, width: 0.32, height: 0.6 } as const;
 
 const skyline = (
   v: View,
@@ -1522,20 +1560,39 @@ const skyline = (
   for (let i = 0; i < blocks.length; i += 2) {
     const w = blocks[i]! * across;
     const h = blocks[i + 1]!;
-    top.push([f, h], [f + w * 0.35, h * 1.04], [f + w * 0.42, h * 0.92]);
-    top.push([f + w, h * 0.96]);
-    if (i % 4 === 2 && h > 3)
-      stones.push({
-        path: polygon(
-          [
-            [f + w * 0.38, h * 0.48],
-            [f + w * 0.38, h * 0.66],
-            [f + w * 0.6, h * 0.66],
-            [f + w * 0.6, h * 0.48],
-          ].map(([u, up]) => project(v, u! * span, up!, z)),
-        ),
-        tone: 3,
-      });
+    const n = i / 2;
+    const notch = 0.35 + (n % 3) * 0.25;
+    top.push(
+      [f, h],
+      [f + w * 0.22, h],
+      [f + w * 0.24, h - notch],
+      [f + w * 0.38, h - notch * 0.8],
+      [f + w * 0.4, h * 1.03],
+      [f + w * 0.6, h * 1.03],
+      [f + w * (n % 2 ? 0.64 : 0.7), h - notch * 2],
+      [f + w, h - notch * 1.6],
+    );
+    const cols = Math.max(1, Math.round((w * span) / SKY_WINDOW.pitch));
+    const rows = Math.floor((h - notch * 2) / SKY_WINDOW.rise);
+    for (let r = 0; r < rows; r += 1) {
+      for (let c = 0; c < cols; c += 1) {
+        if ((n + r * 2 + c) % 3 === 0) continue;
+        const u = f + (w * (c + 0.5)) / cols;
+        const half = SKY_WINDOW.width / 2 / span;
+        const up = SKY_WINDOW.rise * (r + 0.45);
+        stones.push({
+          path: polygon(
+            [
+              [u - half, up],
+              [u - half, up + SKY_WINDOW.height],
+              [u + half, up + SKY_WINDOW.height],
+              [u + half, up],
+            ].map(([a, b]) => project(v, a! * span, b!, z)),
+          ),
+          tone: 3,
+        });
+      }
+    }
     f += w;
   }
   const outline = polygon([
@@ -2739,12 +2796,12 @@ export const drawPlants = (
 const TONE_ALPHA: Record<Tone, number> = { 0: 0, 1: 0.1, 2: 0.24, 3: 0.62 };
 const LAYER = [
   { tone: 0.8, line: 0.52, joint: 0.28 },
-  { tone: 0.85, line: 0.68, joint: 0.3 },
+  { tone: 0.85, line: 0.68, joint: 0.36 },
   { tone: 1, line: 0.88, joint: 0.38 },
 ] as const;
 const CAST_ALPHA = 0.12;
 const STONE_BASE = 0.07;
-const WEAR_ALPHA = 0.2;
+const WEAR_ALPHA = 0.34;
 const LIT_ALPHA = 0.9;
 
 export const drawPiece = (
@@ -2767,6 +2824,10 @@ export const drawPiece = (
   ctx.globalAlpha = (piece.castAlpha ?? CAST_ALPHA) * layer.tone;
   ctx.fillStyle = palette.border;
   ctx.fill(piece.cast);
+  if (piece.softCast) {
+    ctx.globalAlpha /= piece.softCast.length;
+    piece.softCast.forEach((path) => ctx.fill(path));
+  }
   ctx.globalAlpha = 1;
   ctx.fillStyle = palette.background;
   ctx.fill(piece.outline);
@@ -2808,6 +2869,15 @@ export const drawPiece = (
   ctx.lineWidth = lineWidth * 0.5;
   ctx.stroke(piece.detail);
   if (piece.carve) {
+    /* Cut, not drawn: a lit lip below each stroke, the shadowed groove above it. */
+    ctx.save();
+    ctx.translate(lineWidth * 0.3, lineWidth * 0.7);
+    ctx.globalAlpha = LIT_ALPHA * clear;
+    ctx.strokeStyle = palette.background;
+    ctx.lineWidth = lineWidth * 0.6;
+    ctx.stroke(piece.carve);
+    ctx.restore();
+    ctx.strokeStyle = palette.border;
     ctx.globalAlpha = layer.line * 0.85 * clear;
     ctx.lineWidth = lineWidth * 0.45;
     ctx.stroke(piece.carve);
