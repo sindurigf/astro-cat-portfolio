@@ -19,17 +19,37 @@ interface Row {
 }
 
 const ROWS: readonly Row[] = [
-  { z: 13, height: [2.4, 4.4], width: [1.4, 2.6], broken: 0.4, lift: 0.6 },
-  { z: 9, height: [2.0, 3.6], width: [1.3, 2.4], broken: 0.5, lift: 0.4 },
-  { z: 6, height: [1.3, 2.4], width: [1.2, 2.0], broken: 0.6, gap: [0.4, 0.6] },
-  { z: 4, height: [0.8, 1.6], width: [1.1, 1.8], broken: 0.8, gap: [0.3, 0.7] },
+  { z: 13, height: [2.2, 4.6], width: [1.0, 2.8], broken: 0.55, lift: 0.6 },
+  { z: 9, height: [1.8, 3.8], width: [1.0, 2.6], broken: 0.6, lift: 0.4 },
+  {
+    z: 6,
+    height: [1.1, 2.6],
+    width: [0.9, 2.2],
+    broken: 0.7,
+    gap: [0.42, 0.58],
+  },
+  {
+    z: 4.2,
+    height: [0.7, 1.8],
+    width: [0.9, 2.0],
+    broken: 0.8,
+    gap: [0.3, 0.7],
+  },
 ];
 
 export const cityRuins = (seed: number): RuinSpec[] => {
   const rng = random(seed);
   const specs: RuinSpec[] = [
     { kind: 'stepped', x: 0.5, z: 16, height: 7.5, width: 7.5 },
-    { kind: 'aqueduct', x: 0.68, z: 7.5, height: 3.0, width: 5.6, lift: 0.9, wide: true },
+    {
+      kind: 'aqueduct',
+      x: 0.68,
+      z: 7.5,
+      height: 3.0,
+      width: 5.6,
+      lift: 0.9,
+      wide: true,
+    },
   ];
   ROWS.forEach((row, r) => {
     let x = -0.06 + rng() * 0.04;
@@ -69,12 +89,28 @@ export const cityRuins = (seed: number): RuinSpec[] => {
       i += 1;
     }
   });
+  /* The foreground: paving, steps up to the monolith, fallen columns, rubble in the streets. */
   specs.push(
-    { kind: 'block', x: 0.03, z: 2.1, height: 0.3, width: 0.8 },
-    { kind: 'block', x: 0.2, z: 2.6, height: 0.16, width: 0.45 },
-    { kind: 'block', x: 0.8, z: 2.6, height: 0.18, width: 0.5 },
-    { kind: 'block', x: 0.97, z: 2.1, height: 0.26, width: 0.7 },
-    { kind: 'monolith', x: 0.5, z: 2.4, height: 1.2, width: 1.1, vine: true },
+    { kind: 'plaza', x: 0.5, z: 5.5, near: 1.7, height: 0, width: 0.9 },
+    { kind: 'rubble', x: 0.36, z: 5.4, height: 0.25, width: 0.9 },
+    { kind: 'rubble', x: 0.66, z: 5.6, height: 0.3, width: 1.0, wide: true },
+    { kind: 'fallen', x: 0.24, z: 3.3, height: 0.2, width: 1.1 },
+    { kind: 'fallen', x: 0.77, z: 3.6, height: 0.18, width: 0.9 },
+    { kind: 'rubble', x: 0.13, z: 3.0, height: 0.25, width: 0.9 },
+    { kind: 'rubble', x: 0.88, z: 2.9, height: 0.22, width: 0.8 },
+    { kind: 'block', x: 0.03, z: 2.0, height: 0.28, width: 0.75 },
+    { kind: 'block', x: 0.97, z: 2.05, height: 0.24, width: 0.65 },
+    { kind: 'steps', x: 0.5, z: 2.45, order: 2.5, height: 0.2, width: 1.5 },
+    {
+      kind: 'monolith',
+      x: 0.5,
+      z: 2.45,
+      order: 2.4,
+      lift: 0.2,
+      height: 0.82,
+      width: 0.74,
+      vine: true,
+    },
   );
   return specs;
 };

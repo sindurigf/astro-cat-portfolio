@@ -13,14 +13,9 @@ import {
   BUD_START,
   BUD_TIERS,
   BUD_TONE,
-  CLUMP_COUNT,
-  CLUMP_SPREAD,
   FLOWER_ODDS,
   NARROW_ASPECT,
-  NEAR_BAND_LEFT,
-  NEAR_BAND_WIDTH,
   STEM_CURVE,
-  STRAY_ODDS,
   SWAY,
   TABLET_DEPTH,
   WIND_FORCE,
@@ -32,12 +27,12 @@ import {
   GROUND_SPAN,
   LEAN_LIMIT_RATIO,
   NEAR_BLUR,
-  NEAR_VEIL,
   REFERENCE_ASPECT,
   REFERENCE_HEIGHT,
   REFERENCE_PROJECTION,
   REFERENCE_WIDTH,
-  RUINS,
+  CITY_SEED,
+  NARROW_ZOOM,
   SPARSE,
   SPRING,
   STALK_WIDTH,
@@ -49,6 +44,7 @@ import {
   random,
   stemPoint,
 } from './hero-field-scene';
+import { cityRuins } from './hero-field-city';
 import { buildRuins, drawPetals, drawRuin } from './hero-field-ruins';
 import type { Ruin } from './hero-field-ruins';
 import type {
@@ -69,8 +65,6 @@ interface Scene {
   readonly view: number;
 }
 
-type Band = (typeof BANDS)[keyof typeof BANDS];
-
 interface FieldState {
   scene: Scene;
   stems: Stem[];
@@ -80,12 +74,13 @@ interface FieldState {
 const groundAt = (scene: Scene, z: number): number =>
   scene.horizon + scene.projection / z;
 
-const sceneFor = (width: number, height: number): Scene => {
+const sceneFor = (width: number, height: number, zoom = 1): Scene => {
   const boxWidth = Math.max(1, width);
   const boxHeight = Math.max(1, height);
   const aspect = Math.min(1, boxWidth / boxHeight / REFERENCE_ASPECT);
   const view = Math.max(FIELD_OF_VIEW_FLOOR, aspect);
-  const projection = GROUND_SPAN * boxHeight * view;
+  const projection =
+    GROUND_SPAN * boxHeight * view * (boxWidth < boxHeight ? zoom : 1);
   const horizon = boxHeight - projection / BOTTOM_DEPTH;
   return {
     boxWidth,
@@ -94,29 +89,6 @@ const sceneFor = (width: number, height: number): Scene => {
     projection,
     world: projection / REFERENCE_PROJECTION,
     view,
-  };
-};
-
-/* About three quarters of stems cluster on clump centres; the rest scatter. */
-const clumpPlacer = (
-  scene: Scene,
-  rng: () => number,
-  density: number,
-  margin: number,
-  anchors: readonly number[],
-): ((spread: number) => number) => {
-  const { boxWidth, world } = scene;
-  /* Weeds gather at the foot of every ruin as well as in open ground. */
-  const clumps: number[] = [...anchors];
-  const clumpCount = Math.max(4, Math.round(CLUMP_COUNT * density));
-  for (let i = 0; i < clumpCount; i += 1) {
-    clumps.push(-margin + rng() * (boxWidth + margin * 2));
-  }
-  return (spread) => {
-    if (rng() < STRAY_ODDS) return -margin + rng() * (boxWidth + margin * 2);
-    const centre = clumps[Math.floor(rng() * clumps.length)] ?? boxWidth / 2;
-    /* Difference of two uniforms: triangular, densest at the centre. */
-    return centre + (rng() - rng()) * spread * world;
   };
 };
 
@@ -181,43 +153,6 @@ const buildSparse = (
       built.push(makeStem(scene, rng, z, x, height, 1));
     }
   }
-  return built.sort((a, b) => b.z - a.z);
-};
-
-const buildStems = (scene: Scene, anchors: readonly number[]): Stem[] => {
-  const { world, view } = scene;
-  const density = scene.boxWidth / world / REFERENCE_WIDTH;
-  const rng = random(FIELD_SEED);
-  const clumped = clumpPlacer(
-    scene,
-    rng,
-    density,
-    CLUMP_SPREAD * world,
-    anchors,
-  );
-  const built: Stem[] = [];
-
-  const band = (spec: Band, veil: number, acrossFullWidth: boolean): void => {
-    const count = Math.max(2, Math.round(spec.count * density));
-    for (let i = 0; i < count; i += 1) {
-      /* Log-uniform in distance; uniform piles stems up at the horizon. */
-      const near = spec.near || view;
-      const z = near * Math.pow(spec.far / near, rng());
-      const x = acrossFullWidth
-        ? clumped(spec.spread)
-        : NEAR_BAND_LEFT * world + rng() * NEAR_BAND_WIDTH * world;
-      const height = spec.height[0] + rng() * spec.height[1];
-      built.push(makeStem(scene, rng, z, x, height, veil));
-    }
-  };
-
-  band(BANDS.FAR, 1, true);
-  band(BANDS.GRASS, 1, true);
-  band(BANDS.MIDDLE, 1, true);
-  band(BANDS.TABLET, 1, true);
-  /* Near stems stay at the left edge, veiled, so they never blur over type. */
-  band(BANDS.NEAR, NEAR_VEIL, false);
-
   return built.sort((a, b) => b.z - a.z);
 };
 
@@ -485,17 +420,18 @@ const drawMid = (
 
 export interface FieldOptions {
   readonly ruins?: readonly RuinSpec[];
-  /** Weeds only at the ruins' feet. */
-  readonly sparse?: boolean;
   /** Stems at each ruin's foot when sparse. */
   readonly weeds?: number;
+  /** Scale for frames taller than wide. */
+  readonly narrowZoom?: number;
 }
 
 export const createHeroField = (
   palette: HeroPalette,
   options: FieldOptions = {},
 ): HeroField => {
-  const specs = options.ruins ?? RUINS;
+  const specs = options.ruins ?? cityRuins(CITY_SEED);
+  const zoom = options.narrowZoom ?? NARROW_ZOOM;
   const state: FieldState = {
     /* A draw before the first layout must not divide by zero. */
     scene: sceneFor(REFERENCE_WIDTH, REFERENCE_HEIGHT),
@@ -505,7 +441,7 @@ export const createHeroField = (
 
   return {
     layout(width: number, height: number): void {
-      state.scene = sceneFor(width, height);
+      state.scene = sceneFor(width, height, zoom);
       const { boxWidth, horizon, projection } = state.scene;
       state.ruins = buildRuins(
         {
@@ -517,20 +453,15 @@ export const createHeroField = (
         width / height < NARROW_ASPECT,
         specs,
       );
-      state.stems = options.sparse
-        ? buildSparse(
-            state.scene,
-            specs.map((spec) => ({
-              x: spec.x * boxWidth,
-              z: spec.z,
-              span: (spec.width * projection) / spec.z / 2,
-            })),
-            options.weeds ?? SPARSE.perRuin,
-          )
-        : buildStems(
-            state.scene,
-            specs.map((ruin) => ruin.x * boxWidth),
-          );
+      state.stems = buildSparse(
+        state.scene,
+        specs.map((spec) => ({
+          x: spec.x * boxWidth,
+          z: spec.z,
+          span: (spec.width * projection) / spec.z / 2,
+        })),
+        options.weeds ?? SPARSE.perRuin,
+      );
     },
     step: (seconds, delta) => stepSprings(state, seconds, delta),
     back: (ctx, seconds) => drawBack(ctx, palette, state, seconds),

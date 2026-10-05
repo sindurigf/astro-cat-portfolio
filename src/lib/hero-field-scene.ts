@@ -109,18 +109,6 @@ export const BANDS = {
   NEAR: { count: 8, near: 0, far: 1.7, height: [0.78, 0.6], spread: 0 },
 } as const;
 
-/** Clump centres at the reference width. */
-export const CLUMP_COUNT = 16;
-/** Share of stems placed anywhere, not in a clump. */
-export const STRAY_ODDS = 0.26;
-/** Reference units. */
-export const CLUMP_SPREAD = 140;
-/** The near band covers the left of the field only; reference units. */
-export const NEAR_BAND_LEFT = -140;
-export const NEAR_BAND_WIDTH = 245;
-
-export const NEAR_VEIL = 0.72;
-
 /*
  * Underdamped: a brushed stem leans past the breeze's sway and overshoots,
  * which is what reads as being brushed.
@@ -228,23 +216,17 @@ export const VEIL_DEPTH = 7;
 
 export interface RuinSpec {
   readonly kind:
-    | 'column'
-    | 'colonnade'
-    | 'arch'
-    | 'wall'
     | 'block'
-    | 'tablet'
-    | 'portico'
-    | 'terrace'
-    | 'tholos'
-    | 'wallgate'
     | 'tower'
     | 'stepped'
-    | 'trilithon'
     | 'tree'
     | 'monolith'
     | 'house'
-    | 'aqueduct';
+    | 'aqueduct'
+    | 'plaza'
+    | 'steps'
+    | 'fallen'
+    | 'rubble';
   /** Share of the box width. */
   readonly x: number;
   readonly z: number;
@@ -260,84 +242,14 @@ export interface RuinSpec {
   readonly wide?: boolean;
   /** Raises the root, in the same units as `height`: the tablet on a terrace. */
   readonly lift?: number;
-  /** Which half of a tholos this spec draws. */
-  readonly half?: 'back' | 'front';
+  /** A plaza's near depth; `z` is its far edge. */
+  readonly near?: number;
   /** Paint order by this depth instead of `z`, so parts built at one depth can interleave. */
   readonly order?: number;
 }
 
 /** Width over height below which `wide` ruins are dropped. */
 export const NARROW_ASPECT = 1.1;
-
-/*
- * Far ruins sit behind the veil; the tablet stands at the centre at
- * `TABLET_DEPTH`. Kept below the h1 and the stickers: tune with tests/hero-fit.spec.ts.
- */
-export const RUINS: readonly RuinSpec[] = [
-  {
-    kind: 'colonnade',
-    x: 0.07,
-    z: 14,
-    height: 1.15,
-    width: 1.3,
-    count: 4,
-    wide: true,
-  },
-  { kind: 'arch', x: 0.24, z: 16, height: 1.5, width: 0.7 },
-  { kind: 'column', x: 0.36, z: 11, height: 1.05, width: 0.15, broken: true },
-  {
-    kind: 'colonnade',
-    x: 0.64,
-    z: 13,
-    height: 1.25,
-    width: 1.2,
-    count: 4,
-    broken: true,
-    wide: true,
-  },
-  { kind: 'arch', x: 0.88, z: 15, height: 1.4, width: 0.7, broken: true },
-  { kind: 'wall', x: 0.95, z: 9, height: 0.34, width: 0.9, wide: true },
-  {
-    kind: 'column',
-    x: 0.13,
-    z: 4.3,
-    height: 1.5,
-    width: 0.17,
-    broken: true,
-    vine: true,
-  },
-  {
-    kind: 'column',
-    x: 0.215,
-    z: 5,
-    height: 1.6,
-    width: 0.16,
-    vine: true,
-    wide: true,
-  },
-  { kind: 'block', x: 0.33, z: 4.8, height: 0.22, width: 0.5, wide: true },
-  { kind: 'wall', x: 0.67, z: 4.6, height: 0.38, width: 0.85, wide: true },
-  {
-    kind: 'arch',
-    x: 0.81,
-    z: 4,
-    height: 1.45,
-    width: 0.74,
-    broken: true,
-    vine: true,
-  },
-  { kind: 'block', x: 0.415, z: 3.5, height: 0.11, width: 0.26 },
-  {
-    kind: 'tablet',
-    x: 0.5,
-    z: TABLET_DEPTH,
-    height: 1.5,
-    width: 0.66,
-    vine: true,
-  },
-  { kind: 'block', x: 0.13, z: 2.05, height: 0.17, width: 0.36 },
-  { kind: 'block', x: 0.75, z: 2.2, height: 0.12, width: 0.3, wide: true },
-];
 
 /*
  * Stone uses the stems' stroke language: outline at `outline` of a stem's width,
@@ -386,8 +298,13 @@ export const PETAL = {
 /** Sparse weeds: share of far grass kept, stems per ruin, their depth just in front, height ratios. */
 export const SPARSE = {
   far: 0.3,
-  perRuin: 7,
+  perRuin: 2,
   front: 0.9,
   depth: 0.12,
   height: [0.1, 0.3],
 } as const;
+
+/** Phones and portrait frames: the scene is scaled up by this, which also lifts the horizon. */
+export const NARROW_ZOOM = 1.45;
+/** The city's layout seed: fixed, so it is the same on every load and screenshot. */
+export const CITY_SEED = 77;
