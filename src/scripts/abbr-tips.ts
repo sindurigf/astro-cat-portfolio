@@ -1,101 +1,88 @@
 /*
- * An abbreviation's expansion on hover, keyboard focus and tap (SC 3.1.4),
- * dismissible with Escape and hoverable (SC 1.4.13). A button, not a focusable
- * <abbr>: a tap must work, and the WAI-ARIA tooltip pattern covers no touch.
+ * Hover and keyboard focus for src/components/Abbr.astro's popovers, placed
+ * flush under their abbreviation so the pointer can cross onto them (SC 1.4.13).
+ * Escape and a press elsewhere dismiss them natively.
  */
 
-const OPEN = 'is-open';
 const VIEWPORT_MARGIN_PX = 16;
 
-type Tip = { root: HTMLElement; trigger: HTMLButtonElement; tip: HTMLElement };
-
-const tips: Tip[] = [];
-const pinned = new WeakSet<HTMLElement>();
-
-const closeTip = ({ root, trigger, tip }: Tip): void => {
-  root.classList.remove(OPEN);
-  trigger.setAttribute('aria-expanded', 'false');
-  pinned.delete(root);
-  tip.style.removeProperty('--abbr-shift');
+/* No popovers: the button would be an inert Tab stop, so keep only the <abbr>. */
+const unwrap = (button: HTMLButtonElement): void => {
+  button.replaceWith(...button.childNodes);
 };
 
-/* Shifts the tip left when it would run past the viewport's right edge. */
-const keepTipInView = (tip: HTMLElement): void => {
-  const overflow =
-    tip.getBoundingClientRect().right -
-    (document.documentElement.clientWidth - VIEWPORT_MARGIN_PX);
-  if (overflow > 0) tip.style.setProperty('--abbr-shift', `${-overflow}px`);
-};
+const enhance = (
+  root: HTMLElement,
+  button: HTMLButtonElement,
+  tip: HTMLElement,
+): void => {
+  /* Opened by a click, so leaving the pointer or focus does not close it. */
+  let pinned = false;
+  let frame = 0;
+  const isOpen = () => tip.matches(':popover-open');
 
-const openTip = (entry: Tip): void => {
-  for (const other of tips) if (other !== entry) closeTip(other);
-  entry.root.classList.add(OPEN);
-  entry.trigger.setAttribute('aria-expanded', 'true');
-  keepTipInView(entry.tip);
-};
+  const place = () => {
+    const anchor = button.getBoundingClientRect();
+    const maxLeft =
+      document.documentElement.clientWidth -
+      VIEWPORT_MARGIN_PX -
+      tip.offsetWidth;
+    tip.style.inset = 'auto';
+    tip.style.margin = '0';
+    tip.style.top = `${anchor.bottom}px`;
+    tip.style.left = `${Math.max(VIEWPORT_MARGIN_PX, Math.min(anchor.left, maxLeft))}px`;
+  };
+  const show = () => {
+    if (!isOpen()) tip.showPopover();
+  };
+  const hide = () => {
+    if (!pinned && isOpen()) tip.hidePopover();
+  };
 
-const isOpen = ({ root }: Tip): boolean => root.classList.contains(OPEN);
-
-const upgrade = (root: HTMLElement): Tip | null => {
-  const abbr = root.querySelector('abbr');
-  const tip = root.querySelector<HTMLElement>('.abbr-tip');
-  if (!abbr || !tip) return null;
-
-  const trigger = document.createElement('button');
-  trigger.type = 'button';
-  trigger.className = 'abbr-trigger';
-  trigger.setAttribute('aria-expanded', 'false');
-  trigger.setAttribute('aria-describedby', tip.id);
-  abbr.removeAttribute('aria-describedby');
-  abbr.replaceWith(trigger);
-  trigger.append(abbr);
-
-  const entry = { root, trigger, tip };
-
-  trigger.addEventListener('click', () => {
-    if (isOpen(entry) && pinned.has(root)) {
-      closeTip(entry);
-      return;
-    }
-    openTip(entry);
-    pinned.add(root);
+  tip.addEventListener('toggle', () => {
+    if (isOpen()) place();
+    else pinned = false;
   });
-  trigger.addEventListener('focus', () => openTip(entry));
-  trigger.addEventListener('blur', () => closeTip(entry));
-  root.addEventListener('pointerenter', (event) => {
-    if (event.pointerType === 'mouse') openTip(entry);
-  });
-  root.addEventListener('pointerleave', (event) => {
-    if (
-      event.pointerType === 'mouse' &&
-      !pinned.has(root) &&
-      document.activeElement !== trigger
-    ) {
-      closeTip(entry);
+  /* A click on an open, unpinned tip pins it instead of closing it. */
+  button.addEventListener('click', (event) => {
+    if (isOpen() && !pinned) {
+      event.preventDefault();
+      pinned = true;
     }
   });
+  button.addEventListener('focus', show);
+  button.addEventListener('blur', () => {
+    pinned = false;
+    hide();
+  });
+  root.addEventListener('pointerenter', show);
+  root.addEventListener('pointerleave', () => {
+    if (document.activeElement !== button) hide();
+  });
+  addEventListener(
+    'scroll',
+    () => {
+      if (!isOpen() || frame) return;
+      frame = requestAnimationFrame(() => {
+        frame = 0;
+        place();
+      });
+    },
+    { passive: true },
+  );
 
-  return entry;
+  /* A tap before this script ran opened it where the browser puts popovers. */
+  if (isOpen()) place();
 };
 
 for (const root of document.querySelectorAll<HTMLElement>('[data-abbr]')) {
-  const entry = upgrade(root);
-  if (entry) tips.push(entry);
+  const button = root.querySelector('button');
+  const tip = root.querySelector<HTMLElement>('[popover]');
+  if (!button || !tip) continue;
+  if ('showPopover' in tip) enhance(root, button, tip);
+  else unwrap(button);
+  root.dataset.abbrReady = '';
 }
-
-document.addEventListener('keydown', (event) => {
-  if (event.key === 'Escape') for (const entry of tips) closeTip(entry);
-});
-
-document.addEventListener('pointerdown', (event) => {
-  for (const entry of tips) {
-    const inside =
-      event.target instanceof Node && entry.root.contains(event.target);
-    if (isOpen(entry) && !inside) {
-      closeTip(entry);
-    }
-  }
-});
 
 /* A module, so these names stay out of the scope page scripts share. */
 export {};
