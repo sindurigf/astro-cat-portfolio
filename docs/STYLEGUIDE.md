@@ -1044,16 +1044,22 @@ Enforced by `tests/nav-current.spec.ts`, `tests/mobile-menu.spec.ts`,
 - A band is never a scroll anchor (`overflow-anchor: none` on `.cat-spot`):
   WebKit would scroll the page with a moving cat and carry a focused control
   out of view (SC 2.4.11).
-- The hero's ruins and tablet are line art, drawn in the grass lines' colour
-  and width and filled with the ground, so stems pass in front of and behind
-  them; the About cats are stickers, flat fills with a hard edge, like the logo
-  tile. Keep each in its own style.
-- Hero flowers are buds that open: about a quarter of budding stems carry one,
-  each on its own phase. Vines climb the columns, the arch and the tablet over
-  `VINE_GROWTH.seconds`, bud as they go and open into flowers, then hold. The
-  still frame shows them fully grown and in flower.
-- Stone carving, weathering hatch and crack tufts use the stems' stroke widths
-  at set shares (`RUIN_LINE`), so ruins stay as fine as the grass.
+- The hero is one courtyard: a tall wall and broken tower on the left, a carved
+  stone off-centre right, rubble on the right, three paler ruined skylines
+  behind. A low sun from behind on the left casts long shadows forward across
+  the floor, fading toward their far ends.
+- The ruins are line art in the grass lines' colour, each stone an opaque fill
+  with a tone, weathered with pits, chipped corners and hairline cracks, so
+  stems pass in front of and behind them. The About cats are stickers, flat
+  fills with a hard edge, like the logo tile. Keep each in its own style.
+- Weeds grow in clumps at the ruins' feet and in floor cracks. About three
+  quarters of foot stems flower, each on its own phase: a bud in
+  `--color-gold-bud` opens into small petals in `--color-hero-flower` (cream on
+  gold, gold on white) with an ink rim, so each flower reads at 3:1 or more.
+  About one in nine has a faint `--color-hero-blush` centre. The blurred near
+  stems and the far ones never flower.
+- The still frame (`STILL_SECONDS` in `HeroField.vue`) catches some flowers open
+  and some in bud.
 
 ## Focus
 

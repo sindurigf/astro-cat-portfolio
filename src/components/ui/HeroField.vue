@@ -11,7 +11,7 @@ import type { HeroField, HeroPalette } from '../../lib/hero-field-scene';
  * Reduced motion draws one fixed frame and renders no button.
  */
 
-/** Past `VINE_GROWTH.seconds`: the still frame shows the vines grown and in flower. */
+/** A moment with some flowers open and some in bud, for the reduced-motion still. */
 const STILL_SECONDS = 40;
 
 /*
@@ -61,7 +61,8 @@ const readPalette = (): HeroPalette | null => {
     veilEdge: read('--color-hero-veil-edge'),
     floor: read('--color-hero-floor'),
     floorEdge: read('--color-hero-floor-edge'),
-    flower: read('--color-pink'),
+    flower: read('--color-hero-flower'),
+    blush: read('--color-hero-blush'),
   };
   /* Missing tokens mean no stylesheet yet; draw nothing rather than black on black. */
   return Object.values(palette).every((value) => value.length > 0)

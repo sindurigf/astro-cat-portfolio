@@ -31,11 +31,13 @@ const POINTER_VIEWPORTS = [
 ] as const;
 
 /**
- * A strip, not the whole canvas: full-viewport `getImageData` is slow. 55% of
- * the height is below the horizon, across the tablet and its weeds at every viewport.
+ * A strip, not the whole canvas: full-viewport `getImageData` is slow. At 70%
+ * of the height the middle canvas crosses the front weeds at every viewport.
  */
+const STRIP_TOP = 0.7;
+
 const fieldFingerprint = (page: Page) =>
-  page.evaluate(() => {
+  page.evaluate((stripTop) => {
     const layers =
       document.querySelectorAll<HTMLCanvasElement>('.hero-field-layer');
     const canvas = layers[1];
@@ -43,7 +45,7 @@ const fieldFingerprint = (page: Page) =>
     const ctx = canvas.getContext('2d');
     if (!ctx) return null;
 
-    const top = Math.floor(canvas.height * 0.55);
+    const top = Math.floor(canvas.height * stripTop);
     const rows = Math.min(48, canvas.height - top);
     if (rows < 1) return null;
 
@@ -57,7 +59,7 @@ const fieldFingerprint = (page: Page) =>
       signature = (signature + alpha * ((i >> 2) % 7919)) % 2147483647;
     }
     return { ink, signature };
-  });
+  }, STRIP_TOP);
 
 const expectHeroTargetSize = async (control: Locator) => {
   const box = await control.boundingBox();
@@ -106,13 +108,13 @@ const drainPendingFrame = (page: Page) =>
 
 const countDrawnFrames = (page: Page) =>
   page.evaluate(
-    ({ hz, frames }) => {
+    ({ hz, frames, stripTop }) => {
       const pump = (window as unknown as { pumpFrame: (now: number) => void })
         .pumpFrame;
       const canvas =
         document.querySelectorAll<HTMLCanvasElement>('.hero-field-layer')[1]!;
       const ctx = canvas.getContext('2d')!;
-      const top = Math.floor(canvas.height * 0.55);
+      const top = Math.floor(canvas.height * stripTop);
       const rows = Math.min(48, canvas.height - top);
       const signature = (): number => {
         const { data } = ctx.getImageData(0, top, canvas.width, rows);
@@ -137,7 +139,7 @@ const countDrawnFrames = (page: Page) =>
       }
       return changes;
     },
-    { hz: HERO_PUMP_HZ, frames: HERO_PUMP_FRAMES },
+    { hz: HERO_PUMP_HZ, frames: HERO_PUMP_FRAMES, stripTop: STRIP_TOP },
   );
 
 const expectFieldDrawing = async (page: Page, because: string) => {
