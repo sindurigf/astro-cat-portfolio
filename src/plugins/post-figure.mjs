@@ -45,7 +45,7 @@ const sizesFor = (fileURL) => (isTalk(fileURL) ? SLIDE_SIZES : SIZES);
 
 /*
  * A post figure's slot, `.post-layout .prose figure` in prose.css: a landscape
- * takes the page column, and from 80rem the measure plus the track left of it;
+ * takes the page column, and from 80rem the measure plus the track right of it;
  * a portrait keeps the measure.
  */
 const LANDSCAPE_SLOTS = [

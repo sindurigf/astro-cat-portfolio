@@ -383,6 +383,9 @@ in `wrangler.jsonc`).
   `image.breakpoints` (`MARKDOWN_WIDTHS`) applies. An image alone in a post
   paragraph becomes a `figure`, its title the `figcaption`; a portrait gets
   `.figure-portrait`. `.post-layout` is the container a figure breaks out to.
+- From `xl` a landscape figure breaks out right, under the contents rail's
+  column: place it below the contents; `tests/post-page.spec.ts` fails a
+  figure that overlaps the rail.
 - Markdown images are WebP only: Markdown renders
   `<img>`, not `<Picture>`, so `PHOTO_FORMATS` (AVIF first) does not reach them.
 - Credits: `src/lib/credits.ts`, one link per photographer, keyed by the name

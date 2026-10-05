@@ -797,8 +797,9 @@ Enforced by `tests/post-page.spec.ts`.
 - `text-reading-h1` stops at 70px so ACCESSIBILITY fits one line; never 64px
   or less (`text-h2`'s ceiling).
 - Body figures break out of the measure; the text does not. A landscape
-  takes the page column, and from `xl` only the measure plus the track left of
-  it, clear of the contents rail. A portrait stays on the measure, centred.
+  takes the page column, and from `xl` the measure plus the track right of it,
+  ending on the page column's right edge like the hero photo. A portrait stays
+  on the measure, centred.
   Both stop at 80vh tall, uncropped, caption on the image's left edge.
 - Figure `sizes`, from `post-figure.mjs`: that slot, capped by the file's width
   and by 80vh times its ratio. Markdown images take `MARKDOWN_WIDTHS`, to 2400.

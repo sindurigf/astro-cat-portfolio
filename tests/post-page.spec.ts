@@ -213,7 +213,7 @@ const FIGURE_ALIGN_TOLERANCE = 1;
  */
 test.describe('body figures', () => {
   for (const post of POSTS) {
-    for (const width of [390, 1280]) {
+    for (const width of [390, 1280, 1920]) {
       test(`${post.route} at ${width}px shows each figure whole, sized to the text`, async ({
         page,
       }) => {
@@ -223,6 +223,12 @@ test.describe('body figures', () => {
           const prose = document
             .querySelector('.prose')!
             .getBoundingClientRect();
+          const column = document
+            .querySelector('.post-layout')!
+            .getBoundingClientRect();
+          const rail = document
+            .querySelector('.post-contents')
+            ?.getBoundingClientRect();
           return [...document.querySelectorAll('.prose figure')].map(
             (figure) => {
               const frame = figure
@@ -236,6 +242,7 @@ test.describe('body figures', () => {
               const caption = figure
                 .querySelector('figcaption')
                 ?.getBoundingClientRect();
+              const box = figure.getBoundingClientRect();
               return {
                 portrait: h! > w!,
                 ratio: frame.width / frame.height / (w! / h!),
@@ -248,6 +255,15 @@ test.describe('body figures', () => {
                 wider: frame.width - prose.width,
                 captionLeft: caption?.left ?? frame.left,
                 viewport: document.documentElement.clientWidth,
+                boxRight: box.right,
+                columnRight: column.right,
+                hitsRail:
+                  rail !== undefined &&
+                  rail.width > 0 &&
+                  box.left < rail.right &&
+                  box.right > rail.left &&
+                  box.top < rail.bottom &&
+                  box.bottom > rail.top,
               };
             },
           );
@@ -288,16 +304,22 @@ test.describe('body figures', () => {
         }
 
         if (width >= 1280) {
-          const landscapes = figures.filter(
-            (f) =>
-              !f.portrait &&
-              f.height < FIGURE_VIEWPORT_HEIGHT * FIGURE_MAX_HEIGHT_SHARE - 1,
-          );
+          for (const [index, figure] of figures.entries()) {
+            expect(
+              figure.hitsRail,
+              `figure ${index + 1} overlaps the contents list: move it below the contents in the post`,
+            ).toBe(false);
+          }
+          const landscapes = figures.filter((f) => !f.portrait);
           for (const figure of landscapes) {
             expect(
-              figure.wider,
-              'a landscape figure is no wider than the text',
-            ).toBeGreaterThan(0);
+              Math.abs(figure.boxRight - figure.columnRight),
+              "a landscape figure does not reach the page column's right edge",
+            ).toBeLessThanOrEqual(FIGURE_ALIGN_TOLERANCE);
+            expect(
+              Math.abs(figure.right - figure.columnRight),
+              "a landscape image does not hang to the page column's right edge",
+            ).toBeLessThanOrEqual(FIGURE_ALIGN_TOLERANCE);
           }
         }
       });

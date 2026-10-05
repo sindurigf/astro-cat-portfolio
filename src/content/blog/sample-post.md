@@ -18,13 +18,13 @@ seoDescription: 'How I became an archaeologist: the Library of Ohara, the Ponegl
 
 People ask how I came to read stones that almost nobody else can read. The answer starts on an island in West Blue.
 
-![A tabby cat lying on its back on a parquet floor, a wand toy by its paw.](../../assets/blog/sample-post/tabby-floor.jpg 'Photo: Licence and credit')
-
 ## The library in the tree
 
 I grew up on Ohara. Its scholars worked in a library inside the Tree of Knowledge, a tree about 5,000 years old. For a child who loved books, there was no better place on any sea.
 
 The library's director, Professor Clover, was a friend of my mother. He let me read there long before I was old enough to understand everything I read. I did not mind. I read it anyway, and came back the next day.
+
+![A tabby cat lying on its back on a parquet floor, a wand toy by its paw.](../../assets/blog/sample-post/tabby-floor.jpg 'Photo: Licence and credit')
 
 ## Learning the stones
 
