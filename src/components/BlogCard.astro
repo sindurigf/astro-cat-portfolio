@@ -9,6 +9,7 @@ import { Picture } from 'astro:assets';
 import { PHOTO_FORMATS } from '../lib/photo-formats';
 import PlaceholderBox from './PlaceholderBox.astro';
 import { WIDTHS } from '../lib/image-densities';
+import { photoSize } from '../lib/photo-size';
 
 /*
  * The link is on the heading, not the whole card: a card-wide <a> would take
@@ -53,6 +54,8 @@ const COVER_SIZES =
 
 const { accent } = CATEGORIES[category];
 
+const coverSize = feature && cover ? await photoSize(cover) : null;
+
 const machineDate = isoDate(date);
 const readableDate = formatPostDate(date);
 ---
@@ -94,12 +97,20 @@ const readableDate = formatPostDate(date);
     </div>
 
     {/* No `border-border`: the utility would beat a solid block's rule and fail SC 1.4.11. */}
-    {feature && cover ? (
-      <div class="aspect-frame mt-2 aspect-photo border-4">
+    {feature && cover && coverSize ? (
+      <div class="aspect-frame mt-2 border-4">
+        <svg
+          class="aspect-sizer"
+          viewBox={`0 0 ${coverSize.width} ${coverSize.height}`}
+          aria-hidden="true"
+          focusable="false"
+        />
         <Picture
           {...PHOTO_FORMATS}
           src={cover}
           alt={coverAlt}
+          width={coverSize.width}
+          height={coverSize.height}
           widths={WIDTHS}
           sizes={COVER_SIZES}
           priority

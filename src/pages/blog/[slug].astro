@@ -6,6 +6,11 @@ import Roundel from '../../components/Roundel.astro';
 import { postTrail } from '../../lib/breadcrumbs';
 import { markdownSourcePath, tagHref } from '../../lib/paths';
 import { coverOgImage } from '../../lib/og-image';
+import { Picture } from 'astro:assets';
+import { PHOTO_FORMATS } from '../../lib/photo-formats';
+import { HERO_PHOTO_SIZES, WIDTHS } from '../../lib/image-densities';
+import { photoSize } from '../../lib/photo-size';
+import { PHOTOGRAPHERS, PHOTO_CREDIT_PREFIX } from '../../lib/credits';
 import type { GetStaticPaths, InferGetStaticPropsType } from 'astro';
 import { getCollection, render } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
@@ -36,6 +41,7 @@ const {
   cover,
   coverAlt,
   coverCardAlt,
+  coverCredit,
   readingTime,
   placeholder,
   updated,
@@ -58,6 +64,11 @@ const formattedDate = formatPostDate(date);
 const ogImage =
   cover && coverAlt
     ? await coverOgImage(cover, coverCardAlt ?? coverAlt)
+    : undefined;
+const coverSize = cover ? await photoSize(cover) : null;
+const coverCreditHref =
+  coverCredit && Object.hasOwn(PHOTOGRAPHERS, coverCredit)
+    ? PHOTOGRAPHERS[coverCredit as keyof typeof PHOTOGRAPHERS]
     : undefined;
 const machineDate = isoDate(date);
 const trail = postTrail(category, title);
@@ -88,27 +99,86 @@ const article = placeholder
     `text-gold` fails SC 1.4.3 on this ground.
   */}
   <article>
-    <section class="post-slab band surface-gold gold-column relative isolate">
+    <section
+      class:list={[
+        'post-slab band surface-gold gold-column relative isolate',
+        cover && 'post-slab-photo',
+      ]}
+    >
       <header class="mx-auto max-w-page lg:grid lg:grid-cols-12 lg:items-start">
         <div class="lg:col-span-12 lg:row-start-1">
           <Breadcrumbs crumbs={trail.crumbs} tone="gold" />
         </div>
-        <h1 class="text-post-title post-title text-gold-text lg:col-span-6 lg:col-start-1 lg:row-start-2">
-          {title}
-        </h1>
-        <div class="post-slab-aside lg:col-span-6 lg:col-start-7 lg:row-start-2">
-          <p class="text-post-teaser font-normal text-pretty">{teaser}</p>
-          <p class="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-label text-gold-muted">
-            <time datetime={machineDate}>{formattedDate}</time>
-            {readingTime ? <span>{readingTime} minute read</span> : null}
-          </p>
+        {/* With a cover, PageHero's photo layout: text in the left half, the photo beside it. */}
+        <div
+          class:list={[
+            cover ? 'lg:col-span-6 lg:row-start-2 lg:self-center' : 'contents',
+          ]}
+        >
+          <h1
+            class:list={[
+              'text-post-title post-title text-gold-text',
+              !cover && 'lg:col-span-6 lg:col-start-1 lg:row-start-2',
+            ]}
+          >
+            {title}
+          </h1>
+          <div
+            class:list={[
+              cover
+                ? 'mt-6'
+                : 'post-slab-aside lg:col-span-6 lg:col-start-7 lg:row-start-2',
+            ]}
+          >
+            <p class="text-post-teaser font-normal text-pretty">{teaser}</p>
+            <p class="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-label text-gold-muted">
+              <time datetime={machineDate}>{formattedDate}</time>
+              {readingTime ? <span>{readingTime} minute read</span> : null}
+              {/* Here, not under the photo: the photo hangs below the slab, off the gold ground. */}
+              {coverCredit && (
+                <span data-cover-credit>
+                  {PHOTO_CREDIT_PREFIX}
+                  {coverCreditHref ? (
+                    <a href={coverCreditHref}>{coverCredit}</a>
+                  ) : (
+                    coverCredit
+                  )}
+                </span>
+              )}
+            </p>
+          </div>
         </div>
+        {cover && coverSize && (
+          <figure class="hero-photo mt-12 max-w-sm lg:col-span-5 lg:col-start-8 lg:row-start-2 lg:mt-0 lg:max-w-none lg:self-end">
+            <div class="aspect-frame border-4 border-gold-text shadow-hard-pink-8">
+              <svg
+                class="aspect-sizer"
+                viewBox={`0 0 ${coverSize.width} ${coverSize.height}`}
+                aria-hidden="true"
+                focusable="false"
+              />
+              <Picture
+                {...PHOTO_FORMATS}
+                src={cover}
+                alt={coverAlt ?? ''}
+                width={coverSize.width}
+                height={coverSize.height}
+                widths={WIDTHS}
+                sizes={HERO_PHOTO_SIZES}
+                priority
+                class="text-body text-text"
+              />
+            </div>
+          </figure>
+        )}
       </header>
 
       {/* The disc hangs 48 to 64px below the slab; less than --spacing-section below it overlaps the contents on a phone. */}
-      <div class="hero-roundel">
-        <Roundel eager variant="hero" />
-      </div>
+      {!cover && (
+        <div class="hero-roundel">
+          <Roundel eager variant="hero" />
+        </div>
+      )}
     </section>
 
     <div class="band py-section">

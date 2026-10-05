@@ -1,6 +1,9 @@
 import { defineConfig, devices } from '@playwright/test';
 import { assertPortFree, TEST_PORT } from './tests/ports';
-import { WORKER_SPECS } from './playwright.worker.config';
+import {
+  BUILD_AND_SERVE_TIMEOUT_MS,
+  WORKER_SPECS,
+} from './playwright.worker.config';
 import { DEMO_SPECS } from './playwright.demo.config';
 import { NODE_TAG } from './tests/tags';
 
@@ -91,7 +94,7 @@ export default defineConfig({
     /* Reuse would skip `npm run build` and test a stale dist/. */
     reuseExistingServer: false,
 
-    timeout: 120_000,
+    timeout: BUILD_AND_SERVE_TIMEOUT_MS,
     stdout: 'pipe',
     stderr: 'pipe',
   },

@@ -171,6 +171,7 @@ Headings, alt text, focus rings and axe are checked on the rendered page by
 | `cover`          | image             | no           |         |
 | `coverAlt`       | string            | with `cover` |         |
 | `coverCardAlt`   | string            | no           |         |
+| `coverCredit`    | string            | no           |         |
 
 - Categories: `skincare`, `travel`, `personal-thoughts`,
   `professional-journey`, `open-source`. Rename them in `BLOG_CATEGORIES` and
@@ -188,8 +189,9 @@ Headings, alt text, focus rings and axe are checked on the rendered page by
 - Non-placeholder posts get `og:type` `article`,
   `article:published_time` and a `BlogPosting` JSON-LD node. Other pages are
   `website`.
-- `cover` is relative to the post and shown only on a `feature` card; the
-  schema requires `coverAlt` with it. `coverCardAlt` replaces `coverAlt` on
+- `cover` is relative to the post, any ratio, never cropped except for `og:image`, and shown as the post's hero photo, on the
+  `/blog` feature card and as the `og:image`; the schema requires `coverAlt`
+  with it. `coverCardAlt` replaces `coverAlt` on
   the 1.91:1 `og:image` crop when the crop drops something `coverAlt` names.
 - `updated` sets `dateModified`; absent, it is omitted, not copied from `date`.
 - Pagination (`/blog/page/<n>`) builds only past `POSTS_PER_PAGE`, 9 unless
@@ -301,6 +303,11 @@ Commits, copy rules and process: [AGENTS.md](AGENTS.md).
   `webServer` builds, so a literal subset of `ROUTES` is unavoidable; a second
   test derives the real list from the build and fails when the literal falls
   behind. `FRAME_ROUTES` in `tests/failed-images.spec.ts` is the pattern.
+- **CI caches optimised images, not `dist/`.** Each shard's `webServer` runs
+  `npm run build`; image generation is nearly all of it. The checks job saves
+  `node_modules/.astro/assets` and the shards restore it, so the shards still
+  start together. A shared `dist/` artifact would need a build job in front of
+  them.
 - Post, category and tag routes in `tests/routes.ts` are read from
   `src/content/blog/` frontmatter, which exists at collection. A test that
   needs a particular post picks it by property (`CONTENTS_POST_ROUTE`,
