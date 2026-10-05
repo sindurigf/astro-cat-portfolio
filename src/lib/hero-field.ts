@@ -38,6 +38,7 @@ import {
   REFERENCE_PROJECTION,
   REFERENCE_WIDTH,
   RUINS,
+  SPARSE,
   SPRING,
   STALK_WIDTH,
   STEM_ALPHA,
@@ -50,7 +51,12 @@ import {
 } from './hero-field-scene';
 import { buildRuins, drawPetals, drawRuin } from './hero-field-ruins';
 import type { Ruin } from './hero-field-ruins';
-import type { HeroField, HeroPalette, Stem } from './hero-field-scene';
+import type {
+  HeroField,
+  HeroPalette,
+  RuinSpec,
+  Stem,
+} from './hero-field-scene';
 
 interface Scene {
   readonly boxWidth: number;
@@ -140,6 +146,40 @@ const makeStem = (
 };
 
 /* Density is per scene width, not pixels: a stepped-back camera shows more. */
+interface Anchor {
+  readonly x: number;
+  readonly z: number;
+  /** Half the ruin's apparent width, CSS pixels. */
+  readonly span: number;
+}
+
+/* Sparse: tufts at each ruin's foot at its own depth, a little far grass, clear ground between. */
+const buildSparse = (scene: Scene, anchors: readonly Anchor[]): Stem[] => {
+  const rng = random(FIELD_SEED);
+  const built: Stem[] = [];
+  const density = scene.boxWidth / scene.world / REFERENCE_WIDTH;
+  for (
+    let i = 0;
+    i < Math.round(BANDS.FAR.count * density * SPARSE.far);
+    i += 1
+  ) {
+    const z = BANDS.FAR.near * Math.pow(BANDS.FAR.far / BANDS.FAR.near, rng());
+    built.push(
+      makeStem(scene, rng, z, rng() * scene.boxWidth, 0.4 + rng() * 0.5, 1),
+    );
+  }
+  for (const anchor of anchors) {
+    for (let i = 0; i < SPARSE.perRuin; i += 1) {
+      const z = anchor.z * (SPARSE.front + rng() * SPARSE.depth);
+      const side = rng() < 0.5 ? -1 : 1;
+      const x = anchor.x + side * anchor.span * (0.55 + rng() * 0.6);
+      const height = SPARSE.height[0] + rng() * SPARSE.height[1];
+      built.push(makeStem(scene, rng, z, x, height, 1));
+    }
+  }
+  return built.sort((a, b) => b.z - a.z);
+};
+
 const buildStems = (scene: Scene, anchors: readonly number[]): Stem[] => {
   const { world, view } = scene;
   const density = scene.boxWidth / world / REFERENCE_WIDTH;
@@ -439,7 +479,17 @@ const drawMid = (
   );
 };
 
-export const createHeroField = (palette: HeroPalette): HeroField => {
+export interface FieldOptions {
+  readonly ruins?: readonly RuinSpec[];
+  /** Weeds only at the ruins' feet. */
+  readonly sparse?: boolean;
+}
+
+export const createHeroField = (
+  palette: HeroPalette,
+  options: FieldOptions = {},
+): HeroField => {
+  const specs = options.ruins ?? RUINS;
   const state: FieldState = {
     /* A draw before the first layout must not divide by zero. */
     scene: sceneFor(REFERENCE_WIDTH, REFERENCE_HEIGHT),
@@ -459,11 +509,21 @@ export const createHeroField = (palette: HeroPalette): HeroField => {
           referenceProjection: REFERENCE_PROJECTION,
         },
         width / height < NARROW_ASPECT,
+        specs,
       );
-      state.stems = buildStems(
-        state.scene,
-        RUINS.map((ruin) => ruin.x * boxWidth),
-      );
+      state.stems = options.sparse
+        ? buildSparse(
+            state.scene,
+            specs.map((spec) => ({
+              x: spec.x * boxWidth,
+              z: spec.z,
+              span: (spec.width * projection) / spec.z / 2,
+            })),
+          )
+        : buildStems(
+            state.scene,
+            specs.map((ruin) => ruin.x * boxWidth),
+          );
     },
     step: (seconds, delta) => stepSprings(state, seconds, delta),
     back: (ctx, seconds) => drawBack(ctx, palette, state, seconds),

@@ -228,7 +228,16 @@ export const VEIL_DEPTH = 7;
 
 export interface RuinSpec {
   readonly kind:
-    'column' | 'colonnade' | 'arch' | 'wall' | 'block' | 'drum' | 'tablet';
+    | 'column'
+    | 'colonnade'
+    | 'arch'
+    | 'wall'
+    | 'block'
+    | 'tablet'
+    | 'portico'
+    | 'terrace'
+    | 'tholos'
+    | 'wallgate';
   /** Share of the box width. */
   readonly x: number;
   readonly z: number;
@@ -242,6 +251,12 @@ export interface RuinSpec {
   readonly vine?: boolean;
   /** Left out of frames narrower than `NARROW_ASPECT`. */
   readonly wide?: boolean;
+  /** Raises the root, in the same units as `height`: the tablet on a terrace. */
+  readonly lift?: number;
+  /** Which half of a tholos this spec draws. */
+  readonly half?: 'back' | 'front';
+  /** Paint order by this depth instead of `z`, so parts built at one depth can interleave. */
+  readonly order?: number;
 }
 
 /** Width over height below which `wide` ruins are dropped. */
@@ -330,13 +345,21 @@ export const RUIN_LINE = {
   carveAlpha: 0.72,
   hatchAlpha: 0.32,
   shadowAlpha: 0.5,
+  litAlpha: 0.9,
 } as const;
 
-/** Vines grow over `seconds`, starting `head` of the way up, then hold. */
-export const VINE_GROWTH = { seconds: 26, head: 0.18 } as const;
+/** Seconds per phase of the vines' loop; `head` is the share already grown at the start. */
+export const VINE_GROWTH = {
+  grow: 10,
+  hold: 9,
+  wither: 2.5,
+  rest: 1.5,
+  head: 0.04,
+} as const;
 /** Along a vine, in multiples of its stem width: leaf spacing and size, bud spacing. */
-export const VINE_LEAF = { every: 9, length: 4.2, width: 1.8 } as const;
-export const VINE_BUD = { every: 3, opens: 4, size: 0.5 } as const;
+export const VINE_LEAF = { every: 7, length: 5, width: 2.1 } as const;
+/** Seconds a bud takes to swell, then to open; `size` in stem widths. */
+export const VINE_BUD = { every: 3, swell: 1.2, opens: 2, size: 0.62 } as const;
 
 /** Share of stems tall enough for buds that carry a flower. */
 export const FLOWER_ODDS = 0.24;
@@ -348,4 +371,13 @@ export const PETAL = {
   spread: 4.6,
   closed: 0.35,
   count: 5,
+} as const;
+
+/** Sparse weeds: share of far grass kept, stems per ruin, their depth just in front, height ratios. */
+export const SPARSE = {
+  far: 0.3,
+  perRuin: 7,
+  front: 0.9,
+  depth: 0.12,
+  height: [0.1, 0.3],
 } as const;

@@ -37,6 +37,10 @@ interface Vine {
 export interface Ruin {
   readonly z: number;
   readonly x: number;
+  readonly back: Path2D;
+  readonly deep: Path2D;
+  readonly shade: Path2D;
+  readonly lit: Path2D;
   readonly outline: Path2D;
   readonly carve: Path2D;
   readonly hatch: Path2D;
@@ -55,6 +59,11 @@ interface Box {
 }
 
 interface Parts {
+  /* Drawn first: hidden planes (a slab's crown and side) behind the front. */
+  back: Path2D;
+  deep: Path2D;
+  shade: Path2D;
+  lit: Path2D;
   outline: Path2D;
   carve: Path2D;
   hatch: Path2D;
@@ -64,6 +73,10 @@ interface Parts {
 }
 
 const parts = (): Parts => ({
+  back: new Path2D(),
+  deep: new Path2D(),
+  shade: new Path2D(),
+  lit: new Path2D(),
   outline: new Path2D(),
   carve: new Path2D(),
   hatch: new Path2D(),
@@ -281,6 +294,12 @@ const column = (
     p.carve.moveTo(x - ex, ey);
     p.carve.lineTo(x + ex, ey + w * 0.02);
   }
+  /* The shaft's right side turns from the light. */
+  p.shade.moveTo(x + half * 0.3, base);
+  p.shade.lineTo(x + half * 1.6, base);
+  p.shade.lineTo(x + half * 1.6, top - w * 0.6);
+  p.shade.lineTo(x + topHalf * 0.25, top - w * 0.6);
+  p.shade.closePath();
   crack(
     p.carve,
     x + half * 0.3,
@@ -455,6 +474,12 @@ const arch = (
     p.carve.moveTo(x - outer + pier * (row % 2 ? 0.4 : 0.65), y);
     p.carve.lineTo(x - outer + pier * (row % 2 ? 0.4 : 0.65), y + course);
   }
+  p.shade.moveTo(x - inner, root);
+  p.shade.lineTo(x - inner, spring);
+  p.shade.arc(x, spring, inner, Math.PI, back);
+  p.shade.arc(x, spring, inner + pier * 0.3, back, Math.PI, true);
+  p.shade.lineTo(x - inner - pier * 0.3, root);
+  p.shade.closePath();
   crack(
     p.carve,
     x - outer + pier * 0.5,
@@ -582,6 +607,361 @@ const block = (
   tuft(p, x - w * 0.1, root - h, h * 0.6, rng);
 };
 
+/* Where an unbroken `column` of this height and diameter carries its load. */
+const capitalTop = (root: number, h: number, w: number): number =>
+  root - h + w * 0.03;
+
+/* A beam on column tops: architrave with two fasciae, frieze above it. */
+const beam = (
+  p: Parts,
+  left: number,
+  right: number,
+  y: number,
+  deep: number,
+  rng: () => number,
+  brokenRight: boolean,
+): number => {
+  const frieze = deep * 0.8;
+  const end = brokenRight ? right - deep * 0.6 : right;
+  p.outline.moveTo(left, y);
+  chipped(p.outline, [left, y], [left, y - deep - frieze], rng, deep * 0.1, 1);
+  chipped(
+    p.outline,
+    [left, y - deep - frieze],
+    [end, y - deep - frieze],
+    rng,
+    deep * 0.18,
+    3,
+  );
+  if (brokenRight) {
+    p.outline.lineTo(end + deep * 0.3, y - deep * 1.1);
+    p.outline.lineTo(end - deep * 0.1, y - deep * 0.6);
+    p.outline.lineTo(right, y - deep * 0.2);
+    p.outline.lineTo(right, y);
+  } else p.outline.lineTo(right, y);
+  p.outline.closePath();
+  p.carve.moveTo(left, y - deep * 0.45);
+  p.carve.lineTo(end, y - deep * 0.45);
+  p.carve.moveTo(left, y - deep);
+  p.carve.lineTo(end, y - deep);
+  /* Triglyphs: three grooves every bay. */
+  for (let gx = left + deep * 0.6; gx < end - deep * 0.6; gx += deep * 2.2) {
+    for (const g of [0, 0.22, 0.44]) {
+      p.carve.moveTo(gx + g * deep, y - deep - frieze * 0.1);
+      p.carve.lineTo(gx + g * deep, y - deep - frieze * 0.9);
+    }
+  }
+  p.shade.rect(left, y - deep * 0.45, end - left, deep * 0.45);
+  weather(
+    p.hatch,
+    left,
+    y - deep - frieze,
+    end - left,
+    deep + frieze,
+    Math.max(1.6, deep * 0.3),
+    rng,
+  );
+  tuft(p, left + (end - left) * 0.7, y - deep - frieze, deep * 1.4, rng);
+  return y - deep - frieze;
+};
+
+const portico = (
+  p: Parts,
+  x: number,
+  root: number,
+  h: number,
+  w: number,
+  rng: () => number,
+  vine: boolean,
+): void => {
+  const cw = w * 0.15;
+  const left = x - w * 0.34;
+  const right = x + w * 0.34;
+  column(p, left, root, h, cw, false, rng, vine);
+  column(p, right, root, h, cw, false, rng, false);
+  const y = capitalTop(root, h, cw);
+  const top = beam(p, x - w / 2, x + w / 2, y, cw * 0.75, rng, false);
+  /* Pediment: the left half stands, the right is broken away. */
+  const apex = top - w * 0.2;
+  p.outline.moveTo(x - w / 2 - cw * 0.2, top);
+  p.outline.lineTo(x, apex);
+  p.outline.lineTo(x + w * 0.06, apex + w * 0.05);
+  p.outline.lineTo(x + w * 0.02, apex + w * 0.1);
+  p.outline.lineTo(x + w * 0.12, apex + w * 0.14);
+  p.outline.lineTo(x + w * 0.16, top);
+  p.outline.closePath();
+  p.carve.moveTo(x - w / 2 + cw * 0.5, top - cw * 0.25);
+  p.carve.lineTo(x - cw * 0.1, apex + cw * 0.5);
+  p.carve.lineTo(x + w * 0.04, apex + w * 0.08);
+  weather(
+    p.hatch,
+    x - w * 0.3,
+    apex,
+    w * 0.4,
+    top - apex,
+    Math.max(1.6, cw * 0.2),
+    rng,
+  );
+  tuft(p, x + w * 0.12, apex + w * 0.14, cw * 1.2, rng);
+  tuft(p, x - w * 0.42, top - cw * 0.3, cw, rng);
+};
+
+const terrace = (
+  p: Parts,
+  x: number,
+  root: number,
+  h: number,
+  w: number,
+  rng: () => number,
+): void => {
+  const deck = h * 0.16;
+  const left = x - w / 2;
+  const right = x + w / 2;
+  /* Terrace wall in courses, the stair projecting from its middle. */
+  p.outline.moveTo(left, root);
+  p.outline.lineTo(left, root - deck);
+  chipped(
+    p.outline,
+    [left, root - deck],
+    [right, root - deck],
+    rng,
+    deck * 0.12,
+    4,
+  );
+  p.outline.lineTo(right, root);
+  p.outline.closePath();
+  const rows = 3;
+  for (let r = 1; r < rows; r += 1) {
+    p.carve.moveTo(left, root - (deck * r) / rows);
+    p.carve.lineTo(right, root - (deck * r) / rows);
+  }
+  for (let r = 0; r < rows; r += 1) {
+    for (
+      let bx = left + (r % 2 ? w * 0.03 : w * 0.06);
+      bx < right;
+      bx += w * 0.06
+    ) {
+      p.carve.moveTo(bx, root - (deck * r) / rows);
+      p.carve.lineTo(bx, root - (deck * (r + 1)) / rows);
+    }
+  }
+  const stairW = w * 0.3;
+  const steps = 6;
+  const rise = deck / steps;
+  for (let i = 0; i < steps; i += 1) {
+    const inset = (stairW * 0.12 * (steps - i)) / steps;
+    const y = root - rise * i;
+    p.outline.rect(x - stairW / 2 - inset, y - rise, stairW + inset * 2, rise);
+    p.lit.moveTo(x - stairW / 2 - inset, y - rise);
+    p.lit.lineTo(x + stairW / 2 + inset, y - rise);
+    if (i === 2)
+      chipped(
+        p.carve,
+        [x + stairW * 0.2, y - rise],
+        [x + stairW * 0.45, y - rise],
+        rng,
+        rise * 0.4,
+        1,
+      );
+  }
+  tuft(p, x - stairW * 0.3, root - rise * 2, rise * 3, rng);
+  tuft(p, left + w * 0.1, root - deck, deck * 0.8, rng);
+  /* Colonnade along the back edge, one column fallen, its beam broken there. */
+  const count = 7;
+  const colH = h * 0.62;
+  const cw = (w / count) * 0.3;
+  const deckTop = root - deck - h * 0.03;
+  for (let i = 0; i < count; i += 1) {
+    const cx = left + w * 0.06 + (w * 0.88 * i) / (count - 1);
+    if (i === count - 2) {
+      column(p, cx, deckTop, colH * 0.45, cw, true, rng, false);
+      continue;
+    }
+    column(p, cx, deckTop, colH, cw, false, rng, i === 1);
+  }
+  const y = capitalTop(deckTop, colH, cw);
+  beam(
+    p,
+    left + w * 0.06 - cw,
+    left + w * 0.06 + (w * 0.88 * (count - 3)) / (count - 1) + cw * 1.6,
+    y,
+    cw * 0.7,
+    rng,
+    true,
+  );
+};
+
+/* A ring of columns seen from the front: `back` holds the far half and the step, `front` the near half. */
+const tholos = (
+  p: Parts,
+  x: number,
+  root: number,
+  h: number,
+  w: number,
+  rng: () => number,
+  half: 'back' | 'front',
+): void => {
+  const count = 10;
+  const rx = w / 2;
+  const ry = w * 0.12;
+  const cw = w * 0.07;
+  const at = (a: number): { cx: number; cy: number; ch: number } => ({
+    cx: x + Math.cos(a) * rx,
+    cy: root + Math.sin(a) * ry,
+    ch: h * (1 + Math.sin(a) * 0.08),
+  });
+  if (half === 'back') {
+    p.outline.ellipse(
+      x,
+      root + ry * 0.2,
+      rx * 1.12,
+      ry * 1.5,
+      0,
+      0,
+      Math.PI * 2,
+    );
+    p.carve.ellipse(x, root, rx * 1.04, ry * 1.25, 0, 0, Math.PI * 2);
+  }
+  const angles = Array.from(
+    { length: count },
+    (_, i) => (i / count) * Math.PI * 2 + Math.PI / count + Math.PI / 2,
+  )
+    .filter((a) => (half === 'back' ? Math.sin(a) < 0 : Math.sin(a) >= 0))
+    .sort((a, b) => Math.sin(a) - Math.sin(b));
+  angles.forEach((a, i) => {
+    const { cx, cy, ch } = at(a);
+    const broken = half === 'front' ? i % 2 === 1 : i === 1;
+    column(
+      p,
+      cx,
+      cy,
+      broken ? ch * (0.4 + (i % 3) * 0.12) : ch,
+      cw * (1 + Math.sin(a) * 0.06),
+      broken,
+      rng,
+      half === 'front' && i === 0,
+    );
+  });
+  /* Entablature: a curved band over the standing columns of each half. */
+  const band = (from: number, to: number): void => {
+    const deep = cw * 0.9;
+    const steps = 24;
+    const top: Point[] = [];
+    for (let k = 0; k <= steps; k += 1) {
+      const a = from + ((to - from) * k) / steps;
+      const { cx, cy, ch } = at(a);
+      top.push([cx, capitalTop(cy, ch, cw)]);
+    }
+    p.outline.moveTo(top[0]![0], top[0]![1]);
+    top.forEach(([tx, ty]) =>
+      p.outline.lineTo(tx, ty - deep - (rng() < 0.15 ? deep * 0.2 : 0)),
+    );
+    for (let k = top.length - 1; k >= 0; k -= 1)
+      p.outline.lineTo(top[k]![0], top[k]![1]);
+    p.outline.closePath();
+    p.carve.moveTo(top[0]![0], top[0]![1] - deep * 0.45);
+    top.forEach(([tx, ty]) => p.carve.lineTo(tx, ty - deep * 0.45));
+    tuft(
+      p,
+      top[Math.floor(steps / 2)]![0],
+      top[Math.floor(steps / 2)]![1] - deep,
+      deep * 1.5,
+      rng,
+    );
+  };
+  if (half === 'back') band(Math.PI * 1.08, Math.PI * 1.9);
+  else band(Math.PI * 0.08, Math.PI * 0.3);
+};
+
+/* A long coursed wall with a doorway and a fallen right end. */
+const wallgate = (
+  p: Parts,
+  x: number,
+  root: number,
+  h: number,
+  w: number,
+  rng: () => number,
+): void => {
+  const left = x - w / 2;
+  const right = x + w / 2;
+  const rows = 6;
+  const course = h / rows;
+  const doorX = x + w * 0.2;
+  const doorW = w * 0.08;
+  const doorH = h * 0.78;
+  const fall = x + w * 0.31;
+  const profile = (bx: number): number => {
+    if (bx < fall) return h;
+    const f = (bx - fall) / (right - fall);
+    return Math.max(course, Math.round((h * (1 - f * 0.8)) / course) * course);
+  };
+  p.outline.moveTo(left, root);
+  p.outline.lineTo(left, root - h * 0.9);
+  chipped(
+    p.outline,
+    [left, root - h * 0.9],
+    [left + w * 0.06, root - h],
+    rng,
+    course * 0.3,
+    1,
+  );
+  chipped(
+    p.outline,
+    [left + w * 0.06, root - h],
+    [fall, root - h],
+    rng,
+    course * 0.25,
+    6,
+  );
+  for (let bx = fall; bx < right; bx += w * 0.03) {
+    p.outline.lineTo(bx, root - profile(bx));
+    p.outline.lineTo(Math.min(right, bx + w * 0.03), root - profile(bx));
+  }
+  p.outline.lineTo(right, root);
+  p.outline.lineTo(doorX + doorW / 2, root);
+  p.outline.lineTo(doorX + doorW / 2, root - doorH);
+  p.outline.lineTo(doorX - doorW / 2, root - doorH);
+  p.outline.lineTo(doorX - doorW / 2, root);
+  p.outline.closePath();
+  /* Lintel over the door, one stone wider each side. */
+  p.carve.rect(
+    doorX - doorW * 0.9,
+    root - doorH - course * 1.1,
+    doorW * 1.8,
+    course * 1.1,
+  );
+  p.shade.rect(doorX + doorW * 0.25, root - doorH, doorW * 0.25, doorH);
+  for (let r = 0; r < rows; r += 1) {
+    const y = root - course * r;
+    let bx = left + (r % 2 ? w * 0.02 : 0);
+    while (bx < right) {
+      const bw = w * (0.035 + rng() * 0.03);
+      const inDoor =
+        bx + bw > doorX - doorW / 2 &&
+        bx < doorX + doorW / 2 &&
+        course * (r + 1) <= doorH + 0.5;
+      if (course * (r + 1) <= profile(bx + bw / 2) + 0.5 && !inDoor) {
+        const out = rng() < 0.08 ? course * 0.15 : 0;
+        p.carve.moveTo(bx + out, y);
+        p.carve.lineTo(bx + out, y - course);
+        p.carve.lineTo(Math.min(right, bx + bw) + out, y - course);
+        if (rng() < 0.1)
+          crack(p.hatch, bx + bw * 0.5, y - course, course * 0.9, rng);
+      }
+      bx += bw;
+    }
+  }
+  weather(p.hatch, left, root - h, w, h, Math.max(1.6, course * 0.35), rng);
+  for (let k = 0; k < 5; k += 1)
+    tuft(
+      p,
+      left + w * (0.08 + k * 0.2),
+      root - (k % 2 ? 0 : profile(left + w * (0.08 + k * 0.2))),
+      course * 1.6,
+      rng,
+    );
+};
+
 /* An original glyph set: strokes on a 3x3 grid. */
 const GLYPHS = [
   [
@@ -619,7 +999,6 @@ const tablet = (
   vine: boolean,
 ): void => {
   const plinth = h * 0.055;
-  const side = w * 0.12;
   const base = root - plinth * 2;
   const top = root - h;
   const r = w * 0.44;
@@ -650,45 +1029,70 @@ const tablet = (
   p.carve.moveTo(x - w * 0.68, root - plinth * 0.8);
   p.carve.lineTo(x + w * 0.76, root - plinth * 0.8);
 
-  /* The slab: front face, a visible right side for its thickness, a chipped crown. */
-  const face = new Path2D();
-  face.moveTo(x - w / 2, base);
-  face.lineTo(x - w / 2, top + r);
-  face.bezierCurveTo(x - w / 2, top + r * 0.3, x - w * 0.28, top, x, top);
-  face.lineTo(x + w * 0.1, top + h * 0.006);
-  face.lineTo(x + w * 0.16, top + h * 0.045);
-  face.lineTo(x + w * 0.21, top + h * 0.02);
-  face.lineTo(x + w * 0.26, top + h * 0.03);
-  face.bezierCurveTo(
-    x + w * 0.42,
-    top + h * 0.08,
-    x + w / 2,
-    top + r * 0.6,
-    x + w / 2,
-    top + r,
-  );
-  face.lineTo(x + w / 2, base);
-  face.closePath();
+  /*
+   * The slab as a solid: its face, and the same outline set back up and to the
+   * right, which shows the crown (lit) and the right side (in shade).
+   */
+  const depth = w * 0.17;
+  const dx = depth;
+  const dy = -depth * 0.55;
+  const slab = (ox: number, oy: number, chips: boolean): Path2D => {
+    const path = new Path2D();
+    path.moveTo(x - w / 2 + ox, base + oy);
+    path.lineTo(x - w / 2 + ox, top + r + oy);
+    path.bezierCurveTo(
+      x - w / 2 + ox,
+      top + r * 0.3 + oy,
+      x - w * 0.28 + ox,
+      top + oy,
+      x + ox,
+      top + oy,
+    );
+    if (chips) {
+      path.lineTo(x + w * 0.1, top + h * 0.006);
+      path.lineTo(x + w * 0.16, top + h * 0.045);
+      path.lineTo(x + w * 0.21, top + h * 0.02);
+      path.lineTo(x + w * 0.26, top + h * 0.03);
+      path.bezierCurveTo(
+        x + w * 0.42,
+        top + h * 0.08,
+        x + w / 2,
+        top + r * 0.6,
+        x + w / 2,
+        top + r,
+      );
+    } else {
+      path.bezierCurveTo(
+        x + w * 0.28 + ox,
+        top + oy,
+        x + w / 2 + ox,
+        top + r * 0.3 + oy,
+        x + w / 2 + ox,
+        top + r + oy,
+      );
+    }
+    path.lineTo(x + w / 2 + ox, base + oy);
+    path.closePath();
+    return path;
+  };
+  const face = slab(0, 0, true);
+  p.back.addPath(slab(dx, dy, false));
+  p.back.moveTo(x - w * 0.36, top + r * 0.22);
+  p.back.lineTo(x - w * 0.36 + dx, top + r * 0.22 + dy);
+  p.back.moveTo(x + w / 2, top + r);
+  p.back.lineTo(x + w / 2 + dx, top + r + dy);
+  p.back.moveTo(x + w / 2, base);
+  p.back.lineTo(x + w / 2 + dx, base + dy);
+  p.deep.moveTo(x + w / 2, base);
+  p.deep.lineTo(x + w / 2, top + r);
+  p.deep.lineTo(x + w / 2 + dx, top + r + dy);
+  p.deep.lineTo(x + w / 2 + dx, base + dy);
+  p.deep.closePath();
   p.outline.addPath(face);
-  p.outline.moveTo(x + w / 2, top + r);
-  p.outline.bezierCurveTo(
-    x + w / 2 + side * 0.5,
-    top + r * 0.55,
-    x + w / 2 + side,
-    top + r * 0.75,
-    x + w / 2 + side,
-    top + r + side * 0.4,
-  );
-  p.outline.lineTo(x + w / 2 + side, base - side * 0.15);
-  p.outline.lineTo(x + w / 2, base);
-  p.outline.closePath();
-  for (
-    let y = top + r + side;
-    y < base - side * 0.4;
-    y += Math.max(1.8, side * 0.22)
-  ) {
-    p.hatch.moveTo(x + w / 2 + side * 0.15, y);
-    p.hatch.lineTo(x + w / 2 + side * 0.85, y - side * 0.35);
+  p.shade.addPath(face);
+  for (let y = top + r + depth; y < base; y += Math.max(1.8, depth * 0.16)) {
+    p.hatch.moveTo(x + w / 2 + dx * 0.12, y + dy * 0.1);
+    p.hatch.lineTo(x + w / 2 + dx * 0.88, y + dy * 0.9);
   }
 
   /* Chamfer: an inner outline joined to the corners. */
@@ -727,6 +1131,19 @@ const tablet = (
   p.carve.lineTo(panelRight, panelTop);
   p.carve.lineTo(panelRight, panelBottom);
   p.carve.lineTo(panelLeft, panelBottom);
+  p.lit.moveTo(x - w / 2 + inset * 0.45, base - inset * 0.5);
+  p.lit.lineTo(x - w / 2 + inset * 0.45, top + r);
+  p.lit.bezierCurveTo(
+    x - w / 2 + inset * 0.45,
+    top + r * 0.35,
+    x - w * 0.27,
+    top + inset * 0.45,
+    x,
+    top + inset * 0.45,
+  );
+  p.lit.moveTo(panelLeft, panelBottom - inset * 0.3);
+  p.lit.lineTo(panelRight - inset * 0.3, panelBottom - inset * 0.3);
+  p.lit.lineTo(panelRight - inset * 0.3, panelTop);
   p.shadow.moveTo(panelLeft + inset * 0.35, panelBottom);
   p.shadow.lineTo(panelLeft + inset * 0.35, panelTop + inset * 0.35);
   p.shadow.lineTo(panelRight, panelTop + inset * 0.35);
@@ -745,11 +1162,16 @@ const tablet = (
     for (const part of GLYPHS[(i * 7 + 3) % GLYPHS.length]!) {
       p.carve.moveTo(gx + part[0]! * unit, gy + part[1]! * unit);
       p.shadow.moveTo(gx + part[0]! * unit + cut, gy + part[1]! * unit + cut);
+      p.lit.moveTo(gx + part[0]! * unit - cut, gy + part[1]! * unit - cut);
       for (let k = 2; k < part.length; k += 2) {
         p.carve.lineTo(gx + part[k]! * unit, gy + part[k + 1]! * unit);
         p.shadow.lineTo(
           gx + part[k]! * unit + cut,
           gy + part[k + 1]! * unit + cut,
+        );
+        p.lit.lineTo(
+          gx + part[k]! * unit - cut,
+          gy + part[k + 1]! * unit - cut,
         );
       }
     }
@@ -795,8 +1217,8 @@ const tablet = (
     for (let i = 0; i <= 36; i += 1) {
       const f = i / 36;
       right.push([
-        x + w / 2 + side * 0.5 + Math.sin(f * Math.PI * 3.5) * side * 0.45,
-        base - (base - top - r) * 0.85 * f,
+        x + w / 2 + dx * 0.5 + Math.sin(f * Math.PI * 3.5) * dx * 0.4,
+        base + dy * 0.5 * f - (base - top - r) * 0.85 * f,
       ]);
     }
     p.vines.push(right);
@@ -815,7 +1237,7 @@ const lengthsOf = (points: readonly Point[]): number[] => {
 const build = (spec: RuinSpec, box: Box, seed: number): Ruin => {
   const rng = random(seed);
   const unit = box.projection / spec.z;
-  const root = box.horizon + unit;
+  const root = box.horizon + unit - (spec.lift ?? 0) * unit;
   const x = spec.x * box.boxWidth;
   const h = spec.height * unit;
   const w = spec.width * unit;
@@ -828,11 +1250,21 @@ const build = (spec: RuinSpec, box: Box, seed: number): Ruin => {
     arch(p, x, root, h, w, spec.broken ?? false, rng, spec.vine ?? false);
   else if (spec.kind === 'wall') wall(p, x, root, h, w, rng);
   else if (spec.kind === 'block') block(p, x, root, h, w, rng);
+  else if (spec.kind === 'portico')
+    portico(p, x, root, h, w, rng, spec.vine ?? false);
+  else if (spec.kind === 'terrace') terrace(p, x, root, h, w, rng);
+  else if (spec.kind === 'tholos')
+    tholos(p, x, root, h, w, rng, spec.half ?? 'back');
+  else if (spec.kind === 'wallgate') wallgate(p, x, root, h, w, rng);
   else tablet(p, x, root, h, w, rng, spec.vine ?? false);
   const size = unit / box.referenceProjection;
   return {
-    z: spec.z,
+    z: spec.order ?? spec.z,
     x,
+    back: p.back,
+    deep: p.deep,
+    shade: p.shade,
+    lit: p.lit,
     outline: p.outline,
     carve: p.carve,
     hatch: p.hatch,
@@ -850,8 +1282,13 @@ const build = (spec: RuinSpec, box: Box, seed: number): Ruin => {
 };
 
 /* Narrow frames drop the ruins marked `wide`, so a phone is not a wall of stone. */
-export const buildRuins = (box: Box, narrow: boolean): Ruin[] =>
-  RUINS.map((spec, i) => ({ spec, i }))
+export const buildRuins = (
+  box: Box,
+  narrow: boolean,
+  specs: readonly RuinSpec[] = RUINS,
+): Ruin[] =>
+  specs
+    .map((spec, i) => ({ spec, i }))
     .filter(({ spec }) => !(narrow && spec.wide))
     .map(({ spec, i }) => build(spec, box, 9001 + i * 97))
     .sort((a, b) => b.z - a.z);
@@ -912,11 +1349,29 @@ const drawTuft = (
   ctx.stroke();
 };
 
-const growthAt = (seconds: number): number =>
-  Math.min(
-    1,
-    VINE_GROWTH.head + ((1 - VINE_GROWTH.head) * seconds) / VINE_GROWTH.seconds,
-  );
+/*
+ * One loop: the vines creep up, bud and flower, hold, fade, and grow again.
+ * `growth` is the share of each vine grown; `fade` dims it while it withers.
+ */
+const growthAt = (
+  seconds: number,
+): { growth: number; fade: number; since: number } => {
+  const { grow, hold, wither, rest, head } = VINE_GROWTH;
+  const cycle = grow + hold + wither + rest;
+  const t = ((seconds % cycle) + cycle) % cycle;
+  if (t < grow) {
+    const f = t / grow;
+    return {
+      growth: head + (1 - head) * (1 - (1 - f) * (1 - f)),
+      fade: 1,
+      since: t,
+    };
+  }
+  if (t < grow + hold) return { growth: 1, fade: 1, since: t };
+  if (t < grow + hold + wither)
+    return { growth: 1, fade: 1 - (t - grow - hold) / wither, since: t };
+  return { growth: head, fade: 0, since: 0 };
+};
 
 const drawVine = (
   ctx: CanvasRenderingContext2D,
@@ -927,10 +1382,20 @@ const drawVine = (
   seconds: number,
 ): void => {
   const total = vine.lengths[vine.lengths.length - 1] ?? 0;
-  const reach = total * growthAt(seconds);
-  const grownFor = (at: number): number =>
-    ((growthAt(seconds) - at / total) * VINE_GROWTH.seconds) /
-    (1 - VINE_GROWTH.head);
+  const { growth, fade, since } = growthAt(seconds);
+  if (fade <= 0) return;
+  const reach = total * growth;
+  /* Seconds since the tip passed `at`, from the inverse of the ease in `growthAt`. */
+  const grownFor = (at: number): number => {
+    const share = Math.max(
+      0,
+      (at / total - VINE_GROWTH.head) / (1 - VINE_GROWTH.head),
+    );
+    const reachedAt =
+      VINE_GROWTH.grow * (1 - Math.sqrt(Math.max(0, 1 - share)));
+    return since - reachedAt;
+  };
+  alpha *= fade;
   ctx.globalAlpha = alpha;
   ctx.strokeStyle = palette.border;
   ctx.lineWidth = lineWidth * 0.55;
@@ -952,14 +1417,14 @@ const drawVine = (
     const [bx, by] = vine.points[i]!;
     const dir = Math.atan2(by - ay, bx - ax);
     const side = index % 2 ? 1 : -1;
-    const opening = Math.min(1, grownFor(at) / 1.5);
+    const opening = Math.max(0, Math.min(1, grownFor(at) / VINE_BUD.swell));
     const isBud = index % VINE_BUD.every === VINE_BUD.every - 1;
     ctx.save();
     ctx.translate(bx, by);
     if (isBud) {
       const bloom = Math.max(
         0,
-        Math.min(1, (grownFor(at) - 1.5) / VINE_BUD.opens),
+        Math.min(1, (grownFor(at) - VINE_BUD.swell) / VINE_BUD.opens),
       );
       const bud = lineWidth * VINE_BUD.size;
       ctx.rotate(side * 0.4 + nod);
@@ -1002,15 +1467,31 @@ export const drawRuin = (
   seconds: number,
 ): void => {
   const { alpha, lineWidth } = ruin;
+  ctx.lineJoin = 'round';
+  ctx.lineCap = 'round';
+  ctx.globalAlpha = 1;
+  ctx.fillStyle = palette.background;
+  ctx.fill(ruin.back);
+  ctx.fillStyle = palette.veil;
+  ctx.fill(ruin.deep);
+  ctx.fill(ruin.deep);
+  ctx.strokeStyle = palette.border;
+  ctx.globalAlpha = alpha;
+  ctx.lineWidth = lineWidth * RUIN_LINE.outline;
+  ctx.stroke(ruin.back);
   ctx.globalAlpha = 1;
   ctx.fillStyle = palette.background;
   ctx.fill(ruin.outline);
-  ctx.lineJoin = 'round';
-  ctx.lineCap = 'round';
-  ctx.strokeStyle = palette.border;
+  ctx.fillStyle = palette.veil;
+  ctx.fill(ruin.shade);
 
   ctx.save();
   ctx.clip(ruin.outline);
+  ctx.globalAlpha = RUIN_LINE.litAlpha;
+  ctx.strokeStyle = palette.background;
+  ctx.lineWidth = lineWidth * RUIN_LINE.carve;
+  ctx.stroke(ruin.lit);
+  ctx.strokeStyle = palette.border;
   ctx.globalAlpha = alpha * RUIN_LINE.hatchAlpha;
   ctx.lineWidth = lineWidth * RUIN_LINE.hatch;
   ctx.stroke(ruin.hatch);
