@@ -59,21 +59,39 @@ const capturedEmailTexts = (): string[] =>
 const emailWith = (token: string): string | undefined =>
   capturedEmailTexts().find((text) => text.includes(token));
 
-const localD1 = (sql: string): string =>
-  execFileSync(
-    'npx',
-    [
-      'wrangler',
-      'd1',
-      'execute',
-      'MESSAGES_DB',
-      '--local',
-      '--json',
-      '--command',
-      sql,
-    ],
-    { encoding: 'utf8' },
-  );
+/*
+ * The preview's D1 object locks the file for milliseconds as it closes, 10 s
+ * after its last request, and workerd sets no busy timeout. Each retry starts
+ * a new wrangler process, which takes longer than the lock is held.
+ */
+const LOCAL_D1_ATTEMPTS = 3;
+
+const isBusy = (error: unknown): boolean =>
+  String((error as { stderr?: unknown }).stderr).includes('SQLITE_BUSY');
+
+const localD1 = (sql: string, attempt = 1): string => {
+  try {
+    return execFileSync(
+      'npx',
+      [
+        'wrangler',
+        'd1',
+        'execute',
+        'MESSAGES_DB',
+        '--local',
+        '--json',
+        '--command',
+        sql,
+      ],
+      { encoding: 'utf8' },
+    );
+  } catch (error) {
+    if (attempt < LOCAL_D1_ATTEMPTS && isBusy(error)) {
+      return localD1(sql, attempt + 1);
+    }
+    throw error;
+  }
+};
 
 interface WranglerConfig {
   send_email?: { name: string; allowed_sender_addresses?: string[] }[];
