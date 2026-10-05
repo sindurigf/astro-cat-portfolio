@@ -131,6 +131,13 @@
   --color-hero-ground: var(--color-gold);
 
   /*
+   * The canvas's petals, ink-rimmed so each flower reads at 3:1 or more: rim
+   * 6.59 on gold, 16.48 on white. Blush tints the centre of a few.
+   */
+  --color-hero-flower: var(--color-cat-mochi);
+  --color-hero-blush: var(--color-pink);
+
+  /*
    * The canvas's veil and floor, read by HeroField.vue. Ink, not border-blue,
    * because the field draws on gold. One setting with the near-plane blur in
    * hero-field-scene.ts: change them together.

@@ -17,8 +17,9 @@ current once the site is yours.
 AI-drawn art, all by Claude:
 
 - The animated About cats, labelled on `/about`.
-- The homepage hero's ruins, tablet glyphs and flowers (`src/lib/hero-field-ruins.ts`,
-  `src/lib/hero-field.ts`).
+- The homepage hero: the courtyard ruins, skylines, carved stone and its
+  invented script (`src/lib/hero-field-courtyard.ts`), the paving and
+  flowers (`src/lib/hero-field-ruins.ts`) and the weeds (`src/lib/hero-field.ts`).
 - The lying cat in the footer (`src/components/Footer.astro`).
 - The logo mark (`src/assets/mark-dark.png`, `artwork/mark-dark.svg`), shown in
   the header, the roundels and on `/about`.

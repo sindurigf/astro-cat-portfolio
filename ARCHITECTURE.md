@@ -609,9 +609,9 @@ evidence.
 - **Add a `BreadcrumbList` to the talk page:** pages outside `/blog` carry no
   breadcrumbs (`tests/breadcrumbs.spec.ts`); the link to the talk's post
   covers the way back.
-- **Name the numbers in `hero-field-ruins.ts`, and the bud and head ellipses
-  in `hero-field.ts`, as constants:** they are drawing coordinates, geometry
-  in each ruin's own units, not tuning values.
+- **Name the numbers in `hero-field-courtyard.ts` and `hero-field-ruins.ts`,
+  and the bud and head ellipses in `hero-field.ts`, as constants:** they are
+  drawing coordinates, geometry in each piece's own units, not tuning values.
 - **Move every `href` in page markup into `paths.ts`:** a route used by code
   (redirects, nav, sitemap, `llms.txt`) is a constant there; a link in prose
   stays markup, and `tests/internal-links.spec.ts` fails on a broken one.

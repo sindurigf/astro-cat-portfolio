@@ -26,10 +26,10 @@ export interface HeroPalette {
   readonly floor: string;
   /** `--color-hero-floor-edge`. */
   readonly floorEdge: string;
-  /** `--color-pink`: petals. */
+  /** `--color-hero-flower`: petals. */
   readonly flower: string;
-  /** A faint centre on a few petals; none when unset. */
-  readonly blush?: string;
+  /** `--color-hero-blush`: a faint centre on a few petals. */
+  readonly blush: string;
 }
 
 export interface HeroField {
@@ -65,7 +65,7 @@ export const BOTTOM_DEPTH = GROUND_SPAN / (1 - HORIZON_RATIO);
 
 /*
  * Floor on the aspect factor scaling the projection for narrow frames: lower
- * leaves a phone's sky empty, higher fills the screen with the tablet. Also the
+ * leaves a phone's sky empty, higher fills the screen with the ruins. Also the
  * nearest stem depth, since `z = projection / span`.
  */
 export const FIELD_OF_VIEW_FLOOR = 0.68;
@@ -75,8 +75,8 @@ export const FRONT_DEPTH = 1.55;
 /* Tuned with --color-hero-veil and --color-hero-floor in global.css. */
 export const NEAR_BLUR = 1.4;
 
-/* The tablet's depth: stems this near stand in front of its foot. */
-export const TABLET_DEPTH = 2.45;
+/* Where the back canvas ends and the middle one begins. */
+export const MID_DEPTH = 2.45;
 
 export interface Stem {
   readonly z: number;
@@ -102,17 +102,6 @@ export interface Stem {
   readonly petal: number;
 }
 
-/*
- * Counts at the reference width; `spread` is clump spread in reference units.
- * `TABLET` straddles the tablet's depth so weeds grow at its foot.
- * `NEAR.near` is set in `layout` from the aspect factor.
- */
-/** Clump centres at the reference width. */
-export const CLUMP_COUNT = 16;
-/** Share of stems placed anywhere, not in a clump. */
-export const STRAY_ODDS = 0.26;
-/** Reference units. */
-export const CLUMP_SPREAD = 140;
 /** The near band covers the left of the field only; reference units. */
 export const NEAR_BAND_LEFT = -140;
 export const NEAR_BAND_WIDTH = 245;
@@ -123,9 +112,6 @@ export const NEAR_VEIL = 0.72;
 
 export const BANDS = {
   FAR: { count: 69, near: 4.2, far: 62, height: [0.6, 0.75], spread: 150 },
-  GRASS: { count: 198, near: 9, far: 62, height: [0.2, 0.52], spread: 105 },
-  MIDDLE: { count: 45, near: 2.6, far: 4.2, height: [0.58, 0.72], spread: 190 },
-  TABLET: { count: 63, near: 1.7, far: 2.9, height: [0.34, 0.6], spread: 190 },
   NEAR: { count: 8, near: 0, far: 1.7, height: [0.78, 0.6], spread: 0 },
 } as const;
 
@@ -133,7 +119,7 @@ export const BANDS = {
  * Underdamped: a brushed stem leans past the breeze's sway and overshoots,
  * which is what reads as being brushed.
  */
-export const SPRING = { stiffness: 42, damping: 5, impulse: 9 } as const;
+export const SPRING = { stiffness: 42, damping: 5 } as const;
 
 /** Caps lean on a pathological dt. */
 export const LEAN_LIMIT_RATIO = 110 / REFERENCE_PROJECTION;
@@ -198,7 +184,7 @@ export const BUD_NOD = { lag: 0.5, amplitude: 0.16 } as const;
 /** Breeze sway in reference units: a base plus a share by stem size. */
 export const SWAY = { base: 3, bySize: 30 } as const;
 
-/* Large enough to see at rest, small enough not to compete with the tablet. */
+/* Large enough to see at rest, small enough not to compete with the stone. */
 export const WIND_FORCE = 30;
 export const WIND_WAVE = {
   rate: 0.0016,
@@ -234,91 +220,13 @@ export const FLOOR_HEIGHT = 230;
 /** Stems deeper than this are painted behind the veil. */
 export const VEIL_DEPTH = 7;
 
-export interface RuinSpec {
-  readonly kind:
-    | 'block'
-    | 'tower'
-    | 'stepped'
-    | 'tree'
-    | 'monolith'
-    | 'house'
-    | 'aqueduct'
-    | 'plaza'
-    | 'steps'
-    | 'fallen'
-    | 'rubble'
-    | 'column'
-    | 'colonnade'
-    | 'arch'
-    | 'wall'
-    | 'slab'
-    | 'sidewall'
-    | 'hill';
-  /** Share of the box width. */
-  readonly x: number;
-  readonly z: number;
-  /** Multiples of the apparent ground span at `z`, as stem heights are. */
-  readonly height: number;
-  readonly width: number;
-  readonly broken?: boolean;
-  /** Columns in a colonnade. */
-  readonly count?: number;
-  /** A vine climbs it, budding and flowering as it grows. */
-  readonly vine?: boolean;
-  /** Left out of frames narrower than `NARROW_ASPECT`. */
-  readonly wide?: boolean;
-  /** Raises the root, in the same units as `height`: the tablet on a terrace. */
-  readonly lift?: number;
-  /** A plaza's near depth; `z` is its far edge. */
-  readonly near?: number;
-  /** World units from the centre, instead of `x`: rows that converge on the vanishing point. */
-  readonly wx?: number;
-  /** A side wall's far depth; `z` is its near end. */
-  readonly far?: number;
-  /** Paint order by this depth instead of `z`, so parts built at one depth can interleave. */
-  readonly order?: number;
-}
-
-/** Width over height below which `wide` ruins are dropped. */
-export const NARROW_ASPECT = 1.1;
-
-/*
- * Stone uses the stems' stroke language: outline at `outline` of a stem's width,
- * carving at `carve`, weathering hatch at `hatch`, each with its own alpha share.
- */
+/* Paving joints: width as a share of a stem's, alpha share, lift and cap. */
 export const RUIN_LINE = {
-  outline: 1.1,
   carve: 0.62,
-  hatch: 0.42,
+  carveAlpha: 0.72,
   lift: 0.22,
   maxAlpha: 0.88,
-  carveAlpha: 0.72,
-  hatchAlpha: 0.16,
-  shadowAlpha: 0.5,
-  litAlpha: 0.9,
-  /** Stone fill strength per unit of line alpha; far ruins come out paler. */
-  stone: 1.6,
-  /** Depth beyond which ruins drop to `farShare` of their line strength. */
-  farFrom: 7,
-  farShare: 0.7,
-  lightAlpha: 0.22,
-  darkLift: 0.35,
-  moss: 0.55,
 } as const;
-
-/** Seconds per phase of the vines' loop; `head` is the share already grown at the start. */
-export const VINE_GROWTH = {
-  grow: 10,
-  hold: 9,
-  wither: 2.5,
-  rest: 1.5,
-  head: 0.04,
-} as const;
-/** Along a vine, in multiples of its stem width: leaf spacing and size, bud spacing. */
-export const VINE_LEAF = { every: 7, length: 5, width: 2.1 } as const;
-/** Seconds a bud takes to swell, then to open; `size` in stem widths. */
-export const VINE_BUD = { every: 3, swell: 1.2, opens: 2, size: 0.95 } as const;
-
 /** Share of stems tall enough for buds that carry a flower. */
 export const FLOWER_ODDS = 0.24;
 /** Seconds per bloom cycle; each flower starts at its own phase. */
@@ -343,5 +251,3 @@ export const SPARSE = {
 
 /** Phones and portrait frames: the scene is scaled up by this, which also lifts the horizon. */
 export const NARROW_ZOOM = 1.25;
-/** The city's layout seed: fixed, so it is the same on every load and screenshot. */
-export const CITY_SEED = 77;
