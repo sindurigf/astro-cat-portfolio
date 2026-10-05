@@ -2000,12 +2000,14 @@ export const drawPetals = (
   y: number,
   bud: number,
   open: number,
+  /** Vine flowers draw at full strength; stem flowers keep their stem's. */
+  opaque = false,
 ): void => {
   const grow = PETAL.closed + (1 - PETAL.closed) * open;
   const spread = PETAL.spread * bud * grow;
   const radius = Math.max(0.8, PETAL.radius * bud * grow);
   const saved = ctx.globalAlpha;
-  ctx.globalAlpha = Math.max(saved, PETAL.alpha);
+  if (opaque) ctx.globalAlpha = Math.max(saved, PETAL.alpha);
   ctx.fillStyle = palette.flower;
   ctx.beginPath();
   for (let k = 0; k < PETAL.count; k += 1) {
@@ -2151,7 +2153,7 @@ const drawVine = (
         );
         ctx.fill();
       } else {
-        drawPetals(ctx, palette, 0, 0, bud, bloom);
+        drawPetals(ctx, palette, 0, 0, bud, bloom, true);
       }
     } else {
       const length = lineWidth * VINE_LEAF.length * opening;

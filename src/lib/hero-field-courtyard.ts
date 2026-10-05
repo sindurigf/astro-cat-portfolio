@@ -698,9 +698,9 @@ const tier = (
     back.push(
       project(
         v,
-        Math.cos(a) * (radius + 0.6),
+        Math.cos(a) * (radius + 0.55),
         h,
-        zc - Math.sin(a) * (depth + 0.6),
+        zc - Math.sin(a) * (depth + 0.3),
       ),
     );
   }
@@ -938,12 +938,13 @@ const COMPOSITIONS: Record<string, (v: View) => Piece[]> = {
   amphitheatre: (v) => {
     const k = share(v, 4.2, 6);
     const pieces: Piece[] = [];
-    [
-      [4.8, 7.0, 1.6, 0, 0.7],
-      [5.6, 7.8, 2.0, 0.7, 1.4],
-      [6.4, 8.6, 2.4, 1.4, 2.1],
-      [7.2, 9.4, 2.8, 2.1, 2.8],
-    ].forEach(([r, zc, d, u0, u1], i) => {
+    Array.from({ length: 6 }, (_, i) => [
+      4.6 + 0.55 * i,
+      7.0 + 0.55 * i,
+      1.6 + 0.3 * i,
+      0.4 * i,
+      0.4 * (i + 1),
+    ]).forEach(([r, zc, d, u0, u1], i) => {
       pieces.push(
         tier(
           v,
@@ -952,15 +953,9 @@ const COMPOSITIONS: Record<string, (v: View) => Piece[]> = {
           d,
           u0,
           u1,
-          i === 1
-            ? [[0.62, 0.78]]
-            : i === 3
-              ? [
-                  [0.15, 0.32],
-                  [0.7, 0.8],
-                ]
-              : [],
-          i > 1 ? 0 : 1,
+          /* A collapsed section breaks through the upper tiers. */
+          i >= 2 ? [[0.62 - i * 0.01, 0.76 + i * 0.01]] : [],
+          i > 2 ? 0 : 1,
         ),
       );
     });
@@ -978,46 +973,47 @@ const COMPOSITIONS: Record<string, (v: View) => Piece[]> = {
   },
 
   temple: (v) => {
-    const k = share(v, 3.2, 6.5);
-    const z = 6.5;
-    const door = { cx: 0, half: 0.75 };
+    const k = share(v, 3.4, 7.5);
+    const z = 7.5;
+    const door = { cx: 0, half: 1.05, height: 3.6 };
     const cella = frontWall(
       v,
       z + 0.6,
-      -3.4 * k,
-      3.4 * k,
+      -3.6 * k,
+      3.6 * k,
       [
-        [-3.4 * k, 2.3],
-        [-1.2, 2.5],
-        [1.2, 2.4],
-        [3.4 * k, 1.6],
+        [-3.6 * k, 3.9],
+        [-1.4, 4.2],
+        [1.4, 4.1],
+        [2.4 * k, 3.0],
+        [3.6 * k, 2.2],
       ],
       0,
       3,
-      (x, up) => Math.abs(x - door.cx) < door.half && up < 1.9,
+      (x, up) => Math.abs(x - door.cx) < door.half && up < door.height,
     );
     (cella.stones as Stone[]).push({
       path: polygon([
         project(v, -door.half, 0, z + 0.6),
-        project(v, -door.half, 1.9, z + 0.6),
-        project(v, door.half, 1.9, z + 0.6),
+        project(v, -door.half, door.height, z + 0.6),
+        project(v, door.half, door.height, z + 0.6),
         project(v, door.half, 0, z + 0.6),
       ]),
       tone: 3,
     });
     const pieces: Piece[] = [cella];
-    const xs = [-2.6, -1.2, 1.2, 2.6].map((x) => x * k);
+    const xs = [-2.8, -1.4, 1.4, 2.8].map((x) => x * k);
     xs.forEach((x, i) =>
-      pieces.push(column(v, x, z, 2.6, i === 3, 1, i === 0 ? 3 : undefined)),
+      pieces.push(column(v, x, z, 4.4, i === 3, 1, i === 0 ? 3 : undefined)),
     );
     pieces.push(
-      lintel(v, xs[0]! - 0.4, xs[2]! + 0.4, z, 2.6, true, 1),
-      pediment(v, z, xs[0]! - 0.4, xs[2]! + 0.4, 2.9, 1.0),
+      lintel(v, xs[0]! - 0.4, xs[2]! + 0.4, z, 4.4, true, 1),
+      pediment(v, z, xs[0]! - 0.4, xs[2]! + 0.4, 4.7, 1.0),
     );
-    pieces.push(...steps(v, 0, 4.2, z - 0.1, 6.2 * k, 4, 0.12, 2));
+    pieces.push(...steps(v, 0, 4.4, z - 0.1, 6.6 * k, 4, 0.12, 2));
     pieces.push(
-      toppled(v, 3.0 * k, 4.6, 1.4),
-      ...heap(v, -3.4 * k, 4.4, 1.1),
+      toppled(v, 3.2 * k, 4.6, 1.4),
+      ...heap(v, -3.6 * k, 4.4, 1.1),
       ...foreground(v, 1),
     );
     return pieces;

@@ -151,7 +151,8 @@ const makeStem = (
     veil,
     lean: 0,
     leanRate: 0,
-    flower: rng() < FLOWER_ODDS,
+    /* Far stems are too faint to carry a visible flower; it would float. */
+    flower: rng() < FLOWER_ODDS && z < VEIL_DEPTH,
     curl: (rng() - 0.5) * heightRatio * (root - scene.horizon) * 0.35,
   };
 };
