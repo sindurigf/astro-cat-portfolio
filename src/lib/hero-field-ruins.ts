@@ -31,6 +31,9 @@ interface Tuft {
 
 interface Vine {
   readonly points: readonly Point[];
+  /** Leaves between buds, and bud size as a share of the default. */
+  readonly every?: number;
+  readonly size?: number;
   /** Cumulative length at each point. */
   readonly lengths: readonly number[];
 }
@@ -2117,7 +2120,8 @@ const drawVine = (
     const dir = Math.atan2(by - ay, bx - ax);
     const side = index % 2 ? 1 : -1;
     const opening = Math.max(0, Math.min(1, grownFor(at) / VINE_BUD.swell));
-    const isBud = index % VINE_BUD.every === VINE_BUD.every - 1;
+    const every = vine.every ?? VINE_BUD.every;
+    const isBud = index % every === every - 1;
     ctx.save();
     ctx.translate(bx, by);
     if (isBud) {
@@ -2125,7 +2129,12 @@ const drawVine = (
         0,
         Math.min(1, (grownFor(at) - VINE_BUD.swell) / VINE_BUD.opens),
       );
-      const bud = lineWidth * VINE_BUD.size;
+      /* Sizes vary bud to bud, so a vine is not a row of copies. */
+      const bud =
+        lineWidth *
+        VINE_BUD.size *
+        (vine.size ?? 1) *
+        (0.8 + ((index * 37) % 7) * 0.06);
       ctx.rotate(side * 0.4 + nod);
       ctx.translate(side * bud * 2.5, -bud * 2);
       if (bloom <= 0) {
@@ -2266,9 +2275,11 @@ export const pieceRuin = (piece: Piece, box: Box): Ruin => {
     shadow: empty,
     feet: piece.feet,
     tufts: [],
-    vines: piece.climbs.map((points) => ({
-      points,
-      lengths: lengthsOf(points),
+    vines: piece.climbs.map((c) => ({
+      points: c.points,
+      every: c.every,
+      size: c.size,
+      lengths: lengthsOf(c.points),
     })),
     lineWidth: STALK_WIDTH.min + size * STALK_WIDTH.bySize,
     alpha: 0.85,

@@ -8,6 +8,7 @@ import {
   CLUMP_SPREAD,
   NEAR_BAND_LEFT,
   NEAR_BAND_WIDTH,
+  NEAR_BAND_SHARE,
   NEAR_VEIL,
   STRAY_ODDS,
   BLOOM_PERIOD,
@@ -57,7 +58,7 @@ import {
   drawRuin,
   pieceRuin,
 } from './hero-field-ruins';
-import { courtyardPieces } from './hero-field-courtyard';
+import { scenePieces } from './hero-field-courtyard';
 import type { Ruin } from './hero-field-ruins';
 import type {
   HeroField,
@@ -183,7 +184,10 @@ const buildStems = (
       const z = near * Math.pow(spec.far / near, rng());
       const x = acrossFullWidth
         ? clumped(spec.spread)
-        : NEAR_BAND_LEFT * world + rng() * NEAR_BAND_WIDTH * world;
+        : Math.min(
+            NEAR_BAND_LEFT * world + rng() * NEAR_BAND_WIDTH * world,
+            scene.boxWidth * NEAR_BAND_SHARE,
+          );
       const height = spec.height[0] + rng() * spec.height[1];
       built.push(makeStem(scene, rng, z, x, height, veil));
     }
@@ -196,7 +200,8 @@ const buildStems = (
     band(BANDS.TABLET, 1, true);
   }
   /* Near stems stay at the left edge, veiled, so they never blur over type. */
-  band(BANDS.NEAR, NEAR_VEIL, false);
+  /* On a portrait frame the near stems would cross the centre; leave them out. */
+  if (scene.boxWidth > scene.boxHeight) band(BANDS.NEAR, NEAR_VEIL, false);
 
   return built.sort((a, b) => b.z - a.z);
 };
@@ -516,8 +521,8 @@ export interface FieldOptions {
   readonly narrowZoom?: number;
   /** The full weed field, at this share of its stems; 0 leaves only tufts at ruin feet. */
   readonly field?: number;
-  /** The authored courtyard instead of procedural ruins; `ruins` then adds to it (the slab). */
-  readonly courtyard?: boolean;
+  /** An authored composition (see `SCENE_NAMES`); `ruins` then adds to it (the slab). */
+  readonly scene?: string;
   /** Keep only the blurred near band of free stems; the rest grow from ruin feet. */
   readonly nearOnly?: boolean;
 }
@@ -549,7 +554,7 @@ export const createHeroField = (
         width / height < NARROW_ASPECT,
         specs,
       );
-      if (options.courtyard) {
+      if (options.scene) {
         const box = {
           boxWidth,
           horizon,
@@ -557,9 +562,11 @@ export const createHeroField = (
           referenceProjection: REFERENCE_PROJECTION,
         };
         state.ruins = [
-          ...courtyardPieces({ cx: boxWidth / 2, horizon, projection }).map(
-            (piece) => pieceRuin(piece, box),
-          ),
+          ...scenePieces(options.scene, {
+            cx: boxWidth / 2,
+            horizon,
+            projection,
+          }).map((piece) => pieceRuin(piece, box)),
           ...state.ruins,
         ].sort((a, b) => b.z - a.z);
       }

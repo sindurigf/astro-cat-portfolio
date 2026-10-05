@@ -112,6 +112,8 @@ export const CLUMP_SPREAD = 140;
 /** The near band covers the left of the field only; reference units. */
 export const NEAR_BAND_LEFT = -140;
 export const NEAR_BAND_WIDTH = 245;
+/** Near stems stay within this share of the frame from the left edge, clear of the centre. */
+export const NEAR_BAND_SHARE = 0.07;
 
 export const NEAR_VEIL = 0.72;
 
