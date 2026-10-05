@@ -12,7 +12,7 @@ import { satteri } from '@astrojs/markdown-satteri';
 import { linkListItem } from './src/plugins/link-list-item.mjs';
 import { codeBlock } from './src/plugins/code-block.mjs';
 import { postFigure } from './src/plugins/post-figure.mjs';
-import { WIDTHS } from './src/lib/image-densities.ts';
+import { MARKDOWN_WIDTHS } from './src/lib/image-densities.ts';
 import { cssColorToken } from './src/lib/css-token.ts';
 import { recordFingerprint } from './scripts/build-fingerprint.mjs';
 import { licenses } from './scripts/licenses.mjs';
@@ -111,7 +111,7 @@ export default defineConfig({
   ],
 
   /* Only images with a `layout` read this: those post-figure.mjs marks. */
-  image: { breakpoints: WIDTHS },
+  image: { breakpoints: MARKDOWN_WIDTHS },
 
   markdown: {
     /*

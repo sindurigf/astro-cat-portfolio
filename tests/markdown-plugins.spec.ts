@@ -96,6 +96,10 @@ const PHOTO = relative(
   dirname(fileURLToPath(POST_URL)),
   resolve('tests/fixtures/photo-4x3.png'),
 );
+const PORTRAIT_PHOTO = relative(
+  dirname(fileURLToPath(POST_URL)),
+  resolve('tests/fixtures/photo-3x4.png'),
+);
 
 test.describe('post-figure', NODE, () => {
   test('a captioned photo alone in its paragraph becomes a figure with a credit', async () => {
@@ -192,6 +196,41 @@ test.describe('post-figure', NODE, () => {
       caption.children!.some((c) => c.tagName === 'a'),
       'an unlisted source was linked',
     ).toBe(false);
+  });
+
+  test('an uncaptioned photo alone in a post paragraph still becomes a figure', async () => {
+    const img = el('img', [], { src: PHOTO, alt: 'Two friends' });
+    const root = el('root', [el('p', [img])]);
+    await postFigure().element.visit(img, contextFor(root, POST_URL));
+    const figure = root.children![0]!;
+    expect(figure.tagName).toBe('figure');
+    expect(
+      figure.children!.some((c) => c.tagName === 'figcaption'),
+      'an empty caption was added',
+    ).toBe(false);
+  });
+
+  test('a portrait figure is marked and sized to the measure, a landscape to the page', async () => {
+    const figureFor = async (src: string) => {
+      const img = el('img', [], { src, alt: 'x', title: 'Photo: Someone' });
+      const root = el('root', [el('p', [img])]);
+      await postFigure().element.visit(img, contextFor(root, POST_URL));
+      return root.children![0]!;
+    };
+    const sizesOf = (figure: Awaited<ReturnType<typeof figureFor>>) =>
+      String(figure.children![0]!.children![1]!.properties?.sizes);
+    const portrait = await figureFor(PORTRAIT_PHOTO);
+    const landscape = await figureFor(PHOTO);
+    expect(portrait.properties?.className).toEqual(['figure-portrait']);
+    expect(landscape.properties?.className).toBeUndefined();
+    expect(sizesOf(portrait), 'a portrait slot passes the measure').toContain(
+      '36rem)',
+    );
+    expect(sizesOf(portrait)).not.toContain('80rem');
+    expect(
+      sizesOf(landscape),
+      'a landscape slot stops at the measure',
+    ).toContain('80rem');
   });
 
   test('an image inside a sentence keeps its paragraph and its title', async () => {

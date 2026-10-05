@@ -97,6 +97,9 @@
   .post-layout {
     @apply grid gap-y-head;
 
+    /* The width a figure breaks out to (prose.css). */
+    container-type: inline-size;
+
     /*
      * `minmax(0, 1fr)`, not the implicit `auto`, so an unwrapped code block
      * cannot widen the track past the viewport (SC 1.4.10).

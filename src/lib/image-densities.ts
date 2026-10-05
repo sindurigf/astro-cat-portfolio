@@ -5,9 +5,12 @@ export const DENSITIES = [1, MAX_PIXEL_RATIO];
 
 /*
  * For fluid images. Steps stay within 1.5x, the oversize limit in
- * tests/image-size.spec.ts. Also used by src/plugins/post-figure.mjs.
+ * tests/image-size.spec.ts.
  */
 export const WIDTHS = [320, 480, 640, 960, 1280, 1536];
+
+/* Markdown images: a post figure is drawn up to 1231px wide, so 2x needs 2400. */
+export const MARKDOWN_WIDTHS = [...WIDTHS, 1920, 2400];
 
 /*
  * A hero photo's drawn width in a `.gold-column` slab: PageHero and a post

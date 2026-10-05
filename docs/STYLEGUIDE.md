@@ -791,8 +791,12 @@ Enforced by `tests/post-page.spec.ts`.
 - In rem, not `ch`: Firefox measures Lexend's `ch` wider than Chromium.
 - `text-reading-h1` stops at 70px so ACCESSIBILITY fits one line; never 64px
   or less (`text-h2`'s ceiling).
-- Post photo `sizes`: `min(calc(100vw - 3rem), 36rem)` from 640px,
-  `min(calc(100vw - 2rem), 36rem)` below.
+- Body figures break out of the measure; the text does not. A landscape
+  takes the page column, and from `xl` only the measure plus the track left of
+  it, clear of the contents rail. A portrait stays on the measure, centred.
+  Both stop at 80vh tall, uncropped, caption on the image's left edge.
+- Figure `sizes`, from `post-figure.mjs`: that slot, capped by the file's width
+  and by 80vh times its ratio. Markdown images take `MARKDOWN_WIDTHS`, to 2400.
 
 ### The opening
 
@@ -805,18 +809,18 @@ Enforced by `tests/post-page.spec.ts`.
 
 ### Rhythm inside `.prose`
 
-| Element     | Treatment                                                                                                    |
-| ----------- | ------------------------------------------------------------------------------------------------------------ |
-| Paragraph   | `mt-6`, `text-body` (18 to 19px, line height 1.62), `text`                                                   |
-| `h2`        | `mt-16`, `text-post-h2` (24 to 36px); its text follows at the next `mt-6`                                    |
-| `h3`        | `mt-12`, `text-post-h3` (19 to 24px). The last level                                                         |
-| Inline code | `.prose code`: the mono stack at `--text-code`, on a `surface` fill with `px-1` and no border                |
-| Code block  | `.prose pre`: mono, `border-4 border-border` on `surface`, `p-4`, scrolls sideways, a named tab stop         |
-| Lists       | `mt-6 pl-6`, items `mt-3`, gold markers; a link-only item is 24px tall                                       |
-| Blockquote  | `mt-6`, `border-l-8 border-gold`, `pl-6`, its text at weight 900                                             |
-| Table       | `mt-6`, `border-4`, fixed layout, cells `px-4 py-3`, headers on `surface`                                    |
-| Figure      | `mt-8`, an `.aspect-frame` sized by the file with a 4px `border` ring; caption `mt-4 text-label text-subtle` |
-| `hr`        | `mt-16`, an 8px `border` rule                                                                                |
+| Element     | Treatment                                                                                                                                               |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Paragraph   | `mt-6`, `text-body` (18 to 19px, line height 1.62), `text`                                                                                              |
+| `h2`        | `mt-16`, `text-post-h2` (24 to 36px); its text follows at the next `mt-6`                                                                               |
+| `h3`        | `mt-12`, `text-post-h3` (19 to 24px). The last level                                                                                                    |
+| Inline code | `.prose code`: the mono stack at `--text-code`, on a `surface` fill with `px-1` and no border                                                           |
+| Code block  | `.prose pre`: mono, `border-4 border-border` on `surface`, `p-4`, scrolls sideways, a named tab stop                                                    |
+| Lists       | `mt-6 pl-6`, items `mt-3`, gold markers; a link-only item is 24px tall                                                                                  |
+| Blockquote  | `mt-6`, `border-l-8 border-gold`, `pl-6`, its text at weight 900                                                                                        |
+| Table       | `mt-6`, `border-4`, fixed layout, cells `px-4 py-3`, headers on `surface`                                                                               |
+| Figure      | `mt-8`, wider than the text ([Measure](#measure)), an `.aspect-frame` sized by the file with a 4px `border` ring; caption `mt-4 text-label text-subtle` |
+| `hr`        | `mt-16`, an 8px `border` rule                                                                                                                           |
 
 - A heading sits 24px above its own text and 48 to 64px below the text before
   it.

@@ -120,6 +120,47 @@
   }
 
   /*
+   * A landscape post figure breaks out of the measure to `.post-layout`'s
+   * width; from `xl` only leftward, clear of the contents rail. Never cropped:
+   * a tall image stops at `--figure-max-height`, centred, caption on its edge.
+   */
+  .post-layout .prose figure {
+    /* FIGURE_MAX_HEIGHT_VH in src/plugins/post-figure.mjs. */
+    --figure-max-height: 80vh;
+    --figure-outdent: calc((100cqi - 100%) / 2);
+
+    display: grid;
+    grid-template-columns: fit-content(100%);
+    justify-content: center;
+    width: calc(100% + 2 * var(--figure-outdent));
+    margin-inline-start: calc(-1 * var(--figure-outdent));
+
+    @media (width >= 80rem) {
+      width: calc(100% + var(--figure-outdent));
+    }
+  }
+
+  /* Narrow: a portrait left of the text's centre reads as misplaced. */
+  .post-layout .prose figure.figure-portrait {
+    width: 100%;
+    margin-inline-start: 0;
+  }
+
+  /* `width` and `height` on the SVG give it a natural size, so both caps keep its ratio. */
+  .post-layout .prose figure .aspect-sizer {
+    width: auto;
+    height: auto;
+    max-width: 100%;
+    max-height: var(--figure-max-height);
+  }
+
+  /* As wide as the image, up to the measure. `width: 0` keeps it from widening the track. */
+  .post-layout .prose figcaption {
+    width: 0;
+    min-width: min(100%, var(--container-measure));
+  }
+
+  /*
    * `table-layout: fixed` keeps a table in the 273px box at 305px
    * (tests/reflow.spec.ts). `hyphens: auto` works here because cell text is not
    * uppercased.

@@ -380,8 +380,9 @@ in `wrangler.jsonc`).
 - `/about` photo boxes match their file's ratio (hence CSS-column masonry). No
   text over photos.
 - Markdown images: `post-figure.mjs` sets `layout: 'full-width'` so
-  `image.breakpoints` applies. An image alone in a paragraph with a title
-  becomes a `figure` with that `figcaption`.
+  `image.breakpoints` (`MARKDOWN_WIDTHS`) applies. An image alone in a post
+  paragraph becomes a `figure`, its title the `figcaption`; a portrait gets
+  `.figure-portrait`. `.post-layout` is the container a figure breaks out to.
 - Markdown images are WebP only: Markdown renders
   `<img>`, not `<Picture>`, so `PHOTO_FORMATS` (AVIF first) does not reach them.
 - Credits: `src/lib/credits.ts`, one link per photographer, keyed by the name
