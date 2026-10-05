@@ -540,7 +540,7 @@ The grid rule in `scripts/check-tokens.mjs` enforces the grid;
 - **A name with a line saying what it did** (`/credits`): each entry on an
   inset `bg-background` tile inside the card. No rule between entries.
 - **Photo captions:** none on People and places; the alt text names who is in
-  each photo. Where a photo carries a caption, it sits on an inset tile.
+  each photo. Where a photo carries a caption, it starts at the photo's left edge.
 - **Form fields:** an 8px edge. A failing field adds a 4px pink inset ring
   inside the pink 8px edge.
 
@@ -1096,9 +1096,11 @@ shows no alt text. Enforced by `tests/replaced-elements.spec.ts` and
 - Every photo sits in an `.aspect-frame` and fills it (`absolute inset-0
 size-full object-cover`). Never put `aspect-ratio` on the image: WebKit
   drops it, and the ratio from `width` and `height`, when the image fails.
-- A designed ratio is a class on the frame: `aspect-portrait` (4:5, hero),
-  `aspect-photo` (4:3, the placeholder box), `aspect-square`, `aspect-video` (16:9,
-  `lg:aspect-2/1` for the About panorama).
+- A designed ratio is a class on the frame, only where every file already has
+  it: `aspect-portrait` (4:5, hero photos), `aspect-photo` (4:3, the
+  placeholder box), `aspect-square` (square photos). Never a ratio that crops.
+- Two photos side by side are a `.photo-pair`: from `sm` flex shrinks them to
+  one height, each in its own ratio; below `sm` they stack.
 - A file's own ratio is an `.aspect-sizer`: an empty `aria-hidden` SVG whose
   viewBox is the file's width and height. PhotoTile reads it from image
   metadata; post photos get it at build time in `src/plugins/post-figure.mjs`.
