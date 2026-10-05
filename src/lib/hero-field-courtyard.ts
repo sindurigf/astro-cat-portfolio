@@ -1117,8 +1117,41 @@ const lowSides = (
 const bloom = (pieces: Piece | readonly Piece[], count: number): Piece[] =>
   (Array.isArray(pieces) ? pieces : [pieces]).map((piece: Piece) => ({
     ...piece,
-    feet: piece.feet.map(([x, z, span]) => [x, z, span, count] as const),
+    /* Loose clumps of four to six; `count` 1 is the sparsest. */
+    feet: piece.feet.map(
+      ([x, z, span]) => [x, z, span, Math.min(6, 3 + count)] as const,
+    ),
   }));
+
+/* Single stems in the floor's cracks toward the front, so the lower third is not bare. */
+const cracks = (v: View): Piece => {
+  const spots: readonly Point[] = [
+    [-3.1, 2.1],
+    [-1.6, 2.5],
+    [-0.4, 1.95],
+    [0.9, 2.3],
+    [2.2, 2.05],
+    [3.3, 2.6],
+  ];
+  return {
+    z: 1.9,
+    layer: 2,
+    stones: [],
+    outline: new Path2D(),
+    detail: new Path2D(),
+    cast: new Path2D(),
+    feet: spots.map(([x, z]) => {
+      const sx = x * share(v, 3.3, 2.1);
+      return [
+        project(v, sx, 0, z)[0],
+        z,
+        (0.05 * v.projection) / z,
+        1,
+      ] as const;
+    }),
+    climbs: [],
+  };
+};
 
 /* Extra feet ringing a block's base, so flowers circle it. */
 const ring = (
@@ -1281,6 +1314,7 @@ const COMPOSITIONS: Record<string, (v: View) => Piece[]> = {
   q1: (v) => {
     const k = share(v, 4.4, 2.6);
     return [
+      cracks(v),
       frontWall(v, 10, -6, 6, FALLEN_BACK, 0, 2),
       tower(v, 8.5, -3.6 * k, 1.3, 4.8, 0, 3),
       ...bloom(
@@ -1302,6 +1336,7 @@ const COMPOSITIONS: Record<string, (v: View) => Piece[]> = {
   q2: (v) => {
     const k = share(v, 4.4, 2.6);
     return [
+      cracks(v),
       frontWall(v, 10, -6, 6, mirror(FALLEN_BACK), 0, 5),
       tower(v, 8.5, 3.6 * k, 1.3, 4.8, 0, 6),
       ...bloom(
@@ -1326,6 +1361,7 @@ const COMPOSITIONS: Record<string, (v: View) => Piece[]> = {
     const px = 1.6 * k;
     const [block] = poneglyph(v, px, 3.5, 1.35, 1.25, false);
     return [
+      cracks(v),
       frontWall(v, 12, -7, 7, LOW_TOP, 0, 3),
       ...bloom(
         sideWall(
@@ -1370,6 +1406,7 @@ const COMPOSITIONS: Record<string, (v: View) => Piece[]> = {
   q4: (v) => {
     const k = share(v, 4.4, 2.6);
     return [
+      cracks(v),
       frontWall(v, 12, -7, 7, LOW_TOP, 0, 2),
       tower(v, 9, 2.8 * k, 1.4, 5.0, 0, 7),
       ...bloom(
@@ -1419,6 +1456,7 @@ const COMPOSITIONS: Record<string, (v: View) => Piece[]> = {
     const px = 1.5 * k;
     const blocks = poneglyph(v, px, 4.0, 1.7, 1.6, true);
     return [
+      cracks(v),
       frontWall(v, 12, -7, 7, LOW_TOP, 0, 4),
       tower(v, 10, -2.6 * k, 1.5, 5.4, 0, 2),
       ...bloom(
