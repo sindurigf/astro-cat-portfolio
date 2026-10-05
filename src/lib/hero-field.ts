@@ -154,7 +154,11 @@ interface Anchor {
 }
 
 /* Sparse: tufts at each ruin's foot at its own depth, a little far grass, clear ground between. */
-const buildSparse = (scene: Scene, anchors: readonly Anchor[]): Stem[] => {
+const buildSparse = (
+  scene: Scene,
+  anchors: readonly Anchor[],
+  perRuin: number,
+): Stem[] => {
   const rng = random(FIELD_SEED);
   const built: Stem[] = [];
   const density = scene.boxWidth / scene.world / REFERENCE_WIDTH;
@@ -169,7 +173,7 @@ const buildSparse = (scene: Scene, anchors: readonly Anchor[]): Stem[] => {
     );
   }
   for (const anchor of anchors) {
-    for (let i = 0; i < SPARSE.perRuin; i += 1) {
+    for (let i = 0; i < perRuin; i += 1) {
       const z = anchor.z * (SPARSE.front + rng() * SPARSE.depth);
       const side = rng() < 0.5 ? -1 : 1;
       const x = anchor.x + side * anchor.span * (0.55 + rng() * 0.6);
@@ -483,6 +487,8 @@ export interface FieldOptions {
   readonly ruins?: readonly RuinSpec[];
   /** Weeds only at the ruins' feet. */
   readonly sparse?: boolean;
+  /** Stems at each ruin's foot when sparse. */
+  readonly weeds?: number;
 }
 
 export const createHeroField = (
@@ -519,6 +525,7 @@ export const createHeroField = (
               z: spec.z,
               span: (spec.width * projection) / spec.z / 2,
             })),
+            options.weeds ?? SPARSE.perRuin,
           )
         : buildStems(
             state.scene,

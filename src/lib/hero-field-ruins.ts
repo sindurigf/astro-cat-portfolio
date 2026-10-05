@@ -38,6 +38,9 @@ export interface Ruin {
   readonly z: number;
   readonly x: number;
   readonly back: Path2D;
+  readonly dark: Path2D;
+  readonly light: Path2D;
+  readonly moss: Path2D;
   readonly deep: Path2D;
   readonly shade: Path2D;
   readonly lit: Path2D;
@@ -61,6 +64,12 @@ interface Box {
 interface Parts {
   /* Drawn first: hidden planes (a slab's crown and side) behind the front. */
   back: Path2D;
+  /** Filled with the line colour: a dark stone such as the monolith. */
+  dark: Path2D;
+  /** Filled with the ground at a low alpha: a lit plane on dark stone. */
+  light: Path2D;
+  /** Fine strokes in the bud colour: moss on stone tops, leaves in a canopy. */
+  moss: Path2D;
   deep: Path2D;
   shade: Path2D;
   lit: Path2D;
@@ -74,6 +83,9 @@ interface Parts {
 
 const parts = (): Parts => ({
   back: new Path2D(),
+  dark: new Path2D(),
+  light: new Path2D(),
+  moss: new Path2D(),
   deep: new Path2D(),
   shade: new Path2D(),
   lit: new Path2D(),
@@ -989,6 +1001,469 @@ const GLYPHS = [
   [[0, 2, 0, 0, 2, 0]],
 ] as const;
 
+/* Moss along a top edge: short fine strokes that droop over the lip. */
+const mossCap = (
+  p: Parts,
+  x0: number,
+  x1: number,
+  y: number,
+  size: number,
+  rng: () => number,
+): void => {
+  const step = Math.max(1.2, size * 0.18);
+  for (let x = x0; x < x1; x += step * (0.6 + rng() * 0.8)) {
+    const up = size * (0.15 + rng() * 0.35);
+    const lean = (rng() - 0.5) * size * 0.3;
+    p.moss.moveTo(x, y + size * 0.05);
+    p.moss.quadraticCurveTo(x + lean * 0.3, y - up * 0.6, x + lean, y - up);
+    if (rng() < 0.35) {
+      const drop = size * (0.3 + rng() * 0.7);
+      p.moss.moveTo(x, y);
+      p.moss.quadraticCurveTo(
+        x + size * 0.1,
+        y + drop * 0.5,
+        x + (rng() - 0.5) * size * 0.2,
+        y + drop,
+      );
+    }
+  }
+};
+
+/* A vine hanging from a lip, grown downward by the loop. */
+const hang = (
+  p: Parts,
+  x: number,
+  y: number,
+  length: number,
+  rng: () => number,
+): void => {
+  const pts: Point[] = [];
+  const sway = length * 0.08;
+  for (let i = 0; i <= 18; i += 1) {
+    const f = i / 18;
+    pts.push([x + Math.sin(f * Math.PI * 2.5 + rng()) * sway, y + length * f]);
+  }
+  p.vines.push(pts);
+};
+
+/* A stone block with a chipped top, moss on it, optional window opening. */
+const stone = (
+  p: Parts,
+  x: number,
+  bottom: number,
+  w: number,
+  h: number,
+  tilt: number,
+  rng: () => number,
+  window: boolean,
+): void => {
+  const c = Math.cos(tilt);
+  const s = Math.sin(tilt);
+  const at = (dx: number, dy: number): Point => [
+    x + dx * c - dy * s,
+    bottom + dx * s + dy * c,
+  ];
+  const corners: Point[] = [
+    at(-w / 2, 0),
+    at(-w / 2, -h),
+    at(w / 2, -h),
+    at(w / 2, 0),
+  ];
+  p.outline.moveTo(...corners[0]!);
+  p.outline.lineTo(...corners[1]!);
+  chipped(p.outline, corners[1]!, corners[2]!, rng, h * 0.12, 2);
+  p.outline.lineTo(...corners[3]!);
+  p.outline.closePath();
+  /* Carved bands and a chamfer line under the top. */
+  const band = at(-w / 2, -h * 0.82);
+  const bandEnd = at(w / 2, -h * 0.82);
+  p.carve.moveTo(...band);
+  p.carve.lineTo(...bandEnd);
+  if (window && w > h * 0.6) {
+    const ww = w * 0.22;
+    const wh = h * 0.42;
+    const wx = (rng() - 0.5) * w * 0.3;
+    const win = [
+      at(wx - ww / 2, -h * 0.18),
+      at(wx - ww / 2, -h * 0.18 - wh),
+      at(wx + ww / 2, -h * 0.18 - wh),
+      at(wx + ww / 2, -h * 0.18),
+    ];
+    p.dark.moveTo(...win[0]!);
+    win.slice(1).forEach((pt) => p.dark.lineTo(...pt));
+    p.dark.closePath();
+    p.carve.moveTo(...win[0]!);
+    win.slice(1).forEach((pt) => p.carve.lineTo(...pt));
+    p.carve.closePath();
+  } else {
+    for (let k = 1; k < 3; k += 1) {
+      const a = at(-w / 2 + (w * k) / 3, -h * 0.15);
+      const b = at(-w / 2 + (w * k) / 3, -h * 0.65);
+      p.carve.moveTo(...a);
+      p.carve.lineTo(...b);
+    }
+  }
+  const shadeA = at(w * 0.2, 0);
+  p.shade.moveTo(...shadeA);
+  [at(w * 0.2, -h), at(w / 2, -h), at(w / 2, 0)].forEach((pt) =>
+    p.shade.lineTo(...pt),
+  );
+  p.shade.closePath();
+  weather(p.hatch, x - w / 2, bottom - h, w, h, Math.max(1.6, h * 0.12), rng);
+  if (rng() < 0.5)
+    crack(p.carve, x + (rng() - 0.5) * w * 0.5, bottom - h * 0.9, h * 0.6, rng);
+  const [tx, ty] = at(-w / 2, -h);
+  mossCap(p, tx, tx + w * c, ty + (w * s) / 2, Math.max(3, h * 0.35), rng);
+};
+
+/* Stacked carved blocks, narrowing and leaning as they rise, a vine hanging off one lip. */
+const tower = (
+  p: Parts,
+  x: number,
+  root: number,
+  h: number,
+  w: number,
+  rng: () => number,
+  broken: boolean,
+): void => {
+  const count = 3 + Math.floor(rng() * 2);
+  let y = root;
+  let cx = x;
+  for (let i = 0; i < count; i += 1) {
+    const bh = (h / count) * (0.85 + rng() * 0.3);
+    const bw = w * (1 - i * 0.12) * (0.9 + rng() * 0.15);
+    const tilt = (rng() - 0.5) * (broken ? 0.12 : 0.05);
+    stone(p, cx, y, bw, bh, tilt, rng, i < count - 1 || !broken);
+    if (i === 1) hang(p, cx + bw * 0.4, y - bh, h * 0.45, rng);
+    y -= bh * Math.cos(tilt);
+    cx += (rng() - 0.5) * w * 0.12;
+  }
+  tuft(p, x - w * 0.55, root, w * 0.5, rng);
+  tuft(p, x + w * 0.5, root, w * 0.4, rng);
+};
+
+/* A stepped structure: terraces narrowing upward, a stair up the middle, moss on every step. */
+const stepped = (
+  p: Parts,
+  x: number,
+  root: number,
+  h: number,
+  w: number,
+  rng: () => number,
+): void => {
+  const levels = 4;
+  const lh = h / levels;
+  for (let i = 0; i < levels; i += 1) {
+    const lw = w * (1 - i * 0.2);
+    const bottom = root - lh * i;
+    p.outline.moveTo(x - lw / 2, bottom);
+    p.outline.lineTo(x - lw / 2, bottom - lh);
+    chipped(
+      p.outline,
+      [x - lw / 2, bottom - lh],
+      [x + lw / 2, bottom - lh],
+      rng,
+      lh * 0.15,
+      2,
+    );
+    p.outline.lineTo(x + lw / 2, bottom);
+    p.outline.closePath();
+    for (let k = 1; k < 3; k += 1) {
+      p.carve.moveTo(x - lw / 2, bottom - (lh * k) / 3);
+      p.carve.lineTo(x + lw / 2, bottom - (lh * k) / 3);
+    }
+    for (let bx = x - lw / 2 + lw * 0.08; bx < x + lw / 2; bx += lw * 0.12) {
+      p.carve.moveTo(bx + (i % 2 ? lw * 0.04 : 0), bottom);
+      p.carve.lineTo(bx + (i % 2 ? lw * 0.04 : 0), bottom - lh / 3);
+    }
+    p.shade.rect(x + lw * 0.3, bottom - lh, lw * 0.2, lh);
+    mossCap(p, x - lw / 2, x + lw / 2, bottom - lh, lh * 0.4, rng);
+    if (i === 1) hang(p, x - lw * 0.42, bottom - lh, lh * 1.4, rng);
+    if (i === 2) hang(p, x + lw * 0.38, bottom - lh, lh * 1.1, rng);
+  }
+  /* The stair: risers up the front, a shrine block on top with an opening. */
+  const sw = w * 0.14;
+  for (let i = 0; i < levels * 3; i += 1) {
+    const y = root - (h / (levels * 3)) * i;
+    p.lit.moveTo(x - sw / 2, y);
+    p.lit.lineTo(x + sw / 2, y);
+    p.carve.moveTo(x - sw / 2, y);
+    p.carve.lineTo(x + sw / 2, y);
+  }
+  p.carve.moveTo(x - sw / 2, root);
+  p.carve.lineTo(x - sw / 2, root - h);
+  p.carve.moveTo(x + sw / 2, root);
+  p.carve.lineTo(x + sw / 2, root - h);
+  stone(p, x, root - h, w * 0.28, lh * 1.2, 0, rng, true);
+  weather(p.hatch, x - w / 2, root - h, w, h, Math.max(1.6, lh * 0.15), rng);
+};
+
+/* Post and lintel: two posts with banded capitals; the lintel sits on them or lies fallen. */
+const trilithon = (
+  p: Parts,
+  x: number,
+  root: number,
+  h: number,
+  w: number,
+  rng: () => number,
+  fallen: boolean,
+): void => {
+  const pw = w * 0.2;
+  const posts = [x - w * 0.36, x + w * 0.36];
+  const lintel = h * 0.16;
+  posts.forEach((px, i) => {
+    const ph = fallen && i === 1 ? h * 0.55 : h - lintel;
+    p.outline.moveTo(px - pw / 2, root);
+    p.outline.lineTo(px - pw * 0.46, root - ph);
+    p.outline.lineTo(px - pw * 0.62, root - ph - pw * 0.1);
+    p.outline.lineTo(px - pw * 0.62, root - ph - pw * 0.32);
+    chipped(
+      p.outline,
+      [px - pw * 0.62, root - ph - pw * 0.32],
+      [px + pw * 0.62, root - ph - pw * 0.32],
+      rng,
+      pw * 0.1,
+      1,
+    );
+    p.outline.lineTo(px + pw * 0.62, root - ph - pw * 0.1);
+    p.outline.lineTo(px + pw * 0.46, root - ph);
+    p.outline.lineTo(px + pw / 2, root);
+    p.outline.closePath();
+    for (const b of [0.06, 0.12]) {
+      p.carve.moveTo(px - pw * 0.48, root - ph + ph * b);
+      p.carve.lineTo(px + pw * 0.48, root - ph + ph * b);
+    }
+    p.shade.rect(px + pw * 0.1, root - ph, pw * 0.4, ph);
+    crack(p.carve, px - pw * 0.1, root - ph * 0.7, ph * 0.3, rng);
+    weather(
+      p.hatch,
+      px - pw / 2,
+      root - ph,
+      pw,
+      ph,
+      Math.max(1.6, pw * 0.15),
+      rng,
+    );
+    tuft(p, px - pw * 0.6, root, pw * 1.2, rng);
+    if (!(fallen && i === 1))
+      mossCap(
+        p,
+        px - pw * 0.62,
+        px + pw * 0.62,
+        root - ph - pw * 0.32,
+        pw * 0.5,
+        rng,
+      );
+  });
+  if (fallen) {
+    /* The lintel slid off the broken post and leans to the ground. */
+    const a = -0.38;
+    stone(p, x + w * 0.05, root, w * 1.0, lintel, a, rng, false);
+  } else {
+    const top = root - h;
+    stone(p, x, top + lintel + w * 0.04, w * 1.08, lintel, 0, rng, false);
+    hang(p, x + w * 0.2, top + lintel, h * 0.35, rng);
+  }
+};
+
+/* A small tree or shrub rooted in the stones: a crooked trunk and scalloped canopy. */
+const tree = (
+  p: Parts,
+  x: number,
+  root: number,
+  h: number,
+  w: number,
+  rng: () => number,
+): void => {
+  const lean = (rng() - 0.5) * w * 0.3;
+  const trunk = w * 0.045;
+  p.outline.moveTo(x - trunk, root);
+  p.outline.quadraticCurveTo(
+    x - trunk + lean * 0.5,
+    root - h * 0.4,
+    x - trunk * 0.6 + lean,
+    root - h * 0.6,
+  );
+  p.outline.lineTo(x + trunk * 0.6 + lean, root - h * 0.6);
+  p.outline.quadraticCurveTo(
+    x + trunk + lean * 0.5,
+    root - h * 0.4,
+    x + trunk,
+    root,
+  );
+  p.outline.closePath();
+  const cx = x + lean;
+  const cy = root - h * 0.72;
+  /* One scalloped canopy outline, leaves as fine strokes inside it. */
+  const lobes = 9;
+  const rx = w * 0.46;
+  const ry = h * 0.3;
+  const rim = (k: number): Point => {
+    const a = (k / lobes) * Math.PI * 2;
+    const wobble = 0.85 + ((k * 7) % 5) * 0.05;
+    return [cx + Math.cos(a) * rx * wobble, cy + Math.sin(a) * ry * wobble];
+  };
+  p.outline.moveTo(...rim(0));
+  for (let k = 0; k < lobes; k += 1) {
+    const [ax, ay] = rim(k);
+    const [bx, by] = rim(k + 1);
+    const mid = ((k + 0.5) / lobes) * Math.PI * 2;
+    const bulge = 1.28;
+    p.outline.quadraticCurveTo(
+      cx + Math.cos(mid) * rx * bulge,
+      cy + Math.sin(mid) * ry * bulge,
+      bx,
+      by,
+    );
+    void ax;
+    void ay;
+  }
+  p.outline.closePath();
+  for (let k = 0; k < 70; k += 1) {
+    const a = rng() * Math.PI * 2;
+    const d = Math.sqrt(rng()) * 0.9;
+    const lx = cx + Math.cos(a) * rx * d;
+    const ly = cy + Math.sin(a) * ry * d;
+    const len = rx * 0.14;
+    p.moss.moveTo(lx, ly);
+    p.moss.quadraticCurveTo(
+      lx + len * 0.5,
+      ly - len * 0.4,
+      lx + len,
+      ly - len * 0.1,
+    );
+  }
+  p.shade.ellipse(
+    cx + rx * 0.25,
+    cy + ry * 0.35,
+    rx * 0.7,
+    ry * 0.55,
+    0,
+    0,
+    Math.PI * 2,
+  );
+  /* Bark, and a fork into the canopy. */
+  p.carve.moveTo(x - trunk * 0.3, root - h * 0.05);
+  p.carve.quadraticCurveTo(
+    x + lean * 0.3,
+    root - h * 0.3,
+    x + lean * 0.9 - trunk * 0.2,
+    root - h * 0.58,
+  );
+  p.outline.moveTo(x + lean * 0.95, root - h * 0.6);
+  p.outline.lineTo(x + lean * 0.95 - w * 0.2, root - h * 0.78);
+  p.outline.lineTo(x + lean * 0.95 - w * 0.18, root - h * 0.8);
+  p.outline.lineTo(x + lean * 0.95 + trunk * 0.3, root - h * 0.64);
+  p.outline.closePath();
+  p.carve.moveTo(x + lean * 0.6, root - h * 0.55);
+  p.carve.lineTo(x + lean * 0.6 - w * 0.12, root - h * 0.7);
+  p.carve.moveTo(x + lean * 0.7, root - h * 0.6);
+  p.carve.lineTo(x + lean * 0.7 + w * 0.14, root - h * 0.74);
+};
+
+/* The monolith: a near-cube of dark stone; the face carved, the crown lit, moss on top. */
+const monolith = (
+  p: Parts,
+  x: number,
+  root: number,
+  h: number,
+  w: number,
+  rng: () => number,
+  vine: boolean,
+): void => {
+  const depth = w * 0.24;
+  const dx = depth;
+  const dy = -depth * 0.5;
+  const left = x - w / 2;
+  const right = x + w / 2;
+  const top = root - h;
+  const front: Point[] = [
+    [left, root],
+    [left, top],
+    [right, top],
+    [right, root],
+  ];
+  const crown: Point[] = [
+    [left, top],
+    [left + dx, top + dy],
+    [right + dx, top + dy],
+    [right, top],
+  ];
+  const side: Point[] = [
+    [right, top],
+    [right + dx, top + dy],
+    [right + dx, root + dy],
+    [right, root],
+  ];
+  for (const face of [front, crown, side]) {
+    p.outline.moveTo(...face[0]!);
+    face.slice(1).forEach((pt) => p.outline.lineTo(...pt));
+    p.outline.closePath();
+    p.dark.moveTo(...face[0]!);
+    face.slice(1).forEach((pt) => p.dark.lineTo(...pt));
+    p.dark.closePath();
+  }
+  p.light.moveTo(...crown[0]!);
+  crown.slice(1).forEach((pt) => p.light.lineTo(...pt));
+  p.light.closePath();
+  p.deep.moveTo(...side[0]!);
+  side.slice(1).forEach((pt) => p.deep.lineTo(...pt));
+  p.deep.closePath();
+  /* Chipped edges catch the light. */
+  p.lit.moveTo(left + w * 0.02, root - h * 0.05);
+  p.lit.lineTo(left + w * 0.02, top + h * 0.02);
+  p.lit.lineTo(right - w * 0.02, top + h * 0.02);
+  for (const [cx, cy] of [
+    [left + w * 0.7, top],
+    [right, top + h * 0.3],
+    [left, top + h * 0.55],
+  ] as const) {
+    p.lit.moveTo(cx - w * 0.03, cy);
+    p.lit.lineTo(cx, cy + w * 0.03);
+    p.lit.lineTo(cx + w * 0.03, cy);
+  }
+  /* Glyph rows: a light cut edge with a dark inner shadow. */
+  const cols = 6;
+  const rows = 7;
+  const padX = w * 0.11;
+  const padY = h * 0.1;
+  const cell = (w - padX * 2) / cols;
+  const pitch = (h - padY * 2) / rows;
+  const glyph = Math.min(cell, pitch) * 0.6;
+  const unit = glyph / 2;
+  const cut = Math.max(0.6, glyph * 0.08);
+  for (let i = 0; i < cols * rows; i += 1) {
+    if (i % 13 === 9) continue;
+    const gx = left + padX + (i % cols) * cell + (cell - glyph) / 2;
+    const gy = top + padY + Math.floor(i / cols) * pitch + (pitch - glyph) / 2;
+    for (const part of GLYPHS[(i * 5 + 1) % GLYPHS.length]!) {
+      p.lit.moveTo(gx + part[0]! * unit + cut, gy + part[1]! * unit + cut);
+      for (let k = 2; k < part.length; k += 2)
+        p.lit.lineTo(
+          gx + part[k]! * unit + cut,
+          gy + part[k + 1]! * unit + cut,
+        );
+    }
+  }
+  crack(p.lit, left + w * 0.72, top + h * 0.02, h * 0.35, rng);
+  mossCap(p, left, right + dx, top + dy * 0.5, Math.max(3, w * 0.09), rng);
+  tuft(p, left - w * 0.04, root, h * 0.18, rng);
+  tuft(p, right + dx * 0.8, root + dy, h * 0.14, rng);
+  if (vine) {
+    const climb: Point[] = [];
+    for (let i = 0; i <= 40; i += 1) {
+      const f = i / 40;
+      climb.push([
+        left + w * 0.04 + Math.sin(f * Math.PI * 4) * w * 0.04,
+        root - h * 0.98 * f,
+      ]);
+    }
+    p.vines.push(climb);
+    hang(p, right + dx * 0.5, top + dy * 0.5, h * 0.55, rng);
+    hang(p, left + w * 0.55, top, h * 0.3, rng);
+  }
+};
+
 const tablet = (
   p: Parts,
   x: number,
@@ -1256,12 +1731,23 @@ const build = (spec: RuinSpec, box: Box, seed: number): Ruin => {
   else if (spec.kind === 'tholos')
     tholos(p, x, root, h, w, rng, spec.half ?? 'back');
   else if (spec.kind === 'wallgate') wallgate(p, x, root, h, w, rng);
+  else if (spec.kind === 'tower')
+    tower(p, x, root, h, w, rng, spec.broken ?? false);
+  else if (spec.kind === 'stepped') stepped(p, x, root, h, w, rng);
+  else if (spec.kind === 'trilithon')
+    trilithon(p, x, root, h, w, rng, spec.broken ?? false);
+  else if (spec.kind === 'tree') tree(p, x, root, h, w, rng);
+  else if (spec.kind === 'monolith')
+    monolith(p, x, root, h, w, rng, spec.vine ?? false);
   else tablet(p, x, root, h, w, rng, spec.vine ?? false);
   const size = unit / box.referenceProjection;
   return {
     z: spec.order ?? spec.z,
     x,
     back: p.back,
+    dark: p.dark,
+    light: p.light,
+    moss: p.moss,
     deep: p.deep,
     shade: p.shade,
     lit: p.lit,
@@ -1482,6 +1968,13 @@ export const drawRuin = (
   ctx.globalAlpha = 1;
   ctx.fillStyle = palette.background;
   ctx.fill(ruin.outline);
+  ctx.globalAlpha = Math.min(1, alpha + RUIN_LINE.darkLift);
+  ctx.fillStyle = palette.border;
+  ctx.fill(ruin.dark);
+  ctx.globalAlpha = RUIN_LINE.lightAlpha;
+  ctx.fillStyle = palette.background;
+  ctx.fill(ruin.light);
+  ctx.globalAlpha = 1;
   ctx.fillStyle = palette.veil;
   ctx.fill(ruin.shade);
 
@@ -1509,6 +2002,11 @@ export const drawRuin = (
   ctx.lineWidth = lineWidth * RUIN_LINE.outline;
   ctx.stroke(ruin.outline);
 
+  ctx.globalAlpha = Math.min(1, alpha * 1.1);
+  ctx.strokeStyle = palette.bud;
+  ctx.lineWidth = lineWidth * RUIN_LINE.moss;
+  ctx.stroke(ruin.moss);
+  ctx.strokeStyle = palette.border;
   ctx.globalAlpha = alpha * 0.9;
   for (const tuft of ruin.tufts) drawTuft(ctx, tuft, lineWidth, seconds);
   for (const vine of ruin.vines)

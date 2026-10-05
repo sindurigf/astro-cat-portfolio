@@ -237,7 +237,12 @@ export interface RuinSpec {
     | 'portico'
     | 'terrace'
     | 'tholos'
-    | 'wallgate';
+    | 'wallgate'
+    | 'tower'
+    | 'stepped'
+    | 'trilithon'
+    | 'tree'
+    | 'monolith';
   /** Share of the box width. */
   readonly x: number;
   readonly z: number;
@@ -346,6 +351,9 @@ export const RUIN_LINE = {
   hatchAlpha: 0.32,
   shadowAlpha: 0.5,
   litAlpha: 0.9,
+  lightAlpha: 0.22,
+  darkLift: 0.35,
+  moss: 0.55,
 } as const;
 
 /** Seconds per phase of the vines' loop; `head` is the share already grown at the start. */
