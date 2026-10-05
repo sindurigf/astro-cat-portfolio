@@ -4,6 +4,13 @@
  */
 import {
   BANDS,
+  CLUMP_COUNT,
+  CLUMP_SPREAD,
+  NEAR_BAND_LEFT,
+  NEAR_BAND_WIDTH,
+  NEAR_BAND_SHARE,
+  NEAR_VEIL,
+  STRAY_ODDS,
   BLOOM_PERIOD,
   BOTTOM_DEPTH,
   BUD_ALPHA,
@@ -13,14 +20,9 @@ import {
   BUD_START,
   BUD_TIERS,
   BUD_TONE,
-  CLUMP_COUNT,
-  CLUMP_SPREAD,
   FLOWER_ODDS,
   NARROW_ASPECT,
-  NEAR_BAND_LEFT,
-  NEAR_BAND_WIDTH,
   STEM_CURVE,
-  STRAY_ODDS,
   SWAY,
   TABLET_DEPTH,
   WIND_FORCE,
@@ -32,12 +34,13 @@ import {
   GROUND_SPAN,
   LEAN_LIMIT_RATIO,
   NEAR_BLUR,
-  NEAR_VEIL,
   REFERENCE_ASPECT,
   REFERENCE_HEIGHT,
   REFERENCE_PROJECTION,
   REFERENCE_WIDTH,
-  RUINS,
+  CITY_SEED,
+  NARROW_ZOOM,
+  SPARSE,
   SPRING,
   STALK_WIDTH,
   STEM_ALPHA,
@@ -48,9 +51,21 @@ import {
   random,
   stemPoint,
 } from './hero-field-scene';
-import { buildRuins, drawPetals, drawRuin } from './hero-field-ruins';
+import { cityRuins } from './hero-field-city';
+import {
+  buildRuins,
+  drawPetals,
+  drawRuin,
+  pieceRuin,
+} from './hero-field-ruins';
+import { scenePieces } from './hero-field-courtyard';
 import type { Ruin } from './hero-field-ruins';
-import type { HeroField, HeroPalette, Stem } from './hero-field-scene';
+import type {
+  HeroField,
+  HeroPalette,
+  RuinSpec,
+  Stem,
+} from './hero-field-scene';
 
 interface Scene {
   readonly boxWidth: number;
@@ -74,12 +89,13 @@ interface FieldState {
 const groundAt = (scene: Scene, z: number): number =>
   scene.horizon + scene.projection / z;
 
-const sceneFor = (width: number, height: number): Scene => {
+const sceneFor = (width: number, height: number, zoom = 1): Scene => {
   const boxWidth = Math.max(1, width);
   const boxHeight = Math.max(1, height);
   const aspect = Math.min(1, boxWidth / boxHeight / REFERENCE_ASPECT);
   const view = Math.max(FIELD_OF_VIEW_FLOOR, aspect);
-  const projection = GROUND_SPAN * boxHeight * view;
+  const projection =
+    GROUND_SPAN * boxHeight * view * (boxWidth < boxHeight ? zoom : 1);
   const horizon = boxHeight - projection / BOTTOM_DEPTH;
   return {
     boxWidth,
@@ -121,6 +137,8 @@ const makeStem = (
   x: number,
   heightRatio: number,
   veil: number,
+  flowerOdds = FLOWER_ODDS,
+  petal = 1,
 ): Stem => {
   const root = groundAt(scene, z);
   return {
@@ -135,12 +153,21 @@ const makeStem = (
     veil,
     lean: 0,
     leanRate: 0,
-    flower: rng() < FLOWER_ODDS,
+    /* Far stems are too faint to carry a visible flower; it would float. */
+    /* Neither far stems nor the blurred near layer flower: both would read as loose marks. */
+    flower: rng() < flowerOdds && z < VEIL_DEPTH && z >= FRONT_DEPTH,
+    curl: (rng() - 0.5) * heightRatio * (root - scene.horizon) * 0.35,
+    petal,
   };
 };
 
 /* Density is per scene width, not pixels: a stepped-back camera shows more. */
-const buildStems = (scene: Scene, anchors: readonly number[]): Stem[] => {
+const buildStems = (
+  scene: Scene,
+  anchors: readonly number[],
+  fieldDensity = 1,
+  nearOnly = false,
+): Stem[] => {
   const { world, view } = scene;
   const density = scene.boxWidth / world / REFERENCE_WIDTH;
   const rng = random(FIELD_SEED);
@@ -154,26 +181,76 @@ const buildStems = (scene: Scene, anchors: readonly number[]): Stem[] => {
   const built: Stem[] = [];
 
   const band = (spec: Band, veil: number, acrossFullWidth: boolean): void => {
-    const count = Math.max(2, Math.round(spec.count * density));
+    const count = Math.max(2, Math.round(spec.count * density * fieldDensity));
     for (let i = 0; i < count; i += 1) {
       /* Log-uniform in distance; uniform piles stems up at the horizon. */
       const near = spec.near || view;
       const z = near * Math.pow(spec.far / near, rng());
       const x = acrossFullWidth
         ? clumped(spec.spread)
-        : NEAR_BAND_LEFT * world + rng() * NEAR_BAND_WIDTH * world;
+        : Math.min(
+            NEAR_BAND_LEFT * world + rng() * NEAR_BAND_WIDTH * world,
+            scene.boxWidth * NEAR_BAND_SHARE,
+          );
       const height = spec.height[0] + rng() * spec.height[1];
       built.push(makeStem(scene, rng, z, x, height, veil));
     }
   };
 
-  band(BANDS.FAR, 1, true);
-  band(BANDS.GRASS, 1, true);
-  band(BANDS.MIDDLE, 1, true);
-  band(BANDS.TABLET, 1, true);
+  if (!nearOnly) {
+    band(BANDS.FAR, 1, true);
+    band(BANDS.GRASS, 1, true);
+    band(BANDS.MIDDLE, 1, true);
+    band(BANDS.TABLET, 1, true);
+  }
   /* Near stems stay at the left edge, veiled, so they never blur over type. */
-  band(BANDS.NEAR, NEAR_VEIL, false);
+  /* On a portrait frame the near stems would cross the centre; leave them out. */
+  if (scene.boxWidth > scene.boxHeight) band(BANDS.NEAR, NEAR_VEIL, false);
 
+  return built.sort((a, b) => b.z - a.z);
+};
+
+interface Anchor {
+  readonly x: number;
+  readonly z: number;
+  /** Half the ruin's apparent width, CSS pixels. */
+  readonly span: number;
+  /** Stems at this foot, overriding the per-ruin default. */
+  readonly count?: number;
+}
+
+/* Sparse: tufts at each ruin's foot at its own depth, a little far grass, clear ground between. */
+const buildSparse = (
+  scene: Scene,
+  anchors: readonly Anchor[],
+  perRuin: number,
+  flowerOdds = FLOWER_ODDS,
+  petal = 1,
+  weedShare = 1,
+): Stem[] => {
+  const rng = random(FIELD_SEED);
+  const built: Stem[] = [];
+  const density = scene.boxWidth / scene.world / REFERENCE_WIDTH;
+  for (
+    let i = 0;
+    i < Math.round(BANDS.FAR.count * density * SPARSE.far);
+    i += 1
+  ) {
+    const z = BANDS.FAR.near * Math.pow(BANDS.FAR.far / BANDS.FAR.near, rng());
+    built.push(
+      makeStem(scene, rng, z, rng() * scene.boxWidth, 0.4 + rng() * 0.5, 1),
+    );
+  }
+  for (const anchor of anchors) {
+    const count = Math.round((anchor.count ?? perRuin) * weedShare);
+    for (let i = 0; i < count; i += 1) {
+      const z = anchor.z * (SPARSE.front + rng() * SPARSE.depth);
+      const side = rng() < 0.5 ? -1 : 1;
+      const x = anchor.x + side * anchor.span * (0.55 + rng() * 0.6);
+      const height = SPARSE.height[0] + rng() * SPARSE.height[1];
+      built.push(makeStem(scene, rng, z, x, height, 1, flowerOdds, petal));
+    }
+  }
   return built.sort((a, b) => b.z - a.z);
 };
 
@@ -278,6 +355,9 @@ const drawHead = (
 };
 
 /* Opens and closes on its own phase; half the cycle fully open. */
+/** Below this share of opening a flower draws as a closed bud. */
+const BUD_CLOSED = 0.2;
+
 const bloomOf = (stem: Stem, seconds: number): number =>
   Math.min(
     1,
@@ -286,6 +366,9 @@ const bloomOf = (stem: Stem, seconds: number): number =>
       0.5 + Math.sin((seconds / BLOOM_PERIOD) * Math.PI * 2 + stem.phase) * 1.4,
     ),
   );
+
+/* About one flower in this many has a faint blush at its centre. */
+const BLUSH_EVERY = 9;
 
 const drawFlower = (
   ctx: CanvasRenderingContext2D,
@@ -296,7 +379,35 @@ const drawFlower = (
   seconds: number,
 ): void => {
   const [tx, ty] = stemPoint(stem.x, stem.root, stem.height, lean, 1);
-  drawPetals(ctx, palette, tx, ty, bud, bloomOf(stem, seconds));
+  const open = bloomOf(stem, seconds);
+  const size = bud * stem.petal;
+  /* Shut, it is a small bud in the bud colour; it opens into tiny petals. */
+  if (open < BUD_CLOSED) {
+    ctx.fillStyle = palette.bud;
+    ctx.beginPath();
+    ctx.ellipse(
+      tx,
+      ty,
+      Math.max(0.7, 1.4 * size),
+      Math.max(1, 2.4 * size),
+      0,
+      0,
+      Math.PI * 2,
+    );
+    ctx.fill();
+    return;
+  }
+  drawPetals(
+    ctx,
+    palette,
+    tx,
+    ty,
+    size,
+    (open - BUD_CLOSED) / (1 - BUD_CLOSED),
+    /* Only near stems flower (see makeStem), so full strength never floats. */
+    true,
+    Math.round(stem.phase * 100) % BLUSH_EVERY === 0,
+  );
 };
 
 /* Detail steps down with distance, with a minimum drawn size at each step. */
@@ -376,7 +487,14 @@ const paintWhere = (
       breeze(stem.x, stem.phase, seconds) *
       (SWAY.base + stem.size * SWAY.bySize) *
       scene.world;
-    drawStem(ctx, palette, scene.world, stem, wind + stem.lean, seconds);
+    drawStem(
+      ctx,
+      palette,
+      scene.world,
+      stem,
+      wind + stem.lean + stem.curl,
+      seconds,
+    );
   }
   for (; next < ruins.length; next += 1) {
     if (inLayer(ruins[next]!.z)) drawRuin(ctx, palette, ruins[next]!, seconds);
@@ -439,7 +557,33 @@ const drawMid = (
   );
 };
 
-export const createHeroField = (palette: HeroPalette): HeroField => {
+export interface FieldOptions {
+  readonly ruins?: readonly RuinSpec[];
+  /** Stems at each ruin's foot when sparse. */
+  readonly weeds?: number;
+  /** Scale for frames taller than wide. */
+  readonly narrowZoom?: number;
+  /** The full weed field, at this share of its stems; 0 leaves only tufts at ruin feet. */
+  readonly field?: number;
+  /** An authored composition (see `SCENE_NAMES`); `ruins` then adds to it (the slab). */
+  readonly scene?: string;
+  /** Keep only the blurred near band of free stems; the rest grow from ruin feet. */
+  readonly nearOnly?: boolean;
+  /** Stems carry seed heads only, no flowers: the plants carry the flowers. */
+  readonly bareStems?: boolean;
+  /** Share of foot stems that flower, and their flower size. */
+  readonly flowers?: number;
+  readonly petal?: number;
+  /** Scales the stems at every ruin foot. */
+  readonly weedShare?: number;
+}
+
+export const createHeroField = (
+  palette: HeroPalette,
+  options: FieldOptions = {},
+): HeroField => {
+  const specs = options.ruins ?? cityRuins(CITY_SEED);
+  const zoom = options.narrowZoom ?? NARROW_ZOOM;
   const state: FieldState = {
     /* A draw before the first layout must not divide by zero. */
     scene: sceneFor(REFERENCE_WIDTH, REFERENCE_HEIGHT),
@@ -449,7 +593,7 @@ export const createHeroField = (palette: HeroPalette): HeroField => {
 
   return {
     layout(width: number, height: number): void {
-      state.scene = sceneFor(width, height);
+      state.scene = sceneFor(width, height, zoom);
       const { boxWidth, horizon, projection } = state.scene;
       state.ruins = buildRuins(
         {
@@ -459,11 +603,48 @@ export const createHeroField = (palette: HeroPalette): HeroField => {
           referenceProjection: REFERENCE_PROJECTION,
         },
         width / height < NARROW_ASPECT,
+        specs,
       );
-      state.stems = buildStems(
-        state.scene,
-        RUINS.map((ruin) => ruin.x * boxWidth),
+      if (options.scene) {
+        const box = {
+          boxWidth,
+          horizon,
+          projection,
+          referenceProjection: REFERENCE_PROJECTION,
+        };
+        state.ruins = [
+          ...scenePieces(options.scene, {
+            cx: boxWidth / 2,
+            horizon,
+            projection,
+          }).map((piece) => pieceRuin(piece, box)),
+          ...state.ruins,
+        ].sort((a, b) => b.z - a.z);
+      }
+      const feet = state.ruins.flatMap((ruin) =>
+        ruin.feet.map(([x, z, span, count]) => ({ x, z, span, count })),
       );
+      const field = options.field ?? 1;
+      state.stems = [
+        ...(field > 0 || options.nearOnly
+          ? buildStems(
+              state.scene,
+              feet.map((foot) => foot.x),
+              field,
+              options.nearOnly,
+            )
+          : []),
+        ...buildSparse(
+          state.scene,
+          feet,
+          options.weeds ?? SPARSE.perRuin,
+          options.flowers,
+          options.petal,
+          options.weedShare,
+        ),
+      ]
+        .map((stem) => (options.bareStems ? { ...stem, flower: false } : stem))
+        .sort((a, b) => b.z - a.z);
     },
     step: (seconds, delta) => stepSprings(state, seconds, delta),
     back: (ctx, seconds) => drawBack(ctx, palette, state, seconds),

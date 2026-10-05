@@ -28,6 +28,8 @@ export interface HeroPalette {
   readonly floorEdge: string;
   /** `--color-pink`: petals. */
   readonly flower: string;
+  /** A faint centre on a few petals; none when unset. */
+  readonly blush?: string;
 }
 
 export interface HeroField {
@@ -94,6 +96,10 @@ export interface Stem {
   leanRate: number;
   /** Carries a flower instead of a seed head. */
   readonly flower: boolean;
+  /** A resting curve at the tip, CSS pixels, so stems are not straight rods. */
+  readonly curl: number;
+  /** Flower size as a share of the default petals. */
+  readonly petal: number;
 }
 
 /*
@@ -101,14 +107,6 @@ export interface Stem {
  * `TABLET` straddles the tablet's depth so weeds grow at its foot.
  * `NEAR.near` is set in `layout` from the aspect factor.
  */
-export const BANDS = {
-  FAR: { count: 69, near: 4.2, far: 62, height: [0.6, 0.75], spread: 150 },
-  GRASS: { count: 198, near: 9, far: 62, height: [0.2, 0.52], spread: 105 },
-  MIDDLE: { count: 45, near: 2.6, far: 4.2, height: [0.58, 0.72], spread: 190 },
-  TABLET: { count: 63, near: 1.7, far: 2.9, height: [0.34, 0.6], spread: 190 },
-  NEAR: { count: 8, near: 0, far: 1.7, height: [0.78, 0.6], spread: 0 },
-} as const;
-
 /** Clump centres at the reference width. */
 export const CLUMP_COUNT = 16;
 /** Share of stems placed anywhere, not in a clump. */
@@ -118,8 +116,18 @@ export const CLUMP_SPREAD = 140;
 /** The near band covers the left of the field only; reference units. */
 export const NEAR_BAND_LEFT = -140;
 export const NEAR_BAND_WIDTH = 245;
+/** Near stems stay within this share of the frame from the left edge, clear of the centre. */
+export const NEAR_BAND_SHARE = 0.07;
 
 export const NEAR_VEIL = 0.72;
+
+export const BANDS = {
+  FAR: { count: 69, near: 4.2, far: 62, height: [0.6, 0.75], spread: 150 },
+  GRASS: { count: 198, near: 9, far: 62, height: [0.2, 0.52], spread: 105 },
+  MIDDLE: { count: 45, near: 2.6, far: 4.2, height: [0.58, 0.72], spread: 190 },
+  TABLET: { count: 63, near: 1.7, far: 2.9, height: [0.34, 0.6], spread: 190 },
+  NEAR: { count: 8, near: 0, far: 1.7, height: [0.78, 0.6], spread: 0 },
+} as const;
 
 /*
  * Underdamped: a brushed stem leans past the breeze's sway and overshoots,
@@ -228,7 +236,24 @@ export const VEIL_DEPTH = 7;
 
 export interface RuinSpec {
   readonly kind:
-    'column' | 'colonnade' | 'arch' | 'wall' | 'block' | 'drum' | 'tablet';
+    | 'block'
+    | 'tower'
+    | 'stepped'
+    | 'tree'
+    | 'monolith'
+    | 'house'
+    | 'aqueduct'
+    | 'plaza'
+    | 'steps'
+    | 'fallen'
+    | 'rubble'
+    | 'column'
+    | 'colonnade'
+    | 'arch'
+    | 'wall'
+    | 'slab'
+    | 'sidewall'
+    | 'hill';
   /** Share of the box width. */
   readonly x: number;
   readonly z: number;
@@ -242,80 +267,20 @@ export interface RuinSpec {
   readonly vine?: boolean;
   /** Left out of frames narrower than `NARROW_ASPECT`. */
   readonly wide?: boolean;
+  /** Raises the root, in the same units as `height`: the tablet on a terrace. */
+  readonly lift?: number;
+  /** A plaza's near depth; `z` is its far edge. */
+  readonly near?: number;
+  /** World units from the centre, instead of `x`: rows that converge on the vanishing point. */
+  readonly wx?: number;
+  /** A side wall's far depth; `z` is its near end. */
+  readonly far?: number;
+  /** Paint order by this depth instead of `z`, so parts built at one depth can interleave. */
+  readonly order?: number;
 }
 
 /** Width over height below which `wide` ruins are dropped. */
 export const NARROW_ASPECT = 1.1;
-
-/*
- * Far ruins sit behind the veil; the tablet stands at the centre at
- * `TABLET_DEPTH`. Kept below the h1 and the stickers: tune with tests/hero-fit.spec.ts.
- */
-export const RUINS: readonly RuinSpec[] = [
-  {
-    kind: 'colonnade',
-    x: 0.07,
-    z: 14,
-    height: 1.15,
-    width: 1.3,
-    count: 4,
-    wide: true,
-  },
-  { kind: 'arch', x: 0.24, z: 16, height: 1.5, width: 0.7 },
-  { kind: 'column', x: 0.36, z: 11, height: 1.05, width: 0.15, broken: true },
-  {
-    kind: 'colonnade',
-    x: 0.64,
-    z: 13,
-    height: 1.25,
-    width: 1.2,
-    count: 4,
-    broken: true,
-    wide: true,
-  },
-  { kind: 'arch', x: 0.88, z: 15, height: 1.4, width: 0.7, broken: true },
-  { kind: 'wall', x: 0.95, z: 9, height: 0.34, width: 0.9, wide: true },
-  {
-    kind: 'column',
-    x: 0.13,
-    z: 4.3,
-    height: 1.5,
-    width: 0.17,
-    broken: true,
-    vine: true,
-  },
-  {
-    kind: 'column',
-    x: 0.215,
-    z: 5,
-    height: 1.6,
-    width: 0.16,
-    vine: true,
-    wide: true,
-  },
-  { kind: 'block', x: 0.33, z: 4.8, height: 0.22, width: 0.5, wide: true },
-  { kind: 'wall', x: 0.67, z: 4.6, height: 0.38, width: 0.85, wide: true },
-  {
-    kind: 'arch',
-    x: 0.81,
-    z: 4,
-    height: 1.45,
-    width: 0.74,
-    broken: true,
-    vine: true,
-  },
-  { kind: 'block', x: 0.415, z: 3.5, height: 0.11, width: 0.26 },
-  {
-    kind: 'tablet',
-    x: 0.5,
-    z: TABLET_DEPTH,
-    height: 1.5,
-    width: 0.66,
-    vine: true,
-  },
-  { kind: 'block', x: 0.13, z: 2.05, height: 0.17, width: 0.36 },
-  { kind: 'block', x: 0.75, z: 2.2, height: 0.12, width: 0.3, wide: true },
-];
 
 /*
  * Stone uses the stems' stroke language: outline at `outline` of a stem's width,
@@ -328,15 +293,31 @@ export const RUIN_LINE = {
   lift: 0.22,
   maxAlpha: 0.88,
   carveAlpha: 0.72,
-  hatchAlpha: 0.32,
+  hatchAlpha: 0.16,
   shadowAlpha: 0.5,
+  litAlpha: 0.9,
+  /** Stone fill strength per unit of line alpha; far ruins come out paler. */
+  stone: 1.6,
+  /** Depth beyond which ruins drop to `farShare` of their line strength. */
+  farFrom: 7,
+  farShare: 0.7,
+  lightAlpha: 0.22,
+  darkLift: 0.35,
+  moss: 0.55,
 } as const;
 
-/** Vines grow over `seconds`, starting `head` of the way up, then hold. */
-export const VINE_GROWTH = { seconds: 26, head: 0.18 } as const;
+/** Seconds per phase of the vines' loop; `head` is the share already grown at the start. */
+export const VINE_GROWTH = {
+  grow: 10,
+  hold: 9,
+  wither: 2.5,
+  rest: 1.5,
+  head: 0.04,
+} as const;
 /** Along a vine, in multiples of its stem width: leaf spacing and size, bud spacing. */
-export const VINE_LEAF = { every: 9, length: 4.2, width: 1.8 } as const;
-export const VINE_BUD = { every: 3, opens: 4, size: 0.5 } as const;
+export const VINE_LEAF = { every: 7, length: 5, width: 2.1 } as const;
+/** Seconds a bud takes to swell, then to open; `size` in stem widths. */
+export const VINE_BUD = { every: 3, swell: 1.2, opens: 2, size: 0.95 } as const;
 
 /** Share of stems tall enough for buds that carry a flower. */
 export const FLOWER_ODDS = 0.24;
@@ -344,8 +325,23 @@ export const FLOWER_ODDS = 0.24;
 export const BLOOM_PERIOD = 14;
 /** Petal radius and spread in bud units; opening scales both from `closed`. */
 export const PETAL = {
+  alpha: 0.95,
   radius: 3.4,
   spread: 4.6,
   closed: 0.35,
   count: 5,
 } as const;
+
+/** Sparse weeds: share of far grass kept, stems per ruin, their depth just in front, height ratios. */
+export const SPARSE = {
+  far: 0.3,
+  perRuin: 2,
+  front: 0.9,
+  depth: 0.12,
+  height: [0.16, 0.32],
+} as const;
+
+/** Phones and portrait frames: the scene is scaled up by this, which also lifts the horizon. */
+export const NARROW_ZOOM = 1.25;
+/** The city's layout seed: fixed, so it is the same on every load and screenshot. */
+export const CITY_SEED = 77;
