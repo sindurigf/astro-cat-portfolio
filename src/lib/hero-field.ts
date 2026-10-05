@@ -526,6 +526,8 @@ export interface FieldOptions {
   readonly scene?: string;
   /** Keep only the blurred near band of free stems; the rest grow from ruin feet. */
   readonly nearOnly?: boolean;
+  /** Stems carry seed heads only, no flowers: the plants carry the flowers. */
+  readonly bareStems?: boolean;
 }
 
 export const createHeroField = (
@@ -585,7 +587,9 @@ export const createHeroField = (
             )
           : []),
         ...buildSparse(state.scene, feet, options.weeds ?? SPARSE.perRuin),
-      ].sort((a, b) => b.z - a.z);
+      ]
+        .map((stem) => (options.bareStems ? { ...stem, flower: false } : stem))
+        .sort((a, b) => b.z - a.z);
     },
     step: (seconds, delta) => stepSprings(state, seconds, delta),
     back: (ctx, seconds) => drawBack(ctx, palette, state, seconds),

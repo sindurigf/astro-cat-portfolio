@@ -1,3 +1,4 @@
+import { VINE_GROWTH } from './hero-field-scene';
 import type { HeroPalette } from './hero-field-scene';
 /*
  * Authored ruins: hand-placed silhouettes and stone courses in world units
@@ -37,6 +38,23 @@ export interface Piece {
   /** Where weeds root: screen x, depth, spread in pixels. */
   readonly feet: ReadonlyArray<readonly [number, number, number]>;
   readonly climbs: readonly Climb[];
+  /** Cut lines: carved script, stroked darker than joints. */
+  readonly carve?: Path2D;
+  /** Plants rooted at this piece, drawn after it. */
+  readonly plants?: readonly Plant[];
+}
+
+export type PlantKind = 'grass' | 'shrub' | 'cover';
+
+export interface Plant {
+  readonly kind: PlantKind;
+  /** Root, screen space. */
+  readonly x: number;
+  readonly y: number;
+  /** Full-grown size, CSS pixels. */
+  readonly size: number;
+  /** 0 to 1: staggers growth and sway between plants. */
+  readonly phase: number;
 }
 
 export interface View {
@@ -828,7 +846,511 @@ const foreground = (v: View, side: -1 | 1): Piece[] => [
   boulder(v, -side * 2.6 * share(v, 2.6, 2.4), 2.4, 0.8, 0.32, 1),
 ];
 
+/* An invented script: strokes on a 3 by 3 grid, not any real or fictional alphabet. */
+const SCRIPT: readonly (readonly (readonly number[])[])[] = [
+  [
+    [0, 0, 2, 0],
+    [1, 0, 1, 2],
+  ],
+  [[0, 2, 1, 0, 2, 2]],
+  [[0, 0, 0, 2, 2, 2]],
+  [
+    [0, 1, 2, 1],
+    [1, 0, 1, 1],
+  ],
+  [[2, 0, 0, 1, 2, 2]],
+  [
+    [0, 0, 2, 2],
+    [0, 2, 1, 1],
+  ],
+  [[0, 0, 2, 0, 2, 2]],
+  [
+    [1, 0, 1, 2],
+    [0, 2, 2, 2],
+  ],
+  [
+    [0, 0, 1, 1, 2, 0],
+    [1, 1, 1, 2],
+  ],
+  [[0, 1, 1, 0, 2, 1, 1, 2]],
+];
+
+/*
+ * The poneglyph: one perfectly cut block among broken masonry. A near-cube in
+ * the masonry's own tones, crisp edges, its front covered in tight rows of
+ * script cut in as shade lines. `plinth` sets it on a low base.
+ */
+const poneglyph = (
+  v: View,
+  x: number,
+  z: number,
+  h: number,
+  w: number,
+  plinth: boolean,
+): Piece => {
+  const base = plinth ? h * 0.12 : 0;
+  const d = w * 0.42;
+  const dx = d * 0.62;
+  const dy = d * 0.34;
+  const left = x - w / 2;
+  const right = x + w / 2;
+  const p = (px: number, up: number): Point => project(v, px, up, z);
+  const stones: Stone[] = [];
+  const outline = new Path2D();
+  if (plinth) {
+    const pl = w * 0.22;
+    const front = polygon([
+      p(left - pl, 0),
+      p(left - pl, base),
+      p(right + pl, base),
+      p(right + pl, 0),
+    ]);
+    const top = polygon([
+      p(left - pl, base),
+      p(left - pl + dx * 1.3, base + dy * 1.3),
+      p(right + pl + dx * 1.3, base + dy * 1.3),
+      p(right + pl, base),
+    ]);
+    const side = polygon([
+      p(right + pl, 0),
+      p(right + pl, base),
+      p(right + pl + dx * 1.3, base + dy * 1.3),
+      p(right + pl + dx * 1.3, dy * 1.3),
+    ]);
+    stones.push(
+      { path: front, tone: 1 },
+      { path: top, tone: 0 },
+      { path: side, tone: 2 },
+    );
+    [front, top, side].forEach((f) => outline.addPath(f));
+  }
+  const front = polygon([
+    p(left, base),
+    p(left, base + h),
+    p(right, base + h),
+    p(right, base),
+  ]);
+  const top = polygon([
+    p(left, base + h),
+    p(left + dx, base + h + dy),
+    p(right + dx, base + h + dy),
+    p(right, base + h),
+  ]);
+  const side = polygon([
+    p(right, base),
+    p(right, base + h),
+    p(right + dx, base + h + dy),
+    p(right + dx, base + dy),
+  ]);
+  stones.push(
+    { path: side, tone: 2 },
+    { path: top, tone: 0 },
+    { path: front, tone: 1 },
+  );
+  [front, top, side].forEach((f) => outline.addPath(f));
+  /* Script: tight rows filling the face inside a narrow margin. */
+  const carve = new Path2D();
+  const margin = w * 0.07;
+  const cols = 11;
+  const rows = Math.round((cols * h) / w);
+  const cw = (w - margin * 2) / cols;
+  const ch = (h - margin * 2) / rows;
+  const g = Math.min(cw, ch) * 0.62;
+  for (let r = 0; r < rows; r += 1) {
+    for (let c = 0; c < cols; c += 1) {
+      const glyph = SCRIPT[(r * 7 + c * 3 + ((r * c) % 5)) % SCRIPT.length]!;
+      const gx = left + margin + c * cw + (cw - g) / 2;
+      const gy = base + h - margin - r * ch - (ch - g) / 2;
+      for (const stroke of glyph) {
+        carve.moveTo(
+          ...p(gx + (stroke[0]! * g) / 2, gy - (stroke[1]! * g) / 2),
+        );
+        for (let k = 2; k < stroke.length; k += 2)
+          carve.lineTo(
+            ...p(gx + (stroke[k]! * g) / 2, gy - (stroke[k + 1]! * g) / 2),
+          );
+      }
+    }
+  }
+  return {
+    z,
+    layer: 2,
+    stones,
+    outline,
+    detail: new Path2D(),
+    carve,
+    cast: polygon([
+      p(left - 0.1, 0),
+      p(right + dx + h * 0.35, 0),
+      p(right + dx, dy),
+    ]),
+    feet: [
+      [p(left - 0.3, 0)[0], z * 0.98, (0.5 * v.projection) / z],
+      [p(right + 0.4, 0)[0], z * 0.98, (0.45 * v.projection) / z],
+    ],
+    climbs: [],
+  };
+};
+
+/* A broken tower: a narrow tall run of masonry with a jagged top. */
+const tower = (
+  v: View,
+  z: number,
+  x: number,
+  w: number,
+  h: number,
+  layer: 0 | 1 | 2,
+  shift: number,
+): Piece =>
+  frontWall(
+    v,
+    z,
+    x - w / 2,
+    x + w / 2,
+    [
+      [x - w / 2, h * 0.92],
+      [x - w * 0.2, h],
+      [x, h * 0.86],
+      [x + w * 0.15, h * 0.95],
+      [x + w / 2, h * 0.7],
+    ],
+    layer,
+    shift,
+  );
+
+/*
+ * Masonry breaks in steps, not slopes: hold each height across its run, drop
+ * near-vertically to the next, with a small chip at each drop.
+ */
+const stepped = (pts: readonly Point[]): Point[] => {
+  const out: Point[] = [];
+  pts.forEach(([u, h], i) => {
+    const next = pts[i + 1];
+    out.push([u, h]);
+    if (!next) return;
+    const run = next[0] - u;
+    out.push(
+      [u + run * 0.45, h * (i % 2 ? 0.97 : 1.02)],
+      [next[0] - run * 0.04, h],
+      [next[0] - run * 0.015, (h + next[1]) / 2 + Math.abs(h - next[1]) * 0.12],
+    );
+  });
+  return out;
+};
+
+/* Ruin profiles that rise and fall: high fragments beside knee-high stubs. */
+const STEPPED_SIDE: readonly Point[] = stepped([
+  [0, 0.35],
+  [0.06, 0.5],
+  [0.12, 0.42],
+  [0.2, 0.9],
+  [0.28, 0.85],
+  [0.33, 0.45],
+  [0.4, 0.5],
+  [0.48, 1.7],
+  [0.56, 1.62],
+  [0.62, 1.2],
+  [0.7, 2.5],
+  [0.8, 2.4],
+  [0.88, 1.9],
+  [1, 2.6],
+]);
+const LOW_SIDE: readonly Point[] = stepped([
+  [0, 0.3],
+  [0.1, 0.45],
+  [0.18, 0.3],
+  [0.3, 0.55],
+  [0.42, 0.4],
+  [0.55, 0.6],
+  [0.7, 0.42],
+  [0.85, 0.7],
+  [1, 0.5],
+]);
+const BACK_STEP: readonly Point[] = stepped([
+  [-6, 1.2],
+  [-5, 2.6],
+  [-4.2, 2.5],
+  [-3.6, 3.3],
+  [-2.9, 3.2],
+  [-2.3, 1.6],
+  [-1.2, 1.7],
+  [-0.4, 2.4],
+  [0.6, 2.3],
+  [1.4, 1.1],
+  [2.4, 0.9],
+  [3.0, 1.9],
+  [3.8, 1.8],
+  [4.6, 0.8],
+  [6, 1.0],
+]);
+
+const lowSides = (
+  v: View,
+  k: number,
+  profile: readonly Point[],
+  near = 2.6,
+  far = 10,
+): Piece[] => [
+  sideWall(v, -4.4 * k, near, far, profile, () => []),
+  sideWall(
+    v,
+    4.4 * k,
+    near,
+    far,
+    profile.map(([t, h]) => [t, h * 0.9] as Point),
+    () => [],
+  ),
+];
+
+/* Plant kinds per option, so growth styles differ as well as layouts. */
+const PLANTS: Record<string, PlantKind> = {
+  pA: 'grass',
+  pB: 'shrub',
+  pC: 'cover',
+  pD: 'grass',
+  pE: 'shrub',
+};
+
 const COMPOSITIONS: Record<string, (v: View) => Piece[]> = {
+  pA: (v) => {
+    const k = share(v, 4.4, 2.6);
+    return [
+      frontWall(
+        v,
+        10,
+        -6,
+        6,
+        BACK_STEP.map(([x, h]) => [x, h * 1.05] as Point),
+        0,
+        1,
+      ),
+      ...lowSides(v, k, STEPPED_SIDE),
+      frontWall(
+        v,
+        3.2,
+        -3.9 * k,
+        -2.9 * k,
+        [
+          [-3.9 * k, 0.45],
+          [-3.4 * k, 0.6],
+          [-2.9 * k, 0.3],
+        ],
+        2,
+        4,
+      ),
+      frontWall(
+        v,
+        3.4,
+        2.8 * k,
+        3.9 * k,
+        [
+          [2.8 * k, 0.35],
+          [3.3 * k, 0.55],
+          [3.9 * k, 0.4],
+        ],
+        2,
+        6,
+      ),
+      poneglyph(v, 0, 5, 1.9, 1.75, true),
+      ...heap(v, 2.0 * k, 2.3, 0.9),
+    ];
+  },
+
+  pB: (v) => {
+    const k = share(v, 4.4, 2.6);
+    const tall: Point[] = stepped([
+      [0, 1.6],
+      [0.15, 2.3],
+      [0.3, 2.2],
+      [0.45, 2.9],
+      [0.6, 2.8],
+      [0.75, 2.5],
+      [1, 3.0],
+    ]);
+    return [
+      frontWall(
+        v,
+        10,
+        -6,
+        6,
+        [
+          [-6, 2.4],
+          [-3, 2.6],
+          [-1, 1.4],
+          [1, 1.2],
+          [3, 0.6],
+          [6, 0.5],
+        ],
+        0,
+        2,
+      ),
+      tower(v, 8.5, -3.6 * k, 1.3, 4.8, 0, 3),
+      sideWall(v, -4.4 * k, 2.6, 10, tall, () => []),
+      sideWall(v, 4.4 * k, 2.6, 10, LOW_SIDE, () => []),
+      ...heap(v, 3.2 * k, 3.2, 1.4),
+      ...heap(v, 2.4 * k, 5.2, 1.1),
+      boulder(v, 3.8 * k, 4.4, 0.7, 0.35, 1),
+      poneglyph(v, 0, 5, 1.9, 1.75, false),
+      ...heap(v, -1.8 * k, 2.3, 0.9),
+    ];
+  },
+
+  pC: (v) => {
+    const k = share(v, 4.4, 2.6);
+    const arch = { cx: 0, half: 1.5, spring: 1.9 };
+    const back = frontWall(
+      v,
+      7.6,
+      -5.5,
+      5.5,
+      stepped([
+        [-5.5, 1.5],
+        [-4, 2.4],
+        [-2.6, 3.4],
+        [-1.9, 3.9],
+        [-0.6, 4.05],
+        [0.3, 3.0],
+        [0.9, 2.4],
+        [2.2, 3.2],
+        [3.4, 2.6],
+        [5.5, 1.2],
+      ]),
+      1,
+      2,
+      inArch(arch.cx, arch.half, arch.spring),
+    );
+    /* A broken arch: only the left half of the ring still stands. */
+    const ring: Stone[] = [];
+    const count = 9;
+    for (let i = 0; i < 4; i += 1) {
+      const a0 = Math.PI + (Math.PI * i) / count;
+      const a1 = Math.PI + (Math.PI * (i + 1)) / count;
+      const at = (a: number, r: number): Point =>
+        project(
+          v,
+          arch.cx + Math.cos(a) * r,
+          arch.spring - Math.sin(a) * r,
+          7.6,
+        );
+      ring.push({
+        path: polygon([
+          at(a0, arch.half),
+          at(a0, arch.half + 0.35),
+          at(a1, arch.half + 0.35),
+          at(a1, arch.half),
+        ]),
+        tone: i % 2 ? 0 : 1,
+      });
+    }
+    const opening: Point[] = [
+      project(v, -arch.half, 0, 7.6),
+      project(v, -arch.half, arch.spring, 7.6),
+    ];
+    for (let i = 0; i <= 12; i += 1) {
+      const a = Math.PI + (Math.PI * i) / 12;
+      opening.push(
+        project(
+          v,
+          Math.cos(a) * arch.half,
+          arch.spring - Math.sin(a) * arch.half,
+          7.6,
+        ),
+      );
+    }
+    opening.push(project(v, arch.half, 0, 7.6));
+    (back.stones as Stone[]).push({ path: polygon(opening), tone: 3 }, ...ring);
+    return [
+      frontWall(v, 12, -7, 7, LOW_TOP, 0, 6),
+      back,
+      ...lowSides(v, k, LOW_SIDE),
+      poneglyph(v, 0, 7.2, 2.4, 2.2, false),
+      ...heap(v, -2.2 * k, 3.4, 1.1),
+      toppled(v, 2.2 * k, 3.8, 1.4),
+    ];
+  },
+
+  pD: (v) => {
+    const k = share(v, 4.4, 2.6);
+    return [
+      frontWall(
+        v,
+        11,
+        -6,
+        6,
+        [
+          [-6, 0.9],
+          [-4, 1.3],
+          [-2, 0.8],
+          [0, 1.1],
+          [2, 0.7],
+          [4, 1.0],
+          [6, 0.8],
+        ],
+        0,
+        1,
+      ),
+      tower(v, 8, -2.4, 1.6, 5.2, 0, 4),
+      frontWall(
+        v,
+        8.1,
+        -3.4,
+        -1.4,
+        [
+          [-3.4, 1.4],
+          [-2.8, 2.1],
+          [-1.4, 1.2],
+        ],
+        0,
+        7,
+      ),
+      ...lowSides(v, k, LOW_SIDE),
+      poneglyph(v, 1.35 * k, 3.4, 1.6, 1.5, true),
+      ...heap(v, -2.6 * k, 3.0, 1.1),
+      boulder(v, -1.0 * k, 2.4, 0.6, 0.28, 1),
+    ];
+  },
+
+  pE: (v) => {
+    const k = share(v, 4.4, 2.6);
+    /* My own: two broken towers flank the poneglyph like a gate that lost its lintel. */
+    return [
+      frontWall(v, 12, -7, 7, LOW_TOP, 0, 3),
+      tower(v, 6.4, -1.9, 1.2, 3.6, 1, 2),
+      tower(v, 6.4, 1.9, 1.2, 2.3, 1, 5),
+      frontWall(
+        v,
+        6.5,
+        -5.2,
+        -2.5,
+        [
+          [-5.2, 0.5],
+          [-4.2, 0.9],
+          [-3.3, 0.6],
+          [-2.5, 1.4],
+        ],
+        1,
+        1,
+      ),
+      frontWall(
+        v,
+        6.5,
+        2.5,
+        5.2,
+        [
+          [2.5, 1.0],
+          [3.4, 0.5],
+          [4.4, 0.7],
+          [5.2, 0.35],
+        ],
+        1,
+        8,
+      ),
+      ...lowSides(v, k, LOW_SIDE, 2.6, 6.4),
+      poneglyph(v, 0, 5.2, 1.9, 1.75, true),
+      lintel(v, -0.9, 0.6, 4.4, 0, false, 2),
+      ...heap(v, 2.2 * k, 3.0, 1.0),
+    ];
+  },
   courtyard: (v) => {
     const k = share(v, 4.4, 2.6);
     const gate = { cx: -2.5, half: 0.75, spring: 1.15 };
@@ -1084,8 +1606,227 @@ const COMPOSITIONS: Record<string, (v: View) => Piece[]> = {
 
 export const SCENE_NAMES = Object.keys(COMPOSITIONS);
 
-export const scenePieces = (name: string, v: View): Piece[] =>
-  (COMPOSITIONS[name] ?? COMPOSITIONS.courtyard!)(v).sort((a, b) => b.z - a.z);
+export const scenePieces = (name: string, v: View): Piece[] => {
+  const pieces = (COMPOSITIONS[name] ?? COMPOSITIONS.courtyard!)(v);
+  const kind = PLANTS[name];
+  if (!kind) return pieces.sort((a, b) => b.z - a.z);
+  /* Plants root at each piece's feet, sized by depth; a fixed sequence keeps them stable. */
+  let n = 0;
+  return pieces
+    .map((piece) => ({
+      ...piece,
+      plants: piece.feet
+        .filter((_, i) => i % 2 === 0)
+        .map(([x, z]): Plant => {
+          n += 1;
+          return {
+            kind: n % 5 === 0 && kind !== 'cover' ? 'cover' : kind,
+            x: x + ((((n * 37) % 11) - 5) * (0.04 * v.projection)) / z,
+            y: v.horizon + v.projection / z,
+            size: ((kind === 'shrub' ? 0.5 : 0.65) * v.projection) / z,
+            phase: ((n * 61) % 100) / 100,
+          };
+        }),
+    }))
+    .sort((a, b) => b.z - a.z);
+};
+
+/* Each plant's growth: 0 bare to 1 full, with its own delay, then the shared loop's wither. */
+const plantGrowth = (
+  seconds: number,
+  phase: number,
+): { g: number; fade: number } => {
+  const { grow, hold, wither, rest } = VINE_GROWTH;
+  const cycle = grow + hold + wither + rest;
+  const t = ((seconds % cycle) + cycle) % cycle;
+  const delay = phase * grow * 0.35;
+  const g = Math.max(0, Math.min(1, (t - delay) / (grow * 0.75)));
+  const fade =
+    t < grow + hold
+      ? 1
+      : t < grow + hold + wither
+        ? 1 - (t - grow - hold) / wither
+        : 0;
+  return { g: 1 - (1 - g) * (1 - g), fade };
+};
+
+/* A tiny five-petal flower, a few pixels across. */
+const tinyFlower = (
+  ctx: CanvasRenderingContext2D,
+  palette: HeroPalette,
+  x: number,
+  y: number,
+  r: number,
+  open: number,
+): void => {
+  if (open <= 0) return;
+  const rr = r * (0.4 + 0.6 * open);
+  ctx.fillStyle = palette.flower;
+  ctx.beginPath();
+  for (let i = 0; i < 5; i += 1) {
+    const a = -Math.PI / 2 + (i * Math.PI * 2) / 5;
+    ctx.moveTo(
+      x + Math.cos(a) * rr * 0.9 + rr * 0.55,
+      y + Math.sin(a) * rr * 0.9,
+    );
+    ctx.arc(
+      x + Math.cos(a) * rr * 0.9,
+      y + Math.sin(a) * rr * 0.9,
+      rr * 0.55,
+      0,
+      Math.PI * 2,
+    );
+  }
+  ctx.fill();
+  ctx.fillStyle = palette.background;
+  ctx.beginPath();
+  ctx.arc(x, y, rr * 0.4, 0, Math.PI * 2);
+  ctx.fill();
+};
+
+const leaf = (
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  len: number,
+  angle: number,
+): void => {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(angle);
+  ctx.beginPath();
+  ctx.moveTo(0, 0);
+  ctx.quadraticCurveTo(len * 0.5, -len * 0.32, len, 0);
+  ctx.quadraticCurveTo(len * 0.5, len * 0.32, 0, 0);
+  ctx.fill();
+  ctx.restore();
+};
+
+export const drawPlants = (
+  ctx: CanvasRenderingContext2D,
+  palette: HeroPalette,
+  plants: readonly Plant[],
+  seconds: number,
+  lineWidth: number,
+): void => {
+  ctx.lineCap = 'round';
+  for (const plant of plants) {
+    const { g, fade } = plantGrowth(seconds, plant.phase);
+    if (g <= 0 || fade <= 0) continue;
+    const { x, y, size } = plant;
+    const sway = Math.sin(seconds * 0.9 + plant.phase * 6.28) * 0.06;
+    const bloom = Math.max(0, (g - 0.78) / 0.22);
+    const flowerR = Math.max(1, size * 0.026);
+    ctx.globalAlpha = 0.85 * fade;
+    ctx.strokeStyle = palette.border;
+    ctx.fillStyle = palette.subtle;
+    ctx.lineWidth = Math.max(0.8, lineWidth * 0.6);
+    if (plant.kind === 'grass') {
+      const blades = 4 + Math.round(5 * g);
+      ctx.beginPath();
+      for (let i = 0; i < blades; i += 1) {
+        const lean = (i / (blades - 1 || 1) - 0.5) * 1.1 + sway;
+        const len = size * g * (0.55 + ((i * 29) % 7) * 0.07);
+        const tx = x + Math.sin(lean) * len;
+        const ty = y - Math.cos(lean) * len;
+        ctx.moveTo(x + (i - blades / 2) * 0.8, y);
+        ctx.quadraticCurveTo(
+          x + Math.sin(lean) * len * 0.3,
+          y - len * 0.6,
+          tx,
+          ty,
+        );
+      }
+      ctx.stroke();
+      ctx.globalAlpha = fade;
+      for (let i = 2; i < blades; i += 4) {
+        const lean = (i / (blades - 1 || 1) - 0.5) * 1.1 + sway;
+        const len = size * g * (0.55 + ((i * 29) % 7) * 0.07);
+        tinyFlower(
+          ctx,
+          palette,
+          x + Math.sin(lean) * len,
+          y - Math.cos(lean) * len,
+          flowerR,
+          bloom,
+        );
+      }
+    } else if (plant.kind === 'shrub') {
+      const branches = 3 + Math.round(2 * g);
+      const tips: Point[] = [];
+      ctx.beginPath();
+      for (let i = 0; i < branches; i += 1) {
+        const a = (i / (branches - 1) - 0.5) * 1.3 + sway;
+        const len = size * 0.85 * g * (0.75 + ((i * 17) % 5) * 0.08);
+        const tx = x + Math.sin(a) * len;
+        const ty = y - Math.cos(a) * len;
+        ctx.moveTo(x, y);
+        ctx.quadraticCurveTo(
+          x + Math.sin(a) * len * 0.2,
+          y - len * 0.55,
+          tx,
+          ty,
+        );
+        tips.push([tx, ty]);
+      }
+      ctx.stroke();
+      const unfurl = Math.max(0, Math.min(1, (g - 0.25) / 0.5));
+      tips.forEach(([tx, ty], i) => {
+        for (let k = 1; k <= 3; k += 1) {
+          const f = k / 4;
+          const lx = x + (tx - x) * f;
+          const ly = y + (ty - y) * f;
+          leaf(
+            ctx,
+            lx,
+            ly,
+            size * 0.22 * unfurl,
+            -Math.PI / 2 + (k % 2 ? 0.9 : -0.9) + (i - branches / 2) * 0.2,
+          );
+        }
+        leaf(
+          ctx,
+          tx,
+          ty,
+          size * 0.18 * unfurl,
+          -Math.PI / 2 + (i % 2 ? 0.5 : -0.5),
+        );
+      });
+      ctx.globalAlpha = fade;
+      tips.forEach(([tx, ty], i) => {
+        if (i % 2 === 0)
+          tinyFlower(ctx, palette, tx, ty - flowerR, flowerR, bloom);
+      });
+    } else {
+      /* Creeping cover: a low mound of small leaves spreading outward. */
+      const spread = size * 1.1 * g;
+      const count = Math.round(9 * g);
+      for (let i = 0; i < count; i += 1) {
+        const f = ((i * 41) % count) / count - 0.5;
+        const lx = x + f * spread;
+        const ly = y - Math.abs(Math.cos(f * Math.PI)) * size * 0.18 * g;
+        leaf(ctx, lx, ly, size * 0.11, -Math.PI / 2 + f * 1.6 + sway);
+      }
+      ctx.beginPath();
+      ctx.moveTo(x - spread / 2, y);
+      ctx.quadraticCurveTo(x, y - size * 0.2 * g, x + spread / 2, y);
+      ctx.stroke();
+      ctx.globalAlpha = fade;
+      for (let i = 0; i < 2; i += 1) {
+        const f = ((i * 37) % 9) / 9 - 0.5;
+        tinyFlower(
+          ctx,
+          palette,
+          x + f * spread * 0.9,
+          y - Math.abs(Math.cos(f * Math.PI)) * size * 0.2 * g - flowerR,
+          flowerR,
+          bloom,
+        );
+      }
+    }
+  }
+  ctx.globalAlpha = 1;
+};
 
 /* Tone strength: the line colour over the opaque ground, per tone, then per layer. */
 const TONE_ALPHA: Record<Tone, number> = { 0: 0, 1: 0.1, 2: 0.24, 3: 0.62 };
@@ -1128,6 +1869,11 @@ export const drawPiece = (
   ctx.globalAlpha = layer.joint;
   ctx.lineWidth = lineWidth * 0.5;
   ctx.stroke(piece.detail);
+  if (piece.carve) {
+    ctx.globalAlpha = layer.line * 0.85;
+    ctx.lineWidth = lineWidth * 0.45;
+    ctx.stroke(piece.carve);
+  }
   ctx.globalAlpha = layer.line;
   ctx.lineWidth = lineWidth * 1.15;
   ctx.stroke(piece.outline);

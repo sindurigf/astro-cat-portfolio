@@ -17,7 +17,7 @@ import {
   random,
 } from './hero-field-scene';
 import type { HeroPalette, RuinSpec } from './hero-field-scene';
-import { drawPiece } from './hero-field-courtyard';
+import { drawPiece, drawPlants } from './hero-field-courtyard';
 import type { Piece } from './hero-field-courtyard';
 
 type Point = readonly [number, number];
@@ -2179,6 +2179,8 @@ export const drawRuin = (
   const { alpha, lineWidth } = ruin;
   if (ruin.piece) {
     drawPiece(ctx, palette, ruin.piece, lineWidth);
+    if (ruin.piece.plants)
+      drawPlants(ctx, palette, ruin.piece.plants, seconds, lineWidth);
     for (const tuft of ruin.tufts) drawTuft(ctx, tuft, lineWidth, seconds);
     for (const vine of ruin.vines)
       drawVine(ctx, palette, vine, lineWidth, alpha, seconds);
