@@ -275,10 +275,7 @@
   --text-section-number: clamp(1.3125rem, 2.4vw, 1.75rem);
   --text-section-number--line-height: 1;
 
-  /*
-   * Tokens because components may not carry arbitrary values; aspect-video
-   * covers the hero.
-   */
+  /* Tokens because components may not carry arbitrary values. */
   --aspect-portrait: 4 / 5;
   --aspect-photo: 4 / 3;
 
