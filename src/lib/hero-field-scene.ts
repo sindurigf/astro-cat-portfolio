@@ -305,6 +305,6 @@ export const SPARSE = {
 } as const;
 
 /** Phones and portrait frames: the scene is scaled up by this, which also lifts the horizon. */
-export const NARROW_ZOOM = 1.45;
+export const NARROW_ZOOM = 1.25;
 /** The city's layout seed: fixed, so it is the same on every load and screenshot. */
 export const CITY_SEED = 77;

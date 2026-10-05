@@ -662,7 +662,7 @@ const cutOpening = (
   h: number,
   rng: () => number,
 ): void => {
-  const path = kind === 'empty' ? p.carve : p.dark;
+  const path = kind === 'empty' || kind === 'broken' ? p.carve : p.dark;
   if (kind === 'arched') {
     path.moveTo(x - w / 2, sill);
     path.lineTo(x - w / 2, sill - h + w / 2);
@@ -672,13 +672,23 @@ const cutOpening = (
   } else if (kind === 'slit') {
     path.rect(x - w * 0.18, sill - h, w * 0.36, h);
   } else if (kind === 'broken') {
-    path.moveTo(x - w * 0.6, sill + h * 0.05);
-    path.lineTo(x - w * 0.7, sill - h * (0.5 + rng() * 0.3));
-    path.lineTo(x - w * 0.2, sill - h * 1.15);
-    path.lineTo(x + w * 0.4, sill - h * (0.9 + rng() * 0.3));
-    path.lineTo(x + w * 0.75, sill - h * 0.3);
-    path.lineTo(x + w * 0.5, sill + h * 0.1);
-    path.closePath();
+    /* A torn opening: outlined, a shadow inside its top edge, the back wall's line beyond. */
+    const pts: Point[] = [
+      [x - w * 0.6, sill + h * 0.05],
+      [x - w * 0.7, sill - h * (0.5 + rng() * 0.3)],
+      [x - w * 0.2, sill - h * 1.15],
+      [x + w * 0.4, sill - h * (0.9 + rng() * 0.3)],
+      [x + w * 0.75, sill - h * 0.3],
+      [x + w * 0.5, sill + h * 0.1],
+    ];
+    p.carve.moveTo(...pts[0]!);
+    pts.slice(1).forEach((pt) => p.carve.lineTo(...pt));
+    p.carve.closePath();
+    p.shadow.moveTo(pts[1]![0] + w * 0.08, pts[1]![1] + h * 0.06);
+    p.shadow.lineTo(pts[2]![0], pts[2]![1] + h * 0.1);
+    p.shadow.lineTo(pts[3]![0] - w * 0.05, pts[3]![1] + h * 0.1);
+    p.carve.moveTo(x - w * 0.45, sill - h * 0.25);
+    p.carve.lineTo(x + w * 0.5, sill - h * 0.25);
   } else {
     path.rect(x - w / 2, sill - h, w, h);
     p.carve.moveTo(x - w * 0.7, sill - h);
@@ -814,16 +824,29 @@ const house = (
     rng,
   );
   if (state === 'hole') {
+    /* A breach through the wall: torn outline, shadowed upper edge, the far wall seen through it. */
     const hx = left + w * (0.3 + rng() * 0.4);
     const hy = root - h * (0.45 + rng() * 0.2);
-    const hr = Math.min(w, h) * 0.12;
-    local.dark.moveTo(hx - hr, hy);
-    for (let k = 1; k <= 9; k += 1) {
-      const a = Math.PI + (k / 9) * Math.PI * 2;
-      const rr = hr * (0.7 + rng() * 0.5);
-      local.dark.lineTo(hx + Math.cos(a) * rr, hy + Math.sin(a) * rr * 0.8);
+    const hr = Math.min(w, h) * 0.14;
+    const rim: Point[] = [];
+    for (let k = 0; k < 10; k += 1) {
+      const a = (k / 10) * Math.PI * 2;
+      const rr = hr * (0.7 + rng() * 0.45);
+      rim.push([hx + Math.cos(a) * rr, hy + Math.sin(a) * rr * 0.85]);
     }
-    local.dark.closePath();
+    local.carve.moveTo(...rim[0]!);
+    rim.slice(1).forEach((pt) => local.carve.lineTo(...pt));
+    local.carve.closePath();
+    local.shadow.moveTo(...rim[5]!);
+    for (const k of [6, 7, 8, 9])
+      local.shadow.lineTo(
+        rim[k]![0] * 0.85 + hx * 0.15,
+        rim[k]![1] * 0.85 + hy * 0.15,
+      );
+    local.carve.moveTo(hx - hr * 0.7, hy + hr * 0.2);
+    local.carve.lineTo(hx + hr * 0.75, hy + hr * 0.2);
+    local.hatch.moveTo(hx - hr * 0.3, hy + hr * 0.2);
+    local.hatch.lineTo(hx - hr * 0.3, hy + hr * 0.75);
   }
   weather(local.hatch, left, top, w, h, Math.max(2.4, storey * 0.45), rng);
   if (rng() < 0.6)

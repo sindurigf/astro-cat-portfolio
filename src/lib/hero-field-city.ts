@@ -98,8 +98,8 @@ export const cityRuins = (seed: number): RuinSpec[] => {
     { kind: 'fallen', x: 0.77, z: 3.6, height: 0.18, width: 0.9 },
     { kind: 'rubble', x: 0.13, z: 3.0, height: 0.25, width: 0.9 },
     { kind: 'rubble', x: 0.88, z: 2.9, height: 0.22, width: 0.8 },
-    { kind: 'block', x: 0.03, z: 2.0, height: 0.28, width: 0.75 },
-    { kind: 'block', x: 0.97, z: 2.05, height: 0.24, width: 0.65 },
+    { kind: 'block', x: 0.03, z: 2.0, height: 0.28, width: 0.75, wide: true },
+    { kind: 'block', x: 0.97, z: 2.05, height: 0.24, width: 0.65, wide: true },
     { kind: 'steps', x: 0.5, z: 2.45, order: 2.5, height: 0.2, width: 1.5 },
     {
       kind: 'monolith',
