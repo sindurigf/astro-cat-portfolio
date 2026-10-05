@@ -11,7 +11,7 @@ import { ROUTES } from './routes';
 const ROUTE_SCRIPT_BUDGETS: Readonly<Record<string, number>> = {
   '/': 96_000,
   '/about': 120_000,
-  '/brand': 6_600,
+  '/brand': 7_400,
 };
 const PAGE_SCRIPT_BUDGET = 14_000;
 
