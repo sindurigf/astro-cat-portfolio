@@ -36,11 +36,13 @@ const TARGET_DESCRIBE = `
 
 const TARGET_INLINE_IN_TEXT = `
     /*
-     * SC 2.5.5 inline exception: inline, with text around it in the line.
-     * Climbs inline ancestors: Markdown wraps prose links in \`strong\`.
+     * SC 2.5.5 inline exception: an inline-level box, a <button> included, with text
+     * around it in its block; climbs inline ancestors, as Markdown wraps links in \`strong\`.
+     * https://www.w3.org/WAI/WCAG22/Understanding/target-size-enhanced.html
      */
+    const INLINE_LEVEL = ['inline', 'inline-block'];
     const isInlineInText = (el) => {
-      if (getComputedStyle(el).display !== 'inline') return false;
+      if (!INLINE_LEVEL.includes(getComputedStyle(el).display)) return false;
 
       for (let node = el; node !== null; node = node.parentElement) {
         const parent = node.parentElement;
