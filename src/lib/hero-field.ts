@@ -51,7 +51,13 @@ import {
   stemPoint,
 } from './hero-field-scene';
 import { cityRuins } from './hero-field-city';
-import { buildRuins, drawPetals, drawRuin } from './hero-field-ruins';
+import {
+  buildRuins,
+  drawPetals,
+  drawRuin,
+  pieceRuin,
+} from './hero-field-ruins';
+import { courtyardPieces } from './hero-field-courtyard';
 import type { Ruin } from './hero-field-ruins';
 import type {
   HeroField,
@@ -155,6 +161,7 @@ const buildStems = (
   scene: Scene,
   anchors: readonly number[],
   fieldDensity = 1,
+  nearOnly = false,
 ): Stem[] => {
   const { world, view } = scene;
   const density = scene.boxWidth / world / REFERENCE_WIDTH;
@@ -182,10 +189,12 @@ const buildStems = (
     }
   };
 
-  band(BANDS.FAR, 1, true);
-  band(BANDS.GRASS, 1, true);
-  band(BANDS.MIDDLE, 1, true);
-  band(BANDS.TABLET, 1, true);
+  if (!nearOnly) {
+    band(BANDS.FAR, 1, true);
+    band(BANDS.GRASS, 1, true);
+    band(BANDS.MIDDLE, 1, true);
+    band(BANDS.TABLET, 1, true);
+  }
   /* Near stems stay at the left edge, veiled, so they never blur over type. */
   band(BANDS.NEAR, NEAR_VEIL, false);
 
@@ -507,6 +516,10 @@ export interface FieldOptions {
   readonly narrowZoom?: number;
   /** The full weed field, at this share of its stems; 0 leaves only tufts at ruin feet. */
   readonly field?: number;
+  /** The authored courtyard instead of procedural ruins; `ruins` then adds to it (the slab). */
+  readonly courtyard?: boolean;
+  /** Keep only the blurred near band of free stems; the rest grow from ruin feet. */
+  readonly nearOnly?: boolean;
 }
 
 export const createHeroField = (
@@ -536,16 +549,31 @@ export const createHeroField = (
         width / height < NARROW_ASPECT,
         specs,
       );
+      if (options.courtyard) {
+        const box = {
+          boxWidth,
+          horizon,
+          projection,
+          referenceProjection: REFERENCE_PROJECTION,
+        };
+        state.ruins = [
+          ...courtyardPieces({ cx: boxWidth / 2, horizon, projection }).map(
+            (piece) => pieceRuin(piece, box),
+          ),
+          ...state.ruins,
+        ].sort((a, b) => b.z - a.z);
+      }
       const feet = state.ruins.flatMap((ruin) =>
         ruin.feet.map(([x, z, span]) => ({ x, z, span })),
       );
       const field = options.field ?? 1;
       state.stems = [
-        ...(field > 0
+        ...(field > 0 || options.nearOnly
           ? buildStems(
               state.scene,
               feet.map((foot) => foot.x),
               field,
+              options.nearOnly,
             )
           : []),
         ...buildSparse(state.scene, feet, options.weeds ?? SPARSE.perRuin),

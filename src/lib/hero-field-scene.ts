@@ -319,6 +319,7 @@ export const FLOWER_ODDS = 0.24;
 export const BLOOM_PERIOD = 14;
 /** Petal radius and spread in bud units; opening scales both from `closed`. */
 export const PETAL = {
+  alpha: 0.95,
   radius: 3.4,
   spread: 4.6,
   closed: 0.35,

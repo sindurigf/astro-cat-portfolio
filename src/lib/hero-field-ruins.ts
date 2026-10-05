@@ -17,6 +17,8 @@ import {
   random,
 } from './hero-field-scene';
 import type { HeroPalette, RuinSpec } from './hero-field-scene';
+import { drawPiece } from './hero-field-courtyard';
+import type { Piece } from './hero-field-courtyard';
 
 type Point = readonly [number, number];
 
@@ -34,6 +36,8 @@ interface Vine {
 }
 
 export interface Ruin {
+  /** Authored masonry, drawn instead of the procedural paths. */
+  readonly piece?: Piece;
   readonly z: number;
   readonly x: number;
   readonly back: Path2D;
@@ -995,6 +999,7 @@ const monolith = (
   }
   p.light.addPath(crown);
   p.deep.addPath(side);
+
   /* Weathering: pale scuffs and pits across the face. */
   for (let k = 0; k < 40; k += 1) {
     const sx = left + w * (0.04 + rng() * 0.92);
@@ -1580,12 +1585,18 @@ const slab = (
   front.moveTo(left, bottom);
   front.lineTo(left, top + e * 2);
   front.lineTo(left + e, top);
-  front.lineTo(left + w * 0.62, top);
-  front.lineTo(left + w * 0.66, top + e * 1.2);
-  front.lineTo(left + w * 0.7, top);
+  front.lineTo(left + w * 0.55, top);
+  front.lineTo(left + w * 0.6, top + e * 3);
+  front.lineTo(left + w * 0.68, top + e * 2.2);
+  front.lineTo(left + w * 0.72, top);
   front.lineTo(right - e, top);
   front.lineTo(right, top + e);
-  front.lineTo(right, bottom);
+  front.lineTo(right, top + h * 0.55);
+  front.lineTo(right - e * 2.4, top + h * 0.58);
+  front.lineTo(right - e * 1.6, top + h * 0.64);
+  front.lineTo(right, top + h * 0.66);
+  front.lineTo(right, bottom - e * 3);
+  front.lineTo(right - e * 2, bottom);
   front.closePath();
   const side = new Path2D();
   side.moveTo(right, top + e);
@@ -1605,6 +1616,26 @@ const slab = (
   }
   p.light.addPath(crown);
   p.deep.addPath(side);
+  /* A paler weathered streak running down the face from the chipped crown. */
+  p.light.moveTo(left + w * 0.6, top + e * 3);
+  p.light.bezierCurveTo(
+    left + w * 0.66,
+    top + h * 0.3,
+    left + w * 0.56,
+    top + h * 0.6,
+    left + w * 0.62,
+    bottom - h * 0.05,
+  );
+  p.light.lineTo(left + w * 0.645, bottom - h * 0.05);
+  p.light.bezierCurveTo(
+    left + w * 0.64,
+    top + h * 0.6,
+    left + w * 0.74,
+    top + h * 0.3,
+    left + w * 0.68,
+    top + e * 2.2,
+  );
+  p.light.closePath();
   /* Light catches the left edge and the crown's front edge. */
   p.lit.moveTo(left + e * 0.7, bottom - e);
   p.lit.lineTo(left + e * 0.7, top + e * 2);
@@ -1970,6 +2001,8 @@ export const drawPetals = (
   const grow = PETAL.closed + (1 - PETAL.closed) * open;
   const spread = PETAL.spread * bud * grow;
   const radius = Math.max(0.8, PETAL.radius * bud * grow);
+  const saved = ctx.globalAlpha;
+  ctx.globalAlpha = Math.max(saved, PETAL.alpha);
   ctx.fillStyle = palette.flower;
   ctx.beginPath();
   for (let k = 0; k < PETAL.count; k += 1) {
@@ -1984,10 +2017,11 @@ export const drawPetals = (
     );
   }
   ctx.fill();
-  ctx.fillStyle = palette.bud;
+  ctx.fillStyle = palette.background;
   ctx.beginPath();
-  ctx.arc(x, y, Math.max(0.6, radius * 0.75), 0, Math.PI * 2);
+  ctx.arc(x, y, Math.max(0.6, radius * 0.6), 0, Math.PI * 2);
   ctx.fill();
+  ctx.globalAlpha = saved;
 };
 
 /* Grass in a crack, in the stems' own stroke: a fan of thin blades that sway. */
@@ -2132,6 +2166,14 @@ export const drawRuin = (
   seconds: number,
 ): void => {
   const { alpha, lineWidth } = ruin;
+  if (ruin.piece) {
+    drawPiece(ctx, palette, ruin.piece, lineWidth);
+    for (const tuft of ruin.tufts) drawTuft(ctx, tuft, lineWidth, seconds);
+    for (const vine of ruin.vines)
+      drawVine(ctx, palette, vine, lineWidth, alpha, seconds);
+    ctx.globalAlpha = 1;
+    return;
+  }
   ctx.lineJoin = 'round';
   ctx.lineCap = 'round';
   ctx.globalAlpha = 1;
@@ -2199,4 +2241,36 @@ export const drawRuin = (
   for (const vine of ruin.vines)
     drawVine(ctx, palette, vine, lineWidth, alpha, seconds);
   ctx.globalAlpha = 1;
+};
+
+/* An authored piece as a ruin, so it paints in depth order among the stems. */
+export const pieceRuin = (piece: Piece, box: Box): Ruin => {
+  const empty = new Path2D();
+  const size = box.projection / piece.z / box.referenceProjection;
+  return {
+    piece,
+    z: piece.z,
+    x: 0,
+    back: empty,
+    dark: empty,
+    light: empty,
+    moss: empty,
+    ground: empty,
+    cast: empty,
+    deep: empty,
+    shade: empty,
+    lit: empty,
+    outline: empty,
+    carve: empty,
+    hatch: empty,
+    shadow: empty,
+    feet: piece.feet,
+    tufts: [],
+    vines: piece.climbs.map((points) => ({
+      points,
+      lengths: lengthsOf(points),
+    })),
+    lineWidth: STALK_WIDTH.min + size * STALK_WIDTH.bySize,
+    alpha: 0.85,
+  };
 };
