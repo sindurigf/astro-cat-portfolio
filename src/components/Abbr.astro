@@ -1,0 +1,25 @@
+---
+/*
+ * SC 3.1.4 at an abbreviation's first use. Without JavaScript the expansion
+ * reads inline in brackets; src/scripts/abbr-tips.ts turns the abbreviation
+ * into a button that shows it on hover, focus and tap.
+ */
+interface Props {
+  short: string;
+  long: string;
+}
+
+const { short, long } = Astro.props;
+const id = `abbr-${short.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
+---
+
+<span class="abbr" data-abbr>
+  <abbr aria-describedby={id}>{short}</abbr>
+  <span class="abbr-tip" id={id} role="tooltip">
+    {long}
+  </span>
+</span>
+
+<script>
+  import '../scripts/abbr-tips';
+</script>

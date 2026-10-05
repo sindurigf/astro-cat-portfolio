@@ -1,0 +1,45 @@
+@layer components {
+  /* src/components/Abbr.astro; src/scripts/abbr-tips.ts adds the button. */
+  .abbr {
+    @apply relative;
+  }
+
+  /*
+   * Inline, so tests/target-size.spec.ts applies the SC 2.5.5 inline exception.
+   * Dotted, so it does not read as a link; no colour change, which gold forbids.
+   */
+  .abbr-trigger {
+    @apply inline border-0 bg-transparent p-0 text-inherit;
+
+    font: inherit;
+    letter-spacing: inherit;
+    text-decoration: underline dotted;
+    text-underline-offset: var(--underline-offset);
+    text-decoration-thickness: var(--underline-thin);
+  }
+
+  .abbr-trigger:hover {
+    text-decoration-thickness: var(--underline-thick);
+  }
+
+  /* Without JavaScript the expansion reads inline: "WCAG (Web Content ...)". */
+  html:not(.js) .abbr-tip::before {
+    content: ' (';
+  }
+
+  html:not(.js) .abbr-tip::after {
+    content: ')';
+  }
+
+  .js .abbr-tip {
+    @apply absolute top-full left-0 z-30 hidden w-max max-w-xs border-4
+      border-border bg-surface px-4 py-2 text-body font-normal normal-case
+      tracking-normal text-text shadow-hard-pink-4;
+
+    translate: var(--abbr-shift, 0) 0;
+  }
+
+  .js .abbr.is-open .abbr-tip {
+    @apply block;
+  }
+}
