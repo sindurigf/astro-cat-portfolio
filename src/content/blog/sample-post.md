@@ -24,8 +24,6 @@ I grew up on Ohara. Its scholars worked in a library inside the Tree of Knowledg
 
 The library's director, Professor Clover, was a friend of my mother. He let me read there long before I was old enough to understand everything I read. I did not mind. I read it anyway, and came back the next day.
 
-![A tabby cat lying on its back on a parquet floor, a wand toy by its paw.](../../assets/blog/sample-post/tabby-floor.jpg 'Photo: Licence and credit')
-
 ## Learning the stones
 
 The Poneglyphs are huge stone blocks, carved in an ancient script and, as far as anyone knows, impossible to destroy. I learned to read that script as a child. At eight I passed the archaeology exam and became a scholar of Ohara.
@@ -45,6 +43,8 @@ When I was eight, the Government answered with a Buster Call. The library burned
 A giant called Jaguar D. Saul, once a vice admiral of the Marines, protected me on the island. Because of him, I got away.
 
 I had a bounty from the age of eight: 79,000,000 berries, for a child who could read. For about twenty years I ran. I learned to trust nobody for long.
+
+![A tabby cat lying on its back on a parquet floor, a wand toy by its paw.](../../assets/blog/sample-post/tabby-floor.jpg 'Photo: Licence and credit')
 
 ## Miss All Sunday
 
