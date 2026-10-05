@@ -107,6 +107,18 @@
   }
 
   /*
+   * Two PhotoTiles side by side from `sm`, each uncropped. The sizers'
+   * ratio-sized widths (PhotoTile.astro) make flex shrink them to one height.
+   */
+  .photo-pair {
+    @apply flex flex-col gap-4 sm:flex-row sm:items-start;
+  }
+
+  .photo-pair > * {
+    @apply min-w-0 shrink grow-0 basis-auto;
+  }
+
+  /*
    * A focusable scroll strip with snapping. The transparent 4px border becomes
    * the edge in forced colours (tests/forced-colors.spec.ts).
    */

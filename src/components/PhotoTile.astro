@@ -6,8 +6,8 @@ import { WIDTHS } from '../lib/image-densities';
 
 /*
  * Links to the full-size file; src/scripts/photo-viewer.ts opens it in the
- * viewer, stepping through its `group`. `fluid` fills the tile; `natural`
- * keeps the photo's shape for a `.photo-strip`.
+ * viewer, stepping through its `group`. Never cropped: `fluid` fills the width
+ * in the photo's own ratio; `natural` sets a fixed height for a `.photo-strip`.
  */
 interface Props {
   image: ImageMetadata;
@@ -16,20 +16,11 @@ interface Props {
   size?: 'fluid' | 'natural';
   /** `fluid` only. */
   sizes?: string;
-  aspect?: 'square' | 'video';
   /** `natural` only: one inset at every width, for a strip outside About's layout. */
   stripInset?: string;
 }
 
-const {
-  image,
-  alt,
-  group,
-  size = 'fluid',
-  sizes,
-  aspect = 'square',
-  stripInset,
-} = Astro.props;
+const { image, alt, group, size = 'fluid', sizes, stripInset } = Astro.props;
 
 /*
  * Size via getImage, not `image.width`: reading the imported Proxy marks the
@@ -76,31 +67,22 @@ const full = await getImage({
   format: 'webp',
 });
 
-const ASPECT = { square: 'aspect-square', video: 'aspect-video' } as const;
-const RATIO = { square: 1, video: 16 / 9 } as const;
+/*
+ * The sizer's width and height are the ratio at this scale, so in a
+ * `.photo-pair` row flex shrinks each tile in proportion to its ratio and the
+ * photos share one height. Far wider than any row, so it always shrinks.
+ */
+const PAIR_RATIO_SCALE = 10_000;
 
-/* Crop files to the box: CSS-only cropping ships pixels tests/image-size.spec.ts flags as oversized. */
-const cropWidth = Math.min(
-  master.width,
-  Math.floor(master.height * RATIO[aspect]),
-);
-const crop = {
-  width: cropWidth,
-  height: Math.round(cropWidth / RATIO[aspect]),
-};
-const cropWidths = [
-  ...new Set([...WIDTHS.filter((width) => width < crop.width), crop.width]),
+const fluidWidths = [
+  ...new Set([...WIDTHS.filter((width) => width < master.width), master.width]),
 ];
 const hasCaption = Astro.slots.has('default');
 ---
 
 <figure class="min-w-0 bg-background p-2">
   {/* `.aspect-frame` is relative, so the sr-only span cannot escape a scrolled strip. */}
-  <a
-    href={full.src}
-    class:list={['aspect-frame block', size !== 'natural' && ASPECT[aspect]]}
-    data-photo={group}
-  >
+  <a href={full.src} class="aspect-frame block" data-photo={group}>
     {size === 'natural' ? (
       <Fragment>
         <svg
@@ -120,27 +102,31 @@ const hasCaption = Astro.slots.has('default');
         />
       </Fragment>
     ) : (
-      <Picture
-        {...PHOTO_FORMATS}
-        src={image}
-        alt={alt}
-        width={crop.width}
-        height={crop.height}
-        fit="cover"
-        widths={cropWidths}
-        sizes={sizes}
-      />
+      <Fragment>
+        <svg
+          class="aspect-sizer"
+          width={Math.round((PAIR_RATIO_SCALE * master.width) / master.height)}
+          height={PAIR_RATIO_SCALE}
+          viewBox={`0 0 ${master.width} ${master.height}`}
+          aria-hidden="true"
+          focusable="false"
+        />
+        <Picture
+          {...PHOTO_FORMATS}
+          src={image}
+          alt={alt}
+          width={master.width}
+          height={master.height}
+          widths={fluidWidths}
+          sizes={sizes}
+        />
+      </Fragment>
     )}
     <span class="sr-only">, opens full size</span>
   </a>
-  {/* In a strip the photo sets the tile's width; the caption wraps to it. */}
+  {/* The photo sets the tile's width; the caption wraps to it. */}
   {hasCaption && (
-    <figcaption
-      class:list={[
-        'mt-3 bg-background p-card-tight text-body text-text text-pretty',
-        size === 'natural' && 'w-0 min-w-full',
-      ]}
-    >
+    <figcaption class="mt-3 w-0 min-w-full bg-background py-card-tight text-body text-text text-pretty">
       <slot />
     </figcaption>
   )}

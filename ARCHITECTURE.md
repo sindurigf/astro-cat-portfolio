@@ -370,7 +370,8 @@ in `wrangler.jsonc`).
 ### Photos and video
 
 - Photos: `src/assets/photos/` (pages) and `src/assets/blog/<slug>/` (posts).
-  Masters are JPEG, cropped to shape, 2x drawn size, metadata stripped.
+  Masters are JPEG, metadata stripped, never cropped on display: tiles, pairs,
+  strips, figures and covers show the whole file; only `og:image` crops.
 - Fixed-size photos pass `DENSITIES`; fluid ones pass `WIDTHS` and `sizes`
   from `src/lib/image-densities.ts`. `WIDTHS` steps at most 1.5x; `sizes` is
   the real drawn width. `tests/image-size.spec.ts` fails on stretching,
