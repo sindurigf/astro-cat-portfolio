@@ -1,6 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 import { assertPortFree, TEST_WORKER_PORT } from './tests/ports';
 import { NODE_TAG } from './tests/tags';
+import { BUILD_AND_SERVE_TIMEOUT_MS } from './playwright.worker.config';
 
 /*
  * DEMO_SPECS against a build with the demo's variables, served by the Worker
@@ -51,7 +52,7 @@ export default defineConfig({
     /* ASTRO_PREVIEW_BACKGROUND: playwright.worker.config.ts. */
     env: { ...DEMO_ENV, ASTRO_PREVIEW_BACKGROUND: '1' },
     reuseExistingServer: false,
-    timeout: 120_000,
+    timeout: BUILD_AND_SERVE_TIMEOUT_MS,
     stdout: 'pipe',
     stderr: 'pipe',
   },

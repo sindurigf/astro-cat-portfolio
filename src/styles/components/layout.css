@@ -31,9 +31,12 @@
    * On a landscape `lg` window the slab fills it less the overhang, so the
    * photo's shadow lands on the fold: its 8px lift cancels the slab's border.
    */
-  .page-hero-photo {
+  .page-hero-photo,
+  .post-slab-photo {
     margin-block-end: var(--spacing-head);
+  }
 
+  .page-hero-photo {
     @media (width >= 64rem) and (orientation: landscape) {
       display: flex;
       flex-direction: column;

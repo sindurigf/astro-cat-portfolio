@@ -6,7 +6,12 @@ import {
   type Page,
 } from './test';
 import { AA_TEXT, NON_TEXT, PAGE_HELPERS } from './contrast';
-import { BLOG_FEATURES_COVER, builtHtml, PHOTO_POST_ROUTES } from './routes';
+import {
+  BLOG_FEATURES_COVER,
+  builtHtml,
+  PHOTO_POST_ROUTES,
+  POSTS,
+} from './routes';
 import { gotoSettled } from './settle';
 import { NODE } from './tags';
 import { IMAGE_REQUEST } from './html';
@@ -24,7 +29,10 @@ const FRAME_ROUTES = [
   '/about',
   '/brand',
   ...(BLOG_FEATURES_COVER ? ['/blog'] : []),
-  ...PHOTO_POST_ROUTES,
+  ...new Set([
+    ...PHOTO_POST_ROUTES,
+    ...POSTS.filter((post) => post.hasCover).map((post) => post.route),
+  ]),
 ];
 
 /* How long to hold the page's scripts back so the images fail first. */

@@ -11,6 +11,7 @@ personaSources: true
 seoTitle: 'What Ohara Taught Me'
 cover: '../../assets/blog/sample-post/cover.jpg'
 coverAlt: 'A tabby cat resting its chin on the edge of a cat bed, one paw stretched out.'
+coverCredit: 'Licence and credit'
 coverCardAlt: 'A tabby cat resting its chin on the edge of a cat bed.'
 seoDescription: 'How I became an archaeologist: the Library of Ohara, the Poneglyphs, twenty years on the run and the Straw Hat Pirates.'
 ---

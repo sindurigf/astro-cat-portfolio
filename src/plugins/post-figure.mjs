@@ -4,7 +4,9 @@
  * bars inline styles. Its title becomes a figcaption, linked via PHOTOGRAPHERS.
  */
 
+import { readFileSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
+import { fileURLToPath } from 'node:url';
 import { imageMetadata } from 'astro/assets/utils';
 import { PHOTOGRAPHERS, PHOTO_CREDIT_PREFIX } from '../lib/credits.ts';
 
@@ -83,12 +85,24 @@ const captionChildren = (caption) => {
   ];
 };
 
+/* A post with a `cover` opens on it (src/pages/blog/[slug].astro), so that photo loads first. */
+const FRONTMATTER = /^---\n([\s\S]*?)\n---/;
+const COVER_FIELD = /^cover:/m;
+
+const opensOnCover = (fileURL) => {
+  const path = String(fileURL ?? '');
+  if (!path.endsWith('.md')) return false;
+  const source = readFileSync(fileURLToPath(path), 'utf8');
+  return COVER_FIELD.test(FRONTMATTER.exec(source)?.[1] ?? '');
+};
+
 /*
  * A factory, so each post gets its own first image, which sits in the first
  * screen. Not slides: each is compiled alone, so every slide would have one.
  */
 export const postFigure = ({ fileURL } = {}) => {
-  let firstSeen = String(fileURL ?? '').includes(TALKS_PATH);
+  let firstSeen =
+    String(fileURL ?? '').includes(TALKS_PATH) || opensOnCover(fileURL);
   const isFirst = () => !firstSeen && (firstSeen = true);
 
   return {
