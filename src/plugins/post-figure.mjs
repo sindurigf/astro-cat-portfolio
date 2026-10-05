@@ -9,6 +9,7 @@ import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { imageMetadata } from 'astro/assets/utils';
 import {
+  LICENSED_PHOTOS,
   PHOTOGRAPHERS,
   PHOTO_CREDIT_PREFIX,
   SCREENSHOT_CREDIT_PREFIX,
@@ -84,7 +85,25 @@ const link = (href, label) => ({
   children: [text(label)],
 });
 
-const captionChildren = (caption) => {
+/** A Creative Commons photo's source, licence and changes, keyed by its file name. */
+export const licenceChildren = (src, photos = LICENSED_PHOTOS) => {
+  const stem =
+    String(src)
+      .split('/')
+      .pop()
+      ?.replace(/\.[^.]+$/, '') ?? '';
+  const photo = Object.hasOwn(photos, stem) ? photos[stem] : undefined;
+  if (photo === undefined) return [];
+  return [
+    text(' ('),
+    link(photo.source, photo.title),
+    text(` on ${photo.sourceName}, `),
+    link(photo.licenceHref, photo.licence),
+    text(`, ${photo.changes})`),
+  ];
+};
+
+export const captionChildren = (caption, src, photos = LICENSED_PHOTOS) => {
   const [prefix, sources] =
     CREDITS.find(([candidate]) => caption.startsWith(candidate)) ?? [];
   if (prefix === undefined) return [text(caption)];
@@ -93,7 +112,7 @@ const captionChildren = (caption) => {
   const href = Object.hasOwn(sources, name) ? sources[name] : undefined;
   if (href === undefined) return [text(caption)];
 
-  return [text(prefix), link(href, name)];
+  return [text(prefix), link(href, name), ...licenceChildren(src, photos)];
 };
 
 /* A post with a `cover` opens on it (src/pages/blog/[slug].astro), so that photo loads first. */
@@ -172,7 +191,7 @@ export const postFigure = ({ fileURL } = {}) => {
               type: 'element',
               tagName: 'figcaption',
               properties: {},
-              children: captionChildren(caption),
+              children: captionChildren(caption, properties.src),
             },
           ],
         });

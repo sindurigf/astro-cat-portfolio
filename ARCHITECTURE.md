@@ -388,6 +388,11 @@ in `wrangler.jsonc`).
   after "Photo: " in a caption. Captions and `/credits` read from it. A
   Markdown image title "Photo: name" links `PHOTOGRAPHERS`, "Screenshot: name"
   links `SCREENSHOT_SOURCES`; an unlisted name stays plain text.
+- A Creative Commons photo goes in `LICENSED_PHOTOS`, keyed by its file name
+  without the extension: `photographer`, `title`, `source`, `sourceName`,
+  `licence` (spelled out), `licenceHref` and `changes`. Its "Photo: name"
+  caption then adds "(title on sourceName, licence, changes)", linked, and
+  /credits lists it. Empty in the template.
 - **Video** goes in `public/videos/` (none published). Encode AV1 WebM, H.264
   MP4 fallback, WebP poster, WebVTT captions; max 25 MiB a file.
   - Workers static assets answer `Range` with a full `200`; Safari and iOS need

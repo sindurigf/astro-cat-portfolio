@@ -4,6 +4,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import PageHero from '../components/PageHero.astro';
 import { CONTACT_EMAIL, CONTACT_MAILTO } from '../lib/contact';
 import {
+  LICENSED_PHOTOS,
   NAME_INSPIRATION,
   PHOTO_CREDITS_PATH,
   PHOTOGRAPHERS,
@@ -241,6 +242,24 @@ const NAMED_ENTRY = 'min-w-0 bg-background p-card-tight';
                   <a href={href} class={LINK_ITEM}>
                     {name}
                   </a>
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
+
+        {Object.keys(LICENSED_PHOTOS).length > 0 && (
+          <>
+            <p class="mt-6 text-body text-text text-pretty">
+              Used under a Creative Commons licence:
+            </p>
+            <ul class="bullet-list mt-4">
+              {Object.values(LICENSED_PHOTOS).map((photo) => (
+                <li>
+                  <a href={photo.source}>{photo.title}</a>, by{' '}
+                  {photo.photographer}, on {photo.sourceName},{' '}
+                  <a href={photo.licenceHref}>{photo.licence}</a>,{' '}
+                  {photo.changes}
                 </li>
               ))}
             </ul>

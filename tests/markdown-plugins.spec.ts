@@ -4,8 +4,12 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { dirname, join, relative, resolve } from 'node:path';
 import { expect, test } from './test';
 import { linkListItem } from '../src/plugins/link-list-item.mjs';
-import { postFigure } from '../src/plugins/post-figure.mjs';
-import { PHOTOGRAPHERS, SCREENSHOT_SOURCES } from '../src/lib/credits';
+import { captionChildren, postFigure } from '../src/plugins/post-figure.mjs';
+import {
+  PHOTOGRAPHERS,
+  SCREENSHOT_SOURCES,
+  type LicensedPhoto,
+} from '../src/lib/credits';
 import { NODE } from './tags';
 import { BLOG_CONTENT_DIR, TALKS_DIR } from './routes';
 import { DECK_FILE } from '../src/lib/slides';
@@ -128,6 +132,50 @@ test.describe('post-figure', NODE, () => {
       expect(anchor?.properties?.href, `${name} is not linked`).toBe(href);
     });
   }
+
+  test('a Creative Commons photo credits its source, licence and changes', () => {
+    const photo: LicensedPhoto = {
+      photographer: 'Licence and credit',
+      title: 'A Fixture Photo',
+      source: 'https://photos.example/fixture',
+      sourceName: 'Photos Example',
+      licence: 'Creative Commons Attribution 4.0',
+      licenceHref: 'https://creativecommons.org/licenses/by/4.0/',
+      changes: 'cropped',
+    };
+    const nodes: Node[] = captionChildren(
+      'Photo: Licence and credit',
+      '../../assets/blog/x/cc-fixture.jpg',
+      { 'cc-fixture': photo },
+    );
+    const textOf = (node: Node): string =>
+      node.type === 'text'
+        ? String(node.value)
+        : (node.children ?? []).map(textOf).join('');
+    expect(
+      nodes.map(textOf).join(''),
+      'the caption does not name the source, licence and changes',
+    ).toBe(
+      'Photo: Licence and credit (A Fixture Photo on Photos Example, Creative Commons Attribution 4.0, cropped)',
+    );
+    expect(
+      nodes
+        .filter((node) => node.tagName === 'a')
+        .map((a) => a.properties?.href),
+      'the photographer, source and licence are not all linked',
+    ).toEqual([
+      PHOTOGRAPHERS['Licence and credit'],
+      photo.source,
+      photo.licenceHref,
+    ]);
+  });
+
+  test('a photo not in LICENSED_PHOTOS gets no licence text', () => {
+    expect(
+      captionChildren('Photo: Licence and credit', 'other.jpg', {}).length,
+      'a licence was added to an unlicensed photo',
+    ).toBe(2);
+  });
 
   test('a credit naming an unlisted source stays plain text', async () => {
     const img = el('img', [], {
