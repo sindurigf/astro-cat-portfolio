@@ -4,9 +4,11 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import PageHero from '../components/PageHero.astro';
 import { CONTACT_EMAIL, CONTACT_MAILTO } from '../lib/contact';
 import {
+  LICENSED_PHOTOS,
   NAME_INSPIRATION,
   PHOTO_CREDITS_PATH,
   PHOTOGRAPHERS,
+  SCREENSHOT_SOURCES,
   THANKS,
 } from '../lib/credits';
 import { MOTTO, REPOSITORY_URL, SITE_NAME } from '../lib/site';
@@ -227,6 +229,41 @@ const NAMED_ENTRY = 'min-w-0 bg-background p-card-tight';
               </li>
             ))}
           </ul>
+        )}
+
+        {Object.keys(SCREENSHOT_SOURCES).length > 0 && (
+          <>
+            <p class="mt-6 text-body text-text text-pretty">
+              Screenshots in posts are from:
+            </p>
+            <ul class="bullet-list mt-4">
+              {Object.entries(SCREENSHOT_SOURCES).map(([name, href]) => (
+                <li>
+                  <a href={href} class={LINK_ITEM}>
+                    {name}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
+
+        {Object.keys(LICENSED_PHOTOS).length > 0 && (
+          <>
+            <p class="mt-6 text-body text-text text-pretty">
+              Used under a Creative Commons licence:
+            </p>
+            <ul class="bullet-list mt-4">
+              {Object.values(LICENSED_PHOTOS).map((photo) => (
+                <li>
+                  <a href={photo.source}>{photo.title}</a>, by{' '}
+                  {photo.photographer}, on {photo.sourceName},{' '}
+                  <a href={photo.licenceHref}>{photo.licence}</a>,{' '}
+                  {photo.changes}
+                </li>
+              ))}
+            </ul>
+          </>
         )}
       </div>
     </div>

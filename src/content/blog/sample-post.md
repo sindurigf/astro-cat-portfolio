@@ -18,8 +18,6 @@ seoDescription: 'How I became an archaeologist: the Library of Ohara, the Ponegl
 
 People ask how I came to read stones that almost nobody else can read. The answer starts on an island in West Blue.
 
-![A tabby cat lying on its back on a parquet floor, a wand toy by its paw.](../../assets/blog/sample-post/tabby-floor.jpg 'Photo: Licence and credit')
-
 ## The library in the tree
 
 I grew up on Ohara. Its scholars worked in a library inside the Tree of Knowledge, a tree about 5,000 years old. For a child who loved books, there was no better place on any sea.
@@ -45,6 +43,8 @@ When I was eight, the Government answered with a Buster Call. The library burned
 A giant called Jaguar D. Saul, once a vice admiral of the Marines, protected me on the island. Because of him, I got away.
 
 I had a bounty from the age of eight: 79,000,000 berries, for a child who could read. For about twenty years I ran. I learned to trust nobody for long.
+
+![A tabby cat lying on its back on a parquet floor, a wand toy by its paw.](../../assets/blog/sample-post/tabby-floor.jpg 'Photo: Licence and credit')
 
 ## Miss All Sunday
 

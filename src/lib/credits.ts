@@ -21,6 +21,33 @@ export const photographerHref = (name: Photographer): string => {
 
 export const PHOTO_CREDIT_PREFIX = 'Photo: ';
 
+/* Keyed by the name as written after "Screenshot: "; a placeholder to replace or empty. */
+export const SCREENSHOT_SOURCES = {
+  'Example Project': 'https://example.org/',
+} as const satisfies Readonly<Record<string, string>>;
+
+export const SCREENSHOT_CREDIT_PREFIX = 'Screenshot: ';
+
+export interface LicensedPhoto {
+  photographer: string;
+  /** The photo's title where it is published. */
+  title: string;
+  source: string;
+  /** Where `source` is, e.g. Flickr or Wikimedia Commons. */
+  sourceName: string;
+  /** Spelled out, e.g. "Creative Commons Attribution 4.0" (SC 3.1.4). */
+  licence: string;
+  licenceHref: string;
+  /** What was changed, as the licence asks, e.g. "cropped and resized". */
+  changes: string;
+}
+
+/**
+ * Photos used under a Creative Commons licence, keyed by file name without its
+ * extension: the caption and /credits link the source and licence and say what changed.
+ */
+export const LICENSED_PHOTOS: Readonly<Record<string, LicensedPhoto>> = {};
+
 /** Where the site's name comes from, credited on /credits. */
 export const NAME_INSPIRATION = {
   name: 'Sam Example',

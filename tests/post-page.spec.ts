@@ -201,6 +201,137 @@ test.describe('the cover as the post hero', () => {
   }
 });
 
+/* `--figure-max-height` in prose.css. */
+const FIGURE_MAX_HEIGHT_SHARE = 0.8;
+const FIGURE_VIEWPORT_HEIGHT = 900;
+/* Centring and edges snap to the device pixel. */
+const FIGURE_ALIGN_TOLERANCE = 1;
+
+/*
+ * Body figures, docs/STYLEGUIDE.md "Posts": uncropped and never past the
+ * viewport (SC 1.4.10); a landscape wider than the text, a portrait centred on it.
+ */
+test.describe('body figures', () => {
+  for (const post of POSTS) {
+    for (const width of [390, 1280, 1920]) {
+      test(`${post.route} at ${width}px shows each figure whole, sized to the text`, async ({
+        page,
+      }) => {
+        await page.setViewportSize({ width, height: FIGURE_VIEWPORT_HEIGHT });
+        await gotoSettled(page, post.route);
+        const figures = await page.evaluate(() => {
+          const prose = document
+            .querySelector('.prose')!
+            .getBoundingClientRect();
+          const column = document
+            .querySelector('.post-layout')!
+            .getBoundingClientRect();
+          const rail = document
+            .querySelector('.post-contents')
+            ?.getBoundingClientRect();
+          return [...document.querySelectorAll('.prose figure')].map(
+            (figure) => {
+              const frame = figure
+                .querySelector('.aspect-frame')!
+                .getBoundingClientRect();
+              const [, , w, h] = figure
+                .querySelector('.aspect-sizer')!
+                .getAttribute('viewBox')!
+                .split(' ')
+                .map(Number);
+              const caption = figure
+                .querySelector('figcaption')
+                ?.getBoundingClientRect();
+              const box = figure.getBoundingClientRect();
+              return {
+                portrait: h! > w!,
+                ratio: frame.width / frame.height / (w! / h!),
+                left: frame.left,
+                right: frame.right,
+                height: frame.height,
+                centreOffset:
+                  (frame.left + frame.right) / 2 -
+                  (prose.left + prose.right) / 2,
+                wider: frame.width - prose.width,
+                captionLeft: caption?.left ?? frame.left,
+                viewport: document.documentElement.clientWidth,
+                boxRight: box.right,
+                proseLeft: prose.left,
+                columnRight: column.right,
+                hitsRail:
+                  rail !== undefined &&
+                  rail.width > 0 &&
+                  box.left < rail.right &&
+                  box.right > rail.left &&
+                  box.top < rail.bottom &&
+                  box.bottom > rail.top,
+              };
+            },
+          );
+        });
+        test.skip(figures.length === 0, `${post.route} has no body figure`);
+
+        for (const [index, figure] of figures.entries()) {
+          const name = `figure ${index + 1}`;
+          expect(
+            Math.abs(figure.ratio - 1),
+            `${name} is cropped: its frame differs from the file's ratio`,
+          ).toBeLessThanOrEqual(COVER_RATIO_TOLERANCE);
+          expect(
+            figure.left,
+            `${name} runs off the left edge`,
+          ).toBeGreaterThanOrEqual(0);
+          expect(
+            figure.right,
+            `${name} runs off the right edge`,
+          ).toBeLessThanOrEqual(figure.viewport + SUBPIXEL_TOLERANCE);
+          expect(
+            figure.height,
+            `${name} is taller than the viewport cap`,
+          ).toBeLessThanOrEqual(
+            FIGURE_VIEWPORT_HEIGHT * FIGURE_MAX_HEIGHT_SHARE +
+              SUBPIXEL_TOLERANCE,
+          );
+          expect(
+            Math.abs(figure.captionLeft - figure.left),
+            `${name}'s caption does not start at the image's edge`,
+          ).toBeLessThanOrEqual(FIGURE_ALIGN_TOLERANCE);
+          if (figure.portrait) {
+            expect(
+              Math.abs(figure.centreOffset),
+              `${name} is a portrait off the text column's centre`,
+            ).toBeLessThanOrEqual(FIGURE_ALIGN_TOLERANCE);
+          }
+        }
+
+        if (width >= 1280) {
+          for (const [index, figure] of figures.entries()) {
+            expect(
+              figure.hitsRail,
+              `figure ${index + 1} overlaps the contents list: move it below the contents in the post`,
+            ).toBe(false);
+          }
+          const landscapes = figures.filter((f) => !f.portrait);
+          for (const figure of landscapes) {
+            expect(
+              Math.abs(figure.boxRight - figure.columnRight),
+              "a landscape figure does not reach the page column's right edge",
+            ).toBeLessThanOrEqual(FIGURE_ALIGN_TOLERANCE);
+            expect(
+              Math.abs(figure.left - figure.proseLeft),
+              "a landscape image does not start at the text's left edge",
+            ).toBeLessThanOrEqual(FIGURE_ALIGN_TOLERANCE);
+            expect(
+              figure.right,
+              "a landscape image runs past the page column's right edge",
+            ).toBeLessThanOrEqual(figure.columnRight + FIGURE_ALIGN_TOLERANCE);
+          }
+        }
+      });
+    }
+  }
+});
+
 /* A photographer is credited in the date line, linked when the site knows them. */
 test.describe('the cover credit', () => {
   for (const post of POSTS.filter((p) => p.hasCover && p.coverCredit)) {

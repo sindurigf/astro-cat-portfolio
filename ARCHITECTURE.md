@@ -380,12 +380,23 @@ in `wrangler.jsonc`).
 - `/about` photo boxes match their file's ratio (hence CSS-column masonry). No
   text over photos.
 - Markdown images: `post-figure.mjs` sets `layout: 'full-width'` so
-  `image.breakpoints` applies. An image alone in a paragraph with a title
-  becomes a `figure` with that `figcaption`.
+  `image.breakpoints` (`MARKDOWN_WIDTHS`) applies. An image alone in a post
+  paragraph becomes a `figure`, its title the `figcaption`; a portrait gets
+  `.figure-portrait`. `.post-layout` is the container a figure breaks out to.
+- From `xl` a landscape figure breaks out right, under the contents rail's
+  column: place it below the contents; `tests/post-page.spec.ts` fails a
+  figure that overlaps the rail.
 - Markdown images are WebP only: Markdown renders
   `<img>`, not `<Picture>`, so `PHOTO_FORMATS` (AVIF first) does not reach them.
 - Credits: `src/lib/credits.ts`, one link per photographer, keyed by the name
-  after "Photo: " in a caption. Captions and `/credits` read from it.
+  after "Photo: " in a caption. Captions and `/credits` read from it. A
+  Markdown image title "Photo: name" links `PHOTOGRAPHERS`, "Screenshot: name"
+  links `SCREENSHOT_SOURCES`; an unlisted name stays plain text.
+- A Creative Commons photo goes in `LICENSED_PHOTOS`, keyed by its file name
+  without the extension: `photographer`, `title`, `source`, `sourceName`,
+  `licence` (spelled out), `licenceHref` and `changes`. Its "Photo: name"
+  caption then adds "(title on sourceName, licence, changes)", linked, and
+  /credits lists it. Empty in the template.
 - **Video** goes in `public/videos/` (none published). Encode AV1 WebM, H.264
   MP4 fallback, WebP poster, WebVTT captions; max 25 MiB a file.
   - Workers static assets answer `Range` with a full `200`; Safari and iOS need
