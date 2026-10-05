@@ -1,14 +1,24 @@
 /*
  * Adds `layout` and `sizes` to markdown images for getImage(). A lone image gets
  * an SVG-viewBox `.aspect-frame`: WebKit drops a failed image's size and the CSP
- * bars inline styles. Its title becomes a figcaption, linked via PHOTOGRAPHERS.
+ * bars inline styles. Its title becomes a figcaption, linked via CREDITS.
  */
 
 import { readFileSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { imageMetadata } from 'astro/assets/utils';
-import { PHOTOGRAPHERS, PHOTO_CREDIT_PREFIX } from '../lib/credits.ts';
+import {
+  PHOTOGRAPHERS,
+  PHOTO_CREDIT_PREFIX,
+  SCREENSHOT_CREDIT_PREFIX,
+  SCREENSHOT_SOURCES,
+} from '../lib/credits.ts';
+
+const CREDITS = [
+  [PHOTO_CREDIT_PREFIX, PHOTOGRAPHERS],
+  [SCREENSHOT_CREDIT_PREFIX, SCREENSHOT_SOURCES],
+];
 
 /* `--container-measure`, less the gutter on narrow viewports. */
 const SIZES =
@@ -67,22 +77,23 @@ const framed = (image, { width, height }) => ({
   ],
 });
 
-const captionChildren = (caption) => {
-  if (!caption.startsWith(PHOTO_CREDIT_PREFIX)) return [text(caption)];
+const link = (href, label) => ({
+  type: 'element',
+  tagName: 'a',
+  properties: { href },
+  children: [text(label)],
+});
 
-  const name = caption.slice(PHOTO_CREDIT_PREFIX.length);
-  const href = PHOTOGRAPHERS[name];
+const captionChildren = (caption) => {
+  const [prefix, sources] =
+    CREDITS.find(([candidate]) => caption.startsWith(candidate)) ?? [];
+  if (prefix === undefined) return [text(caption)];
+
+  const name = caption.slice(prefix.length);
+  const href = Object.hasOwn(sources, name) ? sources[name] : undefined;
   if (href === undefined) return [text(caption)];
 
-  return [
-    text(PHOTO_CREDIT_PREFIX),
-    {
-      type: 'element',
-      tagName: 'a',
-      properties: { href },
-      children: [text(name)],
-    },
-  ];
+  return [text(prefix), link(href, name)];
 };
 
 /* A post with a `cover` opens on it (src/pages/blog/[slug].astro), so that photo loads first. */

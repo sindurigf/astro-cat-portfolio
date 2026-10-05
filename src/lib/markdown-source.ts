@@ -12,8 +12,12 @@ import { postHref } from './paths';
 /** The post column at 2x. */
 const SOURCE_IMAGE_WIDTH = 1200;
 
+/* Site photos too, so a post can reuse one that /about shows. */
 const POST_IMAGES = import.meta.glob<{ default: ImageMetadata }>(
-  '../assets/blog/**/*.{jpg,jpeg,png,webp}',
+  [
+    '../assets/blog/**/*.{jpg,jpeg,png,webp}',
+    '../assets/photos/**/*.{jpg,jpeg,png,webp}',
+  ],
   { eager: true },
 );
 
@@ -22,7 +26,7 @@ const imageFor = (relativePath: string): ImageMetadata => {
   const image = POST_IMAGES[key]?.default;
   if (!image) {
     throw new Error(
-      `A post links ${relativePath}, which is not under src/assets/blog/.`,
+      `A post links ${relativePath}, which is not under src/assets/blog/ or src/assets/photos/.`,
     );
   }
   return image;

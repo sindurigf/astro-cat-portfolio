@@ -385,7 +385,9 @@ in `wrangler.jsonc`).
 - Markdown images are WebP only: Markdown renders
   `<img>`, not `<Picture>`, so `PHOTO_FORMATS` (AVIF first) does not reach them.
 - Credits: `src/lib/credits.ts`, one link per photographer, keyed by the name
-  after "Photo: " in a caption. Captions and `/credits` read from it.
+  after "Photo: " in a caption. Captions and `/credits` read from it. A
+  Markdown image title "Photo: name" links `PHOTOGRAPHERS`, "Screenshot: name"
+  links `SCREENSHOT_SOURCES`; an unlisted name stays plain text.
 - **Video** goes in `public/videos/` (none published). Encode AV1 WebM, H.264
   MP4 fallback, WebP poster, WebVTT captions; max 25 MiB a file.
   - Workers static assets answer `Range` with a full `200`; Safari and iOS need

@@ -7,6 +7,7 @@ import {
   NAME_INSPIRATION,
   PHOTO_CREDITS_PATH,
   PHOTOGRAPHERS,
+  SCREENSHOT_SOURCES,
   THANKS,
 } from '../lib/credits';
 import { MOTTO, REPOSITORY_URL, SITE_NAME } from '../lib/site';
@@ -227,6 +228,23 @@ const NAMED_ENTRY = 'min-w-0 bg-background p-card-tight';
               </li>
             ))}
           </ul>
+        )}
+
+        {Object.keys(SCREENSHOT_SOURCES).length > 0 && (
+          <>
+            <p class="mt-6 text-body text-text text-pretty">
+              Screenshots in posts are from:
+            </p>
+            <ul class="bullet-list mt-4">
+              {Object.entries(SCREENSHOT_SOURCES).map(([name, href]) => (
+                <li>
+                  <a href={href} class={LINK_ITEM}>
+                    {name}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </>
         )}
       </div>
     </div>

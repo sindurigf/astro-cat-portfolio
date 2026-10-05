@@ -21,6 +21,13 @@ export const photographerHref = (name: Photographer): string => {
 
 export const PHOTO_CREDIT_PREFIX = 'Photo: ';
 
+/* Keyed by the name as written after "Screenshot: "; a placeholder to replace or empty. */
+export const SCREENSHOT_SOURCES = {
+  'Example Project': 'https://example.org/',
+} as const satisfies Readonly<Record<string, string>>;
+
+export const SCREENSHOT_CREDIT_PREFIX = 'Screenshot: ';
+
 /** Where the site's name comes from, credited on /credits. */
 export const NAME_INSPIRATION = {
   name: 'Sam Example',

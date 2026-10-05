@@ -133,8 +133,14 @@ const hasCaption = Astro.slots.has('default');
     )}
     <span class="sr-only">, opens full size</span>
   </a>
+  {/* In a strip the photo sets the tile's width; the caption wraps to it. */}
   {hasCaption && (
-    <figcaption class="mt-3 bg-background p-card-tight text-body text-text text-pretty">
+    <figcaption
+      class:list={[
+        'mt-3 bg-background p-card-tight text-body text-text text-pretty',
+        size === 'natural' && 'w-0 min-w-full',
+      ]}
+    >
       <slot />
     </figcaption>
   )}

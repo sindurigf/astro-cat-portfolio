@@ -5,6 +5,7 @@ import { dirname, join, relative, resolve } from 'node:path';
 import { expect, test } from './test';
 import { linkListItem } from '../src/plugins/link-list-item.mjs';
 import { postFigure } from '../src/plugins/post-figure.mjs';
+import { PHOTOGRAPHERS, SCREENSHOT_SOURCES } from '../src/lib/credits';
 import { NODE } from './tags';
 import { BLOG_CONTENT_DIR, TALKS_DIR } from './routes';
 import { DECK_FILE } from '../src/lib/slides';
@@ -106,6 +107,43 @@ test.describe('post-figure', NODE, () => {
     expect(figure.tagName).toBe('figure');
     const caption = figure.children!.find((c) => c.tagName === 'figcaption');
     expect(caption, 'the title became no caption').toBeDefined();
+  });
+
+  for (const [prefix, name, href] of [
+    ['Photo: ', 'Licence and credit', PHOTOGRAPHERS['Licence and credit']],
+    ['Screenshot: ', 'Example Project', SCREENSHOT_SOURCES['Example Project']],
+  ] as const) {
+    test(`a "${prefix}${name}" caption links the listed source`, async () => {
+      const img = el('img', [], {
+        src: PHOTO,
+        alt: 'x',
+        title: `${prefix}${name}`,
+      });
+      const root = el('root', [el('p', [img])]);
+      await postFigure().element.visit(img, contextFor(root, POST_URL));
+      const caption = root.children![0]!.children!.find(
+        (c) => c.tagName === 'figcaption',
+      )!;
+      const anchor = caption.children!.find((c) => c.tagName === 'a');
+      expect(anchor?.properties?.href, `${name} is not linked`).toBe(href);
+    });
+  }
+
+  test('a credit naming an unlisted source stays plain text', async () => {
+    const img = el('img', [], {
+      src: PHOTO,
+      alt: 'x',
+      title: 'Screenshot: Nobody Listed',
+    });
+    const root = el('root', [el('p', [img])]);
+    await postFigure().element.visit(img, contextFor(root, POST_URL));
+    const caption = root.children![0]!.children!.find(
+      (c) => c.tagName === 'figcaption',
+    )!;
+    expect(
+      caption.children!.some((c) => c.tagName === 'a'),
+      'an unlisted source was linked',
+    ).toBe(false);
   });
 
   test('an image inside a sentence keeps its paragraph and its title', async () => {
