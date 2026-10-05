@@ -37,6 +37,8 @@ type FirstUse = {
   sentence: string;
   /** The use sits in a `<dfn>` whose text is exactly the term (H54). */
   defining: boolean;
+  /** Text of what the nearest `aria-describedby` ancestor points to, or null. */
+  description: string | null;
 };
 
 /** The first visible use of `term` in `<main>`, or null when there is none. */
@@ -65,9 +67,19 @@ export const firstUse = (page: Page, term: string): Promise<FirstUse | null> =>
       const text = (block.textContent ?? '').replace(/\s+/g, ' ').trim();
       const sentences = text.split(/(?<=[.!?])\s+(?=[A-Z(])/);
       const dfn = parent.closest('dfn');
+      const described = parent.closest('[aria-describedby]');
+      const ids =
+        described?.getAttribute('aria-describedby')?.split(/\s+/) ?? [];
+      const description = described
+        ? ids
+            .map((id) => document.getElementById(id)?.textContent ?? '')
+            .join(' ')
+            .trim()
+        : null;
       return {
         sentence: sentences.find((sentence) => use.test(sentence)) ?? text,
         defining: dfn?.textContent?.trim() === word,
+        description,
       };
     }
     return null;
