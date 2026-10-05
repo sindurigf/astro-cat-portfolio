@@ -301,6 +301,11 @@ Commits, copy rules and process: [AGENTS.md](AGENTS.md).
   `webServer` builds, so a literal subset of `ROUTES` is unavoidable; a second
   test derives the real list from the build and fails when the literal falls
   behind. `FRAME_ROUTES` in `tests/failed-images.spec.ts` is the pattern.
+- **CI caches optimised images, not `dist/`.** Each shard's `webServer` runs
+  `npm run build`; image generation is nearly all of it. The checks job saves
+  `node_modules/.astro/assets` and the shards restore it, so the shards still
+  start together. A shared `dist/` artifact would need a build job in front of
+  them.
 - Post, category and tag routes in `tests/routes.ts` are read from
   `src/content/blog/` frontmatter, which exists at collection. A test that
   needs a particular post picks it by property (`CONTENTS_POST_ROUTE`,

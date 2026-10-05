@@ -76,8 +76,34 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # After `npm ci`, which empties node_modules. Astro names each cached image
+      # by a hash of its source and options, so an older entry is never served.
+      - name: Restore optimised images
+        id: images
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: node_modules/.astro/assets
+          key: ${{ runner.os }}-astro-images-${{ hashFiles('package-lock.json', 'astro.config.mjs', 'src/**') }}
+          restore-keys: ${{ runner.os }}-astro-images-
+
       - name: Build
         run: npm run build
+
+      # The one writer: six shards saving one key would race. Entries this build
+      # did not write are dropped, so restore-keys cannot grow the cache.
+      - name: Drop images this build did not use
+        if: ${{ steps.images.outputs.cache-hit != 'true' }}
+        run: |
+          find node_modules/.astro/assets -type f ! -name '*.json' | while read -r file; do
+            [ -e "dist/client/_astro/$(basename "$file")" ] || rm -f "$file" "$file.json"
+          done
+
+      - name: Save optimised images
+        if: ${{ steps.images.outputs.cache-hit != 'true' }}
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: node_modules/.astro/assets
+          key: ${{ steps.images.outputs.cache-primary-key }}
 
       # One script, so CI and a local run cannot list different checks. After
       # the build: check:classes and check:untransformed read dist/.
@@ -148,6 +174,14 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # Saved by the checks job; the web server's `npm run build` reuses them.
+      - name: Restore optimised images
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: node_modules/.astro/assets
+          key: ${{ runner.os }}-astro-images-${{ hashFiles('package-lock.json', 'astro.config.mjs', 'src/**') }}
+          restore-keys: ${{ runner.os }}-astro-images-
+
       # Read, not repeated: a range would key the cache to a stale version.
       - name: Read the pinned Playwright version
         id: playwright
@@ -214,6 +248,14 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      # The same images as the shards; only the demo's variables differ.
+      - name: Restore optimised images
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: node_modules/.astro/assets
+          key: ${{ runner.os }}-astro-images-${{ hashFiles('package-lock.json', 'astro.config.mjs', 'src/**') }}
+          restore-keys: ${{ runner.os }}-astro-images-
 
       - name: Read the pinned Playwright version
         id: playwright
