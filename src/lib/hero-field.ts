@@ -145,6 +145,7 @@ const makeStem = (
     lean: 0,
     leanRate: 0,
     flower: rng() < FLOWER_ODDS,
+    curl: (rng() - 0.5) * heightRatio * (root - scene.horizon) * 0.35,
   };
 };
 
@@ -428,7 +429,14 @@ const paintWhere = (
       breeze(stem.x, stem.phase, seconds) *
       (SWAY.base + stem.size * SWAY.bySize) *
       scene.world;
-    drawStem(ctx, palette, scene.world, stem, wind + stem.lean, seconds);
+    drawStem(
+      ctx,
+      palette,
+      scene.world,
+      stem,
+      wind + stem.lean + stem.curl,
+      seconds,
+    );
   }
   for (; next < ruins.length; next += 1) {
     if (inLayer(ruins[next]!.z)) drawRuin(ctx, palette, ruins[next]!, seconds);
@@ -491,16 +499,6 @@ const drawMid = (
   );
 };
 
-/* Where a ruin stands across the box: a share of the width, or world units from the centre. */
-const anchorX = (
-  spec: RuinSpec,
-  boxWidth: number,
-  projection: number,
-): number =>
-  spec.wx === undefined
-    ? spec.x * boxWidth
-    : boxWidth / 2 + (spec.wx * projection) / spec.z;
-
 export interface FieldOptions {
   readonly ruins?: readonly RuinSpec[];
   /** Stems at each ruin's foot when sparse. */
@@ -538,22 +536,20 @@ export const createHeroField = (
         width / height < NARROW_ASPECT,
         specs,
       );
-      state.stems =
-        (options.field ?? 1) > 0
+      const feet = state.ruins.flatMap((ruin) =>
+        ruin.feet.map(([x, z, span]) => ({ x, z, span })),
+      );
+      const field = options.field ?? 1;
+      state.stems = [
+        ...(field > 0
           ? buildStems(
               state.scene,
-              specs.map((spec) => anchorX(spec, boxWidth, projection)),
-              options.field ?? 1,
+              feet.map((foot) => foot.x),
+              field,
             )
-          : buildSparse(
-              state.scene,
-              specs.map((spec) => ({
-                x: spec.x * boxWidth,
-                z: spec.z,
-                span: (spec.width * projection) / spec.z / 2,
-              })),
-              options.weeds ?? SPARSE.perRuin,
-            );
+          : []),
+        ...buildSparse(state.scene, feet, options.weeds ?? SPARSE.perRuin),
+      ].sort((a, b) => b.z - a.z);
     },
     step: (seconds, delta) => stepSprings(state, seconds, delta),
     back: (ctx, seconds) => drawBack(ctx, palette, state, seconds),

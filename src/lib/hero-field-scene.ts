@@ -94,6 +94,8 @@ export interface Stem {
   leanRate: number;
   /** Carries a flower instead of a seed head. */
   readonly flower: boolean;
+  /** A resting curve at the tip, CSS pixels, so stems are not straight rods. */
+  readonly curl: number;
 }
 
 /*
@@ -288,6 +290,11 @@ export const RUIN_LINE = {
   hatchAlpha: 0.16,
   shadowAlpha: 0.5,
   litAlpha: 0.9,
+  /** Stone fill strength per unit of line alpha; far ruins come out paler. */
+  stone: 1.6,
+  /** Depth beyond which ruins drop to `farShare` of their line strength. */
+  farFrom: 7,
+  farShare: 0.7,
   lightAlpha: 0.22,
   darkLift: 0.35,
   moss: 0.55,
@@ -304,7 +311,7 @@ export const VINE_GROWTH = {
 /** Along a vine, in multiples of its stem width: leaf spacing and size, bud spacing. */
 export const VINE_LEAF = { every: 7, length: 5, width: 2.1 } as const;
 /** Seconds a bud takes to swell, then to open; `size` in stem widths. */
-export const VINE_BUD = { every: 3, swell: 1.2, opens: 2, size: 0.62 } as const;
+export const VINE_BUD = { every: 3, swell: 1.2, opens: 2, size: 0.95 } as const;
 
 /** Share of stems tall enough for buds that carry a flower. */
 export const FLOWER_ODDS = 0.24;

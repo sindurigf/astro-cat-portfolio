@@ -41,6 +41,8 @@ export interface Ruin {
   readonly light: Path2D;
   readonly moss: Path2D;
   readonly ground: Path2D;
+  readonly cast: Path2D;
+  readonly feet: ReadonlyArray<readonly [number, number, number]>;
   readonly deep: Path2D;
   readonly shade: Path2D;
   readonly lit: Path2D;
@@ -72,6 +74,10 @@ interface Parts {
   moss: Path2D;
   /** Lines on open ground, not clipped to any stone: paving joints. */
   ground: Path2D;
+  /** Shadow cast on the ground, filled first. */
+  cast: Path2D;
+  /** Where weeds take root: screen x, depth, half-spread in pixels. */
+  feet: Array<readonly [number, number, number]>;
   deep: Path2D;
   shade: Path2D;
   lit: Path2D;
@@ -89,6 +95,8 @@ const parts = (): Parts => ({
   light: new Path2D(),
   moss: new Path2D(),
   ground: new Path2D(),
+  cast: new Path2D(),
+  feet: [],
   deep: new Path2D(),
   shade: new Path2D(),
   lit: new Path2D(),
@@ -1399,7 +1407,7 @@ const plaza = (p: Parts, box: Box, spec: RuinSpec, rng: () => number): void => {
   const far = spec.z;
   const cx = spec.x * box.boxWidth;
   const half = (spec.width / 2) * box.boxWidth;
-  const rows = 9;
+  const rows = 5;
   const yAt = (z: number): number => box.horizon + box.projection / z;
   for (let i = 0; i <= rows; i += 1) {
     const z = near * Math.pow(far / near, i / rows);
@@ -1408,7 +1416,7 @@ const plaza = (p: Parts, box: Box, spec: RuinSpec, rng: () => number): void => {
     let x0 = cx - span;
     while (x0 < cx + span) {
       const run = span * (0.15 + rng() * 0.3);
-      if (rng() > 0.25) {
+      if (rng() > 0.65) {
         p.ground.moveTo(x0, y);
         p.ground.lineTo(Math.min(cx + span, x0 + run), y);
       }
@@ -1419,7 +1427,7 @@ const plaza = (p: Parts, box: Box, spec: RuinSpec, rng: () => number): void => {
       const y2 = yAt(z2);
       const flags = 10;
       for (let k = -flags; k <= flags; k += 1) {
-        if (rng() < 0.35) continue;
+        if (rng() < 0.75) continue;
         const off = (k + (i % 2) * 0.5) / flags;
         p.ground.moveTo(cx + off * half * (near / z) * 1.6, y);
         p.ground.lineTo(cx + off * half * (near / z2) * 1.6, y2);
@@ -1636,8 +1644,42 @@ const slab = (
       }
     }
   }
+  p.cast.ellipse(
+    x + w * 0.45,
+    root - baseH * 0.2,
+    w * 1.1,
+    baseH * 1.6,
+    0,
+    0,
+    Math.PI * 2,
+  );
+  /* Weathering: pale scuffs on the dark face, outside the panel. */
+  for (let k = 0; k < 26; k += 1) {
+    const sx = left + w * (0.03 + rng() * 0.94);
+    const sy = top + h * (0.02 + rng() * 0.96);
+    if (sx > pl && sx < pr && sy > pt && sy < pb) continue;
+    const sw = w * (0.02 + rng() * 0.05);
+    p.light.rect(sx, sy, sw, Math.max(0.8, sw * 0.3));
+  }
+  for (const [cx, cy] of [
+    [left, top + h * 0.3],
+    [right, top + h * 0.62],
+    [left + w * 0.3, bottom],
+  ] as const) {
+    p.lit.moveTo(cx - w * 0.03, cy);
+    p.lit.lineTo(cx, cy + w * 0.035);
+    p.lit.lineTo(cx + w * 0.03, cy);
+  }
   tuft(p, x - w * 0.7, root, h * 0.12, rng);
   tuft(p, x + w * 0.72, root, h * 0.1, rng);
+  p.feet.push([x - w * 0.6, 0, w * 0.4], [x + w * 0.65, 0, w * 0.4]);
+  const edge: Point[] = [];
+  for (let i = 0; i <= 30; i += 1)
+    edge.push([
+      left + Math.sin((i / 30) * Math.PI * 3.5) * w * 0.04,
+      bottom - h * 0.8 * (i / 30),
+    ]);
+  p.vines.push(edge);
   /* Vines climb the base only; the face stays clear. */
   const vine: Point[] = [];
   for (let i = 0; i <= 16; i += 1)
@@ -1682,10 +1724,27 @@ const sidewall = (
           0.25,
           1 - ((i - steps * 0.45) / steps) * 1.4 + (i % 2 ? 0.08 : -0.04),
         ));
-  p.outline.moveTo(...at(near, 0));
-  zs.forEach((z, i) => p.outline.lineTo(...at(z, topAt(i))));
-  p.outline.lineTo(...at(far, 0));
-  p.outline.closePath();
+  const face = new Path2D();
+  face.moveTo(...at(near, 0));
+  zs.forEach((z, i) => face.lineTo(...at(z, topAt(i))));
+  face.lineTo(...at(far, 0));
+  face.closePath();
+  p.outline.addPath(face);
+  /* Light from the upper left: the right-hand wall's face turns away from it. */
+  if (wx > 0) p.shade.addPath(face);
+  /* Its shadow falls toward the centre along the floor. */
+  const castAt = (z: number): Point => [
+    cx + ((wx - Math.sign(wx) * spec.height * 0.45) * box.projection) / z,
+    box.horizon + (box.projection / z) * (1 - (spec.lift ?? 0)),
+  ];
+  p.cast.moveTo(...at(near, 0));
+  zs.forEach((z) => p.cast.lineTo(...castAt(z)));
+  p.cast.lineTo(...at(far, 0));
+  p.cast.closePath();
+  zs.forEach((z, i) => {
+    if (i % 2 === 0) p.feet.push([at(z, 0)[0], z, (0.3 * box.projection) / z]);
+  });
+  const narrow = box.boxWidth < 520;
   /* The wall's thickness: its top surface, set back toward the centre. */
   const thick = (spec.width ?? 1) * 0.35 * Math.sign(wx);
   const inner = (z: number, up: number): Point => [
@@ -1702,7 +1761,7 @@ const sidewall = (
   topFace.closePath();
   p.outline.addPath(topFace);
   p.light.addPath(topFace);
-  const courses = 5;
+  const courses = narrow ? 2 : 3;
   for (let c = 1; c < courses; c += 1) {
     const up = (spec.height * c) / courses;
     let started = false;
@@ -1720,9 +1779,22 @@ const sidewall = (
     const course = spec.height / courses;
     for (let c = 0; c < courses; c += 1) {
       if ((c + 1) * course > up) break;
-      if ((i + c) % 2) continue;
+      if (narrow || rng() < 0.55) continue;
       p.hatch.moveTo(...at(z, c * course));
       p.hatch.lineTo(...at(z, (c + 1) * course));
+      /* Now and then a block is missing from the course. */
+      if (c === Math.floor(up / course) - 1 && rng() < 0.3 && i < steps - 1) {
+        const z2 = zs[i + 1]!;
+        const gap = [
+          at(z, c * course),
+          at(z, (c + 1) * course),
+          at(z2, (c + 1) * course),
+          at(z2, c * course),
+        ];
+        p.deep.moveTo(...gap[0]!);
+        gap.slice(1).forEach((pt) => p.deep.lineTo(...pt));
+        p.deep.closePath();
+      }
     }
     /* A window every third bay, while the wall stands high enough. */
     if (i % 3 === 1 && up > spec.height * 0.75) {
@@ -1846,6 +1918,10 @@ const build = (spec: RuinSpec, box: Box, seed: number): Ruin => {
     light: p.light,
     moss: p.moss,
     ground: p.ground,
+    cast: p.cast,
+    feet: p.feet.length
+      ? p.feet.map(([fx, fz, fs]) => [fx, fz || spec.z, fs] as const)
+      : [[x, spec.z, w / 2]],
     deep: p.deep,
     shade: p.shade,
     lit: p.lit,
@@ -1856,15 +1932,17 @@ const build = (spec: RuinSpec, box: Box, seed: number): Ruin => {
     tufts: p.tufts,
     vines: p.vines.map((points) => ({ points, lengths: lengthsOf(points) })),
     lineWidth: STALK_WIDTH.min + size * STALK_WIDTH.bySize,
-    alpha: Math.min(
-      RUIN_LINE.maxAlpha,
-      STEM_ALPHA.base +
-        Math.sqrt(
-          1 / (spec.kind === 'plaza' ? (spec.near ?? spec.z) * 1.6 : spec.z),
-        ) *
-          STEM_ALPHA.byScale +
-        RUIN_LINE.lift,
-    ),
+    alpha:
+      (spec.z > RUIN_LINE.farFrom ? RUIN_LINE.farShare : 1) *
+      Math.min(
+        RUIN_LINE.maxAlpha,
+        STEM_ALPHA.base +
+          Math.sqrt(
+            1 / (spec.kind === 'plaza' ? (spec.near ?? spec.z) * 1.6 : spec.z),
+          ) *
+            STEM_ALPHA.byScale +
+          RUIN_LINE.lift,
+      ),
   };
 };
 
@@ -2057,11 +2135,10 @@ export const drawRuin = (
   ctx.lineJoin = 'round';
   ctx.lineCap = 'round';
   ctx.globalAlpha = 1;
+  ctx.fillStyle = palette.floor;
+  ctx.fill(ruin.cast);
   ctx.fillStyle = palette.background;
   ctx.fill(ruin.back);
-  ctx.fillStyle = palette.veil;
-  ctx.fill(ruin.deep);
-  ctx.fill(ruin.deep);
   ctx.strokeStyle = palette.border;
   ctx.globalAlpha = alpha;
   ctx.lineWidth = lineWidth * RUIN_LINE.outline;
@@ -2069,18 +2146,21 @@ export const drawRuin = (
   ctx.globalAlpha = 1;
   ctx.fillStyle = palette.background;
   ctx.fill(ruin.outline);
-  /* Stone a step off the ground, so ruins read solid. */
+  /* Stone a step off the ground, paler with distance, so ruins read solid. */
+  ctx.globalAlpha = Math.min(1, alpha * RUIN_LINE.stone);
   ctx.fillStyle = palette.veil;
   ctx.fill(ruin.outline);
+  ctx.globalAlpha = Math.min(1, alpha * RUIN_LINE.stone);
+  ctx.fillStyle = palette.floor;
+  ctx.fill(ruin.deep);
+  ctx.fill(ruin.shade);
+  ctx.globalAlpha = 1;
   ctx.globalAlpha = Math.min(1, alpha + RUIN_LINE.darkLift);
   ctx.fillStyle = palette.border;
   ctx.fill(ruin.dark);
   ctx.globalAlpha = RUIN_LINE.lightAlpha;
   ctx.fillStyle = palette.background;
   ctx.fill(ruin.light);
-  ctx.globalAlpha = 1;
-  ctx.fillStyle = palette.veil;
-  ctx.fill(ruin.shade);
 
   ctx.globalAlpha = alpha * RUIN_LINE.carveAlpha;
   ctx.lineWidth = lineWidth * RUIN_LINE.carve;
