@@ -1,0 +1,43 @@
+@layer components {
+  /* src/components/Abbr.astro. */
+
+  /* Dotted, so it does not read as a link; no colour change, which gold forbids. */
+  .abbr-trigger {
+    @apply border-0 bg-transparent p-0 text-inherit;
+
+    font: inherit;
+    letter-spacing: inherit;
+    text-decoration: underline dotted;
+    text-underline-offset: var(--underline-offset);
+    text-decoration-thickness: var(--underline-thin);
+  }
+
+  .abbr-trigger:hover {
+    text-decoration-thickness: var(--underline-thick);
+  }
+
+  /* tests/forced-colors.spec.ts: a control there needs a border, not only an underline. */
+  @media (forced-colors: active) {
+    .abbr-trigger {
+      border-bottom: var(--underline-thin) solid;
+    }
+  }
+
+  @supports selector(:popover-open) {
+    .abbr-tip {
+      @apply max-w-xs border-4 border-border bg-surface px-4 py-2 text-body
+        font-normal normal-case tracking-normal text-text shadow-hard-pink-4;
+    }
+  }
+
+  /* No popovers: the expansion reads inline, "WCAG (Web Content ...)". */
+  @supports not selector(:popover-open) {
+    .abbr-tip::before {
+      content: ' (';
+    }
+
+    .abbr-tip::after {
+      content: ')';
+    }
+  }
+}
