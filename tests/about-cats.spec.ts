@@ -1168,6 +1168,8 @@ test.describe('About cats', () => {
   test('a moving cat never scrolls the page under the reader (SC 2.4.11)', async ({
     browser,
   }) => {
+    /* About 900 frames (3 cats, 51 offsets, 6 frames each): 15 s at 60 fps, slower under load. */
+    test.slow();
     /* Reduced motion keeps the cats still, so only the test's jump moves a drawing. */
     const context = await browser.newContext({
       reducedMotion: 'reduce',
