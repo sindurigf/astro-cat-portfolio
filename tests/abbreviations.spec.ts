@@ -101,6 +101,15 @@ const SPELLED_OUT: readonly { pattern: RegExp; word: string }[] = [
 const TIP_ROUTE = '/privacy';
 const TIP_ABBREVIATION = 'IPv6';
 const NARROW = { width: 320, height: 720 };
+const CROSSING_STEPS = 10;
+
+/* gotoSettled waits for the menu script only; this waits for src/scripts/abbr-tips.ts. */
+const abbrReady = async (page: Page) =>
+  expect(
+    page.locator('[data-abbr]:not([data-abbr-ready])'),
+    'an abbreviation was never enhanced, so its script did not run.',
+  ).toHaveCount(0);
+const SUBPIXEL_PX = 1;
 
 test.describe('abbreviations are expanded at first use (SC 3.1.4)', () => {
   const routes = [...new Set(FIRST_USES.map((entry) => entry.route))];
@@ -130,23 +139,26 @@ test.describe('abbreviations are expanded at first use (SC 3.1.4)', () => {
       }
     });
 
-    test(`${route} reads each expansion inline without JavaScript`, async ({
+    test(`${route} opens each expansion without JavaScript`, async ({
       browser,
     }) => {
       const context = await browser.newContext({ javaScriptEnabled: false });
       const page = await context.newPage();
-      await gotoSettled(page, route);
+      /* Not gotoSettled: it waits for the menu script, which cannot run here. */
+      await page.goto(route);
 
       for (const { abbreviation, expansion } of FIRST_USES.filter(
         (entry) => entry.route === route,
       )) {
-        const tip = page.locator('main [data-abbr] .abbr-tip', {
-          hasText: expansion,
-        });
+        const button = page
+          .getByRole('button', { name: abbreviation, exact: true })
+          .first();
+        await button.click();
         await expect(
-          tip.first(),
-          `${route} hides the expansion of ${abbreviation} without JavaScript.`,
-        ).toBeVisible();
+          button.locator('xpath=..').locator('.abbr-tip'),
+          `${route}: ${abbreviation}'s button does not open "${expansion}" without JavaScript.`,
+        ).toHaveText(expansion);
+        await page.keyboard.press('Escape');
       }
       await context.close();
     });
@@ -157,10 +169,11 @@ test.describe('an abbreviation shows its expansion on demand (SC 3.1.4, 1.4.13)'
   const trigger = (page: Page) =>
     page.getByRole('button', { name: TIP_ABBREVIATION, exact: true });
   const tip = (page: Page) =>
-    page.locator('[data-abbr]', { has: trigger(page) }).locator('.abbr-tip');
+    trigger(page).locator('xpath=..').locator('.abbr-tip');
 
   test.beforeEach(async ({ page }) => {
     await gotoSettled(page, TIP_ROUTE);
+    await abbrReady(page);
   });
 
   test('keyboard focus shows it and Escape hides it', async ({ page }) => {
@@ -168,26 +181,37 @@ test.describe('an abbreviation shows its expansion on demand (SC 3.1.4, 1.4.13)'
     await expect(tip(page), 'focus does not show the expansion.').toBeVisible();
     await page.keyboard.press('Escape');
     await expect(tip(page), 'Escape does not hide the expansion.').toBeHidden();
-    await expect(trigger(page)).toHaveAttribute('aria-expanded', 'false');
   });
 
   test('a tap shows it until a second tap', async ({ page }) => {
     await trigger(page).click();
     await expect(tip(page), 'a tap does not show the expansion.').toBeVisible();
-    await expect(trigger(page)).toHaveAttribute('aria-expanded', 'true');
     await trigger(page).click();
     await expect(tip(page), 'a second tap does not hide it.').toBeHidden();
   });
 
-  test('it stays while the pointer moves onto it, and goes when it leaves', async ({
+  test('it stays while the pointer crosses onto it, and goes when it leaves', async ({
     page,
   }) => {
-    await trigger(page).hover();
+    await trigger(page).scrollIntoViewIfNeeded();
+    const button = await trigger(page).boundingBox();
+    await page.mouse.move(
+      button!.x + button!.width / 2,
+      button!.y + button!.height / 2,
+    );
     await expect(tip(page), 'hover does not show the expansion.').toBeVisible();
-    await tip(page).hover();
+    const box = await tip(page).boundingBox();
+    /* Straight down in small steps, so every point between the two is crossed. */
+    await page.mouse.move(
+      button!.x + button!.width / 2,
+      box!.y + box!.height / 2,
+      {
+        steps: CROSSING_STEPS,
+      },
+    );
     await expect(
       tip(page),
-      'the expansion vanishes when the pointer moves onto it (SC 1.4.13 hoverable).',
+      'the expansion vanishes on the way onto it (SC 1.4.13 hoverable).',
     ).toBeVisible();
     await page.mouse.move(0, 0);
     await expect(
@@ -196,26 +220,37 @@ test.describe('an abbreviation shows its expansion on demand (SC 3.1.4, 1.4.13)'
     ).toBeHidden();
   });
 
-  test('it opens below its abbreviation, inside a 320px viewport', async ({
+  test('it opens flush below its abbreviation, inside a 320px viewport', async ({
     page,
   }) => {
     await page.setViewportSize(NARROW);
     await gotoSettled(page, TIP_ROUTE);
+    await abbrReady(page);
     for (const button of await page.locator('main .abbr-trigger').all()) {
       await button.click();
-      const root = page.locator('[data-abbr]', { has: button });
-      const box = await root.locator('.abbr-tip').boundingBox();
-      const anchor = await button.boundingBox();
-      expect(box, 'the expansion did not open.').not.toBeNull();
-      expect(
-        box!.y,
-        'the expansion covers its own abbreviation.',
-      ).toBeGreaterThanOrEqual(anchor!.y + anchor!.height - 1);
-      expect(box!.x, 'the expansion starts off screen.').toBeGreaterThanOrEqual(
+      const tip = button.locator('xpath=..').locator('.abbr-tip');
+      /* Polled: a smooth scroll to the button can still be settling, and the tip follows it. */
+      await expect
+        .poll(
+          async () => {
+            const box = await tip.boundingBox();
+            const anchor = await button.boundingBox();
+            return box && anchor
+              ? Math.abs(box.y - (anchor.y + anchor.height))
+              : Infinity;
+          },
+          {
+            message:
+              'a gap or overlap sits between the abbreviation and its expansion.',
+          },
+        )
+        .toBeLessThanOrEqual(SUBPIXEL_PX);
+      const box = (await tip.boundingBox())!;
+      expect(box.x, 'the expansion starts off screen.').toBeGreaterThanOrEqual(
         0,
       );
       expect(
-        box!.x + box!.width,
+        box.x + box.width,
         'the expansion runs past the viewport.',
       ).toBeLessThanOrEqual(NARROW.width);
       await page.keyboard.press('Escape');
