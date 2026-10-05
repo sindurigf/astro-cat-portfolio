@@ -4,6 +4,12 @@
  */
 import {
   BANDS,
+  CLUMP_COUNT,
+  CLUMP_SPREAD,
+  NEAR_BAND_LEFT,
+  NEAR_BAND_WIDTH,
+  NEAR_VEIL,
+  STRAY_ODDS,
   BLOOM_PERIOD,
   BOTTOM_DEPTH,
   BUD_ALPHA,
@@ -65,6 +71,8 @@ interface Scene {
   readonly view: number;
 }
 
+type Band = (typeof BANDS)[keyof typeof BANDS];
+
 interface FieldState {
   scene: Scene;
   stems: Stem[];
@@ -89,6 +97,29 @@ const sceneFor = (width: number, height: number, zoom = 1): Scene => {
     projection,
     world: projection / REFERENCE_PROJECTION,
     view,
+  };
+};
+
+/* About three quarters of stems cluster on clump centres; the rest scatter. */
+const clumpPlacer = (
+  scene: Scene,
+  rng: () => number,
+  density: number,
+  margin: number,
+  anchors: readonly number[],
+): ((spread: number) => number) => {
+  const { boxWidth, world } = scene;
+  /* Weeds gather at the foot of every ruin as well as in open ground. */
+  const clumps: number[] = [...anchors];
+  const clumpCount = Math.max(4, Math.round(CLUMP_COUNT * density));
+  for (let i = 0; i < clumpCount; i += 1) {
+    clumps.push(-margin + rng() * (boxWidth + margin * 2));
+  }
+  return (spread) => {
+    if (rng() < STRAY_ODDS) return -margin + rng() * (boxWidth + margin * 2);
+    const centre = clumps[Math.floor(rng() * clumps.length)] ?? boxWidth / 2;
+    /* Difference of two uniforms: triangular, densest at the centre. */
+    return centre + (rng() - rng()) * spread * world;
   };
 };
 
@@ -118,6 +149,48 @@ const makeStem = (
 };
 
 /* Density is per scene width, not pixels: a stepped-back camera shows more. */
+/* Density is per scene width, not pixels: a stepped-back camera shows more. */
+const buildStems = (
+  scene: Scene,
+  anchors: readonly number[],
+  fieldDensity = 1,
+): Stem[] => {
+  const { world, view } = scene;
+  const density = scene.boxWidth / world / REFERENCE_WIDTH;
+  const rng = random(FIELD_SEED);
+  const clumped = clumpPlacer(
+    scene,
+    rng,
+    density,
+    CLUMP_SPREAD * world,
+    anchors,
+  );
+  const built: Stem[] = [];
+
+  const band = (spec: Band, veil: number, acrossFullWidth: boolean): void => {
+    const count = Math.max(2, Math.round(spec.count * density * fieldDensity));
+    for (let i = 0; i < count; i += 1) {
+      /* Log-uniform in distance; uniform piles stems up at the horizon. */
+      const near = spec.near || view;
+      const z = near * Math.pow(spec.far / near, rng());
+      const x = acrossFullWidth
+        ? clumped(spec.spread)
+        : NEAR_BAND_LEFT * world + rng() * NEAR_BAND_WIDTH * world;
+      const height = spec.height[0] + rng() * spec.height[1];
+      built.push(makeStem(scene, rng, z, x, height, veil));
+    }
+  };
+
+  band(BANDS.FAR, 1, true);
+  band(BANDS.GRASS, 1, true);
+  band(BANDS.MIDDLE, 1, true);
+  band(BANDS.TABLET, 1, true);
+  /* Near stems stay at the left edge, veiled, so they never blur over type. */
+  band(BANDS.NEAR, NEAR_VEIL, false);
+
+  return built.sort((a, b) => b.z - a.z);
+};
+
 interface Anchor {
   readonly x: number;
   readonly z: number;
@@ -418,12 +491,24 @@ const drawMid = (
   );
 };
 
+/* Where a ruin stands across the box: a share of the width, or world units from the centre. */
+const anchorX = (
+  spec: RuinSpec,
+  boxWidth: number,
+  projection: number,
+): number =>
+  spec.wx === undefined
+    ? spec.x * boxWidth
+    : boxWidth / 2 + (spec.wx * projection) / spec.z;
+
 export interface FieldOptions {
   readonly ruins?: readonly RuinSpec[];
   /** Stems at each ruin's foot when sparse. */
   readonly weeds?: number;
   /** Scale for frames taller than wide. */
   readonly narrowZoom?: number;
+  /** The full weed field, at this share of its stems; 0 leaves only tufts at ruin feet. */
+  readonly field?: number;
 }
 
 export const createHeroField = (
@@ -453,15 +538,22 @@ export const createHeroField = (
         width / height < NARROW_ASPECT,
         specs,
       );
-      state.stems = buildSparse(
-        state.scene,
-        specs.map((spec) => ({
-          x: spec.x * boxWidth,
-          z: spec.z,
-          span: (spec.width * projection) / spec.z / 2,
-        })),
-        options.weeds ?? SPARSE.perRuin,
-      );
+      state.stems =
+        (options.field ?? 1) > 0
+          ? buildStems(
+              state.scene,
+              specs.map((spec) => anchorX(spec, boxWidth, projection)),
+              options.field ?? 1,
+            )
+          : buildSparse(
+              state.scene,
+              specs.map((spec) => ({
+                x: spec.x * boxWidth,
+                z: spec.z,
+                span: (spec.width * projection) / spec.z / 2,
+              })),
+              options.weeds ?? SPARSE.perRuin,
+            );
     },
     step: (seconds, delta) => stepSprings(state, seconds, delta),
     back: (ctx, seconds) => drawBack(ctx, palette, state, seconds),

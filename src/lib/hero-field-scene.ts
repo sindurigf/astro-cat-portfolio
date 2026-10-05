@@ -101,6 +101,18 @@ export interface Stem {
  * `TABLET` straddles the tablet's depth so weeds grow at its foot.
  * `NEAR.near` is set in `layout` from the aspect factor.
  */
+/** Clump centres at the reference width. */
+export const CLUMP_COUNT = 16;
+/** Share of stems placed anywhere, not in a clump. */
+export const STRAY_ODDS = 0.26;
+/** Reference units. */
+export const CLUMP_SPREAD = 140;
+/** The near band covers the left of the field only; reference units. */
+export const NEAR_BAND_LEFT = -140;
+export const NEAR_BAND_WIDTH = 245;
+
+export const NEAR_VEIL = 0.72;
+
 export const BANDS = {
   FAR: { count: 69, near: 4.2, far: 62, height: [0.6, 0.75], spread: 150 },
   GRASS: { count: 198, near: 9, far: 62, height: [0.2, 0.52], spread: 105 },
@@ -226,7 +238,14 @@ export interface RuinSpec {
     | 'plaza'
     | 'steps'
     | 'fallen'
-    | 'rubble';
+    | 'rubble'
+    | 'column'
+    | 'colonnade'
+    | 'arch'
+    | 'wall'
+    | 'slab'
+    | 'sidewall'
+    | 'hill';
   /** Share of the box width. */
   readonly x: number;
   readonly z: number;
@@ -244,6 +263,10 @@ export interface RuinSpec {
   readonly lift?: number;
   /** A plaza's near depth; `z` is its far edge. */
   readonly near?: number;
+  /** World units from the centre, instead of `x`: rows that converge on the vanishing point. */
+  readonly wx?: number;
+  /** A side wall's far depth; `z` is its near end. */
+  readonly far?: number;
   /** Paint order by this depth instead of `z`, so parts built at one depth can interleave. */
   readonly order?: number;
 }
@@ -262,7 +285,7 @@ export const RUIN_LINE = {
   lift: 0.22,
   maxAlpha: 0.88,
   carveAlpha: 0.72,
-  hatchAlpha: 0.32,
+  hatchAlpha: 0.16,
   shadowAlpha: 0.5,
   litAlpha: 0.9,
   lightAlpha: 0.22,
