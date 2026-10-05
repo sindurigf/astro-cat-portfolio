@@ -49,7 +49,7 @@ export interface Ruin {
   readonly moss: Path2D;
   readonly ground: Path2D;
   readonly cast: Path2D;
-  readonly feet: ReadonlyArray<readonly [number, number, number]>;
+  readonly feet: ReadonlyArray<readonly [number, number, number, number?]>;
   readonly deep: Path2D;
   readonly shade: Path2D;
   readonly lit: Path2D;

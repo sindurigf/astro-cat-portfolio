@@ -137,6 +137,8 @@ const makeStem = (
   x: number,
   heightRatio: number,
   veil: number,
+  flowerOdds = FLOWER_ODDS,
+  petal = 1,
 ): Stem => {
   const root = groundAt(scene, z);
   return {
@@ -152,12 +154,12 @@ const makeStem = (
     lean: 0,
     leanRate: 0,
     /* Far stems are too faint to carry a visible flower; it would float. */
-    flower: rng() < FLOWER_ODDS && z < VEIL_DEPTH,
+    flower: rng() < flowerOdds && z < VEIL_DEPTH,
     curl: (rng() - 0.5) * heightRatio * (root - scene.horizon) * 0.35,
+    petal,
   };
 };
 
-/* Density is per scene width, not pixels: a stepped-back camera shows more. */
 /* Density is per scene width, not pixels: a stepped-back camera shows more. */
 const buildStems = (
   scene: Scene,
@@ -212,6 +214,8 @@ interface Anchor {
   readonly z: number;
   /** Half the ruin's apparent width, CSS pixels. */
   readonly span: number;
+  /** Stems at this foot, overriding the per-ruin default. */
+  readonly count?: number;
 }
 
 /* Sparse: tufts at each ruin's foot at its own depth, a little far grass, clear ground between. */
@@ -219,6 +223,8 @@ const buildSparse = (
   scene: Scene,
   anchors: readonly Anchor[],
   perRuin: number,
+  flowerOdds = FLOWER_ODDS,
+  petal = 1,
 ): Stem[] => {
   const rng = random(FIELD_SEED);
   const built: Stem[] = [];
@@ -234,12 +240,12 @@ const buildSparse = (
     );
   }
   for (const anchor of anchors) {
-    for (let i = 0; i < perRuin; i += 1) {
+    for (let i = 0; i < (anchor.count ?? perRuin); i += 1) {
       const z = anchor.z * (SPARSE.front + rng() * SPARSE.depth);
       const side = rng() < 0.5 ? -1 : 1;
       const x = anchor.x + side * anchor.span * (0.55 + rng() * 0.6);
       const height = SPARSE.height[0] + rng() * SPARSE.height[1];
-      built.push(makeStem(scene, rng, z, x, height, 1));
+      built.push(makeStem(scene, rng, z, x, height, 1, flowerOdds, petal));
     }
   }
   return built.sort((a, b) => b.z - a.z);
@@ -346,6 +352,9 @@ const drawHead = (
 };
 
 /* Opens and closes on its own phase; half the cycle fully open. */
+/** Below this share of opening a flower draws as a closed bud. */
+const BUD_CLOSED = 0.2;
+
 const bloomOf = (stem: Stem, seconds: number): number =>
   Math.min(
     1,
@@ -364,7 +373,34 @@ const drawFlower = (
   seconds: number,
 ): void => {
   const [tx, ty] = stemPoint(stem.x, stem.root, stem.height, lean, 1);
-  drawPetals(ctx, palette, tx, ty, bud, bloomOf(stem, seconds));
+  const open = bloomOf(stem, seconds);
+  const size = bud * stem.petal;
+  /* Shut, it is a small bud in the bud colour; it opens into tiny petals. */
+  if (open < BUD_CLOSED) {
+    ctx.fillStyle = palette.bud;
+    ctx.beginPath();
+    ctx.ellipse(
+      tx,
+      ty,
+      Math.max(0.7, 1.4 * size),
+      Math.max(1, 2.4 * size),
+      0,
+      0,
+      Math.PI * 2,
+    );
+    ctx.fill();
+    return;
+  }
+  drawPetals(
+    ctx,
+    palette,
+    tx,
+    ty,
+    size,
+    (open - BUD_CLOSED) / (1 - BUD_CLOSED),
+    /* Only near stems flower (see makeStem), so full strength never floats. */
+    true,
+  );
 };
 
 /* Detail steps down with distance, with a minimum drawn size at each step. */
@@ -528,6 +564,9 @@ export interface FieldOptions {
   readonly nearOnly?: boolean;
   /** Stems carry seed heads only, no flowers: the plants carry the flowers. */
   readonly bareStems?: boolean;
+  /** Share of foot stems that flower, and their flower size. */
+  readonly flowers?: number;
+  readonly petal?: number;
 }
 
 export const createHeroField = (
@@ -574,7 +613,7 @@ export const createHeroField = (
         ].sort((a, b) => b.z - a.z);
       }
       const feet = state.ruins.flatMap((ruin) =>
-        ruin.feet.map(([x, z, span]) => ({ x, z, span })),
+        ruin.feet.map(([x, z, span, count]) => ({ x, z, span, count })),
       );
       const field = options.field ?? 1;
       state.stems = [
@@ -586,7 +625,13 @@ export const createHeroField = (
               options.nearOnly,
             )
           : []),
-        ...buildSparse(state.scene, feet, options.weeds ?? SPARSE.perRuin),
+        ...buildSparse(
+          state.scene,
+          feet,
+          options.weeds ?? SPARSE.perRuin,
+          options.flowers,
+          options.petal,
+        ),
       ]
         .map((stem) => (options.bareStems ? { ...stem, flower: false } : stem))
         .sort((a, b) => b.z - a.z);

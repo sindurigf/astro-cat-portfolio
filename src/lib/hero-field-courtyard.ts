@@ -35,8 +35,8 @@ export interface Piece {
   readonly detail: Path2D;
   /** Ground shadow cast by the piece. */
   readonly cast: Path2D;
-  /** Where weeds root: screen x, depth, spread in pixels. */
-  readonly feet: ReadonlyArray<readonly [number, number, number]>;
+  /** Where weeds root: screen x, depth, spread in pixels, and optionally how many. */
+  readonly feet: ReadonlyArray<readonly [number, number, number, number?]>;
   readonly climbs: readonly Climb[];
   /** Cut lines: carved script, stroked darker than joints. */
   readonly carve?: Path2D;
@@ -63,7 +63,7 @@ export interface View {
   readonly projection: number;
 }
 
-type Foot = readonly [number, number, number];
+type Foot = readonly [number, number, number, number?];
 type Map2 = (u: number, up: number) => Point;
 
 const project = (v: View, x: number, up: number, z: number): Point => [
@@ -1113,6 +1113,160 @@ const lowSides = (
   sideWall(v, 4.4 * k, near, far, right, () => []),
 ];
 
+/* Sets how many flowering stems grow at each of these pieces' feet. */
+const bloom = (pieces: Piece | readonly Piece[], count: number): Piece[] =>
+  (Array.isArray(pieces) ? pieces : [pieces]).map((piece: Piece) => ({
+    ...piece,
+    feet: piece.feet.map(([x, z, span]) => [x, z, span, count] as const),
+  }));
+
+/* Extra feet ringing a block's base, so flowers circle it. */
+const ring = (
+  v: View,
+  piece: Piece,
+  x: number,
+  z: number,
+  w: number,
+  count: number,
+): Piece => {
+  const feet: Foot[] = [];
+  for (let i = 0; i < 7; i += 1) {
+    /* The front arc only: feet behind the block would be hidden by it. */
+    const a = Math.PI * (1.05 + (0.9 * i) / 6);
+    const px = x + Math.cos(a) * w * 0.75;
+    const pz = z + Math.sin(a) * w * 0.35;
+    feet.push([
+      project(v, px, 0, pz)[0],
+      pz * 0.98,
+      (0.18 * v.projection) / pz,
+      count,
+    ]);
+  }
+  return { ...piece, feet: [...piece.feet, ...feet] };
+};
+
+/*
+ * The poneglyph turned, a corner toward the viewer: two script faces receding
+ * to either side, the top lit. World plan: `a` is the turn from square-on.
+ */
+const poneglyphTurned = (
+  v: View,
+  x: number,
+  z: number,
+  h: number,
+  w: number,
+  a: number,
+): Piece => {
+  const d = w * 0.92;
+  const L: Point = [-Math.cos(a), Math.sin(a)];
+  const R: Point = [Math.sin(a), Math.cos(a)];
+  const at = (px: number, pz: number, up: number): Point =>
+    project(v, px, up, pz);
+  const c: Point = [x, z];
+  const lp: Point = [x + L[0] * w, z + L[1] * w];
+  const rp: Point = [x + R[0] * d, z + R[1] * d];
+  const bp: Point = [lp[0] + R[0] * d, lp[1] + R[1] * d];
+  const left = polygon([
+    at(c[0], c[1], 0),
+    at(c[0], c[1], h),
+    at(lp[0], lp[1], h),
+    at(lp[0], lp[1], 0),
+  ]);
+  const right = polygon([
+    at(c[0], c[1], 0),
+    at(c[0], c[1], h),
+    at(rp[0], rp[1], h),
+    at(rp[0], rp[1], 0),
+  ]);
+  const top = polygon([
+    at(c[0], c[1], h),
+    at(lp[0], lp[1], h),
+    at(bp[0], bp[1], h),
+    at(rp[0], rp[1], h),
+  ]);
+  const outline = new Path2D();
+  [left, right, top].forEach((f) => outline.addPath(f));
+  const carve = new Path2D();
+  const face = (from: Point, to: Point, cols: number): void => {
+    const margin = 0.07;
+    const rows = Math.round(
+      (cols * h) / Math.hypot(to[0] - from[0], to[1] - from[1]),
+    );
+    const g =
+      Math.min((1 - margin * 2) / cols, ((1 - margin * 2) * 1) / rows) * 0.62;
+    const p = (u: number, vv: number): Point =>
+      at(
+        from[0] + (to[0] - from[0]) * u,
+        from[1] + (to[1] - from[1]) * u,
+        vv * h,
+      );
+    for (let r = 0; r < rows; r += 1) {
+      for (let col = 0; col < cols; col += 1) {
+        const glyph =
+          SCRIPT[(r * 7 + col * 3 + ((r * col) % 5)) % SCRIPT.length]!;
+        const u0 = margin + (col + 0.2) * ((1 - margin * 2) / cols);
+        const v0 = 1 - margin - (r + 0.2) * ((1 - margin * 2) / rows);
+        const gu = g;
+        const gv = (g * cols) / rows;
+        for (const stroke of glyph) {
+          carve.moveTo(
+            ...p(u0 + (stroke[0]! * gu) / 2, v0 - (stroke[1]! * gv) / 2),
+          );
+          for (let k = 2; k < stroke.length; k += 2)
+            carve.lineTo(
+              ...p(u0 + (stroke[k]! * gu) / 2, v0 - (stroke[k + 1]! * gv) / 2),
+            );
+        }
+      }
+    }
+  };
+  face(lp, c, 9);
+  face(c, rp, 8);
+  return {
+    z: z + d * 0.4,
+    layer: 2,
+    stones: [
+      { path: left, tone: 1 },
+      { path: right, tone: 2 },
+      { path: top, tone: 0 },
+    ],
+    outline,
+    detail: new Path2D(),
+    carve,
+    cast: polygon([
+      at(c[0], c[1], 0),
+      at(rp[0] + h * 0.4, rp[1], 0),
+      at(rp[0], rp[1], 0),
+    ]),
+    feet: [
+      [at(c[0], c[1], 0)[0], z * 0.98, (0.3 * v.projection) / z],
+      [at(lp[0], lp[1], 0)[0], lp[1] * 0.98, (0.3 * v.projection) / lp[1]],
+      [at(rp[0], rp[1], 0)[0], rp[1] * 0.98, (0.3 * v.projection) / rp[1]],
+    ],
+    climbs: [],
+  };
+};
+
+const TALL_SIDE: readonly Point[] = stepped([
+  [0, 1.6],
+  [0.15, 2.3],
+  [0.3, 2.2],
+  [0.45, 2.9],
+  [0.6, 2.8],
+  [0.75, 2.5],
+  [1, 3.0],
+]);
+const FALLEN_BACK: readonly Point[] = stepped([
+  [-6, 2.4],
+  [-3, 2.6],
+  [-1, 1.4],
+  [1, 1.2],
+  [3, 0.6],
+  [6, 0.5],
+]);
+const mirror = (pts: readonly Point[]): Point[] =>
+  pts.map(([x, h]) => [-x, h] as Point).reverse();
+
 /* Plant kinds per option, so growth styles differ as well as layouts. */
 const PLANTS: Record<string, PlantKind> = {
   pA: 'grass',
@@ -1123,6 +1277,171 @@ const PLANTS: Record<string, PlantKind> = {
 };
 
 const COMPOSITIONS: Record<string, (v: View) => Piece[]> = {
+  /* 1: tall wall and tower left, poneglyph off-centre right, rubble right; flowers clustered at the wall's feet. */
+  q1: (v) => {
+    const k = share(v, 4.4, 2.6);
+    return [
+      frontWall(v, 10, -6, 6, FALLEN_BACK, 0, 2),
+      tower(v, 8.5, -3.6 * k, 1.3, 4.8, 0, 3),
+      ...bloom(
+        sideWall(v, -4.4 * k, 2.6, 10, TALL_SIDE, () => []),
+        4,
+      ),
+      ...bloom(
+        sideWall(v, 4.4 * k, 2.6, 10, LOW_SIDE, () => []),
+        1,
+      ),
+      ...bloom(heap(v, 3.2 * k, 3.2, 1.4), 1),
+      ...bloom(heap(v, 2.6 * k, 5.4, 1.1), 1),
+      ...bloom(poneglyph(v, 1.35 * k, 3.6, 1.6, 1.5, true), 1),
+      ...bloom(heap(v, -1.4 * k, 2.3, 0.8), 2),
+    ];
+  },
+
+  /* 2: the mirror: poneglyph left against the low rubble side; flowers scattered across the rubble. */
+  q2: (v) => {
+    const k = share(v, 4.4, 2.6);
+    return [
+      frontWall(v, 10, -6, 6, mirror(FALLEN_BACK), 0, 5),
+      tower(v, 8.5, 3.6 * k, 1.3, 4.8, 0, 6),
+      ...bloom(
+        sideWall(v, 4.4 * k, 2.6, 10, TALL_SIDE, () => []),
+        1,
+      ),
+      ...bloom(
+        sideWall(v, -4.4 * k, 2.6, 10, LOW_SIDE, () => []),
+        2,
+      ),
+      ...bloom(heap(v, -3.3 * k, 3.1, 1.5), 4),
+      ...bloom(heap(v, -2.4 * k, 5.0, 1.2), 3),
+      ...bloom(boulder(v, -3.9 * k, 4.2, 0.8, 0.36, 1), 3),
+      ...bloom(heap(v, 0.4 * k, 2.6, 0.9), 3),
+      ...bloom(poneglyph(v, -1.35 * k, 3.6, 1.6, 1.5, false), 1),
+    ];
+  },
+
+  /* 3: poneglyph close in the right third, a tall wall receding diagonally behind it, open low ruins left; flowers ring its base. */
+  q3: (v) => {
+    const k = share(v, 4.4, 2.6);
+    const px = 1.6 * k;
+    const [block] = poneglyph(v, px, 3.5, 1.35, 1.25, false);
+    return [
+      frontWall(v, 12, -7, 7, LOW_TOP, 0, 3),
+      ...bloom(
+        sideWall(
+          v,
+          4.0 * k,
+          3.0,
+          12,
+          TALL_SIDE.map(([t, h]) => [t, h * 1.25] as Point),
+          () => [],
+        ),
+        1,
+      ),
+      ...bloom(
+        frontWall(
+          v,
+          6,
+          -5.2 * k,
+          -1.6 * k,
+          stepped([
+            [-5.2 * k, 0.4],
+            [-4.3 * k, 0.75],
+            [-3.2 * k, 0.35],
+            [-2.3 * k, 0.6],
+            [-1.6 * k, 0.3],
+          ]),
+          1,
+          4,
+        ),
+        1,
+      ),
+      ...bloom(
+        sideWall(v, -4.4 * k, 2.6, 10, LOW_SIDE, () => []),
+        1,
+      ),
+      ...bloom(toppled(v, -2.0 * k, 4.2, 1.5), 1),
+      ring(v, bloom(block!, 1)[0]!, px, 3.5, 1.25, 3),
+      ...bloom(heap(v, -3.2 * k, 2.6, 0.9), 1),
+    ];
+  },
+
+  /* 4: poneglyph half-turned, corner forward; a tower behind on the far side; a rubble field in front with flowers scattered through it. */
+  q4: (v) => {
+    const k = share(v, 4.4, 2.6);
+    return [
+      frontWall(v, 12, -7, 7, LOW_TOP, 0, 2),
+      tower(v, 9, 2.8 * k, 1.4, 5.0, 0, 7),
+      ...bloom(
+        frontWall(
+          v,
+          9.1,
+          1.0 * k,
+          5 * k,
+          stepped([
+            [1.0 * k, 1.4],
+            [2.2 * k, 2.2],
+            [3.6 * k, 1.1],
+            [5 * k, 0.6],
+          ]),
+          0,
+          1,
+        ),
+        1,
+      ),
+      ...bloom(
+        sideWall(v, -4.4 * k, 2.6, 10, LOW_SIDE, () => []),
+        1,
+      ),
+      ...bloom(
+        sideWall(
+          v,
+          4.4 * k,
+          2.6,
+          10,
+          LOW_SIDE.map(([t, h]) => [t, h * 1.4] as Point),
+          () => [],
+        ),
+        1,
+      ),
+      ...bloom(poneglyphTurned(v, -0.4 * k, 3.7, 1.75, 1.35, 0.62), 1),
+      ...bloom(heap(v, -2.9 * k, 2.7, 1.3), 4),
+      ...bloom(heap(v, 2.3 * k, 2.5, 1.2), 4),
+      ...bloom(boulder(v, 1.0 * k, 2.2, 0.6, 0.28, 0), 3),
+      ...bloom(heap(v, -1.7 * k, 3.4, 0.9), 3),
+      ...bloom(boulder(v, 3.4 * k, 3.6, 0.7, 0.32, 1), 3),
+    ];
+  },
+
+  /* 5, mine: a stepped terrace wall runs back on the left to a broken tower; a toppled column points across to the poneglyph on its plinth right; flowers at the wall feet and ringing the base. */
+  q5: (v) => {
+    const k = share(v, 4.4, 2.6);
+    const px = 1.5 * k;
+    const blocks = poneglyph(v, px, 4.0, 1.7, 1.6, true);
+    return [
+      frontWall(v, 12, -7, 7, LOW_TOP, 0, 4),
+      tower(v, 10, -2.6 * k, 1.5, 5.4, 0, 2),
+      ...bloom(
+        sideWall(
+          v,
+          -3.6 * k,
+          2.6,
+          10,
+          TALL_SIDE.map(([t, h]) => [t, h * (0.6 + t * 0.6)] as Point),
+          () => [],
+        ),
+        3,
+      ),
+      ...bloom(
+        sideWall(v, 4.4 * k, 2.6, 10, LOW_SIDE, () => []),
+        1,
+      ),
+      ...bloom(toppled(v, -0.6 * k, 3.0, 1.8), 2),
+      ring(v, bloom(blocks[0]!, 1)[0]!, px, 4.0, 1.6, 2),
+      ...blocks.slice(1),
+      ...bloom(heap(v, 3.3 * k, 3.0, 1.2), 1),
+    ];
+  },
   pA: (v) => {
     const k = share(v, 4.4, 2.6);
     return [

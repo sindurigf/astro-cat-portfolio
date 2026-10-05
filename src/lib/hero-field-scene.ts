@@ -96,6 +96,8 @@ export interface Stem {
   readonly flower: boolean;
   /** A resting curve at the tip, CSS pixels, so stems are not straight rods. */
   readonly curl: number;
+  /** Flower size as a share of the default petals. */
+  readonly petal: number;
 }
 
 /*
@@ -334,7 +336,7 @@ export const SPARSE = {
   perRuin: 2,
   front: 0.9,
   depth: 0.12,
-  height: [0.1, 0.3],
+  height: [0.16, 0.32],
 } as const;
 
 /** Phones and portrait frames: the scene is scaled up by this, which also lifts the horizon. */
