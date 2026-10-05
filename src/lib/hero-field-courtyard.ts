@@ -15,6 +15,10 @@ export type Tone = 0 | 1 | 2 | 3;
 export interface Stone {
   readonly path: Path2D;
   readonly tone: Tone;
+  /** Weathering: pits filled darker, chipped corners filled pale, a hairline crack. */
+  readonly wear?: Path2D;
+  readonly chips?: Path2D;
+  readonly crack?: Path2D;
 }
 
 export interface Climb {
@@ -42,6 +46,15 @@ export interface Piece {
   readonly carve?: Path2D;
   /** Plants rooted at this piece, drawn after it. */
   readonly plants?: readonly Plant[];
+  /** 0 to 1: lifts every tone and line toward the ground, for distance. */
+  readonly haze?: number;
+  /** Extra shade over every stone, for a face turned from the sun. */
+  readonly shade?: number;
+  /** Sunlit top edges, drawn as a pale rim just inside the outline. */
+  readonly lit?: Path2D;
+  readonly castAlpha?: number;
+  /** A wash of the ground colour over everything already drawn, inside the outline. */
+  readonly mist?: number;
 }
 
 export type PlantKind = 'grass' | 'shrub' | 'cover';
@@ -64,6 +77,16 @@ export interface View {
 }
 
 type Foot = readonly [number, number, number, number?];
+
+/* Rendering switches per option, read while a composition builds. */
+interface Style {
+  readonly weathered: boolean;
+  readonly sun: boolean;
+}
+const PLAIN: Style = { weathered: false, sun: false };
+let style: Style = PLAIN;
+/* Low sun from behind on the left: ground offset per unit of height, so shadows reach toward the viewer. */
+const SUN = { dx: 0.95, dz: -0.42, cast: 0.22, shade: 0.09 } as const;
 type Map2 = (u: number, up: number) => Point;
 
 const project = (v: View, x: number, up: number, z: number): Point => [
@@ -101,6 +124,61 @@ const LENGTHS: readonly number[] = [
   0.82, 0.55, 1.1, 0.68, 0.94, 0.6, 1.25, 0.74, 0.5, 0.98,
 ];
 
+/* Course heights as a share of `course`, so bed lines do not run evenly. */
+const COURSE_RUN: readonly number[] = [1, 0.8, 1.18, 0.9, 1.06, 0.74, 1.12];
+
+/* Pits, a chipped corner and a hairline crack for stone n, in shares of its face. */
+const weather = (
+  map: Map2,
+  a: number,
+  b: number,
+  y0: number,
+  y1: number,
+  n: number,
+  full: boolean,
+): Pick<Stone, 'wear' | 'chips' | 'crack'> => {
+  const at = (fu: number, fv: number): Point =>
+    map(a + (b - a) * fu, y0 + (y1 - y0) * fv);
+  const wear = new Path2D();
+  for (let i = 0; i < 1 + (n % 3); i += 1) {
+    const fu = 0.12 + ((n * 37 + i * 53) % 76) / 100;
+    const fv = 0.18 + ((n * 29 + i * 41) % 62) / 100;
+    const du = 0.025 + ((n + i) % 3) * 0.012;
+    const dv = 0.07 + ((n + i * 2) % 3) * 0.03;
+    wear.addPath(
+      polygon([
+        at(fu - du, fv),
+        at(fu - du * 0.3, fv + dv),
+        at(fu + du, fv + dv * 0.5),
+        at(fu + du * 0.6, fv - dv * 0.7),
+      ]),
+    );
+  }
+  if (!full) return { wear };
+  const out: { wear: Path2D; chips?: Path2D; crack?: Path2D } = { wear };
+  if (n % 5 < 2) {
+    const cu = n % 2;
+    const cv = (n >> 1) % 2;
+    const su = cu ? -1 : 1;
+    const sv = cv ? -1 : 1;
+    out.chips = polygon([
+      at(cu, cv),
+      at(cu + su * 0.17, cv),
+      at(cu + su * 0.07, cv + sv * 0.16),
+      at(cu, cv + sv * 0.42),
+    ]);
+  }
+  if (n % 7 === 3) {
+    const crack = new Path2D();
+    crack.moveTo(...at(0.32, 1));
+    crack.lineTo(...at(0.44, 0.62));
+    crack.lineTo(...at(0.37, 0.34));
+    crack.lineTo(...at(0.5, 0));
+    out.crack = crack;
+  }
+  return out;
+};
+
 interface Masonry {
   readonly stones: Stone[];
   readonly outline: Path2D;
@@ -129,9 +207,11 @@ const masonry = (
   const stones: Stone[] = [];
   const peak = Math.max(...profile.map(([, h]) => h));
   let index = shift;
-  for (let row = 0; row * course < peak; row += 1) {
-    const y0 = row * course;
-    const y1 = y0 + course;
+  let y0 = 0;
+  for (let row = 0; y0 < peak; row += 1) {
+    const y1 =
+      y0 +
+      course * (style.weathered ? COURSE_RUN[row % COURSE_RUN.length]! : 1);
     let u = u0 - (row % 2) * unit * 0.45;
     while (u < u1) {
       const a = Math.max(u0, u);
@@ -148,8 +228,24 @@ const masonry = (
       const pts: Point[] = [map(a, y0)];
       cut.forEach((p) => pts.push(map(p, Math.max(y0, Math.min(y1, top(p))))));
       pts.push(map(b, y0));
-      stones.push({ path: polygon(pts), tone: TONES[index % TONES.length]! });
+      const tone = TONES[index % TONES.length]!;
+      stones.push({
+        path: polygon(pts),
+        tone,
+        ...(style.weathered && tone !== 3
+          ? weather(
+              map,
+              a,
+              b,
+              y0,
+              Math.min(y1, top((a + b) / 2)),
+              index,
+              top(a) >= y1 && top(b) >= y1,
+            )
+          : {}),
+      });
     }
+    y0 = y1;
   }
   return { stones, outline: polygon(edge) };
 };
@@ -192,7 +288,21 @@ const boulder = (
     z,
     layer: 2,
     stones: [
-      { path: polygon(pts), tone },
+      {
+        path: polygon(pts),
+        tone,
+        ...(style.weathered
+          ? weather(
+              (u, up) => project(v, x - w / 2 + u * w, up * h, z),
+              0.15,
+              0.85,
+              0.1,
+              0.7,
+              Math.round(x * 13 + z * 7) + tone,
+              false,
+            )
+          : {}),
+      },
       { path: polygon(lit), tone: 0 },
     ],
     outline: polygon(pts),
@@ -486,6 +596,14 @@ const frontWall = (
   const feet: Foot[] = [];
   for (let x = x0 + 0.5; x < x1; x += 1.1)
     feet.push([map(x, 0)[0], z, (0.45 * v.projection) / z]);
+  const lit = new Path2D();
+  if (style.sun) {
+    lit.moveTo(...map(x0, heightAt(profile, x0)));
+    profile
+      .filter(([u]) => u > x0 && u < x1)
+      .forEach(([u, h]) => lit.lineTo(...map(u, h)));
+    lit.lineTo(...map(x1, heightAt(profile, x1)));
+  }
   return {
     z,
     layer,
@@ -496,6 +614,7 @@ const frontWall = (
     feet,
     climbs: [],
     masonry: m,
+    ...(style.sun ? { lit, shade: SUN.shade * 0.6 } : {}),
   };
 };
 
@@ -566,9 +685,10 @@ const sideWall = (
     0.07,
     side > 0 ? 5 : 0,
   );
-  /* The face turned from the upper-left light reads a tone darker. */
+  /* The face turned from the light reads a tone darker: upper-left light, or a low sun from the left. */
+  const turned = style.sun ? side < 0 : side > 0;
   const stones = m.stones.map((s) =>
-    side > 0 && s.tone < 2 ? { ...s, tone: (s.tone + 1) as Tone } : s,
+    turned && s.tone < 2 ? { ...s, tone: (s.tone + 1) as Tone } : s,
   );
   const top = (t: number): number => heightAt(profile, t);
   const topPts: Point[] = [];
@@ -590,6 +710,11 @@ const sideWall = (
       zAt(t),
       (0.4 * v.projection) / zAt(t),
     ]);
+  const lit = new Path2D();
+  if (style.sun) {
+    lit.moveTo(...topPts[0]!);
+    topPts.slice(1).forEach((pt) => lit.lineTo(...pt));
+  }
   return {
     z: far + 0.01,
     layer: 1,
@@ -599,6 +724,7 @@ const sideWall = (
     cast: polygon(cast),
     feet,
     climbs: climbs(map, top),
+    ...(style.sun ? { lit, ...(side < 0 ? { shade: SUN.shade } : {}) } : {}),
   };
 };
 
@@ -1124,15 +1250,20 @@ const bloom = (pieces: Piece | readonly Piece[], count: number): Piece[] =>
   }));
 
 /* Single stems in the floor's cracks toward the front, so the lower third is not bare. */
-const cracks = (v: View): Piece => {
-  const spots: readonly Point[] = [
-    [-3.1, 2.1],
-    [-1.6, 2.5],
-    [-0.4, 1.95],
-    [0.9, 2.3],
-    [2.2, 2.05],
-    [3.3, 2.6],
-  ];
+const CRACK_SPOTS: readonly Point[] = [
+  [-3.1, 2.1],
+  [-1.6, 2.5],
+  [-0.4, 1.95],
+  [0.9, 2.3],
+  [2.2, 2.05],
+  [3.3, 2.6],
+];
+const MORE_CRACK_SPOTS: readonly Point[] = [
+  ...CRACK_SPOTS,
+  [-2.4, 3.1],
+  [0.2, 2.9],
+];
+const cracks = (v: View, spots = CRACK_SPOTS): Piece => {
   return {
     z: 1.9,
     layer: 2,
@@ -1300,6 +1431,380 @@ const FALLEN_BACK: readonly Point[] = stepped([
 const mirror = (pts: readonly Point[]): Point[] =>
   pts.map(([x, h]) => [-x, h] as Point).reverse();
 
+type Caster = readonly [number, number, number];
+
+/* Long low-sun shadows: each [x, z, height] along a base casts to x + h·dx, z + h·dz. */
+const sunCast = (v: View, pts: readonly Caster[]): Path2D => {
+  const path = new Path2D();
+  for (let i = 1; i < pts.length; i += 1) {
+    const [xa, za, ha] = pts[i - 1]!;
+    const [xb, zb, hb] = pts[i]!;
+    path.addPath(
+      polygon([
+        project(v, xa, 0, za),
+        project(v, xb, 0, zb),
+        project(v, xb + hb * SUN.dx, 0, zb + hb * SUN.dz),
+        project(v, xa + ha * SUN.dx, 0, za + ha * SUN.dz),
+      ]),
+    );
+  }
+  return path;
+};
+
+const wallCasters = (
+  x: number,
+  near: number,
+  far: number,
+  profile: readonly Point[],
+): Caster[] =>
+  Array.from({ length: 31 }, (_, i) => {
+    const t = i / 30;
+    return [x, near * Math.pow(far / near, t), heightAt(profile, t)] as const;
+  });
+
+const heapCasters = (x: number, z: number, w: number): Caster[] => [
+  [x - w * 0.47, z, w * 0.2],
+  [x, z, w * 0.38],
+  [x + w * 0.47, z, w * 0.15],
+];
+
+/* Swaps the first piece's cast for a long sun shadow. */
+const sunlit = (v: View, pieces: readonly Piece[], pts: readonly Caster[]) =>
+  pieces.map((piece, i) =>
+    i === 0 ? { ...piece, cast: sunCast(v, pts), castAlpha: SUN.cast } : piece,
+  );
+
+/* Far ruined skylines: [width, height] blocks across the frame, in shares of its width. */
+const SKYLINES: ReadonlyArray<{
+  z: number;
+  haze: number;
+  blocks: readonly number[];
+}> = [
+  {
+    z: 16,
+    haze: 0.22,
+    blocks: [
+      0.1, 3.2, 0.06, 6.0, 0.14, 2.2, 0.05, 5.0, 0.12, 2.8, 0.08, 6.8, 0.16,
+      2.0, 0.07, 4.6, 0.12, 2.6,
+    ],
+  },
+  {
+    z: 26,
+    haze: 0.42,
+    blocks: [
+      0.12, 6.0, 0.08, 10.5, 0.15, 4.4, 0.06, 8.6, 0.18, 6.4, 0.07, 12, 0.14,
+      5.0, 0.1, 7.8,
+    ],
+  },
+  {
+    z: 40,
+    haze: 0.6,
+    blocks: [
+      0.16, 10, 0.07, 17, 0.2, 7.6, 0.08, 15, 0.17, 9.6, 0.1, 19, 0.22, 8.4,
+    ],
+  },
+];
+const MIST = 0.22;
+
+const skyline = (
+  v: View,
+  z: number,
+  haze: number,
+  blocks: readonly number[],
+): Piece[] => {
+  const span = (v.cx * z) / v.projection;
+  let total = 0;
+  for (let i = 0; i < blocks.length; i += 2) total += blocks[i]!;
+  const across = 2.3 / total;
+  const top: Point[] = [];
+  const stones: Stone[] = [];
+  let f = -1.15;
+  for (let i = 0; i < blocks.length; i += 2) {
+    const w = blocks[i]! * across;
+    const h = blocks[i + 1]!;
+    top.push([f, h], [f + w * 0.35, h * 1.04], [f + w * 0.42, h * 0.92]);
+    top.push([f + w, h * 0.96]);
+    if (i % 4 === 2 && h > 3)
+      stones.push({
+        path: polygon(
+          [
+            [f + w * 0.38, h * 0.48],
+            [f + w * 0.38, h * 0.66],
+            [f + w * 0.6, h * 0.66],
+            [f + w * 0.6, h * 0.48],
+          ].map(([u, up]) => project(v, u! * span, up!, z)),
+        ),
+        tone: 3,
+      });
+    f += w;
+  }
+  const outline = polygon([
+    project(v, -1.15 * span, 0, z),
+    ...top.map(([u, h]) => project(v, u * span, h, z)),
+    project(v, f * span, 0, z),
+  ]);
+  const ground = project(v, 0, 0, z - 1)[1];
+  return [
+    {
+      z,
+      layer: 0,
+      haze,
+      stones: [{ path: outline, tone: 1 }, ...stones],
+      outline,
+      detail: new Path2D(),
+      cast: new Path2D(),
+      feet: [],
+      climbs: [],
+    },
+    {
+      z: z - 1,
+      layer: 0,
+      mist: MIST,
+      stones: [],
+      outline: polygon([
+        [0, 0],
+        [v.cx * 2, 0],
+        [v.cx * 2, ground],
+        [0, ground],
+      ]),
+      detail: new Path2D(),
+      cast: new Path2D(),
+      feet: [],
+      climbs: [],
+    },
+  ];
+};
+
+const atmosphere = (v: View): Piece[] =>
+  SKYLINES.flatMap(({ z, haze, blocks }) => skyline(v, z, haze, blocks));
+
+/* A near column drum cut by the frame's lower corner: largest, darkest, slightly soft. */
+const drum = (
+  v: View,
+  side: -1 | 1,
+  z: number,
+  r: number,
+  h: number,
+): Piece => {
+  const x = side * ((v.cx * z) / v.projection) * 0.9;
+  const ring = (up: number, from: number, to: number): Point[] =>
+    Array.from({ length: 25 }, (_, i) => {
+      const a = from + ((to - from) * i) / 24;
+      return project(v, x + Math.cos(a) * r, up, z + Math.sin(a) * r * 0.6);
+    });
+  const body = polygon([...ring(0, 0, -Math.PI), ...ring(h, -Math.PI, 0)]);
+  const top = polygon(ring(h * 0.97, 0, Math.PI * 2));
+  const detail = new Path2D();
+  for (let i = 1; i < 10; i += 1) {
+    const a = -Math.PI + (Math.PI * i) / 10;
+    detail.moveTo(
+      ...project(v, x + Math.cos(a) * r, 0, z + Math.sin(a) * r * 0.6),
+    );
+    detail.lineTo(
+      ...project(v, x + Math.cos(a) * r, h * 0.94, z + Math.sin(a) * r * 0.6),
+    );
+  }
+  const chip = polygon([
+    project(v, x - side * r * 0.2, h, z - r * 0.6),
+    project(v, x - side * r * 0.62, h * 0.97, z - r * 0.46),
+    project(v, x - side * r * 0.5, h * 0.78, z - r * 0.5),
+    project(v, x - side * r * 0.3, h * 0.84, z - r * 0.58),
+  ]);
+  const outline = new Path2D();
+  outline.addPath(body);
+  outline.addPath(top);
+  return {
+    z,
+    layer: 2,
+    stones: [
+      {
+        path: body,
+        tone: 2,
+        ...weather(
+          (u, up) => project(v, x - r + u * 2 * r, up * h, z - r * 0.6),
+          0.1,
+          0.9,
+          0.1,
+          0.85,
+          4,
+          false,
+        ),
+      },
+      { path: top, tone: 1, chips: chip },
+    ],
+    outline,
+    detail,
+    cast: new Path2D(),
+    feet: [
+      [
+        project(v, x - side * r * 1.1, 0, z)[0],
+        z * 0.98,
+        (0.2 * v.projection) / z,
+        3,
+      ],
+    ],
+    climbs: [],
+  };
+};
+
+const framing = (v: View): Piece[] => [
+  drum(v, -1, 1.35, 0.42, 0.62),
+  ...bloom(
+    boulder(v, -((v.cx * 1.5) / v.projection) * 0.55, 1.5, 0.34, 0.2, 2),
+    1,
+  ),
+];
+
+/* Flagstones between the walls: constant world size, so they shrink with depth; joints stagger. */
+const FLAG_DEPTH = [0.62, 0.74, 0.58, 0.7, 0.66] as const;
+const flagstones = (v: View, k: number): Piece => {
+  const half = 4.4 * k;
+  const detail = new Path2D();
+  const stones: Stone[] = [];
+  let z0 = 1.65;
+  for (let row = 0; z0 < 10; row += 1) {
+    const z1 = z0 + FLAG_DEPTH[row % FLAG_DEPTH.length]! * (0.8 + z0 * 0.06);
+    detail.moveTo(...project(v, -half, 0, z1));
+    detail.lineTo(...project(v, half, 0, z1));
+    let x = -half - (row % 3) * 0.37;
+    let n = row * 3;
+    while (x < half) {
+      const next = Math.min(half, x + LENGTHS[n % LENGTHS.length]! * 1.25);
+      if (x > -half) {
+        detail.moveTo(...project(v, x, 0, z0));
+        detail.lineTo(...project(v, x, 0, z1));
+      }
+      if (n % 9 === 4 && z0 > 3)
+        stones.push({
+          path: polygon([
+            project(v, Math.max(-half, x), 0, z0),
+            project(v, Math.max(-half, x), 0, z1),
+            project(v, next, 0, z1),
+            project(v, next, 0, z0),
+          ]),
+          tone: 1,
+        });
+      x = next;
+      n += 1;
+    }
+    z0 = z1;
+  }
+  return {
+    z: 10.4,
+    layer: 2,
+    stones,
+    outline: new Path2D(),
+    detail,
+    cast: new Path2D(),
+    feet: [],
+    climbs: [],
+  };
+};
+
+/* Two short hairline cracks running in toward the stone's base. */
+const floorCracks = (v: View, k: number, to: number): Piece => {
+  const detail = new Path2D();
+  [-0.9, 2.2].forEach((x0, c) => {
+    const xs = x0 * k;
+    const x1 = to + (c ? 0.3 : -0.3);
+    for (let i = 0; i <= 5; i += 1) {
+      const f = i / 5;
+      const jog = (((i * 7 + c * 3) % 5) - 2) * 0.03;
+      const pt = project(v, xs + (x1 - xs) * f + jog, 0, 2.5 + 0.95 * f);
+      if (i === 0) detail.moveTo(...pt);
+      else detail.lineTo(...pt);
+    }
+  });
+  return {
+    z: 2.45,
+    layer: 1,
+    stones: [],
+    outline: new Path2D(),
+    detail,
+    cast: new Path2D(),
+    feet: [],
+    climbs: [],
+  };
+};
+
+/* Small rubble of one world size across the floor, so it shrinks with distance. */
+const RUBBLE: readonly (readonly [number, number, number])[] = [
+  [-2.7, 2.9, 0.4],
+  [0.3, 2.75, 0.3],
+  [3.5, 4.8, 0.32],
+  [0.1, 4.4, 0.34],
+  [-0.9, 6.2, 0.32],
+  [2.1, 7.3, 0.3],
+  [-2.2, 8.6, 0.3],
+  [0.9, 9.3, 0.28],
+];
+/* No weeds of their own: the floor stays open. */
+const rubble = (v: View, k: number): Piece[] =>
+  RUBBLE.map(([x, z, w], i) => ({
+    ...boulder(v, x * k, z, w, w * 0.5, (i % 3) as Tone),
+    feet: [],
+  }));
+
+const ground = (v: View): Piece[] => {
+  const k = share(v, 4.4, 2.6);
+  return [flagstones(v, k), floorCracks(v, k, 1.35 * k), ...rubble(v, k)];
+};
+
+/* q1's pieces, with more crack stems; `sun` swaps in long shadows. */
+const ruinOne = (v: View, sun = false): Piece[] => {
+  const k = share(v, 4.4, 2.6);
+  const cast = (pieces: readonly Piece[], pts: readonly Caster[]): Piece[] =>
+    sun ? sunlit(v, pieces, pts) : [...pieces];
+  return [
+    cracks(v, MORE_CRACK_SPOTS),
+    frontWall(v, 10, -6, 6, FALLEN_BACK, 0, 2),
+    ...cast(
+      [tower(v, 8.5, -3.6 * k, 1.3, 4.8, 0, 3)],
+      [
+        [-3.6 * k - 0.65, 8.5, 4.4],
+        [-3.6 * k, 8.5, 4.1],
+        [-3.6 * k + 0.65, 8.5, 3.4],
+      ],
+    ),
+    ...cast(
+      bloom(
+        sideWall(v, -4.4 * k, 2.6, 10, TALL_SIDE, () => []),
+        4,
+      ),
+      wallCasters(-4.4 * k, 2.6, 10, TALL_SIDE),
+    ),
+    ...bloom(
+      sideWall(v, 4.4 * k, 2.6, 10, LOW_SIDE, () => []),
+      1,
+    ),
+    ...cast(
+      bloom(heap(v, 3.2 * k, 3.2, 1.4), 1),
+      heapCasters(3.2 * k, 3.2, 1.4),
+    ),
+    ...cast(
+      bloom(heap(v, 2.6 * k, 5.4, 1.1), 1),
+      heapCasters(2.6 * k, 5.4, 1.1),
+    ),
+    ...cast(bloom(poneglyph(v, 1.35 * k, 3.6, 1.6, 1.5, true), 1), [
+      [1.35 * k - 0.75, 3.6, 1.8],
+      [1.35 * k + 0.75, 3.6, 1.8],
+      [1.35 * k + 1.1, 3.95, 1.8],
+    ]),
+    ...cast(
+      bloom(heap(v, -1.4 * k, 2.3, 0.8), 2),
+      heapCasters(-1.4 * k, 2.3, 0.8),
+    ),
+  ];
+};
+
+const STYLES: Record<string, Style> = {
+  r1: { weathered: true, sun: false },
+  r2: { weathered: true, sun: true },
+  r3: { weathered: true, sun: false },
+  r4: { weathered: true, sun: false },
+  r5: { weathered: true, sun: true },
+};
+
 /* Plant kinds per option, so growth styles differ as well as layouts. */
 const PLANTS: Record<string, PlantKind> = {
   pA: 'grass',
@@ -1310,6 +1815,11 @@ const PLANTS: Record<string, PlantKind> = {
 };
 
 const COMPOSITIONS: Record<string, (v: View) => Piece[]> = {
+  r1: (v) => [...ruinOne(v), ...atmosphere(v)],
+  r2: (v) => ruinOne(v, true),
+  r3: (v) => [...ruinOne(v), ...framing(v)],
+  r4: (v) => [...ruinOne(v), ...ground(v)],
+  r5: (v) => [...ruinOne(v, true), ...atmosphere(v)],
   /* 1: tall wall and tower left, poneglyph off-centre right, rubble right; flowers clustered at the wall's feet. */
   q1: (v) => {
     const k = share(v, 4.4, 2.6);
@@ -1989,8 +2499,17 @@ const COMPOSITIONS: Record<string, (v: View) => Piece[]> = {
 
 export const SCENE_NAMES = Object.keys(COMPOSITIONS);
 
+const compose = (name: string, v: View): Piece[] => {
+  style = STYLES[name] ?? PLAIN;
+  try {
+    return (COMPOSITIONS[name] ?? COMPOSITIONS.courtyard!)(v);
+  } finally {
+    style = PLAIN;
+  }
+};
+
 export const scenePieces = (name: string, v: View): Piece[] => {
-  const pieces = (COMPOSITIONS[name] ?? COMPOSITIONS.courtyard!)(v);
+  const pieces = compose(name, v);
   const kind = PLANTS[name];
   if (!kind) return pieces.sort((a, b) => b.z - a.z);
   /* Plants root at each piece's feet, sized by depth; a fixed sequence keeps them stable. */
@@ -2225,6 +2744,8 @@ const LAYER = [
 ] as const;
 const CAST_ALPHA = 0.12;
 const STONE_BASE = 0.07;
+const WEAR_ALPHA = 0.2;
+const LIT_ALPHA = 0.9;
 
 export const drawPiece = (
   ctx: CanvasRenderingContext2D,
@@ -2232,10 +2753,18 @@ export const drawPiece = (
   piece: Piece,
   lineWidth: number,
 ): void => {
+  if (piece.mist) {
+    ctx.globalAlpha = piece.mist;
+    ctx.fillStyle = palette.background;
+    ctx.fill(piece.outline);
+    ctx.globalAlpha = 1;
+    return;
+  }
   const layer = LAYER[piece.layer];
+  const clear = 1 - (piece.haze ?? 0);
   ctx.lineJoin = 'round';
   ctx.lineCap = 'round';
-  ctx.globalAlpha = CAST_ALPHA * layer.tone;
+  ctx.globalAlpha = (piece.castAlpha ?? CAST_ALPHA) * layer.tone;
   ctx.fillStyle = palette.border;
   ctx.fill(piece.cast);
   ctx.globalAlpha = 1;
@@ -2247,27 +2776,53 @@ export const drawPiece = (
     ctx.fillStyle = palette.background;
     ctx.fill(stone.path);
     /* Every stone sits a step off the ground, so even lit faces read as stone. */
-    ctx.globalAlpha = STONE_BASE * layer.tone;
+    ctx.globalAlpha = (STONE_BASE + (piece.shade ?? 0)) * layer.tone * clear;
     ctx.fillStyle = palette.border;
     ctx.fill(stone.path);
     if (stone.tone) {
-      ctx.globalAlpha = TONE_ALPHA[stone.tone] * layer.tone;
-      ctx.fillStyle = palette.border;
+      ctx.globalAlpha = TONE_ALPHA[stone.tone] * layer.tone * clear;
       ctx.fill(stone.path);
     }
-    ctx.globalAlpha = layer.joint;
+    if (stone.wear) {
+      ctx.globalAlpha = WEAR_ALPHA * layer.tone * clear;
+      ctx.fill(stone.wear);
+    }
+    ctx.lineWidth = lineWidth * 0.4;
+    if (stone.crack) {
+      ctx.globalAlpha = layer.joint * clear;
+      ctx.stroke(stone.crack);
+    }
+    ctx.globalAlpha = layer.joint * clear;
     ctx.lineWidth = lineWidth * 0.55;
     ctx.stroke(stone.path);
+    if (stone.chips) {
+      ctx.globalAlpha = 1;
+      ctx.fillStyle = palette.background;
+      ctx.fill(stone.chips);
+      ctx.globalAlpha = layer.joint * clear * 0.8;
+      ctx.lineWidth = lineWidth * 0.4;
+      ctx.stroke(stone.chips);
+    }
   }
-  ctx.globalAlpha = layer.joint;
+  ctx.globalAlpha = layer.joint * clear;
   ctx.lineWidth = lineWidth * 0.5;
   ctx.stroke(piece.detail);
   if (piece.carve) {
-    ctx.globalAlpha = layer.line * 0.85;
+    ctx.globalAlpha = layer.line * 0.85 * clear;
     ctx.lineWidth = lineWidth * 0.45;
     ctx.stroke(piece.carve);
   }
-  ctx.globalAlpha = layer.line;
+  if (piece.lit) {
+    ctx.save();
+    ctx.translate(0, lineWidth * 1.2);
+    ctx.globalAlpha = LIT_ALPHA;
+    ctx.strokeStyle = palette.background;
+    ctx.lineWidth = lineWidth * 2.2;
+    ctx.stroke(piece.lit);
+    ctx.restore();
+    ctx.strokeStyle = palette.border;
+  }
+  ctx.globalAlpha = layer.line * clear;
   ctx.lineWidth = lineWidth * 1.15;
   ctx.stroke(piece.outline);
   ctx.globalAlpha = 1;

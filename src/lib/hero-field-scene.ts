@@ -28,6 +28,8 @@ export interface HeroPalette {
   readonly floorEdge: string;
   /** `--color-pink`: petals. */
   readonly flower: string;
+  /** A faint centre on a few petals; none when unset. */
+  readonly blush?: string;
 }
 
 export interface HeroField {

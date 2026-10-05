@@ -1993,6 +1993,8 @@ export const buildRuins = (
     .sort((a, b) => b.z - a.z);
 
 /* Five petals round a centre in the bud colour; `open` 0 to 1 scales them up from closed. */
+const BLUSH_ALPHA = 0.45;
+
 export const drawPetals = (
   ctx: CanvasRenderingContext2D,
   palette: HeroPalette,
@@ -2002,6 +2004,7 @@ export const drawPetals = (
   open: number,
   /** Vine flowers draw at full strength; stem flowers keep their stem's. */
   opaque = false,
+  blush = false,
 ): void => {
   const grow = PETAL.closed + (1 - PETAL.closed) * open;
   const spread = PETAL.spread * bud * grow;
@@ -2026,6 +2029,11 @@ export const drawPetals = (
   ctx.beginPath();
   ctx.arc(x, y, Math.max(0.6, radius * 0.6), 0, Math.PI * 2);
   ctx.fill();
+  if (blush && palette.blush) {
+    ctx.globalAlpha *= BLUSH_ALPHA;
+    ctx.fillStyle = palette.blush;
+    ctx.fill();
+  }
   ctx.globalAlpha = saved;
 };
 

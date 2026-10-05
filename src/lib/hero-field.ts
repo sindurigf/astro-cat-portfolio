@@ -154,7 +154,8 @@ const makeStem = (
     lean: 0,
     leanRate: 0,
     /* Far stems are too faint to carry a visible flower; it would float. */
-    flower: rng() < flowerOdds && z < VEIL_DEPTH,
+    /* Neither far stems nor the blurred near layer flower: both would read as loose marks. */
+    flower: rng() < flowerOdds && z < VEIL_DEPTH && z >= FRONT_DEPTH,
     curl: (rng() - 0.5) * heightRatio * (root - scene.horizon) * 0.35,
     petal,
   };
@@ -225,6 +226,7 @@ const buildSparse = (
   perRuin: number,
   flowerOdds = FLOWER_ODDS,
   petal = 1,
+  weedShare = 1,
 ): Stem[] => {
   const rng = random(FIELD_SEED);
   const built: Stem[] = [];
@@ -240,7 +242,8 @@ const buildSparse = (
     );
   }
   for (const anchor of anchors) {
-    for (let i = 0; i < (anchor.count ?? perRuin); i += 1) {
+    const count = Math.round((anchor.count ?? perRuin) * weedShare);
+    for (let i = 0; i < count; i += 1) {
       const z = anchor.z * (SPARSE.front + rng() * SPARSE.depth);
       const side = rng() < 0.5 ? -1 : 1;
       const x = anchor.x + side * anchor.span * (0.55 + rng() * 0.6);
@@ -364,6 +367,9 @@ const bloomOf = (stem: Stem, seconds: number): number =>
     ),
   );
 
+/* About one flower in this many has a faint blush at its centre. */
+const BLUSH_EVERY = 9;
+
 const drawFlower = (
   ctx: CanvasRenderingContext2D,
   palette: HeroPalette,
@@ -400,6 +406,7 @@ const drawFlower = (
     (open - BUD_CLOSED) / (1 - BUD_CLOSED),
     /* Only near stems flower (see makeStem), so full strength never floats. */
     true,
+    Math.round(stem.phase * 100) % BLUSH_EVERY === 0,
   );
 };
 
@@ -567,6 +574,8 @@ export interface FieldOptions {
   /** Share of foot stems that flower, and their flower size. */
   readonly flowers?: number;
   readonly petal?: number;
+  /** Scales the stems at every ruin foot. */
+  readonly weedShare?: number;
 }
 
 export const createHeroField = (
@@ -631,6 +640,7 @@ export const createHeroField = (
           options.weeds ?? SPARSE.perRuin,
           options.flowers,
           options.petal,
+          options.weedShare,
         ),
       ]
         .map((stem) => (options.bareStems ? { ...stem, flower: false } : stem))
