@@ -1,4 +1,5 @@
 ---
+import Abbr from '../components/Abbr.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PageHero from '../components/PageHero.astro';
 import Section from '../components/Section.astro';
@@ -159,10 +160,12 @@ const SWATCH_BOX = 'grid size-16 shrink-0 place-items-center';
 >
   <PageHero title="Brand">
     <p class="standfirst">
-      The design system behind this site, drawn from its own Cascading Style
-      Sheets (CSS). It aims for the Web Content Accessibility Guidelines (WCAG)
-      2.2 at Level AA, the middle of three levels, and at Level AAA, the
-      highest, for text contrast.
+      The design system behind this site, drawn from its own{' '}
+      <Abbr short="CSS" long="Cascading Style Sheets" />. It aims for the{' '}
+      <Abbr short="WCAG" long="Web Content Accessibility Guidelines" /> 2.2 at
+      Level <Abbr short="AA" long="the middle of WCAG's three levels" />, and at
+      Level <Abbr short="AAA" long="the highest of WCAG's three levels" /> for
+      text contrast.
     </p>
     {HAS_LINKS && (
       <p class="mt-8 flex flex-wrap gap-6">
@@ -429,10 +432,14 @@ const SWATCH_BOX = 'grid size-16 shrink-0 place-items-center';
       <ul class="bullet-list mt-6 text-body text-text">
         <li>Source code and docs: MIT</li>
         <li>
-          Photographs: Creative Commons Attribution (CC BY) 4.0, credited in its
-          LICENSE-photos
+          Photographs:{' '}
+          <Abbr short="CC BY" long="Creative Commons Attribution" /> 4.0,
+          credited in its LICENSE-photos
         </li>
-        <li>Brand icons: Simple Icons, Creative Commons Zero (CC0) 1.0</li>
+        <li>
+          Brand icons: Simple Icons,{' '}
+          <Abbr short="CC0" long="Creative Commons Zero" /> 1.0
+        </li>
         <li>Lexend: SIL Open Font License 1.1</li>
       </ul>
       {HAS_LINKS && (

@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import Abbr from '../components/Abbr.astro';
 import PageHero from '../components/PageHero.astro';
 import { accessibilityFacts } from '../lib/accessibility-facts';
 import { CONTACT_EMAIL, CONTACT_FORM_ON, CONTACT_MAILTO } from '../lib/contact';
@@ -54,8 +55,10 @@ const AUTOMATED = [
       This site aims to be usable with a keyboard, a <dfn>screen reader</dfn>
       (software that reads the page aloud), at high zoom, and without
       JavaScript. Where it is not, that is a bug worth reporting. It aims for
-      the Web Content Accessibility Guidelines (WCAG) 2.2 at Level AA, the
-      middle of three levels, and at Level AAA, the highest, for text contrast.
+      the <Abbr short="WCAG" long="Web Content Accessibility Guidelines" /> 2.2
+      at Level <Abbr short="AA" long="the middle of WCAG's three levels" />, and
+      at Level <Abbr short="AAA" long="the highest of WCAG's three levels" />
+      for text contrast.
     </p>
   </PageHero>
 
@@ -128,9 +131,9 @@ const AUTOMATED = [
               "Nobody has tested the contact form's error messages by hand."}{' '}
             Some functional pages have been edited for shorter sentences, but no
             reader has checked them for plain language. The gold sections have
-            only been measured by machine. The published Portable Document
-            Format (PDF) files pass an automated check but have not been read
-            with a screen reader.
+            only been measured by machine. The published{' '}
+            <Abbr short="PDF" long="Portable Document Format" /> files pass an
+            automated check but have not been read with a screen reader.
           </p>
 
           <p>
@@ -203,7 +206,7 @@ const AUTOMATED = [
         <p class="mt-head text-body text-text text-pretty">
           This is a personal site, so this statement is voluntary. It follows
           the <a href={W3C_STATEMENTS}>model for accessibility statements</a>{' '}
-          from the World Wide Web Consortium (W3C).
+          from the World Wide Web Consortium.
         </p>
       </div>
     </div>
