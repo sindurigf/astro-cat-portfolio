@@ -448,30 +448,31 @@ with a comment beside it.
 Component classes live in `@layer components` in `src/styles/components/`, one
 file per area.
 
-| Class                                   | What                                                                                                 |
-| --------------------------------------- | ---------------------------------------------------------------------------------------------------- |
-| `.btn-primary`                          | Gold fill, `gold-text` label, `border-4`, pink 4px shadow, `text-button` 900                         |
-| `.btn-secondary`                        | `surface` fill, `text` label, `border-4`, pink 4px shadow                                            |
-| `.actions`                              | Button row; its 32px row gap clears shadow and ring when buttons wrap                                |
-| `.card`                                 | `surface`, `border-8`, pink 8px shadow, padding 24px, 40px from `sm`                                 |
-| `.card-title`                           | Every card heading, `text-h3` 900                                                                    |
-| `.card-link`                            | Title link stretched over the card; inline-block, 24px min; card hover turns title and shadow cyan   |
-| `.card-solid`                           | The subject card, a `text` fill; raised in a `.card-block`, or `.card-raised` in a dark group        |
-| `.lead`                                 | Paragraph under a section heading, `text-h3` 400, 24px under it                                      |
-| `.standfirst`                           | Line beside PageHero's title, `text-standfirst` 400                                                  |
-| `.bullet-list`                          | Bulleted list, gold markers                                                                          |
-| `.chip`                                 | Tags, jump links, filters, pager. Always a link. `border-4`, 44px target; a chip list is `gap-6`     |
-| `.badge`                                | A non-link fact or state. Flat `bg-text`, `background` label, no border or shadow                    |
-| `.nav-cta`                              | Nav call to action: gold, `border-4`, pink 4px shadow; current swaps to `--inset-shadow-cta-current` |
-| `.label`                                | `text-label` 900 uppercase, 0.1em                                                                    |
-| `.link`                                 | Running-text underline for a classed standalone link                                                 |
-| `.page-gutter`, `max-w-page`, `.band`   | [Gutter and column](#gutter-and-column)                                                              |
-| `.skip-link`                            | Skip link, visible on focus                                                                          |
-| `.motion-toggle`                        | 40px SC 2.2.2 pause control; position from a second class                                            |
-| `.prose`                                | Rendered Markdown (no typography plugin)                                                             |
-| `.aspect-frame`                         | Every photo: [Photo frames](#photo-frames-and-the-failed-photo-state)                                |
-| `.surface-gold`, `.btn-gold-*`          | [Gold surface](#gold-surface)                                                                        |
-| `.hero*`, `.post-layout`, `.footer-*` … | Page-specific, documented in place                                                                   |
+| Class                                   | What                                                                                                                                                                                     |
+| --------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `.btn-primary`                          | Gold fill, `gold-text` label, `border-4`, pink 4px shadow, `text-button` 900                                                                                                             |
+| `.btn-secondary`                        | `surface` fill, `text` label, `border-4`, pink 4px shadow                                                                                                                                |
+| `.actions`                              | Button row; its 32px row gap clears shadow and ring when buttons wrap                                                                                                                    |
+| `.card`                                 | `surface`, `border-8`, pink 8px shadow, padding 24px, 40px from `sm`                                                                                                                     |
+| `.card-title`                           | Every card heading, `text-h3` 900                                                                                                                                                        |
+| `.card-link`                            | Title link stretched over the card; inline-block, 24px min; card hover turns title and shadow cyan                                                                                       |
+| `.card-solid`                           | The subject card, a `text` fill; raised in a `.card-block`, or `.card-raised` in a dark group                                                                                            |
+| `.lead`                                 | Paragraph under a section heading, `text-h3` 400, 24px under it                                                                                                                          |
+| `.standfirst`                           | Line beside PageHero's title, `text-standfirst` 400                                                                                                                                      |
+| `.bullet-list`                          | Bulleted list, gold markers                                                                                                                                                              |
+| `.chip`                                 | Tags, jump links, filters, pager. Always a link. `border-4`, 44px target; a chip list is `gap-6`                                                                                         |
+| `.badge`                                | A non-link fact or state. Flat `bg-text`, `background` label, no border or shadow                                                                                                        |
+| `.nav-cta`                              | Nav call to action: gold, `border-4`, pink 4px shadow; current swaps to `--inset-shadow-cta-current`                                                                                     |
+| `.label`                                | `text-label` 900 uppercase, 0.1em                                                                                                                                                        |
+| `.link`                                 | Running-text underline for a classed standalone link                                                                                                                                     |
+| `.abbr-trigger`, `.abbr-tip`            | An abbreviation's first use (`src/components/Abbr.astro`): dotted underline; the expansion is a popover in a `surface` box flush below it; inline in brackets where popovers are missing |
+| `.page-gutter`, `max-w-page`, `.band`   | [Gutter and column](#gutter-and-column)                                                                                                                                                  |
+| `.skip-link`                            | Skip link, visible on focus                                                                                                                                                              |
+| `.motion-toggle`                        | 40px SC 2.2.2 pause control; position from a second class                                                                                                                                |
+| `.prose`                                | Rendered Markdown (no typography plugin)                                                                                                                                                 |
+| `.aspect-frame`                         | Every photo: [Photo frames](#photo-frames-and-the-failed-photo-state)                                                                                                                    |
+| `.surface-gold`, `.btn-gold-*`          | [Gold surface](#gold-surface)                                                                                                                                                            |
+| `.hero*`, `.post-layout`, `.footer-*` … | Page-specific, documented in place                                                                                                                                                       |
 
 ### Control states
 
@@ -502,6 +503,10 @@ file per area.
   `tests/solid-block.spec.ts`.
 - Breadcrumbs stop at the parent; JSON-LD `BreadcrumbList` adds the page
   (`tests/breadcrumbs.spec.ts`).
+- An abbreviation's expansion is a `<button popovertarget>` described by its
+  popover, not a focusable `<abbr>`: a tap opens it with no script, and the
+  WAI-ARIA tooltip pattern covers no touch. Flush below, so the pointer can
+  cross onto it (SC 1.4.13). Never inside a link: write the word out there.
 
 ## Sections, rhythm and grid
 

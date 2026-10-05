@@ -392,6 +392,17 @@ form, submit, then wait several seconds without touching anything.
 - [ ] Online, submit; offline, submit again: the replaced text is announced. → SC 4.1.3
 - [ ] The typed message is still in the textarea. → SC 3.3.1
 
+#### 6.12.1a An abbreviation's expansion
+
+Setup: `/privacy` at 1280px. Each first-use abbreviation is a `<button>`
+described by its expansion (`src/components/Abbr.astro`).
+
+- [ ] Tab to "IPv6": the name, "button", and "Internet Protocol version 6" are
+      announced. → SC 3.1.4
+      Heard: `________________________`
+- [ ] Escape: the box closes and focus stays on the button. → SC 1.4.13
+- [ ] On a phone, tap "IPv6": the box opens; tap again: it closes. → SC 3.1.4
+
 #### 6.12.2 The "In this post" disclosure
 
 Setup: `/blog/sample-talk` at 1280px (open), then below 1280px

@@ -1,0 +1,32 @@
+---
+/*
+ * SC 3.1.4 at an abbreviation's first use. The button opens its expansion as a
+ * popover with no script; src/scripts/abbr-tips.ts adds hover and focus. A
+ * browser without popovers reads the expansion inline in brackets.
+ */
+interface Props {
+  short: string;
+  long: string;
+}
+
+const { short, long } = Astro.props;
+const id = `abbr-${short.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
+---
+
+<span data-abbr>
+  <button
+    type="button"
+    class="abbr-trigger"
+    popovertarget={id}
+    aria-describedby={id}
+  >
+    <abbr>{short}</abbr>
+  </button>
+  <span class="abbr-tip" id={id} popover role="tooltip">
+    {long}
+  </span>
+</span>
+
+<script>
+  import '../scripts/abbr-tips';
+</script>
