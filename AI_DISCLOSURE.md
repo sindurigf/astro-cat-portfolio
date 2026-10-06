@@ -16,7 +16,7 @@ current once the site is yours.
 
 AI-drawn art, all by Claude:
 
-- The animated About cats, labeled on `/about`.
+- The animated About cats and their trick icons (`src/lib/about-cats-tricks.json`), labeled on `/about`.
 - The poneglyph and its lighting script in the homepage field
   (`src/lib/hero-field-poneglyph.ts`).
 - The lying cat in the footer (`src/components/Footer.astro`).
@@ -28,7 +28,7 @@ AI-drawn art, all by Claude:
 
 Every page's footer says "Cat drawings and text made with AI" and links this
 file (`tests/ai-label.spec.ts` checks every route). `/about` also labels its
-moving cats where they play.
+moving cats and their trick icons where they play.
 
 - The cat photos are real photographs, not generated or edited by AI.
 - The sample persona and all her text are written by Claude:

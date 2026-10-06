@@ -84,42 +84,6 @@ const LOAF = derive(BASE, {
 });
 
 const POSES = {
-  /* Pepper's sofa sit: upright on her rump, belly out, hind legs straight out in front, front paws on the belly. */
-  slouch: derive(BASE, {
-    ba: 78,
-    by: 21,
-    bt: 23,
-    haunch: 14,
-    fN: [14, 4],
-    fF: [11, 6],
-    hN: [30, 21],
-    hF: [26, 21],
-    hl: 1.8,
-    hx: 3,
-    hy: -13,
-    hr: 6,
-    ta: 185,
-    tc: -1,
-  }),
-  /* Flat out on her side: every leg stretched long, head down, tail straight. */
-  sprawl: derive(BASE, {
-    ba: 0,
-    by: 11,
-    bt: 20,
-    sq: 1.05,
-    fN: [38, 8],
-    fF: [33, 10],
-    hN: [-30, 8],
-    hF: [-26, 10],
-    fl: 1.6,
-    hl: 1.6,
-    hx: 6,
-    hy: -5,
-    hr: 18,
-    eyes: 0,
-    ta: 180,
-    tc: 0,
-  }),
   /* Up tall on the hind legs after something overhead. */
   tall: derive(BASE, {
     ba: 84,
@@ -201,19 +165,6 @@ const POSES = {
     hr: 180,
     ta: 185,
     tc: 0,
-  }),
-  knead: derive(BASE, {
-    ba: 8,
-    by: 16,
-    fN: [14, 16],
-    fF: [11, 16],
-    hN: [-9, 16],
-    hF: [-6, 16],
-    hx: 8,
-    hy: -10,
-    eyes: 0,
-    ta: 175,
-    tc: -12,
   }),
   crouch: derive(BASE, {
     ba: -5,
@@ -459,8 +410,6 @@ const earFlick = (at: number): Mod =>
 const JUMP_HEIGHT = 58;
 const POUNCE_HEIGHT = 56;
 const LEAP_HEIGHT = 40;
-const HOP_HEIGHT = 50;
-const BOX_HOP_HEIGHT = 42;
 /** The scratching post stands this far ahead of the cat, clear of its chest. */
 const POST_GAP = 34;
 const YARN_BOUND_HEIGHT = 38;
@@ -509,11 +458,6 @@ const WAND_PULL: readonly (readonly [number, number, number])[] = [
   [3100, 52, -50],
   [3380, 40, -5],
 ];
-/** Knead rhythm (ms per radian) and how high each paw lifts, in px. */
-const KNEAD_BEAT = 260;
-const KNEAD_LIFT = 7;
-/** The blanket lies under the front paws and ahead, so most of it shows. */
-const BLANKET_AHEAD = 38;
 
 /** A point along a timed route, straight between its points. */
 const along = (
@@ -648,33 +592,6 @@ export const MOVES = {
     ],
     mods: [],
   }),
-  /* Kneads the blanket: paws pressing in turn, head bobbing, eyes shut, tail sweeping slowly. */
-  knead: (): Move => {
-    const settle = step(500, 'knead');
-    const kneading = step(4200, 'knead');
-    const steps = [settle, kneading, step(500, 'loaf'), step(500, 'sit')];
-    const end = stepsDuration(steps);
-    return {
-      steps,
-      prop: 'blanket',
-      propAt: (t) => ({
-        ...still('blanket', BLANKET_AHEAD),
-        o: Math.min(1, t / 300, Math.max(0, (end - t) / 300)),
-      }),
-      mods: [
-        between(settle.ms, settle.ms + kneading.ms, (p, s) => {
-          const w = Math.sin(s / KNEAD_BEAT);
-          p.fN[1] -= KNEAD_LIFT * Math.max(0, w);
-          p.fF[1] -= KNEAD_LIFT * Math.max(0, -w);
-          p.fN[0] += 2 * Math.max(0, w);
-          p.fF[0] += 2 * Math.max(0, -w);
-          p.hy += 1.2 * w;
-          p.ba += 1.5 * w;
-          p.tw = 3;
-        }),
-      ],
-    };
-  },
   /* Bats at the feather toy on its string: swats, a rear, a double swipe, and a last swat. */
   toy: (): Move => {
     const hit = (t: number, at: number): number =>
@@ -827,18 +744,6 @@ export const MOVES = {
       };
     },
   }),
-  /* A springy hop on the spot, at nothing in particular. */
-  hop: (): Move => ({
-    steps: [
-      step(300, 'crouch'),
-      step(140, 'crouch', { sq: 0.88 }, 'in'),
-      step(220, 'air', { x: 14 }, 'out'),
-      step(220, 'air', { x: 26 }, 'in'),
-      step(140, 'crouch', { x: 30, sq: 0.86 }, 'out'),
-      step(400, 'sit', { x: 30 }),
-    ],
-    mods: [arc(440, 1020, HOP_HEIGHT)],
-  }),
   post: (): Move => ({
     /* A long scratch up a tall post, paws high, then a look at the work. */
     steps: [
@@ -857,27 +762,6 @@ export const MOVES = {
     propAt: (t) => ({
       ...still('post', POST_GAP),
       o: Math.min(1, t / 300, Math.max(0, (4700 - t) / 300)),
-    }),
-  }),
-  box: (): Move => ({
-    steps: [
-      step(400, 'crouch'),
-      step(140, 'crouch', { x: -2, sq: 0.9 }, 'in'),
-      step(420, 'air', { x: 60 }, 'linear'),
-      step(200, 'crouch', { x: 66, y: -5 }, 'out'),
-      step(400, 'loaf', { x: 66, y: -5 }),
-      step(1800, 'loaf', { x: 66, y: -5, hr: -6 }),
-      step(160, 'crouch', { x: 66, y: -5 }, 'in'),
-      step(420, 'air', { x: 130 }, 'linear'),
-      step(200, 'crouch', { x: 134, sq: 0.85 }, 'out'),
-      step(500, 'sit', { x: 134 }),
-    ],
-    mods: [arc(540, 1160, BOX_HOP_HEIGHT), arc(3520, 4140, BOX_HOP_HEIGHT)],
-    prop: 'box',
-    /* A snug box under the resting cat: head and back show over the low rim. */
-    propAt: (t) => ({
-      ...still('box', 70),
-      o: Math.min(1, t / 300, Math.max(0, (4640 - t) / 300)),
     }),
   }),
   /* Bats the ball, trots after it, pounces with its paws on it, bats it on, then rolls over hugging it. */
@@ -944,71 +828,6 @@ export const MOVES = {
       };
     },
   }),
-  /* Pepper's sofa sit, from her photos: settles back onto her rump, slow blinks, pats her belly, sits up again. */
-  slouch: (): Move => ({
-    steps: [
-      step(500, 'sit'),
-      step(900, 'slouch'),
-      step(1200, 'slouch', { hr: -6 }),
-      step(300, 'slouch', { fN: [13, -2], hr: 10 }, 'out'),
-      step(300, 'slouch'),
-      step(1200, 'slouch', { hr: 4 }),
-      step(800, 'sit'),
-    ],
-    mods: [
-      blinkAt(1700),
-      blinkAt(3600),
-      between(1400, 4400, (p, s) => {
-        p.bt += 1.2 * Math.sin(s / 500);
-      }),
-    ],
-  }),
-  /* Flat out on the floor like her photo, then one long luxurious stretch of every leg. */
-  sprawl: (): Move => ({
-    steps: [
-      step(500, 'loaf'),
-      step(700, 'sprawl'),
-      step(900, 'sprawl'),
-      step(900, 'sprawl', {
-        fN: [42, 7],
-        fF: [37, 9],
-        hN: [-35, 7],
-        hF: [-31, 9],
-        sq: 1.1,
-      }),
-      step(1300, 'sprawl'),
-      step(600, 'loaf'),
-      step(500, 'sit'),
-    ],
-    mods: [earFlick(2200)],
-  }),
-  /* Mochi moves in: jumps into the box, turns round inside it, sinks until only her ears show, then pops up. */
-  boxnap: (): Move => ({
-    steps: [
-      step(400, 'crouch'),
-      step(140, 'crouch', { x: -2, sq: 0.9 }, 'in'),
-      step(420, 'air', { x: 60 }, 'linear'),
-      step(200, 'crouch', { x: 66, y: -5 }, 'out'),
-      step(160, 'crouch', { x: 66, y: -5, sq: 0.94 }, 'out'),
-      step(140, 'crouch', { x: 66, y: -5, face: -1 }, 'snap'),
-      step(300, 'loaf', { x: 66, y: -5, face: -1 }),
-      step(700, 'loaf', { x: 66, y: -14, face: -1, hr: 10 }),
-      step(1600, 'loaf', { x: 66, y: -14, face: -1, hr: 10, eyes: 0 }),
-      step(250, 'loaf', { x: 66, y: -3, face: -1, ears: 0.2 }, 'out'),
-      step(900, 'loaf', { x: 66, y: -3, face: -1, hr: -12 }),
-      step(300, 'crouch', { x: 66, y: -5, face: -1 }),
-      step(160, 'crouch', { x: 66, y: -5, face: -1, sq: 0.9 }, 'in'),
-      step(420, 'air', { x: 4, face: -1 }, 'linear'),
-      step(200, 'crouch', { x: 0, face: -1, sq: 0.86 }, 'out'),
-      step(500, 'sit', { x: 0, face: -1 }),
-    ],
-    mods: [arc(540, 1160, 26), arc(1300, 1440, 5), arc(5650, 6270, 26)],
-    prop: 'box',
-    propAt: (t) => ({
-      ...still('box', 70),
-      o: Math.min(1, t / 300, Math.max(0, (6700 - t) / 300)),
-    }),
-  }),
   /* Biscuit and the wand on the cat tree, from his photo: up tall, swats, and one big leap that brings it down. */
   wand: (): Move => ({
     steps: [
@@ -1048,17 +867,6 @@ export const MOVES = {
       };
     },
   }),
-  peek: (): Move => ({
-    steps: [
-      step(900, 'sit'),
-      step(450, 'sit', { y: -46, ears: 0.3 }),
-      step(1100, 'sit', { y: -46 }),
-      step(300, 'sit', { y: -34 }, 'out'),
-      step(700, 'sit', { y: -34 }),
-      step(400, 'sit'),
-    ],
-    mods: [],
-  }),
   /* A cat that turns first takes a breath fewer, so turning and lying down stay well within 5 s. */
   sleep: (turning = false): Move => {
     const breaths = turning ? BREATHS - 1 : BREATHS;
@@ -1081,14 +889,7 @@ export type MoveName = keyof typeof MOVES;
 
 /** Small play moves run this much slower than drawn, so each one can be watched. */
 const SLOW_PLAY = 1.5;
-const SLOW_MOVES: ReadonlySet<MoveName> = new Set([
-  'boxnap',
-  'knead',
-  'toy',
-  'peek',
-  'knock',
-  'box',
-]);
+const SLOW_MOVES: ReadonlySet<MoveName> = new Set(['toy', 'knock']);
 
 /** A move at `factor` of its speed, modifiers and prop included. */
 const slower = (move: Move, factor: number): Move => {
@@ -1198,47 +999,37 @@ export const scaledExtent = (
 };
 
 /*
- * Relative weights per cat, so each reads as herself. Shared moves stay possible
- * for every cat; each also has her own, from her photos: Pepper's slouch and
- * sprawl, Mochi's peek and boxnap, Biscuit's wand. Sleep and wake come from the nap clock.
+ * Relative weights per cat, so each plays a little differently. Every cat can
+ * play every shared move; Biscuit alone has the wand. Sleep and wake come from
+ * the nap clock.
  */
 export const CAT_WEIGHTS: Record<CatId, Partial<Record<MoveName, number>>> = {
-  /* The queen: the calmest, but she chases too; watching is one move among many. */
+  /* The queen: the calmest, but she chases too. */
   pepper: {
-    slouch: 7,
-    sprawl: 6,
     look: 6,
     yarn: 5,
     fly: 5,
     stretch: 5,
-    knead: 5,
     lie: 4,
     post: 4,
-    box: 4,
+    knock: 4,
     stalk: 3,
     toy: 3,
     belly: 3,
-    knock: 4,
-    hop: 2,
     pounce: 2,
     bigJump: 2,
   },
-  /* The conspirator: stalks, peeks and knocks the cup off, and chases yarn. */
+  /* The conspirator: stalks and knocks the cup off, and chases yarn. */
   mochi: {
-    boxnap: 8,
     stalk: 9,
-    peek: 7,
-    yarn: 7,
     knock: 9,
+    yarn: 7,
     fly: 6,
     pounce: 4,
     look: 3,
-    box: 3,
     toy: 3,
-    hop: 2,
     bigJump: 2,
     post: 2,
-    knead: 2,
     stretch: 2,
     belly: 2,
     lie: 1,
@@ -1249,17 +1040,14 @@ export const CAT_WEIGHTS: Record<CatId, Partial<Record<MoveName, number>>> = {
     yarn: 11,
     fly: 10,
     toy: 7,
-    hop: 6,
     stalk: 5,
     pounce: 4,
     belly: 4,
     bigJump: 3,
-    box: 3,
-    knead: 2,
+    knock: 3,
     post: 2,
     stretch: 2,
     look: 2,
-    knock: 3,
     lie: 1,
   },
 };
