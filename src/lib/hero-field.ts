@@ -14,11 +14,8 @@ import {
   BUD_TONE,
   CLUMP_COUNT,
   CLUMP_SPREAD,
-  HOP_BASE_SECONDS,
-  HOP_SPEED,
   NEAR_BAND_LEFT,
   NEAR_BAND_WIDTH,
-  SPEED_SAMPLE_SECONDS,
   STEM_CURVE,
   STRAY_ODDS,
   SWAY,
@@ -27,51 +24,36 @@ import {
   breezeWave,
   FIELD_OF_VIEW_FLOOR,
   FIELD_SEED,
-  FOOT_Y,
   FRONT_DEPTH,
   GROUND_SPAN,
-  MASCOT_DEPTH,
-  MASCOT_UNIT,
-  HOPS,
+  PONEGLYPH_DEPTH,
   LEAN_LIMIT_RATIO,
   NEAR_BLUR,
   NEAR_VEIL,
-  REACH_AHEAD,
-  REACH_BEHIND,
-  REACH_DEPTH,
   REFERENCE_ASPECT,
   REFERENCE_HEIGHT,
   REFERENCE_PROJECTION,
   REFERENCE_WIDTH,
-  REST_LONG,
-  REST_LONG_ODDS,
-  REST_MIN_HOPS,
-  REST_ODDS,
-  REST_SHORT,
-  ROUTE_MARGIN,
-  ROUTE_SEED,
-  SPEED_LIMIT_RATIO,
-  SIT,
   SPRING,
   STALK_WIDTH,
   STEM_ALPHA,
   VEIL,
   VEIL_DEPTH,
   FLOOR_HEIGHT,
-  REACH,
   breeze,
   random,
   stemPoint,
 } from './hero-field-scene';
-import { drawCat, hopFrame } from './hero-field-cat';
-import type {
-  HeroField,
-  HeroPalette,
-  Route,
-  RoutePoint,
-  Segment,
-  Stem,
-} from './hero-field-scene';
+import {
+  FLOWER_ALPHA,
+  PONEGLYPH,
+  bloomOf,
+  drawBloom,
+  drawPoneglyph,
+  stoneAt,
+} from './hero-field-poneglyph';
+import type { Stone } from './hero-field-poneglyph';
+import type { HeroField, HeroPalette, Stem } from './hero-field-scene';
 
 interface Scene {
   readonly boxWidth: number;
@@ -82,8 +64,7 @@ interface Scene {
   readonly world: number;
   /** Nearest visible depth; where `BANDS.NEAR` starts. */
   readonly view: number;
-  readonly mascotRoot: number;
-  readonly mascotScale: number;
+  readonly stone: Stone;
 }
 
 type Band = (typeof BANDS)[keyof typeof BANDS];
@@ -91,13 +72,8 @@ type Band = (typeof BANDS)[keyof typeof BANDS];
 interface FieldState {
   scene: Scene;
   stems: Stem[];
-  route: Route;
-  /* One-entry memo of `routePoint`, keyed on the frame's exact time. */
-  cachedAt: number;
-  cached: RoutePoint;
+  still: boolean;
 }
-
-const STILL: RoutePoint = { x: 0, cycle: 0, sit: 0, hop: 0 };
 
 const groundAt = (scene: Scene, z: number): number =>
   scene.horizon + scene.projection / z;
@@ -116,8 +92,11 @@ const sceneFor = (width: number, height: number): Scene => {
     projection,
     world: projection / REFERENCE_PROJECTION,
     view,
-    mascotRoot: horizon + projection / MASCOT_DEPTH,
-    mascotScale: (projection / MASCOT_DEPTH) * MASCOT_UNIT,
+    stone: stoneAt(
+      boxWidth,
+      horizon + projection / PONEGLYPH_DEPTH,
+      projection / PONEGLYPH_DEPTH,
+    ),
   };
 };
 
@@ -191,111 +170,35 @@ const buildStems = (scene: Scene): Stem[] => {
   band(BANDS.FAR, 1, true);
   band(BANDS.GRASS, 1, true);
   band(BANDS.MIDDLE, 1, true);
-  band(BANDS.MASCOT, 1, true);
+  band(BANDS.PONEGLYPH, 1, true);
   /* Near stems stay at the left edge, veiled, so they never blur over type. */
   band(BANDS.NEAR, NEAR_VEIL, false);
 
-  return built.sort((a, b) => b.z - a.z);
+  return built;
 };
 
-const restSegment = (x: number, rng: () => number): Segment => ({
-  kind: 'rest',
-  duration: rng() < REST_LONG_ODDS ? REST_LONG : REST_SHORT,
-  x0: x,
-  x1: x,
-  hop: 0,
-  start: 0,
-});
+/*
+ * The flowering cluster at the poneglyph's foot: just in front of it, across
+ * its width. Its own seed, so the field around it stays as it was.
+ */
+const FOOT = {
+  seed: 9137,
+  count: 9,
+  depth: [0.9, 0.08],
+  height: [0.16, 0.14],
+} as const;
 
-const hopSegment = (x: number, rng: () => number, world: number): Segment => {
-  const roll = rng();
-  const hop =
-    HOPS.find((candidate) => roll < candidate.odds) ?? HOPS[HOPS.length - 1];
-  return {
-    kind: 'hop',
-    duration: HOP_BASE_SECONDS + hop.distance / HOP_SPEED,
-    x0: x,
-    x1: x + hop.distance * world,
-    hop: hop.height * world,
-    start: 0,
-  };
-};
-
-/* Pixels across the box; hop length scales with the projection. */
-const buildRoute = ({ boxWidth, world }: Scene): Route => {
-  const rng = random(ROUTE_SEED);
-  const segments: Segment[] = [];
-  const edge = ROUTE_MARGIN * world;
-  let x = -edge;
-  let sinceRest = 0;
-
-  while (x < boxWidth + edge) {
-    if (sinceRest > REST_MIN_HOPS - 1 && rng() < REST_ODDS) {
-      segments.push(restSegment(x, rng));
-      sinceRest = 0;
-    } else {
-      const segment = hopSegment(x, rng, world);
-      segments.push(segment);
-      x = segment.x1;
-      sinceRest += 1;
-    }
-  }
-
-  let total = 0;
-  for (const segment of segments) {
-    segment.start = total;
-    total += segment.duration;
-  }
-  return { segments, total: Math.max(total, 0.001) };
-};
-
-const routePoint = (route: Route, seconds: number): RoutePoint => {
-  const local = ((seconds % route.total) + route.total) % route.total;
-  for (const segment of route.segments) {
-    if (local >= segment.start + segment.duration) continue;
-    const f = (local - segment.start) / segment.duration;
-    if (segment.kind === 'rest') {
-      return {
-        x: segment.x0,
-        cycle: 0,
-        hop: 0,
-        sit: Math.max(
-          0,
-          Math.min(1, Math.sin(Math.min(1, f * SIT.rate) * Math.PI) * SIT.gain),
-        ),
-      };
-    }
-    return {
-      x: segment.x0 + (segment.x1 - segment.x0) * f,
-      cycle: f,
-      sit: 0,
-      hop: segment.hop,
-    };
-  }
-  return STILL;
-};
-
-const mascotForce = (
-  stem: Stem,
-  mascotX: number,
-  speed: number,
-  world: number,
-): number => {
-  const depth = Math.abs(stem.z - MASCOT_DEPTH) / MASCOT_DEPTH;
-  if (depth >= REACH_DEPTH) return 0;
-  const reach = (REACH.base + stem.size * REACH.bySize) * world;
-  const gap = stem.x - mascotX;
-  if (Math.abs(gap) >= reach) return 0;
-  const proximity = 1 - Math.abs(gap) / reach;
-  const side = gap * speed < 0 ? REACH_BEHIND : REACH_AHEAD;
-  return (
-    proximity *
-    proximity *
-    (1 - depth / REACH_DEPTH) *
-    speed *
-    SPRING.impulse *
-    side
-  );
+const buildFoot = (scene: Scene): Stem[] => {
+  const rng = random(FOOT.seed);
+  const { left, right, unit } = scene.stone;
+  const from = left - PONEGLYPH.margin * unit;
+  const across = right + PONEGLYPH.side * unit - from;
+  return Array.from({ length: FOOT.count }, (_, i) => {
+    const z = PONEGLYPH_DEPTH * (FOOT.depth[0] + rng() * FOOT.depth[1]);
+    const x = from + ((i + 0.2 + rng() * 0.6) / FOOT.count) * across;
+    const height = FOOT.height[0] + rng() * FOOT.height[1];
+    return { ...makeStem(scene, rng, z, x, height, 1), bloom: i / FOOT.count };
+  });
 };
 
 const settle = (
@@ -398,6 +301,9 @@ const drawHead = (
   ctx.fill();
 };
 
+/* The bud unit of a flower at the poneglyph's foot, reference pixels. */
+const FLOWER_BUD = 3.4;
+
 /* Detail steps down with distance, with a minimum drawn size at each step. */
 const drawStem = (
   ctx: CanvasRenderingContext2D,
@@ -406,6 +312,7 @@ const drawStem = (
   stem: Stem,
   lean: number,
   seconds: number,
+  still: boolean,
 ): void => {
   const alpha =
     (STEM_ALPHA.base + Math.sqrt(stem.scale) * STEM_ALPHA.byScale) * stem.veil;
@@ -420,7 +327,24 @@ const drawStem = (
   /* Buds and head fill from strokeStyle. */
   ctx.strokeStyle = budTone(palette, stem.tone);
   drawBuds(ctx, stem, lean, bud, seconds, world);
-  drawHead(ctx, stem, lean, bud);
+  if (stem.bloom === undefined) {
+    drawHead(ctx, stem, lean, bud);
+    return;
+  }
+  const nod =
+    Math.sin(breezeWave(stem.x, stem.phase, seconds) - BUD_NOD.lag) *
+    BUD_NOD.amplitude;
+  const flower = FLOWER_BUD * world;
+  const [tx, ty] = stemPoint(stem.x, stem.root, stem.height, lean, 1);
+  drawBloom(
+    ctx,
+    palette,
+    [tx, ty - 2 * flower],
+    flower,
+    nod,
+    bloomOf(stem.bloom, seconds, still),
+    Math.max(ctx.globalAlpha, FLOWER_ALPHA),
+  );
 };
 
 /* Painted between far and near stems so it veils only the distance. */
@@ -439,7 +363,7 @@ const drawVeil = (
   ctx.fillRect(0, top, scene.boxWidth, depth);
 };
 
-/* On the back layer: on the front it would darken the mascot. */
+/* On the back layer: on the front it would darken the poneglyph. */
 const drawFloor = (
   ctx: CanvasRenderingContext2D,
   palette: HeroPalette,
@@ -454,53 +378,10 @@ const drawFloor = (
   ctx.fillRect(0, top, boxWidth, boxHeight - top);
 };
 
-/*
- * Shrinks, fades and blurs as the mascot rises; the alpha floor keeps a contact
- * point at the top of a hop.
- */
-const SHADOW_SHRINK = 0.45;
-const SHADOW_ALPHA_FLOOR = 0.08;
-const SHADOW_ALPHA_RANGE = 0.14;
-const SHADOW_BLUR = 3.2;
-
-const drawMascotShadow = (
-  ctx: CanvasRenderingContext2D,
-  palette: HeroPalette,
-  scene: Scene,
-  x: number,
-  air: number,
-): void => {
-  const shrink = 1 - air * SHADOW_SHRINK;
-  ctx.globalAlpha = SHADOW_ALPHA_FLOOR + SHADOW_ALPHA_RANGE * (1 - air);
-  ctx.filter = `blur(${(air * SHADOW_BLUR * scene.mascotScale).toFixed(2)}px)`;
-  ctx.fillStyle = palette.border;
-  ctx.beginPath();
-  ctx.ellipse(
-    x,
-    scene.mascotRoot + 2,
-    30 * scene.mascotScale * shrink,
-    4.2 * scene.mascotScale * shrink,
-    0,
-    0,
-    Math.PI * 2,
-  );
-  ctx.fill();
-  ctx.filter = 'none';
-  ctx.globalAlpha = 1;
-};
-
-const routeAt = (state: FieldState, seconds: number): RoutePoint => {
-  if (seconds !== state.cachedAt) {
-    state.cachedAt = seconds;
-    state.cached = routePoint(state.route, seconds);
-  }
-  return state.cached;
-};
-
 const paintWhere = (
   ctx: CanvasRenderingContext2D,
   palette: HeroPalette,
-  { scene, stems }: FieldState,
+  { scene, stems, still }: FieldState,
   seconds: number,
   inLayer: (z: number) => boolean,
 ): void => {
@@ -510,7 +391,7 @@ const paintWhere = (
       breeze(stem.x, stem.phase, seconds) *
       (SWAY.base + stem.size * SWAY.bySize) *
       scene.world;
-    drawStem(ctx, palette, scene.world, stem, wind + stem.lean, seconds);
+    drawStem(ctx, palette, scene.world, stem, wind + stem.lean, seconds, still);
   }
   ctx.globalAlpha = 1;
 };
@@ -526,28 +407,13 @@ const windForce = (stem: Stem, seconds: number, world: number): number =>
   world;
 
 const stepSprings = (
-  state: FieldState,
+  { scene, stems }: FieldState,
   seconds: number,
   delta: number,
 ): void => {
-  const { scene, stems, route } = state;
-  const here = routeAt(state, seconds);
-  /* By difference, so a rest reads as zero; the guard drops the edge wrap. */
-  let speed =
-    (here.x - routePoint(route, seconds - SPEED_SAMPLE_SECONDS).x) /
-    SPEED_SAMPLE_SECONDS;
-  if (Math.abs(speed) > SPEED_LIMIT_RATIO * scene.projection) speed = 0;
   const limit = LEAN_LIMIT_RATIO * scene.projection;
-
-  for (const stem of stems) {
-    settle(
-      stem,
-      mascotForce(stem, here.x, speed, scene.world) +
-        windForce(stem, seconds, scene.world),
-      delta,
-      limit,
-    );
-  }
+  for (const stem of stems)
+    settle(stem, windForce(stem, seconds, scene.world), delta, limit);
 };
 
 const drawBack = (
@@ -563,38 +429,26 @@ const drawBack = (
     palette,
     state,
     seconds,
-    (z) => z <= VEIL_DEPTH && z >= MASCOT_DEPTH,
+    (z) => z <= VEIL_DEPTH && z >= PONEGLYPH_DEPTH,
   );
   drawFloor(ctx, palette, state.scene);
   ctx.globalAlpha = 1;
 };
 
+/* The poneglyph, then every stem in front of it down to the near plane. */
 const drawMid = (
   ctx: CanvasRenderingContext2D,
   palette: HeroPalette,
   state: FieldState,
   seconds: number,
 ): void => {
-  const here = routeAt(state, seconds);
-  const frame = hopFrame(here.cycle, here.sit, seconds);
-  const { mascotRoot, mascotScale } = state.scene;
-
-  drawMascotShadow(ctx, palette, state.scene, here.x, frame.air);
-  drawCat(
-    ctx,
-    here.x,
-    mascotRoot - FOOT_Y * mascotScale - frame.air * here.hop * mascotScale,
-    mascotScale,
-    frame,
-    palette,
-  );
-
+  drawPoneglyph(ctx, palette, state.scene.stone);
   paintWhere(
     ctx,
     palette,
     state,
     seconds,
-    (z) => z < MASCOT_DEPTH && z >= FRONT_DEPTH,
+    (z) => z < PONEGLYPH_DEPTH && z >= FRONT_DEPTH,
   );
 };
 
@@ -603,17 +457,19 @@ export const createHeroField = (palette: HeroPalette): HeroField => {
     /* A draw before the first layout must not divide by zero. */
     scene: sceneFor(REFERENCE_WIDTH, REFERENCE_HEIGHT),
     stems: [],
-    route: { segments: [], total: 1 },
-    cachedAt: Number.NaN,
-    cached: STILL,
+    still: false,
   };
 
   return {
     layout(width: number, height: number): void {
       state.scene = sceneFor(width, height);
-      state.stems = buildStems(state.scene);
-      state.route = buildRoute(state.scene);
-      state.cachedAt = Number.NaN;
+      state.stems = [
+        ...buildStems(state.scene),
+        ...buildFoot(state.scene),
+      ].sort((a, b) => b.z - a.z);
+    },
+    hold: (still) => {
+      state.still = still;
     },
     step: (seconds, delta) => stepSprings(state, seconds, delta),
     back: (ctx, seconds) => drawBack(ctx, palette, state, seconds),

@@ -32,7 +32,7 @@ const POINTER_VIEWPORTS = [
 
 /**
  * A strip, not the whole canvas: full-viewport `getImageData` is slow. 55% of
- * the height is below the horizon, inside the mascot's band at every viewport.
+ * the height is below the horizon, inside the poneglyph's band at every viewport.
  */
 const fieldFingerprint = (page: Page) =>
   page.evaluate(() => {

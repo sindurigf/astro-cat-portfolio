@@ -274,7 +274,7 @@
     }
   }
   /*
-   * Front canvas sits between the mascot and the type; the large h1 holds SC
+   * Front canvas sits between the poneglyph and the type; the large h1 holds SC
    * 1.4.3 at worst over the field. No `z-index`: a stacking context would cap
    * the pause control's `z-30` (tests/motion.spec.ts).
    */

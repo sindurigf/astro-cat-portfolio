@@ -24,7 +24,7 @@ interface HeroFieldState {
  * would return every binding (about thirty); this returns the four it uses.
  */
 export const useHeroField = (): HeroFieldState => {
-  /** Any fixed time; at this one the cat sits at rest. */
+  /** Any fixed time: the breeze's pose for the still; its flowers are held open. */
   const STILL_SECONDS = 3.4;
 
   /*
@@ -75,6 +75,7 @@ export const useHeroField = (): HeroFieldState => {
       veilEdge: read('--color-hero-veil-edge'),
       floor: read('--color-hero-floor'),
       floorEdge: read('--color-hero-floor-edge'),
+      flower: read('--color-hero-flower'),
     };
     /* Missing tokens mean no stylesheet yet; draw nothing rather than black on black. */
     return Object.values(palette).every((value) => value.length > 0)
@@ -113,6 +114,7 @@ export const useHeroField = (): HeroFieldState => {
     const near = contextOf(nearCanvas.value);
     if (!back || !mid || !near) return;
 
+    field.hold(reducedMotion.value);
     back.clearRect(0, 0, width, height);
     mid.clearRect(0, 0, width, height);
     near.clearRect(0, 0, width, height);

@@ -17,7 +17,8 @@ current once the site is yours.
 AI-drawn art, all by Claude:
 
 - The animated About cats, labelled on `/about`.
-- The hero cat on the homepage (`src/lib/hero-field-cat.ts`).
+- The poneglyph and its flowers in the homepage field
+  (`src/lib/hero-field-poneglyph.ts`).
 - The lying cat in the footer (`src/components/Footer.astro`).
 - The logo mark (`src/assets/mark-dark.png`, `artwork/mark-dark.svg`), shown in
   the header, the roundels and on `/about`.
