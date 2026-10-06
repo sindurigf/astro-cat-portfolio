@@ -41,8 +41,7 @@ export interface Pose {
   zz: number;
 }
 
-export type PropKind =
-  'toy' | 'cup' | 'post' | 'fly' | 'box' | 'yarn' | 'blanket';
+export type PropKind = 'toy' | 'cup' | 'post' | 'fly' | 'yarn';
 
 export interface PropState {
   kind: PropKind;

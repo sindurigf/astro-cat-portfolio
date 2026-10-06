@@ -49,6 +49,8 @@ export const TRACK_MARGIN = 48;
 export const MAX_OVERHANG = 16;
 /** Room at the right end for the sleep control. */
 export const CONTROL_ROOM = 48;
+/** Positions tried along the track when looking for room for a move. */
+const FIT_STEPS = 24;
 /** Chance a cat moves along its band, by one leap, instead of playing where it is. */
 const LEAP_CHANCE = 0.15;
 /* Ways to get about, one at a time and weighted; there is no walking. */
@@ -176,6 +178,13 @@ export interface Colony {
   visible: (id: CatSpot['id'], on: boolean, now: number) => void;
   /** Its sleep control: lies down now, then sleeps until woken. */
   nap: (id: CatSpot['id']) => void;
+  /** Whether the move fits on the cat's track at this band width, so it can be offered. */
+  playable: (id: CatSpot['id'], name: MoveName) => boolean;
+  /**
+   * A chosen move, or a random one, now: wakes a sleeping cat first, cuts a move
+   * in progress short, and trots to the track's nearer end if the move needs room.
+   */
+  trick: (id: CatSpot['id'], name: MoveName | 'random', now: number) => void;
   wake: (id: CatSpot['id'], now: number) => void;
   hold: (id: CatSpot['id'], reason: Hold, on: boolean) => void;
   /** Reduced motion: drops every move, keeps each cat awake or asleep, and stops its clock. */
@@ -376,6 +385,37 @@ export const createColony = (
     return true;
   };
 
+  /** The spot on the track nearest the cat where `name` fits, or null if it fits nowhere. */
+  const fitPoint = (cat: CatState, name: MoveName): number | null => {
+    if (EDGE_MOVES.has(name)) return cat.pose.x;
+    let best: number | null = null;
+    for (let i = 0; i <= FIT_STEPS; i += 1) {
+      const x = cat.min + ((cat.max - cat.min) * i) / FIT_STEPS;
+      const fits = [1, -1].some((facing) =>
+        planMove(name, x, facing, cat.min, cat.max),
+      );
+      if (
+        fits &&
+        (best === null ||
+          Math.abs(x - cat.pose.x) < Math.abs(best - cat.pose.x))
+      )
+        best = x;
+    }
+    return best;
+  };
+
+  /** Plays `name` from where the cat stands; false if it fits nowhere on the track. */
+  const begin = (cat: CatState, name: MoveName, now: number): boolean => {
+    if (EDGE_MOVES.has(name)) {
+      play(cat, cupPush(cat.pose.x), now, -1);
+      return true;
+    }
+    const plan = planFor(cat, name);
+    if (!plan) return false;
+    play(cat, plan.move, now, plan.dir);
+    return true;
+  };
+
   const next = (cat: CatState, now: number): void => {
     if (cat.asleep || cat.holds.has('card')) return;
     if (now >= cat.napAt) {
@@ -384,17 +424,7 @@ export const createColony = (
     }
     if (cat.holds.size > 0 || now < cat.restUntil) return;
     if (Math.random() < LEAP_CHANCE && leap(cat, now)) return;
-    const name = pickWeighted(CAT_WEIGHTS[cat.id]);
-    if (EDGE_MOVES.has(name)) {
-      play(cat, cupPush(cat.pose.x), now, -1);
-      return;
-    }
-    const plan = planFor(cat, name);
-    if (!plan) {
-      leap(cat, now);
-      return;
-    }
-    play(cat, plan.move, now, plan.dir);
+    if (!begin(cat, pickWeighted(CAT_WEIGHTS[cat.id]), now)) leap(cat, now);
   };
 
   /** Where the pointer is from this cat, while it is still moving. */
@@ -530,23 +560,24 @@ export const createColony = (
     return wakeAt;
   };
 
-  const wakeCat = (cat: CatState, now: number): void => {
+  /** Getting up, then `after` (default: a stretch and a yawn in place, as a cat does on waking). */
+  const wakeCat = (cat: CatState, now: number, after?: () => void): void => {
     cat.napAt = now + NAP_AFTER_MS;
     cat.nextBlink = now + rand(...BLINK_EVERY_MS);
     if (!cat.asleep) return;
     setAsleep(cat, false);
-    /* Getting up, then a stretch and a yawn in place, as a cat does on waking. */
     const facing = Math.sign(cat.pose.face) || 1;
     play(
       cat,
       MOVES.wake(),
       now,
       facing,
-      () =>
+      after ??
         /* Straight into play after the stretch: endMove's pause is cleared. */
-        play(cat, moveToPlay('stretch'), performance.now(), facing, () => {
-          cat.restUntil = 0;
-        }),
+        (() =>
+          play(cat, moveToPlay('stretch'), performance.now(), facing, () => {
+            cat.restUntil = 0;
+          })),
       true,
     );
   };
@@ -595,6 +626,38 @@ export const createColony = (
       /* Drops any move, getting up included, so it is still within 5 s. */
       drop(cat, true);
       cat.napAt = -Infinity;
+    },
+    playable: (id, name) => {
+      const cat = find(id);
+      return cat !== undefined && fitPoint(cat, name) !== null;
+    },
+    trick: (id, name, now) => {
+      const cat = find(id);
+      if (!cat || cat.hiddenAt !== undefined) return;
+      drop(cat, true);
+      const start = (): void => {
+        cat.restUntil = 0;
+        const at = performance.now();
+        if (name === 'random') {
+          next(cat, at);
+          return;
+        }
+        if (begin(cat, name, at)) return;
+        /* The list offers only moves that fit somewhere, so a null here is a band that shrank. */
+        const x = fitPoint(cat, name) ?? cat.pose.x;
+        const trot = withApproach(
+          { steps: [], mods: [] },
+          Math.abs(x - cat.pose.x),
+        );
+        play(cat, trot, at, Math.sign(x - cat.pose.x) || 1, () =>
+          begin(cat, name, performance.now()),
+        );
+      };
+      if (cat.asleep) wakeCat(cat, now, start);
+      else {
+        cat.napAt = now + NAP_AFTER_MS;
+        start();
+      }
     },
     wake: (id, now) => {
       const cat = find(id);

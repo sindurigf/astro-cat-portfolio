@@ -103,11 +103,13 @@ for (const [label, viewport] of Object.entries(VIEWPORTS) as [
   test.describe(`the About cats, ${label} (SC 2.4.12)`, () => {
     test.use({ viewport });
 
-    test('each cat button and its sleep control is wholly uncovered when focused', async ({
+    test('each cat button and its controls are wholly uncovered when focused', async ({
       page,
     }) => {
       await gotoSettled(page, '/about');
-      const controls = page.locator('.cat-button, .cat-nap');
+      const controls = page.locator(
+        '.cat-button, .cat-nap, .cat-tricks-button',
+      );
       const count = await controls.count();
       expect(count, '/about shows no cat to focus').toBeGreaterThan(0);
 

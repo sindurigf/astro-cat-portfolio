@@ -108,7 +108,7 @@ Setup: `gsettings set org.gnome.desktop.interface enable-animations false`.
 - [ ] Nothing else moves, fades or slides. → SC 2.3.3
 - [ ] `/`: the hero field is drawn once, reads as a picture, the poneglyph's
       script is unlit, and there is no pause control. → SC 2.3.3, 2.2.2
-- [ ] `/about`: the cats sit still and have no sleep controls. → SC 2.3.3, 2.2.2
+- [ ] `/about`: the cats sit still and have no sleep controls or trick buttons. → SC 2.3.3, 2.2.2
 - [ ] Turn it back on: the button moves and the field animates. → SC 2.3.3
 
 ## 5. Focus indicator visibility
@@ -468,7 +468,12 @@ drawings are `aria-hidden`.
 - [ ] Escape closes the card and focus returns to the same cat. → SC 2.4.3
 - [ ] The sleep control reads "Put Pepper to sleep"; Enter stops the cat
       within 5 s and the control then reads "Wake Pepper". → SC 2.2.2, 4.1.2
-- [ ] The drawings announce nothing; "The moving cats are drawn with AI" is
+- [ ] Tab reaches the paw "Choose a trick for Pepper" after the sleep control;
+      Enter opens a list, Random first, and Escape closes it with focus back on
+      the paw. → SC 2.4.3, 4.1.2
+- [ ] Choosing "Chase the Fly" plays it; choosing a trick for a sleeping cat
+      wakes it first. → SC 2.2.2
+- [ ] The drawings announce nothing; "The moving cats and their trick icons are drawn with AI" is
       read. → SC 1.1.1
 
 Heard: `________________________`
