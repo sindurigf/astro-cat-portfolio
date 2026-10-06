@@ -266,7 +266,7 @@ test.describe('the talk slideshow', () => {
   }) => {
     await page.setViewportSize(PROJECTOR);
     await open(page);
-    await page.getByRole('button', { name: 'Full screen' }).click();
+    await page.getByRole('button', { name: 'Full Screen' }).click();
     await page.waitForFunction(() => document.fullscreenElement !== null);
     const ids = await page.$$eval('.slide[id]', (all) => all.map((s) => s.id));
     expect(ids.length, 'the deck has no slides').toBeGreaterThan(1);

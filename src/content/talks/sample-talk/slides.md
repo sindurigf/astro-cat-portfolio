@@ -15,7 +15,7 @@ Robin Ohara
 part: Introduction
 ```
 
-# About the speaker
+# About the Speaker
 
 Robin Ohara, archaeologist of the Straw Hat Pirates
 
@@ -26,7 +26,7 @@ Robin Ohara, archaeologist of the Straw Hat Pirates
 
 ---
 
-# What this deck shows
+# What This Deck Shows
 
 - **Cover**: the first slide, with the talk's title.
 - **Parts**: a section slide opens each part.
@@ -41,16 +41,16 @@ This deck is also a sample: each slide shows one thing a deck can hold.
 
 ```yaml
 layout: section
-part: 'Part 1: Why records disappear'
+part: 'Part 1: Why Records Disappear'
 ```
 
-# Why records disappear
+# Why Records Disappear
 
 Most losses are slow, quiet and preventable.
 
 ---
 
-# The slow losses
+# The Slow Losses
 
 - The record lived in one place
 - One person understood it
@@ -58,7 +58,7 @@ Most losses are slow, quiet and preventable.
 
 ---
 
-# The one-keeper problem
+# The One-Keeper Problem
 
 - One person knows where everything is
 - Nobody else can read it
@@ -69,7 +69,7 @@ Most losses are slow, quiet and preventable.
 
 ---
 
-# What survives
+# What Survives
 
 - Records that were copied
 - Records in a common script
@@ -77,7 +77,7 @@ Most losses are slow, quiet and preventable.
 
 ---
 
-# Why it survived
+# Why It Survived
 
 - It was read in every generation
 - Strangers made copies
@@ -91,16 +91,16 @@ A public archive that lets anyone copy, read and correct its records, and credit
 
 ```yaml
 layout: section
-part: 'Part 2: Six habits'
+part: 'Part 2: Six Habits'
 ```
 
-# Six habits
+# Six Habits
 
 None of them is new, and all of them are easy to skip.
 
 ---
 
-# Six habits that keep a record alive
+# Six Habits That Keep a Record Alive
 
 - **Copies**: more than one, in more than one place.
 - **Plain words**: written for the next reader.
@@ -115,7 +115,7 @@ None of them is new, and all of them are easy to skip.
 label: 'Habit 1'
 ```
 
-# Make copies
+# Make Copies
 
 - More than one copy
 - In more than one place
@@ -131,7 +131,7 @@ Copies are made on a schedule and opened once a year, so nobody discovers a brok
 label: 'Habit 2'
 ```
 
-# Leave a key
+# Leave a Key
 
 - A glossary of the terms you use
 - A map of where things live
@@ -147,15 +147,15 @@ Every page starts with who it is for and where to begin.
 label: 'Habit 3'
 ```
 
-# Welcome readers
+# Welcome Readers
 
-**First visit**
+**First Visit**
 
 - One clear front door
 - A reply within days
 - A small first task
 
-**Every visit after**
+**Every Visit After**
 
 - Credit for their work
 - A way to report mistakes
@@ -165,18 +165,18 @@ label: 'Habit 3'
 
 ```yaml
 layout: section
-part: 'Part 3: What to do now'
+part: 'Part 3: What to Do Now'
 ```
 
-# What to do now
+# What to Do Now
 
 Pick one habit, start it this week and repeat it.
 
 ---
 
-# Archives and projects
+# Archives and Projects
 
-| In an archive   | In an open project  |
+| In an Archive   | In an Open Project  |
 | --------------- | ------------------- |
 | Copyists        | Mirrors and backups |
 | A word list     | A glossary          |
@@ -196,14 +196,14 @@ part: Closing
 - Copy it, explain it, open it
 - Spread the record before the crisis
 
-**This week**
+**This Week**
 
 - Make one second copy
 - Answer one newcomer
 
 ---
 
-# Further reading
+# Further Reading
 
 - Sources for every slide are in the post that goes with this talk.
 - The speaker's stories come from the One Piece manga; each chapter is listed under Sources on this site's About page.
@@ -212,7 +212,7 @@ part: Closing
 
 ---
 
-# Thank you
+# Thank You
 
 Questions
 

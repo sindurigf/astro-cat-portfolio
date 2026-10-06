@@ -96,7 +96,7 @@ test.describe('the current page, as the navigation reports it', () => {
       expect(ariaCurrent(BLOG_PATH, BLOG_PATH)).toBe('page');
       expect(
         ariaCurrent(indexPageHref(2), BLOG_PATH),
-        `"All posts" would claim ${indexPageHref(2)}, which the page number is`,
+        `"All Posts" would claim ${indexPageHref(2)}, which the page number is`,
       ).toBe('true');
       for (const route of CATEGORY_ROUTES) {
         const href = `${route}/`;

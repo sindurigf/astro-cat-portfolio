@@ -282,7 +282,7 @@ test.describe('/brand', () => {
       if (request.method() !== 'GET') requests.push(request.url());
     });
     await form.getByLabel(/^Name/).fill('A name');
-    await form.getByRole('button', { name: 'Send message' }).click();
+    await form.getByRole('button', { name: 'Send Message' }).click();
     await form.getByLabel(/^Name/).press('Enter');
     await expect(page, 'the example form left the page').toHaveURL(
       new RegExp(`${ROUTE}$`),
@@ -377,8 +377,8 @@ test.describe('/brand', () => {
     await gotoSettled(page, ROUTE);
     const source = sourceUrl(REPOSITORY_URL);
     const expected: [string, string | null][] = [
-      ['Use this design', source && templateUseUrl(source)],
-      ['View the source', source],
+      ['Use This Design', source && templateUseUrl(source)],
+      ['View the Source', source],
     ];
     for (const [name, href] of expected) {
       const hrefs = await page
@@ -396,7 +396,7 @@ test.describe('/brand', () => {
         expect(actual, `"${name}" points elsewhere`).toBe(href);
       }
     }
-    await expect(page.getByRole('link', { name: 'See the demo' })).toHaveCount(
+    await expect(page.getByRole('link', { name: 'See the Demo' })).toHaveCount(
       0,
     );
   });

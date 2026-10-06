@@ -23,7 +23,7 @@ const EXPERIENCE = [
   {
     dates: 'Arabasta–Present',
     where: 'The Straw Hat Pirates',
-    title: "Ship's archaeologist",
+    title: "Ship's Archaeologist",
     current: true,
     points: [
       'Read the Poneglyphs the crew finds, and record what each one says.',
@@ -34,7 +34,7 @@ const EXPERIENCE = [
   {
     dates: 'Before Arabasta',
     where: 'Baroque Works',
-    title: 'Vice president, Miss All Sunday',
+    title: 'Vice President, Miss All Sunday',
     current: false,
     points: [
       'Worked under the codename Miss All Sunday.',
@@ -43,8 +43,8 @@ const EXPERIENCE = [
   },
   {
     dates: 'Age 8–28',
-    where: 'On the run',
-    title: 'Independent archaeologist',
+    where: 'On the Run',
+    title: 'Independent Archaeologist',
     current: false,
     points: [
       'Wanted by the World Government from the age of eight, with a first bounty of 79,000,000 berries.',
@@ -58,13 +58,13 @@ const SKILLS = [
   'Archaeology',
   'The Void Century',
   'Hana Hana no Mi',
-  'Working undercover',
+  'Working Undercover',
 ] as const;
 
 /* `honour` renders in `lang="la"` (SC 3.1.2). */
 const EDUCATION = [
   {
-    award: 'Archaeology exam',
+    award: 'Archaeology Exam',
     detail: 'Passed at the age of eight, on Ohara.',
   },
   {
@@ -79,12 +79,12 @@ const EDUCATION = [
 ] as const;
 
 const LANGUAGES = [
-  { language: 'The Poneglyph script', level: 'Reading' },
+  { language: 'The Poneglyph Script', level: 'Reading' },
 ] as const;
 
 const OPEN_SOURCE = [
   {
-    award: 'The scholars of Ohara',
+    award: 'The Scholars of Ohara',
     detail:
       'Studied the Poneglyphs together, in the library in the Tree of Knowledge.',
   },
@@ -104,7 +104,7 @@ const OPEN_SOURCE = [
 ] as const;
 const closeRow = await closeRowLinks({
   href: '/about/',
-  label: 'Learn more about me',
+  label: 'Learn More about Me',
 });
 ---
 
@@ -137,7 +137,7 @@ const closeRow = await closeRowLinks({
           CV_PATH === null ? 'btn-gold-primary' : 'btn-gold-secondary',
         ]}
       >
-        Get in touch
+        Get in Touch
       </a>
     </p>
   </PageHero>
@@ -154,7 +154,7 @@ const closeRow = await closeRowLinks({
     </p>
   </Section>
 
-  <Section title="Work experience">
+  <Section title="Work Experience">
     <ol class="card-block flex flex-col gap-grid">
       {
         /* Title first, so heading navigation lands before the employer. */
@@ -191,7 +191,7 @@ const closeRow = await closeRowLinks({
     </ol>
   </Section>
 
-  <Section title="Skills and education">
+  <Section title="Skills and Education">
     <div class="grid gap-grid lg:grid-cols-2">
       <div class="card">
         <h3 class="card-title">Education</h3>
@@ -238,7 +238,7 @@ const closeRow = await closeRowLinks({
     </div>
   </Section>
 
-  <Section title="Open source" surface="gold" class="gold-column">
+  <Section title="Open Source" surface="gold" class="gold-column">
     <div class="grid gap-grid lg:grid-cols-12 lg:items-start">
       <p class="lead mt-0 lg:col-span-5">
         The scholars of Ohara studied history together, and lost everything for

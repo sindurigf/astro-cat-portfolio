@@ -16,7 +16,7 @@ The library I grew up in burned in a single day. Most records are lost more slow
 
 This post is the written version of my talk. It covers why records disappear, what the survivors had in common, and what any project can borrow from them.
 
-## Why old records disappear
+## Why Old Records Disappear
 
 We remember the dramatic losses: the fire, the flood, the order to destroy. They happen, and I lived through one when I was eight. But records also vanish slowly, over decades, and nobody sounds an alarm.
 
@@ -24,23 +24,23 @@ Those slow losses look alike. The record existed in one place. One person unders
 
 The stone is still there. The meaning is gone.
 
-## The one-keeper problem
+## The One-Keeper Problem
 
 Every project has a keeper: the person who knows where things are and why they were done that way. Keepers are wonderful, and they are a risk.
 
 When one keeper holds the whole record, the record is only as safe as their health, their patience and their plans. On Ohara, the scholars kept their research in one library, inside one tree. When the tree burned, the library burned with it.
 
-## What survives, and why
+## What Survives, and Why
 
 The records that reach me have a few things in common. They were copied, often by people who did not fully understand them. They were written in a script many people could read. They came with some kind of key: a word list, a guide, a second text in a better-known language.
 
 Above all, they were read. A record that people use is a record people protect.
 
-## Six habits that keep a record alive
+## Six Habits That Keep a Record Alive
 
 I sorted what I found into six habits. None of them is new. All of them are easy to skip when you are busy.
 
-### 1. Make copies
+### 1. Make Copies
 
 Keep more than one copy, in more than one place, held by more than one person. A single copy turns any accident into a loss. Two copies turn it into an inconvenience.
 
@@ -54,7 +54,7 @@ Boring is safe.
 
 **A copy nobody can open** is not a copy. Store records in formats that will still open in twenty years, and test that they do. The Poneglyphs show the opposite failure: carved in stone that, as far as anyone knows, cannot be destroyed, but in a script almost nobody can read. Without the key they are [complete and useless](https://example.org/9/), a very safe box with nothing most people can use inside.
 
-### 2. Write plainly
+### 2. Write Plainly
 
 Records are fastest to read when they were written for ordinary readers, not for experts. Plain words outlive clever ones.
 
@@ -64,7 +64,7 @@ Write the reason next to the decision.
 
 A good test: could someone who joins next year read this without asking you? I learned the Poneglyph script at 8, in a library that no longer exists. Ohara's Tree of Knowledge stood for 5,000 years; what it held was lost in one day. Each fact a project writes down plainly is one less thing that can be lost that way.
 
-### 3. Leave a key
+### 3. Leave a Key
 
 Old texts are far easier to read when they come with some kind of key. Sometimes it is a word list. Sometimes it is the same text in two scripts, carved side by side.
 
@@ -74,7 +74,7 @@ A key is also a kindness. It tells a newcomer that they are expected, and that n
 
 Write the key for the person who arrives tired, late and alone, because one day that person will be you.
 
-### 4. Welcome many readers
+### 4. Welcome Many Readers
 
 A record that only one person reads is one person away from silence. The survivors had readers in every generation: students, copyists, curious travellers.
 
@@ -90,13 +90,13 @@ Readers become keepers: slowly, then all at once.
 
 On Ohara, the library's director let a child read among the scholars. That is how I became one of its readers, and later the last of its scholars.
 
-### 5. Documen&shy;tation that lasts
+### 5. Documen&shy;tation That Lasts
 
 Documentation is a record of how the record works. It decays exactly like everything else, so it needs the same habits: copies, plain words, a key and readers.
 
 Date every page. Say who looks after it. Delete what is no longer true, because a wrong guide is worse than none.
 
-### 6. Leave the doors open
+### 6. Leave the Doors Open
 
 The last habit is the one I learned latest. For twenty years I kept my work to myself, because I trusted nobody. It was not. Closed records are lost quietly, and nobody even knows to look for them.
 
@@ -104,7 +104,7 @@ Open records get checked, corrected and copied by people you will never meet. Th
 
 Open doors can mean many things: [a public reading room](https://example.org/17/), [a shared index](https://example.org/18/), translations that [anyone may reuse](https://example.org/19/), notes that [credit the people who helped](https://example.org/20/), and a clear way to [report a mistake](https://example.org/21/) without feeling foolish.
 
-## Signs a record is in danger
+## Signs a Record Is in Danger
 
 You can usually see the danger coming. These are the warnings I look for:
 
@@ -115,7 +115,7 @@ You can usually see the danger coming. These are the warnings I look for:
 
 None of these is a disaster yet. Each is a disaster that has already been scheduled.
 
-## What projects can learn
+## What Projects Can Learn
 
 I am not a programmer. But when I read about open projects, I recognise the stories.
 
@@ -131,7 +131,7 @@ I keep one short rule [on my desk](https://example.org/23/). It is the best I kn
 
 Everything else in this talk is detail. If a project does those three things, it has a good chance of outliving everyone who works on it today.
 
-## Old archives and open projects
+## Old Archives and Open Projects
 
 The parallels are close enough to put side by side.
 
@@ -146,7 +146,7 @@ The parallels are close enough to put side by side.
 
 The details differ, but every row asks the same question: if this person left tomorrow, could someone else carry on?
 
-## What you can do this week
+## What You Can Do This Week
 
 You do not need a plan to start. Pick one of these:
 
@@ -161,7 +161,7 @@ You do not need a plan to start. Pick one of these:
 
 Small, steady work is how every surviving record survived.
 
-## The road ahead
+## The Road Ahead
 
 Records will keep being lost. Fires still happen, and so do tired keepers. But we can make each loss smaller.
 
@@ -179,15 +179,15 @@ The event is a placeholder, to show how a talk pairs with its post: the _Example
 
 ---
 
-## Sources and further reading
+## Sources and Further Reading
 
-### On copies
+### On Copies
 
 - Archive practice, [keeping more than one copy](https://example.org/26/)
 - Field guide, [recording a site before it changes](https://example.org/27/)
 - Case study, [a library rebuilt from scattered copies: what was lost and why](https://example.org/28/)
 
-### On keys and plain writing
+### On Keys and Plain Writing
 
 - Glossaries, [writing a key for newcomers](https://example.org/29/)
 - Plain language, [short sentences and common words](https://example.org/30/)
@@ -195,14 +195,14 @@ The event is a placeholder, to show how a talk pairs with its post: the _Example
 - Style, [one idea per paragraph](https://example.org/32/)
 - Dating, [labelling every page](https://example.org/33/)
 
-### On readers
+### On Readers
 
 - [Opening a reading room to the public](https://example.org/34/)
 - [Answering a first question within a week](https://example.org/35/)
 - [Small first tasks for new volunteers](https://example.org/36/)
 - [Crediting the people behind a translation](https://example.org/37/)
 
-### Open archives
+### Open Archives
 
 - Examples, [shared indexes](https://example.org/38/)
 - [Reuse licences](https://example.org/39/)

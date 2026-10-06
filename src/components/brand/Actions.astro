@@ -7,12 +7,12 @@ const META = 'text-body text-subtle';
 <ul class="divide-y-4 divide-border">
   <ComponentRow
     id="primary-button"
-    name="Primary button"
+    name="Primary Button"
     use="the one main action in a section."
     rule="One per section. At rest it casts a pink shadow; under the pointer it fills cyan; pressed, it sinks into its shadow."
   >
     <a href="#primary-button" class="btn-primary">
-      Primary action
+      Primary Action
     </a>
     <Fragment slot="states">
       <ul class="space-y-6">
@@ -37,16 +37,16 @@ const META = 'text-body text-subtle';
 
   <ComponentRow
     id="secondary-button"
-    name="Secondary button"
+    name="Secondary Button"
     use="an action beside the primary one."
     rule="Same shape and states as the primary, on the surface fill; never two primaries side by side."
   >
     <p class="flex flex-wrap gap-6">
       <a href="#primary-button" class="btn-primary">
-        Primary action
+        Primary Action
       </a>
       <a href="#secondary-button" class="btn-secondary">
-        Secondary action
+        Secondary Action
       </a>
     </p>
     <Fragment slot="states">
@@ -61,17 +61,17 @@ const META = 'text-body text-subtle';
 
   <ComponentRow
     id="gold-buttons"
-    name="Buttons on gold"
+    name="Buttons on Gold"
     use="actions on a gold slab or a page's closing block."
     rule="Only the gold pair goes on gold: a dark primary with a light label, and an outlined secondary. The focus ring turns dark."
   >
     <div class="surface-gold border-8 border-border p-card-tight sm:p-card">
       <p class="flex flex-wrap gap-6">
         <a href="#gold-buttons" class="btn-gold-primary">
-          Primary on gold
+          Primary on Gold
         </a>
         <a href="#ground-gold" class="btn-gold-secondary">
-          Secondary on gold
+          Secondary on Gold
         </a>
       </p>
     </div>
@@ -79,7 +79,7 @@ const META = 'text-body text-subtle';
 
   <ComponentRow
     id="text-links"
-    name="Links in text"
+    name="Links in Text"
     use="a link inside a sentence."
     rule="Underlined at rest, a thicker underline under the pointer. A visited link looks the same."
   >
@@ -91,7 +91,7 @@ const META = 'text-body text-subtle';
 
   <ComponentRow
     id="standalone-links"
-    name="Standalone link"
+    name="Standalone Link"
     use="a link on its own line, outside a sentence."
     rule="The .link class keeps the underline; a 44px minimum height keeps it a large enough target."
   >
@@ -100,7 +100,7 @@ const META = 'text-body text-subtle';
         href="/accessibility/"
         class="link inline-flex min-h-target items-center"
       >
-        Accessibility statement
+        Accessibility Statement
       </a>
     </p>
   </ComponentRow>

@@ -64,7 +64,7 @@ const currentPath = Astro.url.pathname;
 /* Only `/blog` can be empty: category and tag pages exist only with posts. */
 const EMPTY_BLOG = {
   sentence: 'Nothing has been published here yet.',
-  action: { href: '/', label: 'Go to the homepage' },
+  action: { href: '/', label: 'Go to the Homepage' },
 } as const;
 ---
 
@@ -85,7 +85,7 @@ const EMPTY_BLOG = {
               <span aria-hidden="true" class="block size-2 bg-background" />
             ) : null}
             {option.label}
-            {option.category && <span class="sr-only">&nbsp;posts</span>}
+            {option.category && <span class="sr-only">&nbsp;Posts</span>}
           </a>
         </li>
       );
@@ -95,7 +95,7 @@ const EMPTY_BLOG = {
 
 {posts.length === 0 ? (
   <div class="card mt-head" data-empty-listing>
-    <h2 class="card-title">No posts yet</h2>
+    <h2 class="card-title">No Posts Yet</h2>
     <p class="mt-4 max-w-prose text-body text-text text-pretty">
       {EMPTY_BLOG.sentence}
     </p>

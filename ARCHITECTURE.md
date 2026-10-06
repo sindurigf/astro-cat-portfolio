@@ -599,8 +599,8 @@ evidence.
   content. `SEE LICENSE IN README.md` is npm's form for that case.
 - **Hide the honeypot with CSS instead of `hidden`:** if the
   stylesheet fails, a person sees the field and loses their message.
-- **Make `/contact`'s "Or find me here" and "Write to me about" `h2`:** they
-  are parts of the "Write to me" section, other ways to write and what to
+- **Make `/contact`'s "Or Find Me Here" and "Write to Me About" `h2`:** they
+  are parts of the "Write to Me" section, other ways to write and what to
   write about, so `h3` is the true outline.
 - **Turn on `noUncheckedIndexedAccess` and `exactOptionalPropertyTypes`:**
   none of their errors is a bug. Every index is guarded at runtime (an empty
@@ -675,7 +675,7 @@ evidence.
   and "longer passages or reading full sentences", while single words
   glanced at read as fast or faster in capitals
   ([NN/g, Laubheimer 2017](https://www.nngroup.com/articles/glanceable-fonts/));
-  these are a few words each, written in sentence case. How screen readers
+  these are a few words each, written in Chicago title case. How screen readers
   speak them is checked in the screen-reader pass.
 
 ## Content notes

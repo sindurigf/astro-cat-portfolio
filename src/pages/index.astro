@@ -131,9 +131,9 @@ const STATS = [
     <Section surface="gold">
       {/* Not in the hero: over the moving field it fails SC 1.4.3. The sr-only comma separates the roles. */}
       <Fragment slot="title">
-        <span class="block">Reading the past</span>
+        <span class="block">Reading the Past</span>
         <span class="sr-only">,</span>{' '}
-        <span class="block">One stone at a time</span>
+        <span class="block">One Stone at a Time</span>
       </Fragment>
 
       <div class="grid gap-grid lg:grid-cols-2 lg:items-start">
@@ -176,7 +176,7 @@ const STATS = [
             <p class="mt-paragraph text-body text-pretty">
               {SAMPLE_PERSONA.tribute}{' '}
               <a href={`/credits/#${PERSONA_NOTICE_ID}`}>
-                Read the full notice
+                Read the Full Notice
               </a>
               .
             </p>
@@ -184,7 +184,7 @@ const STATS = [
 
           <p class="mt-head">
             <a href="/about/" class="btn-gold-secondary">
-              Learn more about me
+              Learn More about Me
             </a>
           </p>
         </div>
@@ -193,7 +193,7 @@ const STATS = [
   </div>
 
   {CATEGORY_CARDS.length > 0 && (
-    <Section title="What I write about">
+    <Section title="What I Write About">
       <ul class="card-block grid gap-grid sm:grid-cols-2 lg:grid-cols-3">
         {CATEGORY_CARDS.map((card, index) => (
           <li
@@ -217,7 +217,7 @@ const STATS = [
             <h3 class="card-title mt-8">
               <a href={categoryHref(card.category)} class="card-link">
                 {categoryLabel(card.category)}
-                <span class="sr-only">&nbsp;posts</span>
+                <span class="sr-only">&nbsp;Posts</span>
               </a>
             </h3>
 
@@ -228,14 +228,14 @@ const STATS = [
 
       <p class="mt-head">
         <a href={BLOG_PATH} class="btn-secondary">
-          View all posts
+          View All Posts
         </a>
       </p>
     </Section>
   )}
 
   {featured.length > 0 && (
-    <Section title="Featured posts">
+    <Section title="Featured Posts">
       {/* Class names written out in full: Tailwind scans source text. */}
       <ul
         class:list={[
@@ -263,6 +263,6 @@ const STATS = [
     readHref="/career/"
     readLabel="Career"
     actionHref="/contact/"
-    actionLabel="Get in touch"
+    actionLabel="Get in Touch"
   />
 </BaseLayout>

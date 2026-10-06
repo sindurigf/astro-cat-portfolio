@@ -7,7 +7,7 @@ export const PHOTO_CREDITS_PATH = '/credits/#photos';
  * src/plugins/post-figure.mjs loads this file in Node.
  */
 export const PHOTOGRAPHERS = {
-  'Licence and credit': PHOTO_CREDITS_PATH,
+  'Licence and Credit': PHOTO_CREDITS_PATH,
 } as const satisfies Readonly<Record<string, string>>;
 
 export type Photographer = keyof typeof PHOTOGRAPHERS;

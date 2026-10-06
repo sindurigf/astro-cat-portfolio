@@ -118,7 +118,7 @@ test.describe('post-figure', NODE, () => {
   });
 
   for (const [prefix, name, href] of [
-    ['Photo: ', 'Licence and credit', PHOTOGRAPHERS['Licence and credit']],
+    ['Photo: ', 'Licence and Credit', PHOTOGRAPHERS['Licence and Credit']],
     ['Screenshot: ', 'Example Project', SCREENSHOT_SOURCES['Example Project']],
   ] as const) {
     test(`a "${prefix}${name}" caption links the listed source`, async () => {
@@ -139,7 +139,7 @@ test.describe('post-figure', NODE, () => {
 
   test('a Creative Commons photo credits its source, licence and changes', () => {
     const photo: LicensedPhoto = {
-      photographer: 'Licence and credit',
+      photographer: 'Licence and Credit',
       title: 'A Fixture Photo',
       source: 'https://photos.example/fixture',
       sourceName: 'Photos Example',
@@ -148,7 +148,7 @@ test.describe('post-figure', NODE, () => {
       changes: 'cropped',
     };
     const nodes: Node[] = captionChildren(
-      'Photo: Licence and credit',
+      'Photo: Licence and Credit',
       '../../assets/blog/x/cc-fixture.jpg',
       { 'cc-fixture': photo },
     );
@@ -160,7 +160,7 @@ test.describe('post-figure', NODE, () => {
       nodes.map(textOf).join(''),
       'the caption does not name the source, licence and changes',
     ).toBe(
-      'Photo: Licence and credit (A Fixture Photo on Photos Example, Creative Commons Attribution 4.0, cropped)',
+      'Photo: Licence and Credit (A Fixture Photo on Photos Example, Creative Commons Attribution 4.0, cropped)',
     );
     expect(
       nodes
@@ -168,7 +168,7 @@ test.describe('post-figure', NODE, () => {
         .map((a) => a.properties?.href),
       'the photographer, source and licence are not all linked',
     ).toEqual([
-      PHOTOGRAPHERS['Licence and credit'],
+      PHOTOGRAPHERS['Licence and Credit'],
       photo.source,
       photo.licenceHref,
     ]);
@@ -176,7 +176,7 @@ test.describe('post-figure', NODE, () => {
 
   test('a photo not in LICENSED_PHOTOS gets no licence text', () => {
     expect(
-      captionChildren('Photo: Licence and credit', 'other.jpg', {}).length,
+      captionChildren('Photo: Licence and Credit', 'other.jpg', {}).length,
       'a licence was added to an unlicensed photo',
     ).toBe(2);
   });

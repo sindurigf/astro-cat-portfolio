@@ -247,8 +247,8 @@ npm run dev
 ```
 
 - Open `/talks/<deck>/presenter/` for yourself and the slideshow from its
-  "Open the slideshow" link for the room; put that window on the projector and
-  press Full screen.
+  "Open the Slideshow" link for the room; put that window on the projector and
+  press Full Screen.
 - The windows stay in sync; arrow keys and Page Up/Down (clickers) work in
   both.
 - Shows the slide, notes, next title and a timer. Dev server only. Edited

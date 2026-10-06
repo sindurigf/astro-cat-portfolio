@@ -347,12 +347,13 @@ before raising one.
 
 ### Uppercase
 
-- Write sentence case. `.label`, `.badge`, the buttons and every heading apply
+- Write Chicago title case. `.label`, `.badge`, the buttons and every heading apply
   `text-transform: uppercase`. A post title and a talk slide title keep their
   written case (`.post-title`, `.slide-title`).
 - Chromium exposes the uppercased string in the accessible name (`About`
-  becomes `"ABOUT"`); Firefox and WebKit do not. Sentence case is the one
-  input correct under both, and keeps copy, search and previews in real case.
+  becomes `"ABOUT"`); Firefox and WebKit do not. Written case in the markup
+  is the one input correct under both, and keeps copy, search and previews in
+  real case.
 - How a screen reader announces caps is untested
   ([MANUAL_TESTING.md](MANUAL_TESTING.md) §6). Do not claim caps are spelled
   out letter by letter.
@@ -736,7 +737,7 @@ roundel.**
 
 - Gold buttons only: [Buttons on gold](#buttons-on-gold).
 - Career is the one hero with actions: the CV download when `person.cv` is
-  set, then Get in touch (primary when there is no CV), `--spacing-head`
+  set, then Get in Touch (primary when there is no CV), `--spacing-head`
   under the standfirst.
 - Career is also the one hero with a line of fact: `mt-4 text-body
 text-gold-muted` under the standfirst, not a fourth `.block` beat. Colour
@@ -881,7 +882,7 @@ A heading, a sentence, one way on. Enforced by `tests/empty-states.spec.ts`,
 | ----------------------- | --------------------------------------- | ------------------------------------------ | ---------------------------------------------------------- | -------------------------------------- | ---------------------------------- |
 | Not found               | `/404`                                  | `h1` "These are not the droids…"           | the page does not exist, and a link to report a broken one | homepage (primary), blog (secondary)   | the page load                      |
 | Empty category or tag   | not built: pages exist only with a post |                                            |                                                            |                                        |                                    |
-| Empty blog              | `/blog` with no posts                   | `h2` "No posts yet"                        | "Nothing has been published here yet."                     | "Go to the homepage"                   | the page load                      |
+| Empty blog              | `/blog` with no posts                   | `h2` "No Posts Yet"                        | "Nothing has been published here yet."                     | "Go to the Homepage"                   | the page load                      |
 | Invalid form            | `/contact/send`, 422                    | `h2` "There are N problems with this form" | one linked entry per field                                 | each entry moves to its field          | focus on the summary on arrival    |
 | Rate-limited or unsaved | `/contact/send`, 429 or 503             | `h2` "Your message was not sent"           | the reason, and the email address as the way round it      | the form, still holding what was typed | focus on the summary on arrival    |
 | Offline                 | `/contact`, on submit                   | none: the form stays                       | "You are offline, so your message has not been sent…"      | the form, unchanged                    | the form's `role="status"` region  |
@@ -921,7 +922,7 @@ Enforced by `tests/footer.spec.ts`.
 - `nav` "About this site": Accessibility, Privacy, Credits
 - `nav` "Social": one sticker link per profile plus Email, each an
   `aria-hidden` icon and a visually hidden name
-- the copyright, then "Cat drawings and text made with AI", an underlined
+- the copyright, then "Cat Drawings and Text Made with AI", an underlined
   `subtle` link to `AI_DISCLOSURE.md` with a 24px box (EU AI Act Art. 50)
 - the `aria-hidden` tuft
 

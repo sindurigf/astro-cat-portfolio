@@ -74,9 +74,9 @@ Astro.response.status = STATUS[outcome.kind];
 
 /* Names the cause; the error summary below says the message was not sent. */
 const HEADING: Record<Exclude<SubmissionKind, 'sent'>, string> = {
-  invalid: 'Check your message',
-  limited: 'Too many messages',
-  failed: 'Message not saved',
+  invalid: 'Check Your Message',
+  limited: 'Too Many Messages',
+  failed: 'Message Not Saved',
 };
 const heading = HEADING[outcome.kind];
 ---

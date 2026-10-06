@@ -6,7 +6,7 @@ import ComponentRow from './ComponentRow.astro';
 const MOTION_EXAMPLES = [
   {
     id: 'pause-control',
-    name: 'Pause control',
+    name: 'Pause Control',
     use: 'anything that moves for more than 5 seconds, like the homepage hero.',
     rule: 'Present whenever motion is; gone under reduced motion, where nothing moves.',
     on: { label: 'Pause the animation', glyph: '❚❚' },
@@ -14,7 +14,7 @@ const MOTION_EXAMPLES = [
   },
   {
     id: 'sleep-control',
-    name: 'Sleep control',
+    name: 'Sleep Control',
     use: 'stopping one moving figure, like a cat on About.',
     rule: 'One per figure, beside it; the name says what pressing it will do.',
     on: { label: 'Put the cat to sleep', glyph: 'z' },
@@ -55,7 +55,7 @@ const MOTION_EXAMPLES = [
 
   <ComponentRow
     id="theme-switch"
-    name="Theme switch"
+    name="Theme Switch"
     use="choosing light or dark."
     rule="Turns the main content of every page light and is remembered; the header and footer stay dark. Pressed while light. It is the same switch as the one in the header."
   >
@@ -64,12 +64,12 @@ const MOTION_EXAMPLES = [
 
   <ComponentRow
     id="focus-ring"
-    name="Focus ring"
+    name="Focus Ring"
     use="showing where the keyboard is."
     rule="A 4px cyan ring with a gap on every control; dark on gold and on the solid card. Never removed."
   >
     <a href="#focus-ring" class="btn-secondary">
-      Tab to this button
+      Tab to This Button
     </a>
   </ComponentRow>
 </ul>

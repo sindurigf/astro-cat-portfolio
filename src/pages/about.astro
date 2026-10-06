@@ -55,14 +55,14 @@ const SIZES = {
 /* Matches `lg:h-16`. */
 const MARK_HEIGHT = 64;
 
-const PHOTOGRAPHER: Photographer = 'Licence and credit';
+const PHOTOGRAPHER: Photographer = 'Licence and Credit';
 
 const SECTIONS = [
   { id: 'motto', title: `Why ${MOTTO.text}` },
-  { id: 'believe', title: 'What I believe' },
-  { id: 'people', title: 'My people' },
-  { id: 'important-things', title: 'Important things' },
-  { id: 'journey', title: 'How I got here' },
+  { id: 'believe', title: 'What I Believe' },
+  { id: 'people', title: 'My People' },
+  { id: 'important-things', title: 'Important Things' },
+  { id: 'journey', title: 'How I Got Here' },
 ] as const;
 
 const JUMP_LINKS = [
@@ -182,7 +182,7 @@ const closeRow = await closeRowLinks({
   profile={{ portrait: profilePortrait }}
 >
   <PageHero
-    title="About me"
+    title="About Me"
     image={hero}
     imageAlt="A calico cat asleep, curled against a grey cushion."
   >
@@ -247,7 +247,7 @@ const closeRow = await closeRowLinks({
         </p>
         <p class="mt-8">
           <a href="/credits/#name" class="chip">
-            Where the name {SITE_NAME} comes from
+            Where the Name {SITE_NAME} Comes From
           </a>
         </p>
       </div>
@@ -311,7 +311,7 @@ const closeRow = await closeRowLinks({
 
         <PhotoStrip
           id="people-photos"
-          label="More photos"
+          label="More Photos"
           noun="photos"
           group="people"
           photos={PLACES}
@@ -341,7 +341,7 @@ const closeRow = await closeRowLinks({
           </div>
           <div class="py-6">
             <dt class="label text-gold">Bounty</dt>
-            <dd class="card-title mt-4">79,000,000 berries, from age eight</dd>
+            <dd class="card-title mt-4">79,000,000 Berries, from Age Eight</dd>
           </div>
           <div class="pt-6">
             <dt class="label text-gold">Devil Fruit</dt>
@@ -410,7 +410,7 @@ const closeRow = await closeRowLinks({
             group="journey"
             sizes={SIZES.single}
           >
-            <span class="block font-black text-text">A quiet afternoon</span>
+            <span class="block font-black text-text">A Quiet Afternoon</span>
             Photo: <a href={photographerHref(PHOTOGRAPHER)}>{PHOTOGRAPHER}</a>
           </PhotoTile>
         </div>

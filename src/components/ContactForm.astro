@@ -70,8 +70,8 @@ const BODY = idsFor('body');
   <div class="error-summary" tabindex="-1" autofocus>
     <SummaryHeading class="text-h3 text-text">
       {errors.length === 1
-        ? 'There is one problem with this form'
-        : `There are ${errors.length} problems with this form`}
+        ? 'There Is One Problem with This Form'
+        : `There Are ${errors.length} Problems with This Form`}
     </SummaryHeading>
     <ul class="mt-4 list-disc pl-6">
       {errors.map((error) => (
@@ -190,7 +190,7 @@ const BODY = idsFor('body');
   </div>
 
   <button class="btn-primary mt-8" type="submit">
-    Send message
+    Send Message
   </button>
 
   {/* Present and empty from load so the live region is registered before the script writes to it. */}

@@ -49,7 +49,7 @@ test.describe('the journey post, set', NODE, () => {
     const pages = builtHtml();
     for (const route of JOURNEY_ROUTES) {
       const { eyebrow, links } = closeRow(pages.get(route) ?? '', route);
-      expect(eyebrow, `${route} close row eyebrow`).toBe('Continue reading');
+      expect(eyebrow, `${route} close row eyebrow`).toBe('Continue Reading');
       expect(links, `${route} close row links`).toHaveLength(2);
       expect(links[0], `${route} does not link the journey post`).toEqual({
         href: `/blog/${JOURNEY_POST}/`,
@@ -74,7 +74,7 @@ test.describe('the journey post, unset', NODE, () => {
         `${route} close row links a post with no journey post set`,
       ).not.toMatch(/^\/blog\//);
       expect(html, `${route} still prompts to continue reading`).not.toContain(
-        'Continue reading',
+        'Continue Reading',
       );
     }
   });

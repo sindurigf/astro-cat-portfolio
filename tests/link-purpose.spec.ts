@@ -120,12 +120,12 @@ const COMPLETED_NAMES: readonly {
   {
     route: '/blog',
     links: 'nav[aria-label="Filter posts by category"] a',
-    name: (visible) => (/posts$/i.test(visible) ? visible : `${visible} posts`),
+    name: (visible) => (/posts$/i.test(visible) ? visible : `${visible} Posts`),
   },
   {
     route: '/',
     links: 'li.card > h3 > a.card-link',
-    name: (visible) => `${visible} posts`,
+    name: (visible) => `${visible} Posts`,
   },
   {
     route: '/brand',

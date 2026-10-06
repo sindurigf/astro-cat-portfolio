@@ -47,12 +47,12 @@ const DESIGNED_WITH = [
   {
     name: 'Stitch',
     href: 'https://stitch.withgoogle.com/',
-    role: 'For design',
+    role: 'For Design',
   },
   {
     name: 'Claude Design',
     href: 'https://claude.com/product/design',
-    role: 'For refinement',
+    role: 'For Refinement',
   },
 ] as const;
 
@@ -146,7 +146,7 @@ const NAMED_ENTRY = 'min-w-0 bg-background p-card-tight';
     ) : (
       <p id={PERSONA_NOTICE_ID} class="standfirst">
         {personaNotice(SAMPLE_PERSONA)}{' '}
-        <a href={PERSONA_SOURCES_PATH}>Sources for her stories</a>.
+        <a href={PERSONA_SOURCES_PATH}>Sources for Her Stories</a>.
       </p>
     )}
   </PageHero>
@@ -154,7 +154,7 @@ const NAMED_ENTRY = 'min-w-0 bg-background p-card-tight';
   <section class="band py-section">
     <div class="mx-auto max-w-page">
       <div id="name" class="card">
-        <h2 class={CARD_HEADING}>Where the name comes from</h2>
+        <h2 class={CARD_HEADING}>Where the Name Comes From</h2>
         <p class="mt-6 mb-paragraph max-w-4xl text-lead font-normal text-text text-pretty">
           The name of this site is borrowed, with thanks, from{' '}
           <a href={NAME_INSPIRATION.href}>{NAME_INSPIRATION.site}</a>, the site
@@ -172,7 +172,7 @@ const NAMED_ENTRY = 'min-w-0 bg-background p-card-tight';
       </div>
 
       <div id="not-found" class="card mt-grid">
-        <h2 class={CARD_HEADING}>The 404 page</h2>
+        <h2 class={CARD_HEADING}>The 404 Page</h2>
         <p class="mt-6 mb-paragraph max-w-4xl text-lead font-normal text-text text-pretty">
           The 404 page is a nod to <cite>Star Wars</cite> (1977), the film later
           called <cite>Episode IV: A New Hope</cite>.
@@ -189,7 +189,7 @@ const NAMED_ENTRY = 'min-w-0 bg-background p-card-tight';
       </div>
 
       <div class="card mt-grid">
-        <h2 class={CARD_HEADING}>Thank you</h2>
+        <h2 class={CARD_HEADING}>Thank You</h2>
         <dl class:list={[NAMED_LIST, 'md:grid-cols-2']}>
           {THANKS.map((person) => (
             <div class={NAMED_ENTRY}>
@@ -272,7 +272,7 @@ const NAMED_ENTRY = 'min-w-0 bg-background p-card-tight';
   <section class="band pb-section">
     <div class="mx-auto grid max-w-page gap-grid lg:grid-cols-2">
       <div class="card">
-        <h2 class={CARD_HEADING}>Design tools</h2>
+        <h2 class={CARD_HEADING}>Design Tools</h2>
 
         <dl class={NAMED_LIST}>
           {DESIGNED_WITH.map((tool) => (
@@ -315,7 +315,7 @@ const NAMED_ENTRY = 'min-w-0 bg-background p-card-tight';
       </div>
 
       <div class="card lg:col-span-2">
-        <h2 class={CARD_HEADING}>Built and tested with</h2>
+        <h2 class={CARD_HEADING}>Built and Tested With</h2>
 
         <ul class="bullet-list mt-6 gap-x-12 sm:grid sm:grid-cols-2 lg:grid-cols-3">
           {BUILT_WITH.map((tool) => (
@@ -343,8 +343,8 @@ const NAMED_ENTRY = 'min-w-0 bg-background p-card-tight';
   <CloseRow
     eyebrow="Next"
     readHref="/accessibility/"
-    readLabel="Accessibility statement"
+    readLabel="Accessibility Statement"
     actionHref="/contact/"
-    actionLabel="Get in touch"
+    actionLabel="Get in Touch"
   />
 </BaseLayout>

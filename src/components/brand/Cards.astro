@@ -17,7 +17,7 @@ const { targetStandard, conformanceStatus } = accessibilityFacts;
     rule="8px edge, pink shadow, surface fill. One size of title in every card."
   >
     <div class="card">
-      <h4 class="card-title">Card title</h4>
+      <h4 class="card-title">Card Title</h4>
       <p class="mt-4 text-body text-text">
         Text inside a card sits on the surface fill.
       </p>
@@ -26,29 +26,29 @@ const { targetStandard, conformanceStatus } = accessibilityFacts;
 
   <ComponentRow
     id="card-solid"
-    name="Solid card"
+    name="Solid Card"
     use="one card to lead a group, such as the newest post."
     rule="The light third surface: everything on it is background-coloured, and it never holds a form."
   >
     <div class="card card-solid">
-      <h4 class="card-title">Solid card title</h4>
+      <h4 class="card-title">Solid Card Title</h4>
       <p class="mt-4 text-body">Text on the solid card.</p>
     </div>
   </ComponentRow>
 
   <ComponentRow
     id="card-block"
-    name="Card block"
+    name="Card Block"
     use="cards that sit together as one joined group."
     rule="Cards share edges instead of gaps; a solid card in the block keeps its raised edge and shadow."
   >
     <div class="card-block">
       <div class="card">
-        <h4 class="card-title">First card</h4>
+        <h4 class="card-title">First Card</h4>
         <p class="mt-4 text-body text-text">Joined to the next.</p>
       </div>
       <div class="card card-solid">
-        <h4 class="card-title">Second card</h4>
+        <h4 class="card-title">Second Card</h4>
         <p class="mt-4 text-body">Raised within the block.</p>
       </div>
     </div>
@@ -57,7 +57,7 @@ const { targetStandard, conformanceStatus } = accessibilityFacts;
   {post && (
     <ComponentRow
       id="post-card"
-      name="Post card"
+      name="Post Card"
       use="a post in a list: category, title, teaser and date."
       rule="Only the title is a link, so the card has one tab stop and its text stays selectable."
     >
@@ -67,7 +67,7 @@ const { targetStandard, conformanceStatus } = accessibilityFacts;
 
   <ComponentRow
     id="fact-strip"
-    name="Fact strip"
+    name="Fact Strip"
     use="three or four short facts read at a glance."
     rule="A description list: gold labels over plain values, divided by edges."
   >

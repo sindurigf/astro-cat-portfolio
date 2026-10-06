@@ -34,12 +34,12 @@ if (toggle && display) {
     if (startedAt === undefined) {
       startedAt = Date.now();
       tick = window.setInterval(render, SECOND);
-      toggle.textContent = 'Pause timer';
+      toggle.textContent = 'Pause Timer';
     } else {
       elapsed += Date.now() - startedAt;
       startedAt = undefined;
       window.clearInterval(tick);
-      toggle.textContent = 'Start timer';
+      toggle.textContent = 'Start Timer';
     }
     render();
   });

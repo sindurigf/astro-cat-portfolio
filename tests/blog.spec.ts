@@ -97,10 +97,10 @@ test.describe('the category filter', () => {
 
     expect(
       filter.total,
-      'the filter should offer every category with a post, plus "All posts"',
+      'the filter should offer every category with a post, plus "All Posts"',
     ).toBe(CATEGORY_ROUTES.length + 1);
     expect(filter.currentCount, 'exactly one option is current').toBe(1);
-    expect(filter.href, '"All posts" is current on /blog').toBe('/blog/');
+    expect(filter.href, '"All Posts" is current on /blog').toBe('/blog/');
 
     expect(
       filter.markers.filter(Boolean).length,
