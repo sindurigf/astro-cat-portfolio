@@ -99,14 +99,21 @@ test('reports every failing field at once, each with a message', NODE, () => {
   expect(new Set(result.errors.map((error) => error.message)).size).toBe(3);
 });
 
+/** One line of the CRLF body, its break counted as one character. */
+const LINE_CHARS = 50;
+
 test(
   'counts a CRLF line break as one character and stores it as LF',
   NODE,
   () => {
-    const paragraph = 'p'.repeat(49);
-    const body = Array(LIMITS.bodyMax / 50)
+    const paragraph = 'p'.repeat(LINE_CHARS - 1);
+    const body = Array(Math.floor(LIMITS.bodyMax / LINE_CHARS))
       .fill(paragraph)
       .join('\r\n');
+    expect(
+      body.length,
+      'the body fits even with CRLF counted as two, so this checks nothing.',
+    ).toBeGreaterThan(LIMITS.bodyMax);
     const result = validateSubmission(form({ ...VALID, body }));
 
     expect(
