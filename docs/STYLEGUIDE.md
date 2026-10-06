@@ -1023,7 +1023,8 @@ Enforced by `tests/nav-current.spec.ts`, `tests/mobile-menu.spec.ts`,
 - Nothing flashes more than three times per second (SC 2.3.1).
 - Controls press into their shadow at 0ms; no movement under reduced motion.
 - No marquee.
-- Pattern (`src/components/ui/HeroField.vue`): start the animation on mount,
+- Pattern (`src/components/ui/HeroField.vue`, its logic in
+  `src/composables/use-hero-field.ts`): start the animation on mount,
   never in server HTML. Under reduced motion render one still frame and no
   button. The state lives in the accessible name ("Play the hero animation" /
   "Pause the hero animation"), no `aria-pressed`.

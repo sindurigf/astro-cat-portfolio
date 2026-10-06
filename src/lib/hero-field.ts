@@ -1,6 +1,6 @@
 /*
  * Mutable per-box state and drawing. Constants and the projection model are in
- * hero-field-scene.ts; HeroField.vue owns the canvases and the frame loop.
+ * hero-field-scene.ts; use-hero-field.ts owns the canvases and the frame loop.
  */
 import {
   BANDS,

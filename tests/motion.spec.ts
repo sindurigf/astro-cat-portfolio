@@ -8,7 +8,7 @@ import { NODE } from './tags';
 /**
  * SC 2.2.2 for the hero canvas. A canvas has no `animation-play-state`, so tests
  * pump frames and compare pixels: real frames under load are too few to count.
- * `running()` in HeroField.vue also gates on `onScreen` and `document.hidden`.
+ * `running()` in use-hero-field.ts also gates on `onScreen` and `document.hidden`.
  */
 const HERO_ROUTE = '/';
 const HERO_PAUSE_NAME = /pause the hero animation/i;
@@ -21,7 +21,7 @@ const HERO_STOP_TIMEOUT_MS = 5_000;
 const HERO_PUMP_HZ = 60;
 const HERO_PUMP_FRAMES = 60;
 
-/** `MAX_FRAME_RATE` in HeroField.vue is 30; one over allows for where the first drawn frame falls. */
+/** `MAX_FRAME_RATE` in use-hero-field.ts is 30; one over allows for where the first drawn frame falls. */
 const HERO_DRAWN_MAX = 31;
 
 /** Both put the control inside the content column's box; at 1440px it sits outside and proves nothing. */
@@ -73,7 +73,7 @@ const expectHeroTargetSize = async (control: Locator) => {
 
 /*
  * `cancelAnimationFrame` must really remove the callback: `stop()` in
- * HeroField.vue relies on it. Ids start at 1, so `frame = 0` means "nothing pending".
+ * use-hero-field.ts relies on it. Ids start at 1, so `frame = 0` means "nothing pending".
  */
 const installFramePump = (page: Page) =>
   page.addInitScript(() => {
@@ -423,7 +423,7 @@ test.describe('the hero field on /', () => {
     ).toHaveCount(0);
   });
 
-  /* HeroField.vue listens for the preference rather than reading it once at mount. */
+  /* use-hero-field.ts listens for the preference rather than reading it once at mount. */
   test('turning reduced motion on during a visit stops the field and drops the control', async ({
     page,
   }) => {

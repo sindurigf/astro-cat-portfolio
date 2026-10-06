@@ -99,7 +99,7 @@ Dark is the default. Colours and rules:
 - `src/components/ThemeSwitch.astro` is a `<button aria-pressed>` named "Light
   mode"; `src/scripts/theme-switch.ts` wires it and a press saves the choice.
 - Without JavaScript the page is dark and the switch hidden.
-- `HeroField.vue` reads its palette from its own element and rebuilds when a
+- `HeroField.vue` (through `use-hero-field.ts`) reads its palette from its own element and rebuilds when a
   `MutationObserver` sees `data-theme` change. Its ground is `hero-ground`.
 - `AboutCats.vue` needs neither: its SVG parts carry classes, and
   `about-cats.css` maps them to tokens, so the cats follow the theme in CSS.
