@@ -1,18 +1,12 @@
 ## Changes
 
--
+- File or function: what changed and why.
 
 ## Testing
 
-- Commands and specs run, with totals:
-- Manual checks (docs/MANUAL_TESTING.md):
+- Commands run, with totals:
 
 ## Docs and pages
-
-Sweep what the change makes stale: credits (`src/lib/credits.ts`,
-`src/pages/credits.astro`), README, ARCHITECTURE, ACCESSIBILITY,
-AI_DISCLOSURE, SECURITY, `docs/*`, `.claude/skills/design-system/SKILL.md`,
-/accessibility, /privacy, /brand, `llms.txt` and `robots.txt`.
 
 - Updated: <files>, or checked: <files>, nothing stale.
 
@@ -34,5 +28,3 @@ Delete this section if the PR adds no images, video, audio or editorial text.
 
 - [ ] AI made or edited none of it, or it is labelled on the page and in
       `AI_DISCLOSURE.md`.
-
-## Notes
