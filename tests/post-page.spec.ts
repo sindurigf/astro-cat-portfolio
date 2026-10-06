@@ -204,7 +204,7 @@ test.describe('the cover as the post hero', () => {
 /* `--figure-max-height` in prose.css. */
 const FIGURE_MAX_HEIGHT_SHARE = 0.8;
 const FIGURE_VIEWPORT_HEIGHT = 900;
-/* Centring and edges snap to the device pixel. */
+/* Centering and edges snap to the device pixel. */
 const FIGURE_ALIGN_TOLERANCE = 1;
 
 /*
