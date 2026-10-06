@@ -26,8 +26,8 @@ export interface HeroPalette {
   readonly floor: string;
   /** `--color-hero-floor-edge`. */
   readonly floorEdge: string;
-  /** `--color-hero-flower`: petals. */
-  readonly flower: string;
+  /** `--color-hero-glow`: inside a lit glyph. */
+  readonly glow: string;
 }
 
 export interface HeroField {
@@ -35,7 +35,7 @@ export interface HeroField {
   layout(width: number, height: number): void;
   /** CSS pixels; scales with the projection. */
   nearBlur(): number;
-  /** Reduced motion: the poneglyph's flowers held open. */
+  /** Reduced motion: the poneglyph's script stays unlit. */
   hold(still: boolean): void;
   /** Once per animation frame, not per layer. */
   step(seconds: number, delta: number): void;
@@ -94,8 +94,6 @@ export interface Stem {
   /** Sideways offset at the tip, CSS pixels. */
   lean: number;
   leanRate: number;
-  /** 0 to 1 through the bloom cycle; only stems at the poneglyph's foot flower. */
-  readonly bloom?: number;
 }
 
 /*

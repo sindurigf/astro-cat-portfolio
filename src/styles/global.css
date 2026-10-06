@@ -131,10 +131,10 @@
   --color-hero-ground: var(--color-gold);
 
   /*
-   * The poneglyph's flowers. Their ink rim, at the canvas's FLOWER_ALPHA, is
-   * 3.88:1 on gold and 5.99:1 on white (SC 1.4.11).
+   * The glow inside a lit glyph on the poneglyph. Its full-ink rim carries the
+   * contrast: 6.60:1 on the dark stone face, 16.43:1 on the light (SC 1.4.11).
    */
-  --color-hero-flower: var(--color-cat-mochi);
+  --color-hero-glow: var(--color-cat-mochi);
 
   /*
    * The canvas's veil and floor, read by HeroField.vue. Ink, not border-blue,

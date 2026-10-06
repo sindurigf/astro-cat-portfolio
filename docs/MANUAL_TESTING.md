@@ -106,9 +106,8 @@ Setup: `gsettings set org.gnome.desktop.interface enable-animations false`.
 - [ ] Press and hold a primary button, a `/blog` chip, a footer sticker and
       the logo: each loses its shadow but does not move. → SC 2.3.3
 - [ ] Nothing else moves, fades or slides. → SC 2.3.3
-- [ ] `/`: the hero field is drawn once, reads as a picture, every flower at
-      the poneglyph's foot is open, and there is no pause control. → SC 2.3.3,
-      2.2.2
+- [ ] `/`: the hero field is drawn once, reads as a picture, the poneglyph's
+      script is unlit, and there is no pause control. → SC 2.3.3, 2.2.2
 - [ ] `/about`: the cats sit still and have no sleep controls. → SC 2.3.3, 2.2.2
 - [ ] Turn it back on: the button moves and the field animates. → SC 2.3.3
 

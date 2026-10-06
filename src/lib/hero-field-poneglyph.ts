@@ -1,16 +1,14 @@
 /*
- * The poneglyph and the flowers at its foot. Flat 2D: a carved front lit from
- * the left, a shaded side and top. Lengths are eye heights (`projection / z`
- * pixels each at depth `z`), bloom lengths are bud units.
+ * The poneglyph. Flat 2D: a carved front lit from the left, a shaded side and
+ * top. Lengths are eye heights (`projection / z` pixels each at depth `z`).
+ * A slow light reads down its script, row by row, and wraps to the top.
  */
 import type { HeroPalette } from './hero-field-scene';
-
-const TAU = Math.PI * 2;
 
 /** Centre as a share of the box, then eye heights; the side recedes up and right. */
 export const PONEGLYPH = {
   x: 0.66,
-  width: 0.99,
+  width: 1.584,
   height: 1.91,
   side: 0.255,
   rise: 0.135,
@@ -42,6 +40,32 @@ const CUT = { lip: 0.8, groove: 0.7 } as const;
 /* Line widths as shares of one eye height in pixels. */
 const LINE = { outline: 0.008, groove: 0.0045, lip: 0.006 } as const;
 
+/*
+ * A light reads the script glyph by glyph, left to right and top to bottom,
+ * wrapping to the start. The next glyph rises as this one fades (`step` is
+ * rise plus hold), so the two only cross over. Seconds.
+ */
+export const GLOW = { rise: 0.6, hold: 0.1, fall: 0.6, step: 0.7 } as const;
+
+/* Zero slope and zero curvature at both ends, so nothing starts or stops with a jolt. */
+const smoother = (x: number): number =>
+  x <= 0 ? 0 : x >= 1 ? 1 : x * x * x * (x * (6 * x - 15) + 10);
+
+/** 0 to 1: how lit glyph `glyph` of `glyphs`, in reading order, is. Never lit in the reduced-motion still. */
+export const glyphLight = (
+  glyph: number,
+  glyphs: number,
+  seconds: number,
+  still: boolean,
+): number => {
+  if (still) return 0;
+  const cycle = glyphs * GLOW.step;
+  const t = (((seconds - glyph * GLOW.step) % cycle) + cycle) % cycle;
+  return (
+    smoother(t / GLOW.rise) - smoother((t - GLOW.rise - GLOW.hold) / GLOW.fall)
+  );
+};
+
 type Point = readonly [number, number];
 
 export interface Stone {
@@ -58,8 +82,12 @@ export const stoneAt = (
   root: number,
   unit: number,
 ): Stone => {
-  const centre = PONEGLYPH.x * boxWidth;
   const half = (PONEGLYPH.width * unit) / 2;
+  /* Pulled left on a narrow frame, so the side and plinth stay inside the box. */
+  const centre = Math.min(
+    PONEGLYPH.x * boxWidth,
+    boxWidth - half - (PONEGLYPH.side + 2 * PONEGLYPH.margin) * unit,
+  );
   const plinth = PONEGLYPH.plinth * unit;
   return {
     left: centre - half,
@@ -135,6 +163,8 @@ const script = (
   ctx: CanvasRenderingContext2D,
   palette: HeroPalette,
   { left, right, top, root, unit }: Stone,
+  seconds: number,
+  still: boolean,
 ): void => {
   const face = root - PONEGLYPH.plinth * unit - top;
   const cell = ((right - left) * SCRIPT.fill) / SCRIPT.columns;
@@ -142,18 +172,28 @@ const script = (
   const x0 = (left + right) / 2 - (cell * SCRIPT.columns) / 2;
   const y0 = top + (face - rows * cell) / 2;
   const marks = new Path2D();
-  for (let r = 0; r < rows; r += 1)
+  /* In reading order: left to right, top to bottom. */
+  const glyphs: Path2D[] = [];
+  for (let r = 0; r < rows; r += 1) {
     for (let c = 0; c < SCRIPT.columns; c += 1) {
+      const strokes = new Path2D();
+      glyphs.push(strokes);
       const glyph = GLYPHS[(r * 7 + c * 3 + ((r * c) % 5)) % GLYPHS.length]!;
       const cx = x0 + (c + 0.5) * cell;
       const cy = y0 + (r + 0.5) * cell;
       for (let k = 0; k < glyph.length; k += 2) {
         const x = cx + glyph[k]! * cell * SCRIPT.glyph;
         const y = cy - glyph[k + 1]! * cell * SCRIPT.glyph;
-        if (k) marks.lineTo(x, y);
-        else marks.moveTo(x, y);
+        if (k) {
+          marks.lineTo(x, y);
+          strokes.lineTo(x, y);
+        } else {
+          marks.moveTo(x, y);
+          strokes.moveTo(x, y);
+        }
       }
     }
+  }
   ctx.lineCap = 'round';
   ctx.save();
   ctx.translate(LINE.lip * unit * 0.4, LINE.lip * unit * 0.8);
@@ -166,12 +206,29 @@ const script = (
   ctx.strokeStyle = palette.border;
   ctx.lineWidth = LINE.groove * unit;
   ctx.stroke(marks);
+  /*
+   * A lit glyph thickens into a full-ink rim (6.60:1 on the dark face, 16.43:1
+   * on the light, SC 1.4.11) with the glow colour inside it.
+   */
+  glyphs.forEach((strokes, g) => {
+    const light = glyphLight(g, glyphs.length, seconds, still);
+    if (light <= 0) return;
+    ctx.globalAlpha = 1;
+    ctx.strokeStyle = palette.border;
+    ctx.lineWidth = LINE.groove * unit * (1 + 2.6 * light);
+    ctx.stroke(strokes);
+    ctx.strokeStyle = palette.glow;
+    ctx.lineWidth = LINE.groove * unit * 1.5 * light;
+    ctx.stroke(strokes);
+  });
 };
 
 export const drawPoneglyph = (
   ctx: CanvasRenderingContext2D,
   palette: HeroPalette,
   stone: Stone,
+  seconds: number,
+  still: boolean,
 ): void => {
   const { left, right, top, root, unit } = stone;
   const margin = PONEGLYPH.margin * unit;
@@ -186,6 +243,21 @@ export const drawPoneglyph = (
   ctx.globalAlpha = SHADOW.alpha;
   ctx.fillStyle = palette.border;
   ctx.fill();
+  /* A soft contact shadow, so the base sits on the ground rather than over it. */
+  const cx = (left + right) / 2 + PONEGLYPH.side * unit * 0.5;
+  const rx = (right - left) / 2 + margin + PONEGLYPH.side * unit;
+  ctx.save();
+  ctx.translate(cx, root - PONEGLYPH.rise * unit * 0.3);
+  ctx.scale(1, 0.16);
+  /* Stacked translucent discs, ink only: a gradient to the ground would veil stems behind. */
+  ctx.fillStyle = palette.border;
+  ctx.globalAlpha = 0.05;
+  for (let k = 0; k < 6; k += 1) {
+    ctx.beginPath();
+    ctx.arc(0, 0, rx * (1.25 - k * 0.13), 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.restore();
   block(
     ctx,
     palette,
@@ -194,187 +266,6 @@ export const drawPoneglyph = (
     TONE.plinth,
   );
   block(ctx, palette, [left, top, right, plinthTop], unit, TONE.face);
-  script(ctx, palette, stone);
+  script(ctx, palette, stone, seconds, still);
   ctx.globalAlpha = 1;
-};
-
-/*
- * One bloom, seconds: the pod swells, opens (sepals part, petals grow out of
- * it and fan apart), holds while breathing, closes the same way back, then
- * the pod relaxes. Each flower runs on its own phase.
- */
-const BLOOM = {
-  period: 12.5,
-  swell: 1.2,
-  open: 3,
-  hold: 5,
-  close: 2.6,
-  /* Seconds after an earlier petal that the next one starts. */
-  stagger: 0.12,
-} as const;
-/* Breathing while open: scale amplitude and period in seconds. */
-const BREATH = { scale: 0.03, period: 2.6 } as const;
-/*
- * Bud units. The pod is a teardrop `pod` wide and `tall` high; open, petals
- * `reach` long and `width` wide fan round it, about twice the pod's width.
- */
-const PETAL = {
-  pod: 1.82,
-  tall: 3.22,
-  reach: 2.7,
-  width: 1.2,
-  rim: 1,
-  count: 5,
-} as const;
-/* Ink over each petal's inner half, and stamens round the centre. */
-const HEAD = { tone: 0.3, stamens: 7 } as const;
-/* How far, in radians, each sepal swings out from the pod's axis when fully open. */
-const SPLIT = 1.05;
-/* Share of the opening the sepals part alone before petals show. */
-const EMERGE = 0.12;
-/* Below this, the ink rim falls under 3:1 against the ground (SC 1.4.11). */
-export const FLOWER_ALPHA = 0.66;
-
-export interface Bloom {
-  /** 0 resting to 1 swollen. */
-  readonly swell: number;
-  /** 0 shut to 1 open; the same curve opens and closes. */
-  readonly open: number;
-  /** Breathing scale while open. */
-  readonly breath: number;
-}
-
-const OPEN: Bloom = { swell: 1, open: 1, breath: 1 };
-
-/* Zero slope and zero curvature at both ends, so nothing starts or stops with a jolt. */
-const smoother = (x: number): number =>
-  x <= 0 ? 0 : x >= 1 ? 1 : x * x * x * (x * (6 * x - 15) + 10);
-
-/** `phase` 0 to 1 staggers each flower's cycle. */
-export const bloomOf = (
-  phase: number,
-  seconds: number,
-  still: boolean,
-): Bloom => {
-  if (still) return OPEN;
-  const { period, swell, open, hold, close } = BLOOM;
-  const t = (((seconds + phase * period) % period) + period) % period;
-  const shut = swell + open + hold;
-  const o = smoother((t - swell) / open) - smoother((t - shut) / close);
-  return {
-    swell:
-      smoother(t / swell) -
-      smoother((t - shut - close) / (period - shut - close)),
-    open: o,
-    breath: 1 + BREATH.scale * o * Math.sin((t * TAU) / BREATH.period),
-  };
-};
-
-/*
- * A pod at a stem's tip, turned by `angle`. Opening, its two halves swing
- * apart as sepals from the base while the petals grow out of the split, first
- * pointing up together, then fanning round the centre; closing runs back.
- */
-export const drawBloom = (
-  ctx: CanvasRenderingContext2D,
-  palette: HeroPalette,
-  [x, y]: Point,
-  bud: number,
-  angle: number,
-  { swell, open, breath }: Bloom,
-  alpha: number,
-): void => {
-  ctx.save();
-  ctx.translate(x, y);
-  ctx.rotate(angle);
-  const w = bud * PETAL.pod * (0.85 + 0.15 * swell);
-  const h = bud * PETAL.tall * (0.85 + 0.15 * swell);
-  const base = h * 0.35;
-  const sepals = new Path2D();
-  const part = SPLIT * smoother(open / 0.7);
-  for (const side of [-1, 1]) {
-    const c = Math.cos(side * part);
-    const s = Math.sin(side * part);
-    const at = (px: number, py: number): Point => [
-      px * c - (py - base) * s,
-      base + px * s + (py - base) * c,
-    ];
-    sepals.moveTo(...at(0, -h));
-    sepals.quadraticCurveTo(...at(side * w, -h * 0.1), ...at(0, base));
-    sepals.quadraticCurveTo(...at(side * w * 0.15, -h * 0.4), ...at(0, -h));
-  }
-  ctx.globalAlpha = alpha;
-  ctx.fillStyle = palette.bud;
-  ctx.fill(sepals);
-  if (open > 0) {
-    /* The flower's centre sits inside the pod, so its petals come out of the split. */
-    const hub = -h * 0.15;
-    const step = BLOOM.stagger / BLOOM.open;
-    const petals = new Path2D();
-    const inner = new Path2D();
-    for (let k = 0; k < PETAL.count; k += 1) {
-      /* Each petal's own progress, a little behind the one before. */
-      const f = smoother(
-        (open - EMERGE - k * step) / (1 - EMERGE - (PETAL.count - 1) * step),
-      );
-      if (f <= 0) continue;
-      /* From pointing up, bunched, to its place in the ring round the top. */
-      const up = -Math.PI / 2 + (k - 2) * 0.16;
-      const a = up + (k - 2) * (TAU / PETAL.count - 0.16) * f;
-      const len = bud * PETAL.reach * f * breath;
-      const wid = bud * PETAL.width * (0.35 + 0.65 * f);
-      const c = Math.cos(a);
-      const s = Math.sin(a);
-      const at = (u: number, v: number): Point => [
-        u * c - v * s,
-        hub + u * s + v * c,
-      ];
-      const shape = (g: number, path: Path2D): void => {
-        path.moveTo(...at(0, 0));
-        path.quadraticCurveTo(
-          ...at(len * 0.3 * g, -wid * g),
-          ...at(len * 0.88 * g, -wid * 0.62 * g),
-        );
-        path.quadraticCurveTo(
-          ...at(len * g, -wid * 0.25 * g),
-          ...at(len * 0.93 * g, 0),
-        );
-        path.quadraticCurveTo(
-          ...at(len * g, wid * 0.25 * g),
-          ...at(len * 0.88 * g, wid * 0.62 * g),
-        );
-        path.quadraticCurveTo(...at(len * 0.3 * g, wid * g), ...at(0, 0));
-      };
-      shape(1, petals);
-      shape(0.5, inner);
-    }
-    /* Stamens come out last, as the flower finishes opening. */
-    const eyes = new Path2D();
-    const dot = (px: number, py: number, r: number): void => {
-      if (r <= 0) return;
-      eyes.moveTo(px + r, hub + py);
-      eyes.arc(px, hub + py, r, 0, TAU);
-    };
-    dot(0, 0, bud * 0.24 * smoother((open - EMERGE) / 0.4));
-    const ring = bud * 0.7 * smoother((open - 0.5) / 0.5);
-    if (ring > 0)
-      for (let k = 0; k < HEAD.stamens; k += 1) {
-        const a = (k * TAU) / HEAD.stamens;
-        dot(Math.cos(a) * ring, Math.sin(a) * ring, bud * 0.18);
-      }
-    const flower = Math.max(alpha, FLOWER_ALPHA);
-    ctx.globalAlpha = flower;
-    ctx.fillStyle = palette.flower;
-    ctx.fill(petals);
-    ctx.globalAlpha = flower * HEAD.tone;
-    ctx.fillStyle = palette.bud;
-    ctx.fill(inner);
-    ctx.globalAlpha = flower;
-    ctx.strokeStyle = palette.bud;
-    ctx.lineWidth = PETAL.rim;
-    ctx.lineJoin = 'round';
-    ctx.stroke(petals);
-    ctx.fill(eyes);
-  }
-  ctx.restore();
 };
