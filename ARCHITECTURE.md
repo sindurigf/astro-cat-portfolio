@@ -101,6 +101,8 @@ Dark is the default. Colours and rules:
 - Without JavaScript the page is dark and the switch hidden.
 - `HeroField.vue` (through `use-hero-field.ts`) reads its palette from its own element and rebuilds when a
   `MutationObserver` sees `data-theme` change. Its ground is `hero-ground`.
+  A `(resolution)` media query resizes its canvases when only the pixel ratio
+  changes; in forced colours it is hidden (`tests/hero-media.spec.ts`).
 - `AboutCats.vue` needs neither: its SVG parts carry classes, and
   `about-cats.css` maps them to tokens, so the cats follow the theme in CSS.
 - `playwright.config.ts` sets `colorScheme: 'dark'`; specs that measure light

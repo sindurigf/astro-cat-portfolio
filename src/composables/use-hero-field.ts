@@ -58,6 +58,8 @@ export const useHeroField = (): HeroFieldState => {
   let resizeObserver: ResizeObserver | null = null;
   /* Watches data-theme itself, so the hero imports nothing from the switch's module. */
   let themeObserver: MutationObserver | null = null;
+  /* Matches only the current ratio, so it is re-armed after every change. */
+  let resolution: MediaQueryList | null = null;
 
   /* From the host, not the root: light mode sets these tokens on <main>. */
   const readPalette = (): HeroPalette | null => {
@@ -201,6 +203,23 @@ export const useHeroField = (): HeroFieldState => {
     resizeTimer = window.setTimeout(relayout, RESIZE_DEBOUNCE);
   };
 
+  /*
+   * A denser screen or a zoom that keeps the box's CSS size resizes nothing, so
+   * ResizeObserver misses it; the backing store must follow the new ratio.
+   */
+  const onRatioChange = (): void => {
+    watchRatio();
+    relayout();
+  };
+
+  const watchRatio = (): void => {
+    resolution?.removeEventListener('change', onRatioChange);
+    resolution = window.matchMedia(
+      `(resolution: ${window.devicePixelRatio}dppx)`,
+    );
+    resolution.addEventListener('change', onRatioChange);
+  };
+
   /* Stems are built in their colours, so a new palette needs a new field. */
   const onThemeChange = (): void => {
     const palette = readPalette();
@@ -234,6 +253,7 @@ export const useHeroField = (): HeroFieldState => {
       });
     }
 
+    watchRatio();
     themeObserver = new MutationObserver(onThemeChange);
     themeObserver.observe(document.documentElement, {
       attributes: true,
@@ -246,6 +266,7 @@ export const useHeroField = (): HeroFieldState => {
     window.clearTimeout(resizeTimer);
     resizeObserver?.disconnect();
     themeObserver?.disconnect();
+    resolution?.removeEventListener('change', onRatioChange);
   });
 
   return { mounted, paused, reducedMotion, toggle };
