@@ -247,13 +247,16 @@ test.describe('the talk slideshow', () => {
     await expect(visible(page).locator('h2')).toBeFocused();
   });
 
-  test('print shows every slide and no controls', async ({ page }) => {
+  test('print shows every slide and nothing else, so the PDF has one page per slide', async ({
+    page,
+  }) => {
     await open(page);
     await page.emulateMedia({ media: 'print' });
     const count = await page.locator('.slide').count();
     await expect(page.locator('.slide:visible')).toHaveCount(count);
     await expect(slideControls(page)).toHaveCount(1);
     await expect(slideControls(page)).toBeHidden();
+    await expect(page.locator('main > :not(.deck):visible')).toHaveCount(0);
   });
 
   // A room cannot scroll a projected slide. 1280x720 is the tightest of the
