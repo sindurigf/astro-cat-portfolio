@@ -121,6 +121,9 @@ const clumpPlacer = (
   };
 };
 
+/* Stems over their band's height ratio; near stems keep theirs so they stay below the name. */
+const STEM_HEIGHT = 1.3;
+
 const makeStem = (
   scene: Scene,
   rng: () => number,
@@ -162,7 +165,9 @@ const buildStems = (scene: Scene): Stem[] => {
       const x = acrossFullWidth
         ? clumped(spec.spread)
         : NEAR_BAND_LEFT * world + rng() * NEAR_BAND_WIDTH * world;
-      const height = spec.height[0] + rng() * spec.height[1];
+      const height =
+        (spec.height[0] + rng() * spec.height[1]) *
+        (spec === BANDS.NEAR ? 1 : STEM_HEIGHT);
       built.push(makeStem(scene, rng, z, x, height, veil));
     }
   };
@@ -196,7 +201,7 @@ const buildFoot = (scene: Scene): Stem[] => {
   return Array.from({ length: FOOT.count }, (_, i) => {
     const z = PONEGLYPH_DEPTH * (FOOT.depth[0] + rng() * FOOT.depth[1]);
     const x = from + ((i + 0.2 + rng() * 0.6) / FOOT.count) * across;
-    const height = FOOT.height[0] + rng() * FOOT.height[1];
+    const height = (FOOT.height[0] + rng() * FOOT.height[1]) * STEM_HEIGHT;
     return { ...makeStem(scene, rng, z, x, height, 1), bloom: i / FOOT.count };
   });
 };

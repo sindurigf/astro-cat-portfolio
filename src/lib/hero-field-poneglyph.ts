@@ -11,7 +11,7 @@ const TAU = Math.PI * 2;
 export const PONEGLYPH = {
   x: 0.66,
   width: 0.99,
-  height: 1.47,
+  height: 1.91,
   side: 0.255,
   rise: 0.135,
   plinth: 0.135,
