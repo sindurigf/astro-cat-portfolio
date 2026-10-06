@@ -171,6 +171,20 @@ tests/              Playwright specs; fixtures/ holds files the specs serve
 docs/               Development, deployment, style guide, manual testing
 ```
 
+## Where the copy lives
+
+| File                                                                                  | Holds                                                            |
+| ------------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| `src/site.config.ts`                                                                  | Site name, URL, tagline, motto, name, job title, email, profiles |
+| `src/pages/index.astro`, `src/pages/about.astro`, `src/pages/career.astro`            | The persona's text; names and links come from the config         |
+| `src/content/blog/sample-post.md`, `src/content/talks/sample-talk/slides.md`          | The sample post and talk                                         |
+| `src/lib/persona.ts`, `src/lib/credits.ts`                                            | The sample persona's notice; the `/credits` entries              |
+| `src/pages/contact.astro`, `src/pages/privacy.astro`, `src/pages/accessibility.astro` | Mostly config values; check the wording against your site        |
+| `src/assets/photos/`, `src/assets/blog/`                                              | Sample photos, credited in [LICENSE-photos](../LICENSE-photos)   |
+
+- Replacing the photos: update `LICENSE-photos`, or remove it and its row in
+  the [README licence table](../README.md#licence).
+
 ## Writing a post
 
 Add a Markdown file to `src/content/blog/`; the filename is the slug. The build
