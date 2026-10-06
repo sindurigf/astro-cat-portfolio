@@ -3,7 +3,7 @@
  * would beat `hover:text-cyan` (tests/states.spec.ts).
  */
 
-/* Reset the <dialog>'s centring to a full-bleed panel. */
+/* Reset the <dialog>'s centering to a full-bleed panel. */
 .mobile-menu-dialog {
   max-width: none;
   max-height: none;
