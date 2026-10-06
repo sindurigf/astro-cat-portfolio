@@ -1,7 +1,7 @@
 /*
  * The poneglyph. Flat 2D: a carved front lit from the left, a shaded side and
  * top. Lengths are eye heights (`projection / z` pixels each at depth `z`).
- * Every 24 s its script lights row by row, top to bottom.
+ * A slow light reads down its script, row by row, and wraps to the top.
  */
 import type { HeroPalette } from './hero-field-scene';
 
@@ -40,31 +40,27 @@ const CUT = { lip: 0.8, groove: 0.7 } as const;
 /* Line widths as shares of one eye height in pixels. */
 const LINE = { outline: 0.008, groove: 0.0045, lip: 0.006 } as const;
 
-/* Seconds per ripple, and each row's start, rise, hold and fall: slow ramps, far under 3 a second (SC 2.3.1). */
-export const RIPPLE_CYCLE = 24;
-const GLOW = {
-  start: 0.6,
-  row: 0.44,
-  rise: 1.4,
-  hold: 2.8,
-  fall: 2.4,
-} as const;
+/*
+ * A light reads down the script and wraps to the top: each row rises, holds
+ * and fades over 10 s, the next starting 2.5 s later, so a few rows are always
+ * lit. Seconds; the ramps are far slower than 3 a second (SC 2.3.1).
+ */
+export const GLOW = { rise: 3, hold: 4, fall: 3, step: 2.5 } as const;
 
 /* Zero slope and zero curvature at both ends, so nothing starts or stops with a jolt. */
 const smoother = (x: number): number =>
   x <= 0 ? 0 : x >= 1 ? 1 : x * x * x * (x * (6 * x - 15) + 10);
 
-/** 0 to 1: how lit glyph row `row` is. Never lit in the reduced-motion still. */
+/** 0 to 1: how lit row `row` of `rows` is. Never lit in the reduced-motion still. */
 export const glyphLight = (
   row: number,
+  rows: number,
   seconds: number,
   still: boolean,
 ): number => {
   if (still) return 0;
-  const t =
-    (((seconds % RIPPLE_CYCLE) + RIPPLE_CYCLE) % RIPPLE_CYCLE) -
-    GLOW.start -
-    row * GLOW.row;
+  const cycle = rows * GLOW.step;
+  const t = (((seconds - row * GLOW.step) % cycle) + cycle) % cycle;
   return (
     smoother(t / GLOW.rise) - smoother((t - GLOW.rise - GLOW.hold) / GLOW.fall)
   );
@@ -214,7 +210,7 @@ const script = (
    * on the light, SC 1.4.11) with the glow colour inside it.
    */
   lines.forEach((line, r) => {
-    const light = glyphLight(r, seconds, still);
+    const light = glyphLight(r, lines.length, seconds, still);
     if (light <= 0) return;
     ctx.globalAlpha = 1;
     ctx.strokeStyle = palette.border;

@@ -1060,11 +1060,12 @@ Enforced by `tests/nav-current.spec.ts`, `tests/mobile-menu.spec.ts`,
   name: a broad block with a lit carved face, a shaded side and top, a plinth,
   a soft contact shadow and a short cast shadow. On a narrow frame it moves
   left to stay inside. Stems stand behind it and beside it, never in front.
-- Every 24 s its script lights row by row, top to bottom: each row's strokes
-  thicken into a full-ink rim with the glow colour inside, over 1.4 s, then
-  fade. The rim keeps 6.60:1 on the dark face and 16.43:1 on the light (SC
-  1.4.11). The ramps are slow, far under 3 a second (SC 2.3.1). The pause
-  control freezes it; under reduced motion the script stays unlit.
+- A slow light reads down its script in a loop: each row's strokes thicken
+  into a full-ink rim with the glow colour inside, rising over 3 s, holding 4 s
+  and fading over 3 s, the next row 2.5 s later, wrapping to the top. A few
+  rows are always lit. The rim keeps 6.60:1 on the dark face and 16.43:1 on
+  the light (SC 1.4.11). The ramps are far slower than 3 a second (SC 2.3.1).
+  The pause control freezes it; under reduced motion the script stays unlit.
 
 ## Focus
 
