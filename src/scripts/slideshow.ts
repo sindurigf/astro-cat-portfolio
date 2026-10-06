@@ -1,7 +1,8 @@
 /*
  * `data-current`, not `hidden`: Tailwind's `hidden` is `!important` in an earlier
  * layer, so print could not show the slides. `replaceState` so Back leaves the
- * talk. Until `data-deck-ready`, slides.css shows only the opening slide.
+ * talk. Until `data-deck-ready`, slides.css shows only the opening slide; a
+ * failed start sets `data-deck-failed`, which shows them all.
  */
 
 const SLIDE_ID = /^#slide-(\d+)$/;
@@ -204,6 +205,7 @@ const wire = (deck: HTMLElement): void => {
   }
 
   deck.dataset.deckReady = '';
+  delete deck.dataset.deckFailed;
   /* The browser scrolled to a linked slide before the others were hidden. */
   const linked = indexOf(location.hash) !== undefined;
   show(current, { focus: false, address: linked });
@@ -211,4 +213,11 @@ const wire = (deck: HTMLElement): void => {
 };
 
 const deck = document.querySelector<HTMLElement>('[data-deck]');
-if (deck) wire(deck);
+if (deck) {
+  try {
+    wire(deck);
+  } catch (error) {
+    deck.dataset.deckFailed = '';
+    throw error;
+  }
+}

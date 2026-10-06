@@ -96,7 +96,9 @@ Dark is the default. Colors and rules:
 - `mark` and `tile-edge` hold the mode-independent logo-tile colors.
 - An inline script in `BaseLayout.astro`'s `<head>` sets `data-theme` from the
   saved choice or `prefers-color-scheme` before the body parses, and adds the
-  `js` class the slideshow's pre-hide keys on. Its hash is in `script-src`.
+  `js` class the slideshow's pre-hide keys on. After `DECK_READY_TIMEOUT_MS` it
+  sets `data-deck-failed` on a deck that is not ready, and the deck then shows
+  every slide. Its hash is in `script-src`.
   It sits in `<head>`, not beside the switch, so nothing paints in the wrong
   theme first.
 - `src/components/ThemeSwitch.astro` is a `<button aria-pressed>` named "Light

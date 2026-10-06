@@ -2,6 +2,7 @@
 import '../styles/global.css';
 import { OG_LOCALE, SITE_LANGUAGE } from '../lib/site-language';
 import { themeColor } from '../lib/theme-color';
+import { DECK_READY_TIMEOUT_MS } from '../lib/deck-ready';
 import { THEME_STORAGE_KEY } from '../lib/theme';
 /* The woff2 global.css's @font-face names; `?url` gives Vite's hashed path to preload. */
 import lexendLatin from '@fontsource-variable/lexend/files/lexend-latin-wght-normal.woff2?url';
@@ -99,9 +100,21 @@ const articleData = article && {
       Sets data-theme and the `js` class before first paint. In <head>, not
       beside the switch: an inline script in the header lets it paint half-built.
       Blocked storage throws; the empty catch falls back to the system theme.
+      The timer marks a deck whose script never started, so slides.css shows it whole.
     */}
-    <script is:inline define:vars={{ key: THEME_STORAGE_KEY }}>
+    <script
+      is:inline
+      define:vars={{
+        key: THEME_STORAGE_KEY,
+        deckTimeout: DECK_READY_TIMEOUT_MS,
+      }}
+    >
       document.documentElement.classList.add('js');
+      setTimeout(() => {
+        document
+          .querySelector('[data-deck]:not([data-deck-ready])')
+          ?.setAttribute('data-deck-failed', '');
+      }, deckTimeout);
       let saved = null;
       try {
         saved = localStorage.getItem(key);
