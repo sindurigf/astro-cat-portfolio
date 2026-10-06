@@ -29,4 +29,13 @@ test.describe('a post date', NODE, () => {
       'the text date and the ISO date disagree in some time zone.',
     ).toEqual(ZONES.map((zone) => `${zone}: 13 September 2026 / 2026-09-13`));
   });
+
+  test('reads day, month name, four-digit year in that order', () => {
+    const DAY_MONTH_YEAR = /^\d{1,2} [A-Z][a-z]+ \d{4}$/;
+    const wrong = ['2026-01-05', '2026-10-06', '2027-12-31']
+      .map((iso) => formatPostDate(new Date(iso)))
+      .filter((text) => !DAY_MONTH_YEAR.test(text));
+
+    expect(wrong, 'a date is not "day month year".').toEqual([]);
+  });
 });

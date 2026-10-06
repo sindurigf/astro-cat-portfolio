@@ -5,6 +5,7 @@ import PageHero from '../components/PageHero.astro';
 import { CONTACT_EMAIL, CONTACT_FORM_ON, CONTACT_MAILTO } from '../lib/contact';
 import { RETENTION_DAYS } from '../lib/contact-form';
 import { UMAMI_HOST_URL } from '../lib/analytics';
+import { formatPostDate } from '../lib/post-date';
 import { ANALYTICS_ON } from '../lib/analytics-site';
 import { SITE_NAME } from '../lib/site';
 import { THEME_STORAGE_KEY } from '../lib/theme';
@@ -60,7 +61,11 @@ const description = ANALYTICS_ON
     </p>
 
     <p class="mt-6 text-body">
-      Last updated <time datetime={lastUpdated}>{lastUpdated}</time>.
+      Last updated{' '}
+      <time datetime={lastUpdated}>
+        {formatPostDate(new Date(lastUpdated))}
+      </time>
+      .
     </p>
   </PageHero>
 
@@ -75,7 +80,7 @@ const description = ANALYTICS_ON
             and nothing reads one.
           </li>
           <li>
-            <strong>One browser setting.</strong> When you press the colour
+            <strong>One browser setting.</strong> When you press the color
             switch, your choice, light or dark, is kept in{' '}
             <dfn>local storage</dfn>, a small store of settings in your browser,
             under the name <code>{THEME_STORAGE_KEY}</code>. The next page then

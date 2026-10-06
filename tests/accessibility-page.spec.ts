@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs';
 import { expect, test } from './test';
 import { builtPages, pagesNotLinking } from './routes';
 import { NODE } from './tags';
+import { formatPostDate } from '../src/lib/post-date';
 import { SITE_CONFIG, validateSiteConfig } from '../src/site.config';
 import { ACCESSIBILITY_RESPONSE_DAYS } from '../src/lib/site';
 
@@ -59,7 +60,11 @@ test.describe('the accessibility statement', NODE, () => {
       'Conformance status',
       'Last reviewed',
     ]) {
-      const value = tableValue(field);
+      const recorded = tableValue(field);
+      const value =
+        field === 'Last reviewed'
+          ? formatPostDate(new Date(recorded))
+          : recorded;
       expect(
         text,
         `/accessibility does not show the "${field}" value from ${RECORD} ("${value}").`,
