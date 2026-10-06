@@ -107,8 +107,8 @@ test('REPOSITORY_URL: both /brand calls to action point at it', async ({
 }) => {
   await page.goto('/brand/');
   for (const [name, href] of [
-    ['View the source', DEMO_ENV.REPOSITORY_URL],
-    ['Use this design', templateUseUrl(DEMO_ENV.REPOSITORY_URL)],
+    ['View the Source', DEMO_ENV.REPOSITORY_URL],
+    ['Use This Design', templateUseUrl(DEMO_ENV.REPOSITORY_URL)],
   ] as const) {
     const hrefs = await page
       .getByRole('link', { name, exact: true })

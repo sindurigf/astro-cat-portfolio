@@ -13,7 +13,7 @@ const { number, layout, label, title } = slide.data;
 const isCover = layout === 'cover';
 const isOpener = layout === 'section';
 
-/* "2" from "Part 2: Six habits"; aria-hidden since DeckBar names the part. */
+/* "2" from "Part 2: Six Habits"; aria-hidden since DeckBar names the part. */
 const partNumber = isOpener ? /\bPart (\d+)\b/.exec(part)?.[1] : undefined;
 const Heading = isCover ? coverHeading : 'h2';
 const { Content } = await render(slide);

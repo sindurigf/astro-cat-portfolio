@@ -24,7 +24,7 @@ export const HEADER_LINKS: readonly NavLink[] = NAV_LINKS.filter(
 /** Styled as a button, but marked current on /contact like any nav link. */
 export const CTA: NavLink = {
   href: CONTACT_PATH,
-  label: 'Get in touch',
+  label: 'Get in Touch',
 };
 
 /*

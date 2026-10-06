@@ -136,6 +136,7 @@ Rules:
   ([GOV.UK](https://insidegovuk.blog.gov.uk/2014/08/04/sentence-length-why-25-words-is-our-limit/)).
   Active voice, everyday words, no "e.g." or "i.e.".
 - An error message says what is wrong and how to fix it, without blame.
+- Headings and labels use Chicago title case; sentences use sentence case.
 - Editorial copy (posts, About, Career, taglines, bios) belongs to the site's
   owner. An agent does not invent it: in a fork it stays the sample persona's
   until a person writes it.

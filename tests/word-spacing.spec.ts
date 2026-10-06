@@ -12,7 +12,7 @@ const INLINE = 'a|strong|em|b|i|code';
 // `span` only on the opening side: the blog filter's empty marker `</span>` precedes text.
 const OPENING = `${INLINE}|span`;
 
-// An element whose text opens with a space, such as hidden "&nbsp;posts", is not glued.
+// An element whose text opens with a space, such as hidden "&nbsp;Posts", is not glued.
 const GLUED = new RegExp(
   `</(?:${INLINE})>[A-Za-z]|[A-Za-z]<(?:${OPENING})(?:\\s[^>]*)?>(?![\\s\u00a0]|&nbsp;)`,
   'g',

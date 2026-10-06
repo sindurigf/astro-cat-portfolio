@@ -10,12 +10,12 @@ const FRAME = 'hero-example px-4 sm:px-6';
 <ul class="divide-y-4 divide-border">
   <ComponentRow
     id="hero-full"
-    name="Page hero"
+    name="Page Hero"
     use="the top of a page: its title and one line on what it holds."
     rule="One per page, the page's only h1. Full gold slab for a main page; the round logo mark sits on its bottom edge."
   >
     <figure class={FRAME}>
-      <PageHero title="Page title" headingLevel={3}>
+      <PageHero title="Page Title" headingLevel={3}>
         <p class="standfirst">
           One or two lines on what the page holds, beside its title.
         </p>
@@ -28,7 +28,7 @@ const FRAME = 'hero-example px-4 sm:px-6';
             Thin slab: a post or a tag page.
           </p>
           <figure class={FRAME}>
-            <PageHero title="Post title" slab="thin" headingLevel={3} />
+            <PageHero title="Post Title" slab="thin" headingLevel={3} />
           </figure>
         </li>
         <li>
@@ -36,7 +36,7 @@ const FRAME = 'hero-example px-4 sm:px-6';
             Plain: a reading page such as Privacy, with the standfirst below.
           </p>
           <figure class={FRAME}>
-            <PageHero title="Reading page" slab="none" headingLevel={3}>
+            <PageHero title="Reading Page" slab="none" headingLevel={3}>
               <p class="standfirst">
                 One or two lines on what the page holds, below its title.
               </p>

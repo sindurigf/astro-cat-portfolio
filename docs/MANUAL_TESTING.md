@@ -47,7 +47,7 @@ npm run build && npm run preview   # http://localhost:4340
 
 Setup: Chrome, 1280px, `/`, focus in the address bar.
 
-- [ ] First Tab lands on "Skip to main content", visible at top left. → SC 2.4.1, 2.4.7
+- [ ] First Tab lands on "Skip to Main Content", visible at top left. → SC 2.4.1, 2.4.7
 - [ ] Enter on it: focus moves to main, which shows a cyan outline. → SC 2.4.1
 - [ ] Next Tab reaches the first control in the page (the hero pause control on `/`), not the header. → SC 2.4.1
 - [ ] Reload and Tab through: skip link, logo, About, Career, Blog, Get in
@@ -67,7 +67,7 @@ Setup: Chrome at 375px. No mouse.
 - [ ] The menu button shows a focus ring. → SC 2.4.7
 - [ ] Enter opens the panel; Escape closes; Space reopens. → SC 2.1.1
 - [ ] On open, focus is on the first link. → SC 2.4.3
-- [ ] Tab cycles Home, About, Career, Blog, Get in touch, Close, one stop in
+- [ ] Tab cycles Home, About, Career, Blog, Get in Touch, Close, one stop in
       the browser UI (correct `<dialog>` behaviour), Home. Focus never reaches
       the page behind. → SC 2.1.2
 - [ ] Shift+Tab from the first item goes to Close. → SC 2.1.2
@@ -124,7 +124,7 @@ The ring is 4px cyan at a 4px offset plus the element's shadow (4px or 8px);
       block. → SC 1.4.11, 2.4.7
 - [ ] Logo and contact cards (8px shadow, ring 12px out): the ring still reads
       as belonging to the control. → SC 1.4.11, 2.4.7
-- [ ] Gold skip link and "Get in touch": the ring is on the dark ground, never
+- [ ] Gold skip link and "Get in Touch": the ring is on the dark ground, never
       on gold. → SC 1.4.11
 - [ ] On a gold slab or band: the `#131313` ring is visible. → SC 1.4.11
 - [ ] No ring is clipped by a parent or hidden under the header. → SC 2.4.11
@@ -252,23 +252,23 @@ link and the skip link.
    [Uppercase](STYLEGUIDE.md#uppercase) with both quotes, and narrow
    ACCESSIBILITY.md §7 gap 2.
 2. Chrome spells it out, Firefox does not: record it as a cross-engine
-   difference; it supports keeping sentence case in the markup.
+   difference; it supports keeping Chicago title case in the markup.
 3. Anything else: record verbatim, repeat once, do not interpret.
 
-No outcome changes the practice: sentence case in markup, `text-transform` in
+No outcome changes the practice: Chicago title case in markup, `text-transform` in
 CSS. Dropping uppercase would be a design decision, not a fix.
 
 **6.4.5 Chrome, other elements.**
 
 - [ ] `/privacy` `h1` ("Privacy"): `________________________`
-- [ ] `/404` "Go to the homepage" (`.btn-primary`): `________________________`
+- [ ] `/404` "Go to the Homepage" (`.btn-primary`): `________________________`
 - [ ] 6.4.3 again at the other verbosity (`Orca+V`): `________________________`
 
 ### 6.5 Skip link
 
 Setup: Firefox, 1280px, `/`, click the address bar, Tab once.
 
-- [ ] It is the first thing announced, as "Skip to main content". → SC 2.4.1, 2.4.4
+- [ ] It is the first thing announced, as "Skip to Main Content". → SC 2.4.1, 2.4.4
 - [ ] Enter: something is announced. → SC 2.4.1
 - [ ] `Down` reads from inside main (pause control or `h1`), not the header:
       the reading cursor moved. → SC 2.4.1
@@ -288,7 +288,7 @@ build after any change to `/about`.
       contentinfo, navigation "Site", "About this site", "Social". None
       unnamed or duplicated. Judge whether the list is useful or crowded. → SC 1.3.1
 - [ ] `M` from the top steps through them in that order. → SC 1.3.1
-- [ ] `Alt+Shift+H` lists six headings: `h1` "About me", then one `h2` per
+- [ ] `Alt+Shift+H` lists six headings: `h1` "About Me", then one `h2` per
       spread. The "On this page" nav lists all five spreads. → SC 1.3.1, 2.4.6
 - [ ] `G` skips the header logo mark; the home link is `site.name`. → SC 1.1.1
 - [ ] `G` finds no footer mascot. → SC 1.1.1
@@ -332,8 +332,8 @@ Setup: Firefox, 1280px, `/blog/sample-talk` (25 headings:
       navigation "Breadcrumb", "In this post", "Tags", contentinfo, "Site",
       "About this site", "Social". No `article` or inner `header`. → SC 1.3.1
 - [ ] From main, `Down` reads breadcrumb, `h1`, teaser, date, body. → SC 1.3.2
-- [ ] The breadcrumb is Home, Blog, Open source. In `Alt+Shift+K`, judge
-      whether "Open source" and "Blog" make sense alone. → SC 2.4.4
+- [ ] The breadcrumb is Home, Blog, Open Source. In `Alt+Shift+K`, judge
+      whether "Open Source" and "Blog" make sense alone. → SC 2.4.4
 - [ ] The date reads as a date ("10 July 2026"), not the ISO string. → SC 1.3.1
 - [ ] Tags: announced by name, then a list of five links. → SC 1.3.1
 
@@ -345,12 +345,12 @@ Setup: Firefox, 1280px, `/404` (preview serves it with 200;
 `tests/not-found.spec.ts` covers the status).
 
 - [ ] Reading from the top, it is soon clear the address was wrong. → SC 1.3.1
-- [ ] `Orca+Slash` includes "Page not found". → SC 2.4.2
+- [ ] `Orca+Slash` includes "Page Not Found". → SC 2.4.2
 - [ ] One heading, the `h1` "These are not the droids you are looking for."
       Judge whether it alone makes the reason clear. → SC 1.3.1, 2.4.6
 - [ ] `G` finds only the header mark; the gold logo tile is silent. → SC 1.1.1
 - [ ] "Episode 404" reads as text. Record how "404" is spoken.
-- [ ] Three links: "Go to the homepage", "Read the blog" (a list of two), and
+- [ ] Three links: "Go to the Homepage", "Read the Blog" (a list of two), and
       "tell me about the broken link" in the body. Judge the third hardest. → SC 2.4.4, 1.3.1
 
 Heard: `________________________`
@@ -495,7 +495,7 @@ the browser.
 - [ ] On a post, say a tag chip's word, such as "click Community": the tag page
       opens. → SC 2.5.3
 - [ ] On `/contact`, say "click Name", "click Email" and "click Message": each
-      field takes focus; dictate into it; say "click Send message". → SC 2.5.3
+      field takes focus; dictate into it; say "click Send Message". → SC 2.5.3
 - [ ] Icon-only controls (footer profiles, theme switch, hero pause): reachable
       by the tool's numbers or grid overlay. → SC 2.1.1
 - [ ] Note any command that did nothing, and the words that were said.

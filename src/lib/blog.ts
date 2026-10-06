@@ -40,17 +40,49 @@ export const cardProps = (post: BlogPost) => ({
   readingTime: post.data.readingTime,
 });
 
-/** `category: null` is the "All posts" row. */
+/** `category: null` is the "All Posts" row. */
 interface CategoryFilterOption {
   label: string;
   href: string;
   category: BlogCategory | null;
 }
 
-/* Sentence case for the unstyled <title>; visible uses are uppercase CSS. */
+/* Chicago lowercases these inside a title, never first or last. */
+const MINOR_WORDS = new Set([
+  'a',
+  'an',
+  'the',
+  'and',
+  'but',
+  'or',
+  'nor',
+  'for',
+  'yet',
+  'so',
+  'at',
+  'by',
+  'in',
+  'of',
+  'on',
+  'to',
+  'from',
+  'with',
+]);
+
+const capitalise = (word: string): string =>
+  word.charAt(0).toUpperCase() + word.slice(1);
+
+/* Chicago title case for the unstyled <title>; visible uses are uppercase CSS. */
 export const categoryLabel = (category: string): string => {
-  const words = category.replaceAll('-', ' ');
-  return words.charAt(0).toUpperCase() + words.slice(1);
+  const words = category.split('-');
+  const last = words.length - 1;
+  return words
+    .map((word, index) =>
+      index > 0 && index < last && MINOR_WORDS.has(word)
+        ? word
+        : capitalise(word),
+    )
+    .join(' ');
 };
 
 /* Proper nouns; other tags use `categoryLabel`. */
@@ -96,7 +128,7 @@ export const getPostsByTag = async (): Promise<Map<string, BlogPost[]>> => {
 };
 
 export const CATEGORY_FILTERS: readonly CategoryFilterOption[] = [
-  { label: 'All posts', href: BLOG_PATH, category: null },
+  { label: 'All Posts', href: BLOG_PATH, category: null },
   ...BLOG_CATEGORIES.map((category) => ({
     label: categoryLabel(category),
     href: categoryHref(category),

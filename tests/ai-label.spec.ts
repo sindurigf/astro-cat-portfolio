@@ -5,7 +5,7 @@ import { REPOSITORY_URL } from '../src/lib/site';
 
 /** EU AI Act Art. 50: every page labels the AI-drawn cats and AI-written text, and links the record. */
 
-const LABEL = 'Cat drawings and text made with AI';
+const LABEL = 'Cat Drawings and Text Made with AI';
 const DISCLOSURE = `${REPOSITORY_URL}/blob/main/AI_DISCLOSURE.md`;
 
 const footerOf = (html: string): string =>

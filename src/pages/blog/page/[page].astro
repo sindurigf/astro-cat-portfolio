@@ -31,7 +31,7 @@ export const getStaticPaths = (async () => {
 type Props = InferGetStaticPropsType<typeof getStaticPaths>;
 
 const { posts, page, totalPages } = Astro.props;
-const trail = blogTrail(`Blog, page ${page}`);
+const trail = blogTrail(`Blog, Page ${page}`);
 const withPosts = await getCategoriesWithPosts();
 const topics = new Intl.ListFormat(SITE_LANGUAGE).format(
   withPosts.map((category) => category.replaceAll('-', ' ')),
@@ -39,11 +39,11 @@ const topics = new Intl.ListFormat(SITE_LANGUAGE).format(
 ---
 
 <BaseLayout
-  title={`Blog, page ${page}`}
+  title={`Blog, Page ${page}`}
   description={`Page ${page} of my posts on ${topics}.`}
   trail={trail}
 >
-  <PageHero title={`Blog, page ${page}`} titleSize="h2">
+  <PageHero title={`Blog, Page ${page}`} titleSize="h2">
     <Breadcrumbs slot="eyebrow" crumbs={trail.crumbs} tone="gold" />
   </PageHero>
 

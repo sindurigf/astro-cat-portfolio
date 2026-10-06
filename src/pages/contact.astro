@@ -53,14 +53,14 @@ const REASONS = [
   title="Contact"
   description={`Write to ${PERSON_NAME} by email or on LinkedIn or GitHub${CONTACT_FORM_ON ? ', or with the contact form' : ''}.`}
 >
-  <PageHero title="Get in touch">
+  <PageHero title="Get in Touch">
     <p class="standfirst">
       I would be glad to hear from you. Write about a Poneglyph you have found,
       an old book, or a question about history.
     </p>
   </PageHero>
 
-  <Section title="Write to me">
+  <Section title="Write to Me">
     {/*
       "The same inbox" holds only while the registrar forwards CONTACT_EMAIL to
       CONTACT_NOTIFY_TO (src/lib/platform-facts.ts).
@@ -88,7 +88,7 @@ const REASONS = [
 
       <div class="flex min-w-0 flex-col gap-grid lg:col-span-5">
         <div>
-          <h3 class="card-title">Or find me here</h3>
+          <h3 class="card-title">Or Find Me Here</h3>
 
           {/* Whole-card links, unlike BlogCard: the name stays short ("Email hello@example.com"). */}
           <ul class="mt-6 flex flex-col gap-6">
@@ -112,7 +112,7 @@ const REASONS = [
         </div>
 
         <div class="card">
-          <h3 class="card-title">Write to me about</h3>
+          <h3 class="card-title">Write to Me About</h3>
           <ul class="bullet-list mt-6">
             {REASONS.map((reason) => (
               <li class="mt-3 text-body text-pretty">{reason}</li>
@@ -134,7 +134,7 @@ const REASONS = [
         yours.
       </p>
       <a href="/about/" class="btn-gold-primary">
-        More about me
+        More about Me
       </a>
     </div>
   </section>
