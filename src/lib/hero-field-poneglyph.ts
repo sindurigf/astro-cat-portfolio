@@ -10,19 +10,19 @@ const TAU = Math.PI * 2;
 /** Centre as a share of the box, then eye heights; the side recedes up and right. */
 export const PONEGLYPH = {
   x: 0.66,
-  width: 0.66,
-  height: 0.98,
-  side: 0.17,
-  rise: 0.09,
-  plinth: 0.09,
-  margin: 0.05,
+  width: 0.99,
+  height: 1.47,
+  side: 0.255,
+  rise: 0.135,
+  plinth: 0.135,
+  margin: 0.075,
 } as const;
 
 /* Ink over the ground per plane, and the outline's alpha; light falls from the left. */
 const TONE = { face: 0.06, top: 0.02, side: 0.32, plinth: 0.14 } as const;
 const OUTLINE_ALPHA = 0.85;
 /* Cast to the right along the ground, eye heights, and its ink. */
-const SHADOW = { reach: 0.42, alpha: 0.12 } as const;
+const SHADOW = { reach: 0.63, alpha: 0.12 } as const;
 
 /* An invented script on a 3 by 3 grid; strokes as flat [x, y, x, y, ...] runs. */
 const GLYPHS: readonly (readonly number[])[] = [
