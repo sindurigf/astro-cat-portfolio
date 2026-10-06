@@ -191,4 +191,9 @@
   .prose th {
     @apply bg-surface font-black text-text;
   }
+
+  /* A row header names its row; only the column headers wear the ground. */
+  .prose tbody th {
+    @apply bg-transparent font-normal;
+  }
 }

@@ -258,19 +258,19 @@ const SWATCH_BOX = 'grid size-16 shrink-0 place-items-center';
     lead="Measured from the color values in the site's code, for the mode you are viewing; switch it in the header to see the other. Text needs 4.5, edges and icons 3."
   >
     <div class="contrast-dark">
-      <ContrastTable rows={readingPairs} />
+      <ContrastTable rows={readingPairs} caption="Reading Pairs" />
       <details class="mt-head">
         <summary class="post-contents-summary">
           <span>Show All {contrast.length} Pairings</span>
           <span class="post-contents-marker" aria-hidden="true" />
         </summary>
         <div class="mt-6">
-          <ContrastTable rows={contrast} />
+          <ContrastTable rows={contrast} caption="All Pairings" />
         </div>
       </details>
     </div>
     <div class="contrast-light">
-      <ContrastTable rows={lightContrast} />
+      <ContrastTable rows={lightContrast} caption="Light Mode Pairings" />
       <p class="mt-6 text-body text-text">
         Gold text turns to ink on white, with a gold square before the word.
       </p>
