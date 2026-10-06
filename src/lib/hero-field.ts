@@ -44,14 +44,7 @@ import {
   random,
   stemPoint,
 } from './hero-field-scene';
-import { drawPoneglyph, stoneAt } from './hero-field-poneglyph';
-import {
-  FLOWER_ALPHA,
-  SPIRE,
-  drawPea,
-  floretPhase,
-  openness,
-} from './hero-field-spire';
+import { PONEGLYPH, drawPoneglyph, stoneAt } from './hero-field-poneglyph';
 import type { Stone } from './hero-field-poneglyph';
 import type { HeroField, HeroPalette, Stem } from './hero-field-scene';
 
@@ -182,21 +175,17 @@ const buildStems = (scene: Scene): Stem[] => {
   return built;
 };
 
-/* Spires: this share of the budding stems between these depths. */
-const SPIRES = { share: 0.35, near: 1.55, far: 5 } as const;
+/* Nothing nearer than the stone stands across its footprint plus this margin, eye heights. */
+const CLEARANCE = 0.1;
 
-const frac = (x: number): number => x - Math.floor(x);
-
-/* Chosen and phased from each stem's own phase, so the same stems flower on every load. */
-const withSpires = (stems: readonly Stem[], world: number): Stem[] =>
-  stems.map((stem) =>
-    stem.height >= BUD_MIN_HEIGHT * world &&
-    stem.z > SPIRES.near &&
-    stem.z < SPIRES.far &&
-    frac(stem.phase * 7.31) < SPIRES.share
-      ? { ...stem, spire: frac(stem.phase * 3.7) }
-      : stem,
+const clearOfStone = (stems: readonly Stem[], { stone }: Scene): Stem[] => {
+  const from = stone.left - (PONEGLYPH.margin + CLEARANCE) * stone.unit;
+  const to =
+    stone.right + (PONEGLYPH.side + PONEGLYPH.margin + CLEARANCE) * stone.unit;
+  return stems.filter(
+    (stem) => stem.z >= PONEGLYPH_DEPTH || stem.x < from || stem.x > to,
   );
+};
 
 const settle = (
   stem: Stem,
@@ -298,9 +287,6 @@ const drawHead = (
   ctx.fill();
 };
 
-/* A floret's unit per unit of stem size: a pea-flower about the size of a bud pair. */
-const FLORET = 12;
-
 /* Detail steps down with distance, with a minimum drawn size at each step. */
 const drawStem = (
   ctx: CanvasRenderingContext2D,
@@ -309,7 +295,6 @@ const drawStem = (
   stem: Stem,
   lean: number,
   seconds: number,
-  still: boolean,
 ): void => {
   const alpha =
     (STEM_ALPHA.base + Math.sqrt(stem.scale) * STEM_ALPHA.byScale) * stem.veil;
@@ -323,28 +308,8 @@ const drawStem = (
   ctx.globalAlpha = Math.min(BUD_ALPHA.max, alpha + BUD_ALPHA.lift);
   /* Buds and head fill from strokeStyle. */
   ctx.strokeStyle = budTone(palette, stem.tone);
-  if (stem.spire === undefined) {
-    drawBuds(ctx, stem, lean, bud, seconds, world);
-    drawHead(ctx, stem, lean, bud);
-    return;
-  }
-  const nod =
-    Math.sin(breezeWave(stem.x, stem.phase, seconds) - BUD_NOD.lag) *
-    BUD_NOD.amplitude;
-  const open = Math.max(ctx.globalAlpha, FLOWER_ALPHA);
-  for (let k = 0; k < SPIRE.florets; k += 1) {
-    const f = SPIRE.from + ((SPIRE.to - SPIRE.from) * k) / (SPIRE.florets - 1);
-    drawPea(
-      ctx,
-      palette,
-      stemPoint(stem.x, stem.root, stem.height, lean, f),
-      stem.size * FLORET,
-      k % 2 ? 1 : -1,
-      nod * 0.5,
-      openness(floretPhase(stem.spire, k), seconds, still),
-      open,
-    );
-  }
+  drawBuds(ctx, stem, lean, bud, seconds, world);
+  drawHead(ctx, stem, lean, bud);
 };
 
 /* Painted between far and near stems so it veils only the distance. */
@@ -381,7 +346,7 @@ const drawFloor = (
 const paintWhere = (
   ctx: CanvasRenderingContext2D,
   palette: HeroPalette,
-  { scene, stems, still }: FieldState,
+  { scene, stems }: FieldState,
   seconds: number,
   inLayer: (z: number) => boolean,
 ): void => {
@@ -391,7 +356,7 @@ const paintWhere = (
       breeze(stem.x, stem.phase, seconds) *
       (SWAY.base + stem.size * SWAY.bySize) *
       scene.world;
-    drawStem(ctx, palette, scene.world, stem, wind + stem.lean, seconds, still);
+    drawStem(ctx, palette, scene.world, stem, wind + stem.lean, seconds);
   }
   ctx.globalAlpha = 1;
 };
@@ -442,7 +407,7 @@ const drawMid = (
   state: FieldState,
   seconds: number,
 ): void => {
-  drawPoneglyph(ctx, palette, state.scene.stone);
+  drawPoneglyph(ctx, palette, state.scene.stone, seconds, state.still);
   paintWhere(
     ctx,
     palette,
@@ -463,7 +428,7 @@ export const createHeroField = (palette: HeroPalette): HeroField => {
   return {
     layout(width: number, height: number): void {
       state.scene = sceneFor(width, height);
-      state.stems = withSpires(buildStems(state.scene), state.scene.world).sort(
+      state.stems = clearOfStone(buildStems(state.scene), state.scene).sort(
         (a, b) => b.z - a.z,
       );
     },

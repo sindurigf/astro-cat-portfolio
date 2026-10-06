@@ -1,6 +1,7 @@
 /*
  * The poneglyph. Flat 2D: a carved front lit from the left, a shaded side and
  * top. Lengths are eye heights (`projection / z` pixels each at depth `z`).
+ * Every 24 s its script lights row by row, top to bottom.
  */
 import type { HeroPalette } from './hero-field-scene';
 
@@ -38,6 +39,36 @@ const SCRIPT = { columns: 7, fill: 0.8, glyph: 0.3 } as const;
 const CUT = { lip: 0.8, groove: 0.7 } as const;
 /* Line widths as shares of one eye height in pixels. */
 const LINE = { outline: 0.008, groove: 0.0045, lip: 0.006 } as const;
+
+/* Seconds per ripple, and each row's start, rise, hold and fall: slow ramps, far under 3 a second (SC 2.3.1). */
+export const RIPPLE_CYCLE = 24;
+const GLOW = {
+  start: 0.6,
+  row: 0.44,
+  rise: 1.4,
+  hold: 2.8,
+  fall: 2.4,
+} as const;
+
+/* Zero slope and zero curvature at both ends, so nothing starts or stops with a jolt. */
+const smoother = (x: number): number =>
+  x <= 0 ? 0 : x >= 1 ? 1 : x * x * x * (x * (6 * x - 15) + 10);
+
+/** 0 to 1: how lit glyph row `row` is. Never lit in the reduced-motion still. */
+export const glyphLight = (
+  row: number,
+  seconds: number,
+  still: boolean,
+): number => {
+  if (still) return 0;
+  const t =
+    (((seconds % RIPPLE_CYCLE) + RIPPLE_CYCLE) % RIPPLE_CYCLE) -
+    GLOW.start -
+    row * GLOW.row;
+  return (
+    smoother(t / GLOW.rise) - smoother((t - GLOW.rise - GLOW.hold) / GLOW.fall)
+  );
+};
 
 type Point = readonly [number, number];
 
@@ -136,6 +167,8 @@ const script = (
   ctx: CanvasRenderingContext2D,
   palette: HeroPalette,
   { left, right, top, root, unit }: Stone,
+  seconds: number,
+  still: boolean,
 ): void => {
   const face = root - PONEGLYPH.plinth * unit - top;
   const cell = ((right - left) * SCRIPT.fill) / SCRIPT.columns;
@@ -143,7 +176,10 @@ const script = (
   const x0 = (left + right) / 2 - (cell * SCRIPT.columns) / 2;
   const y0 = top + (face - rows * cell) / 2;
   const marks = new Path2D();
-  for (let r = 0; r < rows; r += 1)
+  const lines: Path2D[] = [];
+  for (let r = 0; r < rows; r += 1) {
+    const line = new Path2D();
+    lines.push(line);
     for (let c = 0; c < SCRIPT.columns; c += 1) {
       const glyph = GLYPHS[(r * 7 + c * 3 + ((r * c) % 5)) % GLYPHS.length]!;
       const cx = x0 + (c + 0.5) * cell;
@@ -151,10 +187,16 @@ const script = (
       for (let k = 0; k < glyph.length; k += 2) {
         const x = cx + glyph[k]! * cell * SCRIPT.glyph;
         const y = cy - glyph[k + 1]! * cell * SCRIPT.glyph;
-        if (k) marks.lineTo(x, y);
-        else marks.moveTo(x, y);
+        if (k) {
+          marks.lineTo(x, y);
+          line.lineTo(x, y);
+        } else {
+          marks.moveTo(x, y);
+          line.moveTo(x, y);
+        }
       }
     }
+  }
   ctx.lineCap = 'round';
   ctx.save();
   ctx.translate(LINE.lip * unit * 0.4, LINE.lip * unit * 0.8);
@@ -167,12 +209,29 @@ const script = (
   ctx.strokeStyle = palette.border;
   ctx.lineWidth = LINE.groove * unit;
   ctx.stroke(marks);
+  /*
+   * A lit row thickens into a full-ink rim (6.60:1 on the dark face, 16.43:1
+   * on the light, SC 1.4.11) with the glow colour inside it.
+   */
+  lines.forEach((line, r) => {
+    const light = glyphLight(r, seconds, still);
+    if (light <= 0) return;
+    ctx.globalAlpha = 1;
+    ctx.strokeStyle = palette.border;
+    ctx.lineWidth = LINE.groove * unit * (1 + 2.6 * light);
+    ctx.stroke(line);
+    ctx.strokeStyle = palette.glow;
+    ctx.lineWidth = LINE.groove * unit * 1.5 * light;
+    ctx.stroke(line);
+  });
 };
 
 export const drawPoneglyph = (
   ctx: CanvasRenderingContext2D,
   palette: HeroPalette,
   stone: Stone,
+  seconds: number,
+  still: boolean,
 ): void => {
   const { left, right, top, root, unit } = stone;
   const margin = PONEGLYPH.margin * unit;
@@ -187,6 +246,21 @@ export const drawPoneglyph = (
   ctx.globalAlpha = SHADOW.alpha;
   ctx.fillStyle = palette.border;
   ctx.fill();
+  /* A soft contact shadow, so the base sits on the ground rather than over it. */
+  const cx = (left + right) / 2 + PONEGLYPH.side * unit * 0.5;
+  const rx = (right - left) / 2 + margin + PONEGLYPH.side * unit;
+  ctx.save();
+  ctx.translate(cx, root - PONEGLYPH.rise * unit * 0.3);
+  ctx.scale(1, 0.16);
+  /* Stacked translucent discs, ink only: a gradient to the ground would veil stems behind. */
+  ctx.fillStyle = palette.border;
+  ctx.globalAlpha = 0.05;
+  for (let k = 0; k < 6; k += 1) {
+    ctx.beginPath();
+    ctx.arc(0, 0, rx * (1.25 - k * 0.13), 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.restore();
   block(
     ctx,
     palette,
@@ -195,6 +269,6 @@ export const drawPoneglyph = (
     TONE.plinth,
   );
   block(ctx, palette, [left, top, right, plinthTop], unit, TONE.face);
-  script(ctx, palette, stone);
+  script(ctx, palette, stone, seconds, still);
   ctx.globalAlpha = 1;
 };

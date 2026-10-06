@@ -24,7 +24,7 @@ interface HeroFieldState {
  * would return every binding (about thirty); this returns the four it uses.
  */
 export const useHeroField = (): HeroFieldState => {
-  /** Any fixed time: the breeze's pose for the still; its flowers are held open. */
+  /** Any fixed time: the breeze's pose for the still, with the script unlit. */
   const STILL_SECONDS = 3.4;
 
   /*
@@ -77,7 +77,7 @@ export const useHeroField = (): HeroFieldState => {
       veilEdge: read('--color-hero-veil-edge'),
       floor: read('--color-hero-floor'),
       floorEdge: read('--color-hero-floor-edge'),
-      flower: read('--color-hero-flower'),
+      glow: read('--color-hero-glow'),
     };
     /* Missing tokens mean no stylesheet yet; draw nothing rather than black on black. */
     return Object.values(palette).every((value) => value.length > 0)
