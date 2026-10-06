@@ -65,5 +65,8 @@
     "typescript": "^6.0.3",
     "vue-tsc": "3.3.12",
     "wrangler": "4.147.0"
+  },
+  "overrides": {
+    "sharp": "0.35.5"
   }
 }
