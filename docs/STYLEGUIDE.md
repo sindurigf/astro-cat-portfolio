@@ -1060,12 +1060,11 @@ Enforced by `tests/nav-current.spec.ts`, `tests/mobile-menu.spec.ts`,
   name: a broad block with a lit carved face, a shaded side and top, a plinth
   and a short cast shadow. On a narrow frame it moves left to stay inside.
   Stems stand in front of and behind it.
-- A second sowing adds 30% to every band. None of its stems rises above the
-  nearest stems, so the name stays clear.
-- About one in eleven budding stems in the middle depths is a spire: six
-  pea-flowers up its top half open from the bottom one to the top, hold, then
-  close. Under reduced motion every pea-flower is open. Their ink rim keeps 3:1
-  or more on the ground (SC 1.4.11).
+- About a third of the budding stems from the near-middle to the middle
+  depths are spires, so the field reads as a flowering meadow; the far haze
+  stays plain. Eight pea-flowers up each spire's top half open from the bottom
+  one to the top, hold, then close. Under reduced motion every pea-flower is
+  open. Their ink rim keeps 3:1 or more on the ground (SC 1.4.11).
 
 ## Focus
 

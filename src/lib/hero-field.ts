@@ -23,8 +23,6 @@ import {
   WIND_WAVE,
   breezeWave,
   FIELD_OF_VIEW_FLOOR,
-  EXTRA_SEED,
-  EXTRA_STEMS,
   FIELD_SEED,
   FRONT_DEPTH,
   GROUND_SPAN,
@@ -102,24 +100,19 @@ const sceneFor = (width: number, height: number): Scene => {
   };
 };
 
-const clumpCentres = (
-  { boxWidth }: Scene,
+/* About three quarters of stems cluster on clump centres; the rest scatter. */
+const clumpPlacer = (
+  scene: Scene,
   rng: () => number,
   density: number,
   margin: number,
-): number[] =>
-  Array.from(
-    { length: Math.max(4, Math.round(CLUMP_COUNT * density)) },
-    () => -margin + rng() * (boxWidth + margin * 2),
-  );
-
-/* About three quarters of stems cluster on clump centres; the rest scatter. */
-const clumpPlacer = (
-  { boxWidth, world }: Scene,
-  clumps: readonly number[],
-  rng: () => number,
-  margin: number,
 ): ((spread: number) => number) => {
+  const { boxWidth, world } = scene;
+  const clumps: number[] = [];
+  const clumpCount = Math.max(4, Math.round(CLUMP_COUNT * density));
+  for (let i = 0; i < clumpCount; i += 1) {
+    clumps.push(-margin + rng() * (boxWidth + margin * 2));
+  }
   return (spread) => {
     if (rng() < STRAY_ODDS) return -margin + rng() * (boxWidth + margin * 2);
     const centre = clumps[Math.floor(rng() * clumps.length)] ?? boxWidth / 2;
@@ -159,56 +152,38 @@ const makeStem = (
 const buildStems = (scene: Scene): Stem[] => {
   const { world, view } = scene;
   const density = scene.boxWidth / world / REFERENCE_WIDTH;
-  const margin = CLUMP_SPREAD * world;
   const rng = random(FIELD_SEED);
-  const clumps = clumpCentres(scene, rng, density, margin);
+  const clumped = clumpPlacer(scene, rng, density, CLUMP_SPREAD * world);
   const built: Stem[] = [];
 
-  const sow = (next: () => number, share: number, nearTip = -Infinity) => {
-    const clumped = clumpPlacer(scene, clumps, next, margin);
-    const band = (spec: Band, veil: number, acrossFullWidth: boolean): void => {
-      const count = Math.round(
-        Math.max(2, Math.round(spec.count * density)) * share,
-      );
-      for (let i = 0; i < count; i += 1) {
-        /* Log-uniform in distance; uniform piles stems up at the horizon. */
-        const near = spec.near || view;
-        const z = near * Math.pow(spec.far / near, next());
-        const x = acrossFullWidth
-          ? clumped(spec.spread)
-          : NEAR_BAND_LEFT * world + next() * NEAR_BAND_WIDTH * world;
-        const height =
-          (spec.height[0] + next() * spec.height[1]) *
-          (spec === BANDS.NEAR ? 1 : STEM_HEIGHT);
-        const stem = makeStem(scene, next, z, x, height, veil);
-        /* Never above `nearTip`, so a later sowing cannot reach the name. */
-        const rise = Math.min(stem.height, stem.root - nearTip);
-        built.push(rise < stem.height ? { ...stem, height: rise } : stem);
-      }
-    };
-
-    band(BANDS.FAR, 1, true);
-    band(BANDS.GRASS, 1, true);
-    band(BANDS.MIDDLE, 1, true);
-    band(BANDS.PONEGLYPH, 1, true);
-    /* Near stems stay at the left edge, veiled, so they never blur over type. */
-    band(BANDS.NEAR, NEAR_VEIL, false);
+  const band = (spec: Band, veil: number, acrossFullWidth: boolean): void => {
+    const count = Math.max(2, Math.round(spec.count * density));
+    for (let i = 0; i < count; i += 1) {
+      /* Log-uniform in distance; uniform piles stems up at the horizon. */
+      const near = spec.near || view;
+      const z = near * Math.pow(spec.far / near, rng());
+      const x = acrossFullWidth
+        ? clumped(spec.spread)
+        : NEAR_BAND_LEFT * world + rng() * NEAR_BAND_WIDTH * world;
+      const height =
+        (spec.height[0] + rng() * spec.height[1]) *
+        (spec === BANDS.NEAR ? 1 : STEM_HEIGHT);
+      built.push(makeStem(scene, rng, z, x, height, veil));
+    }
   };
 
-  sow(rng, 1);
-  const nearTip = Math.min(
-    ...built
-      .filter((stem) => stem.z < BANDS.NEAR.far)
-      .map((stem) => stem.root - stem.height),
-  );
-  /* Its own seed, so the stems above keep their places. */
-  sow(random(EXTRA_SEED), EXTRA_STEMS, nearTip);
+  band(BANDS.FAR, 1, true);
+  band(BANDS.GRASS, 1, true);
+  band(BANDS.MIDDLE, 1, true);
+  band(BANDS.PONEGLYPH, 1, true);
+  /* Near stems stay at the left edge, veiled, so they never blur over type. */
+  band(BANDS.NEAR, NEAR_VEIL, false);
 
   return built;
 };
 
 /* Spires: this share of the budding stems between these depths. */
-const SPIRES = { share: 0.09, near: 1.6, far: 4.4 } as const;
+const SPIRES = { share: 0.35, near: 1.55, far: 5 } as const;
 
 const frac = (x: number): number => x - Math.floor(x);
 
@@ -324,7 +299,7 @@ const drawHead = (
 };
 
 /* A floret's unit per unit of stem size: a pea-flower about the size of a bud pair. */
-const FLORET = 8;
+const FLORET = 12;
 
 /* Detail steps down with distance, with a minimum drawn size at each step. */
 const drawStem = (

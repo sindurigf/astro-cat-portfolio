@@ -15,7 +15,7 @@ const BLOOM = {
 } as const;
 
 /* Florets up the spike, the share of the stem they span, and the delay up it as a share of the cycle. */
-export const SPIRE = { florets: 6, from: 0.5, to: 0.94, climb: 0.25 } as const;
+export const SPIRE = { florets: 8, from: 0.5, to: 0.94, climb: 0.25 } as const;
 
 /* Below this, the ink rim falls under 3:1 against the ground (SC 1.4.11). */
 export const FLOWER_ALPHA = 0.66;
