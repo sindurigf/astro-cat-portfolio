@@ -1057,12 +1057,15 @@ Enforced by `tests/nav-current.spec.ts`, `tests/mobile-menu.spec.ts`,
   grass lines; the About cats are stickers, flat fills with a hard edge, like
   the logo tile. Keep each in its own style.
 - The poneglyph stands right of centre, below the stickers and clear of the
-  name: a lit carved face, a shaded side and top, a plinth and a short cast
-  shadow. Stems stand in front of and behind it.
-- Nine of the field's stems at its foot flower in turn: the pod swells, its
-  halves part, petals grow out of the split and fan, hold, then close. Under
-  reduced motion every flower is open. The petals' ink rim keeps 3:1 or more
-  on the ground (SC 1.4.11).
+  name: a broad block with a lit carved face, a shaded side and top, a plinth
+  and a short cast shadow. On a narrow frame it moves left to stay inside.
+  Stems stand in front of and behind it.
+- A second sowing adds 30% to every band. None of its stems rises above the
+  nearest stems, so the name stays clear.
+- About one in eleven budding stems in the middle depths is a spire: six
+  pea-flowers up its top half open from the bottom one to the top, hold, then
+  close. Under reduced motion every pea-flower is open. Their ink rim keeps 3:1
+  or more on the ground (SC 1.4.11).
 
 ## Focus
 

@@ -1,16 +1,13 @@
 /*
- * The poneglyph and the flowers at its foot. Flat 2D: a carved front lit from
- * the left, a shaded side and top. Lengths are eye heights (`projection / z`
- * pixels each at depth `z`), bloom lengths are bud units.
+ * The poneglyph. Flat 2D: a carved front lit from the left, a shaded side and
+ * top. Lengths are eye heights (`projection / z` pixels each at depth `z`).
  */
 import type { HeroPalette } from './hero-field-scene';
-
-const TAU = Math.PI * 2;
 
 /** Centre as a share of the box, then eye heights; the side recedes up and right. */
 export const PONEGLYPH = {
   x: 0.66,
-  width: 0.99,
+  width: 1.29,
   height: 1.91,
   side: 0.255,
   rise: 0.135,
@@ -58,8 +55,12 @@ export const stoneAt = (
   root: number,
   unit: number,
 ): Stone => {
-  const centre = PONEGLYPH.x * boxWidth;
   const half = (PONEGLYPH.width * unit) / 2;
+  /* Pulled left on a narrow frame, so the side and plinth stay inside the box. */
+  const centre = Math.min(
+    PONEGLYPH.x * boxWidth,
+    boxWidth - half - (PONEGLYPH.side + 2 * PONEGLYPH.margin) * unit,
+  );
   const plinth = PONEGLYPH.plinth * unit;
   return {
     left: centre - half,
@@ -196,185 +197,4 @@ export const drawPoneglyph = (
   block(ctx, palette, [left, top, right, plinthTop], unit, TONE.face);
   script(ctx, palette, stone);
   ctx.globalAlpha = 1;
-};
-
-/*
- * One bloom, seconds: the pod swells, opens (sepals part, petals grow out of
- * it and fan apart), holds while breathing, closes the same way back, then
- * the pod relaxes. Each flower runs on its own phase.
- */
-const BLOOM = {
-  period: 12.5,
-  swell: 1.2,
-  open: 3,
-  hold: 5,
-  close: 2.6,
-  /* Seconds after an earlier petal that the next one starts. */
-  stagger: 0.12,
-} as const;
-/* Breathing while open: scale amplitude and period in seconds. */
-const BREATH = { scale: 0.03, period: 2.6 } as const;
-/*
- * Bud units. The pod is a teardrop `pod` wide and `tall` high; open, petals
- * `reach` long and `width` wide fan round it, about twice the pod's width.
- */
-const PETAL = {
-  pod: 1.82,
-  tall: 3.22,
-  reach: 2.7,
-  width: 1.2,
-  rim: 1,
-  count: 5,
-} as const;
-/* Ink over each petal's inner half, and stamens round the centre. */
-const HEAD = { tone: 0.3, stamens: 7 } as const;
-/* How far, in radians, each sepal swings out from the pod's axis when fully open. */
-const SPLIT = 1.05;
-/* Share of the opening the sepals part alone before petals show. */
-const EMERGE = 0.12;
-/* Below this, the ink rim falls under 3:1 against the ground (SC 1.4.11). */
-export const FLOWER_ALPHA = 0.66;
-
-export interface Bloom {
-  /** 0 resting to 1 swollen. */
-  readonly swell: number;
-  /** 0 shut to 1 open; the same curve opens and closes. */
-  readonly open: number;
-  /** Breathing scale while open. */
-  readonly breath: number;
-}
-
-const OPEN: Bloom = { swell: 1, open: 1, breath: 1 };
-
-/* Zero slope and zero curvature at both ends, so nothing starts or stops with a jolt. */
-const smoother = (x: number): number =>
-  x <= 0 ? 0 : x >= 1 ? 1 : x * x * x * (x * (6 * x - 15) + 10);
-
-/** `phase` 0 to 1 staggers each flower's cycle. */
-export const bloomOf = (
-  phase: number,
-  seconds: number,
-  still: boolean,
-): Bloom => {
-  if (still) return OPEN;
-  const { period, swell, open, hold, close } = BLOOM;
-  const t = (((seconds + phase * period) % period) + period) % period;
-  const shut = swell + open + hold;
-  const o = smoother((t - swell) / open) - smoother((t - shut) / close);
-  return {
-    swell:
-      smoother(t / swell) -
-      smoother((t - shut - close) / (period - shut - close)),
-    open: o,
-    breath: 1 + BREATH.scale * o * Math.sin((t * TAU) / BREATH.period),
-  };
-};
-
-/*
- * A pod at a stem's tip, turned by `angle`. Opening, its two halves swing
- * apart as sepals from the base while the petals grow out of the split, first
- * pointing up together, then fanning round the centre; closing runs back.
- */
-export const drawBloom = (
-  ctx: CanvasRenderingContext2D,
-  palette: HeroPalette,
-  [x, y]: Point,
-  bud: number,
-  angle: number,
-  { swell, open, breath }: Bloom,
-  alpha: number,
-): void => {
-  ctx.save();
-  ctx.translate(x, y);
-  ctx.rotate(angle);
-  const w = bud * PETAL.pod * (0.85 + 0.15 * swell);
-  const h = bud * PETAL.tall * (0.85 + 0.15 * swell);
-  const base = h * 0.35;
-  const sepals = new Path2D();
-  const part = SPLIT * smoother(open / 0.7);
-  for (const side of [-1, 1]) {
-    const c = Math.cos(side * part);
-    const s = Math.sin(side * part);
-    const at = (px: number, py: number): Point => [
-      px * c - (py - base) * s,
-      base + px * s + (py - base) * c,
-    ];
-    sepals.moveTo(...at(0, -h));
-    sepals.quadraticCurveTo(...at(side * w, -h * 0.1), ...at(0, base));
-    sepals.quadraticCurveTo(...at(side * w * 0.15, -h * 0.4), ...at(0, -h));
-  }
-  ctx.globalAlpha = alpha;
-  ctx.fillStyle = palette.bud;
-  ctx.fill(sepals);
-  if (open > 0) {
-    /* The flower's centre sits inside the pod, so its petals come out of the split. */
-    const hub = -h * 0.15;
-    const step = BLOOM.stagger / BLOOM.open;
-    const petals = new Path2D();
-    const inner = new Path2D();
-    for (let k = 0; k < PETAL.count; k += 1) {
-      /* Each petal's own progress, a little behind the one before. */
-      const f = smoother(
-        (open - EMERGE - k * step) / (1 - EMERGE - (PETAL.count - 1) * step),
-      );
-      if (f <= 0) continue;
-      /* From pointing up, bunched, to its place in the ring round the top. */
-      const up = -Math.PI / 2 + (k - 2) * 0.16;
-      const a = up + (k - 2) * (TAU / PETAL.count - 0.16) * f;
-      const len = bud * PETAL.reach * f * breath;
-      const wid = bud * PETAL.width * (0.35 + 0.65 * f);
-      const c = Math.cos(a);
-      const s = Math.sin(a);
-      const at = (u: number, v: number): Point => [
-        u * c - v * s,
-        hub + u * s + v * c,
-      ];
-      const shape = (g: number, path: Path2D): void => {
-        path.moveTo(...at(0, 0));
-        path.quadraticCurveTo(
-          ...at(len * 0.3 * g, -wid * g),
-          ...at(len * 0.88 * g, -wid * 0.62 * g),
-        );
-        path.quadraticCurveTo(
-          ...at(len * g, -wid * 0.25 * g),
-          ...at(len * 0.93 * g, 0),
-        );
-        path.quadraticCurveTo(
-          ...at(len * g, wid * 0.25 * g),
-          ...at(len * 0.88 * g, wid * 0.62 * g),
-        );
-        path.quadraticCurveTo(...at(len * 0.3 * g, wid * g), ...at(0, 0));
-      };
-      shape(1, petals);
-      shape(0.5, inner);
-    }
-    /* Stamens come out last, as the flower finishes opening. */
-    const eyes = new Path2D();
-    const dot = (px: number, py: number, r: number): void => {
-      if (r <= 0) return;
-      eyes.moveTo(px + r, hub + py);
-      eyes.arc(px, hub + py, r, 0, TAU);
-    };
-    dot(0, 0, bud * 0.24 * smoother((open - EMERGE) / 0.4));
-    const ring = bud * 0.7 * smoother((open - 0.5) / 0.5);
-    if (ring > 0)
-      for (let k = 0; k < HEAD.stamens; k += 1) {
-        const a = (k * TAU) / HEAD.stamens;
-        dot(Math.cos(a) * ring, Math.sin(a) * ring, bud * 0.18);
-      }
-    const flower = Math.max(alpha, FLOWER_ALPHA);
-    ctx.globalAlpha = flower;
-    ctx.fillStyle = palette.flower;
-    ctx.fill(petals);
-    ctx.globalAlpha = flower * HEAD.tone;
-    ctx.fillStyle = palette.bud;
-    ctx.fill(inner);
-    ctx.globalAlpha = flower;
-    ctx.strokeStyle = palette.bud;
-    ctx.lineWidth = PETAL.rim;
-    ctx.lineJoin = 'round';
-    ctx.stroke(petals);
-    ctx.fill(eyes);
-  }
-  ctx.restore();
 };

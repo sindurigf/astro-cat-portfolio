@@ -23,6 +23,8 @@ import {
   WIND_WAVE,
   breezeWave,
   FIELD_OF_VIEW_FLOOR,
+  EXTRA_SEED,
+  EXTRA_STEMS,
   FIELD_SEED,
   FRONT_DEPTH,
   GROUND_SPAN,
@@ -44,14 +46,14 @@ import {
   random,
   stemPoint,
 } from './hero-field-scene';
+import { drawPoneglyph, stoneAt } from './hero-field-poneglyph';
 import {
   FLOWER_ALPHA,
-  PONEGLYPH,
-  bloomOf,
-  drawBloom,
-  drawPoneglyph,
-  stoneAt,
-} from './hero-field-poneglyph';
+  SPIRE,
+  drawPea,
+  floretPhase,
+  openness,
+} from './hero-field-spire';
 import type { Stone } from './hero-field-poneglyph';
 import type { HeroField, HeroPalette, Stem } from './hero-field-scene';
 
@@ -100,19 +102,24 @@ const sceneFor = (width: number, height: number): Scene => {
   };
 };
 
-/* About three quarters of stems cluster on clump centres; the rest scatter. */
-const clumpPlacer = (
-  scene: Scene,
+const clumpCentres = (
+  { boxWidth }: Scene,
   rng: () => number,
   density: number,
   margin: number,
+): number[] =>
+  Array.from(
+    { length: Math.max(4, Math.round(CLUMP_COUNT * density)) },
+    () => -margin + rng() * (boxWidth + margin * 2),
+  );
+
+/* About three quarters of stems cluster on clump centres; the rest scatter. */
+const clumpPlacer = (
+  { boxWidth, world }: Scene,
+  clumps: readonly number[],
+  rng: () => number,
+  margin: number,
 ): ((spread: number) => number) => {
-  const { boxWidth, world } = scene;
-  const clumps: number[] = [];
-  const clumpCount = Math.max(4, Math.round(CLUMP_COUNT * density));
-  for (let i = 0; i < clumpCount; i += 1) {
-    clumps.push(-margin + rng() * (boxWidth + margin * 2));
-  }
   return (spread) => {
     if (rng() < STRAY_ODDS) return -margin + rng() * (boxWidth + margin * 2);
     const centre = clumps[Math.floor(rng() * clumps.length)] ?? boxWidth / 2;
@@ -152,59 +159,69 @@ const makeStem = (
 const buildStems = (scene: Scene): Stem[] => {
   const { world, view } = scene;
   const density = scene.boxWidth / world / REFERENCE_WIDTH;
+  const margin = CLUMP_SPREAD * world;
   const rng = random(FIELD_SEED);
-  const clumped = clumpPlacer(scene, rng, density, CLUMP_SPREAD * world);
+  const clumps = clumpCentres(scene, rng, density, margin);
   const built: Stem[] = [];
 
-  const band = (spec: Band, veil: number, acrossFullWidth: boolean): void => {
-    const count = Math.max(2, Math.round(spec.count * density));
-    for (let i = 0; i < count; i += 1) {
-      /* Log-uniform in distance; uniform piles stems up at the horizon. */
-      const near = spec.near || view;
-      const z = near * Math.pow(spec.far / near, rng());
-      const x = acrossFullWidth
-        ? clumped(spec.spread)
-        : NEAR_BAND_LEFT * world + rng() * NEAR_BAND_WIDTH * world;
-      const height =
-        (spec.height[0] + rng() * spec.height[1]) *
-        (spec === BANDS.NEAR ? 1 : STEM_HEIGHT);
-      built.push(makeStem(scene, rng, z, x, height, veil));
-    }
+  const sow = (next: () => number, share: number, nearTip = -Infinity) => {
+    const clumped = clumpPlacer(scene, clumps, next, margin);
+    const band = (spec: Band, veil: number, acrossFullWidth: boolean): void => {
+      const count = Math.round(
+        Math.max(2, Math.round(spec.count * density)) * share,
+      );
+      for (let i = 0; i < count; i += 1) {
+        /* Log-uniform in distance; uniform piles stems up at the horizon. */
+        const near = spec.near || view;
+        const z = near * Math.pow(spec.far / near, next());
+        const x = acrossFullWidth
+          ? clumped(spec.spread)
+          : NEAR_BAND_LEFT * world + next() * NEAR_BAND_WIDTH * world;
+        const height =
+          (spec.height[0] + next() * spec.height[1]) *
+          (spec === BANDS.NEAR ? 1 : STEM_HEIGHT);
+        const stem = makeStem(scene, next, z, x, height, veil);
+        /* Never above `nearTip`, so a later sowing cannot reach the name. */
+        const rise = Math.min(stem.height, stem.root - nearTip);
+        built.push(rise < stem.height ? { ...stem, height: rise } : stem);
+      }
+    };
+
+    band(BANDS.FAR, 1, true);
+    band(BANDS.GRASS, 1, true);
+    band(BANDS.MIDDLE, 1, true);
+    band(BANDS.PONEGLYPH, 1, true);
+    /* Near stems stay at the left edge, veiled, so they never blur over type. */
+    band(BANDS.NEAR, NEAR_VEIL, false);
   };
 
-  band(BANDS.FAR, 1, true);
-  band(BANDS.GRASS, 1, true);
-  band(BANDS.MIDDLE, 1, true);
-  band(BANDS.PONEGLYPH, 1, true);
-  /* Near stems stay at the left edge, veiled, so they never blur over type. */
-  band(BANDS.NEAR, NEAR_VEIL, false);
+  sow(rng, 1);
+  const nearTip = Math.min(
+    ...built
+      .filter((stem) => stem.z < BANDS.NEAR.far)
+      .map((stem) => stem.root - stem.height),
+  );
+  /* Its own seed, so the stems above keep their places. */
+  sow(random(EXTRA_SEED), EXTRA_STEMS, nearTip);
 
   return built;
 };
 
-/*
- * The flowering cluster at the poneglyph's foot: just in front of it, across
- * its width. Its own seed, so the field around it stays as it was.
- */
-const FOOT = {
-  seed: 9137,
-  count: 9,
-  depth: [0.9, 0.08],
-  height: [0.16, 0.14],
-} as const;
+/* Spires: this share of the budding stems between these depths. */
+const SPIRES = { share: 0.09, near: 1.6, far: 4.4 } as const;
 
-const buildFoot = (scene: Scene): Stem[] => {
-  const rng = random(FOOT.seed);
-  const { left, right, unit } = scene.stone;
-  const from = left - PONEGLYPH.margin * unit;
-  const across = right + PONEGLYPH.side * unit - from;
-  return Array.from({ length: FOOT.count }, (_, i) => {
-    const z = PONEGLYPH_DEPTH * (FOOT.depth[0] + rng() * FOOT.depth[1]);
-    const x = from + ((i + 0.2 + rng() * 0.6) / FOOT.count) * across;
-    const height = (FOOT.height[0] + rng() * FOOT.height[1]) * STEM_HEIGHT;
-    return { ...makeStem(scene, rng, z, x, height, 1), bloom: i / FOOT.count };
-  });
-};
+const frac = (x: number): number => x - Math.floor(x);
+
+/* Chosen and phased from each stem's own phase, so the same stems flower on every load. */
+const withSpires = (stems: readonly Stem[], world: number): Stem[] =>
+  stems.map((stem) =>
+    stem.height >= BUD_MIN_HEIGHT * world &&
+    stem.z > SPIRES.near &&
+    stem.z < SPIRES.far &&
+    frac(stem.phase * 7.31) < SPIRES.share
+      ? { ...stem, spire: frac(stem.phase * 3.7) }
+      : stem,
+  );
 
 const settle = (
   stem: Stem,
@@ -306,8 +323,8 @@ const drawHead = (
   ctx.fill();
 };
 
-/* The bud unit of a flower at the poneglyph's foot, reference pixels. */
-const FLOWER_BUD = 3.4;
+/* A floret's unit per unit of stem size: a pea-flower about the size of a bud pair. */
+const FLORET = 8;
 
 /* Detail steps down with distance, with a minimum drawn size at each step. */
 const drawStem = (
@@ -331,25 +348,28 @@ const drawStem = (
   ctx.globalAlpha = Math.min(BUD_ALPHA.max, alpha + BUD_ALPHA.lift);
   /* Buds and head fill from strokeStyle. */
   ctx.strokeStyle = budTone(palette, stem.tone);
-  drawBuds(ctx, stem, lean, bud, seconds, world);
-  if (stem.bloom === undefined) {
+  if (stem.spire === undefined) {
+    drawBuds(ctx, stem, lean, bud, seconds, world);
     drawHead(ctx, stem, lean, bud);
     return;
   }
   const nod =
     Math.sin(breezeWave(stem.x, stem.phase, seconds) - BUD_NOD.lag) *
     BUD_NOD.amplitude;
-  const flower = FLOWER_BUD * world;
-  const [tx, ty] = stemPoint(stem.x, stem.root, stem.height, lean, 1);
-  drawBloom(
-    ctx,
-    palette,
-    [tx, ty - 2 * flower],
-    flower,
-    nod,
-    bloomOf(stem.bloom, seconds, still),
-    Math.max(ctx.globalAlpha, FLOWER_ALPHA),
-  );
+  const open = Math.max(ctx.globalAlpha, FLOWER_ALPHA);
+  for (let k = 0; k < SPIRE.florets; k += 1) {
+    const f = SPIRE.from + ((SPIRE.to - SPIRE.from) * k) / (SPIRE.florets - 1);
+    drawPea(
+      ctx,
+      palette,
+      stemPoint(stem.x, stem.root, stem.height, lean, f),
+      stem.size * FLORET,
+      k % 2 ? 1 : -1,
+      nod * 0.5,
+      openness(floretPhase(stem.spire, k), seconds, still),
+      open,
+    );
+  }
 };
 
 /* Painted between far and near stems so it veils only the distance. */
@@ -468,10 +488,9 @@ export const createHeroField = (palette: HeroPalette): HeroField => {
   return {
     layout(width: number, height: number): void {
       state.scene = sceneFor(width, height);
-      state.stems = [
-        ...buildStems(state.scene),
-        ...buildFoot(state.scene),
-      ].sort((a, b) => b.z - a.z);
+      state.stems = withSpires(buildStems(state.scene), state.scene.world).sort(
+        (a, b) => b.z - a.z,
+      );
     },
     hold: (still) => {
       state.still = still;
