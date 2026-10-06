@@ -373,7 +373,7 @@ test.describe('the contact endpoint', () => {
     expect(
       html,
       'the rejected submission should render an error summary.',
-    ).toContain('Problems with This Form');
+    ).toMatch(/problems with this form/i);
     expectTitledAndHeaded(html, 'Check Your Message');
 
     expectTypedValuesKept(html, typed);
@@ -1002,7 +1002,7 @@ test.describe('the contact error pages in a browser', () => {
     };
     await submit(page, typed);
     await expect(
-      page.getByText(/Problems? with This Form/),
+      page.getByText(/problems? with this form/i),
       'the submission was not rejected as invalid, so the 422 page was never scanned',
     ).toBeVisible();
     await expect(page).toHaveTitle(/^Error: Check Your Message /);

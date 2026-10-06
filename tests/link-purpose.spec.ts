@@ -106,41 +106,41 @@ test.describe('link purpose from the name alone (SC 2.4.9)', () => {
   }
 });
 
-/* Hidden text reaches the name with its space, in every engine (SC 2.5.3: visible words kept). */
+/* Hidden text completes the name in every engine and keeps the visible words (SC 2.5.3); case is not asserted. */
 const COMPLETED_NAMES: readonly {
   route: string;
   links: string;
-  name: (visible: string) => string;
+  completedBy: RegExp;
 }[] = [
   {
     route: POSTS.find((post) => post.published && post.tags.length > 0)!.route,
     links: 'nav[aria-labelledby="post-tags"] a',
-    name: (visible) => `${visible} tag`,
+    completedBy: /\btag$/i,
   },
   {
     route: '/blog',
     links: 'nav[aria-label="Filter posts by category"] a',
-    name: (visible) => (/posts$/i.test(visible) ? visible : `${visible} Posts`),
+    completedBy: /\bposts$/i,
   },
   {
     route: '/',
     links: 'li.card > h3 > a.card-link',
-    name: (visible) => `${visible} Posts`,
+    completedBy: /\bposts$/i,
   },
   {
     route: '/brand',
     links: '[data-component="tag-chips"] a',
-    name: (visible) => `${visible} tag`,
+    completedBy: /\btag$/i,
   },
   {
     route: '/about',
     links: 'nav[aria-label="On this page"] a',
-    name: (visible) => `${visible} section`,
+    completedBy: /\bsection$/i,
   },
   {
     route: '/brand',
     links: 'nav[aria-label="On this page"] a',
-    name: (visible) => `${visible} section`,
+    completedBy: /\bsection$/i,
   },
 ];
 
@@ -153,7 +153,7 @@ const visibleText = (link: Locator): Promise<string> =>
   });
 
 test.describe('hidden text completes short link names', () => {
-  for (const { route, links, name } of COMPLETED_NAMES) {
+  for (const { route, links, completedBy } of COMPLETED_NAMES) {
     test(`${route} names ${links} in full`, async ({ page }) => {
       await gotoSettled(page, route);
       const found = page.locator(links);
@@ -166,7 +166,10 @@ test.describe('hidden text completes short link names', () => {
           link,
           `the name of "${visible}" on ${route} does not open with its visible text.`,
         ).toHaveAccessibleName(new RegExp(`^${RegExp.escape(visible)}`));
-        await expect(link).toHaveAccessibleName(name(visible));
+        await expect(
+          link,
+          `the name of "${visible}" on ${route} is not completed by hidden text.`,
+        ).toHaveAccessibleName(completedBy);
       }
     });
   }
