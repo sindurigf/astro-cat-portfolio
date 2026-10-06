@@ -78,7 +78,7 @@ jobs:
 
       # After `npm ci`, which empties node_modules. Astro names each cached image
       # by a hash of its source and options, so an older entry is never served.
-      - name: Restore optimised images
+      - name: Restore optimized images
         id: images
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
@@ -98,7 +98,7 @@ jobs:
             [ -e "dist/client/_astro/$(basename "$file")" ] || rm -f "$file" "$file.json"
           done
 
-      - name: Save optimised images
+      - name: Save optimized images
         if: ${{ steps.images.outputs.cache-hit != 'true' }}
         uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
@@ -175,7 +175,7 @@ jobs:
         run: npm ci
 
       # Saved by the checks job; the web server's `npm run build` reuses them.
-      - name: Restore optimised images
+      - name: Restore optimized images
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: node_modules/.astro/assets
@@ -250,7 +250,7 @@ jobs:
         run: npm ci
 
       # The same images as the shards; only the demo's variables differ.
-      - name: Restore optimised images
+      - name: Restore optimized images
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: node_modules/.astro/assets

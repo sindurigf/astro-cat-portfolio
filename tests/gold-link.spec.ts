@@ -4,8 +4,8 @@ import { AA_TEXT, NON_TEXT, PAGE_HELPERS } from './contrast';
 import { goldRoutesFromBuild } from './routes';
 
 /*
- * Links on the gold ground under the pointer. Colour cannot say "link" here, so
- * the underline does (SC 1.4.1), and forced colours drops the hover block, so
+ * Links on the gold ground under the pointer. Color cannot say "link" here, so
+ * the underline does (SC 1.4.1), and forced colors drops the hover block, so
  * the underline has to survive hover on its own.
  */
 
@@ -56,23 +56,23 @@ const READ_LINK = `(element) => {
   const filled = own !== null && own.a === 1;
   const ground = effectiveBackground(element.parentElement);
   const behind = filled ? own : ground;
-  const colour = parse(style.color);
+  const color = parse(style.color);
   const insideBlock = filled && box.bottom + spread >= baseline + offset + thickness;
   const underLine = insideBlock ? own : ground;
-  const lineColour = parse(style.textDecorationColor);
+  const lineColor = parse(style.textDecorationColor);
 
   return {
     label: (element.textContent || '').trim().replace(/\\s+/g, ' ').slice(0, 40),
     selector: describe(element),
     classes: [...element.classList],
     paint: [style.color, style.backgroundColor, style.boxShadow].join(' | '),
-    onBehind: behind === null || colour === null
+    onBehind: behind === null || color === null
       ? null
-      : ratio(over(colour, behind), behind),
+      : ratio(over(color, behind), behind),
     underlined,
-    underlineContrast: !underlined || underLine === null || lineColour === null
+    underlineContrast: !underlined || underLine === null || lineColor === null
       ? null
-      : ratio(over(lineColour, underLine), underLine),
+      : ratio(over(lineColor, underLine), underLine),
   };
 }`;
 

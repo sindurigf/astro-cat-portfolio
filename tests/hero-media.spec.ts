@@ -3,7 +3,7 @@ import { gotoSettled } from './settle';
 
 /*
  * The hero canvases follow media changes that resize nothing: a window moved
- * to a denser screen, and forced colours switched on and off.
+ * to a denser screen, and forced colors switched on and off.
  */
 const HERO_ROUTE = '/';
 const VIEWPORT = { width: 1280, height: 720 } as const;
@@ -93,20 +93,20 @@ test.describe('the hero after a media change', () => {
     ).toBeGreaterThan(0);
   });
 
-  test('is hidden in forced colours and painted again after them', async ({
+  test('is hidden in forced colors and painted again after them', async ({
     page,
   }) => {
     await gotoSettled(page, HERO_ROUTE);
     const field = page.locator('.hero-field');
 
     await page.emulateMedia({ forcedColors: 'active' });
-    await expect(field, 'a canvas cannot follow forced colours').toBeHidden();
+    await expect(field, 'a canvas cannot follow forced colors').toBeHidden();
 
     await page.emulateMedia({ forcedColors: 'none' });
     await expect(field).toBeVisible();
     await expect
       .poll(async () => (await backStore(page))?.ink ?? 0, {
-        message: 'the field came back blank after forced colours ended',
+        message: 'the field came back blank after forced colors ended',
       })
       .toBeGreaterThan(0);
   });

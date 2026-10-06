@@ -44,7 +44,7 @@ const EXEMPT_LINE = join(
   'sin',
   'duri-lol by Sin',
   'duri Guntu',
-  "palli, MIT licence.', href: 'https://github.com/sin",
+  "palli, MIT license.', href: 'https://github.com/sin",
   'durigf/sin',
   "duri-lol' } as const;",
 );

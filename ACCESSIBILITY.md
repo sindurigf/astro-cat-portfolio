@@ -29,13 +29,13 @@ status is still "Target only. No claim that the site meets it."
 ## 2. Commitment
 
 - WCAG 2.2 AA is the floor. AAA criteria are met where practical (below).
-- Both colour modes are measured: dark by default, light on request.
+- Both color modes are measured: dark by default, light on request.
 - Keyboard first: every control is reachable, visible when focused, and never
   hidden under the sticky header.
 - No motion traps: the homepage hero field and each About cat can be paused,
   and nothing moves under `prefers-reduced-motion: reduce`.
 - Native HTML before ARIA.
-- Every colour is measured against every ground it is used on.
+- Every color is measured against every ground it is used on.
 - Automated checks run in CI and a violation blocks the merge.
 - Untested means untested: gaps are listed in [section 7](#7-known-gaps), not
   implied away.
@@ -45,7 +45,7 @@ status is still "Target only. No claim that the site meets it."
 | Criterion                            | What we do                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | ------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 1.4.6 Contrast (Enhanced)            | Every text token at rest clears 7:1 on every ground it is used on, dark, light and gold. Exception: the category glyph on `/`, `background` on `pink`, is 4.90:1 and passes as large text only. `pink` is never text; `pink-text` is. Ratios: [contrast table](docs/STYLEGUIDE.md#contrast).                                                                                                                                                                                                                                                                            |
-| 1.4.8 Visual Presentation            | `tests/visual-presentation.spec.ts`, every route at 390, 1280 and 1920: a visible `p`, `li` or `dd` of more than one sentence has at most 80 characters a line, line height 1.5 or more and no justification; each `p` followed by a `p` leaves 2.5em of the larger text from its last line box's top to the next one's first. Width at 200%: `tests/reflow.spec.ts`. Colours: browsers can override them (G156); the theme switch offers light and dark (`tests/light-mode.spec.ts`).                                                                                  |
+| 1.4.8 Visual Presentation            | `tests/visual-presentation.spec.ts`, every route at 390, 1280 and 1920: a visible `p`, `li` or `dd` of more than one sentence has at most 80 characters a line, line height 1.5 or more and no justification; each `p` followed by a `p` leaves 2.5em of the larger text from its last line box's top to the next one's first. Width at 200%: `tests/reflow.spec.ts`. Colors: browsers can override them (G156); the theme switch offers light and dark (`tests/light-mode.spec.ts`).                                                                                   |
 | 2.2.4 Interruptions                  | Nothing interrupts: no alerts, assertive live regions or automatic refresh.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
 | 2.3.3 Animation from Interactions    | Under `prefers-reduced-motion: reduce` a pressed control does not move into its shadow, the hero field is drawn once and held, and the About cats sit still (`tests/press.spec.ts`, `tests/motion.spec.ts`, `tests/about-cats.spec.ts`).                                                                                                                                                                                                                                                                                                                                |
 | 2.4.9 Link Purpose (Link Only)       | Within a page, one link name leads to one place. Hidden text completes short names: "Community tag", "Robin on GitHub". Exception: link text in posts, listed in `tests/link-purpose.spec.ts`.                                                                                                                                                                                                                                                                                                                                                                          |
@@ -77,8 +77,8 @@ view (development server only, never published), and forks.
 | ---------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
 | Browsers         | Baseline Widely Available ([ARCHITECTURE.md](ARCHITECTURE.md#browser-support))                                                      |
 | Engines tested   | Chromium and Firefox locally and in CI; WebKit in CI and through Docker (`npm run test:webkit`)                                     |
-| Colour modes     | Dark by default. With JavaScript, light follows `prefers-color-scheme: light`, can be set with the header switch, and is remembered |
-| Forced colours   | Windows High Contrast (`forced-colors: active`)                                                                                     |
+| Color modes      | Dark by default. With JavaScript, light follows `prefers-color-scheme: light`, can be set with the header switch, and is remembered |
+| Forced colors    | Windows High Contrast (`forced-colors: active`)                                                                                     |
 | No JavaScript    | Navigation and the contact form work; the page stays dark and the light-mode switch is hidden; the hero field renders still         |
 | Zoom and spacing | 400% zoom at 1280px (320px reflow), SC 1.4.12 text spacing                                                                          |
 | Screen readers   | None tested. See [gap 2](#7-known-gaps)                                                                                             |
@@ -102,7 +102,7 @@ view (development server only, never published), and forks.
   640px, 1280px and 1920px. The content box matches the
   [heading floors](docs/STYLEGUIDE.md#heading-floors), no heading word is wider
   than its box, and no text or control sits past either edge.
-- **Target size.** A 44px square centred on every target outside a sentence
+- **Target size.** A 44px square centered on every target outside a sentence
   hits only that target, at 305px and 1280px, on every page (listings sampled
   as below) and in the open cat card, photo viewer and menu (SC 2.5.5).
 - **Keyboard.** The tab order is walked in both directions on every page at
@@ -121,7 +121,7 @@ view (development server only, never published), and forks.
 - **No JavaScript.** A fallback navigation replaces the mobile menu, sits
   below the header and never duplicates the primary nav.
 - **Current page.** `aria-current` in all three navigations, plus a shape
-  change, never colour alone.
+  change, never color alone.
 - **Headings and titles.** One `h1`, no skipped level, nothing under 19px.
   Every `<title>` is distinct, and every one but the homepage's names the
   page before the site.
@@ -133,7 +133,7 @@ view (development server only, never published), and forks.
 - **Motion.** The hero field on `/` has a pause control and each cat on
   `/about` a sleep control (SC 2.2.2). Both are still under reduced motion;
   nothing else animates ([STYLEGUIDE Motion](docs/STYLEGUIDE.md#motion)).
-- **Forced colours.** Every non-link control keeps a painted border or opaque
+- **Forced colors.** Every non-link control keeps a painted border or opaque
   background, links are distinct from body text, and every focus stop on `/`
   keeps an outline.
 - **Contact form.** Labels with "(required)" in words, `autocomplete` on name
@@ -146,9 +146,9 @@ view (development server only, never published), and forks.
 
 Passing axe is not conformance.
 
-## 5. Colour and contrast
+## 5. Color and contrast
 
-Every token, ratio and colour rule is in [docs/STYLEGUIDE.md](docs/STYLEGUIDE.md).
+Every token, ratio and color rule is in [docs/STYLEGUIDE.md](docs/STYLEGUIDE.md).
 The [contrast table](docs/STYLEGUIDE.md#contrast) there is generated from the
 CSS and `tests/contrast-table.spec.ts` fails when it drifts.
 
@@ -178,7 +178,7 @@ inside, the focus ring included, is `background` (`tests/solid-block.spec.ts`,
 ### Light mode
 
 The header switch turns `<main>` light; the header and footer stay dark. Every
-text colour clears 4.5:1 on white:
+text color clears 4.5:1 on white:
 [Light mode](docs/STYLEGUIDE.md#light-mode).
 
 ## 6. How it is tested
@@ -200,7 +200,7 @@ merge.
 | `tests/focus.spec.ts`               | 2.4.7, 2.4.11, 2.4.12, 2.4.13, 1.4.11              | Tab and Shift+Tab on every page at two widths, listings sampled; no stop under the header; ring contrast and area                                                                                                                                                                           |
 | `tests/focus-obscured.spec.ts`      | 2.4.12                                             | Every stop in the open cat card, photo viewer and menu, and each About cat control, wholly uncovered                                                                                                                                                                                        |
 | `tests/sticky-header.spec.ts`       | 2.4.11                                             | Header static under 30rem; no focused control under it                                                                                                                                                                                                                                      |
-| `tests/states.spec.ts`              | 1.4.1, 1.4.11                                      | Hover drawn; current page is a shape; chip rings clear neighbours                                                                                                                                                                                                                           |
+| `tests/states.spec.ts`              | 1.4.1, 1.4.11                                      | Hover drawn; current page is a shape; chip rings clear neighbors                                                                                                                                                                                                                            |
 | `tests/nav-current.spec.ts`         | 1.3.1, 4.1.2                                       | `aria-current` in all three navs                                                                                                                                                                                                                                                            |
 | `tests/link-purpose.spec.ts`        | 2.4.9                                              | One link name, one destination, on every route; hidden text keeps the visible words first                                                                                                                                                                                                   |
 | `tests/unusual-words.spec.ts`       | 3.1.3                                              | Each listed term a `<dfn>` at first use, defined in its sentence; every `<dfn>` listed; replaced jargon stays out; `/404` links its idioms                                                                                                                                                  |
@@ -212,7 +212,7 @@ merge.
 | `tests/close-row.spec.ts`           | 1.4.10                                             | The close row's sticker never covers its text, in both modes                                                                                                                                                                                                                                |
 | `tests/mobile-menu.spec.ts`         | 2.1.1, 2.4.3                                       | Menu opens, takes focus, returns it                                                                                                                                                                                                                                                         |
 | `tests/no-script.spec.ts`           | 2.1.1, 1.3.1                                       | Navigation with scripting off                                                                                                                                                                                                                                                               |
-| `tests/forced-colors.spec.ts`       | 1.4.11, 2.4.7                                      | Forced colours, listings sampled; every focus stop on /; not WebKit                                                                                                                                                                                                                         |
+| `tests/forced-colors.spec.ts`       | 1.4.11, 2.4.7                                      | Forced colors, listings sampled; every focus stop on /; not WebKit                                                                                                                                                                                                                          |
 | `tests/motion.spec.ts`              | 2.2.2, 2.3.3                                       | Hero field pauses; nothing moves under reduced motion                                                                                                                                                                                                                                       |
 | `tests/about-cats.spec.ts`          | 1.4.1, 1.4.3, 1.4.10, 1.4.11, 2.2.2, 2.4.11, 2.5.5 | Cat buttons, card dialog, focus return, sleep controls, reduced motion; a moving cat never scrolls the page                                                                                                                                                                                 |
 | `tests/headings.spec.ts`            | 1.3.1, 2.4.6                                       | One `h1`, no skipped level, no heading under 19px                                                                                                                                                                                                                                           |
@@ -314,7 +314,7 @@ template ships with none of it run; record your own results. Not automated:
    `public/talks/sample-talk.pdf` passes PDF/UA-1 in `npm run check:pdf`:
    tagged, a bookmark and heading per slide, a description on every link.
    `tests/talk-pdf.spec.ts` fails when `slides.md` changes without a reprint.
-   Reading order across cards, how capitalised slide labels are spoken, and
+   Reading order across cards, how capitalized slide labels are spoken, and
    whether viewers expose the structure are unchecked
    ([MANUAL_TESTING.md](docs/MANUAL_TESTING.md) §13). The HTML slideshow at
    `/talks/sample-talk/` passes the route suites; nobody has heard it (§13.5).
@@ -348,8 +348,8 @@ example as plain text.
 Rules this repository follows. Values and reasons:
 [docs/STYLEGUIDE.md](docs/STYLEGUIDE.md).
 
-- **Contrast.** Measure a new colour on every ground it can meet
-  ([Adding a colour](docs/STYLEGUIDE.md#adding-a-colour)). Never `pink` on
+- **Contrast.** Measure a new color on every ground it can meet
+  ([Adding a color](docs/STYLEGUIDE.md#adding-a-color)). Never `pink` on
   text; never `pink-text` on non-text.
 - **Gold.** Build gold grounds with `.surface-gold` only. Never the dark
   tokens, `.btn-primary` or `.btn-secondary` on gold.
@@ -368,7 +368,7 @@ Rules this repository follows. Values and reasons:
   when decorative. Never text over a photograph; the axe scans fail it. Photos
   sit in an `.aspect-frame`.
 - **Links.** Underlined in running text. Link text makes sense on its own.
-  Current page: `aria-current` plus a shape change, never colour alone.
+  Current page: `aria-current` plus a shape change, never color alone.
 - **SVG.** Decorative SVG is `aria-hidden="true" focusable="false"`.
 - **ARIA.** Only where no native element works, with a comment saying why.
   No `aria-label` over visible text, except one that repeats it exactly: the
@@ -386,8 +386,8 @@ Rules this repository follows. Values and reasons:
 - **Forms.** Visible labels with "(required)" in words, `autocomplete` on
   personal fields, `aria-invalid` and `aria-describedby` on errors, a focused
   error summary. `aria-disabled`, never `disabled`, on buttons.
-- **Forced colours.** A control bounded only by a shadow has no edge in forced
-  colours: give it a border or an opaque fill.
+- **Forced colors.** A control bounded only by a shadow has no edge in forced
+  colors: give it a border or an opaque fill.
 - **Reflow.** Never add horizontal padding to a page container. A display
   heading word over twelve characters takes a soft hyphen.
 - **Conflicting needs.** When one group's need works against another's, name

@@ -16,7 +16,7 @@ import Photos from '../components/brand/Photos.astro';
 import Text from '../components/brand/Text.astro';
 import Controls from '../components/brand/Controls.astro';
 import {
-  colours,
+  colors,
   contrast,
   lightContrast,
   shadows,
@@ -40,7 +40,7 @@ const ACCESSIBILITY_MD_URL = `${REPOSITORY_URL}/blob/main/ACCESSIBILITY.md`;
 
 const SECTIONS = [
   { id: 'grounds', title: 'Grounds' },
-  { id: 'colour', title: 'Colour' },
+  { id: 'color', title: 'Color' },
   { id: 'contrast', title: 'Contrast' },
   { id: 'type', title: 'Type' },
   { id: 'spacing', title: 'Spacing' },
@@ -75,8 +75,8 @@ const section = (id: (typeof SECTIONS)[number]['id']) =>
   SECTIONS.find((s) => s.id === id)!;
 
 /*
- * Each colour shown doing its own job. Class names are literal so Tailwind
- * builds them; a token in the Colour tokens table with no entry fails the build.
+ * Each color shown doing its own job. Class names are literal so Tailwind
+ * builds them; a token in the Color tokens table with no entry fails the build.
  */
 const SWATCH: Record<string, string | null> = {
   /* Framed in `text`: a ground's fill alone is lost against the card. */
@@ -95,10 +95,10 @@ const SWATCH: Record<string, string | null> = {
   'tile-edge': 'border-8 border-tile-edge',
 };
 const GLYPH = /^text-/;
-for (const { token } of colours) {
+for (const { token } of colors) {
   if (!(token in SWATCH)) {
     throw new Error(
-      `/brand: ${token} is in the Colour tokens table but has no swatch in src/pages/brand.astro`,
+      `/brand: ${token} is in the Color tokens table but has no swatch in src/pages/brand.astro`,
     );
   }
 }
@@ -156,7 +156,7 @@ const SWATCH_BOX = 'grid size-16 shrink-0 place-items-center';
 
 <BaseLayout
   title="Brand"
-  description={`The design system behind ${SITE_NAME}: colour, contrast, type, spacing, shadows, controls and motion, drawn from the site's own CSS.`}
+  description={`The design system behind ${SITE_NAME}: color, contrast, type, spacing, shadows, controls and motion, drawn from the site's own CSS.`}
 >
   <PageHero title="Brand">
     <p class="standfirst">
@@ -203,18 +203,18 @@ const SWATCH_BOX = 'grid size-16 shrink-0 place-items-center';
   <Section
     id="grounds"
     title={section('grounds').title}
-    lead="Four grounds carry everything on the site. Each sets which colours may sit on it."
+    lead="Four grounds carry everything on the site. Each sets which colors may sit on it."
   >
     <Grounds />
   </Section>
 
   <Section
-    id="colour"
-    title={section('colour').title}
-    lead="Each colour has one job. Light mode swaps the grounds, the ink and the edges."
+    id="color"
+    title={section('color').title}
+    lead="Each color has one job. Light mode swaps the grounds, the ink and the edges."
   >
     <ul class:list={['card', ROWS]}>
-      {colours.map(({ token, job, dark, light }) => {
+      {colors.map(({ token, job, dark, light }) => {
         const swatch = SWATCH[token];
         return (
           <li class={ROW}>
@@ -255,7 +255,7 @@ const SWATCH_BOX = 'grid size-16 shrink-0 place-items-center';
   <Section
     id="contrast"
     title={section('contrast').title}
-    lead="Measured from the colour values in the site's code, for the mode you are viewing; switch it in the header to see the other. Text needs 4.5, edges and icons 3."
+    lead="Measured from the color values in the site's code, for the mode you are viewing; switch it in the header to see the other. Text needs 4.5, edges and icons 3."
   >
     <div class="contrast-dark">
       <ContrastTable rows={readingPairs} />

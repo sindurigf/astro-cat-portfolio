@@ -21,7 +21,7 @@ import {
 
 /* The project this template was extracted from; scripts/check-leaks.mjs allows this one line. */
 // prettier-ignore
-const ORIGIN = { text: 'Based on sinduri-lol by Sinduri Guntupalli, MIT licence.', href: 'https://github.com/sindurigf/sinduri-lol' } as const;
+const ORIGIN = { text: 'Based on sinduri-lol by Sinduri Guntupalli, MIT license.', href: 'https://github.com/sindurigf/sinduri-lol' } as const;
 
 /* Keep in step with package.json, wrangler.jsonc, src/assets/social-icons.svg and AI_DISCLOSURE.md. */
 const BUILT_WITH = [
@@ -67,7 +67,7 @@ const GUIDES = [
     name: 'The Website Specification',
     href: 'https://specification.website/',
     author: { name: 'Joost de Valk', href: 'https://joost.blog/' },
-    use: "The checklist used to check this site's search engine optimisation and security, and how well automated assistants can read it.",
+    use: "The checklist used to check this site's search engine optimization and security, and how well automated assistants can read it.",
   },
   {
     name: 'A11Y.md',
@@ -100,7 +100,7 @@ const GUIDES = [
     name: 'Intopia Web Accessibility Skill',
     href: 'https://github.com/Intopia/intopia-web-accessibility-skill',
     author: { name: 'Intopia', href: 'https://www.intopia.digital/' },
-    use: 'Ideas only: informed blending a see-through colour with the colour behind it before measuring contrast, and checking that pages fit a window 256px tall.',
+    use: 'Ideas only: informed blending a see-through color with the color behind it before measuring contrast, and checking that pages fit a window 256px tall.',
   },
   {
     name: 'accessibility-skills',
@@ -211,9 +211,9 @@ const NAMED_ENTRY = 'min-w-0 bg-background p-card-tight';
 
         <p class="mt-6 max-w-measure text-body text-text text-pretty">
           The photos on this site and in its posts are under the Creative
-          Commons Attribution 4.0 licence.{' '}
+          Commons Attribution 4.0 license.{' '}
           <a href={`${REPOSITORY_URL}/blob/main/LICENSE-photos`}>
-            The photo licence
+            The photo license
           </a>{' '}
           names the photographer.
         </p>
@@ -251,14 +251,14 @@ const NAMED_ENTRY = 'min-w-0 bg-background p-card-tight';
         {Object.keys(LICENSED_PHOTOS).length > 0 && (
           <>
             <p class="mt-6 text-body text-text text-pretty">
-              Used under a Creative Commons licence:
+              Used under a Creative Commons license:
             </p>
             <ul class="bullet-list mt-4">
               {Object.values(LICENSED_PHOTOS).map((photo) => (
                 <li>
                   <a href={photo.source}>{photo.title}</a>, by{' '}
                   {photo.photographer}, on {photo.sourceName},{' '}
-                  <a href={photo.licenceHref}>{photo.licence}</a>,{' '}
+                  <a href={photo.licenseHref}>{photo.license}</a>,{' '}
                   {photo.changes}
                 </li>
               ))}
@@ -328,8 +328,8 @@ const NAMED_ENTRY = 'min-w-0 bg-background p-card-tight';
         </ul>
 
         <p class="mt-6 text-body text-text text-pretty">
-          The licence of every package, script and font this site sends to your
-          browser is in <a href="/licenses.txt">the licences file</a>.
+          The license of every package, script and font this site sends to your
+          browser is in <a href="/licenses.txt">the licenses file</a>.
         </p>
         <p class="mt-6 text-body text-text text-pretty">
           <a href={ORIGIN.href} class={LINK_ITEM}>

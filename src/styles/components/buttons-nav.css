@@ -132,7 +132,7 @@
   }
 
   /*
-   * Forced colours drop the gold fill, so the box takes a ButtonText border.
+   * Forced colors drop the gold fill, so the box takes a ButtonText border.
    * SVGs back to `auto`: Chromium defaults inline SVG to
    * `preserve-parent-color` (tests/forced-colors.spec.ts).
    */

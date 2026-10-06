@@ -68,7 +68,7 @@ Setup: Chrome at 375px. No mouse.
 - [ ] Enter opens the panel; Escape closes; Space reopens. → SC 2.1.1
 - [ ] On open, focus is on the first link. → SC 2.4.3
 - [ ] Tab cycles Home, About, Career, Blog, Get in Touch, Close, one stop in
-      the browser UI (correct `<dialog>` behaviour), Home. Focus never reaches
+      the browser UI (correct `<dialog>` behavior), Home. Focus never reaches
       the page behind. → SC 2.1.2
 - [ ] Shift+Tab from the first item goes to Close. → SC 2.1.2
 - [ ] Escape closes and focus returns to the menu button. → SC 2.1.2, 2.4.3
@@ -146,7 +146,7 @@ Setup: Chrome at about 740x380. `short:static` makes the header static below
 
 Setup: `/career`, `/contact`, `/blog`; `/about` (photo) as the control.
 
-Forced colours (DevTools → Rendering → forced-colors: active, or the OS
+Forced colors (DevTools → Rendering → forced-colors: active, or the OS
 high-contrast theme):
 
 - [ ] The roundel is a disc with a visible edge. → SC 1.4.11
@@ -154,7 +154,7 @@ high-contrast theme):
       finding. → SC 1.4.1
 - [ ] The `h1` and buttons are readable; a focused control shows a ring. → SC 1.4.11, 2.4.7
 
-Zoom (forced colours off, 1280px, 200% then 400%):
+Zoom (forced colors off, 1280px, 200% then 400%):
 
 - [ ] The roundel covers no text in the hero or below. Its `16vw` term does
       not grow with zoom. → SC 1.4.10
@@ -594,7 +594,7 @@ From the Accessible Astro checklist and
 <https://specification.website/checklist/>, both opinion, not WCAG.
 
 - **Automated:** heading hierarchy and one `h1`, content in landmarks, skip
-  link, page titles, forced colours, reduced motion, focus contrast, duplicate
+  link, page titles, forced colors, reduced motion, focus contrast, duplicate
   IDs (`duplicate-id-aria` runs under `wcag2a`).
 - **Not applicable:** new-tab links (no `target=`), captions and audio
   description (no published video), dragging, authentication, redundant entry,

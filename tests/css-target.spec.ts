@@ -88,7 +88,7 @@ test.describe('the pinned CSS target', NODE, () => {
 
       expect(
         unpaired,
-        `${pair.prefixed} does not pair with ${pair.bare}; the build stopped honouring CSS_TARGET.`,
+        `${pair.prefixed} does not pair with ${pair.bare}; the build stopped honoring CSS_TARGET.`,
       ).toEqual([]);
     });
   }

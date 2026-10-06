@@ -5,7 +5,7 @@ import { NODE } from './tags';
 
 /*
  * The close row's eyebrow sticker sits across the row's top edge; it must never
- * cover the row's text. The row's colours are walked by tests/gold-surface.spec.ts.
+ * cover the row's text. The row's colors are walked by tests/gold-surface.spec.ts.
  */
 
 /** Every route whose page ends on a CloseRow; the census below keeps it honest. */

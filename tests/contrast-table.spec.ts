@@ -17,7 +17,7 @@ const cells = (table: string | null): string[][] =>
         .map((cell) => cell.trim()),
     );
 
-test('the documented contrast table matches the colour tokens', NODE, () => {
+test('the documented contrast table matches the color tokens', NODE, () => {
   const documented = documentedTable();
   expect(
     documented,

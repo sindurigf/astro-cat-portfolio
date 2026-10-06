@@ -20,7 +20,7 @@ import { BUILD_ENV } from '../lib/build-env';
 
 /*
  * Descriptions are structural only; titles and teasers are quoted, never
- * summarised, so nothing is put in the owner's mouth. Placeholder posts are
+ * summarized, so nothing is put in the owner's mouth. Placeholder posts are
  * listed and marked. tests/llms-txt.spec.ts checks against the build.
  */
 
@@ -74,7 +74,7 @@ const noteLines = (
     ? [
         `- Posts marked ${PLACEHOLDER_MARK} are unfinished drafts whose title, ` +
           'teaser and body are lorem ipsum rather than writing. Please do not ' +
-          'quote them, summarise them, or treat them as something the author ' +
+          'quote them, summarize them, or treat them as something the author ' +
           'said.',
       ]
     : []),

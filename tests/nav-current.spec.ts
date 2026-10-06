@@ -180,7 +180,7 @@ test.describe('the current page, as the navigation reports it', () => {
 
     const cta = page.locator(HEADER_CTA);
 
-    // SC 1.4.1: the state is an inset ring, a shape, not only a colour.
+    // SC 1.4.1: the state is an inset ring, a shape, not only a color.
     const shadow = await cta.evaluate(
       (element) => getComputedStyle(element).boxShadow,
     );
@@ -199,8 +199,8 @@ test.describe('the current page, as the navigation reports it', () => {
       const style = getComputedStyle(cta);
       const fill = parse(style.backgroundColor);
       const ring = shadowLayers(style.boxShadow).find((layer) => layer.inset);
-      return ring && ring.colour && fill && fill.a === 1
-        ? ratio(over(ring.colour, fill), fill)
+      return ring && ring.color && fill && fill.a === 1
+        ? ratio(over(ring.color, fill), fill)
         : null;
     })()`)) as number | null;
     expect(ringOnFill, 'the ring or the fill is unmeasurable').not.toBeNull();

@@ -8,7 +8,7 @@ import {
 
 /*
  * Not `data-umami-event`: the tracker blocks navigation on its request with no
- * timeout. `umami.track` uses `keepalive` and honours DNT and `data-domains`.
+ * timeout. `umami.track` uses `keepalive` and honors DNT and `data-domains`.
  */
 
 declare global {

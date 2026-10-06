@@ -51,7 +51,7 @@ test('the solid-block census matches the build', NODE, () => {
 
 /*
  * Browsers report false values for `:visited`, so no test can read its ratio.
- * A visited link keeps its rest colour; this asserts no rule changes that.
+ * A visited link keeps its rest color; this asserts no rule changes that.
  */
 test('no :visited rule exists anywhere in the built CSS', NODE, () => {
   const pages = builtPages().map((page) => readFileSync(page.file, 'utf8'));

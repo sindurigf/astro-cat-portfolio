@@ -51,7 +51,7 @@
 
   /*
    * Gold-link hover: cyan does not show on gold, so the link fills with its
-   * colour and the text turns gold (SC 1.4.3); --gold-marker-pad covers the underline.
+   * color and the text turns gold (SC 1.4.3); --gold-marker-pad covers the underline.
    * Utilities layer beats a tied rule (tests/gold-link.spec.ts).
    */
   .surface-gold a:not(.btn-gold-primary, .btn-gold-secondary, .chip):hover {

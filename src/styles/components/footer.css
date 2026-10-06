@@ -1,7 +1,7 @@
 @layer components {
   /*
    * Footer layout; Footer.astro has the content. Below `md` stacked and
-   * centred; from `md` three columns; from `lg` 56px tiles and a 32px inset.
+   * centered; from `md` three columns; from `lg` 56px tiles and a 32px inset.
    */
 
   .footer-inner {
@@ -67,7 +67,7 @@
 
   /*
    * Tilt as a custom property so hover can straighten any tile (see
-   * tests/tilt.spec.ts). Colour in components so base `a:hover` cannot recolour
+   * tests/tilt.spec.ts). Color in components so base `a:hover` cannot recolor
    * the icon.
    */
   .footer-sticker {
@@ -205,7 +205,7 @@
 
   /*
    * Source order is name, pages, policies, stickers, and reads the same
-   * row-major. `space-between` equalises the gaps; the column gap is a floor,
+   * row-major. `space-between` equalizes the gaps; the column gap is a floor,
    * kept small so the row fits at the md breakpoint.
    */
   @media (width >= 48rem) {
@@ -299,7 +299,7 @@
   }
 
   /*
-   * Forced colours: SVGs back to `auto` from Chromium's `preserve-parent-color`
+   * Forced colors: SVGs back to `auto` from Chromium's `preserve-parent-color`
    * (tests/forced-colors.spec.ts); icons get LinkText because `auto` does not
    * force `fill`. The tuft drops its shadow.
    */

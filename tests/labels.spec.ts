@@ -24,7 +24,7 @@ test.describe('categoryLabel', NODE, () => {
       expect(categoryLabel(slug)).toBe(label);
     });
 
-    test(`capitalises the first and last word of ${slug}`, () => {
+    test(`capitalizes the first and last word of ${slug}`, () => {
       const words = categoryLabel(slug).split(' ');
       expect(startsUpper(words[0]!), 'first word is lower case.').toBe(true);
       expect(startsUpper(words.at(-1)!), 'last word is lower case.').toBe(true);

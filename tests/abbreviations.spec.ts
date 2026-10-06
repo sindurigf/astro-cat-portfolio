@@ -90,14 +90,14 @@ const NAMES = [
 ];
 
 const ABBREVIATION = /\bCC BY\b|\bIPv[46]\b|\b[A-Z][A-Z0-9]+(?:-\d+)?\b/g;
-const HEX_COLOUR = /^[0-9A-F]{6}$/;
+const HEX_COLOR = /^[0-9A-F]{6}$/;
 
 /** Abbreviations replaced by the word itself wherever they would appear. */
 const SPELLED_OUT: readonly { pattern: RegExp; word: string }[] = [
   { pattern: /\d+\s+min read/, word: 'minute' },
 ];
 
-/* Any listed route: the behaviour lives in one module. */
+/* Any listed route: the behavior lives in one module. */
 const TIP_ROUTE = '/privacy';
 const TIP_ABBREVIATION = 'IPv6';
 const NARROW = { width: 320, height: 720 };
@@ -283,7 +283,7 @@ test('functional pages use no abbreviation outside FIRST_USES', NODE, () => {
       mainText(html),
     );
     return [...new Set(text.match(ABBREVIATION) ?? [])]
-      .filter((token) => !HEX_COLOUR.test(token) && !listed.has(token))
+      .filter((token) => !HEX_COLOR.test(token) && !listed.has(token))
       .map((token) => `${route}: ${token}`);
   });
   expect(

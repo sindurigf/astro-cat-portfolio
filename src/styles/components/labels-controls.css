@@ -35,7 +35,7 @@
 
   /*
    * A --spacing-target pointer area around a text link drawn smaller (SC 2.5.5).
-   * Its neighbours must sit at least that far apart: areas never overlap.
+   * Its neighbors must sit at least that far apart: areas never overlap.
    */
   .hit-target {
     @apply relative;

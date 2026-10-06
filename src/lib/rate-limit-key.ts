@@ -34,7 +34,7 @@ const ipv4AsGroups = (ipv4: string): string => {
     .join(':');
 };
 
-/** Eight normalised groups. Accepts `::`, a zone and a dotted-quad tail. */
+/** Eight normalized groups. Accepts `::`, a zone and a dotted-quad tail. */
 const parseIpv6 = (text: string): string[] | null => {
   const [unzoned = ''] = text.split('%');
   const tailStart = unzoned.lastIndexOf(':') + 1;
@@ -92,7 +92,7 @@ const limitSubject = (header: string | null): string | null => {
 };
 
 /**
- * SHA-256 of sender and date, rotating daily. Not anonymisation: an IPv4
+ * SHA-256 of sender and date, rotating daily. Not anonymization: an IPv4
  * address is recoverable by brute force, as /privacy says. Null on no address
  * or a failed digest, so the form fails open instead of answering 500.
  */

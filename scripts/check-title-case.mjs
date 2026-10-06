@@ -1,6 +1,6 @@
 /*
  * Fails if a built heading, title, summary or og:title is not in Chicago title
- * case: the first and last word are capitalised, and a word between is lower
+ * case: the first and last word are capitalized, and a word between is lower
  * case only if it is in TITLE_CASE_SMALL_WORDS (shared with categoryLabel).
  * Each part of a hyphenated compound counts as a word.
  * The site name and short name in src/site.config.ts are exempt, in their own case.
@@ -142,7 +142,7 @@ const run = async () => {
       console.error(`  ${route} ${kind}: "${text}" ("${word}")`);
     }
     console.error(
-      'Capitalise the first and last word and every word not in ' +
+      'Capitalize the first and last word and every word not in ' +
         'TITLE_CASE_SMALL_WORDS (src/lib/labels.ts). See docs/STYLEGUIDE.md#uppercase.',
     );
   }

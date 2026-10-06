@@ -87,7 +87,7 @@ const REPLACED: readonly { pattern: RegExp; plain: string }[] = [
     pattern: /\bconformance claim\b/i,
     plain: 'no claim that the site meets it',
   },
-  { pattern: /\bcomposited\b/i, plain: 'the colour actually behind the text' },
+  { pattern: /\bcomposited\b/i, plain: 'the color actually behind the text' },
   { pattern: /\btag manager\b/i, plain: 'third-party tracking tools' },
   { pattern: /\bembeds\b/i, plain: 'embedded from other sites' },
   { pattern: /\bevery route\b/i, plain: 'every page' },

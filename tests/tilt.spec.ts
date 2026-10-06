@@ -3,7 +3,7 @@ import { gotoSettled } from './settle';
 import { ROUTES } from './routes';
 
 /*
- * `backface-visibility: hidden` makes Chromium rasterise then rotate, blurring
+ * `backface-visibility: hidden` makes Chromium rasterize then rotate, blurring
  * the text and icons in the box.
  */
 

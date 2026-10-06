@@ -49,7 +49,7 @@ const MIN_FOCUS_STOPS = 10;
 const NON_LINK_CONTROLS =
   'button, input, select, textarea, summary, [tabindex]:not([tabindex="-1"]):not(a)';
 
-const emulateForcedColours = async (
+const emulateForcedColors = async (
   page: Page,
 ): Promise<{ matches: boolean; body: string }> => {
   await page.emulateMedia({ forcedColors: 'active' });
@@ -61,15 +61,15 @@ const emulateForcedColours = async (
 };
 
 /** Checks the query matches and body text left `--color-text`: an engine can match yet paint the author palette. */
-const forceColours = async (page: Page, route: string): Promise<void> => {
-  const state = await emulateForcedColours(page);
+const forceColors = async (page: Page, route: string): Promise<void> => {
+  const state = await emulateForcedColors(page);
 
   expect(state.matches, `forced-colors is not active on ${route}.`).toBe(true);
 
   const painted = parseRgb(state.body);
   expect(
     painted,
-    `${route}: could not parse the body colour ${JSON.stringify(state.body)}.`,
+    `${route}: could not parse the body color ${JSON.stringify(state.body)}.`,
   ).not.toBeNull();
 
   expect(
@@ -89,8 +89,8 @@ interface BoundaryWalk {
 const withoutABoundary = (page: Page): Promise<BoundaryWalk> =>
   page.evaluate((selector) => {
     /* Zero alpha only: opaque rgb(0, 0, 0) is CanvasText, a real border. */
-    const transparent = (colour: string) =>
-      colour === 'transparent' || /^rgba\(.*,\s*0\)$/.test(colour);
+    const transparent = (color: string) =>
+      color === 'transparent' || /^rgba\(.*,\s*0\)$/.test(color);
 
     const out: Unbounded[] = [];
     let walked = 0;
@@ -107,10 +107,10 @@ const withoutABoundary = (page: Page): Promise<BoundaryWalk> =>
         const width = parseFloat(
           style.getPropertyValue(`border-${side.toLowerCase()}-width`),
         );
-        const colour = style.getPropertyValue(
+        const color = style.getPropertyValue(
           `border-${side.toLowerCase()}-color`,
         );
-        return width > 0 && !transparent(colour);
+        return width > 0 && !transparent(color);
       });
       const hasFill = !transparent(style.backgroundColor);
 
@@ -145,7 +145,7 @@ const optedOutElements = (page: Page): Promise<string[]> =>
       .slice(0, 10),
   );
 
-const contentLinkColours = (page: Page) =>
+const contentLinkColors = (page: Page) =>
   page.evaluate(() => {
     /* Not a selector list: 'main a[href], a[href]' resolves in document order. */
     const link = document.querySelector('main a[href]');
@@ -162,13 +162,13 @@ const contentLinkColours = (page: Page) =>
     };
   });
 
-/** Pins which engines force colours, so the webkit skip below cannot hide a regression elsewhere. */
-test('every engine that can force colours still does, and webkit still cannot', async ({
+/** Pins which engines force colors, so the webkit skip below cannot hide a regression elsewhere. */
+test('every engine that can force colors still does, and webkit still cannot', async ({
   page,
   browserName,
 }) => {
   await gotoSettled(page, '/');
-  const state = await emulateForcedColours(page);
+  const state = await emulateForcedColors(page);
 
   expect(
     state.matches,
@@ -178,24 +178,24 @@ test('every engine that can force colours still does, and webkit still cannot', 
   const painted = parseRgb(state.body);
   expect(
     painted,
-    `${browserName}: could not read a colour out of ${JSON.stringify(state.body)}.`,
+    `${browserName}: could not read a color out of ${JSON.stringify(state.body)}.`,
   ).not.toBeNull();
 
   if (browserName === 'webkit') {
     expect(
       painted,
-      `webkit now forces colours (<body> computes ${state.body}); delete the webkit skip below.`,
+      `webkit now forces colors (<body> computes ${state.body}); delete the webkit skip below.`,
     ).toEqual(authoredText());
     return;
   }
 
   expect(
     painted,
-    `${browserName} stopped forcing colours: <body> computes --color-text from ${GLOBAL_CSS} (${state.body}).`,
+    `${browserName} stopped forcing colors: <body> computes --color-text from ${GLOBAL_CSS} (${state.body}).`,
   ).not.toEqual(authoredText());
 });
 
-test.describe('forced colours', () => {
+test.describe('forced colors', () => {
   // WebKit matches (forced-colors: active) yet paints `--color-text`: it ships the
   // media query only (https://bugs.webkit.org/show_bug.cgi?id=225281). Skipped by
   // engine name, not capability, so a chromium or firefox regression still fails.
@@ -205,9 +205,9 @@ test.describe('forced colours', () => {
   );
 
   for (const route of SAMPLED_ROUTES) {
-    test(`${route} holds up in forced colours`, async ({ page }) => {
+    test(`${route} holds up in forced colors`, async ({ page }) => {
       await gotoSettled(page, route);
-      await forceColours(page, route);
+      await forceColors(page, route);
 
       const optedOut = await optedOutElements(page);
       expect(
@@ -222,28 +222,28 @@ test.describe('forced colours', () => {
       ).toBeGreaterThan(0);
       expect(
         unbounded,
-        `${route} has non-link control(s) with no border or opaque fill in forced colours:\n` +
+        `${route} has non-link control(s) with no border or opaque fill in forced colors:\n` +
           listUnbounded(unbounded),
       ).toEqual([]);
 
-      const colours = await contentLinkColours(page);
+      const colors = await contentLinkColors(page);
 
       expect(
-        colours.link,
+        colors.link,
         `${route} has no link inside <main> to measure.`,
       ).not.toBeNull();
 
       expect(
-        colours.link,
-        `${route} paints link ${JSON.stringify(colours.text)} the same colour as body text (${colours.body}).`,
-      ).not.toBe(colours.body);
+        colors.link,
+        `${route} paints link ${JSON.stringify(colors.text)} the same color as body text (${colors.body}).`,
+      ).not.toBe(colors.body);
     });
   }
 
   // Every stop: box-shadow paints nothing here, so a shadow ring disappears.
-  test('the focus indicator survives forced colours', async ({ page }) => {
+  test('the focus indicator survives forced colors', async ({ page }) => {
     await gotoSettled(page, '/');
-    await forceColours(page, '/');
+    await forceColors(page, '/');
 
     await page.keyboard.press('Tab');
     const stops = await tabWalk(
@@ -269,16 +269,16 @@ test.describe('forced colours', () => {
       stops
         .filter((stop) => !(stop.width > 0 && stop.style !== 'none'))
         .map((stop) => stop.name),
-      'focus stop(s) with no outline in forced colours (SC 2.4.7).',
+      'focus stop(s) with no outline in forced colors (SC 2.4.7).',
     ).toEqual([]);
   });
 
-  test('the mobile menu holds up in forced colours at 320px', async ({
+  test('the mobile menu holds up in forced colors at 320px', async ({
     page,
   }) => {
     await page.setViewportSize(REFLOW_VIEWPORT);
     await gotoSettled(page, '/');
-    await forceColours(page, '/ (menu open)');
+    await forceColors(page, '/ (menu open)');
 
     const trigger = page.getByRole('button', { name: /menu/i });
     await trigger.click();
@@ -295,7 +295,7 @@ test.describe('forced colours', () => {
     expect(
       unbounded,
       `the open mobile menu has non-link control(s) with no boundary in ` +
-        `forced colours:\n` +
+        `forced colors:\n` +
         listUnbounded(unbounded),
     ).toEqual([]);
   });

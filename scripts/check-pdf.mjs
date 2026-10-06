@@ -12,7 +12,7 @@ import { join, relative, resolve, posix } from 'node:path';
 
 const IMAGE =
   'verapdf/cli:v1.30.2@sha256:d5ee329657cf9bc4b2400392dd54c7d0a0ce9980ff6fa2da5590eebeec007cdb';
-const FLAVOUR = 'ua1';
+const FLAVOR = 'ua1';
 const PDF_DIR = 'public';
 const MOUNT = '/repo';
 const MAX_REPORT_BYTES = 64 * 1024 * 1024;
@@ -73,7 +73,7 @@ const runVeraPdf = (pdfPath) => {
       `${process.cwd()}:${MOUNT}:ro`,
       IMAGE,
       '--flavour',
-      FLAVOUR,
+      FLAVOR,
       '--format',
       'json',
       containerPath(pdfPath),

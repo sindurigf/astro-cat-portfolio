@@ -52,7 +52,7 @@ export default defineConfig({
   },
 
   /*
-   * Forced colours differ: Chromium follows `colorScheme`, Firefox is always
+   * Forced colors differ: Chromium follows `colorScheme`, Firefox is always
    * dark, WebKit forces nothing and is skipped in tests/forced-colors.spec.ts.
    */
   projects: [
@@ -85,7 +85,7 @@ export default defineConfig({
   webServer: {
     /*
      * Not `astro preview`: it applies `upgrade-insecure-requests`, which WebKit
-     * honours on loopback and so loads nothing over http.
+     * honors on loopback and so loads nothing over http.
      */
     command: `npm run build && node scripts/preview-static.mjs`,
     url: BASE_URL,

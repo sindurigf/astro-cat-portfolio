@@ -16,7 +16,7 @@ current once the site is yours.
 
 AI-drawn art, all by Claude:
 
-- The animated About cats, labelled on `/about`.
+- The animated About cats, labeled on `/about`.
 - The poneglyph and its lighting script in the homepage field
   (`src/lib/hero-field-poneglyph.ts`).
 - The lying cat in the footer (`src/components/Footer.astro`).

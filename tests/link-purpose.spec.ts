@@ -35,9 +35,9 @@ const exposedLinks = (page: Page): Promise<Link[]> =>
     };
 
     const nameOf = (link: HTMLAnchorElement): string => {
-      const labelledBy = link.getAttribute('aria-labelledby');
-      const raw = labelledBy
-        ? labelledBy
+      const labeledBy = link.getAttribute('aria-labelledby');
+      const raw = labeledBy
+        ? labeledBy
             .split(/\s+/)
             .map((id) => textOf(document.getElementById(id) ?? document))
             .join(' ')

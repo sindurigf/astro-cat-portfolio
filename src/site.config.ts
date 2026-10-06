@@ -29,7 +29,7 @@ export interface SiteConfig {
      * `SITE_URL` build variable overrides it.
      */
     url: string;
-    /** BCP 47, e.g. `en-GB`. */
+    /** BCP 47, e.g. `en-US`. */
     locale: string;
     /** The year of first publication, for the footer's copyright line. */
     firstPublished: number;
@@ -83,7 +83,7 @@ const config: SiteConfig = {
     name: 'example.com',
     shortName: 'example',
     url: 'https://example.com',
-    locale: 'en-GB',
+    locale: 'en-US',
     firstPublished: 2026,
     tagline: [
       'Archaeologist of the Straw Hats',

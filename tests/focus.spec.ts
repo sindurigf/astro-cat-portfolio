@@ -63,7 +63,7 @@ const FOCUS_LABEL = `
 
 const FOCUS_PROBE = `
     const probeCover = (el, rect) => {
-      /* Four corners and the centre, inset 2px to land on the element itself. */
+      /* Four corners and the center, inset 2px to land on the element itself. */
       const points = [
         [rect.left + 2, rect.top + 2],
         [rect.right - 2, rect.top + 2],
@@ -391,7 +391,7 @@ const expectRingsLargeEnough = (
   ).toEqual([]);
 };
 
-/* light-mode.css swaps the focus colour, so the rings are measured in both. */
+/* light-mode.css swaps the focus color, so the rings are measured in both. */
 const SCHEMES = ['dark', 'light'] as const;
 
 for (const colorScheme of SCHEMES) {

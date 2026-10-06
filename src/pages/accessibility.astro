@@ -4,6 +4,7 @@ import Abbr from '../components/Abbr.astro';
 import PageHero from '../components/PageHero.astro';
 import { accessibilityFacts } from '../lib/accessibility-facts';
 import { CONTACT_EMAIL, CONTACT_FORM_ON, CONTACT_MAILTO } from '../lib/contact';
+import { formatPostDate } from '../lib/post-date';
 import { ACCESSIBILITY_RESPONSE_DAYS, REPOSITORY_URL } from '../lib/site';
 
 /* A summary of ACCESSIBILITY.md; the volatile facts are derived from it at build time. */
@@ -39,7 +40,7 @@ const SUPPORTED = [
 
 /* Not counted: a total this page cannot recount would go stale. */
 const AUTOMATED = [
-  'colour contrast measured against the colour actually behind the text, including every result axe leaves undecided',
+  'color contrast measured against the color actually behind the text, including every result axe leaves undecided',
   'target sizes, reflow, Windows High Contrast Mode, reduced motion, and navigation with JavaScript off',
   'line length, line spacing and paragraph spacing on every page at three widths',
 ];
@@ -77,7 +78,9 @@ const AUTOMATED = [
         <div class="lg:col-span-3">
           <dt class="label text-gold">Last Reviewed</dt>
           <dd class="mt-4 text-text">
-            <time datetime={lastReviewed}>{lastReviewed}</time>
+            <time datetime={lastReviewed}>
+              {formatPostDate(new Date(lastReviewed))}
+            </time>
           </dd>
         </div>
         <div class="lg:col-span-3">

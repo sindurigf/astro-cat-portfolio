@@ -207,11 +207,11 @@ test.describe('cardGroups', NODE, () => {
     expect(cardGroups(body)).toMatch(/Rust[\s\S]*Text\.\n\n<\/div>$/);
   });
 
-  test('one labelled group is not a card', () => {
+  test('one labeled group is not a card', () => {
     expect(cards('- Point\n\n**Reality check**\n\n- No quick fix')).toBe(0);
   });
 
-  test('two labelled groups are two cards in one row', () => {
+  test('two labeled groups are two cards in one row', () => {
     const body = '**Left**\n\n- a\n\n**Right**\n\n- b';
     expect(cards(body)).toBe(2);
     expect(rows(body)).toBe(1);

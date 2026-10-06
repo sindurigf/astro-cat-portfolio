@@ -42,7 +42,7 @@ security and privacy, or build correctness. "Looks as designed" is not one.
 CI runs the full gate on every pull request. Locally, before opening one:
 
 - `build`, `typecheck`, `check`, `test:worker` and `test:demo`.
-- The specs the change touches or whose behaviour it changes, in every engine:
+- The specs the change touches or whose behavior it changes, in every engine:
   `npx playwright test <specs>` and `npm run test:webkit -- <specs>`.
 
 State what ran in the pull request.
@@ -50,7 +50,7 @@ State what ran in the pull request.
 ## Review findings
 
 A finding is a claim until it holds against the code. Read the code, measure
-the behaviour, look for why it is written that way, and fix only what survives.
+the behavior, look for why it is written that way, and fix only what survives.
 Record rejected findings beside the code so they are not raised again;
 [ARCHITECTURE.md](ARCHITECTURE.md#rejected-findings) lists the current ones.
 
@@ -141,7 +141,7 @@ Rules:
 - Editorial copy (posts, About, Career, taglines, bios) belongs to the site's
   owner. An agent does not invent it: in a fork it stays the sample persona's
   until a person writes it.
-- The sample persona's copy is the one exception: AI-written, labelled in the
+- The sample persona's copy is the one exception: AI-written, labeled in the
   footer and listed in [AI_DISCLOSURE.md](AI_DISCLOSURE.md).
 - New images, video, audio or editorial text: record whether AI made or edited
   it. If so, label it on the page and in
@@ -153,7 +153,7 @@ Rules:
 
 - Never commit anything from `design/`.
 - No PDF carries an author or creator in its metadata.
-- Read `.claude/skills/design-system/` before UI, colour or component
+- Read `.claude/skills/design-system/` before UI, color or component
   work.
 
 ## Where things are

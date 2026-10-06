@@ -98,7 +98,7 @@ const CARD_PADDING_HIT = 12;
 const napControl = (page: Page, id: (typeof CATS)[number]) =>
   page.locator(`#cat-spot-${id} .cat-nap`);
 
-/** The top-left corner of the viewport, outside the centred card. */
+/** The top-left corner of the viewport, outside the centered card. */
 const BACKDROP_POINT = { x: 4, y: 4 };
 
 const catButton = (page: Page, id: (typeof CATS)[number]) =>
@@ -543,7 +543,7 @@ test.describe('About cats', () => {
       ).toBeGreaterThanOrEqual(AA_TEXT);
       expect(
         anchor.underline,
-        'the inspiration link is told apart by colour alone',
+        'the inspiration link is told apart by color alone',
       ).toBe(true);
       await context.close();
     });
@@ -908,7 +908,7 @@ test.describe('About cats', () => {
         focused.icon,
         'the focused sleep icon is under 3:1',
       ).toBeGreaterThanOrEqual(NON_TEXT);
-      /* The outline colour reads as the text colour even with no ring drawn. */
+      /* The outline color reads as the text color even with no ring drawn. */
       expect(focused.drawn, 'the focused sleep control draws no ring').toBe(
         true,
       );
@@ -1067,7 +1067,7 @@ test.describe('About cats', () => {
   });
 
   for (const viewport of [REFLOW_VIEWPORT, PHONE_VIEWPORT, DESKTOP_VIEWPORT]) {
-    test(`each sleep control is on top at its centre at ${viewport.width}px (SC 2.2.2)`, async ({
+    test(`each sleep control is on top at its center at ${viewport.width}px (SC 2.2.2)`, async ({
       browser,
     }) => {
       const context = await browser.newContext({ viewport });

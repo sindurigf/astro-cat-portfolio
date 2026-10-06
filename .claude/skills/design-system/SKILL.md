@@ -1,6 +1,6 @@
 ---
 name: design-system
-description: Design system rules for this site - which colour, type, spacing, focus and component tokens to use and which to avoid, the gold surface, light mode and radius. Use on every task that writes or reviews markup, CSS or components in this repo, and before adding any colour, animation or interactive element. General accessibility rules are in ACCESSIBILITY.md.
+description: Design system rules for this site - which color, type, spacing, focus and component tokens to use and which to avoid, the gold surface, light mode and radius. Use on every task that writes or reviews markup, CSS or components in this repo, and before adding any color, animation or interactive element. General accessibility rules are in ACCESSIBILITY.md.
 ---
 
 # Design system
@@ -19,7 +19,7 @@ before changing anything it covers.
   on gold.
 - A removed outline, `outline-none`, `:focus` styles or `outline-offset: 0`.
 - A shadow on a focusable element without its lift.
-- State signalled by colour alone.
+- State signaled by color alone.
 - Text over a photograph, or `aspect-ratio` on an `<img>`.
 - A radius other than `rounded-nav`, `rounded-full` or `rounded-none`.
 - ARIA where a native element works; an `aria-label` over visible text
@@ -31,9 +31,9 @@ before changing anything it covers.
 
 - Tokens and enforcement: [Tokens only](../../../docs/STYLEGUIDE.md#tokens-only).
 - Where gold may go: [The gold register](../../../docs/STYLEGUIDE.md#the-gold-register).
-- Colour jobs: [Colour tokens](../../../docs/STYLEGUIDE.md#colour-tokens).
+- Color jobs: [Color tokens](../../../docs/STYLEGUIDE.md#color-tokens).
 - Every ratio: [Contrast](../../../docs/STYLEGUIDE.md#contrast).
-- New colour: [Adding a colour](../../../docs/STYLEGUIDE.md#adding-a-colour).
+- New color: [Adding a color](../../../docs/STYLEGUIDE.md#adding-a-color).
 - Gold ground: [Gold surface](../../../docs/STYLEGUIDE.md#gold-surface),
   [Buttons on gold](../../../docs/STYLEGUIDE.md#buttons-on-gold).
 - Light mode: [Light mode](../../../docs/STYLEGUIDE.md#light-mode).
@@ -63,4 +63,4 @@ before changing anything it covers.
 - Run the commands in `AGENTS.md`.
 - Tab the page, zoom to 400% and toggle reduced motion.
 - Never suppress an axe rule.
-- A new colour, animation or control usually needs a new assertion.
+- A new color, animation or control usually needs a new assertion.

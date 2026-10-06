@@ -93,7 +93,7 @@ const sceneFor = (width: number, height: number): Scene => {
   };
 };
 
-/* About three quarters of stems cluster on clump centres; the rest scatter. */
+/* About three quarters of stems cluster on clump centers; the rest scatter. */
 const clumpPlacer = (
   scene: Scene,
   rng: () => number,
@@ -108,9 +108,9 @@ const clumpPlacer = (
   }
   return (spread) => {
     if (rng() < STRAY_ODDS) return -margin + rng() * (boxWidth + margin * 2);
-    const centre = clumps[Math.floor(rng() * clumps.length)] ?? boxWidth / 2;
-    /* Difference of two uniforms: triangular, densest at the centre. */
-    return centre + (rng() - rng()) * spread * world;
+    const center = clumps[Math.floor(rng() * clumps.length)] ?? boxWidth / 2;
+    /* Difference of two uniforms: triangular, densest at the center. */
+    return center + (rng() - rng()) * spread * world;
   };
 };
 

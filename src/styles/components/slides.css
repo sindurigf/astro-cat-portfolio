@@ -62,7 +62,7 @@
     @apply mb-2 block text-label font-black uppercase tracking-label text-gold;
   }
 
-  /* Number in gold above a centred title; the line under it `subtle`. */
+  /* Number in gold above a centered title; the line under it `subtle`. */
   .slide-opener {
     @apply items-center text-center;
   }
@@ -128,7 +128,7 @@
     }
   }
 
-  /* Gold plus weight, so colour is not the only cue (SC 1.4.1). */
+  /* Gold plus weight, so color is not the only cue (SC 1.4.1). */
   .slide-body strong {
     @apply text-gold;
   }

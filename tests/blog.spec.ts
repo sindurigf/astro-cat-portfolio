@@ -62,7 +62,7 @@ test('the post /blog features has a cover', NODE, () => {
 test.describe('the category filter', () => {
   /**
    * `aria-current` is the machine-readable half; the `aria-hidden` marker square
-   * is the non-colour half (SC 1.4.1). Both are read so dropping either fails.
+   * is the non-color half (SC 1.4.1). Both are read so dropping either fails.
    */
   const activeOption = (page: Page) =>
     page.evaluate(() => {
@@ -104,7 +104,7 @@ test.describe('the category filter', () => {
 
     expect(
       filter.markers.filter(Boolean).length,
-      'the non-colour marker must appear on the current option and on no ' +
+      'the non-color marker must appear on the current option and on no ' +
         'other. If every option has one, or none does, the active state is ' +
         'being carried by the gold fill alone (SC 1.4.1).',
     ).toBe(1);

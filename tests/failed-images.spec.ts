@@ -235,7 +235,7 @@ for (const { label, width, scale } of VIEWS) {
 const LONG_ALT = Array.from(
   { length: 3 },
   () =>
-    'Several cats of different colours lying together on a long sofa in the afternoon sun, one of them holding a toy mouse, with more cats behind them on the stairs.',
+    'Several cats of different colors lying together on a long sofa in the afternoon sun, one of them holding a toy mouse, with more cats behind them on the stairs.',
 ).join(' ');
 const PANORAMA_ALT = /alt="A calico cat lying on a paisley pillow[^"]*"/;
 
@@ -258,7 +258,7 @@ for (const { label, width, scale } of VIEWS) {
     );
     await gotoSettled(page, '/about');
     const frame = page.locator('main .aspect-frame', {
-      has: page.locator('img[alt^="Several cats of different colours"]'),
+      has: page.locator('img[alt^="Several cats of different colors"]'),
     });
     await frame.scrollIntoViewIfNeeded();
 

@@ -71,7 +71,7 @@ test.describe('the font the first paint needs is preloaded', NODE, () => {
   });
 });
 
-test.describe('the document head declares the colour scheme', NODE, () => {
+test.describe('the document head declares the color scheme', NODE, () => {
   test('the stylesheet declares the scheme too', () => {
     /* The meta covers first paint before the stylesheet loads; each is asserted alone. */
     const css = stylesheetSource();
@@ -84,14 +84,14 @@ test.describe('the document head declares the colour scheme', NODE, () => {
     /* The root is dark in both modes; light mode sets `light` on <main> only. */
     expect(
       css,
-      `${STYLESHEETS} should not declare both colour schemes in one declaration.`,
+      `${STYLESHEETS} should not declare both color schemes in one declaration.`,
     ).not.toMatch(
       /color-scheme:[^;]*\bdark\b[^;]*\blight\b|color-scheme:[^;]*\blight\b[^;]*\bdark\b/,
     );
   });
 
   // `expect.soft` names every failing route in one run.
-  test('every route declares the dark colour scheme', () => {
+  test('every route declares the dark color scheme', () => {
     forEachBuiltRoute(builtHtml(), (route, html) => {
       expect
         .soft(

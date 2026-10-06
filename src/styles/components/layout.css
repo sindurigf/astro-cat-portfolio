@@ -150,7 +150,7 @@
   }
 
   /*
-   * On a `.gold-column`: right side on the text's right edge, centre on the 8px
+   * On a `.gold-column`: right side on the text's right edge, center on the 8px
    * border's outer edge.
    */
   .gold-column .hero-roundel {
@@ -184,7 +184,7 @@
   }
 
   /*
-   * Hero plus the section under it, one gold area. Two rings, since no colour
+   * Hero plus the section under it, one gold area. Two rings, since no color
    * clears SC 1.4.11 on both sides: gold-border inside, border outside. Top
    * margin is the name's overhang.
    */
@@ -225,7 +225,7 @@
 
     /*
      * The utility, not `var(--shadow-hard-pink-8)`: the token resolves on
-     * :root, where light mode's <main> colours do not reach.
+     * :root, where light mode's <main> colors do not reach.
      */
     @apply border-8 shadow-hard-pink-8;
   }
@@ -306,7 +306,7 @@
   }
 
   /*
-   * Hidden in forced colours: a canvas is a bitmap the mode cannot repaint.
+   * Hidden in forced colors: a canvas is a bitmap the mode cannot repaint.
    * With nothing moving, the pause control goes too.
    */
   @media (forced-colors: active) {
@@ -318,7 +318,7 @@
   /*
    * Line gap: the 12px rule plus clearance each side, less the line boxes'
    * empty leading; not `em` alone because the rule is px. `top` offsets by half
-   * the leading difference so the letters, not the boxes, centre on the rule.
+   * the leading difference so the letters, not the boxes, center on the rule.
    */
   .hero-plate span:last-child {
     margin-top: calc(

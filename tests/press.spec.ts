@@ -92,7 +92,7 @@ const castsShadow = (page: Page, selector: string) =>
 // A real pointer press so :hover and :active both apply; the click is cancelled.
 // Waits for :active: read before the press lands, a control that never moves
 // reads as one that correctly did not.
-const pressCentre = async (page: Page, control: string) => {
+const pressCenter = async (page: Page, control: string) => {
   const el = page.locator(control).first();
   await el.evaluate((node) =>
     node.addEventListener('click', (e) => e.preventDefault()),
@@ -134,7 +134,7 @@ test.describe('a press is drawn', () => {
       await gotoSettled(page, p.route);
       await page.locator(p.control).first().hover();
       const hovered = await pressLook(page, p.moves);
-      await pressCentre(page, p.control);
+      await pressCenter(page, p.control);
       expect(
         await pressLook(page, p.moves),
         'pressing changed neither the shadow nor the position',
@@ -151,7 +151,7 @@ test.describe('a press is drawn', () => {
       await page.emulateMedia({ reducedMotion: 'reduce' });
       await page.setViewportSize(DESKTOP_VIEWPORT);
       await gotoSettled(page, p.route);
-      await pressCentre(page, p.control);
+      await pressCenter(page, p.control);
       expect(await translateOf(page, p.moves)).toEqual([0, 0]);
       expect(
         await castsShadow(page, p.moves),
@@ -216,7 +216,7 @@ test('a focused gold primary keeps its inner ring when pressed', async ({
   await page.keyboard.press('Shift+Tab');
   await page.keyboard.press('Tab');
   await expect(button).toBeFocused();
-  await pressCentre(page, 'main .surface-gold .btn-gold-primary');
+  await pressCenter(page, 'main .surface-gold .btn-gold-primary');
   expect(await button.evaluate((el) => el.matches(':focus-visible'))).toBe(
     true,
   );

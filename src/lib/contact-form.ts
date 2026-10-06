@@ -8,7 +8,7 @@ export const FIELDS = {
   honeypot: 'website',
 } as const;
 
-/** In code points, after line breaks are normalised to `\n`. */
+/** In code points, after line breaks are normalized to `\n`. */
 export const LIMITS = {
   nameMin: 1,
   nameMax: 100,

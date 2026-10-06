@@ -86,9 +86,9 @@ const PAIRS = [
   ['gold-btn-label', 'gold', 'never', 'Only on the dark button fill'],
   ['cyan', 'pink', 'apart', 'A ring never touches a pink shadow'],
   ['cyan', 'gold', 'apart', 'A ring never touches a gold shadow or fill'],
-  ['cyan', 'border', 'apart', 'A ring never touches a neighbour edge'],
-  ['pink', 'border', 'apart', 'An error is a shape change, not a recolour'],
-  ['text', 'subtle', 'apart', 'The two text colours never carry a state'],
+  ['cyan', 'border', 'apart', 'A ring never touches a neighbor edge'],
+  ['pink', 'border', 'apart', 'An error is a shape change, not a recolor'],
+  ['text', 'subtle', 'apart', 'The two text colors never carry a state'],
 ];
 
 export const readTokens = (css = readFileSync(CSS, 'utf8')) => {

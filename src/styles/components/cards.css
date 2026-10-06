@@ -90,7 +90,7 @@
   }
 
   /*
-   * Reading column centred between equal tracks; contents list on the right
+   * Reading column centered between equal tracks; contents list on the right
    * from `xl`. Not sticky: a tall list hides links, and a scrolling one is an
    * extra Firefox tab stop (tests/focus.spec.ts).
    */
@@ -122,7 +122,7 @@
 
       /*
        * Row 1, beside the article's first block. The width cap keeps the
-       * reading column centred.
+       * reading column centered.
        */
       & > .post-contents {
         grid-column: 3;
@@ -133,7 +133,7 @@
   }
 
   /*
-   * The parts draw the edges, not the box: forced colours drop shadow and
+   * The parts draw the edges, not the box: forced colors drop shadow and
    * background, and the summary needs its own edge
    * (tests/forced-colors.spec.ts).
    */
@@ -204,7 +204,7 @@
   }
 
   /*
-   * Colour here, not a utility, which would beat the hover below. Inline-block
+   * Color here, not a utility, which would beat the hover below. Inline-block
    * so a wrapped title's focus ring is one box, and so it can meet SC 2.5.5.
    */
   .card-link {
@@ -224,7 +224,7 @@
     @apply text-cyan;
   }
 
-  /* Reading size at 400; on a slab the colour comes from the slab. */
+  /* Reading size at 400; on a slab the color comes from the slab. */
   .lead {
     @apply mt-6 max-w-2xl text-lead font-normal text-text text-pretty;
   }

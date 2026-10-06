@@ -1,5 +1,5 @@
 /*
- * Mobile menu dialog (Header.astro). Unlayered; sets no link colour, which
+ * Mobile menu dialog (Header.astro). Unlayered; sets no link color, which
  * would beat `hover:text-cyan` (tests/states.spec.ts).
  */
 

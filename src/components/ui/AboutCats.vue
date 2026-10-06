@@ -276,7 +276,7 @@ const openCat = (id: CatId): void => {
   void nextTick(() => {
     if (!dialog.value || dialog.value.open) return;
     dialog.value.showModal();
-    /* Placed in the frame it opens, so it never jumps from the centre. */
+    /* Placed in the frame it opens, so it never jumps from the center. */
     placeCard();
     followCat(true);
   });

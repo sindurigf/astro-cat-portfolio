@@ -122,8 +122,8 @@ const link = (href, label) => ({
   children: [text(label)],
 });
 
-/** A Creative Commons photo's source, licence and changes, keyed by its file name. */
-export const licenceChildren = (src, photos = LICENSED_PHOTOS) => {
+/** A Creative Commons photo's source, license and changes, keyed by its file name. */
+export const licenseChildren = (src, photos = LICENSED_PHOTOS) => {
   const stem =
     String(src)
       .split('/')
@@ -135,7 +135,7 @@ export const licenceChildren = (src, photos = LICENSED_PHOTOS) => {
     text(' ('),
     link(photo.source, photo.title),
     text(` on ${photo.sourceName}, `),
-    link(photo.licenceHref, photo.licence),
+    link(photo.licenseHref, photo.license),
     text(`, ${photo.changes})`),
   ];
 };
@@ -149,7 +149,7 @@ export const captionChildren = (caption, src, photos = LICENSED_PHOTOS) => {
   const href = Object.hasOwn(sources, name) ? sources[name] : undefined;
   if (href === undefined) return [text(caption)];
 
-  return [text(prefix), link(href, name), ...licenceChildren(src, photos)];
+  return [text(prefix), link(href, name), ...licenseChildren(src, photos)];
 };
 
 /* A post with a `cover` opens on it (src/pages/blog/[slug].astro), so that photo loads first. */

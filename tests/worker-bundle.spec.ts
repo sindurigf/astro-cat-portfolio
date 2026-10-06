@@ -57,7 +57,7 @@ test.describe('the Worker bundle', NODE, () => {
   });
 
   // An unapplied `define` leaves an identifier that throws on the on-demand route's first request.
-  test('carries the theme colour as a literal, not an identifier', () => {
+  test('carries the theme color as a literal, not an identifier', () => {
     const sources = serverFiles().map((file) => readFileSync(file, 'utf8'));
     const background = cssColorToken('--color-background');
 
