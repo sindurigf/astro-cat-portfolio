@@ -8,7 +8,7 @@ system and conventions: [ARCHITECTURE.md](ARCHITECTURE.md).
 ```sh
 npm run build
 npm run typecheck
-npm run check        # tokens, links, pins, classes, images, format, commits, leaks
+npm run check        # tokens, links, pins, classes, images, title-case, format, commits, leaks
 npm run test:a11y    # Chromium, Firefox; WebKit in CI or with WEBKIT=1
 npm run test:webkit  # test:a11y in WebKit via Docker
 npm run test:worker  # WORKER_SPECS through the Worker
@@ -136,7 +136,8 @@ Rules:
   ([GOV.UK](https://insidegovuk.blog.gov.uk/2014/08/04/sentence-length-why-25-words-is-our-limit/)).
   Active voice, everyday words, no "e.g." or "i.e.".
 - An error message says what is wrong and how to fix it, without blame.
-- Headings and labels use Chicago title case; sentences use sentence case.
+- Headings and labels use Chicago title case; sentences use sentence case
+  ([rule](docs/STYLEGUIDE.md#uppercase)).
 - Editorial copy (posts, About, Career, taglines, bios) belongs to the site's
   owner. An agent does not invent it: in a fork it stays the sample persona's
   until a person writes it.

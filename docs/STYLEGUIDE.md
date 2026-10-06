@@ -347,13 +347,18 @@ before raising one.
 
 ### Uppercase
 
-- Write Chicago title case. `.label`, `.badge`, the buttons and every heading apply
+- Write headings and labels in Chicago title case and sentences in sentence
+  case. The lower-case words are in `TITLE_CASE_SMALL_WORDS`
+  (`src/lib/labels.ts`); the first and last word are always capitalised, and
+  each part of a hyphenated compound counts as a word ("One-Keeper Problem").
+  `npm run check:title-case` scans the built headings, titles and summaries.
+- `.label`, `.badge`, the buttons and every heading apply
   `text-transform: uppercase`. A post title and a talk slide title keep their
   written case (`.post-title`, `.slide-title`).
 - Chromium exposes the uppercased string in the accessible name (`About`
-  becomes `"ABOUT"`); Firefox and WebKit do not. Written case in the markup
-  is the one input correct under both, and keeps copy, search and previews in
-  real case.
+  becomes `"ABOUT"`); Firefox and WebKit do not. Real case in the markup is the
+  one input correct under both, and keeps copy, search and previews in real
+  case.
 - How a screen reader announces caps is untested
   ([MANUAL_TESTING.md](MANUAL_TESTING.md) §6). Do not claim caps are spelled
   out letter by letter.

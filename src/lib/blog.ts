@@ -1,7 +1,10 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
 import { BLOG_CATEGORIES, type BlogCategory } from '../content.config';
 import { BLOG_PATH, categoryHref, postHref } from './paths';
+import { categoryLabel } from './labels';
 import { JOURNEY_POST } from './site';
+
+export { categoryLabel };
 
 export type BlogPost = CollectionEntry<'blog'>;
 
@@ -46,44 +49,6 @@ interface CategoryFilterOption {
   href: string;
   category: BlogCategory | null;
 }
-
-/* Chicago lowercases these inside a title, never first or last. */
-const MINOR_WORDS = new Set([
-  'a',
-  'an',
-  'the',
-  'and',
-  'but',
-  'or',
-  'nor',
-  'for',
-  'yet',
-  'so',
-  'at',
-  'by',
-  'in',
-  'of',
-  'on',
-  'to',
-  'from',
-  'with',
-]);
-
-const capitalise = (word: string): string =>
-  word.charAt(0).toUpperCase() + word.slice(1);
-
-/* Chicago title case for the unstyled <title>; visible uses are uppercase CSS. */
-export const categoryLabel = (category: string): string => {
-  const words = category.split('-');
-  const last = words.length - 1;
-  return words
-    .map((word, index) =>
-      index > 0 && index < last && MINOR_WORDS.has(word)
-        ? word
-        : capitalise(word),
-    )
-    .join(' ');
-};
 
 /* Proper nouns; other tags use `categoryLabel`. */
 const TAG_LABELS: Record<string, string> = {
