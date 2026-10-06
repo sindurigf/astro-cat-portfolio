@@ -1,5 +1,10 @@
 import { expect, test } from './test';
-import { frontmatterOf, POST_ROUTES, postFrontmatter } from './routes';
+import {
+  frontmatterOf,
+  frontmatterTime,
+  POST_ROUTES,
+  postFrontmatter,
+} from './routes';
 import { NODE } from './tags';
 
 /**
@@ -64,5 +69,29 @@ test.describe('the frontmatter bound', NODE, () => {
         `${slug}.md has no readable frontmatter`,
       ).toMatch(/^title:/m);
     }
+  });
+});
+
+test.describe('the frontmatter date', NODE, () => {
+  test('a time with no zone is read as UTC', () => {
+    expect(frontmatterTime('date: 2026-07-10T09:30:00', 'date')).toBe(
+      Date.UTC(2026, 6, 10, 9, 30),
+    );
+  });
+
+  test('a time with a zone keeps its zone', () => {
+    expect(frontmatterTime('date: 2026-07-10T09:30:00+02:00', 'date')).toBe(
+      Date.UTC(2026, 6, 10, 7, 30),
+    );
+  });
+
+  test('an absent date is undefined', () => {
+    expect(frontmatterTime('title: Real', 'date')).toBeUndefined();
+  });
+
+  test('an invalid date throws, naming the value', () => {
+    expect(() => frontmatterTime('date: 2026-13-45', 'date')).toThrow(
+      'date: 2026-13-45 is not a date.',
+    );
   });
 });
