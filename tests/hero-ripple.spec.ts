@@ -73,19 +73,26 @@ test(
 );
 
 test(
-  'some glyph row is always fully lit, so the loop has no dark gap',
+  'one glyph row is lit at a time, crossing over to the next with no dark gap',
   NODE,
   () => {
     for (let seconds = 0; seconds < CYCLE; seconds += STEP) {
-      const brightest = Math.max(
-        ...Array.from({ length: ROWS }, (_, row) =>
-          glyphLight(row, ROWS, seconds, false),
-        ),
+      const light = Array.from({ length: ROWS }, (_, row) =>
+        glyphLight(row, ROWS, seconds, false),
       );
+      const at = seconds.toFixed(2);
       expect(
-        brightest,
-        `no row is lit at ${seconds.toFixed(2)} s`,
-      ).toBeGreaterThan(0.99);
+        light.filter((v) => v > 0.5 + 1e-9).length,
+        `more than one row is over half lit at ${at} s`,
+      ).toBeLessThanOrEqual(1);
+      expect(
+        light.filter((v) => v > 1e-9).length,
+        `more than two rows are lit at ${at} s`,
+      ).toBeLessThanOrEqual(2);
+      expect(
+        Math.max(...light),
+        `no row is lit at ${at} s`,
+      ).toBeGreaterThanOrEqual(0.5 - 1e-9);
     }
   },
 );

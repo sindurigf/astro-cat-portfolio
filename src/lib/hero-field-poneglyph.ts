@@ -41,11 +41,11 @@ const CUT = { lip: 0.8, groove: 0.7 } as const;
 const LINE = { outline: 0.008, groove: 0.0045, lip: 0.006 } as const;
 
 /*
- * A light reads down the script and wraps to the top: each row rises, holds
- * and fades over 10 s, the next starting 2.5 s later, so a few rows are always
- * lit. Seconds; the ramps are far slower than 3 a second (SC 2.3.1).
+ * A light reads down the script one row at a time and wraps to the top. The
+ * next row rises as this one fades (`step` is rise plus hold), so the two only
+ * cross over. Seconds; the ramps are far slower than 3 a second (SC 2.3.1).
  */
-export const GLOW = { rise: 3, hold: 4, fall: 3, step: 2.5 } as const;
+export const GLOW = { rise: 2, hold: 3, fall: 2, step: 5 } as const;
 
 /* Zero slope and zero curvature at both ends, so nothing starts or stops with a jolt. */
 const smoother = (x: number): number =>
