@@ -23,10 +23,7 @@
     @apply font-black uppercase text-text;
   }
 
-  /*
-   * Phone: one full-width 40.8px target per row (16.8px line plus 12px each
-   * side).
-   */
+  /* Phone: one full-width row per link. */
   .footer-pages,
   .footer-policies {
     justify-self: stretch;
@@ -240,7 +237,7 @@
       grid-column: 3;
     }
 
-    /* 32.8px targets: 16.8px line plus 8px each side. */
+    /* Rows stay --spacing-target tall; the padding insets the label. */
     .footer-pages a,
     .footer-policies a {
       padding-block: --spacing(2);
