@@ -14,6 +14,7 @@ repository to Workers Builds, or run `npx wrangler deploy` yourself.
    - `d1_databases`: `database_name` ([D1](#d1)). There is no
      `database_id` to fill in.
    - `send_email`: the sender, equal to `contact.notificationSender`.
+   - `ratelimits`: `namespace_id` ([rate limit](#rate-limit)).
 3. Log in with `npx wrangler login`, or set `CLOUDFLARE_API_TOKEN` and
    `CLOUDFLARE_ACCOUNT_ID`. The account never goes in a file.
 
@@ -139,6 +140,21 @@ npx wrangler d1 migrations apply MESSAGES_DB --remote
   messages still waiting.
 - Local builds and `test:worker` use a local D1 and need neither the id nor an
   account.
+
+## Rate limit
+
+`CONTACT_RATE_LIMIT` in `wrangler.jsonc` limits form submissions per sender
+(5 per 60 seconds). Details: [ARCHITECTURE.md](../ARCHITECTURE.md#the-contact-forms-honeypot).
+
+- `namespace_id` is a string holding a positive integer that identifies the
+  namespace within your Cloudflare account. Bindings that share one, across
+  Workers too, share their counters.
+- Keep the shipped `1001` unless another binding in the account already uses
+  it; then pick an unused integer.
+- `period` is `10` or `60` seconds. Counts are per Cloudflare location.
+- Without the binding the form still works, unlimited: the Worker logs
+  `CONTACT_RATE_LIMIT binding missing` and accepts the submission.
+- Source: [Workers Rate Limiting](https://developers.cloudflare.com/workers/runtime-apis/bindings/rate-limit/).
 
 ## Contact form email
 
