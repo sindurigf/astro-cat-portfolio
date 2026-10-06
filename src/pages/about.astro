@@ -7,6 +7,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import CloseRow from '../components/CloseRow.astro';
 import PageHero from '../components/PageHero.astro';
 import PhotoTile from '../components/PhotoTile.astro';
+import PhotoStrip from '../components/PhotoStrip.astro';
 import PhotoViewer from '../components/PhotoViewer.astro';
 import Section from '../components/Section.astro';
 import PersonaSources from '../components/PersonaSources.astro';
@@ -45,9 +46,8 @@ import { PERSON_NAME } from '../lib/profiles';
  * gap, so they overstate by at most half a gap. tests/image-size.spec.ts fails on drift.
  */
 const SIZES = {
-  panorama:
-    '(min-width: 40rem) min(calc(100vw - 9rem), 74rem), calc(100vw - 6rem)',
-  food: '(min-width: 64rem) min(calc(50vw - 120px), 34rem), (min-width: 40rem) calc(100vw - 9rem), calc(100vw - 6rem)',
+  halfCard:
+    '(min-width: 64rem) min(calc(50vw - 120px), 34rem), (min-width: 40rem) calc(100vw - 9rem), calc(100vw - 6rem)',
   /* A half with no gap beside it. */
   single:
     '(min-width: 40rem) min(calc(50vw - 5.5rem), 36rem), calc(100vw - 7rem)',
@@ -256,9 +256,17 @@ const closeRow = await closeRowLinks({
   </Section>
 
   <Section id={SECTIONS[1].id} title={SECTIONS[1].title}>
-    <div class="card-block grid">
-      <div class="card">
-        <div class="aspect-frame">
+    <div class="card-block grid lg:grid-cols-2">
+      <blockquote class="card card-raised surface-gold flex flex-col justify-center">
+        <span aria-hidden="true" class="self-start text-quote-mark font-black">
+          &ldquo;
+        </span>
+        <p class="mt-6 text-h2 font-black text-pretty">
+          History belongs to everyone who wants to learn it.
+        </p>
+      </blockquote>
+      <div class="card flex flex-col justify-center">
+        <div class:list={['aspect-frame', PHOTO]}>
           <svg
             class="aspect-sizer"
             viewBox={`0 0 ${panoramaSize.width} ${panoramaSize.height}`}
@@ -272,15 +280,10 @@ const closeRow = await closeRowLinks({
             width={panoramaSize.width}
             height={panoramaSize.height}
             widths={WIDTHS}
-            sizes={SIZES.panorama}
+            sizes={SIZES.halfCard}
           />
         </div>
       </div>
-      <blockquote class="card surface-gold">
-        <p class="max-w-3xl text-h2 font-black text-pretty">
-          History belongs to everyone who wants to learn it.
-        </p>
-      </blockquote>
     </div>
   </Section>
 
@@ -307,50 +310,13 @@ const closeRow = await closeRowLinks({
           />
         </div>
 
-        <div class="mb-4 mt-8 flex items-center justify-between gap-4">
-          <span class="label block text-subtle">More photos</span>
-          {/* Unhidden by src/scripts/photo-viewer.ts while the strip overflows. */}
-          <div class="flex gap-3">
-            <button
-              type="button"
-              class="strip-button"
-              aria-controls="people-photos"
-              aria-label="Scroll photos left"
-              data-strip-scroll="-1"
-              hidden
-            >
-              <span aria-hidden="true">&larr;</span>
-            </button>
-            <button
-              type="button"
-              class="strip-button"
-              aria-controls="people-photos"
-              aria-label="Scroll photos right"
-              data-strip-scroll="1"
-              hidden
-            >
-              <span aria-hidden="true">&rarr;</span>
-            </button>
-          </div>
-        </div>
-        {/* accesslint focus-order flags tabindex="0" here: false positive, a keyboard can only scroll a focusable region. */}
-        <ul
+        <PhotoStrip
           id="people-photos"
-          class="photo-strip"
-          tabindex="0"
-          aria-label="More photos, scrolls sideways"
-        >
-          {PLACES.map((place) => (
-            <li>
-              <PhotoTile
-                image={place.src}
-                alt={place.alt}
-                group="people"
-                size="natural"
-              />
-            </li>
-          ))}
-        </ul>
+          label="More photos"
+          noun="photos"
+          group="people"
+          photos={PLACES}
+        />
       </div>
     </div>
   </Section>
@@ -395,7 +361,7 @@ const closeRow = await closeRowLinks({
               src={food}
               alt="A calico cat lying in a fabric cat bed, looking at the camera."
               widths={WIDTHS}
-              sizes={SIZES.food}
+              sizes={SIZES.halfCard}
             />
           </div>
         </div>

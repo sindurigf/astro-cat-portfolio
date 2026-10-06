@@ -299,6 +299,7 @@ copyright and contents list are fixed, and `text-code` is `max(1rem, 0.92em)`,
 | `text-copyright`         | 20     | 20     | 1.2         | 900    | Footer copyright                 |
 | `text-footer-name`       | 32     | 40     | 1           | 900    | Footer name                      |
 | `text-section-number`    | 21     | 28     | 1           | 900    | Category glyph tile              |
+| `text-quote-mark`        | 64     | 144    | 0.75        | 900    | About quote mark                 |
 
 - Lexend, self-hosted from `@fontsource-variable/lexend` (OFL-1.1), family
   `'Lexend Variable'`. Only the latin subset is declared, in the `@font-face`
@@ -536,7 +537,8 @@ The grid rule in `scripts/check-tokens.mjs` enforces the grid;
   full slab.
 - **Cross-links between two sections:** a chip.
 - **The quote sentence:** `text-h2` at 900, on `/about` and on `/contact`'s
-  closing band.
+  closing band. On `/about` it sits on a raised gold card under a decorative
+  `text-quote-mark`, beside the photo.
 - **A name with a line saying what it did** (`/credits`): each entry on an
   inset `bg-background` tile inside the card. No rule between entries.
 - **Photo captions:** none on People and places; the alt text names who is in
@@ -585,7 +587,7 @@ The grid rule in `scripts/check-tokens.mjs` enforces the grid;
   its card as a focusable region), a tilted mark's corners and any hard shadow
   (up to 12px past the column).
 - **Reflow:** every type is one column below 640px, on the 288px content box
-  at 320px. At 200% zoom a 1280px window is 640 CSS px. Only the photo strip
+  at 320px. At 200% zoom a 1280px window is 640 CSS px. Only photo strips
   and wide tables scroll sideways, each in its own region.
 
 ### Page compositions

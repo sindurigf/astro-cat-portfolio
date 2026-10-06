@@ -1,0 +1,61 @@
+---
+import type { ImageMetadata } from 'astro';
+import PhotoTile from './PhotoTile.astro';
+
+interface Props {
+  id: string;
+  /** Visible label above the strip; it also names the list. */
+  label: string;
+  /** Inserted into the arrow names: "Scroll {noun} left". */
+  noun: string;
+  group: string;
+  photos: readonly { src: ImageMetadata; alt: string }[];
+}
+
+const { id, label, noun, group, photos } = Astro.props;
+---
+
+<div class="mb-4 mt-8 flex items-center justify-between gap-4">
+  <span class="label block text-subtle">{label}</span>
+  {/* Unhidden by src/scripts/photo-viewer.ts while the strip overflows. */}
+  <div class="flex gap-3">
+    <button
+      type="button"
+      class="strip-button"
+      aria-controls={id}
+      aria-label={`Scroll ${noun} left`}
+      data-strip-scroll="-1"
+      hidden
+    >
+      <span aria-hidden="true">&larr;</span>
+    </button>
+    <button
+      type="button"
+      class="strip-button"
+      aria-controls={id}
+      aria-label={`Scroll ${noun} right`}
+      data-strip-scroll="1"
+      hidden
+    >
+      <span aria-hidden="true">&rarr;</span>
+    </button>
+  </div>
+</div>
+{/* accesslint focus-order flags tabindex="0" here: false positive, a keyboard can only scroll a focusable region. */}
+<ul
+  id={id}
+  class="photo-strip"
+  tabindex="0"
+  aria-label={`${label}, scrolls sideways`}
+>
+  {photos.map((photo) => (
+    <li>
+      <PhotoTile
+        image={photo.src}
+        alt={photo.alt}
+        group={group}
+        size="natural"
+      />
+    </li>
+  ))}
+</ul>

@@ -185,6 +185,12 @@
   --text-reading-h1: clamp(2.0625rem, 9vw, 4.375rem);
   --text-reading-h1--line-height: 0.94;
   /*
+   * The opening quote mark on the /about quote card. Decoration, so no reflow
+   * floor; the short line box trims the glyph's empty lower half.
+   */
+  --text-quote-mark: clamp(4rem, 12vw, 9rem);
+  --text-quote-mark--line-height: 0.75;
+  /*
    * Blog post title, in its own case, beside the teaser on the slab: 52 over
    * --text-post-teaser's 26 is 2:1.
    */
