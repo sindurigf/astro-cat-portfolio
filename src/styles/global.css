@@ -63,6 +63,8 @@
    */
   --color-mark: #ff007a;
   --color-tile-edge: #5a87a8;
+  /* The system color forced-colors mode pairs with the button face; bars on it use `forced-colors:bg-button-text`. */
+  --color-button-text: ButtonText;
   /*
    * The About cats, read by about-cats.css. Fills are decoration: the sticker
    * edge (`text`) carries SC 1.4.11, so none of these delimits a control.

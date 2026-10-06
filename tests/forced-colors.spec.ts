@@ -273,6 +273,32 @@ test.describe('forced colors', () => {
     ).toEqual([]);
   });
 
+  test('the menu button bars differ from the button face in forced colors', async ({
+    page,
+  }) => {
+    await page.setViewportSize(REFLOW_VIEWPORT);
+    await gotoSettled(page, '/');
+    await forceColors(page, '/ (menu closed)');
+
+    const { face, bars } = await page.evaluate(() => {
+      const trigger = document.querySelector('[data-menu-trigger]')!;
+      return {
+        face: getComputedStyle(trigger).backgroundColor,
+        bars: [...trigger.querySelectorAll('span > span')].map(
+          (bar) => getComputedStyle(bar).backgroundColor,
+        ),
+      };
+    });
+    expect(
+      bars.length,
+      'the menu button has no bars to judge.',
+    ).toBeGreaterThan(0);
+    expect(
+      bars.filter((bar) => bar === face),
+      'bar(s) painted the button face color, so the icon vanishes (SC 1.4.11).',
+    ).toEqual([]);
+  });
+
   test('the mobile menu holds up in forced colors at 320px', async ({
     page,
   }) => {
