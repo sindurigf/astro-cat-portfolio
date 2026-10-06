@@ -20,6 +20,14 @@ const remember = (theme: Theme): void => {
   }
 };
 
+const hasChoice = (): boolean => {
+  try {
+    return localStorage.getItem(THEME_STORAGE_KEY) !== null;
+  } catch {
+    return false;
+  }
+};
+
 /* Every switch reads the one `data-theme`, so two on a page never disagree. */
 const buttons = [
   ...document.querySelectorAll<HTMLButtonElement>('.theme-switch'),
@@ -36,3 +44,13 @@ for (const button of buttons) {
   reflect(button);
   button.addEventListener('click', toggle);
 }
+
+/* Until the visitor chooses, the page follows the system. */
+matchMedia('(prefers-color-scheme: light)').addEventListener(
+  'change',
+  (event) => {
+    if (hasChoice()) return;
+    root.dataset.theme = event.matches ? 'light' : 'dark';
+    buttons.forEach(reflect);
+  },
+);

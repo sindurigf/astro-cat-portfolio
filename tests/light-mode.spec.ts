@@ -260,6 +260,27 @@ test.describe('the switch', () => {
     await context.close();
   });
 
+  test('a device that changes mode moves the page until a choice is stored', async ({
+    page,
+  }) => {
+    await gotoSettled(page, '/about');
+    const toggle = page.getByRole('button', { name: SWITCH_NAME });
+
+    await page.emulateMedia({ colorScheme: 'light' });
+    await expect(toggle).toHaveAttribute('aria-pressed', 'true');
+    expect(await mainIsLight(page)).toBe(true);
+
+    await toggle.click();
+    await expect(toggle).toHaveAttribute('aria-pressed', 'false');
+    await page.emulateMedia({ colorScheme: 'dark' });
+    await page.emulateMedia({ colorScheme: 'light' });
+    await expect(
+      toggle,
+      'a device change overrode the stored choice',
+    ).toHaveAttribute('aria-pressed', 'false');
+    expect(await mainIsLight(page)).toBe(false);
+  });
+
   test('keyboard focus rings the tile', async ({ page }) => {
     await gotoSettled(page, '/about');
     const toggle = page.getByRole('button', { name: SWITCH_NAME });
