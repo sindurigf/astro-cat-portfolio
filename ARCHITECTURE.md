@@ -99,7 +99,7 @@ Dark is the default. Colours and rules:
 - `src/components/ThemeSwitch.astro` is a `<button aria-pressed>` named "Light
   mode"; `src/scripts/theme-switch.ts` wires it and a press saves the choice.
 - Without JavaScript the page is dark and the switch hidden.
-- `HeroField.vue` reads its palette from its own element and rebuilds when a
+- `HeroField.vue` (through `use-hero-field.ts`) reads its palette from its own element and rebuilds when a
   `MutationObserver` sees `data-theme` change. Its ground is `hero-ground`.
 - `AboutCats.vue` needs neither: its SVG parts carry classes, and
   `about-cats.css` maps them to tokens, so the cats follow the theme in CSS.
@@ -356,7 +356,7 @@ in `wrangler.jsonc`).
   ([DEVELOPMENT.md](docs/DEVELOPMENT.md#the-sharing-image)). A PNG in `public/`
   because scrapers need a stable URL and format.
 - `artwork/mark-dark.svg`: the mark's source, read by `npm run og`.
-- The mark, icons, sharing image and hero cat are drawn by AI
+- The mark, icons, sharing image and hero poneglyph are drawn by AI
   ([AI_DISCLOSURE.md](AI_DISCLOSURE.md)).
 - Every placement renders through `<Image>` at its drawn size with `DENSITIES`
   (1x, 2x). The roundel resizes, so it passes `widths` and `sizes`.
@@ -423,7 +423,7 @@ in `wrangler.jsonc`).
 | ----------------------------------- | ------------ | ---------------------------------------------------- |
 | `public/favicon.svg`                | vector       | Primary icon for modern browsers; source of the rest |
 | `public/favicon.ico`                | 16 / 32 / 48 | Legacy fallback, three frames                        |
-| `artwork/favicon-16x16.png`         | 16           | `favicon.ico` frame; silhouette, no face             |
+| `artwork/favicon-16x16.png`         | 16           | `favicon.ico` frame; silhouette, no cut-outs         |
 | `artwork/favicon-32x32.png`         | 32           | `favicon.ico` frame; mark at 1.25x                   |
 | `artwork/favicon-48x48.png`         | 48           | `favicon.ico` frame; mark at 1.25x                   |
 | `public/favicon-96x96.png`          | 96           | The tile, linked from the head                       |
@@ -432,7 +432,7 @@ in `wrangler.jsonc`).
 | `public/android-chrome-512x512.png` | 512          | PWA icon, from the manifest                          |
 | `public/maskable-icon-512x512.png`  | 512          | `purpose: maskable`, mark inside the 80% safe zone   |
 
-- The small frames draw the mark at 1.25x its tile size; at 16px the face is
+- The small frames draw the mark at 1.25x its tile size; at 16px the cut-outs are
   under a pixel, so that frame is the silhouette alone. Do not downscale the 96.
 - Render the PNGs from `favicon.svg` in Chromium so the tilt and radius match
   the browser's.
@@ -621,9 +621,9 @@ evidence.
 - **Add a `BreadcrumbList` to the talk page:** pages outside `/blog` carry no
   breadcrumbs (`tests/breadcrumbs.spec.ts`); the link to the talk's post
   covers the way back.
-- **Name the numbers in `hero-field-cat.ts`, and the bud, head and shadow
-  ellipses in `hero-field.ts`, as constants:** they are drawing coordinates,
-  geometry in the mascot's own units, not tuning values.
+- **Name the bud and head ellipses in `hero-field.ts`, or the glyph strokes
+  and petal curves in `hero-field-poneglyph.ts`, as constants:** they are
+  drawing coordinates, not tuning values.
 - **Move every `href` in page markup into `paths.ts`:** a route used by code
   (redirects, nav, sitemap, `llms.txt`) is a constant there; a link in prose
   stays markup, and `tests/internal-links.spec.ts` fails on a broken one.

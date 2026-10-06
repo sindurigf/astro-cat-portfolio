@@ -81,21 +81,21 @@ blur, uppercase headings, tilted marks.
 
 ## Colour tokens
 
-| Token        | Hex       | Job                                                        |
-| ------------ | --------- | ---------------------------------------------------------- |
-| `background` | `#131313` | Page ground; header, footer, bands                         |
-| `surface`    | `#1A1A1A` | Cards, inputs                                              |
-| `border`     | `#5A87A8` | Every boundary                                             |
-| `text`       | `#E5E2E1` | Words                                                      |
-| `subtle`     | `#9BB4C6` | Captions, meta, helper text                                |
-| `gold`       | `#FFC000` | The accent, only where the style guide allows              |
-| `cyan`       | `#00DCFD` | Hover and focus only                                       |
-| `pink`       | `#FF007A` | Depth and error; never text                                |
-| `pink-text`  | `#FF79B6` | Every pink glyph; never non-text                           |
-| `mark`       | `#FF007A` | Logo marks; same in both modes                             |
-| `tile-edge`  | `#5A87A8` | Logo tile copies' edge; both modes                         |
-| `cat-*`      | 14 fills  | About cat drawings and props; decoration, never a boundary |
-| `hero-*`     | 5 values  | Homepage canvas ground, veil and floor; decoration         |
+| Token        | Hex       | Job                                                         |
+| ------------ | --------- | ----------------------------------------------------------- |
+| `background` | `#131313` | Page ground; header, footer, bands                          |
+| `surface`    | `#1A1A1A` | Cards, inputs                                               |
+| `border`     | `#5A87A8` | Every boundary                                              |
+| `text`       | `#E5E2E1` | Words                                                       |
+| `subtle`     | `#9BB4C6` | Captions, meta, helper text                                 |
+| `gold`       | `#FFC000` | The accent, only where the style guide allows               |
+| `cyan`       | `#00DCFD` | Hover and focus only                                        |
+| `pink`       | `#FF007A` | Depth and error; never text                                 |
+| `pink-text`  | `#FF79B6` | Every pink glyph; never non-text                            |
+| `mark`       | `#FF007A` | Logo marks; same in both modes                              |
+| `tile-edge`  | `#5A87A8` | Logo tile copies' edge; both modes                          |
+| `cat-*`      | 14 fills  | About cat drawings and props; decoration, never a boundary  |
+| `hero-*`     | 6 values  | Homepage canvas ground, veil, floor and flowers; decoration |
 
 The gold-ground set is in [Gold surface](#gold-surface), light values in
 [Light mode](#light-mode).
@@ -1023,7 +1023,8 @@ Enforced by `tests/nav-current.spec.ts`, `tests/mobile-menu.spec.ts`,
 - Nothing flashes more than three times per second (SC 2.3.1).
 - Controls press into their shadow at 0ms; no movement under reduced motion.
 - No marquee.
-- Pattern (`src/components/ui/HeroField.vue`): start the animation on mount,
+- Pattern (`src/components/ui/HeroField.vue`, its logic in
+  `src/composables/use-hero-field.ts`): start the animation on mount,
   never in server HTML. Under reduced motion render one still frame and no
   button. The state lives in the accessible name ("Play the hero animation" /
   "Pause the hero animation"), no `aria-pressed`.
@@ -1052,9 +1053,16 @@ Enforced by `tests/nav-current.spec.ts`, `tests/mobile-menu.spec.ts`,
 - A band is never a scroll anchor (`overflow-anchor: none` on `.cat-spot`):
   WebKit would scroll the page with a moving cat and carry a focused control
   out of view (SC 2.4.11).
-- The hero mascot and the About cats are an intended pair. The hero is line
-  art, drawn to match the canvas's grass lines; the About cats are stickers,
-  flat fills with a hard edge, like the logo tile. Keep each in its own style.
+- The hero's poneglyph is line art in the field's inks, drawn to match its
+  grass lines; the About cats are stickers, flat fills with a hard edge, like
+  the logo tile. Keep each in its own style.
+- The poneglyph stands right of centre, below the stickers and clear of the
+  name: a lit carved face, a shaded side and top, a plinth and a short cast
+  shadow. Stems stand in front of and behind it.
+- Nine of the field's stems at its foot flower in turn: the pod swells, its
+  halves part, petals grow out of the split and fan, hold, then close. Under
+  reduced motion every flower is open. The petals' ink rim keeps 3:1 or more
+  on the ground (SC 1.4.11).
 
 ## Focus
 
