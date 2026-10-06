@@ -31,12 +31,12 @@ const TEXT_ON_GOLD_IN = `
       if (!hasOwnText(element)) continue;
       const background = effectiveBackground(element);
       if (!isGold(background)) continue;
-      const colour = parse(getComputedStyle(element).color);
-      // An unreadable colour syntax is reported as 0:1, never skipped.
+      const color = parse(getComputedStyle(element).color);
+      // An unreadable color syntax is reported as 0:1, never skipped.
       out.push({
         selector: describe(element),
-        colour: getComputedStyle(element).color,
-        ratio: colour ? Number(ratio(colour, background).toFixed(2)) : 0,
+        color: getComputedStyle(element).color,
+        ratio: color ? Number(ratio(color, background).toFixed(2)) : 0,
         text: (element.textContent ?? '').trim().slice(0, 40),
       });
     }
@@ -46,7 +46,7 @@ const TEXT_ON_GOLD_IN = `
 
 type TextOnGold = {
   selector: string;
-  colour: string;
+  color: string;
   ratio: number;
   text: string;
 };
@@ -125,9 +125,9 @@ const GOLD_ROUTE_READOUT = `(() => {
         selector: describe(el),
         focused: tookFocus,
         innerRingOnFill:
-          inner === null || inner.colour === null
+          inner === null || inner.color === null
             ? null
-            : ratio(over(inner.colour, fill), fill),
+            : ratio(over(inner.color, fill), fill),
       };
     });
 })()`;
@@ -173,7 +173,7 @@ test.describe('the gold surface exception', () => {
           failing
             .map(
               (e) =>
-                `  ${e.selector}\n    color ${e.colour} at ${e.ratio}:1, "${e.text}"`,
+                `  ${e.selector}\n    color ${e.color} at ${e.ratio}:1, "${e.text}"`,
             )
             .join('\n'),
       ).toEqual([]);

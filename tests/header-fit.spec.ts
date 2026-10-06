@@ -73,7 +73,7 @@ for (const width of WIDTHS) {
       expect(found!.sideways, 'the page scrolls sideways').toBe(0);
       expect(
         found!.covered,
-        'header controls whose centre lands on something else',
+        'header controls whose center lands on something else',
       ).toEqual([]);
       expect(
         found!.touching,

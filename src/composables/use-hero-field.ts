@@ -220,7 +220,7 @@ export const useHeroField = (): HeroFieldState => {
     resolution.addEventListener('change', onRatioChange);
   };
 
-  /* Stems are built in their colours, so a new palette needs a new field. */
+  /* Stems are built in their colors, so a new palette needs a new field. */
   const onThemeChange = (): void => {
     const palette = readPalette();
     if (!palette) return;

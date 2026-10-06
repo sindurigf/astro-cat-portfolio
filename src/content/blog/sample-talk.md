@@ -12,7 +12,7 @@ seoTitle: 'Reading the Stones'
 seoDescription: 'A talk on why old records disappear, what the survivors had in common, and six habits open projects can borrow from them.'
 ---
 
-The library I grew up in burned in a single day. Most records are lost more slowly. A [library lost its only reader](https://example.org/1/), a [catalogue lived in one person's head](https://example.org/2/), a [script stopped being taught](https://example.org/3/). [Copies were never made](https://example.org/4/), [keys were never written down](https://example.org/5/), and [nobody noticed until it was too late](https://example.org/6/). Open projects fail in the same quiet ways.
+The library I grew up in burned in a single day. Most records are lost more slowly. A [library lost its only reader](https://example.org/1/), a [catalog lived in one person's head](https://example.org/2/), a [script stopped being taught](https://example.org/3/). [Copies were never made](https://example.org/4/), [keys were never written down](https://example.org/5/), and [nobody noticed until it was too late](https://example.org/6/). Open projects fail in the same quiet ways.
 
 This post is the written version of my talk. It covers why records disappear, what the survivors had in common, and what any project can borrow from them.
 
@@ -76,7 +76,7 @@ Write the key for the person who arrives tired, late and alone, because one day 
 
 ### 4. Welcome Many Readers
 
-A record that only one person reads is one person away from silence. The survivors had readers in every generation: students, copyists, curious travellers.
+A record that only one person reads is one person away from silence. The survivors had readers in every generation: students, copyists, curious travelers.
 
 [Welcoming readers](https://example.org/12/) means making the first visit easy. A clear starting point, an answer to the obvious questions, and somebody who replies.
 
@@ -117,7 +117,7 @@ None of these is a disaster yet. Each is a disaster that has already been schedu
 
 ## What Projects Can Learn
 
-I am not a programmer. But when I read about open projects, I recognise the stories.
+I am not a programr. But when I read about open projects, I recognize the stories.
 
 A project grows around one generous person. They answer every question and fix every problem. Over the years the project depends on them more and more, until one day they are tired, or ill, or simply done. Then the project stops, and the people who come later find only fragments.
 
@@ -193,7 +193,7 @@ The event is a placeholder, to show how a talk pairs with its post: the _Example
 - Plain language, [short sentences and common words](https://example.org/30/)
 - Translation, [notes on uncertain readings](https://example.org/31/)
 - Style, [one idea per paragraph](https://example.org/32/)
-- Dating, [labelling every page](https://example.org/33/)
+- Dating, [labeling every page](https://example.org/33/)
 
 ### On Readers
 
@@ -205,7 +205,7 @@ The event is a placeholder, to show how a talk pairs with its post: the _Example
 ### Open Archives
 
 - Examples, [shared indexes](https://example.org/38/)
-- [Reuse licences](https://example.org/39/)
+- [Reuse licenses](https://example.org/39/)
 - [Public correction logs](https://example.org/40/)
 - [Mirrors](https://example.org/41/)
 - [Volunteer copyists](https://example.org/42/)

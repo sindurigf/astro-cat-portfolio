@@ -120,7 +120,7 @@
 
   /*
    * A focusable scroll strip with snapping. The transparent 4px border becomes
-   * the edge in forced colours (tests/forced-colors.spec.ts).
+   * the edge in forced colors (tests/forced-colors.spec.ts).
    */
   .photo-strip {
     @apply flex snap-x snap-mandatory items-start gap-4 overflow-x-auto

@@ -1,6 +1,6 @@
 @layer components {
   /*
-   * The only gold surface: recolours text, focus ring and borders (SC 1.4.3,
+   * The only gold surface: recolors text, focus ring and borders (SC 1.4.3,
    * 1.4.11) and underlines links (SC 1.4.1); a utility inside still wins.
    * tests/gold-surface.spec.ts measures every gold section.
    */
@@ -64,7 +64,7 @@
   }
 
   /*
-   * Two-tone ring, since the fill equals the ring colour: #FFFFFF inside
+   * Two-tone ring, since the fill equals the ring color: #FFFFFF inside
    * (18.58), #131313 outside (11.32). The pink shadow stays in the same
    * `box-shadow`.
    */

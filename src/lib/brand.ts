@@ -31,7 +31,7 @@ const lightOf = (() => {
       ),
     ].map(([, token, light]) => [token, light]),
   );
-  if (swaps.size === 0) fail(`${LIGHT_CSS} swaps no colour token`);
+  if (swaps.size === 0) fail(`${LIGHT_CSS} swaps no color token`);
   return (token: string): string => {
     const light = swaps.get(token);
     return light ? hexOf(light) : hexOf(token);
@@ -63,8 +63,8 @@ const code = (cell: string): string => cell.replace(/^`|`$/g, '');
 /** Prose from a Markdown cell, shown as text: code spans lose their backticks. */
 const plain = (cell: string): string => cell.replace(/`/g, '');
 
-/** One row per named colour token, with its job and its dark and light hex. */
-export const colours = tableAfter('Colour tokens')
+/** One row per named color token, with its job and its dark and light hex. */
+export const colors = tableAfter('Color tokens')
   .filter(([, hex]) => /^`#[0-9A-Fa-f]{6}`$/.test(hex))
   .map(([name, hex, job]) => {
     const token = code(name);
@@ -80,7 +80,7 @@ export const colours = tableAfter('Colour tokens')
       light: lightOf(token),
     };
   });
-if (colours.length === 0) fail(`${STYLEGUIDE} "Colour tokens" lists no colour`);
+if (colors.length === 0) fail(`${STYLEGUIDE} "Color tokens" lists no color`);
 
 /** Every pairing the contrast table measures, ratios computed from the tokens. */
 export const contrast = contrastRows(tokens).map((row) => ({

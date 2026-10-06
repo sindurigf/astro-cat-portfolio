@@ -31,7 +31,7 @@ Robin Ohara, archaeologist of the Straw Hat Pirates
 - **Cover**: the first slide, with the talk's title.
 - **Parts**: a section slide opens each part.
 - **Labels**: a grouping inside the heading.
-- **Cards**: labelled groups and examples.
+- **Cards**: labeled groups and examples.
 - **Tables**: a header row and plain cells.
 - **Links**: inline, in lists and in cards.
 

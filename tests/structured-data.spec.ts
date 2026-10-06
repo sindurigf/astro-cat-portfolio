@@ -119,7 +119,7 @@ test.describe('JSON-LD structured data', NODE, () => {
     const pages = builtHtml();
     const person = nodeOfType(graphOf(pages.get('/')!, '/'), 'Person')!;
 
-    // The heading is two coloured spans, so it cannot import PERSON_NAME.
+    // The heading is two colored spans, so it cannot import PERSON_NAME.
     expect(
       person.name,
       'PERSON_NAME in src/lib/profiles.ts and the homepage <h1> disagree.',

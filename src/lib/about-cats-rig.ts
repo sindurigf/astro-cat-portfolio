@@ -57,7 +57,7 @@ const BOX_HEIGHT = 15;
 /** A small and a larger "z", drawn from the lower left of the small one. */
 const ZZ = 'M0 0h4l-4 5h4M6 -9h6l-6 7h6';
 const ZZ_HEIGHT = 14;
-/** Where the "z" rests from the head centre, and how far it rises to get there. */
+/** Where the "z" rests from the head center, and how far it rises to get there. */
 const ZZ_AHEAD = 14;
 const ZZ_ABOVE = 24;
 const ZZ_RISE = 10;
@@ -162,14 +162,14 @@ export interface CatRig {
   tailAngle: number[];
   tailSpeed: number[];
   physAt: number;
-  /** Head centre in the svg's coordinates, for the pointer-watcher. */
+  /** Head center in the svg's coordinates, for the pointer-watcher. */
   head: Point;
 }
 
 let uid = 0;
 
 /*
- * Colours are classes, not attributes: the stylesheet maps them to tokens per
+ * Colors are classes, not attributes: the stylesheet maps them to tokens per
  * cat and per theme, and the CSP refuses `style` attributes.
  */
 export const createCatRig = (svg: SVGSVGElement, id: CatId): CatRig => {
@@ -406,7 +406,7 @@ export const settleTail = (rig: CatRig): void => {
 };
 
 interface Skeleton {
-  centre: Point;
+  center: Point;
   length: number;
   half: number;
   hip: Point;
@@ -419,21 +419,21 @@ const skeleton = (p: Pose): Skeleton => {
   const b = p.ba * D;
   const along = pt(Math.cos(b), -Math.sin(b));
   const up = pt(-Math.sin(b), -Math.cos(b));
-  const centre = pt(0, -p.by - p.y);
+  const center = pt(0, -p.by - p.y);
   const length = BODY_LEN * (2 - p.sq);
   const half = (p.bt * p.sq) / 2;
   const hip = pt(
-    centre.x - (along.x * length) / 2,
-    centre.y - (along.y * length) / 2,
+    center.x - (along.x * length) / 2,
+    center.y - (along.y * length) / 2,
   );
   const shoulder = pt(
-    centre.x + (along.x * length) / 2,
-    centre.y + (along.y * length) / 2,
+    center.x + (along.x * length) / 2,
+    center.y + (along.y * length) / 2,
   );
   const at = (u: number, v: number): Point =>
     pt(hip.x + along.x * u + up.x * v, hip.y + along.y * u + up.y * v);
   return {
-    centre,
+    center,
     length,
     half,
     hip,
@@ -471,11 +471,11 @@ type Paw = 'fN' | 'fF' | 'hN' | 'hF';
 
 /** Each leg's hip or shoulder, knee and paw, as drawn: a paw its leg cannot reach stops short. */
 const legBones = (p: Pose): Record<Paw, [Point, Point, Point]> => {
-  const { centre, length, half, at } = skeleton(p);
+  const { center, length, half, at } = skeleton(p);
   const front = at(length - 3, -half * 0.3);
   const hind = at(3, -half * 0.3);
   const bone = (from: Point, k: Paw, sign: number): [Point, Point, Point] => {
-    const target = pt(centre.x + p[k][0], centre.y + p[k][1]);
+    const target = pt(center.x + p[k][0], center.y + p[k][1]);
     return [from, ...ik(from, target, sign, k[0] === 'f' ? p.fl : p.hl)];
   };
   return {
@@ -498,7 +498,7 @@ const ZZ_WIDTH = 12;
  * The tail is taken straight at its targets; the spring only lags behind them.
  */
 const outline = (p: Pose): Point[] => {
-  const { centre, half, at, length, head } = skeleton(p);
+  const { center, half, at, length, head } = skeleton(p);
   const headPoint = (q: Point): Point => {
     const turned = rotateAbout(q, pt(0, 0), p.hr);
     return pt(head.x + turned.x, head.y + turned.y);
@@ -526,7 +526,7 @@ const outline = (p: Pose): Point[] => {
     );
     points.push(q);
   }
-  return points.map((point) => rotateAbout(point, centre, p.rot));
+  return points.map((point) => rotateAbout(point, center, p.rot));
 };
 
 /** Height of a pose's highest drawn point above the ground, edge included. */
@@ -553,7 +553,7 @@ export const renderCat = (
   x: number,
   groundY: number,
 ): void => {
-  const { centre, length, half, hip, shoulder, head, at } = skeleton(p);
+  const { center, length, half, hip, shoulder, head, at } = skeleton(p);
   const body = smoothClosed([
     at(-6, half * 0.2),
     at(-2, half),
@@ -650,7 +650,7 @@ export const renderCat = (
   rig.root.setAttribute('transform', `translate(${f(x)} ${f(groundY)})`);
   rig.flip.setAttribute(
     'transform',
-    `scale(${f(p.face)} 1) rotate(${f(p.rot)} 0 ${f(centre.y)})`,
+    `scale(${f(p.face)} 1) rotate(${f(p.rot)} 0 ${f(center.y)})`,
   );
   rig.head = pt(x + p.face * head.x, groundY + head.y);
 };

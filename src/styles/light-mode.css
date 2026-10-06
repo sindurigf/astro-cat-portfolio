@@ -51,7 +51,7 @@
     @apply mr-2 inline-block size-2.5 bg-gold;
   }
 
-  /* The header's edge in its own text colour, not blue. */
+  /* The header's edge in its own text color, not blue. */
   :root[data-theme='light'] body > header {
     border-bottom-color: var(--color-text);
   }

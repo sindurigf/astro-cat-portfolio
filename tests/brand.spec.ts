@@ -62,7 +62,7 @@ test.describe('/brand', () => {
   });
 
   for (const theme of ['dark', 'light'] as const) {
-    test(`in ${theme} mode every stated ratio and sample matches the colours the page ships (SC 1.4.3, 1.4.11)`, async ({
+    test(`in ${theme} mode every stated ratio and sample matches the colors the page ships (SC 1.4.3, 1.4.11)`, async ({
       browser,
     }) => {
       const context = await browser.newContext();
@@ -132,10 +132,9 @@ test.describe('/brand', () => {
             : [`${name}: states ${row.stated}, its sample paints ${sample}`]),
         ];
       });
-      expect(
-        wrong,
-        `a ${theme} ratio differs from the shipped colours`,
-      ).toEqual([]);
+      expect(wrong, `a ${theme} ratio differs from the shipped colors`).toEqual(
+        [],
+      );
       expect(
         rows.filter((row) => row.sample).length,
         `${theme} mode shows no sample`,
@@ -145,7 +144,7 @@ test.describe('/brand', () => {
   }
 
   for (const theme of ['dark', 'light'] as const) {
-    test(`each colour swatch shows the hex its row states in ${theme} mode`, async ({
+    test(`each color swatch shows the hex its row states in ${theme} mode`, async ({
       browser,
     }) => {
       const context = await browser.newContext();
@@ -156,9 +155,9 @@ test.describe('/brand', () => {
       const page = await context.newPage();
       await gotoSettled(page, ROUTE);
       const rows = await page
-        .locator('#colour li')
+        .locator('#color li')
         .evaluateAll((items, mode) => {
-          /* The last opaque colour in the value: Tailwind lists empty ring and inset layers before a shadow. */
+          /* The last opaque color in the value: Tailwind lists empty ring and inset layers before a shadow. */
           const hex = (value: string) => {
             const opaque = [...value.matchAll(/rgba?\(([^)]+)\)/g)]
               .map((m) =>
@@ -182,7 +181,7 @@ test.describe('/brand', () => {
             )!;
             const style = getComputedStyle(chip);
             const cls = chip.className;
-            /* Each swatch paints its colour where its job puts it. */
+            /* Each swatch paints its color where its job puts it. */
             const painted = /\bbg-/.test(cls)
               ? hex(style.backgroundColor)
               : /\bshadow-hard-/.test(cls)
@@ -195,7 +194,7 @@ test.describe('/brand', () => {
             return { token, want: mode === 'light' ? light : dark, painted };
           });
         }, theme);
-      expect(rows.length, 'the colour section lists no colour').toBeGreaterThan(
+      expect(rows.length, 'the color section lists no color').toBeGreaterThan(
         0,
       );
       const wrong = rows

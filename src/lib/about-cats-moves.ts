@@ -1369,7 +1369,7 @@ export const withApproach = (
 /** One 60fps frame, the step of extent's sampling. */
 const EXTENT_STEP_MS = 1000 / 60;
 
-/** A prop's half-width past its centre, and the opacity below which it no longer counts. */
+/** A prop's half-width past its center, and the opacity below which it no longer counts. */
 const PROP_REACH = 10;
 const PROP_SEEN = 0.05;
 

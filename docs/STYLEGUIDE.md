@@ -74,12 +74,12 @@ blur, uppercase headings, tilted marks.
 | Heavy uppercase, tight tracking     | Uppercase on headings, labels and buttons only. Negative tracking only at 26px and up (h1, h2); labels +0.1em. A heading word over 12 characters takes a soft hyphen.                           |
 | Loud accents against 4.5:1          | `pink` `#FF007A` never sets text. `pink-text` `#FF79B6` carries every pink glyph ([Contrast](#contrast)).                                                                                       |
 | Hard shadow looks like a focus ring | The ring is cyan, which appears only on interaction, offset past the element's shadow by `--lift`, so it only touches ground (11.20).                                                           |
-| Error signalled by colour           | `pink` against `border` is 1.01. An error is a shape change (a 4px pink inset ring inside the pink 8px edge), a ✕ mark and words.                                                               |
+| Error signaled by color             | `pink` against `border` is 1.01. An error is a shape change (a 4px pink inset ring inside the pink 8px edge), a ✕ mark and words.                                                               |
 | Tilt hurts reading                  | Tilt only marks (tile, roundel, stickers), at 3deg. Text and headings never rotate; a sticker's label of one to three words turns with it (close row eyebrow, post tags; `tests/tilt.spec.ts`). |
-| Greyed-out disabled fails SC 1.4.11 | Dashed edge, no shadow. Label stays 8.62; control stays focusable (`aria-disabled`).                                                                                                            |
+| Grayed-out disabled fails SC 1.4.11 | Dashed edge, no shadow. Label stays 8.62; control stays focusable (`aria-disabled`).                                                                                                            |
 | Density against 320px reflow        | Spacing tokens are fluid; every 8px border is counted in the 288px content box before any heading floor changes.                                                                                |
 
-## Colour tokens
+## Color tokens
 
 | Token        | Hex       | Job                                                            |
 | ------------ | --------- | -------------------------------------------------------------- |
@@ -111,14 +111,14 @@ The gold-ground set is in [Gold surface](#gold-surface), light values in
   `text-pink-text`.
 - `border` is the SC 1.4.11 floor and `subtle` is set by contrast:
   re-measure before changing either.
-- "Where you are" is a shape, not a colour: see [Navigation](#states).
-- Never signal state by colour alone (SC 1.4.1).
+- "Where you are" is a shape, not a color: see [Navigation](#states).
+- Never signal state by color alone (SC 1.4.1).
 
-### Adding a colour
+### Adding a color
 
 1. Add it as a token in `@theme`.
 2. Measure it on `#131313` and `#1A1A1A`, on `#FFC000` if it can appear on
-   gold, and its light value on `#ffffff`. A colour with alpha is measured as
+   gold, and its light value on `#ffffff`. A color with alpha is measured as
    it paints: composite it over each ground first, then take the ratio.
 3. Meet 4.5:1 for text (7:1 where achievable), 3:1 for large text, borders,
    focus rings and icons.
@@ -179,9 +179,9 @@ Every approved pairing, measured from the live tokens. Text needs 4.5 (SC
 | `gold-btn-label` #FFFFFF | `gold` #FFC000       | never      | Only on the dark button fill                    | n/a   | 1.64  | never used |
 | `cyan` #00DCFD           | `pink` #FF007A       | apart      | A ring never touches a pink shadow              | n/a   | 2.29  | kept apart |
 | `cyan` #00DCFD           | `gold` #FFC000       | apart      | A ring never touches a gold shadow or fill      | n/a   | 1.01  | kept apart |
-| `cyan` #00DCFD           | `border` #5A87A8     | apart      | A ring never touches a neighbour edge           | n/a   | 2.32  | kept apart |
-| `pink` #FF007A           | `border` #5A87A8     | apart      | An error is a shape change, not a recolour      | n/a   | 1.01  | kept apart |
-| `text` #E5E2E1           | `subtle` #9BB4C6     | apart      | The two text colours never carry a state        | n/a   | 1.67  | kept apart |
+| `cyan` #00DCFD           | `border` #5A87A8     | apart      | A ring never touches a neighbor edge            | n/a   | 2.32  | kept apart |
+| `pink` #FF007A           | `border` #5A87A8     | apart      | An error is a shape change, not a recolor       | n/a   | 1.01  | kept apart |
+| `text` #E5E2E1           | `subtle` #9BB4C6     | apart      | The two text colors never carry a state         | n/a   | 1.67  | kept apart |
 
 <!-- contrast-table:end -->
 
@@ -349,7 +349,7 @@ before raising one.
 
 - Write headings and labels in Chicago title case and sentences in sentence
   case. The lower-case words are in `TITLE_CASE_SMALL_WORDS`
-  (`src/lib/labels.ts`); the first and last word are always capitalised, and
+  (`src/lib/labels.ts`); the first and last word are always capitalized, and
   each part of a hyphenated compound counts as a word ("One-Keeper Problem").
   `npm run check:title-case` scans the built headings, titles and summaries.
 - `.label`, `.badge`, the buttons and every heading apply
@@ -429,7 +429,7 @@ with a comment beside it.
   header's bottom edge, the `/accessibility` fact-strip rules, a prose `hr`.
   4px: photos, chips, buttons, stickers, code blocks. No rule between
   sections.
-- The default border colour is `border`, set in the base layer (Tailwind 4
+- The default border color is `border`, set in the base layer (Tailwind 4
   defaults to `currentColor`); `gold-border` inside `.surface-gold`.
 - Shadows are hard offsets, no blur. Gold casts none (gold on gold is 1.00).
 
@@ -561,7 +561,7 @@ The grid rule in `scripts/check-tokens.mjs` enforces the grid;
   `py-section`, not `pb-section`, for this reason.
 - The slab's edge separates the hero from the first section; no line under it.
 - The only ground change is gold (hero slab and gold surface), 11.32 against
-  the page, never colour alone.
+  the page, never color alone.
 - Panels and the closing row are cards: 8px border and shadow.
 - No rules or dividers between sections or before the footer.
 
@@ -681,7 +681,7 @@ tier and takes its padding.
 - Edge: one 8px `border` and the 8px pink shadow, as a card. Text inset by
   `--hero-column-pad-inline`.
 - PageHero and `.post-slab` stand `--hero-pad-block` below the header.
-- With a photo, from 1024px: text on 6 of 12 columns, centred; photo on
+- With a photo, from 1024px: text on 6 of 12 columns, centered; photo on
   columns 8 to 12, 4:5, on the slab's bottom. Below that the photo follows the
   text at `max-w-sm`, 48px under it.
 - The photo hangs `--spacing-head` past the slab's bottom edge, and the hero
@@ -691,9 +691,9 @@ tier and takes its padding.
 - No line, fill, card or separator strip between the hero and the first
   section.
 - Two `--spacing-section` (112 to 192px) between the hero's last line and the
-  next content. In forced colours the slab paints Canvas and drops shadows,
+  next content. In forced colors the slab paints Canvas and drops shadows,
   so this gap and the `h1` set the hero apart. `tests/page-hero.spec.ts`
-  measures it in forced colours at 320px and 200% zoom.
+  measures it in forced colors at 320px and 200% zoom.
 
 ### The roundel rule
 
@@ -705,7 +705,7 @@ roundel.**
 - The homepage is not a PageHero and has no roundel on its window.
 - `variant="hero"`: a gold disc of `--spacing-roundel` with a `gold-text` ring
   (4px, 8px from `lg`), pink 8px shadow, 3deg tilt.
-- Its centre sits `--spacing(1)` above the slab's bottom edge; its right side
+- Its center sits `--spacing(1)` above the slab's bottom edge; its right side
   on the column's text edge (`.hero-roundel`).
 - On a plain tier it straddles the dark slab's bottom edge too, and is never
   left off. The slab's bottom padding is half the disc plus 24px; the text
@@ -718,9 +718,9 @@ roundel.**
   on `PHOTO_ROUTES` and on posts with a cover. A new PageHero photo adds its
   route there.
 
-### Colour roles and ratios
+### Color roles and ratios
 
-| What                        | Colour on ground                | Ratio | Needs      |
+| What                        | Color on ground                 | Ratio | Needs      |
 | --------------------------- | ------------------------------- | ----- | ---------- |
 | Title, standfirst, body     | `gold-text` on gold             | 11.32 | 4.5        |
 | Breadcrumb separators       | `gold-muted` on gold            | 7.88  | 4.5        |
@@ -735,8 +735,8 @@ roundel.**
 
 - Pink never delimits anything on the slab: every control has its fill or a
   `gold-text` border.
-- The page's own colours fail here: `subtle` 1.31, `border` 2.34, the page
-  link colour 1.00.
+- The page's own colors fail here: `subtle` 1.31, `border` 2.34, the page
+  link color 1.00.
 
 ### Calls to action
 
@@ -745,8 +745,8 @@ roundel.**
   set, then Get in Touch (primary when there is no CV), `--spacing-head`
   under the standfirst.
 - Career is also the one hero with a line of fact: `mt-4 text-body
-text-gold-muted` under the standfirst, not a fourth `.block` beat. Colour
-  and size both differ, because forced colours flattens the colour.
+text-gold-muted` under the standfirst, not a fourth `.block` beat. Color
+  and size both differ, because forced colors flattens the color.
 
 ### Media
 
@@ -808,7 +808,7 @@ Enforced by `tests/post-page.spec.ts`.
   takes the page column, and from `xl` the measure plus the track right of it,
   from the text's left edge toward the page column's right edge like the hero
   photo; a height-capped one ends short. A portrait stays
-  on the measure, centred.
+  on the measure, centered.
   Both stop at 80vh tall, uncropped, caption on the image's left edge.
 - Figure `sizes`, from `post-figure.mjs`: that slot, capped by the file's width
   and by 80vh times its ratio. Markdown images take `MARKDOWN_WIDTHS`, to 2400.
@@ -848,7 +848,7 @@ Enforced by `tests/post-page.spec.ts`.
 - `astro.config.mjs` sets `syntaxHighlight: false`; `tests/code-block.spec.ts`
   asserts the setting and the CSP directive together.
 - To restore it: pick the palette first (five to ten new tokens, each 4.5:1 on
-  `#1A1A1A`, added to [Colour tokens](#colour-tokens), with a forced-colours
+  `#1A1A1A`, added to [Color tokens](#color-tokens), with a forced-colors
   decision),
   then a class-emitting highlighter (Prism, or Shiki with a CSS-variables
   theme).
@@ -933,11 +933,11 @@ Enforced by `tests/footer.spec.ts`.
 
 ### Footer layout
 
-| Width       | Layout                                                                                                                                          |
-| ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| below 48rem | one centred column in source order; the stickers a 4-column grid, the last three offset by `--spacing(8)`; copyright and AI label over the tuft |
-| from 48rem  | three columns, name and stickers, Site, About this site, `column-gap` `--spacing(8)`; copyright and AI label, then the tuft, in one row         |
-| from 64rem  | inset `--spacing(8)` either side; stickers `--size-sticker-lg`                                                                                  |
+| Width       | Layout                                                                                                                                           |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| below 48rem | one centered column in source order; the stickers a 4-column grid, the last three offset by `--spacing(8)`; copyright and AI label over the tuft |
+| from 48rem  | three columns, name and stickers, Site, About this site, `column-gap` `--spacing(8)`; copyright and AI label, then the tuft, in one row          |
+| from 64rem  | inset `--spacing(8)` either side; stickers `--size-sticker-lg`                                                                                   |
 
 ### Footer spacing
 
@@ -959,7 +959,7 @@ No rule or divider joins the footer to the page.
 - Stickers: `--size-sticker` 48px (`--size-sticker-lg` 56px from 64rem),
   `--border-width-sticker` 4px `border` edge, 3deg tilt, 4px pink shadow with
   `lift-control`. They straighten on hover and focus.
-- One colourway, the `.badge` inversion: `text` fill, `background` glyph
+- One colorway, the `.badge` inversion: `text` fill, `background` glyph
   (14.42). Not cycled by `nth-child`.
 - Sizes are `@theme` tokens: `--size-sticker`, `--size-sticker-lg`,
   `--size-sticker-icon` (22px), `--border-width-sticker`, `--size-tuft` (220px),
@@ -979,12 +979,12 @@ Enforced by `tests/nav-current.spec.ts`, `tests/mobile-menu.spec.ts`,
 | ----------- | ----------------------------------------------------------------------------------------------------------------- |
 | below 48rem | logo link, and the menu button that opens the menu dialog; without JavaScript, a nav row under the header instead |
 | from 48rem  | logo link, the Primary nav (About, Career, Blog), and the call to action                                          |
-| from 64rem  | the same on a three-track grid, the nav centred, wider gaps                                                       |
+| from 64rem  | the same on a three-track grid, the nav centered, wider gaps                                                      |
 
 - Links come from `NAV_LINKS` and `CTA` in `src/lib/nav.ts`; the desktop
   header uses `HEADER_LINKS` (no Home; the logo links to `/`).
 - Every nav link is 40.8px tall (`py-2` + `border-4`) inside a 44px pointer
-  area (`.hit-target`, SC 2.5.5); neighbouring areas never overlap.
+  area (`.hit-target`, SC 2.5.5); neighboring areas never overlap.
 
 ### By height
 
@@ -1062,13 +1062,13 @@ Enforced by `tests/nav-current.spec.ts`, `tests/mobile-menu.spec.ts`,
 - The hero's poneglyph is line art in the field's inks, drawn to match its
   grass lines; the About cats are stickers, flat fills with a hard edge, like
   the logo tile. Keep each in its own style.
-- The poneglyph stands right of centre, below the stickers and clear of the
+- The poneglyph stands right of center, below the stickers and clear of the
   name: a broad block with a lit carved face, a shaded side and top, a plinth,
   a soft contact shadow and a short cast shadow. On a narrow frame it moves
   left to stay inside. Stems stand behind it and beside it, never in front.
 - A slow light reads its script glyph by glyph, left to right and top to
   bottom, in a loop: each glyph's strokes thicken into a full-ink rim with the
-  glow colour inside, rising over 0.6 s and fading over 0.6 s as the next
+  glow color inside, rising over 0.6 s and fading over 0.6 s as the next
   glyph rises, then wrapping to the start. The rim keeps 6.60:1 on the dark
   face and 16.43:1 on the light (SC 1.4.11). One glyph is far below the general
   flash area and makes one rise and fall a cycle (SC 2.3.1). The pause control
@@ -1089,10 +1089,10 @@ Enforced by `tests/nav-current.spec.ts`, `tests/mobile-menu.spec.ts`,
   `--lift: 0px`. A new shadow without its lift is a bug.
 - Chip lists and the no-JavaScript nav are `gap-6` so one chip's ring never
   meets the next chip's shadow. `tests/states.spec.ts` measures it.
-- `.btn-gold-primary` has a two-tone ring, because its ring colour equals its
+- `.btn-gold-primary` has a two-tone ring, because its ring color equals its
   fill: `--inset-shadow-gold-btn-ring` and `shadow-hard-mark-4` in one
   `box-shadow`, so focus keeps the shadow. Use a two-tone ring only when the
-  ring colour equals the control's opaque fill.
+  ring color equals the control's opaque fill.
 
 | Layer                           | Against        | Ratio |
 | ------------------------------- | -------------- | ----- |

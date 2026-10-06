@@ -5,7 +5,7 @@ import { FOCUSABLE_SELECTOR, MIN_TARGET, NARROW_WIDTH } from './wcag';
 
 /**
  * SC 2.5.5 Target Size (Enhanced) on every interactive element on every route:
- * a MIN_TARGET square centred on each target hits only that target, so a hit
+ * a MIN_TARGET square centered on each target hits only that target, so a hit
  * area may be wider than the drawn control but never shared with another.
  */
 

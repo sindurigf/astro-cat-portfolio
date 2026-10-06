@@ -5,7 +5,7 @@ import { NODE } from './tags';
 
 /**
  * PageHero's roundel and photo cover no text in the hero or the next section, and in forced
- * colours the slab's bottom border still separates it from what follows.
+ * colors the slab's bottom border still separates it from what follows.
  */
 
 /** Home keeps its canvas hero, a post its article, a talk its cover slide. */
@@ -71,7 +71,7 @@ test('the roundel census matches the build', NODE, () => {
   ).toEqual([...GOLD_ROUNDEL_ROUTES, ...PLAIN_ROUTES].sort());
 });
 
-test.describe('the gold slab in forced colours', () => {
+test.describe('the gold slab in forced colors', () => {
   test.use({ viewport: { width: 320, height: 900 } });
 
   for (const route of GOLD_ROUTES) {
@@ -89,7 +89,7 @@ test.describe('the gold slab in forced colours', () => {
             : null,
         };
       });
-      expect(found.forced, 'forced colours did not take effect').toBe(true);
+      expect(found.forced, 'forced colors did not take effect').toBe(true);
       expect(found.border, `${route} has no gold slab`).not.toBeNull();
       expect(found.border!, 'the slab bottom border').toBeGreaterThan(0);
     });

@@ -118,7 +118,7 @@ test.describe('post-figure', NODE, () => {
   });
 
   for (const [prefix, name, href] of [
-    ['Photo: ', 'Licence and Credit', PHOTOGRAPHERS['Licence and Credit']],
+    ['Photo: ', 'License and Credit', PHOTOGRAPHERS['License and Credit']],
     ['Screenshot: ', 'Example Project', SCREENSHOT_SOURCES['Example Project']],
   ] as const) {
     test(`a "${prefix}${name}" caption links the listed source`, async () => {
@@ -137,18 +137,18 @@ test.describe('post-figure', NODE, () => {
     });
   }
 
-  test('a Creative Commons photo credits its source, licence and changes', () => {
+  test('a Creative Commons photo credits its source, license and changes', () => {
     const photo: LicensedPhoto = {
-      photographer: 'Licence and Credit',
+      photographer: 'License and Credit',
       title: 'A Fixture Photo',
       source: 'https://photos.example/fixture',
       sourceName: 'Photos Example',
-      licence: 'Creative Commons Attribution 4.0',
-      licenceHref: 'https://creativecommons.org/licenses/by/4.0/',
+      license: 'Creative Commons Attribution 4.0',
+      licenseHref: 'https://creativecommons.org/licenses/by/4.0/',
       changes: 'cropped',
     };
     const nodes: Node[] = captionChildren(
-      'Photo: Licence and Credit',
+      'Photo: License and Credit',
       '../../assets/blog/x/cc-fixture.jpg',
       { 'cc-fixture': photo },
     );
@@ -158,26 +158,26 @@ test.describe('post-figure', NODE, () => {
         : (node.children ?? []).map(textOf).join('');
     expect(
       nodes.map(textOf).join(''),
-      'the caption does not name the source, licence and changes',
+      'the caption does not name the source, license and changes',
     ).toBe(
-      'Photo: Licence and Credit (A Fixture Photo on Photos Example, Creative Commons Attribution 4.0, cropped)',
+      'Photo: License and Credit (A Fixture Photo on Photos Example, Creative Commons Attribution 4.0, cropped)',
     );
     expect(
       nodes
         .filter((node) => node.tagName === 'a')
         .map((a) => a.properties?.href),
-      'the photographer, source and licence are not all linked',
+      'the photographer, source and license are not all linked',
     ).toEqual([
-      PHOTOGRAPHERS['Licence and Credit'],
+      PHOTOGRAPHERS['License and Credit'],
       photo.source,
-      photo.licenceHref,
+      photo.licenseHref,
     ]);
   });
 
-  test('a photo not in LICENSED_PHOTOS gets no licence text', () => {
+  test('a photo not in LICENSED_PHOTOS gets no license text', () => {
     expect(
-      captionChildren('Photo: Licence and Credit', 'other.jpg', {}).length,
-      'a licence was added to an unlicensed photo',
+      captionChildren('Photo: License and Credit', 'other.jpg', {}).length,
+      'a license was added to an unlicensed photo',
     ).toBe(2);
   });
 

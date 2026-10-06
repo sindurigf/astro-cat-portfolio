@@ -17,7 +17,7 @@ import { NODE } from './tags';
 const POSSIBLE_HEADING = {
   maxChars: 50,
   largeSize: 20,
-  emphasisedSize: 16,
+  emphasizedSize: 16,
   boldWeight: 700,
 } as const;
 
@@ -36,7 +36,7 @@ interface HeadingScan {
 
 // Every `<p>`, aria-hidden included: WAVE reads the DOM, not the a11y tree.
 const scanParagraphs = async (page: Page): Promise<HeadingScan> =>
-  page.evaluate(({ maxChars, largeSize, emphasisedSize, boldWeight }) => {
+  page.evaluate(({ maxChars, largeSize, emphasizedSize, boldWeight }) => {
     const paragraphs = [...document.querySelectorAll('p')];
 
     const flagged = paragraphs.flatMap((paragraph) => {
@@ -45,10 +45,10 @@ const scanParagraphs = async (page: Page): Promise<HeadingScan> =>
 
       const style = getComputedStyle(paragraph);
       const size = Number.parseFloat(style.fontSize);
-      const emphasised =
+      const emphasized =
         Number(style.fontWeight) >= boldWeight || style.fontStyle !== 'normal';
 
-      if (size < largeSize && !(size >= emphasisedSize && emphasised)) {
+      if (size < largeSize && !(size >= emphasizedSize && emphasized)) {
         return [];
       }
 

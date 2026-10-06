@@ -45,7 +45,7 @@
   }
 
   /*
-   * Current: a flat text-colour block without shadow (14.42); the marker
+   * Current: a flat text-color block without shadow (14.42); the marker
    * inverts.
    */
   a.chip[aria-current] {

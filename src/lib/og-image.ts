@@ -30,7 +30,7 @@ export const DEFAULT_OG_IMAGE: OgImage = {
 /* JPEG: WebP support among link unfurlers is uneven. */
 const CARD_FORMAT = 'jpg';
 
-/* Crop, not letterbox. sharp's `attention` keeps faces a centred crop cuts. */
+/* Crop, not letterbox. sharp's `attention` keeps faces a centered crop cuts. */
 const CARD_FIT = 'cover';
 const CARD_POSITION = 'attention';
 

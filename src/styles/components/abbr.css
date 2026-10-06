@@ -1,7 +1,7 @@
 @layer components {
   /* src/components/Abbr.astro. */
 
-  /* Dotted, so it does not read as a link; no colour change, which gold forbids. */
+  /* Dotted, so it does not read as a link; no color change, which gold forbids. */
   .abbr-trigger {
     @apply border-0 bg-transparent p-0 text-inherit;
 

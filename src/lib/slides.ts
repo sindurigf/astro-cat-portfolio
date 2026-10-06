@@ -238,7 +238,7 @@ const card = (blocks: Block[]) =>
   `<div class="slide-card">\n\n${blocks.map((b) => b.text).join('\n\n')}\n\n</div>`;
 
 /*
- * Wraps examples, and labelled groups when there are two or more, in `<div>`
+ * Wraps examples, and labeled groups when there are two or more, in `<div>`
  * cards; blank lines keep the Markdown inside parsed. Bodies with a code fence
  * are untouched: a blank line there is not a block boundary.
  */

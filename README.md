@@ -68,9 +68,9 @@ instead: [SECURITY.md](SECURITY.md). Pull requests use
 [the template](.github/PULL_REQUEST_TEMPLATE.md) and the rules in
 [AGENTS.md](AGENTS.md).
 
-## Licence
+## License
 
-| What                                                       | Licence                                                                |
+| What                                                       | License                                                                |
 | ---------------------------------------------------------- | ---------------------------------------------------------------------- |
 | Source code, docs and everything not listed below          | MIT, [LICENSE](LICENSE)                                                |
 | Photographs in `src/assets/photos/` and `src/assets/blog/` | CC BY 4.0, with the credit in [LICENSE-photos](LICENSE-photos)         |

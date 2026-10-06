@@ -12,14 +12,14 @@ export interface Pose {
   face: number;
   /** Body angle in degrees, front up. */
   ba: number;
-  /** Body centre's height above the ground. */
+  /** Body center's height above the ground. */
   by: number;
   /** Body thickness. */
   bt: number;
   /** Squash (below 1) and stretch (above 1). */
   sq: number;
   haunch: number;
-  /** Paw targets from the body centre: near and far front, near and far hind. */
+  /** Paw targets from the body center: near and far front, near and far hind. */
   fN: Pair;
   fF: Pair;
   hN: Pair;

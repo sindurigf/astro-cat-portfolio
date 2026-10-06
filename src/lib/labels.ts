@@ -19,7 +19,7 @@ export const TITLE_CASE_SMALL_WORDS: ReadonlySet<string> = new Set([
   'with',
 ]);
 
-const capitalise = (word: string): string =>
+const capitalize = (word: string): string =>
   word.charAt(0).toUpperCase() + word.slice(1);
 
 /* The unstyled <title> and link names; visible uses are uppercase CSS. */
@@ -30,7 +30,7 @@ export const categoryLabel = (category: string): string => {
     .map((word, index) =>
       index > 0 && index < last && TITLE_CASE_SMALL_WORDS.has(word)
         ? word
-        : capitalise(word),
+        : capitalize(word),
     )
     .join(' ');
 };

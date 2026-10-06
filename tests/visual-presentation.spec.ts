@@ -14,7 +14,7 @@ const MIN_PARAGRAPH_STEP = 2.5;
 /* Layout rounds line boxes to sub-pixels: a 1.5 line height can measure 1.4999. */
 const SUBPIXEL_TOLERANCE = 0.01;
 const MIN_SENTENCES = 2;
-/* Glyphs whose vertical centres are further apart than this share of a line height sit on different lines. */
+/* Glyphs whose vertical centers are further apart than this share of a line height sit on different lines. */
 const NEW_LINE_SHARE = 0.5;
 const WIDTHS = [390, 1280, 1920] as const;
 const VIEWPORT_HEIGHT = 900;
@@ -68,9 +68,9 @@ for (const width of WIDTHS) {
                 ? NaN
                 : parseFloat(style.lineHeight);
             };
-            /* Characters per line, grouping glyphs by vertical centre so inline code with its own box stays on its line. */
+            /* Characters per line, grouping glyphs by vertical center so inline code with its own box stays on its line. */
             const charactersPerLine = (el: HTMLElement) => {
-              const centres: number[] = [];
+              const centers: number[] = [];
               const walker = document.createTreeWalker(
                 el,
                 NodeFilter.SHOW_TEXT,
@@ -88,7 +88,7 @@ for (const width of WIDTHS) {
                   range.setStart(node, i);
                   range.setEnd(node, i + 1);
                   const rect = range.getClientRects()[0];
-                  if (rect) centres.push((rect.top + rect.bottom) / 2);
+                  if (rect) centers.push((rect.top + rect.bottom) / 2);
                 }
               }
               const gap =
@@ -96,10 +96,10 @@ for (const width of WIDTHS) {
                   parseFloat(getComputedStyle(el).fontSize)) * newLineShare;
               const counts: number[] = [];
               let previous = -Infinity;
-              for (const centre of centres.sort((a, b) => a - b)) {
-                if (centre - previous > gap) counts.push(0);
+              for (const center of centers.sort((a, b) => a - b)) {
+                if (center - previous > gap) counts.push(0);
                 counts[counts.length - 1] += 1;
-                previous = centre;
+                previous = center;
               }
               return counts;
             };

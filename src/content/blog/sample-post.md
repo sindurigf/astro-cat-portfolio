@@ -11,7 +11,7 @@ personaSources: true
 seoTitle: 'What Ohara Taught Me'
 cover: '../../assets/blog/sample-post/cover.jpg'
 coverAlt: 'A tabby cat resting its chin on the edge of a cat bed, one paw stretched out.'
-coverCredit: 'Licence and Credit'
+coverCredit: 'License and Credit'
 coverCardAlt: 'A tabby cat resting its chin on the edge of a cat bed.'
 seoDescription: 'How I became an archaeologist: the Library of Ohara, the Poneglyphs, twenty years on the run and the Straw Hat Pirates.'
 ---
@@ -36,7 +36,7 @@ Some of the history in the Poneglyphs comes from the Void Century, a hundred yea
 
 When I was eight, the Government answered with a Buster Call. The library burned with the tree. My mother came back that day, and stayed with the scholars to the end. I was the only one from Ohara who survived.
 
-![A calico cat asleep, curled against a grey cushion.](../../assets/blog/sample-post/calico-asleep.jpg)
+![A calico cat asleep, curled against a gray cushion.](../../assets/blog/sample-post/calico-asleep.jpg)
 
 ## Twenty Years of Running
 
@@ -44,7 +44,7 @@ A giant called Jaguar D. Saul, once a vice admiral of the Marines, protected me 
 
 I had a bounty from the age of eight: 79,000,000 berries, for a child who could read. For about twenty years I ran. I learned to trust nobody for long.
 
-![A tabby cat lying on its back on a parquet floor, a wand toy by its paw.](../../assets/blog/sample-post/tabby-floor.jpg 'Photo: Licence and Credit')
+![A tabby cat lying on its back on a parquet floor, a wand toy by its paw.](../../assets/blog/sample-post/tabby-floor.jpg 'Photo: License and Credit')
 
 ## Miss All Sunday
 
@@ -71,4 +71,4 @@ Everything else is patience.
 
 ---
 
-Who took the photos, and their licence, is on the [credits page](/credits/#photos), with everyone who helped make this site.
+Who took the photos, and their license, is on the [credits page](/credits/#photos), with everyone who helped make this site.

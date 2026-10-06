@@ -1,5 +1,5 @@
 /*
- * Behaviour for the About cats: which move each cat plays, where on its card
+ * Behavior for the About cats: which move each cat plays, where on its card
  * it plays it, when they nap, and the one that watches the pointer.
  * AboutCats.vue owns the DOM, the frame loop and the dialog.
  */

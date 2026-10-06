@@ -7,7 +7,7 @@ import { collectViolations } from './policy-server';
 import { REFLOW_VIEWPORT } from './wcag';
 import { ASSET_CACHE_CONTROL, usePolicyServer } from './headers-fixture';
 
-/** Browser behaviour under the served headers; tests/headers-rules.spec.ts checks the rules. */
+/** Browser behavior under the served headers; tests/headers-rules.spec.ts checks the rules. */
 
 /** Under the 30s test budget, so the named assertion fires, not a timeout. */
 const ASSET_TIMEOUT_MS = 10_000;

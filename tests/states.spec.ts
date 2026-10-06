@@ -11,7 +11,7 @@ import {
 
 type Look = { paint: string; text: number | null };
 
-/** Colour, fill and shadow of the control and its hover surface, and its text against the composited ground. */
+/** Color, fill and shadow of the control and its hover surface, and its text against the composited ground. */
 const look = async (
   page: Page,
   control: Locator,
@@ -30,10 +30,10 @@ const look = async (
       return [s.color, s.backgroundColor, s.boxShadow].join(' | ');
     };
     const ground = compositeBackground(el);
-    const colour = parse(getComputedStyle(el).color);
+    const color = parse(getComputedStyle(el).color);
     return {
       paint: paint(el) + ' || ' + paint(box),
-      text: ground && colour ? ratio(over(colour, ground), ground) : null,
+      text: ground && color ? ratio(over(color, ground), ground) : null,
     };
   })()`)) as Look;
   await page.evaluate(() => {
@@ -155,7 +155,7 @@ test('the current page stands apart from its siblings and reads', async ({
 
 /**
  * SC 1.4.11 measures a ring against what it touches: a chip's ring (offset plus
- * width) must not meet a neighbour's box plus its hard shadow.
+ * width) must not meet a neighbor's box plus its hard shadow.
  */
 test('a focused chip ring stays clear of the chips beside it', async ({
   page,

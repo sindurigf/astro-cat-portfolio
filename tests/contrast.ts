@@ -15,7 +15,7 @@ const GOLD_CHANNELS = [1, 3, 5].map((at) =>
 );
 
 /**
- * Contrast maths spliced into `page.evaluate`, which cannot reach Node imports.
+ * Contrast math spliced into `page.evaluate`, which cannot reach Node imports.
  * One copy so importers cannot drift by a rounding rule.
  */
 export const PAGE_HELPERS = `
@@ -66,12 +66,12 @@ export const PAGE_HELPERS = `
     for (let node = element; node instanceof Element; node = node.parentElement) {
       const style = getComputedStyle(node);
       if (style.backgroundImage !== 'none') return null;
-      const colour = parse(style.backgroundColor);
-      if (!colour) return null;
-      if (colour.a === 0) continue;
+      const color = parse(style.backgroundColor);
+      if (!color) return null;
+      if (color.a === 0) continue;
       if (!paintedInside(node)) continue;
-      if (colour.a < 1) return null;
-      return colour;
+      if (color.a < 1) return null;
+      return color;
     }
     return null;
   };
@@ -82,23 +82,23 @@ export const PAGE_HELPERS = `
     for (let node = element; node instanceof Element; node = node.parentElement) {
       const style = getComputedStyle(node);
       if (style.backgroundImage !== 'none') return null;
-      const colour = parse(style.backgroundColor);
-      if (!colour) return null;
-      if (colour.a === 0) continue;
-      if (colour.a < 1) {
-        layers.push(colour);
+      const color = parse(style.backgroundColor);
+      if (!color) return null;
+      if (color.a === 0) continue;
+      if (color.a < 1) {
+        layers.push(color);
         continue;
       }
-      return layers.reduceRight((ground, layer) => over(layer, ground), colour);
+      return layers.reduceRight((ground, layer) => over(layer, ground), color);
     }
     return null;
   };
 
-  const isGold = (colour) =>
-    colour !== null &&
-    colour.r === ${GOLD_CHANNELS[0]} &&
-    colour.g === ${GOLD_CHANNELS[1]} &&
-    colour.b === ${GOLD_CHANNELS[2]};
+  const isGold = (color) =>
+    color !== null &&
+    color.r === ${GOLD_CHANNELS[0]} &&
+    color.g === ${GOLD_CHANNELS[1]} &&
+    color.b === ${GOLD_CHANNELS[2]};
 
   /* Tracks paren depth: each layer's rgb() has commas of its own. */
   const shadowLayers = (value) => {
@@ -122,7 +122,7 @@ export const PAGE_HELPERS = `
       .filter((part) => part !== '')
       .map((part) => ({
         text: part,
-        colour: parse(part),
+        color: parse(part),
         inset: part.includes('inset'),
       }));
   };
@@ -140,9 +140,9 @@ export const PAGE_HELPERS = `
       (n) => n.nodeType === Node.TEXT_NODE && (n.textContent ?? '').trim() !== '',
     );
 
-  // Opaque fill: flag a same-colour fill (< 1.05, a detector, not SC 1.4.11).
+  // Opaque fill: flag a same-color fill (< 1.05, a detector, not SC 1.4.11).
   // Translucent fill: each border edge must reach NON_TEXT. Borderless prose
-  // links are delimited by colour and underline.
+  // links are delimited by color and underline.
   const BORDER_EDGES = ['top', 'right', 'bottom', 'left'];
 
   const invisibleControls = (root) => {
@@ -182,7 +182,7 @@ export const PAGE_HELPERS = `
         continue;
       }
 
-      /* Grouped by colour so a uniform border reports one line. */
+      /* Grouped by color so a uniform border reports one line. */
       const failing = new Map();
 
       for (const edge of BORDER_EDGES) {

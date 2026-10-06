@@ -104,7 +104,7 @@ test.describe('the contents list', () => {
           open: details.open,
           summary: summary.getBoundingClientRect().height,
           name: nav.getAttribute('aria-labelledby'),
-          labelledBy: summary.id,
+          labeledBy: summary.id,
         };
       });
       expect(found, 'no <details> in the contents nav').not.toBeNull();
@@ -112,7 +112,7 @@ test.describe('the contents list', () => {
       expect(found!.summary).toBeGreaterThanOrEqual(
         MIN_TARGET - SUBPIXEL_TOLERANCE,
       );
-      expect(found!.name).toBe(found!.labelledBy);
+      expect(found!.name).toBe(found!.labeledBy);
     });
   }
 
@@ -209,7 +209,7 @@ const FIGURE_ALIGN_TOLERANCE = 1;
 
 /*
  * Body figures, docs/STYLEGUIDE.md "Posts": uncropped and never past the
- * viewport (SC 1.4.10); a landscape wider than the text, a portrait centred on it.
+ * viewport (SC 1.4.10); a landscape wider than the text, a portrait centered on it.
  */
 test.describe('body figures', () => {
   for (const post of POSTS) {
@@ -249,7 +249,7 @@ test.describe('body figures', () => {
                 left: frame.left,
                 right: frame.right,
                 height: frame.height,
-                centreOffset:
+                centerOffset:
                   (frame.left + frame.right) / 2 -
                   (prose.left + prose.right) / 2,
                 wider: frame.width - prose.width,
@@ -298,8 +298,8 @@ test.describe('body figures', () => {
           ).toBeLessThanOrEqual(FIGURE_ALIGN_TOLERANCE);
           if (figure.portrait) {
             expect(
-              Math.abs(figure.centreOffset),
-              `${name} is a portrait off the text column's centre`,
+              Math.abs(figure.centerOffset),
+              `${name} is a portrait off the text column's center`,
             ).toBeLessThanOrEqual(FIGURE_ALIGN_TOLERANCE);
           }
         }

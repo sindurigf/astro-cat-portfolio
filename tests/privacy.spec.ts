@@ -38,7 +38,7 @@ const TRACKER_WRITES = [
 
 const ownHost = (): string => new URL(configuredSite()).host;
 
-// The one write /privacy discloses: the colour choice, read in BaseLayout.astro, written by theme-switch.ts.
+// The one write /privacy discloses: the color choice, read in BaseLayout.astro, written by theme-switch.ts.
 const DISCLOSED_STORAGE = {
   files: [
     join('src', 'layouts', 'BaseLayout.astro'),

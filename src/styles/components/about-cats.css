@@ -1,7 +1,7 @@
 @layer components {
   /*
    * The About cats (AboutCats.vue). A perch reserves a cat's band above its
-   * card; the card sits on top so a cat can duck behind it. Colours are
+   * card; the card sits on top so a cat can duck behind it. Colors are
    * classes on the SVG parts because the CSP refuses `style` attributes.
    */
   /*
@@ -44,7 +44,7 @@
   }
 
   /*
-   * Chromium defaults inline SVG to `preserve-parent-color`, and forced colours
+   * Chromium defaults inline SVG to `preserve-parent-color`, and forced colors
    * drop the transparent button's edge (tests/forced-colors.spec.ts).
    */
   .cat-svg,
@@ -272,7 +272,7 @@
       shadow-hard-mark-4;
   }
 
-  /* AboutCats.vue sets these beside the cat; until then the dialog centres itself. */
+  /* AboutCats.vue sets these beside the cat; until then the dialog centers itself. */
   .cat-dialog[data-placed] {
     @apply m-0;
 

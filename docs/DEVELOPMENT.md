@@ -153,7 +153,7 @@ src/
   content.config.ts Content collection schema
   layouts/          BaseLayout: head, header, footer
   lib/              Shared TypeScript
-  licenses/         Licence texts for vendored scripts
+  licenses/         License texts for vendored scripts
   pages/            File-based routes
   plugins/          Markdown plugins
   presenter/        Dev-only presenter view for talks
@@ -183,7 +183,7 @@ docs/               Development, deployment, style guide, manual testing
 | `src/assets/photos/`, `src/assets/blog/`                                              | Sample photos, credited in [LICENSE-photos](../LICENSE-photos)   |
 
 - Replacing the photos: update `LICENSE-photos`, or remove it and its row in
-  the [README licence table](../README.md#licence).
+  the [README license table](../README.md#license).
 
 ## Writing a post
 
@@ -213,7 +213,7 @@ slideshow cannot render, naming file, slide and line (`src/lib/slides.ts`).
 - Later slides put settings in a `yaml` code block at the top, never between
   `---` lines (Prettier breaks those).
 - The first slide after the cover sets `part:`. `layout: section` also opens a
-  part, centred under its number; name it `Part N: Title`.
+  part, centered under its number; name it `Part N: Title`.
 - One `#` heading per slide, in the case it should display.
 - A group label is a `**bold**` paragraph. Two or more on a slide become cards.
   `**A good model: ...**` and `**Example: ...**` always become a card. Six or
@@ -323,7 +323,7 @@ npm run og
 ```
 
 - `scripts/make-og.mjs` reads those three values from `src/site.config.ts`
-  and the colours from `src/styles/global.css`, and draws the image in
+  and the colors from `src/styles/global.css`, and draws the image in
   Chromium with Lexend and `artwork/mark-dark.svg`.
 - Text is inserted as text, never markup. A name over 40 characters, or one
   that does not fit at the smallest size, fails with a message;

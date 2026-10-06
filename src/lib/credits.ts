@@ -7,7 +7,7 @@ export const PHOTO_CREDITS_PATH = '/credits/#photos';
  * src/plugins/post-figure.mjs loads this file in Node.
  */
 export const PHOTOGRAPHERS = {
-  'Licence and Credit': PHOTO_CREDITS_PATH,
+  'License and Credit': PHOTO_CREDITS_PATH,
 } as const satisfies Readonly<Record<string, string>>;
 
 export type Photographer = keyof typeof PHOTOGRAPHERS;
@@ -36,15 +36,15 @@ export interface LicensedPhoto {
   /** Where `source` is, e.g. Flickr or Wikimedia Commons. */
   sourceName: string;
   /** Spelled out, e.g. "Creative Commons Attribution 4.0" (SC 3.1.4). */
-  licence: string;
-  licenceHref: string;
-  /** What was changed, as the licence asks, e.g. "cropped and resized". */
+  license: string;
+  licenseHref: string;
+  /** What was changed, as the license asks, e.g. "cropped and resized". */
   changes: string;
 }
 
 /**
- * Photos used under a Creative Commons licence, keyed by file name without its
- * extension: the caption and /credits link the source and licence and say what changed.
+ * Photos used under a Creative Commons license, keyed by file name without its
+ * extension: the caption and /credits link the source and license and say what changed.
  */
 export const LICENSED_PHOTOS: Readonly<Record<string, LicensedPhoto>> = {};
 

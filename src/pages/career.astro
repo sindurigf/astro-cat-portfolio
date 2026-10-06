@@ -61,7 +61,7 @@ const SKILLS = [
   'Working Undercover',
 ] as const;
 
-/* `honour` renders in `lang="la"` (SC 3.1.2). */
+/* `honor` renders in `lang="la"` (SC 3.1.2). */
 const EDUCATION = [
   {
     award: 'Archaeology Exam',
@@ -119,7 +119,7 @@ const closeRow = await closeRowLinks({
       <span class="block">Sailing with the Straw Hats.</span>
     </p>
 
-    {/* Size, not only colour, carries the hierarchy: forced colours flattens colour. */}
+    {/* Size, not only color, carries the hierarchy: forced colors flattens color. */}
     <p class="mt-4 text-body text-gold-muted">
       Archaeology, history and a great deal of careful reading.
     </p>
@@ -201,10 +201,10 @@ const closeRow = await closeRowLinks({
               <strong class="font-black text-text">{item.award}</strong>
               {': '}
               {item.detail}
-              {'honour' in item ? (
+              {'honor' in item ? (
                 <>
                   {' '}
-                  <span lang="la">{item.honour}</span>.
+                  <span lang="la">{item.honor}</span>.
                 </>
               ) : null}
             </li>

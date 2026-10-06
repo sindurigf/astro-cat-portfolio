@@ -10,7 +10,7 @@ import { join, relative } from 'node:path';
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
 const SRC = join(ROOT, 'src');
 
-/* The only file allowed to name a colour literally. */
+/* The only file allowed to name a color literally. */
 const TOKEN_SOURCE = join(SRC, 'styles/global.css');
 
 const EXTENSIONS = ['.astro', '.vue', '.ts', '.mjs', '.css'];
@@ -21,7 +21,7 @@ const ARBITRARY_VALUE = /\b[a-z][a-z0-9]*(?:-[a-z0-9]+)*-\[[^\]\s]+\]/g;
 /* #abc, #aabbcc, #aabbccdd. */
 const RAW_HEX = /#[0-9a-fA-F]{3}(?:[0-9a-fA-F]{3}(?:[0-9a-fA-F]{2})?)?\b/g;
 
-const COLOUR_FUNCTION = /\b(?:rgba?|hsla?)\(/g;
+const COLOR_FUNCTION = /\b(?:rgba?|hsla?)\(/g;
 
 /* px, rem and em only: viewport and container units are layout, not design. */
 const RAW_LENGTH =
@@ -46,7 +46,7 @@ const SPACING_SCALE = new Set([
 const INLINE_STYLE = /\sstyle=["{]/g;
 
 /*
- * A bare `border` is 1px and fails. Colour utilities, `border:` declarations
+ * A bare `border` is 1px and fails. Color utilities, `border:` declarations
  * and `palette.border` do not match.
  */
 const BORDER_WIDTH =
@@ -196,9 +196,9 @@ for (const path of sourceFiles) {
     failures.push(`${name}:${hit.at}  arbitrary value  ${hit.text}`);
   }
 
-  for (const hit of scan(source, COLOUR_FUNCTION)) {
+  for (const hit of scan(source, COLOR_FUNCTION)) {
     if (!inTheme(hit.at)) {
-      failures.push(`${name}:${hit.at}  colour function  ${hit.text}`);
+      failures.push(`${name}:${hit.at}  color function  ${hit.text}`);
     }
   }
 
@@ -325,5 +325,5 @@ if (failures.length > 0) {
 }
 
 console.log(
-  'Tokens: no arbitrary values, raw colours, raw lengths, off-scale spacing, border widths or radii, default type, removed outlines, off-grid columns or inline styles outside the tokens; every fluid type token in rem within 2.5x.',
+  'Tokens: no arbitrary values, raw colors, raw lengths, off-scale spacing, border widths or radii, default type, removed outlines, off-grid columns or inline styles outside the tokens; every fluid type token in rem within 2.5x.',
 );

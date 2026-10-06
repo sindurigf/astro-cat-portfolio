@@ -31,7 +31,7 @@ type Decided = {
   blockedBy: string | null;
 };
 
-/** In-page source: the thresholds and a colour formatter for the decider. */
+/** In-page source: the thresholds and a color formatter for the decider. */
 const IN_PAGE_CONSTANTS = `
     const LARGE_PX = ${LARGE_TEXT_PX};
     const LARGE_BOLD_PX = ${LARGE_TEXT_BOLD_PX};
@@ -82,7 +82,7 @@ const DECIDE_NODE = `(selector) => {
 
       const foreground = parse(style.color);
       const background = effectiveBackground(element);
-      if (!foreground) return { ...head, blockedBy: 'foreground colour did not parse' };
+      if (!foreground) return { ...head, blockedBy: 'foreground color did not parse' };
       if (!background) {
         return { ...head, blockedBy: 'no opaque ancestor background (image, gradient or alpha)' };
       }

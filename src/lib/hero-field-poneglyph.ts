@@ -5,7 +5,7 @@
  */
 import type { HeroPalette } from './hero-field-scene';
 
-/** Centre as a share of the box, then eye heights; the side recedes up and right. */
+/** Center as a share of the box, then eye heights; the side recedes up and right. */
 export const PONEGLYPH = {
   x: 0.66,
   width: 1.584,
@@ -84,14 +84,14 @@ export const stoneAt = (
 ): Stone => {
   const half = (PONEGLYPH.width * unit) / 2;
   /* Pulled left on a narrow frame, so the side and plinth stay inside the box. */
-  const centre = Math.min(
+  const center = Math.min(
     PONEGLYPH.x * boxWidth,
     boxWidth - half - (PONEGLYPH.side + 2 * PONEGLYPH.margin) * unit,
   );
   const plinth = PONEGLYPH.plinth * unit;
   return {
-    left: centre - half,
-    right: centre + half,
+    left: center - half,
+    right: center + half,
     top: root - plinth - PONEGLYPH.height * unit,
     root,
     unit,
@@ -104,7 +104,7 @@ const polygon = (ctx: CanvasRenderingContext2D, points: Point[]): void => {
   ctx.closePath();
 };
 
-/* A box's front, top and side, each the ground colour with ink over it. */
+/* A box's front, top and side, each the ground color with ink over it. */
 const block = (
   ctx: CanvasRenderingContext2D,
   palette: HeroPalette,
@@ -208,7 +208,7 @@ const script = (
   ctx.stroke(marks);
   /*
    * A lit glyph thickens into a full-ink rim (6.60:1 on the dark face, 16.43:1
-   * on the light, SC 1.4.11) with the glow colour inside it.
+   * on the light, SC 1.4.11) with the glow color inside it.
    */
   glyphs.forEach((strokes, g) => {
     const light = glyphLight(g, glyphs.length, seconds, still);

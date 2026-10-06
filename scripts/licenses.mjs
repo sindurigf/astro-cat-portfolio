@@ -15,10 +15,10 @@ import { fileURLToPath } from 'node:url';
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
 const VENDOR_DIR = join(ROOT, 'public', 'vendor');
-const VENDOR_LICENCES = join(ROOT, 'src', 'licenses');
+const VENDOR_LICENSES = join(ROOT, 'src', 'licenses');
 const OUTPUT = 'licenses.txt';
 const SHIPPED_ASSET_ENVIRONMENTS = new Set(['client', 'prerender']);
-const LICENCE_FILE = /^(licen[cs]e|copying)(\.(md|txt))?$/i;
+const LICENSE_FILE = /^(licen[cs]e|copying)(\.(md|txt))?$/i;
 /* Apache-2.0 §4(d) asks for NOTICE to travel with the code as well. */
 const NOTICE_FILE = /^notice(\.(md|txt))?$/i;
 const CSS_BANNER = /\/\*!\s*(@?[\w./-]+)\s+v\d[^|]*\|/g;
@@ -28,13 +28,13 @@ const PACKAGE_DIR = /^(.*node_modules[\\/](?:@[^\\/]+[\\/])?[^\\/]+)/;
 
 export const packageDirOf = (id) => PACKAGE_DIR.exec(id)?.[1];
 
-/** Null without a licence file; a package.json `license` is not the text. */
-export const licenceText = (dir) => {
+/** Null without a license file; a package.json `license` is not the text. */
+export const licenseText = (dir) => {
   const files = readdirSync(dir);
-  const licence = files.find((name) => LICENCE_FILE.test(name));
-  if (licence === undefined) return null;
+  const license = files.find((name) => LICENSE_FILE.test(name));
+  if (license === undefined) return null;
   const notice = files.find((name) => NOTICE_FILE.test(name));
-  return [licence, notice]
+  return [license, notice]
     .filter(Boolean)
     .map((name) => readFileSync(join(dir, name), 'utf8').trim())
     .join('\n\n');
@@ -44,7 +44,7 @@ const describePackage = (dir) => {
   const { name, version, license } = JSON.parse(
     readFileSync(join(dir, 'package.json'), 'utf8'),
   );
-  return { heading: `${name} ${version} (${license})`, text: licenceText(dir) };
+  return { heading: `${name} ${version} (${license})`, text: licenseText(dir) };
 };
 
 const packagesInPages = (clientDir) => {
@@ -67,7 +67,7 @@ const packagesInPages = (clientDir) => {
 const vendored = () =>
   existsSync(VENDOR_DIR)
     ? readdirSync(VENDOR_DIR).map((file) => {
-        const source = join(VENDOR_LICENCES, `${file}.txt`);
+        const source = join(VENDOR_LICENSES, `${file}.txt`);
         return {
           heading: `/vendor/${file}`,
           text: existsSync(source) ? readFileSync(source, 'utf8').trim() : null,
@@ -78,7 +78,7 @@ const vendored = () =>
 
 const render = (entries) =>
   [
-    'Licences for the third-party code and font this site sends to your browser.',
+    'Licenses for the third-party code and font this site sends to your browser.',
     'Generated when the site is built, from what the build contains.',
     ...entries.map(({ heading, text }) => `${heading}\n\n${text}`),
   ].join('\n\n\n') + '\n';
@@ -87,7 +87,7 @@ export const licenses = () => {
   const shippedDirs = new Set();
 
   const collect = {
-    name: 'shipped-licences',
+    name: 'shipped-licenses',
     generateBundle(_, bundle) {
       const environment = this.environment?.name;
       for (const output of Object.values(bundle)) {
@@ -129,10 +129,10 @@ export const licenses = () => {
         const missing = entries.filter(({ text }) => text === null);
         if (missing.length > 0) {
           throw new Error(
-            `No licence text for what ships to the browser: ${missing
+            `No license text for what ships to the browser: ${missing
               .map(({ missing: where }) => where)
               .join(', ')}. A package needs a LICENSE file; a file in ` +
-              'public/vendor/ needs its licence in src/licenses/<file>.txt.',
+              'public/vendor/ needs its license in src/licenses/<file>.txt.',
           );
         }
 

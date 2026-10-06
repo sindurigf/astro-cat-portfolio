@@ -339,7 +339,7 @@ test.describe('the hero field on /', () => {
       }, point);
       expect(
         hit.reaches,
-        `a press at the centre of the hero pause control lands on ${hit.what} instead.`,
+        `a press at the center of the hero pause control lands on ${hit.what} instead.`,
       ).toBe(true);
 
       await page.mouse.click(point.x, point.y);

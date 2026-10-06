@@ -27,11 +27,11 @@ const unknownPaths = (): string[] => [
 
 test.describe('unknown paths return 404', () => {
   test('the build emits 404.html, which is what Workers serves', NODE, () => {
-    const artefact = join(DIST_DIR, '404.html');
+    const artifact = join(DIST_DIR, '404.html');
 
     expect(
-      existsSync(artefact),
-      `${artefact} is missing, so unknown paths get no 404 page.`,
+      existsSync(artifact),
+      `${artifact} is missing, so unknown paths get no 404 page.`,
     ).toBe(true);
   });
 

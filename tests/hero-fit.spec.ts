@@ -48,7 +48,7 @@ const HERO_PARTS = `
 `;
 
 /**
- * The name is centred on the window's top rule, so half of it sits above the
+ * The name is centered on the window's top rule, so half of it sits above the
  * section's box and can slide under the 96px sticky header.
  */
 const HIGHEST_EDGE = `
@@ -221,7 +221,7 @@ test.describe('the name breaks on the column rule', () => {
 
       expect(
         lines,
-        `the name wraps (${lines.join(' and ')} lines) at ${width}x${height}, onto a ground its colour fails against.`,
+        `the name wraps (${lines.join(' and ')} lines) at ${width}x${height}, onto a ground its color fails against.`,
       ).toEqual([1, 1]);
       // The column paints gold under its own border, so the first line's box ends above the
       // column's outer edge, or a box-based read (tests/contrast.ts) finds 1.27 on gold.

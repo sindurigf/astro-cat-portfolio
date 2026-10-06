@@ -41,7 +41,7 @@ npm run build && npx wrangler deploy --dry-run
 ## After a deploy
 
 - Run `npm run check:live` and `npm run check:live:console`. The live check
-  compares the deployed headers, redirects and dashboard-dependent behaviour
+  compares the deployed headers, redirects and dashboard-dependent behavior
   with this repository. The console check stubs Umami, so it counts no visits.
 - To run `check:live` weekly from `.github/workflows/scheduled.yml`, set the
   repository variable `CHECK_LIVE` to `1`.

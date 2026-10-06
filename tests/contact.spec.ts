@@ -439,7 +439,7 @@ test.describe('the contact endpoint', () => {
     baseURL,
   }) => {
     /*
-     * Cloudflare sets CF-Connecting-IP at the edge; locally it is honoured as
+     * Cloudflare sets CF-Connecting-IP at the edge; locally it is honored as
      * sent. 198.18.0.0/15 stays clear of the browser tests' TEST-NET-3 address.
      */
     const address = `198.18.0.${Math.floor(Math.random() * 254) + 1}`;

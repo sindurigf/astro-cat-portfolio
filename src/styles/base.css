@@ -46,7 +46,7 @@
     line-height: 1.62;
   }
 
-  /* Upright: Lexend ships no italic, so the default would be synthesised. */
+  /* Upright: Lexend ships no italic, so the default would be synthesized. */
   dfn {
     font-style: normal;
   }
@@ -87,7 +87,7 @@
   }
 
   /*
-   * Links are text-coloured; the underline or a box shape says "link", never
+   * Links are text-colored; the underline or a box shape says "link", never
    * gold or cyan alone.
    */
   a {
@@ -158,7 +158,7 @@
 }
 
 /*
- * Content in a `.gold-column` starts at the column's inset, not a centred
+ * Content in a `.gold-column` starts at the column's inset, not a centered
  * 1280px box. Unlayered because `mx-auto` and `max-w-page` are utilities.
  */
 .gold-column .max-w-page {
