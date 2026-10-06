@@ -27,6 +27,7 @@
     "check:pdf": "node scripts/check-pdf.mjs",
     "check:classes": "node scripts/check-classes.mjs",
     "check:untransformed": "node scripts/check-untransformed.mjs",
+    "check:title-case": "node scripts/check-title-case.mjs",
     "check:commits": "sh scripts/check-commits.sh",
     "check:exif": "node scripts/check-exif.mjs",
     "check:leaks": "node scripts/check-leaks.mjs",
@@ -35,7 +36,7 @@
     "check:umami": "sh scripts/check-umami.sh",
     "publish:talk": "node scripts/publish-talk.mjs",
     "og": "node scripts/make-og.mjs",
-    "check": "npm run check:tokens && npm run check:links && npm run check:pins && npm run check:classes && npm run check:untransformed && npm run check:exif && npm run format:check && npm run check:commits && npm run check:leaks"
+    "check": "npm run check:tokens && npm run check:links && npm run check:pins && npm run check:classes && npm run check:untransformed && npm run check:title-case && npm run check:exif && npm run format:check && npm run check:commits && npm run check:leaks"
   },
   "dependencies": {
     "@astrojs/cloudflare": "^14.3.3",

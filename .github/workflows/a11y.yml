@@ -106,7 +106,7 @@ jobs:
           key: ${{ steps.images.outputs.cache-primary-key }}
 
       # One script, so CI and a local run cannot list different checks. After
-      # the build: check:classes and check:untransformed read dist/.
+      # the build: check:classes, check:untransformed and check:title-case read dist/.
       - name: Conventions and formatting
         run: npm run check
         env:
