@@ -252,11 +252,11 @@ link and the skip link.
    [Uppercase](STYLEGUIDE.md#uppercase) with both quotes, and narrow
    ACCESSIBILITY.md §7 gap 2.
 2. Chrome spells it out, Firefox does not: record it as a cross-engine
-   difference; it supports keeping Chicago title case in the markup.
+   difference; it supports keeping real case in the markup.
 3. Anything else: record verbatim, repeat once, do not interpret.
 
-No outcome changes the practice: Chicago title case in markup, `text-transform` in
-CSS. Dropping uppercase would be a design decision, not a fix.
+No outcome changes the practice: real case in markup ([case rule](STYLEGUIDE.md#uppercase)),
+`text-transform` in CSS. Dropping uppercase would be a design decision, not a fix.
 
 **6.4.5 Chrome, other elements.**
 

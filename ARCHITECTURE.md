@@ -675,7 +675,8 @@ evidence.
   and "longer passages or reading full sentences", while single words
   glanced at read as fast or faster in capitals
   ([NN/g, Laubheimer 2017](https://www.nngroup.com/articles/glanceable-fonts/));
-  these are a few words each, written in Chicago title case. How screen readers
+  these are a few words each, cased by the
+  [case rule](docs/STYLEGUIDE.md#uppercase). How screen readers
   speak them is checked in the screen-reader pass.
 
 ## Content notes

@@ -363,7 +363,7 @@ Rules this repository follows. Values and reasons:
 - **Semantics.** Native elements first: `<button>`, `<dialog>`, `<details>`.
   One `h1`, no skipped level. Name a `<section>` only with its visible
   heading. No "navigation" in a nav label.
-- **Case.** Write Chicago title case and uppercase with CSS.
+- **Case.** Follow the [case rule](docs/STYLEGUIDE.md#uppercase) and uppercase with CSS.
 - **Images.** Alt describes the content, never the type or filename; `alt=""`
   when decorative. Never text over a photograph; the axe scans fail it. Photos
   sit in an `.aspect-frame`.
