@@ -24,7 +24,7 @@ export const DEFAULT_OG_IMAGE: OgImage = {
   src: '/images/og-default.png',
   width: CARD_WIDTH,
   height: CARD_HEIGHT,
-  alt: `${PERSON_NAME}, ${SITE_CONFIG.site.tagline.join(', ')}, beside the ${SITE_NAME} cat logo.`,
+  alt: `${PERSON_NAME}, ${SITE_CONFIG.site.tagline.join(', ')}, beside the ${SITE_NAME} logo, a pressed flower in an open book.`,
 };
 
 /* JPEG: WebP support among link unfurlers is uneven. */
