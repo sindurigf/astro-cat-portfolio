@@ -25,7 +25,7 @@ blur, uppercase headings, tilted marks.
 ### The gold register
 
 - `cyan` is what you are touching: hover and focus, never at rest.
-- `pink` is depth and error: hard shadows, the logo marks, the invalid edge.
+- `pink` is depth and error: hard shadows, the invalid edge.
 - `border` is boundary. `text` is words.
 - Gold is the single accent, held by a register rather than one job. A review
   checks the rendered page against the register, not a count. Do not "reduce
@@ -37,7 +37,7 @@ blur, uppercase headings, tilted marks.
 | --- | -------------------------------------------------------------------------------------------------- | -------------------------------------- |
 | 1a  | Ground, full slab: `/about`, `/career`, `/contact`, `/blog`, `/credits`, `/brand`                  | 6 routes                               |
 | 1b  | Ground, thin slab: `/contact/sent`, both posts                                                     | 3 routes                               |
-| 1c  | Ground, mid-page: a `Section surface="gold"`, the About quote                                      | `/career`, `/about`, `/`               |
+| 1c  | Ground, mid-page: a `Section surface="gold"`, the About quote, `/contact`'s closing band           | `/career`, `/about`, `/`, `/contact`   |
 | 2   | The primary action: `.nav-cta`, `.btn-primary`                                                     | 11 routes, 4 routes                    |
 | 3   | the logo marks: the logo tile and its copies, the roundel, the footer mascot, the homepage sticker | 11 routes, 9 routes                    |
 | 4   | Card labels, `.label text-gold`; a form's field labels are `text`                                  | `/about`, `/accessibility`, `/contact` |
@@ -71,7 +71,7 @@ blur, uppercase headings, tilted marks.
 
 | Tension                             | Resolution                                                                                                                                                                                      |
 | ----------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Heavy uppercase, tight tracking     | Uppercase on headings, labels and buttons only. Negative tracking only at 26px and up (h1, h2); labels +0.1em. A heading word over 12 characters takes a soft hyphen.                           |
+| Heavy uppercase, tight tracking     | Uppercase on headings, labels and buttons only. Tracking -0.05em on h1 and h2, -0.02em on h3 and titles; labels +0.1em. A heading word over 12 characters takes a soft hyphen.                  |
 | Loud accents against 4.5:1          | `pink` `#FF007A` never sets text. `pink-text` `#FF79B6` carries every pink glyph ([Contrast](#contrast)).                                                                                       |
 | Hard shadow looks like a focus ring | The ring is cyan, which appears only on interaction, offset past the element's shadow by `--lift`, so it only touches ground (11.20).                                                           |
 | Error signaled by color             | `pink` against `border` is 1.01. An error is a shape change (a 4px pink inset ring inside the pink 8px edge), a ✕ mark and words.                                                               |
@@ -234,8 +234,9 @@ set; hex values and ratios are in the generated [Contrast](#contrast) table:
   ([Focus](#focus)).
 - `.btn-gold-secondary`: transparent, `gold-text` label and 4px border, no
   shadow, single ring.
-- Borders are `gold-text`, matching the fill, not `gold-border`;
-  `tests/gold-surface.spec.ts` asserts it.
+- Borders are `gold-text`, matching the fill, not `gold-border`.
+  `tests/gold-surface.spec.ts` asserts every control on gold has a visible
+  edge: a fill that differs from the ground, or a border of at least 3:1.
 - Both are scoped to `.surface-gold` and render unstyled elsewhere.
 - Both `text-button`, 900, 0.1em, uppercase, `px-8 py-4`. No underline on the
   label.
@@ -417,11 +418,10 @@ with a comment beside it.
 - Derived so the disc keeps at least 24px to the hero's last line and 32px to
   the next content; it is lifted `--spacing(1)` above the edge to split the
   space 24 and 32.
-- Rejected: a fixed 96px disc (8px to the title on a phone), a jump to 128px at
-  `lg` (18px each side at 1024px), a 64 to 96px clamp (24px below on a phone).
+- A fixed 96px disc leaves 8px to the title on a phone.
 - `--spacing-roundel-mark` is half the disc.
-- `tests/page-hero.spec.ts` measures both gaps at 320, 390, 640, 768, 900,
-  1023, 1024 and 1280px, and at 200% zoom.
+- `tests/page-hero.spec.ts` checks the roundel and the photo cover no text at
+  320, 640, 768, 1023, 1024 and 1280px.
 
 ## Borders, shadows and radius
 
@@ -462,7 +462,7 @@ file per area.
 | `.actions`                              | Button row; its 32px row gap clears shadow and ring when buttons wrap                                                                                                                    |
 | `.card`                                 | `surface`, `border-8`, pink 8px shadow, padding 24px, 40px from `sm`                                                                                                                     |
 | `.card-title`                           | Every card heading, `text-h3` 900                                                                                                                                                        |
-| `.card-link`                            | Title link stretched over the card; inline-block, 24px min; card hover turns title and shadow cyan                                                                                       |
+| `.card-link`                            | Title link stretched over the card; inline-block, 44px min; card hover turns title and shadow cyan                                                                                       |
 | `.card-solid`                           | The subject card, a `text` fill; raised in a `.card-block`, or `.card-raised` in a dark group                                                                                            |
 | `.lead`                                 | Paragraph under a section heading, `text-h3` 400, 24px under it                                                                                                                          |
 | `.standfirst`                           | Line beside PageHero's title, `text-standfirst` 400                                                                                                                                      |
@@ -475,7 +475,7 @@ file per area.
 | `.abbr-trigger`, `.abbr-tip`            | An abbreviation's first use (`src/components/Abbr.astro`): dotted underline; the expansion is a popover in a `surface` box flush below it; inline in brackets where popovers are missing |
 | `.page-gutter`, `max-w-page`, `.band`   | [Gutter and column](#gutter-and-column)                                                                                                                                                  |
 | `.skip-link`                            | Skip link, visible on focus                                                                                                                                                              |
-| `.motion-toggle`                        | 40px SC 2.2.2 pause control; position from a second class                                                                                                                                |
+| `.motion-toggle`                        | 44px SC 2.2.2 pause control; position from a second class                                                                                                                                |
 | `.prose`                                | Rendered Markdown (no typography plugin)                                                                                                                                                 |
 | `.aspect-frame`                         | Every photo: [Photo frames](#photo-frames-and-the-failed-photo-state)                                                                                                                    |
 | `.surface-gold`, `.btn-gold-*`          | [Gold surface](#gold-surface)                                                                                                                                                            |
@@ -579,8 +579,8 @@ The grid rule in `scripts/check-tokens.mjs` enforces the grid;
 
 - First: the hero, owning the page's h1. A post opens on its article header.
 - Last: `CloseRow` on pages that end on links (`/`, `/about`, `/career`,
-  `/contact/sent`); otherwise the last section's bottom padding. The footer
-  follows with no separator.
+  `/blog`, `/credits`, `/contact/sent`); otherwise the last section's bottom
+  padding. The footer follows with no separator.
 
 ### Grid
 
@@ -598,18 +598,19 @@ The grid rule in `scripts/check-tokens.mjs` enforces the grid;
 
 ### Page compositions
 
-| Page                      | Order (type)                                                   |
-| ------------------------- | -------------------------------------------------------------- |
-| Home                      | Hero, Surface, Listing, Listing, Close                         |
-| About                     | Hero, Open, Open, Open, Open, Open, Close                      |
-| Career                    | Hero, Panel, Open (with the solid block), Open, Surface, Close |
-| Contact                   | Hero, Open, Surface                                            |
-| Contact sent              | Hero, Panel, Close                                             |
-| Credits                   | Hero, Open (panels), Open (panels)                             |
-| Privacy, Accessibility    | Hero (reading measure), Reading                                |
-| Blog index, category, tag | Hero, Listing                                                  |
-| Post                      | Article header, Reading (contents box from 1280px), Tags nav   |
-| 404                       | Hero (starfield) only                                          |
+| Page                   | Order (type)                                                   |
+| ---------------------- | -------------------------------------------------------------- |
+| Home                   | Hero, Surface, Listing, Listing, Close                         |
+| About                  | Hero, Open, Open, Open, Open, Open, Close                      |
+| Career                 | Hero, Panel, Open (with the solid block), Open, Surface, Close |
+| Contact                | Hero, Open, Surface                                            |
+| Contact sent           | Hero, Panel, Close                                             |
+| Credits                | Hero, Open (panels), Open (panels), Close                      |
+| Privacy, Accessibility | Hero (reading measure), Reading                                |
+| Blog index             | Hero, Listing, Close                                           |
+| Blog category, tag     | Hero, Listing                                                  |
+| Post                   | Article header, Reading (contents box from 1280px), Tags nav   |
+| 404                    | Hero (starfield) only                                          |
 
 - Contact ends on its gold surface, not a closing row: the band is its call to
   action.
@@ -628,11 +629,11 @@ Four openings, no fifth: Home's canvas hero, a talk's cover slide, a post's
 Set by `PageHero`'s `slab` prop. The tier follows what is under the title, not
 how important the page is.
 
-| Tier  | `slab`   | Routes                                                                                  | Ground   | Title                                                       | Aside              | Padding              |
-| ----- | -------- | --------------------------------------------------------------------------------------- | -------- | ----------------------------------------------------------- | ------------------ | -------------------- |
-| Full  | `"full"` | `/about`, `/career`, `/contact`, `/blog`, `/credits`; `/contact/send`, `/blog/page/<n>` | gold     | `text-h1`; `text-h2` on the last two                        | `.standfirst`      | `py-section`         |
-| Thin  | `"thin"` | `/contact/sent`, and a post's own `.post-slab`                                          | gold     | `text-post-title`                                           | `text-post-teaser` | `pt-head pb-section` |
-| Plain | `"none"` | `/privacy`, `/accessibility`, category and tag listings, `/404`                         | the page | `text-reading-h1`; `text-h2` on categories, tags and `/404` | `text-post-teaser` | `pt-head pb-section` |
+| Tier  | `slab`   | Routes                                                                                            | Ground   | Title                                                       | Aside              | Padding              |
+| ----- | -------- | ------------------------------------------------------------------------------------------------- | -------- | ----------------------------------------------------------- | ------------------ | -------------------- |
+| Full  | `"full"` | `/about`, `/career`, `/contact`, `/blog`, `/credits`, `/brand`; `/contact/send`, `/blog/page/<n>` | gold     | `text-h1`; `text-h2` on the last two                        | `.standfirst`      | `py-section`         |
+| Thin  | `"thin"` | `/contact/sent`, and a post's own `.post-slab`                                                    | gold     | `text-post-title`                                           | `text-post-teaser` | `pt-head pb-section` |
+| Plain | `"none"` | `/privacy`, `/accessibility`, category and tag listings, `/404`                                   | the page | `text-reading-h1`; `text-h2` on categories, tags and `/404` | `text-post-teaser` | `pt-head pb-section` |
 
 - **Full:** the opening is a statement and the other half of the composition
   has content.
@@ -656,7 +657,7 @@ how important the page is.
 | Variant  | Where                                                                | Title                            | Column                             |
 | -------- | -------------------------------------------------------------------- | -------------------------------- | ---------------------------------- |
 | Home     | `/` only                                                             | its own hero, `HeroField.vue`    | its own composition                |
-| Standard | About, Career, Contact, Blog, Credits                                | `text-h1`                        | `max-w-page`; 6 of 12 with a photo |
+| Standard | About, Career, Contact, Blog, Credits, Brand                         | `text-h1`                        | `max-w-page`; 6 of 12 with a photo |
 | Reading  | Privacy, Accessibility (`measure="reading"`)                         | `text-reading-h1`                | `max-w-measure`, the prose column  |
 | Compact  | category and tag listings, `/contact/send`, `/blog/page/<n>`, `/404` | `text-h2`, still the page's `h1` | `max-w-page`                       |
 | Thin     | `/contact/sent`                                                      | `text-post-title`                | `max-w-page`                       |
@@ -693,7 +694,7 @@ tier and takes its padding.
 - Two `--spacing-section` (112 to 192px) between the hero's last line and the
   next content. In forced colors the slab paints Canvas and drops shadows,
   so this gap and the `h1` set the hero apart. `tests/page-hero.spec.ts`
-  measures it in forced colors at 320px and 200% zoom.
+  checks the slab keeps a bottom border in forced colors at 320px.
 
 ### The roundel rule
 
@@ -704,7 +705,7 @@ roundel.**
 - About and every post with a `cover` have a photo, so no roundel.
 - The homepage is not a PageHero and has no roundel on its window.
 - `variant="hero"`: a gold disc of `--spacing-roundel` with a `gold-text` ring
-  (4px, 8px from `lg`), pink 8px shadow, 3deg tilt.
+  (4px, 8px from `lg`), `mark` 8px shadow, 3deg tilt.
 - Its center sits `--spacing(1)` above the slab's bottom edge; its right side
   on the column's text edge (`.hero-roundel`).
 - On a plain tier it straddles the dark slab's bottom edge too, and is never
@@ -713,10 +714,10 @@ roundel.**
 - The disc sets a slab's minimum bottom padding: half the disc plus its lift
   plus 24px, 92px at 1280. Only `--spacing-section` clears it, so a thin slab
   is thin at the top only.
-- `tests/page-hero.spec.ts` checks `.page-hero` and `.post-slab` at 1280 and
-  390px: roundel present, on the edge, ringed `gold-text`, over no text; absent
-  on `PHOTO_ROUTES` and on posts with a cover. A new PageHero photo adds its
-  route there.
+- `tests/page-hero.spec.ts` lists each route's tier and holds it to the build:
+  a roundel on every gold or plain slab without a photo, none on
+  `PHOTO_ROUTES` or a post with a cover, and over no text on a gold or plain
+  slab. A new PageHero photo adds its route there.
 
 ### Color roles and ratios
 
@@ -736,7 +737,7 @@ roundel.**
 - Pink never delimits anything on the slab: every control has its fill or a
   `gold-text` border.
 - The page's own colors fail here: `subtle` 1.31, `border` 2.34, the page
-  link color 1.00.
+  link color, `text`, 1.27.
 
 ### Calls to action
 
@@ -745,7 +746,7 @@ roundel.**
   set, then Get in Touch (primary when there is no CV), `--spacing-head`
   under the standfirst.
 - Career is also the one hero with a line of fact: `mt-4 text-body
-text-gold-muted` under the standfirst, not a fourth `.block` beat. Color
+text-gold-muted` under the standfirst. Color
   and size both differ, because forced colors flattens the color.
 
 ### Media
@@ -761,7 +762,7 @@ text-gold-muted` under the standfirst, not a fourth `.block` beat. Color
 
 - The header is opaque `background` with an 8px `border` bottom edge.
 - The logo tile and the slab share the gold ground and dark type; the tile
-  keeps its pink shadow.
+  keeps its `mark` shadow.
 - The sticky header covers the top of the slab on scroll; nothing on the slab
   is fixed.
 
@@ -831,7 +832,7 @@ Enforced by `tests/post-page.spec.ts`.
 | `h3`        | `mt-12`, `text-post-h3` (19 to 24px). The last level                                                                                                    |
 | Inline code | `.prose code`: the mono stack at `--text-code`, on a `surface` fill with `px-1` and no border                                                           |
 | Code block  | `.prose pre`: mono, `border-4 border-border` on `surface`, `p-4`, scrolls sideways, a named tab stop                                                    |
-| Lists       | `mt-6 pl-6`, items `mt-3`, gold markers; a link-only item is 24px tall                                                                                  |
+| Lists       | `mt-6 pl-6`, items `mt-3`, gold markers; a link-only item is 44px tall                                                                                  |
 | Blockquote  | `mt-6`, `border-l-8 border-gold`, `pl-6`, its text at weight 900                                                                                        |
 | Table       | `mt-6`, `border-4`, fixed layout, cells `px-4 py-3`, headers on `surface`                                                                               |
 | Figure      | `mt-8`, wider than the text ([Measure](#measure)), an `.aspect-frame` sized by the file with a 4px `border` ring; caption `mt-4 text-label text-subtle` |
@@ -847,11 +848,10 @@ Enforced by `tests/post-page.spec.ts`.
   without `'unsafe-inline'`, so the browser blocks them.
 - `astro.config.mjs` sets `syntaxHighlight: false`; `tests/code-block.spec.ts`
   asserts the setting and the CSP directive together.
-- To restore it: pick the palette first (five to ten new tokens, each 4.5:1 on
+- Highlighting needs a palette first (five to ten new tokens, each 4.5:1 on
   `#1A1A1A`, added to [Color tokens](#color-tokens), with a forced-colors
-  decision),
-  then a class-emitting highlighter (Prism, or Shiki with a CSS-variables
-  theme).
+  decision), then a class-emitting highlighter (Prism, or Shiki with a
+  CSS-variables theme).
 - Never widen `style-src` to `'unsafe-inline'`. Hashing Shiki's output is not
   an option: the hashes change with every code block edit.
 
@@ -861,18 +861,17 @@ Enforced by `tests/post-page.spec.ts`.
   (`HEADING_FLOOR`) and a 0.8 step (`STEP`) between levels.
 - At 320px `--text-post-h3` is at its 19px floor, so an `h4` would need to be
   at most 15.2px and at least 19px. The spec fails it at 320px.
-- Rejected: raising the `h3` floor to 24px (a reflow change, SC 1.4.10);
-  exempting level 4 from `STEP`.
+- The `h3` floor stays 19px and level 4 is not exempt from `STEP`.
 - A post that needs a fourth level is reopened as a deliberate decision.
 
 ### Contents and tags
 
 - The contents list is a `<nav aria-labelledby>` named by its `summary`, "In
-  this post", around a native `<details>`.
+  This Post", around a native `<details>`.
 - Closed below `xl`. From `xl`, `src/scripts/post-contents.ts` opens it and
   follows width changes. Without JavaScript it stays closed.
 - The summary: `text-label` 900 uppercase in `text` (13.51 on `surface`), cyan
-  on hover, at least 24px tall, a plus or minus marker hidden from assistive
+  on hover, at least 44px tall, a plus or minus marker hidden from assistive
   technology.
 - Tags follow the text under a 4px `border` rule: a label 16px above a row of
   `.chip` links.
@@ -883,18 +882,18 @@ A heading, a sentence, one way on. Enforced by `tests/empty-states.spec.ts`,
 `tests/contact.spec.ts` (Worker), `tests/contact-sending.spec.ts` and
 `tests/failed-images.spec.ts`.
 
-| State                   | Where                                   | Heading                                    | Sentence                                                   | Action                                 | Announced by                       |
-| ----------------------- | --------------------------------------- | ------------------------------------------ | ---------------------------------------------------------- | -------------------------------------- | ---------------------------------- |
-| Not found               | `/404`                                  | `h1` "These are not the droids…"           | the page does not exist, and a link to report a broken one | homepage (primary), blog (secondary)   | the page load                      |
-| Empty category or tag   | not built: pages exist only with a post |                                            |                                                            |                                        |                                    |
-| Empty blog              | `/blog` with no posts                   | `h2` "No Posts Yet"                        | "Nothing has been published here yet."                     | "Go to the Homepage"                   | the page load                      |
-| Invalid form            | `/contact/send`, 422                    | `h2` "There are N problems with this form" | one linked entry per field                                 | each entry moves to its field          | focus on the summary on arrival    |
-| Rate-limited or unsaved | `/contact/send`, 429 or 503             | `h2` "Your message was not sent"           | the reason, and the email address as the way round it      | the form, still holding what was typed | focus on the summary on arrival    |
-| Offline                 | `/contact`, on submit                   | none: the form stays                       | "You are offline, so your message has not been sent…"      | the form, unchanged                    | the form's `role="status"` region  |
-| Sending                 | `/contact`, while the post is in flight | none                                       | "Sending your message." and the button reads "Sending"     | a second submit is blocked             | the form's `role="status"` region  |
-| Failed photo            | any `.aspect-frame`                     | none                                       | its alt text on the frame                                  | none                                   | not announced: the alt is its name |
-| Loading a photo         | the photo viewer, past 200ms            | none: the previous photo stays             | "Loading photo 4 of 12" in the count                       | the previous photo and its caption     | the viewer's count region          |
-| Photo that never loads  | the photo viewer, on a failed decode    | none                                       | "This photo could not be loaded." on the frame             | the caption still describes it         | the viewer's count region          |
+| State                   | Where                                   | Heading                                                                             | Sentence                                                   | Action                                 | Announced by                       |
+| ----------------------- | --------------------------------------- | ----------------------------------------------------------------------------------- | ---------------------------------------------------------- | -------------------------------------- | ---------------------------------- |
+| Not found               | `/404`                                  | `h1` "These are not the droids…"                                                    | the page does not exist, and a link to report a broken one | homepage (primary), blog (secondary)   | the page load                      |
+| Empty category or tag   | not built: pages exist only with a post |                                                                                     |                                                            |                                        |                                    |
+| Empty blog              | `/blog` with no posts                   | `h2` "No Posts Yet"                                                                 | "Nothing has been published here yet."                     | "Go to the Homepage"                   | the page load                      |
+| Invalid form            | `/contact/send`, 422                    | `h2` "There Is One Problem with This Form" or "There Are N Problems with This Form" | one linked entry per field                                 | each entry moves to its field          | focus on the summary on arrival    |
+| Rate-limited or unsaved | `/contact/send`, 429 or 503             | `h2` "Your message was not sent"                                                    | the reason, and the email address as the way round it      | the form, still holding what was typed | focus on the summary on arrival    |
+| Offline                 | `/contact`, on submit                   | none: the form stays                                                                | "You are offline, so your message has not been sent…"      | the form, unchanged                    | the form's `role="status"` region  |
+| Sending                 | `/contact`, while the post is in flight | none                                                                                | "Sending your message." and the button reads "Sending"     | a second submit is blocked             | the form's `role="status"` region  |
+| Failed photo            | any `.aspect-frame`                     | none                                                                                | its alt text on the frame                                  | none                                   | not announced: the alt is its name |
+| Loading a photo         | the photo viewer, past 200ms            | none: the previous photo stays                                                      | "Loading photo 4 of 12" in the count                       | the previous photo and its caption     | the viewer's count region          |
+| Photo that never loads  | the photo viewer, on a failed decode    | none                                                                                | "This photo could not be loaded." on the frame             | the caption still describes it         | the viewer's count region          |
 
 - `.error-summary`: 8px `pink` edge on `surface`, `tabindex="-1"` and
   `autofocus`, no `role="alert"` (focus already announces it; some screen
@@ -924,7 +923,7 @@ Enforced by `tests/footer.spec.ts`.
 
 - the motto, `site.motto` (a `div` with its `lang`, not a heading)
 - `nav` "Site": Home, About, Career, Blog
-- `nav` "About this site": Accessibility, Privacy, Credits
+- `nav` "About this site": the links in `POLICY_LINKS` in `Footer.astro`
 - `nav` "Social": one sticker link per profile plus Email, each an
   `aria-hidden` icon and a visually hidden name
 - the copyright, then "Cat Drawings and Text Made with AI", an underlined
@@ -954,7 +953,7 @@ No rule or divider joins the footer to the page.
 ### Links and stickers
 
 - Links are `.label`: Site in `text` (14.42), About this site in `subtle`
-  (8.62), cyan on hover (11.20). Targets 40.8px on a phone, 32.8px from 48rem.
+  (8.62), cyan on hover (11.20). Each row is 44px tall (`--spacing-target`).
   No current-page state.
 - Stickers: `--size-sticker` 48px (`--size-sticker-lg` 56px from 64rem),
   `--border-width-sticker` 4px `border` edge, 3deg tilt, 4px pink shadow with
@@ -975,11 +974,11 @@ Enforced by `tests/nav-current.spec.ts`, `tests/mobile-menu.spec.ts`,
 
 ### By width
 
-| Width       | Header                                                                                                            |
-| ----------- | ----------------------------------------------------------------------------------------------------------------- |
-| below 48rem | logo link, and the menu button that opens the menu dialog; without JavaScript, a nav row under the header instead |
-| from 48rem  | logo link, the Primary nav (About, Career, Blog), and the call to action                                          |
-| from 64rem  | the same on a three-track grid, the nav centered, wider gaps                                                      |
+| Width       | Header                                                                                                                              |
+| ----------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| below 48rem | logo link, the theme switch, and the menu button that opens the menu dialog; without JavaScript, a nav row under the header instead |
+| from 48rem  | logo link, the Primary nav (About, Career, Blog), the theme switch, and the call to action                                          |
+| from 64rem  | the same on a three-track grid, the nav centered, wider gaps                                                                        |
 
 - Links come from `NAV_LINKS` and `CTA` in `src/lib/nav.ts`; the desktop
   header uses `HEADER_LINKS` (no Home; the logo links to `/`).

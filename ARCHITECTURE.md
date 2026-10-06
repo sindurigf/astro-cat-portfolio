@@ -660,6 +660,15 @@ evidence.
   while the band does not.
 - **Let an About cat keep playing while it has keyboard focus:** the hold is a
   rule, with its reason, in [STYLEGUIDE.md](docs/STYLEGUIDE.md#motion).
+- **Size the hero roundel with a fixed 96px disc, a jump to 128px at `lg`, or
+  a 64 to 96px clamp:** 96px leaves 8px to the title on a phone, the jump
+  leaves 18px each side at 1024px, and the clamp leaves 24px below on a phone.
+  [The roundel's size](docs/STYLEGUIDE.md#the-roundels-size) derives it
+  instead.
+- **Raise the post `h3` floor to 24px, or exempt level 4 from `STEP`, to allow
+  an `h4`:** the first is a reflow change (SC 1.4.10); the second drops the
+  step check. A post stops at `h3`
+  ([STYLEGUIDE.md](docs/STYLEGUIDE.md#a-post-stops-at-h3-there-is-no-h4)).
 - **Disable the contact submit button until the form is valid:** the button
   is always operable. `aria-disabled` is set only while a send is in flight
   (`src/scripts/contact-sending.ts`), to stop a double send. Every other press
