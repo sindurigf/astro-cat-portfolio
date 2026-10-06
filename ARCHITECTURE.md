@@ -32,6 +32,9 @@ conventions for this template. Design rules and values are in
   `utilities.css`, `light-mode.css`. Reordering the imports reorders the
   cascade.
 - `@astrojs/tailwind` peers at `astro ^3 || ^4 || ^5` and cannot be used.
+- `overrides.sharp` in `package.json` lifts miniflare's exact `sharp@0.35.4`
+  pin to 0.35.5, the fix for GHSA-wq5f-xc86-pv6w. Drop it once miniflare
+  depends on 0.35.5 or later.
 - Collection config is `src/content.config.ts` with `glob()` loaders.
 
 ## Site config
