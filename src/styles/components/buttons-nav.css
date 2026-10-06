@@ -3,13 +3,13 @@
   .btn-primary {
     @apply lift-control inline-block border-4 border-border bg-gold px-8 py-4
       text-button font-black uppercase tracking-label text-gold-text
-      shadow-hard-pink-4 wrap-anywhere;
+      shadow-hard-pink-4 wrap-anywhere max-w-full;
   }
 
   .btn-secondary {
     @apply lift-control inline-block border-4 border-border bg-surface px-8 py-4
       text-button font-black uppercase tracking-label text-text
-      shadow-hard-pink-4 wrap-anywhere;
+      shadow-hard-pink-4 wrap-anywhere max-w-full;
   }
 
   /*
