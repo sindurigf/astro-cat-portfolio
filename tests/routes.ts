@@ -33,6 +33,24 @@ export const frontmatterDay = (
 ): string | undefined =>
   /^\d{4}-\d{2}-\d{2}/.exec(frontmatterField(frontmatter, key) ?? '')?.[0];
 
+/**
+ * A date field in epoch ms, as `sortByNewest` in src/lib/blog.ts compares it.
+ * Astro's YAML reads a time with no zone as UTC; `Date.parse` would read it as local.
+ */
+export const frontmatterTime = (
+  frontmatter: string,
+  key: string,
+): number | undefined => {
+  const value = frontmatterField(frontmatter, key);
+  if (value === undefined) return undefined;
+  const zoneless = /T[\d:.]+$/.test(value);
+  const time = Date.parse(zoneless ? `${value}Z` : value);
+  if (Number.isNaN(time)) {
+    throw new Error(`${key}: ${value} is not a date.`);
+  }
+  return time;
+};
+
 /** The inline `tags: [a, b]` list of one post's frontmatter. */
 export const frontmatterTags = (frontmatter: string): string[] =>
   (/^tags:\s*\[([^\]]*)\]/m.exec(frontmatter)?.[1] ?? '')
@@ -71,7 +89,7 @@ const PAGE_ROUTES = [
 
 interface PostSummary {
   route: string;
-  date: string;
+  time: number;
   published: boolean;
   category: string;
   tags: string[];
@@ -91,14 +109,14 @@ export const postFileNames = (): string[] =>
 export const POSTS: readonly PostSummary[] = postFileNames()
   .map((name) => {
     const frontmatter = postFrontmatter(name);
-    const date = frontmatterDay(frontmatter, 'date');
+    const time = frontmatterTime(frontmatter, 'date');
     const category = frontmatterField(frontmatter, 'category');
-    if (!date || !category) {
+    if (time === undefined || !category) {
       throw new Error(`${name} has no date or no category in its frontmatter.`);
     }
     return {
       route: `/blog/${name.replace(/\.md$/, '')}`,
-      date,
+      time,
       published: frontmatterField(frontmatter, 'placeholder') !== 'true',
       category,
       tags: frontmatterTags(frontmatter),
@@ -108,11 +126,19 @@ export const POSTS: readonly PostSummary[] = postFileNames()
       featured: frontmatterField(frontmatter, 'featured') === 'true',
     };
   })
-  .sort(
-    (a, b) => b.date.localeCompare(a.date) || a.route.localeCompare(b.route),
-  );
+  .sort((a, b) => b.time - a.time || a.route.localeCompare(b.route));
 
 const PUBLISHED = POSTS.filter((post) => post.published);
+
+/* The site's sort leaves a tie in collection order, which no test can predict. */
+PUBLISHED.forEach((post, i) => {
+  const next = PUBLISHED[i + 1];
+  if (next && next.time === post.time) {
+    throw new Error(
+      `${post.route} and ${next.route} share one date; give one a later time.`,
+    );
+  }
+});
 
 export const NO_POST = `no post in ${BLOG_CONTENT_DIR}`;
 
