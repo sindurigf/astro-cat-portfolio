@@ -8,7 +8,7 @@ import type { HeroPalette } from './hero-field-scene';
 /** Centre as a share of the box, then eye heights; the side recedes up and right. */
 export const PONEGLYPH = {
   x: 0.66,
-  width: 1.29,
+  width: 1.584,
   height: 1.91,
   side: 0.255,
   rise: 0.135,
@@ -41,26 +41,26 @@ const CUT = { lip: 0.8, groove: 0.7 } as const;
 const LINE = { outline: 0.008, groove: 0.0045, lip: 0.006 } as const;
 
 /*
- * A light reads down the script one row at a time and wraps to the top. The
- * next row rises as this one fades (`step` is rise plus hold), so the two only
- * cross over. Seconds; the ramps are far slower than 3 a second (SC 2.3.1).
+ * A light reads the script glyph by glyph, left to right and top to bottom,
+ * wrapping to the start. The next glyph rises as this one fades (`step` is
+ * rise plus hold), so the two only cross over. Seconds.
  */
-export const GLOW = { rise: 2, hold: 3, fall: 2, step: 5 } as const;
+export const GLOW = { rise: 0.6, hold: 0.1, fall: 0.6, step: 0.7 } as const;
 
 /* Zero slope and zero curvature at both ends, so nothing starts or stops with a jolt. */
 const smoother = (x: number): number =>
   x <= 0 ? 0 : x >= 1 ? 1 : x * x * x * (x * (6 * x - 15) + 10);
 
-/** 0 to 1: how lit row `row` of `rows` is. Never lit in the reduced-motion still. */
+/** 0 to 1: how lit glyph `glyph` of `glyphs`, in reading order, is. Never lit in the reduced-motion still. */
 export const glyphLight = (
-  row: number,
-  rows: number,
+  glyph: number,
+  glyphs: number,
   seconds: number,
   still: boolean,
 ): number => {
   if (still) return 0;
-  const cycle = rows * GLOW.step;
-  const t = (((seconds - row * GLOW.step) % cycle) + cycle) % cycle;
+  const cycle = glyphs * GLOW.step;
+  const t = (((seconds - glyph * GLOW.step) % cycle) + cycle) % cycle;
   return (
     smoother(t / GLOW.rise) - smoother((t - GLOW.rise - GLOW.hold) / GLOW.fall)
   );
@@ -172,11 +172,12 @@ const script = (
   const x0 = (left + right) / 2 - (cell * SCRIPT.columns) / 2;
   const y0 = top + (face - rows * cell) / 2;
   const marks = new Path2D();
-  const lines: Path2D[] = [];
+  /* In reading order: left to right, top to bottom. */
+  const glyphs: Path2D[] = [];
   for (let r = 0; r < rows; r += 1) {
-    const line = new Path2D();
-    lines.push(line);
     for (let c = 0; c < SCRIPT.columns; c += 1) {
+      const strokes = new Path2D();
+      glyphs.push(strokes);
       const glyph = GLYPHS[(r * 7 + c * 3 + ((r * c) % 5)) % GLYPHS.length]!;
       const cx = x0 + (c + 0.5) * cell;
       const cy = y0 + (r + 0.5) * cell;
@@ -185,10 +186,10 @@ const script = (
         const y = cy - glyph[k + 1]! * cell * SCRIPT.glyph;
         if (k) {
           marks.lineTo(x, y);
-          line.lineTo(x, y);
+          strokes.lineTo(x, y);
         } else {
           marks.moveTo(x, y);
-          line.moveTo(x, y);
+          strokes.moveTo(x, y);
         }
       }
     }
@@ -206,19 +207,19 @@ const script = (
   ctx.lineWidth = LINE.groove * unit;
   ctx.stroke(marks);
   /*
-   * A lit row thickens into a full-ink rim (6.60:1 on the dark face, 16.43:1
+   * A lit glyph thickens into a full-ink rim (6.60:1 on the dark face, 16.43:1
    * on the light, SC 1.4.11) with the glow colour inside it.
    */
-  lines.forEach((line, r) => {
-    const light = glyphLight(r, lines.length, seconds, still);
+  glyphs.forEach((strokes, g) => {
+    const light = glyphLight(g, glyphs.length, seconds, still);
     if (light <= 0) return;
     ctx.globalAlpha = 1;
     ctx.strokeStyle = palette.border;
     ctx.lineWidth = LINE.groove * unit * (1 + 2.6 * light);
-    ctx.stroke(line);
+    ctx.stroke(strokes);
     ctx.strokeStyle = palette.glow;
     ctx.lineWidth = LINE.groove * unit * 1.5 * light;
-    ctx.stroke(line);
+    ctx.stroke(strokes);
   });
 };
 
