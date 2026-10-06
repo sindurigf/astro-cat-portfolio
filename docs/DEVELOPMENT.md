@@ -171,6 +171,20 @@ tests/              Playwright specs; fixtures/ holds files the specs serve
 docs/               Development, deployment, style guide, manual testing
 ```
 
+## Where the copy lives
+
+| File                                                                                  | Holds                                                            |
+| ------------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| `src/site.config.ts`                                                                  | Site name, URL, tagline, motto, name, job title, email, profiles |
+| `src/pages/index.astro`, `src/pages/about.astro`, `src/pages/career.astro`            | The persona's text; names and links come from the config         |
+| `src/content/blog/sample-post.md`, `src/content/talks/sample-talk/slides.md`          | The sample post and talk                                         |
+| `src/lib/persona.ts`, `src/lib/credits.ts`                                            | The sample persona's notice; the `/credits` entries              |
+| `src/pages/contact.astro`, `src/pages/privacy.astro`, `src/pages/accessibility.astro` | Mostly config values; check the wording against your site        |
+| `src/assets/photos/`, `src/assets/blog/`                                              | Sample photos, credited in [LICENSE-photos](../LICENSE-photos)   |
+
+- Replacing the photos: update `LICENSE-photos`, or remove it and its row in
+  the [README licence table](../README.md#licence).
+
 ## Writing a post
 
 Add a Markdown file to `src/content/blog/`; the filename is the slug. The build
@@ -253,6 +267,51 @@ npm run dev
   both.
 - Shows the slide, notes, next title and a timer. Dev server only. Edited
   notes show on reload.
+
+## Replace the logo
+
+Sizes and roles of every file: [ARCHITECTURE.md assets](../ARCHITECTURE.md#assets)
+and [the favicon set](../ARCHITECTURE.md#the-favicon-set).
+
+1. Swap the mark, `#131313` artwork on a transparent ground:
+   - `src/assets/mark-dark.png`: 840 x 900, read by `Header.astro`,
+     `Roundel.astro` and `about.astro`.
+   - `artwork/mark-dark.svg`: the vector source, read by `npm run og`.
+2. Keep the 840:900 aspect. For another one, update `MARK_WIDTHS` and the
+   `sizes` in `src/components/Roundel.astro`; `tests/image-size.spec.ts` fails
+   on drift.
+3. Redraw the tab icon `public/favicon.svg` (64 x 64 viewBox).
+4. Render the PNGs from it, sizes as in the favicon table:
+   - `public/favicon-96x96.png`.
+   - `artwork/favicon-16x16.png`, `artwork/favicon-32x32.png`,
+     `artwork/favicon-48x48.png`, then rebuild `public/favicon.ico` with the
+     `convert` command under the table; it must hold 16, 32 and 48.
+5. Render the app icons on a full-bleed `#FFC000` square:
+   `public/apple-touch-icon.png` (180), `public/android-chrome-192x192.png`,
+   `public/android-chrome-512x512.png` and `public/maskable-icon-512x512.png`
+   (mark inside the 80% safe zone). `src/pages/site.webmanifest.ts` and
+   `src/layouts/BaseLayout.astro` already link these names.
+6. Run `npm run og` to redraw `public/images/og-default.png` (1200 x 630) from
+   the new `artwork/mark-dark.svg`
+   ([the sharing image](#the-sharing-image)).
+7. Update the `alt` in `src/lib/og-image.ts`, which describes the sample mark,
+   and the mark and icon lines in [AI_DISCLOSURE.md](../AI_DISCLOSURE.md).
+
+Verify:
+
+```sh
+npm run build
+npm run check
+npx playwright test tests/icons.spec.ts tests/image-size.spec.ts tests/seo.spec.ts
+```
+
+- `tests/icons.spec.ts` fails on a linked icon missing from the build, a
+  `sizes` value the file does not match, an `.ico` without 16, 32 and 48, and
+  a manifest without exactly one maskable icon.
+- `npm run check:untransformed` fails if `src/assets/mark-dark.png` is renamed:
+  update its entry in `scripts/check-untransformed.mjs`.
+- `tests/alt-text.spec.ts` and `tests/image-priority.spec.ts` match the file
+  name `mark-dark`; keep it or update both.
 
 ## The sharing image
 

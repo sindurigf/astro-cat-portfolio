@@ -25,6 +25,9 @@ page. Tested for WCAG 2.2 AA in Chromium, Firefox and WebKit.
    `null`, which removes her notice from `/credits` and the homepage. Update
    [SECURITY.md](SECURITY.md), [ACCESSIBILITY.md](ACCESSIBILITY.md) and
    [AI_DISCLOSURE.md](AI_DISCLOSURE.md) to describe your site.
+   Replace the logo and icons with [Replace the logo](docs/DEVELOPMENT.md#replace-the-logo);
+   [Where the copy lives](docs/DEVELOPMENT.md#where-the-copy-lives) lists the
+   page files.
    `/brand` shows your design system and links to your `repository`; it is
    optional. To drop it, delete `src/pages/brand.astro`,
    `src/components/brand/` and `tests/brand.spec.ts`, the Brand link in
