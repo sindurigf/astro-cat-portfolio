@@ -8,7 +8,7 @@ const EXPECTED: ReadonlyArray<readonly [slug: string, label: string]> = [
   ['what-to-look-for', 'What to Look For'],
   ['things-to-do-in', 'Things to Do In'],
   ['a-day-in-the-life-of-a-maintainer', 'A Day in the Life of a Maintainer'],
-  ['women-in-drupal', 'Women in Drupal'],
+  ['women-in-open-source', 'Women in Open Source'],
   ['the-end-with', 'The End With'],
   ['from-here-to-there', 'From Here to There'],
   ['look-at-it-but-never-by-me', 'Look at It but Never by Me'],
