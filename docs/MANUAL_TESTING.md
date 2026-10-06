@@ -1,6 +1,6 @@
 # Manual accessibility testing
 
-The checks a machine cannot decide, for every route in `tests/routes.ts`.
+The checks a machine cannot decide, for the pages that need a person.
 Automated coverage is in [ACCESSIBILITY.md](../ACCESSIBILITY.md) §6.
 
 Results: filled blanks stay in this file. A passed check goes in
@@ -18,28 +18,33 @@ npm run build && npm run preview   # http://localhost:4340
 - Astro may background `preview`; `ps aux | grep astro` finds a stale one.
 - A number that changes between two attempts is environmental until proved
   otherwise. Record browser, version, viewport and zoom beside every number:
-  headless Chromium gives a 320px viewport a 320px box, headed Chrome 305px.
+  at 400% zoom a real browser leaves a 305px viewport beside its scrollbar, which
+  is why `tests/reflow.spec.ts` tests 305px, not 320px.
 - Checks that need real sentences: `/career`,
   `/blog/sample-talk`, `/privacy`, `/accessibility`.
 
-| Tool          | Needed for | Platform                       |
-| ------------- | ---------- | ------------------------------ |
-| Google Chrome | all but §6 | any                            |
-| Firefox       | §2, §6, §8 | any                            |
-| Orca          | §6, §13    | Linux (tested: GNOME, Wayland) |
-| NVDA          | §6.10      | Windows                        |
-| VoiceOver     | §6.10, §8  | macOS, iOS                     |
+| Tool          | Needed for          | Platform                       |
+| ------------- | ------------------- | ------------------------------ |
+| Google Chrome | §1 to §5b, §6.4, §9 | any                            |
+| Firefox       | §2, §6, §7, §8, §13 | any                            |
+| Orca          | §6, §13             | Linux (tested: GNOME, Wayland) |
+| NVDA          | §6.10               | Windows                        |
+| VoiceOver     | §6.10, §8           | macOS, iOS                     |
 
 ### Teardown
 
-| Setting                     | Set in                        | Restore                                                                 |
-| --------------------------- | ----------------------------- | ----------------------------------------------------------------------- |
-| Orca Capitalization style   | `Orca+Space` → Voice, §6.4    | The value recorded in §6.4.1                                            |
-| Firefox "Zoom text only"    | Settings → General → Zoom, §7 | Untick, then Ctrl+0                                                     |
-| GNOME animations            | `gsettings`, §4               | `gsettings set org.gnome.desktop.interface enable-animations true`      |
-| Browser zoom                | Ctrl+`+`, §3 and §7           | Ctrl+0 in every window                                                  |
-| Orca and its log            | §6.1                          | `Super+Alt+S`, `rm /tmp/orca-pass.log`                                  |
-| GTK `toolkit-accessibility` | §6.1 fallback only            | `gsettings set org.gnome.desktop.interface toolkit-accessibility false` |
+| Setting                     | Set in                                             | Restore                                                                 |
+| --------------------------- | -------------------------------------------------- | ----------------------------------------------------------------------- |
+| Orca Capitalization style   | `Orca+Space` → Voice, §6.4                         | The value recorded in §6.4.1                                            |
+| Firefox "Zoom text only"    | Settings → General → Zoom, §7                      | Untick, then Ctrl+0                                                     |
+| GNOME animations            | `gsettings`, §4                                    | `gsettings set org.gnome.desktop.interface enable-animations true`      |
+| Browser zoom                | Ctrl+`+`, §3 and §7                                | Ctrl+0 in every window                                                  |
+| Orca and its log            | §6.1                                               | `Super+Alt+S`, `rm /tmp/orca-pass.log`                                  |
+| GTK `toolkit-accessibility` | §6.1 fallback only                                 | `gsettings set org.gnome.desktop.interface toolkit-accessibility false` |
+| DevTools Offline            | Network panel, §6.12.1                             | Untick Offline                                                          |
+| `*.webp` request blocking   | Network panel, §6.12.3                             | Remove the pattern, reload                                              |
+| `javascript.enabled`        | `about:config`, §6.12.3                            | Set it back to `true`                                                   |
+| Firefox 320px window        | Window or Responsive Design Mode, §6.7 and §6.12.5 | Close Responsive Design Mode, restore the window size                   |
 
 - [ ] Teardown done.
 
@@ -50,11 +55,11 @@ Setup: Chrome, 1280px, `/`, focus in the address bar.
 - [ ] First Tab lands on "Skip to Main Content", visible at top left. → SC 2.4.1, 2.4.7
 - [ ] Enter on it: focus moves to main, which shows a cyan outline. → SC 2.4.1
 - [ ] Next Tab reaches the first control in the page (the hero pause control on `/`), not the header. → SC 2.4.1
-- [ ] Reload and Tab through: skip link, logo, About, Career, Blog, Get in
-      touch, the page, footer Site (Home, About, Career, Blog), About this site
-      (Accessibility, Privacy, Credits), Social (GitHub, LinkedIn, Instagram,
-      Bluesky, Mastodon, Email). Re-read `Footer.astro` when a footer
-      link changes. → SC 2.4.3
+- [ ] Reload and Tab through: skip link, logo, About, Career, Blog, the
+      "Light mode" switch, Get in Touch, the page, footer Site (Home, About,
+      Career, Blog), About this site (in the order of `POLICY_LINKS` in
+      `Footer.astro`), Social (GitHub, LinkedIn, Instagram, Bluesky, Mastodon,
+      Email). Re-read `Footer.astro` when a footer link changes. → SC 2.4.3
 - [ ] Every stop shows a cyan ring with a visible gap. → SC 2.4.7
 - [ ] Shift+Tab back out: the order reverses exactly. → SC 2.1.2
 - [ ] No stop swallows Tab, Escape or arrow keys. → SC 2.1.2
@@ -68,8 +73,8 @@ Setup: Chrome at 375px. No mouse.
 - [ ] Enter opens the panel; Escape closes; Space reopens. → SC 2.1.1
 - [ ] On open, focus is on the first link. → SC 2.4.3
 - [ ] Tab cycles Home, About, Career, Blog, Get in Touch, Close, one stop in
-      the browser UI (correct `<dialog>` behavior), Home. Focus never reaches
-      the page behind. → SC 2.1.2
+      the browser UI (correct `<dialog>` behavior), Home. The theme switch is
+      not in the dialog. Focus never reaches the page behind. → SC 2.1.2
 - [ ] Shift+Tab from the first item goes to Close. → SC 2.1.2
 - [ ] Escape closes and focus returns to the menu button. → SC 2.1.2, 2.4.3
 - [ ] Close button: focus returns to the menu button. → SC 2.4.3
@@ -86,7 +91,8 @@ Resizing is not zooming, so this stays manual even though
 - [ ] No horizontal scrollbar. → SC 1.4.10
 - [ ] No heading cut mid-word (e.g. `ANNOUNCEM / ENTS`); if one is, it needs a
       soft hyphen. → SC 1.4.10
-- [ ] Content sits 16px from both edges: box 273px at a real 305px viewport. → SC 1.4.10
+- [ ] Content sits 16px from both edges: box 273px at a 305px viewport (the
+      `contentBox` in `tests/reflow.spec.ts`). → SC 1.4.10
 - [ ] Card content box on a category route, measured: `______` px on
       `__________` at `____` px, `____`%, in `__________`. → SC 1.4.10
 - [ ] The mobile menu button replaces the desktop nav and the menu is fully
@@ -129,6 +135,8 @@ The ring is 4px cyan at a 4px offset plus the element's shadow (4px or 8px);
 - [ ] On a gold slab or band: the `#131313` ring is visible. → SC 1.4.11
 - [ ] No ring is clipped by a parent or hidden under the header. → SC 2.4.11
 - [ ] Focus is never shown by shadow alone. → SC 2.4.7
+- [ ] Light mode on `<main>`: the ring is `--color-light-focus` (`#00606b`) on
+      white; the header and footer keep the cyan ring on dark. See §5b. → SC 1.4.11, 2.4.7
 
 ## 5a. Header height, roundel and hero edge
 
@@ -161,9 +169,41 @@ Zoom (forced colors off, 1280px, 200% then 400%):
 - [ ] At 400% it is at its 3.5rem floor and still on the edge. → SC 1.4.10
 - [ ] Repeat on `/contact`. → SC 1.4.10
 
+## 5b. Light mode
+
+Setup: Chrome, 1280px, `/about`. The switch turns `<main>` light; the header
+and footer stay dark ([ACCESSIBILITY.md](../ACCESSIBILITY.md#light-mode),
+[STYLEGUIDE.md](STYLEGUIDE.md#light-mode)). `tests/light-mode.spec.ts` covers
+axe, control edges, hover contrast and ring contrast; these checks are the
+rest.
+
+- [ ] The switch is announced "Light mode", "toggle button", not pressed; after
+      Enter or Space it is pressed. The name does not change. → SC 4.1.2
+- [ ] Reload and open `/career`: the choice holds. → SC 1.4.3
+- [ ] With the choice saved, hard reload on a throttled network: no dark frame
+      in `<main>` before it turns light. → SC 1.4.3
+- [ ] With no saved choice and the OS set to light, the page opens light and
+      the switch reads pressed. → SC 1.4.3
+- [ ] JavaScript off (`about:config` `javascript.enabled` false in Firefox):
+      the page is dark and the switch is absent. Restore the setting. → SC 4.1.2
+- [ ] Tab to the switch: a ring shows with a gap, on the dark header. → SC 2.4.7
+- [ ] In light, Tab through `<main>`: every ring reads against white and
+      against its control (`#00606b`). → SC 1.4.11, 2.4.7
+- [ ] A focused tag chip, the current chip, the current nav link in the dark
+      header and a primary button: each ring is separate from its block. → SC 1.4.11, 2.4.7
+- [ ] Hover and press a button, a chip and a link: text and edge stay readable
+      in each state. → SC 1.4.3, 1.4.11
+- [ ] A gold label shows ink text with its gold square; nothing is gold text
+      on white. → SC 1.4.3
+- [ ] Repeat §3 at 400% in light: no overlap, no cut-off. → SC 1.4.10
+- [ ] Repeat §5a.2 forced colors in light: the roundel edge and the focus ring
+      show. → SC 1.4.11
+- [ ] The switch's name is not a visible label, so §6a needs it reachable by
+      the tool's numbers in both modes. → SC 2.1.1
+
 ## 6. Screen reader: the Orca pass
 
-Closes part of ACCESSIBILITY.md §7 gap 2. Firefox throughout, except §6.4,
+Narrows ACCESSIBILITY.md §7 gap 2 without closing it. Firefox throughout, except §6.4,
 which needs Chrome: only Chromium puts the `text-transform` string into the
 accessibility tree. A strange Chrome result is a question, not a finding.
 
@@ -180,7 +220,7 @@ tail -f /tmp/orca-pass.log | grep --line-buffered "SPEECH OUTPUT"   # terminal 3
 ```
 
 - The log is the transcript: paste `SPEECH OUTPUT` lines, do not paraphrase.
-- `Super+Alt+S` toggles Orca; `pkill -f orca` if it hangs.
+- `Super+Alt+S` toggles Orca; `pkill -x orca` if it hangs.
 - Browser silent: restart it with Orca running; then
   `gsettings set org.gnome.desktop.interface toolkit-accessibility true` and
   restart again.
@@ -272,8 +312,8 @@ Setup: Firefox, 1280px, `/`, click the address bar, Tab once.
 - [ ] Enter: something is announced. → SC 2.4.1
 - [ ] `Down` reads from inside main (pause control or `h1`), not the header:
       the reading cursor moved. → SC 2.4.1
-- [ ] Tab lands on the hero pause control (the next control under reduced
-      motion). → SC 2.4.1
+- [ ] Tab lands on the hero pause control (reduced motion off; with it on,
+      there is no pause control). → SC 2.4.1
 
 Heard: `________________________`
 
@@ -303,7 +343,8 @@ Heard / listed: `________________________`
 ### 6.7 The mobile menu at 320px
 
 Setup: Firefox at 320px (window, or Responsive Design Mode with DevTools
-detached), `/`, `Ctrl+Home`, Tab three times to the menu button.
+detached), `/`, `Ctrl+Home`, Tab four times to the menu button (skip link, logo, theme
+switch, menu).
 
 - [ ] The button says "Menu", "button" and collapsed. → SC 4.1.2
 - [ ] Enter: "Menu" and "dialog" announced. → SC 4.1.2
@@ -316,7 +357,7 @@ detached), `/`, `Ctrl+Home`, Tab three times to the menu button.
 - [ ] Same after Close. → SC 2.4.3
 - [ ] A nav link navigates and the new page is announced. → SC 2.1.1
 
-This is the Firefox result only; the dialog in Chrome with Orca is unknown.
+Only Firefox is covered; the dialog in Chrome with Orca is untested.
 
 Heard: `________________________`
 
@@ -345,10 +386,13 @@ Setup: Firefox, 1280px, `/404` (preview serves it with 200;
 `tests/not-found.spec.ts` covers the status).
 
 - [ ] Reading from the top, it is soon clear the address was wrong. → SC 1.3.1
-- [ ] `Orca+Slash` includes "Page Not Found". → SC 2.4.2
-- [ ] One heading, the `h1` "These are not the droids you are looking for."
-      Judge whether it alone makes the reason clear. → SC 1.3.1, 2.4.6
-- [ ] `G` finds only the header mark; the gold logo tile is silent. → SC 1.1.1
+- [ ] `Orca+Slash` reads the window title, which includes "Page Not Found". → SC 2.4.2
+- [ ] One heading, the `h1`. Its name starts with a hidden "Page Not Found:"
+      (`hiddenPrefix` in `404.astro`), so the phrase is heard in the title and
+      again in the heading, then "These are not the droids you are looking
+      for." Judge whether the heading alone makes the reason clear. → SC 1.3.1, 2.4.6
+- [ ] `G` finds no image: the header mark and the roundel both have
+      `alt=""`. → SC 1.1.1
 - [ ] "Episode 404" reads as text. Record how "404" is spoken.
 - [ ] Three links: "Go to the Homepage", "Read the Blog" (a list of two), and
       "tell me about the broken link" in the body. Judge the third hardest. → SC 2.4.4, 1.3.1
@@ -357,7 +401,7 @@ Heard: `________________________`
 
 ### 6.10 NVDA and VoiceOver
 
-Not run: needs Windows and Apple hardware. Open in ACCESSIBILITY.md §7 gap 2.
+Needs Windows and Apple hardware. Open in ACCESSIBILITY.md §7 gap 2.
 
 - [ ] NVDA: §6 in Chrome and Firefox, plus browse and focus mode in the dialog. → needs Windows
 - [ ] VoiceOver: Safari (`Cmd+F5`, rotor `Ctrl+Opt+U`) and iOS on the mobile
@@ -538,8 +582,7 @@ Chromium, Firefox and WebKit run the automated suite (WebKit in CI, or
 
 - [ ] Firefox: §2 by hand.
 - [ ] Firefox: the focus ring is visible on every stop, by eye.
-- [ ] Safari on macOS: open, needs hardware. Not N/A: it applies and has not
-      been run.
+- [ ] Safari on macOS: needs hardware. It applies and is not covered by CI.
 - [ ] Safari on a Mac and an iPhone: the homepage hero moves smoothly and its
       pause control stops it. Headless WebKit has no GPU, so CI cannot judge
       this. → needs Apple hardware
@@ -609,6 +652,9 @@ From the Accessible Astro checklist and
   ACCESSIBILITY.md §7 gap 1.
 - Plain language: gap 5.
 - Whether the hero field's still frame reads as a picture: §4.
+- Routes with no check of their own: `/contact/sent`, `/blog`, the tag
+  listings, and the category listing beyond §3. `/accessibility`, `/privacy`,
+  `/credits` and `/brand` are read only in §9a; `/privacy` also in §6.12.1a.
 
 ## 13. Published PDFs
 
@@ -656,8 +702,20 @@ page numbers or running headers read as content, decoration announced.
 
 - [ ] The PDF in a screen reader: each slide's heading, cards in order, links
       by text, any image by its alt text.
-- [ ] Orca and NVDA: Next, Previous and arrow keys speak "Slide N of 18" and
-      the title once; the slide text can be read after.
+- [ ] Orca and NVDA: Next, Previous and arrow keys speak "Slide N of" the
+      deck's slide count and the title once; the slide text can be read after.
+- [ ] Home and End go to the first and last slide; Page Up and Page Down turn
+      the slide, or first scroll one taller than the screen. → SC 2.1.1
+- [ ] A link to one slide (`#slide-N`) opens on it with focus on its heading;
+      focus inside a slide that turns moves to the new heading. → SC 2.4.3
+- [ ] Full Screen: the button reads pressed, every slide fits a projector
+      screen without scrolling, Escape leaves. → SC 1.4.10
+- [ ] Print preview: one page per slide, no controls. Matches the PDF.
+- [ ] Presenter view (`astro dev` only, `/talks/<deck>/presenter/`): the
+      timer button reads "Start Timer" then "Pause Timer", the time is not
+      announced every second, and Next follows the slideshow in the other tab.
+      `tests/presenter.spec.ts` checks only that the notes glob matches the
+      deck file. → SC 2.2.2, 4.1.3
 - [ ] VoiceOver on iOS: slides can be moved through and read without a
       keyboard.
 - [ ] At 400% zoom a slide reads down the page and the controls stay
