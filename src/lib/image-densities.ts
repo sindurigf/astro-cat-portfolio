@@ -17,5 +17,7 @@ export const MARKDOWN_WIDTHS = [...WIDTHS, 1920, 2400];
  * cover. Arms turn where the column passes the rail (1396px) and its `vw`
  * inset caps (1829px). tests/image-size.spec.ts fails on drift.
  */
-export const HERO_PHOTO_SIZES =
-  '(min-width: 1829px) calc(20.93vw + 174px), (min-width: 1396px) calc(17.9vw + 230px), (min-width: 83rem) 480px, (min-width: 64rem) calc(39vw - 37px), min(calc(100vw - 6rem), 24rem)';
+/* The figure's `max-w-sm` less both `border-4` edges of its frame. */
+const HERO_PHOTO_CAP = 'calc(24rem - 8px)';
+
+export const HERO_PHOTO_SIZES = `(min-width: 1829px) calc(20.93vw + 174px), (min-width: 1396px) calc(17.9vw + 230px), (min-width: 83rem) 480px, (min-width: 64rem) calc(39vw - 37px), min(calc(100vw - 6rem), ${HERO_PHOTO_CAP})`;

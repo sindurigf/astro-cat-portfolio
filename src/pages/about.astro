@@ -41,13 +41,12 @@ import { PERSON_NAME } from '../lib/profiles';
 
 /* Jump links repeat the headings verbatim. */
 
-/*
- * Drawn widths net of gutter and padding. The `lg` terms omit the fluid column
- * gap, so they overstate by at most half a gap. tests/image-size.spec.ts fails on drift.
- */
+/* Both `border-4` edges of `PHOTO`. */
+const PHOTO_BORDERS = '8px';
+
+/* Drawn widths net of gutter, padding and borders; tests/image-size.spec.ts fails on drift. */
 const SIZES = {
-  halfCard:
-    '(min-width: 64rem) min(calc(50vw - 120px), 34rem), (min-width: 40rem) calc(100vw - 9rem), calc(100vw - 6rem)',
+  halfCard: `(min-width: 64rem) min(calc(50vw - 120px - ${PHOTO_BORDERS}), calc(34rem - ${PHOTO_BORDERS})), (min-width: 40rem) calc(100vw - 9rem - ${PHOTO_BORDERS}), calc(100vw - 6rem - ${PHOTO_BORDERS})`,
   /* A half with no gap beside it. */
   single:
     '(min-width: 40rem) min(calc(50vw - 5.5rem), 36rem), calc(100vw - 7rem)',
