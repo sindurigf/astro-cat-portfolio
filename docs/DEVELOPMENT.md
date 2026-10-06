@@ -116,6 +116,9 @@ npm run test:webkit -- tests/reflow.spec.ts
 - `dev` and `build` pass `--force` to clear Astro's content cache, which does
   not invalidate when a plugin in `src/plugins/` changes. The resulting
   `[WARN] [content] data store cleared (force)` is expected.
+- `build` first copies images from other worktrees on the same sharp and
+  libvips into an empty `node_modules/.astro/assets`, so a new worktree does not
+  regenerate them all.
 - [AGENTS.md](../AGENTS.md) lists what must pass before a change is done.
 
 | Variable                        | Default                  | Effect                                                   |

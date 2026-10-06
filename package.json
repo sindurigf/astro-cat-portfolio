@@ -8,6 +8,7 @@
   },
   "scripts": {
     "dev": "astro dev --force",
+    "prebuild": "node scripts/seed-image-cache.mjs",
     "build": "astro build --force",
     "preview": "astro preview",
     "typecheck": "astro check --minimumFailingSeverity hint && vue-tsc --noEmit -p tsconfig.vue.json",
