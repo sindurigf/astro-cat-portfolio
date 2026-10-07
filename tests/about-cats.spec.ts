@@ -31,6 +31,7 @@ import {
   createIdle,
   idleFrameMs,
   idleOffsets,
+  rearmIdle,
   tickIdle,
 } from '../src/lib/about-cats-idle';
 import { isTricksData, tricksOf } from '../src/lib/about-cats-tricks';
@@ -537,6 +538,41 @@ test(
 );
 
 test(
+  'after a move, resting cats start their timers again and do not flick, glance or twitch together',
+  NODE,
+  () => {
+    const START_MS = 10_000;
+    const MOVE_MS = 30_000;
+    const resumeAt = START_MS + MOVE_MS;
+    const cats = [0.1, 0.5, 0.9].map((fixed) => {
+      const idle = createIdle();
+      tickIdle(idle, START_MS, () => fixed);
+      return { idle, fixed };
+    });
+    for (const { idle, fixed } of cats) {
+      rearmIdle(idle);
+      tickIdle(idle, resumeAt, () => fixed);
+      const first = idleOffsets(idle, resumeAt);
+      expect(
+        [first.ears, first.hr, first.tw],
+        'a cat flicked, glanced or twitched on its first frame after a move',
+      ).toEqual([0, 0, 0]);
+    }
+    const firstFlick = cats.map(({ idle, fixed }) => {
+      for (let now = resumeAt; now < resumeAt + 20_000; now += 50) {
+        tickIdle(idle, now, () => fixed);
+        if (idleOffsets(idle, now).ears > 0) return now;
+      }
+      return Infinity;
+    });
+    expect(
+      new Set(firstFlick).size,
+      `cats flicked an ear together after a move: ${firstFlick.join(', ')}`,
+    ).toBe(firstFlick.length);
+  },
+);
+
+test(
   'resting cats do not flick, glance or twitch together, and idle frames slow down while only the breath moves',
   NODE,
   () => {
@@ -566,11 +602,17 @@ test(
       busy = Math.min(busy, idleFrameMs(idle, now));
     }
     expect(
+      idleFrameMs(createIdle(), 0),
+      'a cat that has not yet had an event draws at the busy rate',
+    ).toBe(calm);
+    expect(
       busy,
       'a flick or glance drew no faster than the breath',
     ).toBeLessThan(calm);
   },
 );
+
+const SLEEP_MARGIN_MS = 1000;
 
 /** Counts the changes to one cat's drawing (its SVG, props included, not its controls) over a window: a redraw rewrites its paths. */
 const MUTATION_WINDOW_MS = 1200;
@@ -599,6 +641,42 @@ const drawnIn = (page: Page, id: (typeof CATS)[number]) =>
       }),
     [`cat-spot-${id}`, MUTATION_WINDOW_MS] as const,
   );
+
+/** Animation frames in which one cat's drawing changed over a window. */
+const framesDrawnIn = (page: Page, id: (typeof CATS)[number], ms: number) =>
+  page.evaluate(
+    ([spotId, windowMs]) =>
+      new Promise<number>((resolve) => {
+        const drawing = document
+          .getElementById(String(spotId))
+          ?.querySelector('.cat-svg');
+        const observer = new MutationObserver(() => {});
+        if (drawing)
+          observer.observe(drawing, {
+            attributes: true,
+            childList: true,
+            subtree: true,
+          });
+        let frames = 0;
+        const request = window.requestAnimationFrame.bind(window);
+        window.requestAnimationFrame = (callback) =>
+          request((now) => {
+            callback(now);
+            if (observer.takeRecords().length > 0) frames += 1;
+          });
+        setTimeout(() => {
+          observer.disconnect();
+          window.requestAnimationFrame = request;
+          resolve(frames);
+        }, Number(windowMs));
+      }),
+    [`cat-spot-${id}`, ms] as const,
+  );
+
+/** A resting cat is drawn at most this often, in frames a second: the quick idle rate, well below the animation frame rate. */
+const IDLE_MAX_FPS = 25;
+/** Frames that must show a resting cat is idling, not frozen, in the window. */
+const IDLE_MIN_FRAMES = 3;
 
 test.describe('About cats', () => {
   test('each cat is a named button that opens its photo in a dialog, Close first, and returns focus', async ({
@@ -1255,7 +1333,8 @@ test.describe('About cats', () => {
     await napControl(page, 'mochi').click();
     await expectMood(page, 'mochi', 'asleep', 'Mochi did not fall asleep');
     /* Lying down and the tail's settling end within 5 s (SC 2.2.2). */
-    await page.waitForTimeout(SC_2_2_2_MS);
+    /* The margin covers frames a loaded runner draws late. */
+    await page.waitForTimeout(SC_2_2_2_MS + SLEEP_MARGIN_MS);
     expect(await drawnIn(page, 'mochi'), 'a sleeping cat was redrawn').toBe(0);
     await context.close();
 
@@ -1272,6 +1351,40 @@ test.describe('About cats', () => {
         `${NAMES[id]} was redrawn under reduced motion`,
       ).toBe(0);
     await still.close();
+  });
+
+  test('a resting cat is drawn at the idle rate, not every animation frame', async ({
+    browser,
+  }) => {
+    const context = await browser.newContext({
+      viewport: { width: 1280, height: 4200 },
+    });
+    await context.addInitScript(() => {
+      /* Near 1: the longest pause after a move, and no other random move or idle event inside the window. */
+      Math.random = () => 0.99;
+    });
+    const page = await context.newPage();
+    await gotoSettled(page, ROUTE);
+    const id = 'biscuit';
+    await showCat(page, id);
+    await tricksButton(page, id).click();
+    await tricksList(page, id)
+      .getByRole('button', { name: tricksData.tricks.look.label })
+      .click();
+    /* Look Around, a turn to face its way first, then a pause: the window sits inside the pause. */
+    const AFTER_LOOK_MS = duration(MOVES.look()) + 2200;
+    await page.waitForTimeout(AFTER_LOOK_MS);
+    const WINDOW_MS = 1200;
+    const frames = await framesDrawnIn(page, id, WINDOW_MS);
+    expect(
+      frames,
+      'a resting cat was never drawn, so it was not idling',
+    ).toBeGreaterThanOrEqual(IDLE_MIN_FRAMES);
+    expect(
+      frames,
+      'a resting cat was drawn nearly every animation frame',
+    ).toBeLessThanOrEqual((IDLE_MAX_FPS * WINDOW_MS) / 1000);
+    await context.close();
   });
 
   test('under reduced motion the cats sit still with no sleep control', async ({
