@@ -715,8 +715,17 @@ page numbers or running headers read as content, decoration announced.
 - [ ] A link to one slide opens on it; a `#slide-N` link followed within the
       page moves focus to its heading. Focus inside a slide that turns moves
       to the new heading. → SC 2.4.3
-- [ ] Full Screen: the button reads pressed, every slide fits a projector
-      screen without scrolling, Escape leaves. → SC 1.4.10
+- [ ] Full Screen: one 16:9 slide, no controls, the pointer hides when still.
+      Every slide fits a projector screen without scrolling. → SC 1.4.10
+- [ ] In full screen: Space, Enter, Right, Down and Page Down go on;
+      Shift+Space, Left, Up and Page Up go back. Space and Page keys first
+      scroll a slide taller than its frame. Focus is on the slide, with the
+      ring around the card; Escape leaves and focus is on Full Screen. Real
+      full screen needs a click, so check by hand in Firefox and Safari too:
+      headless Firefox ignores the test screen size. → SC 2.1.1, 2.4.3, 2.4.7
+- [ ] Full screen at 200% zoom and with the text-spacing bookmarklet: nothing
+      is cut off, long slides scroll. Titles do not grow
+      ([ACCESSIBILITY.md](../ACCESSIBILITY.md) §7). → SC 1.4.12
 - [ ] Print preview: one page per slide, no controls. Matches the PDF.
 - [ ] Presenter view (`astro dev` only, `/talks/<deck>/presenter/`): the
       timer button reads "Start Timer" then "Pause Timer", the time is not

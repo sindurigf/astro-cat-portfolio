@@ -286,7 +286,8 @@ npm run dev
   "Open the Slideshow" link for the room; put that window on the projector and
   press Full Screen.
 - The windows stay in sync; arrow keys and Page Up/Down (clickers) work in
-  both.
+  both. In full screen Space, Shift+Space and Enter also turn the slide, and
+  Escape leaves.
 - Shows the slide, notes, next title and a timer. Dev server only. Edited
   notes show on reload.
 
