@@ -220,7 +220,7 @@ test.describe('an abbreviation shows its expansion on demand (SC 3.1.4, 1.4.13)'
     ).toBeHidden();
   });
 
-  test('it opens flush below its abbreviation, inside a 320px viewport', async ({
+  test('it opens with no gap to cross from its abbreviation (SC 1.4.13), inside a 320px viewport (SC 1.4.10)', async ({
     page,
   }) => {
     await page.setViewportSize(NARROW);
@@ -241,7 +241,7 @@ test.describe('an abbreviation shows its expansion on demand (SC 3.1.4, 1.4.13)'
           },
           {
             message:
-              'a gap or overlap sits between the abbreviation and its expansion.',
+              'a gap the pointer must cross, or an overlap, sits between the abbreviation and its expansion (SC 1.4.13).',
           },
         )
         .toBeLessThanOrEqual(SUBPIXEL_PX);
