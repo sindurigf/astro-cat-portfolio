@@ -11,6 +11,13 @@
     @apply drop-shadow-none;
   }
 
+  /* Forced colors keep a filter, so the pink offset goes, as the footer's does. */
+  @media (forced-colors: active) {
+    .logo-tile {
+      @apply drop-shadow-none;
+    }
+  }
+
   @media (prefers-reduced-motion: no-preference) {
     .logo-link:active .logo-tile {
       @apply translate-x-2 translate-y-2;
