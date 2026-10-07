@@ -26,7 +26,9 @@ const MAX_STOPS = 300;
  * HeroField canvas; webkit under load measured up to 441ms a step there.
  */
 const WALK_BUDGET_PER_STEP_MS = 600;
-const WALK_DIRECTIONS = 2;
+
+/* light-mode.css swaps the focus color, so the rings are measured in both. */
+const SCHEMES = ['dark', 'light'] as const;
 
 interface Stop {
   selector: string;
@@ -271,12 +273,22 @@ const report = (stops: Stop[]): string =>
     )
     .join('\n');
 
-const walkBothWays = async (page: Page) => {
+/*
+ * Backward only in dark: it checks scroll position under the sticky header, which
+ * light-mode.css does not change; the forward walk already measures every ring.
+ */
+const walkFor = async (page: Page, colorScheme: (typeof SCHEMES)[number]) => {
   /* Forward, from the top of the document. */
   await page.evaluate(() => window.scrollTo(0, 0));
   await page.locator('body').press('Tab');
   const forward = await walk(page, 'Tab');
   const forwardCoverage = await walkCoverage(page, FOCUSABLE_SELECTOR);
+  if (colorScheme === 'light') {
+    return {
+      stops: forward,
+      coverages: [['forward', forwardCoverage]] as const,
+    };
+  }
 
   /* Backward: the direction that lands controls under the sticky header. */
   await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
@@ -391,9 +403,6 @@ const expectRingsLargeEnough = (
   ).toEqual([]);
 };
 
-/* light-mode.css swaps the focus color, so the rings are measured in both. */
-const SCHEMES = ['dark', 'light'] as const;
-
 for (const colorScheme of SCHEMES) {
   for (const { width, height, note } of WIDTHS) {
     test.describe(`keyboard flow at ${width}px (${note}), ${colorScheme}`, () => {
@@ -407,14 +416,15 @@ for (const colorScheme of SCHEMES) {
           expect(response?.status(), `${route} should serve a 200`).toBe(200);
 
           const controls = await page.locator(FOCUSABLE_SELECTOR).count();
+          const walks = colorScheme === 'dark' ? 2 : 1;
           test.setTimeout(
             Math.max(
               test.info().timeout,
-              controls * WALK_DIRECTIONS * WALK_BUDGET_PER_STEP_MS,
+              controls * walks * WALK_BUDGET_PER_STEP_MS,
             ),
           );
 
-          const { stops, coverages } = await walkBothWays(page);
+          const { stops, coverages } = await walkFor(page, colorScheme);
 
           for (const [direction, coverage] of coverages) {
             expectFullCoverage(route, width, direction, coverage);
