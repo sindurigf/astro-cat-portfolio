@@ -142,7 +142,10 @@ view (development server only, never published), and forks.
   sending, with no `aria-busy` to hold that message back. Details
   in gap 1. With `contact.form: 'none'` there is no form and `/contact` shows
   the email address.
-- **Talk PDF.** Passes PDF/UA-1 in `npm run check:pdf`. See gap 6.
+- **Talk PDF.** Passes PDF/UA-1 in `npm run check:pdf`. See gap 6. Below
+  `lg` (1024px) the talk page links it with its size and shows every slide as
+  text that reflows, so the PDF is never the only way to read the talk on a
+  narrow screen (SC 1.4.10).
 
 Passing axe is not conformance.
 
@@ -222,7 +225,7 @@ merge.
 | `tests/failed-images.spec.ts`       | 1.1.1                                              | A failed photo shows its alt text                                                                                                                                                                                                                                                                    |
 | `tests/contact.spec.ts`             | 3.3.1, 3.3.2, 3.3.3, 3.3.5, 3.3.6, 2.4.12          | 422 and 503 in a browser: input kept, hints beside errors, no focus covered; honeypot, rate limit                                                                                                                                                                                                    |
 | `tests/contact-sending.spec.ts`     | 4.1.3                                              | Status text, no busy ancestor, no second submit                                                                                                                                                                                                                                                      |
-| `tests/slideshow.spec.ts`           | 1.4.4, 1.4.10, 1.4.11, 1.4.12, 2.1.1, 2.4.7, 4.1.3 | Buttons, keys, live region, focus, full screen (keys, focus ring, 200% zoom clipping, text spacing), page-view titles and text 2x by page zoom, title words fit 305px, no JS                                                                                                                         |
+| `tests/slideshow.spec.ts`           | 1.4.4, 1.4.10, 1.4.11, 1.4.12, 2.1.1, 2.4.7, 4.1.3 | Buttons, keys, live region, focus, full screen (keys, focus ring, 200% zoom clipping, text spacing), page-view titles and text 2x by page zoom, title words fit 305px; below `lg`: no controls, the PDF link, every slide once, in order, no JS                                                      |
 | `tests/word-spacing.spec.ts`        | 1.3.1                                              | No word glued to an inline element                                                                                                                                                                                                                                                                   |
 | `tests/wave-alerts.spec.ts`         |                                                    | WAVE's possible-heading, redundant-link and noscript alerts                                                                                                                                                                                                                                          |
 | `tests/console.spec.ts`             |                                                    | No console error, CSP violation or failed request on any route                                                                                                                                                                                                                                       |

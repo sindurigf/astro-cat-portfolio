@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs';
+import { readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { expect, test, type Browser, type Page } from './test';
 import { gotoSettled } from './settle';
@@ -36,11 +36,11 @@ const slideControls = (page: Page) =>
 const next = (page: Page) => page.getByRole('button', { name: 'Next' });
 const previous = (page: Page) => page.getByRole('button', { name: 'Previous' });
 
-/** A narrow phone, where a slide can run past the screen and the bar sits below it. */
-const PHONE = { width: NARROW_WIDTH, height: 700 };
+/** The narrowest slideshow window, short enough that a slide runs past it. */
+const SHORT_WINDOW = { width: 1024, height: 500 };
 
-/** 400% zoom, where a slide is taller than the screen. */
-const ZOOMED_SLIDE = { width: NARROW_WIDTH, height: 400 };
+/** A window shorter than slide 2, so it is taller than the screen. */
+const ZOOMED_SLIDE = { width: 1024, height: 300 };
 
 /** The tightest projected size measured (1024x768 to 1920x1080). */
 const PROJECTOR = { width: 1280, height: 720 };
@@ -55,6 +55,15 @@ const open = async (page: Page, hash = '') => {
 
 /* By attribute, not role: the bar that holds it is hidden in full screen. */
 const title = (page: Page) => visible(page).locator('.slide-title');
+
+/* Below `lg` the controls are hidden; this models entering full screen at 100% and then zooming. */
+const enterFullScreenZoomed = async (page: Page) => {
+  const reveal = await page.addStyleTag({
+    content: '.deck-bar { display: flex !important; }',
+  });
+  await enterFullScreen(page);
+  await reveal.evaluate((style) => (style as HTMLStyleElement).remove());
+};
 
 const fullScreenButton = (page: Page) => page.locator('[data-deck-fullscreen]');
 
@@ -169,10 +178,10 @@ test.describe('the talk slideshow', () => {
     expect(new URL(page.url()).hash, 'the cover needs no address').toBe('');
   });
 
-  test('the focused control stays on screen when a slide turns on a phone', async ({
+  test('the focused control stays on screen when a slide turns in a short window', async ({
     page,
   }) => {
-    await page.setViewportSize(PHONE);
+    await page.setViewportSize(SHORT_WINDOW);
     await open(page);
 
     for (const id of ['slide-2', 'slide-3', 'slide-4']) {
@@ -188,7 +197,7 @@ test.describe('the talk slideshow', () => {
         return { top: r.top - reach, bottom: r.bottom + reach };
       });
       expect(
-        ring.top >= 0 && ring.bottom <= PHONE.height,
+        ring.top >= 0 && ring.bottom <= SHORT_WINDOW.height,
         `the focus ring is off screen after turning to ${id} (SC 2.4.7).`,
       ).toBe(true);
     }
@@ -617,7 +626,7 @@ test.describe('the talk slideshow in full screen', () => {
     skipUnsizedFullScreen(browserName);
     await page.setViewportSize(ZOOMED_PROJECTOR);
     await open(page);
-    await enterFullScreen(page);
+    await enterFullScreenZoomed(page);
     expect(
       await sidewaysOverflow(page),
       'slides wider than their frame',
@@ -631,7 +640,7 @@ test.describe('the talk slideshow in full screen', () => {
     skipUnsizedFullScreen(browserName);
     await page.setViewportSize(ZOOMED_PROJECTOR);
     await open(page);
-    await enterFullScreen(page);
+    await enterFullScreenZoomed(page);
     const position = () =>
       visible(page).evaluate((slide) => ({
         id: slide.id,
@@ -702,7 +711,7 @@ const deviceSizes = async (browser: Browser, width: number, zoom: number) => {
   try {
     const page = await context.newPage();
     await open(page, '#slide-2');
-    const sizes = await visible(page).evaluate((slide) => {
+    const sizes = await page.locator('#slide-2').evaluate((slide) => {
       const size = (selector: string) =>
         parseFloat(getComputedStyle(slide.querySelector(selector)!).fontSize);
       return {
@@ -799,20 +808,119 @@ test.describe('the talk slideshow on the page at 200% zoom', () => {
     await page.addStyleTag({
       content: '.slide-title { hyphens: manual !important; }',
     });
-    const count = await page.locator('.slide').count();
-    const over: string[] = [];
-    for (let at = 1; at <= count; at++) {
-      await expect(visible(page)).toHaveId(`slide-${at}`);
-      const extra = await visible(page).evaluate((slide) => {
+    // Below `lg` every slide is on the page, so all are measured at once.
+    const over = await page.$$eval('.slide', (slides) =>
+      slides.flatMap((slide) => {
         const title = slide.querySelector<HTMLElement>('.slide-title')!;
-        return Math.max(
+        const extra = Math.max(
           document.documentElement.scrollWidth - innerWidth,
           title.scrollWidth - title.clientWidth,
         );
-      });
-      if (extra > 0) over.push(`slide-${at} +${extra}px`);
-      await page.keyboard.press('ArrowRight');
-    }
+        return extra > 0 ? [`${slide.id} +${extra}px`] : [];
+      }),
+    );
     expect(over, 'slides whose title scrolls sideways at 320px').toEqual([]);
+  });
+});
+
+/** Below Tailwind's `lg`: a phone, a tablet, and 1280 at 200% zoom. */
+const STACKED_WIDTHS = [390, 640, 768] as const;
+const STACKED_HEIGHT = 900;
+const BYTES_PER_KB = 1024;
+/** More Tab presses than the page has stops, so the walk passes the deck. */
+const TAB_LIMIT = 80;
+
+test.describe('the talk below lg: the PDF and every slide as text', () => {
+  for (const width of STACKED_WIDTHS) {
+    test(`at ${width}px no deck control is on the page or in the tab order`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width, height: STACKED_HEIGHT });
+      await open(page);
+      await expect(slideControls(page)).toBeHidden();
+      for (const name of ['Previous', 'Next', 'Full Screen']) {
+        await expect(page.getByRole('button', { name })).toHaveCount(0);
+      }
+      let inBar = 0;
+      for (let press = 0; press < TAB_LIMIT; press++) {
+        await page.keyboard.press('Tab');
+        inBar += await page.evaluate(() =>
+          document.activeElement?.closest('[data-deck-bar]') ? 1 : 0,
+        );
+      }
+      expect(inBar, 'Tab reached a hidden deck control').toBe(0);
+    });
+
+    test(`at ${width}px every slide is on the page once, in order, and keys leave it alone`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width, height: STACKED_HEIGHT });
+      await open(page);
+      const ids = await page.$$eval('.slide', (all) => all.map((s) => s.id));
+      await expect(page.locator('.slide:visible')).toHaveCount(ids.length);
+      expect(
+        await page.$$eval('.slide:not([hidden])', (all) =>
+          all.map((s) => s.id),
+        ),
+      ).toEqual(ids.map((_, i) => `slide-${i + 1}`));
+      const titles = await page.$$eval('.slide .slide-title', (all) =>
+        all.map((t) => (t.textContent ?? '').replace(/\s+/g, ' ').trim()),
+      );
+      for (const name of new Set(titles)) {
+        // The label is a block, so the accessible name has a space before the colon.
+        const pattern = new RegExp(
+          `^${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(':', ' ?:')}$`,
+        );
+        await expect(
+          page.getByRole('heading', { name: pattern }),
+          `"${name}" is in the accessibility tree a different number of times than in the deck`,
+        ).toHaveCount(titles.filter((t) => t === name).length);
+      }
+      const before = page.url();
+      await page.keyboard.press('End');
+      await page.keyboard.press('ArrowRight');
+      expect(page.url(), 'a slide key changed the address below lg').toBe(
+        before,
+      );
+      await expect(page.locator('.slide:visible')).toHaveCount(ids.length);
+    });
+  }
+
+  test('the PDF link names its type and built size and opens in place', async ({
+    page,
+  }) => {
+    await page.setViewportSize({
+      width: STACKED_WIDTHS[0],
+      height: STACKED_HEIGHT,
+    });
+    await open(page);
+    const link = page.getByRole('link', {
+      name: /^Download the Slides \(PDF, \d+ KB\)$/,
+    });
+    await expect(link).toBeVisible();
+    await expect(link).not.toHaveAttribute('target');
+    const href = (await link.getAttribute('href'))!;
+    const kb = Math.round(statSync(join('public', href)).size / BYTES_PER_KB);
+    await expect(link).toHaveText(`Download the Slides (PDF, ${kb} KB)`);
+  });
+
+  test('at 1280px the slideshow is as before: one slide, the controls, no PDF card', async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1280, height: STACKED_HEIGHT });
+    await open(page, '#slide-2');
+    await expect(visible(page)).toHaveCount(1);
+    await expect(slideControls(page)).toBeVisible();
+    await expect(
+      page.getByRole('link', { name: /^Download the Slides/ }),
+    ).toBeHidden();
+    const title = await page.locator('#slide-2 .slide-title').textContent();
+    await expect(
+      page.getByRole('heading', {
+        name: (title ?? '').replace(/\s+/g, ' ').trim(),
+        exact: true,
+      }),
+      'the slide heading is in the accessibility tree more than once',
+    ).toHaveCount(1);
   });
 });

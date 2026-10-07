@@ -708,6 +708,9 @@ page numbers or running headers read as content, decoration announced.
 
 - [ ] The PDF in a screen reader: each slide's heading, cards in order, links
       by text, any image by its alt text.
+- [ ] A phone and a tablet (under 1024px): no slide controls, the PDF link
+      opens the PDF in place, every slide reads in order, and a screen reader
+      hears each slide once. → SC 1.4.10, 1.3.2, 3.2.5
 - [ ] Orca and NVDA: Next, Previous and arrow keys speak "Slide N of" the
       deck's slide count and the title once; the slide text can be read after.
 - [ ] Home and End go to the first and last slide; Page Up and Page Down turn

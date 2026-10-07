@@ -270,7 +270,9 @@ presenter view and a PDF. Authoring rules:
   region. Hidden slides use `data-current`, not `hidden`: Tailwind's
   `[hidden]` `!important` would stop print showing them. Focus stays on a bar
   control as a slide turns (APG carousel), scrolled back into view when a
-  taller slide pushes it off screen.
+  taller slide pushes it off screen. Below `lg` a media query stacks every
+  slide and hides the controls, the script ignores slide keys, and a card
+  links the talk PDF with its size.
   `tests/slideshow.spec.ts`, which also checks every slide fits 1280x720.
 - **Presenter view.** `src/presenter/integration.mjs`, `astro dev` only, synced
   over `BroadcastChannel`. Notes load via `import.meta.glob` (no `node:fs` in
