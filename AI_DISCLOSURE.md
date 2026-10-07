@@ -19,12 +19,14 @@ AI-drawn art, all by Claude:
 - The animated About cats and their trick icons (`src/lib/about-cats-tricks.json`), labeled on `/about`.
 - The poneglyph and its lighting script in the homepage field
   (`src/lib/hero-field-poneglyph.ts`).
-- The lying cat in the footer (`src/components/Footer.astro`).
-- The logo mark (`src/assets/mark-dark.png`, `artwork/mark-dark.svg`), shown in
-  the header, the roundels and on `/about`.
-- The favicons and app icons in `public/` and their frames in `artwork/`.
+- The logo cat, a calico head shaped like the logo tile (`src/lib/brand-mark.ts`),
+  shown in the header, on `/about` and peeking over the footer, and its
+  one-color form in the roundels (`src/assets/mark-dark.png`,
+  `artwork/mark-dark.svg`).
+- The favicons and app icons in `public/` and their frames in `artwork/`, drawn
+  by `scripts/make-icons.mjs` from the logo cat.
 - The sharing image, `public/images/og-default.png`, drawn by
-  `scripts/make-og.mjs` with the mark.
+  `scripts/make-og.mjs` with the logo cat.
 
 Every page's footer says "Cat drawings and text made with AI" and links this
 file (`tests/ai-label.spec.ts` checks every route). `/about` also labels its
