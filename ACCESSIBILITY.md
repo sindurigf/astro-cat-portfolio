@@ -102,6 +102,8 @@ view (development server only, never published), and forks.
   640px, 1280px and 1920px. The content box matches the
   [heading floors](docs/STYLEGUIDE.md#heading-floors), no heading word is wider
   than its box, and no text or control sits past either edge.
+- **Text resize.** Every text token reaches 2x by page zoom in Chromium and
+  Firefox ([Text resize](#text-resize-sc-144)).
 - **Target size.** A 44px square centered on every target outside a sentence
   hits only that target, at 305px and 1280px, on every page (listings sampled
   as below) and in the open cat card, photo viewer and menu (SC 2.5.5).
@@ -145,6 +147,31 @@ view (development server only, never published), and forks.
 - **Talk PDF.** Passes PDF/UA-1 in `npm run check:pdf`. See gap 6.
 
 Passing axe is not conformance.
+
+### Text resize (SC 1.4.4)
+
+[Understanding 1.4.4](https://www.w3.org/WAI/WCAG22/Understanding/resize-text.html):
+"it should still be possible to get 200% text enlargement in some way
+compared to the default 100% zoom". Text tokens with a `vw` or `svh` term grow
+less than the zoom factor, so 2x comes at a higher page zoom.
+
+- **Met by:** page zoom up to 500% in Chromium and Firefox.
+  `tests/text-resize.spec.ts` finds the lowest zoom that reaches 2x for every
+  such token at 390, 1000, 1280 and 1920px and fails if none does.
+- **Headroom:** several heading and slide tokens reach 2x only at 500% at
+  some widths, the browsers' ceiling; the annotation below names them.
+- **Safari:** its Page Zoom list stops at 300% on macOS and iOS, not
+  confirmed from an Apple or WebKit source. The spec runs WebKit up to 300%
+  and records which tokens reach 2x there without failing. Others reach 2x in
+  Safari only through system magnification (Zoom on macOS and iOS); the site
+  does not use Dynamic Type (`-apple-system-body`). Known limit.
+- **Text-only zoom:** Firefox "Zoom Text Only" scales the `rem` parts only,
+  so `vw` text does not reach 2x that way. Under
+  [F94](https://www.w3.org/WAI/WCAG22/Techniques/failures/F94) one working
+  method is enough.
+
+The lowest zoom each token needs, per browser and width, is the spec's "lowest
+zoom reaching 2x" annotation in the Playwright report.
 
 ## 5. Color and contrast
 
@@ -205,6 +232,7 @@ merge.
 | `tests/link-purpose.spec.ts`        | 2.4.9                                              | One link name, one destination, on every route; hidden text keeps the visible words first                                                                                                                                                                                                   |
 | `tests/unusual-words.spec.ts`       | 3.1.3                                              | Each listed term a `<dfn>` at first use, defined in its sentence; every `<dfn>` listed; replaced jargon stays out; `/404` links its idioms                                                                                                                                                  |
 | `tests/abbreviations.spec.ts`       | 3.1.4, 1.4.13                                      | First use of each listed abbreviation described by its expansion, which opens without JavaScript; focus and tap show it, Escape and a second tap hide it, the pointer can cross onto it, it opens flush below and inside 320px; no unlisted abbreviation on functional pages; no "min read" |
+| `tests/text-resize.spec.ts`         | 1.4.4                                              | Lowest page zoom, up to 500%, at which each viewport-sized text token reaches 2x, at four widths                                                                                                                                                                                            |
 | `tests/target-size.spec.ts`         | 2.5.5                                              | Every target's 44px square, on pages and in open dialogs, at 305px and 1280px                                                                                                                                                                                                               |
 | `tests/reflow.spec.ts`              | 1.4.10, 1.4.12                                     | No sideways scroll; content box; heading word fit                                                                                                                                                                                                                                           |
 | `tests/visual-presentation.spec.ts` | 1.4.8                                              | Line length, line height and paragraph spacing at three widths                                                                                                                                                                                                                              |
