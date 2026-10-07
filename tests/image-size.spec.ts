@@ -86,11 +86,6 @@ for (const route of SAMPLED_ROUTES) {
 
     const { ratio, images } = await measureImages(page);
 
-    expect(
-      images.length,
-      'no image is drawn on this page, though the header mark is on every route.',
-    ).toBeGreaterThan(0);
-
     for (const image of images) expectServedAtDrawnSize(image, ratio);
   });
 }

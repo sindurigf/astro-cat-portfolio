@@ -1,6 +1,4 @@
 ---
-import { Image } from 'astro:assets';
-import markDark from '../assets/mark-dark.png';
 import {
   CTA,
   HEADER_LINKS,
@@ -8,13 +6,10 @@ import {
   NAV_LINKS,
   ariaCurrent,
 } from '../lib/nav';
-import { DENSITIES } from '../lib/image-densities';
 import { SITE_NAME } from '../lib/site';
+import CatMark from './CatMark.astro';
 import NavList from './NavList.astro';
 import ThemeSwitch from './ThemeSwitch.astro';
-
-/* Drawn height, `h-6` in px; tests/image-size.spec.ts fails if they drift. */
-const MARK_HEIGHT = 24;
 
 /* A line break is allowed after the first dot, as in `example.<wbr>com`. */
 const dot = SITE_NAME.indexOf('.');
@@ -46,15 +41,8 @@ const LINK_REST = 'border-transparent text-text hover:text-cyan';
       aria-current={current(HOME_HREF)}
       class="logo-link lift-object flex min-w-0 items-center gap-4 max-xs:gap-2 lg:justify-self-start"
     >
-      <span class="logo-tile flex h-12 w-12 rotate-3 items-center justify-center rounded-nav border-4 border-tile-edge bg-gold shadow-hard-mark-8">
-        <Image
-          src={markDark}
-          alt=""
-          height={MARK_HEIGHT}
-          densities={DENSITIES}
-          loading="eager"
-          class="h-6 w-auto"
-        />
+      <span class="logo-tile flex shrink-0 rotate-3 drop-shadow-hard-mark-8">
+        <CatMark id="header" class="size-14" />
       </span>
       {/*
         Untracked below xs so it fits at 305px; under SC 1.4.12 spacing it

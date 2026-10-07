@@ -109,7 +109,7 @@ const luminance = (hex) => {
   return 0.2126 * channel(1) + 0.7152 * channel(3) + 0.0722 * channel(5);
 };
 
-const ratio = (a, b) => {
+export const ratio = (a, b) => {
   const [x, y] = [luminance(a), luminance(b)];
   return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05);
 };

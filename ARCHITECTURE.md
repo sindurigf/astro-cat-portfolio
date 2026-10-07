@@ -350,11 +350,11 @@ in `wrangler.jsonc`).
 - `artwork/`: source artwork the build never reads (the badge, the
   `favicon.ico` frames). Nothing in it ships.
 
-| Path                           | Artwork   | Goes on              | Used by                                          |
-| ------------------------------ | --------- | -------------------- | ------------------------------------------------ |
-| `src/assets/mark-dark.png`     | `#131313` | Gold, light surfaces | `Header.astro` logo tile, `Roundel.astro`, About |
-| `artwork/badge-white.png`      | `#FFFFFF` | Dark surfaces        | Nothing; source artwork                          |
-| `public/images/og-default.png` | Composite | n/a                  | `BaseLayout.astro`, every page                   |
+| Path                           | Artwork   | Goes on              | Used by                        |
+| ------------------------------ | --------- | -------------------- | ------------------------------ |
+| `src/assets/mark-dark.png`     | `#131313` | Gold, light surfaces | `Roundel.astro`                |
+| `artwork/badge-white.png`      | `#FFFFFF` | Dark surfaces        | Nothing; source artwork        |
+| `public/images/og-default.png` | Composite | n/a                  | `BaseLayout.astro`, every page |
 
 | Artwork             | on `#131313` | on `#1A1A1A` | on `#FFFFFF` | on `#FFC000` |
 | ------------------- | ------------ | ------------ | ------------ | ------------ |
@@ -363,14 +363,18 @@ in `wrangler.jsonc`).
 
 - `og-default.png`: 1200x630, the sharing image for every page without a
   cover: the name, `site.tagline` and `site.name` on the gold panel, the logo
-  tile on the dark strip. Rendered by `npm run og`
+  cat on the dark strip. Rendered by `npm run og`
   ([DEVELOPMENT.md](docs/DEVELOPMENT.md#the-sharing-image)). A PNG in `public/`
   because scrapers need a stable URL and format.
-- `artwork/mark-dark.svg`: the mark's source, read by `npm run og`.
+- `src/lib/brand-mark.ts`: the logo cat, an eared tile in Mochi's calico with
+  happy eyes; the one source for `CatMark.astro` (header, `/about`), the footer
+  head, `npm run icons` and `npm run og`.
+- `artwork/mark-dark.svg`: the one-color cat for the roundels, written by
+  `npm run icons`.
 - The mark, icons, sharing image and hero poneglyph are drawn by AI
   ([AI_DISCLOSURE.md](AI_DISCLOSURE.md)).
-- Every placement renders through `<Image>` at its drawn size with `DENSITIES`
-  (1x, 2x). The roundel resizes, so it passes `widths` and `sizes`.
+- The header and `/about` draw the cat as inline SVG; the roundel renders
+  `mark-dark.png` through `<Image>` with `widths` and `sizes`.
 - A `.vue` component cannot reach `astro:assets`: call `getImage()` in Astro
   and pass the result as a prop.
 - Footer links: seven sticker tiles with Simple Icons (CC0) paths, one
@@ -425,39 +429,31 @@ in `wrangler.jsonc`).
 
 ### The favicon set
 
-- Tab icons (`favicon.*`, `artwork/favicon-*`): the header logo tile, with its
-  `tile-edge` ring, 3deg tilt and `mark` shadow, on a transparent ground.
-- App icons (`apple-touch-icon`, `android-chrome-*`, `maskable-icon`): the mark
-  on a full-bleed `#FFC000` square.
+All written by `npm run icons` (`scripts/make-icons.mjs`) from
+`src/lib/brand-mark.ts`, in Chromium with the color tokens.
 
-| Path                                | Size         | Notes                                                |
-| ----------------------------------- | ------------ | ---------------------------------------------------- |
-| `public/favicon.svg`                | vector       | Primary icon for modern browsers; source of the rest |
-| `public/favicon.ico`                | 16 / 32 / 48 | Legacy fallback, three frames                        |
-| `artwork/favicon-16x16.png`         | 16           | `favicon.ico` frame; silhouette, no cut-outs         |
-| `artwork/favicon-32x32.png`         | 32           | `favicon.ico` frame; mark at 1.25x                   |
-| `artwork/favicon-48x48.png`         | 48           | `favicon.ico` frame; mark at 1.25x                   |
-| `public/favicon-96x96.png`          | 96           | The tile, linked from the head                       |
-| `public/apple-touch-icon.png`       | 180          | Full-bleed; iOS rounds it, do not pre-round          |
-| `public/android-chrome-192x192.png` | 192          | PWA icon, from the manifest                          |
-| `public/android-chrome-512x512.png` | 512          | PWA icon, from the manifest                          |
-| `public/maskable-icon-512x512.png`  | 512          | `purpose: maskable`, mark inside the 80% safe zone   |
+- Tab icons (`favicon.*`, `artwork/favicon-*`): the cat's head, coat, orange
+  patch and bold happy eyes, blue edge and an ink rim, on a transparent
+  ground. The blue edge is 2.93:1 on Chrome's light tab strip; the rim is
+  14.17:1 there (`tests/brand-mark.spec.ts`).
+- App icons (`apple-touch-icon`, `android-chrome-*`, `maskable-icon`): the full
+  cat with its pink shadow on a full-bleed `background` square, the
+  manifest's color.
 
-- The small frames draw the mark at 1.25x its tile size; at 16px the cut-outs are
-  under a pixel, so that frame is the silhouette alone. Do not downscale the 96.
-- Render the PNGs from `favicon.svg` in Chromium so the tilt and radius match
-  the browser's.
-- `favicon.ico` must hold 16, 32 and 48:
-
-```sh
-convert artwork/favicon-16x16.png artwork/favicon-32x32.png \
-  artwork/favicon-48x48.png public/favicon.ico
-identify public/favicon.ico   # must report three frames
-```
+| Path                                | Size         | Notes                                             |
+| ----------------------------------- | ------------ | ------------------------------------------------- |
+| `public/favicon.svg`                | vector       | Primary icon for modern browsers                  |
+| `public/favicon.ico`                | 16 / 32 / 48 | Legacy fallback, three PNG frames                 |
+| `artwork/favicon-16x16.png`         | 16           | `favicon.ico` frame                               |
+| `artwork/favicon-32x32.png`         | 32           | `favicon.ico` frame                               |
+| `artwork/favicon-48x48.png`         | 48           | `favicon.ico` frame                               |
+| `public/favicon-96x96.png`          | 96           | The full face with the rim, linked from the head  |
+| `public/apple-touch-icon.png`       | 180          | Full-bleed; iOS rounds it, do not pre-round       |
+| `public/android-chrome-192x192.png` | 192          | PWA icon, from the manifest                       |
+| `public/android-chrome-512x512.png` | 512          | PWA icon, from the manifest                       |
+| `public/maskable-icon-512x512.png`  | 512          | `purpose: maskable`, cat inside the 80% safe zone |
 
 - `tests/icons.spec.ts` checks every `sizes` attribute against the bytes.
-- Do not use the RealFaviconGenerator pack: its `.ico` is a light mark on
-  `#131313`, mismatching the gold PNGs.
 - No light-scheme variants.
 
 ### The web app manifest

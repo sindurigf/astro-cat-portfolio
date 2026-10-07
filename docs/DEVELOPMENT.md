@@ -73,6 +73,7 @@ What happens without the `CONTACT_NOTIFY_TO` secret:
 | `npm run check:pdf`           | Every PDF in `public/` against PDF/UA-1, veraPDF in Docker                                                                                         |
 | `npm run publish:talk`        | Print a talk's slideshow to its tagged PDF in `public/talks/`                                                                                      |
 | `npm run og`                  | Render `public/images/og-default.png` from `src/site.config.ts`                                                                                    |
+| `npm run icons`               | Render the favicons, app icons and one-color mark from `src/lib/brand-mark.ts`                                                                     |
 
 ### WebKit
 
@@ -294,36 +295,27 @@ npm run dev
 Sizes and roles of every file: [ARCHITECTURE.md assets](../ARCHITECTURE.md#assets)
 and [the favicon set](../ARCHITECTURE.md#the-favicon-set).
 
-1. Swap the mark, `#131313` artwork on a transparent ground:
-   - `src/assets/mark-dark.png`: 840 x 900, read by `Header.astro`,
-     `Roundel.astro` and `about.astro`.
-   - `artwork/mark-dark.svg`: the vector source, read by `npm run og`.
-2. Keep the 840:900 aspect. For another one, update `MARK_WIDTHS` and the
-   `sizes` in `src/components/Roundel.astro`; `tests/image-size.spec.ts` fails
-   on drift.
-3. Redraw the tab icon `public/favicon.svg` (64 x 64 viewBox).
-4. Render the PNGs from it, sizes as in the favicon table:
-   - `public/favicon-96x96.png`.
-   - `artwork/favicon-16x16.png`, `artwork/favicon-32x32.png`,
-     `artwork/favicon-48x48.png`, then rebuild `public/favicon.ico` with the
-     `convert` command under the table; it must hold 16, 32 and 48.
-5. Render the app icons on a full-bleed `#FFC000` square:
-   `public/apple-touch-icon.png` (180), `public/android-chrome-192x192.png`,
-   `public/android-chrome-512x512.png` and `public/maskable-icon-512x512.png`
-   (mark inside the 80% safe zone). `src/pages/site.webmanifest.ts` and
-   `src/layouts/BaseLayout.astro` already link these names.
-6. Run `npm run og` to redraw `public/images/og-default.png` (1200 x 630) from
-   the new `artwork/mark-dark.svg`
+1. Redraw the cat in `src/lib/brand-mark.ts`: the head path, patches, ears
+   and face, in a 64-unit square, painted only with color tokens. The header,
+   `/about` and the footer draw it from there.
+2. Run `npm run icons`. It writes the tab icons and `favicon.ico`, the app
+   icons on a full-bleed `background` square (maskable inside the 80% safe
+   zone), and the one-color `artwork/mark-dark.svg` and
+   `src/assets/mark-dark.png` for the roundels.
+3. Keep `mark-dark.png` at 840:900. For another aspect, update `MARK_WIDTHS`
+   and the `sizes` in `src/components/Roundel.astro`;
+   `tests/image-size.spec.ts` fails on drift.
+4. Run `npm run og` to redraw `public/images/og-default.png` (1200 x 630)
    ([the sharing image](#the-sharing-image)).
-7. Update the `alt` in `src/lib/og-image.ts`, which describes the sample mark,
-   and the mark and icon lines in [AI_DISCLOSURE.md](../AI_DISCLOSURE.md).
+5. Update the `alt` in `src/lib/og-image.ts`, which describes the mark, and
+   the mark and icon lines in [AI_DISCLOSURE.md](../AI_DISCLOSURE.md).
 
 Verify:
 
 ```sh
 npm run build
 npm run check
-npx playwright test tests/icons.spec.ts tests/image-size.spec.ts tests/seo.spec.ts
+npx playwright test tests/icons.spec.ts tests/brand-mark.spec.ts tests/image-size.spec.ts tests/seo.spec.ts
 ```
 
 - `tests/icons.spec.ts` fails on a linked icon missing from the build, a
@@ -345,7 +337,7 @@ npm run og
 
 - `scripts/make-og.mjs` reads those three values from `src/site.config.ts`
   and the colors from `src/styles/global.css`, and draws the image in
-  Chromium with Lexend and `artwork/mark-dark.svg`.
+  Chromium with Lexend and the logo cat from `src/lib/brand-mark.ts`.
 - Text is inserted as text, never markup. A name over 40 characters, or one
   that does not fit at the smallest size, fails with a message;
   `src/site.config.ts` already caps each tagline line at 40.

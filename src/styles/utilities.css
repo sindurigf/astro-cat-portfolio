@@ -4,11 +4,11 @@
  */
 @layer utilities {
   /*
-   * The logo tile's press: its shadow is a markup utility. Only the tile moves,
+   * The logo tile's press: its drop shadow, which follows the ears, is a markup utility. Only the tile moves,
    * so the link keeps the pointer.
    */
   .logo-link:active .logo-tile {
-    @apply shadow-none;
+    @apply drop-shadow-none;
   }
 
   @media (prefers-reduced-motion: no-preference) {

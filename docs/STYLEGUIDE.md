@@ -441,15 +441,19 @@ with a comment beside it.
 | `shadow-hard-cyan-8`        | A hovered linked card or contact card, in place of pink                                                  |
 | `shadow-hard-gold-border-8` | A card on gold                                                                                           |
 | `shadow-hard-mark-4`        | `.sticker`, `.btn-gold-primary`                                                                          |
-| `shadow-hard-mark-8`        | The logo tile, the roundel, the homepage stickers                                                        |
-| `shadow-hard-mark-12`       | The logo tile's larger copy on `/about`                                                                  |
+| `shadow-hard-mark-8`        | The roundel, the homepage stickers                                                                       |
+| `drop-shadow-hard-mark-8`   | The logo tile, following its ears                                                                        |
+| `drop-shadow-hard-mark-12`  | The logo tile's larger copy on `/about`                                                                  |
 
 - `mark` is `pink`'s hex but stays pink in light mode, where `pink` turns
   ink.
 - Anything focusable with a shadow sets its lift: [Focus](#focus).
-- Radius is 0 everywhere (base layer). `rounded-nav` (14px): the logo tile and
-  its copies (`Header.astro`, the motto panel on `/about`). `rounded-full`:
-  the roundel. No pills; any other rounded corner is a bug.
+- Radius is 0 everywhere (base layer). `rounded-full`: the roundel. No pills;
+  any other rounded corner is a bug.
+- The logo tile is an eared tile: a cat's head in the tile's shape, with
+  rounded ears and corners, its 4px `tile-edge` edge and 3deg tilt
+  (`src/lib/brand-mark.ts`, `CatMark.astro`). It is a mark, not a radius: the
+  rule above does not apply to it, and its shadow is a `drop-shadow-*`.
 
 ## Components
 

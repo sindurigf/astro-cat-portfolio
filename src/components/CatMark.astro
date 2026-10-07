@@ -1,0 +1,20 @@
+---
+import { MARK_SIZE, markMarkup, tokenPaint } from '../lib/brand-mark';
+
+/* The logo cat (src/lib/brand-mark.ts). Decoration: the link around it carries the name. */
+interface Props {
+  /** Unique per page: the mark's clip path id. */
+  id: string;
+  class?: string;
+}
+
+const { id, class: className } = Astro.props;
+---
+
+<svg
+  class:list={['logo-mark', className]}
+  viewBox={`0 0 ${MARK_SIZE} ${MARK_SIZE}`}
+  aria-hidden="true"
+  focusable="false"
+  set:html={markMarkup(tokenPaint, { id })}
+/>

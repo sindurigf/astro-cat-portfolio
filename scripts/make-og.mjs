@@ -10,10 +10,14 @@
 import { readFileSync } from 'node:fs';
 import { chromium } from '@playwright/test';
 import { cssColorToken } from '../src/lib/css-token.ts';
+import {
+  MARK_SIZE,
+  markMarkup,
+  markSilhouette,
+} from '../src/lib/brand-mark.ts';
 import { SITE_CONFIG } from '../src/site.config.ts';
 
 const OUT = 'public/images/og-default.png';
-const MARK = 'artwork/mark-dark.svg';
 const FONT =
   'node_modules/@fontsource-variable/lexend/files/lexend-latin-wght-normal.woff2';
 
@@ -29,7 +33,6 @@ const TOKENS = {
   gold: cssColorToken('--color-gold'),
   goldText: cssColorToken('--color-gold-text'),
   background: cssColorToken('--color-background'),
-  tileEdge: cssColorToken('--color-tile-edge'),
   mark: cssColorToken('--color-mark'),
 };
 
@@ -41,9 +44,18 @@ if (personName.length > MAX_NAME_LENGTH) {
   );
 }
 
-const page = (markSvg) => {
+/* The tile's 8px shadow at 48px, in mark units. */
+const SHADOW_OFFSET = 9.33;
+
+const markSvg = () =>
+  `<svg class="mark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${MARK_SIZE + SHADOW_OFFSET} ${MARK_SIZE + SHADOW_OFFSET}">` +
+  `<g transform="translate(${SHADOW_OFFSET} ${SHADOW_OFFSET})">${markSilhouette(TOKENS.mark)}</g>` +
+  markMarkup((token) => cssColorToken(`--color-${token}`), { id: 'og' }) +
+  '</svg>';
+
+const page = () => {
   const font = readFileSync(FONT).toString('base64');
-  const mark = markSvg.replace('<svg ', '<svg class="mark" ');
+  const mark = markSvg();
   return `<!doctype html><html><head><meta charset="utf-8"><style>
 @font-face{font-family:'Lexend Variable';src:url(data:font/woff2;base64,${font}) format('woff2');font-weight:100 900}
 html,body{margin:0}
@@ -53,12 +65,10 @@ html,body{margin:0}
 .name{margin-top:150px;font-weight:900;line-height:.94;text-transform:uppercase;letter-spacing:.01em;white-space:nowrap}
 .tag{margin-top:40px;font-weight:400;font-size:30px;line-height:1.35}
 .domain{margin-top:auto;font-weight:900;font-size:24px;letter-spacing:.12em;text-transform:uppercase}
-.pink{position:absolute;left:960px;top:410px;width:420px;height:420px;border-radius:50%;background:${TOKENS.mark}}
-.tile{position:absolute;left:910px;top:150px;width:420px;height:420px;box-sizing:border-box;border:24px solid ${TOKENS.tileEdge};border-radius:78px;background:${TOKENS.gold};transform:rotate(5deg);display:flex;align-items:center;padding-right:130px;justify-content:center}
-.mark{width:auto;height:180px}
+.mark{position:absolute;left:806px;top:140px;width:400px;height:400px;transform:rotate(5deg)}
 </style></head><body><div class="og">
-<div class="strip"></div><div class="pink"></div>
-<div class="tile">${mark}</div>
+<div class="strip"></div>
+${mark}
 <div class="text"><div class="name"></div><div class="tag"></div><div class="domain"></div></div>
 </div></body></html>`;
 };
@@ -68,7 +78,7 @@ try {
   const tab = await browser.newPage({
     viewport: { width: WIDTH, height: HEIGHT },
   });
-  await tab.setContent(page(readFileSync(MARK, 'utf8')));
+  await tab.setContent(page());
   await tab.evaluate(() => document.fonts.ready);
   /* textContent, not markup: config values never become HTML. */
   const fitted = await tab.evaluate(

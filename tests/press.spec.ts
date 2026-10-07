@@ -72,22 +72,27 @@ const translateOf = (page: Page, selector: string) =>
     });
 
 /* A hard shadow layer that is not inset and not the transparent placeholder
- * Tailwind composes `shadow-none` from. */
+ * Tailwind composes `shadow-none` from, or the logo's offset drop shadow. */
 const castsShadow = (page: Page, selector: string) =>
   page
     .locator(selector)
     .first()
-    .evaluate((el) =>
-      getComputedStyle(el)
-        .boxShadow.split(/,(?![^(]*\))/)
+    .evaluate((el) => {
+      const style = getComputedStyle(el);
+      const boxShadow = style.boxShadow
+        .split(/,(?![^(]*\))/)
         .map((layer) => layer.trim())
         .some(
           (layer) =>
             !layer.includes('inset') &&
             !layer.startsWith('rgba(0, 0, 0, 0)') &&
             /[1-9]\d*px [1-9]\d*px 0px 0px/.test(layer),
-        ),
-    );
+        );
+      return (
+        boxShadow ||
+        /drop-shadow\(rgba?\([^)]*\) [1-9]\d*px [1-9]\d*px/.test(style.filter)
+      );
+    });
 
 // A real pointer press so :hover and :active both apply; the click is cancelled.
 // Waits for :active: read before the press lands, a control that never moves
@@ -123,7 +128,7 @@ const pressLook = (page: Page, selector: string) =>
     .first()
     .evaluate((el) => {
       const s = getComputedStyle(el);
-      return `${s.translate} | ${s.boxShadow}`;
+      return `${s.translate} | ${s.boxShadow} | ${s.filter}`;
     });
 
 test.describe('a press is drawn', () => {
