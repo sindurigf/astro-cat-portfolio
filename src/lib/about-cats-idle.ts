@@ -7,15 +7,15 @@
 /** A sitting cat breathes about 24 times a minute. */
 const BREATH_MS = 2500;
 /** Chest thickness gained at the top of a breath, in px. */
-const BREATH_DEPTH = 1.6;
+const BREATH_DEPTH = 3.2;
 const EAR_FLICK_EVERY_MS = [3500, 8000] as const;
 const EAR_FLICK_MS = 260;
 /** How far the ear swings, 0 to 1. */
-const EAR_FLICK_SWING = 0.7;
+const EAR_FLICK_SWING = 1;
 const GLANCE_EVERY_MS = [2500, 6000] as const;
 const GLANCE_MS = 700;
 /** Largest head turn in degrees; the head returns to centre about half the time. */
-const GLANCE_DEG = 14;
+const GLANCE_DEG = 28;
 const GLANCE_CENTRE_CHANCE = 0.5;
 /** A turn is to either side with equal chance, and at least this share of the largest. */
 const GLANCE_SIDE_CHANCE = 0.5;
@@ -25,7 +25,7 @@ const TWITCH_MS = 900;
 /** Tail-tip twitch amplitude while it twitches. */
 const TWITCH_AMPLITUDE = 4;
 /** The tail base sways this many degrees, once every SWAY_MS. */
-const SWAY_DEG = 7;
+const SWAY_DEG = 14;
 const SWAY_MS = 3400;
 
 export interface IdleState {

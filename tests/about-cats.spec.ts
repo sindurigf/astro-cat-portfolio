@@ -500,7 +500,7 @@ test(
   'a resting cat idles in small offsets: breath, glance, ear and tail stay in range, and each really moves',
   NODE,
   () => {
-    const MAX = { bt: 2, hr: 15, ears: 1, ta: 8 };
+    const MAX = { bt: 4, hr: 30, ears: 1, ta: 16 };
     const SPAN_MS = 120_000;
     const STEP_MS = 50;
     for (const roll of [() => 0, () => 0.9, () => 1, Math.random]) {
