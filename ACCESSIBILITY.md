@@ -333,8 +333,9 @@ template ships with none of it run; record your own results. Not automated:
    - Page-view text at 1920 or wider (site `--text-body`): 250%.
 
    Page-view slide text doubles at 200% below 1920 (`tests/slideshow.spec.ts`).
-   Safari page zoom stops at 300% on macOS and iOS, so tokens that need more
-   reach 2x only in Chromium or Firefox. The site-wide `--text-h1` and
+   Safari's page zoom list is reported to stop at 300% (not confirmed from an
+   Apple or WebKit source); if so, tokens that need more reach 2x only in
+   Chromium or Firefox. The site-wide `--text-h1` and
    `--text-body` are in their own pass.
 
 ## 8. Reporting a barrier

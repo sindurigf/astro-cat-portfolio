@@ -80,12 +80,9 @@
   }
 
   /*
-   * `--deck-chrome`: deck padding, the gap above the control row, the row, and
-   * the slide's 8px shadow.
-   */
-  /*
-   * Padding grows as a share of the card's width (`.deck-stage` is the
-   * container), never below the card's own padding.
+   * `--deck-chrome`: deck padding, gap, control row and 8px shadow. Padding is
+   * a share of the card's width (`.deck-stage` is the container), never below
+   * the card's own padding.
    */
   .slide {
     @apply flex flex-col justify-center;
