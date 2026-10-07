@@ -352,6 +352,8 @@ before raising one.
   (`src/lib/labels.ts`); the first and last word are always capitalized, and
   each part of a hyphenated compound counts as a word ("One-Keeper Problem").
   `npm run check:title-case` scans the built headings, titles and summaries.
+  It cannot see server-rendered `/contact/send` or the dev-only presenter;
+  check their headings and buttons by hand.
 - `.label`, `.badge`, the buttons and every heading apply
   `text-transform: uppercase`. A post title and a talk slide title keep their
   written case (`.post-title`, `.slide-title`).
@@ -889,7 +891,7 @@ A heading, a sentence, one way on. Enforced by `tests/empty-states.spec.ts`,
 | Empty category or tag   | not built: pages exist only with a post |                                            |                                                            |                                        |                                    |
 | Empty blog              | `/blog` with no posts                   | `h2` "No Posts Yet"                        | "Nothing has been published here yet."                     | "Go to the Homepage"                   | the page load                      |
 | Invalid form            | `/contact/send`, 422                    | `h2` "There are N problems with this form" | one linked entry per field                                 | each entry moves to its field          | focus on the summary on arrival    |
-| Rate-limited or unsaved | `/contact/send`, 429 or 503             | `h2` "Your message was not sent"           | the reason, and the email address as the way round it      | the form, still holding what was typed | focus on the summary on arrival    |
+| Rate-limited or unsaved | `/contact/send`, 429 or 503             | `h2` "Your Message Was Not Sent"           | the reason, and the email address as the way round it      | the form, still holding what was typed | focus on the summary on arrival    |
 | Offline                 | `/contact`, on submit                   | none: the form stays                       | "You are offline, so your message has not been sent…"      | the form, unchanged                    | the form's `role="status"` region  |
 | Sending                 | `/contact`, while the post is in flight | none                                       | "Sending your message." and the button reads "Sending"     | a second submit is blocked             | the form's `role="status"` region  |
 | Failed photo            | any `.aspect-frame`                     | none                                       | its alt text on the frame                                  | none                                   | not announced: the alt is its name |
