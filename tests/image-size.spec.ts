@@ -18,7 +18,7 @@ const ROUNDING_PX = 1;
 /** Routes that draw no `<img>`, each with why; any other route must draw one, so the check cannot pass on nothing. */
 const NO_IMAGE_ROUTES: Readonly<Record<string, string>> = {
   '/talks/sample-talk':
-    'the sample deck is text slides, and the logo is inline SVG',
+    'the sample deck is text slides; the logo is a vector image, which the size check skips',
 };
 
 const DIMENSIONS = [
