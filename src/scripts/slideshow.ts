@@ -217,6 +217,7 @@ if (deck) {
   try {
     wire(deck);
   } catch (error) {
+    delete deck.dataset.deckReady;
     deck.dataset.deckFailed = '';
     throw error;
   }

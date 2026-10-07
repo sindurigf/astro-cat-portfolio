@@ -84,6 +84,20 @@ test.describe('the talk slideshow', () => {
     await expect(slideControls(page)).toBeHidden();
   });
 
+  test('a deck script that throws after it is ready leaves every slide on the page and no control', async ({
+    page,
+  }) => {
+    await page.addInitScript(() => {
+      Element.prototype.scrollIntoView = () => {
+        throw new Error('scrollIntoView failed');
+      };
+    });
+    await page.goto(`${ROUTE}/#slide-3`);
+    const count = await page.locator('.slide').count();
+    await expect(visible(page)).toHaveCount(count);
+    await expect(slideControls(page)).toBeHidden();
+  });
+
   test('one slide at a time, starting on the cover', async ({ page }) => {
     await open(page);
     await expect(visible(page)).toHaveCount(1);

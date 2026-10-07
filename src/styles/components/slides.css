@@ -26,7 +26,7 @@
    * (`data-deck-failed`), every slide stays on the page.
    */
   @media screen {
-    .deck[data-deck-ready] .slide:not([data-current]),
+    .deck[data-deck-ready]:not([data-deck-failed]) .slide:not([data-current]),
     :root.js
       .deck:not([data-deck-ready], [data-deck-failed])
       .deck-stage:not(:has(> .slide:target))
