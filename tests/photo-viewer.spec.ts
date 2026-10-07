@@ -1,6 +1,7 @@
 import { expect, test } from './test';
 import { gotoSettled } from './settle';
 import { DESKTOP_VIEWPORT, NARROW_WIDTH } from './wcag';
+import { ENGINE_INVARIANT } from './tags';
 
 /** PhotoViewer.astro and src/scripts/photo-viewer.ts. */
 
@@ -93,22 +94,24 @@ test.describe('the photo viewer', () => {
     ).toHaveAttribute('aria-live', 'polite');
   });
 
-  test('every photo link points at an image, so it opens without JavaScript', async ({
-    page,
-  }) => {
-    await gotoSettled(page, ROUTE);
-    const hrefs = await page
-      .locator('a[data-photo]')
-      .evaluateAll((links) =>
-        links.map((link) => (link as HTMLAnchorElement).pathname),
-      );
-    expect(hrefs.length).toBeGreaterThan(0);
-    for (const href of hrefs) {
-      expect(href, `${href} is not an image file`).toMatch(
-        /\.(webp|jpe?g|png|avif)$/,
-      );
-    }
-  });
+  test(
+    'every photo link points at an image, so it opens without JavaScript',
+    ENGINE_INVARIANT,
+    async ({ page }) => {
+      await gotoSettled(page, ROUTE);
+      const hrefs = await page
+        .locator('a[data-photo]')
+        .evaluateAll((links) =>
+          links.map((link) => (link as HTMLAnchorElement).pathname),
+        );
+      expect(hrefs.length).toBeGreaterThan(0);
+      for (const href of hrefs) {
+        expect(href, `${href} is not an image file`).toMatch(
+          /\.(webp|jpe?g|png|avif)$/,
+        );
+      }
+    },
+  );
 });
 
 test.describe('the photo strip', () => {

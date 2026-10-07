@@ -11,7 +11,7 @@ import { BLOG_PATH, indexPageHref } from '../src/lib/paths';
 import { CATEGORY_ROUTES, NO_POST, POST_ROUTES, ROUTES } from './routes';
 import { gotoSettled } from './settle';
 import { DESKTOP_VIEWPORT, NARROW_WIDTH } from './wcag';
-import { NODE } from './tags';
+import { ENGINE_INVARIANT, NODE } from './tags';
 import { SITE_NAME } from '../src/lib/site';
 
 const NARROW_VIEWPORT = {
@@ -170,17 +170,19 @@ test.describe('the current page, as the navigation reports it', () => {
     }
   });
 
-  test('/contact is marked as the current page in the header', async ({
-    page,
-  }) => {
-    await page.setViewportSize(DESKTOP_VIEWPORT);
-    await gotoSettled(page, CTA.href);
+  test(
+    '/contact is marked as the current page in the header',
+    ENGINE_INVARIANT,
+    async ({ page }) => {
+      await page.setViewportSize(DESKTOP_VIEWPORT);
+      await gotoSettled(page, CTA.href);
 
-    await expect(
-      page.locator(HEADER_CTA),
-      'the call to action is not aria-current="page" on /contact.',
-    ).toHaveAttribute('aria-current', 'page');
-  });
+      await expect(
+        page.locator(HEADER_CTA),
+        'the call to action is not aria-current="page" on /contact.',
+      ).toHaveAttribute('aria-current', 'page');
+    },
+  );
 
   test('the current call to action is drawn as well as announced', async ({
     page,
@@ -220,81 +222,93 @@ test.describe('the current page, as the navigation reports it', () => {
     ).toBeGreaterThanOrEqual(NON_TEXT);
   });
 
-  test('another route does not mark the call to action', async ({ page }) => {
-    await page.setViewportSize(DESKTOP_VIEWPORT);
-    await gotoSettled(page, '/about');
+  test(
+    'another route does not mark the call to action',
+    ENGINE_INVARIANT,
+    async ({ page }) => {
+      await page.setViewportSize(DESKTOP_VIEWPORT);
+      await gotoSettled(page, '/about');
 
-    await expect(
-      page.locator(HEADER_CTA),
-      'the call to action is marked current on a route that is not it',
-    ).not.toHaveAttribute('aria-current', 'page');
-  });
+      await expect(
+        page.locator(HEADER_CTA),
+        'the call to action is marked current on a route that is not it',
+      ).not.toHaveAttribute('aria-current', 'page');
+    },
+  );
 
   // Home is not in the desktop nav, so the logo alone marks `/` as current.
-  test('the logo marks the homepage, which the desktop nav does not list', async ({
-    page,
-  }) => {
-    await page.setViewportSize(DESKTOP_VIEWPORT);
-    await gotoSettled(page, HOME_HREF);
-
-    await expect(
-      page.locator(`${HEADER_NAV} a[href="${HOME_HREF}"]`),
-      'the desktop nav lists Home again beside the logo link.',
-    ).toHaveCount(0);
-
-    await expect(
-      page.locator(HEADER_LOGO),
-      'on / nothing in the desktop header announces the current page',
-    ).toHaveAttribute('aria-current', 'page');
-  });
-
-  test('another route does not mark the logo', async ({ page }) => {
-    await page.setViewportSize(DESKTOP_VIEWPORT);
-    await gotoSettled(page, '/about');
-
-    await expect(
-      page.locator(HEADER_LOGO),
-      'the logo is marked current on a route that is not the homepage',
-    ).not.toHaveAttribute('aria-current', 'page');
-  });
-
-  test('the dialog and the fallback agree with the header', async ({
-    browser,
-  }) => {
-    // The dialog is server-rendered whole, so it is checked without opening it.
-    const scripted = await browser.newContext({
-      viewport: NARROW_VIEWPORT,
-    });
-
-    try {
-      const page = await scripted.newPage();
-      await gotoSettled(page, CTA.href);
+  test(
+    'the logo marks the homepage, which the desktop nav does not list',
+    ENGINE_INVARIANT,
+    async ({ page }) => {
+      await page.setViewportSize(DESKTOP_VIEWPORT);
+      await gotoSettled(page, HOME_HREF);
 
       await expect(
-        page.locator(`#mobile-menu-panel a[href="${CTA.href}"]`),
-        'the mobile dialog does not mark the call to action as current.',
-      ).toHaveAttribute('aria-current', 'page');
-    } finally {
-      await scripted.close();
-    }
-
-    const unscripted = await browser.newContext({
-      javaScriptEnabled: false,
-      viewport: NARROW_VIEWPORT,
-    });
-
-    try {
-      const page = await unscripted.newPage();
-      await page.goto(CTA.href);
+        page.locator(`${HEADER_NAV} a[href="${HOME_HREF}"]`),
+        'the desktop nav lists Home again beside the logo link.',
+      ).toHaveCount(0);
 
       await expect(
-        page.locator(`nav.noscript-nav a[href="${CTA.href}"]`),
-        'the no-JavaScript fallback does not mark the call to action as current.',
+        page.locator(HEADER_LOGO),
+        'on / nothing in the desktop header announces the current page',
       ).toHaveAttribute('aria-current', 'page');
-    } finally {
-      await unscripted.close();
-    }
-  });
+    },
+  );
+
+  test(
+    'another route does not mark the logo',
+    ENGINE_INVARIANT,
+    async ({ page }) => {
+      await page.setViewportSize(DESKTOP_VIEWPORT);
+      await gotoSettled(page, '/about');
+
+      await expect(
+        page.locator(HEADER_LOGO),
+        'the logo is marked current on a route that is not the homepage',
+      ).not.toHaveAttribute('aria-current', 'page');
+    },
+  );
+
+  test(
+    'the dialog and the fallback agree with the header',
+    ENGINE_INVARIANT,
+    async ({ browser }) => {
+      // The dialog is server-rendered whole, so it is checked without opening it.
+      const scripted = await browser.newContext({
+        viewport: NARROW_VIEWPORT,
+      });
+
+      try {
+        const page = await scripted.newPage();
+        await gotoSettled(page, CTA.href);
+
+        await expect(
+          page.locator(`#mobile-menu-panel a[href="${CTA.href}"]`),
+          'the mobile dialog does not mark the call to action as current.',
+        ).toHaveAttribute('aria-current', 'page');
+      } finally {
+        await scripted.close();
+      }
+
+      const unscripted = await browser.newContext({
+        javaScriptEnabled: false,
+        viewport: NARROW_VIEWPORT,
+      });
+
+      try {
+        const page = await unscripted.newPage();
+        await page.goto(CTA.href);
+
+        await expect(
+          page.locator(`nav.noscript-nav a[href="${CTA.href}"]`),
+          'the no-JavaScript fallback does not mark the call to action as current.',
+        ).toHaveAttribute('aria-current', 'page');
+      } finally {
+        await unscripted.close();
+      }
+    },
+  );
 
   // On a post, Blog is the section (`aria-current="true"`), and keeps its box.
   test('on a post, every navigation marks Blog as the section, not the page', async ({
@@ -327,24 +341,26 @@ test.describe('the current page, as the navigation reports it', () => {
     ).toBeGreaterThanOrEqual(NON_TEXT);
   });
 
-  test('on /blog/, every navigation marks Blog as the current page', async ({
-    page,
-  }) => {
-    const blog = '/blog/';
-    await page.setViewportSize(DESKTOP_VIEWPORT);
-    await gotoSettled(page, blog);
+  test(
+    'on /blog/, every navigation marks Blog as the current page',
+    ENGINE_INVARIANT,
+    async ({ page }) => {
+      const blog = '/blog/';
+      await page.setViewportSize(DESKTOP_VIEWPORT);
+      await gotoSettled(page, blog);
 
-    for (const selector of [
-      `${HEADER_NAV} a[href="${blog}"]`,
-      `#mobile-menu-panel a[href="${blog}"]`,
-      `nav.noscript-nav a[href="${blog}"]`,
-    ]) {
-      await expect(
-        page.locator(selector),
-        `${selector} does not mark /blog/ as the current page on /blog/ itself.`,
-      ).toHaveAttribute('aria-current', 'page');
-    }
-  });
+      for (const selector of [
+        `${HEADER_NAV} a[href="${blog}"]`,
+        `#mobile-menu-panel a[href="${blog}"]`,
+        `nav.noscript-nav a[href="${blog}"]`,
+      ]) {
+        await expect(
+          page.locator(selector),
+          `${selector} does not mark /blog/ as the current page on /blog/ itself.`,
+        ).toHaveAttribute('aria-current', 'page');
+      }
+    },
+  );
 });
 
 // SC 2.5.3. Chromium's own tree is read too: a <wbr> splits Chromium's computed
@@ -381,19 +397,23 @@ test('the home link is named by its wordmark and nothing else', async ({
  * /blog/page/N too once ROUTES lists it, where the page number is the page.
  */
 for (const route of ROUTES) {
-  test(`${route}: every aria-current="page" link points at the page it is on`, async ({
-    page,
-  }) => {
-    await page.goto(route);
-    const here = new URL(page.url()).pathname;
-    const claimed = await page
-      .locator('a[aria-current="page"]')
-      .evaluateAll((links) =>
-        links.map((link) => new URL((link as HTMLAnchorElement).href).pathname),
-      );
-    expect(
-      claimed.filter((path) => path !== here),
-      `${here} announces another URL as the current page`,
-    ).toEqual([]);
-  });
+  test(
+    `${route}: every aria-current="page" link points at the page it is on`,
+    ENGINE_INVARIANT,
+    async ({ page }) => {
+      await page.goto(route);
+      const here = new URL(page.url()).pathname;
+      const claimed = await page
+        .locator('a[aria-current="page"]')
+        .evaluateAll((links) =>
+          links.map(
+            (link) => new URL((link as HTMLAnchorElement).href).pathname,
+          ),
+        );
+      expect(
+        claimed.filter((path) => path !== here),
+        `${here} announces another URL as the current page`,
+      ).toEqual([]);
+    },
+  );
 }

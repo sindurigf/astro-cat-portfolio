@@ -5,7 +5,7 @@ import {
   WORKER_SPECS,
 } from './playwright.worker.config';
 import { DEMO_SPECS } from './playwright.demo.config';
-import { NODE_TAG } from './tests/tags';
+import { ENGINE_INVARIANT_TAG, NODE_TAG } from './tests/tags';
 
 /*
  * WebKit needs ICU 74 (Ubuntu 24.04), absent on newer hosts, so it runs in CI
@@ -28,6 +28,7 @@ assertPortFree(PORT, 'TEST_PORT');
 const BASE_URL = `http://localhost:${PORT}`;
 
 const NODE_ONLY = new RegExp(NODE_TAG);
+const NODE_OR_INVARIANT = new RegExp(`${NODE_TAG}|${ENGINE_INVARIANT_TAG}`);
 
 export default defineConfig({
   testDir: './tests',
@@ -56,7 +57,7 @@ export default defineConfig({
    * dark, WebKit forces nothing and is skipped in tests/forced-colors.spec.ts.
    */
   projects: [
-    /* Tests tagged NODE run once; tests/test.ts fails one that asks for a browser. */
+    /* Tests tagged NODE run once; tests/test.ts fails one that asks for a browser. ENGINE_INVARIANT runs in Chromium only. */
     { name: 'node', grep: NODE_ONLY },
     {
       name: 'chromium',
@@ -65,7 +66,7 @@ export default defineConfig({
     },
     {
       name: 'firefox',
-      grepInvert: NODE_ONLY,
+      grepInvert: NODE_OR_INVARIANT,
       use: {
         ...devices['Desktop Firefox'],
         launchOptions: { firefoxUserPrefs: FIREFOX_PREFS },
@@ -75,7 +76,7 @@ export default defineConfig({
       ? [
           {
             name: 'webkit',
-            grepInvert: NODE_ONLY,
+            grepInvert: NODE_OR_INVARIANT,
             use: { ...devices['Desktop Safari'] },
           },
         ]

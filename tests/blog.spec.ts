@@ -14,7 +14,7 @@ import {
   NO_PUBLISHED_POST,
 } from './routes';
 import { pageCount } from '../src/lib/pagination';
-import { NODE } from './tags';
+import { ENGINE_INVARIANT, NODE } from './tags';
 
 const POST_COUNT = PUBLISHED_POST_ROUTES.length;
 const PAGE_COUNT = pageCount(POST_COUNT);
@@ -86,30 +86,32 @@ test.describe('the category filter', () => {
       };
     });
 
-  test('exactly one option is current on the unfiltered index', async ({
-    page,
-  }) => {
-    await gotoSettled(page, '/blog');
+  test(
+    'exactly one option is current on the unfiltered index',
+    ENGINE_INVARIANT,
+    async ({ page }) => {
+      await gotoSettled(page, '/blog');
 
-    const state = await activeOption(page);
-    expect(state, '/blog has no category filter').not.toBeNull();
-    const filter = state as NonNullable<typeof state>;
+      const state = await activeOption(page);
+      expect(state, '/blog has no category filter').not.toBeNull();
+      const filter = state as NonNullable<typeof state>;
 
-    expect(
-      filter.total,
-      'the filter should offer every category with a post, plus "All Posts"',
-    ).toBe(CATEGORY_ROUTES.length + 1);
-    expect(filter.currentCount, 'exactly one option is current').toBe(1);
-    expect(filter.href, '"All Posts" is current on /blog').toBe('/blog/');
+      expect(
+        filter.total,
+        'the filter should offer every category with a post, plus "All Posts"',
+      ).toBe(CATEGORY_ROUTES.length + 1);
+      expect(filter.currentCount, 'exactly one option is current').toBe(1);
+      expect(filter.href, '"All Posts" is current on /blog').toBe('/blog/');
 
-    expect(
-      filter.markers.filter(Boolean).length,
-      'the non-color marker must appear on the current option and on no ' +
-        'other. If every option has one, or none does, the active state is ' +
-        'being carried by the gold fill alone (SC 1.4.1).',
-    ).toBe(1);
-    expect(filter.currentHasMarker).toBe(true);
-  });
+      expect(
+        filter.markers.filter(Boolean).length,
+        'the non-color marker must appear on the current option and on no ' +
+          'other. If every option has one, or none does, the active state is ' +
+          'being carried by the gold fill alone (SC 1.4.1).',
+      ).toBe(1);
+      expect(filter.currentHasMarker).toBe(true);
+    },
+  );
 
   const counts = postCountByCategory();
 
@@ -182,25 +184,27 @@ test.describe('the category filter', () => {
   });
 });
 
-test('the homepage offers a tile for each category with posts, and none without', async ({
-  page,
-}) => {
-  await gotoSettled(page, '/');
-  const counts = postCountByCategory();
+test(
+  'the homepage offers a tile for each category with posts, and none without',
+  ENGINE_INVARIANT,
+  async ({ page }) => {
+    await gotoSettled(page, '/');
+    const counts = postCountByCategory();
 
-  for (const category of blogCategories()) {
-    const tile = page.locator('li.card', {
-      has: page.locator(`h3 a[href="/blog/${category}/"]`),
-    });
-    const posts = counts.get(category) ?? 0;
-    await expect(
-      tile,
-      posts === 0
-        ? `${category} has no posts but has a tile`
-        : `${category} has posts but no tile`,
-    ).toHaveCount(posts === 0 ? 0 : 1);
-  }
-});
+    for (const category of blogCategories()) {
+      const tile = page.locator('li.card', {
+        has: page.locator(`h3 a[href="/blog/${category}/"]`),
+      });
+      const posts = counts.get(category) ?? 0;
+      await expect(
+        tile,
+        posts === 0
+          ? `${category} has no posts but has a tile`
+          : `${category} has posts but no tile`,
+      ).toHaveCount(posts === 0 ? 0 : 1);
+    }
+  },
+);
 
 test('a category with no posts has no page of its own', NODE, () => {
   const counts = postCountByCategory();
