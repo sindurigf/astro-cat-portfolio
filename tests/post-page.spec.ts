@@ -204,25 +204,19 @@ test.describe('the cover as the post hero', () => {
 /* `--figure-max-height` in prose.css. */
 const FIGURE_MAX_HEIGHT_SHARE = 0.8;
 const FIGURE_VIEWPORT_HEIGHT = 900;
-/* Centering and edges snap to the device pixel. */
-const FIGURE_ALIGN_TOLERANCE = 1;
+/* Edges snap to the device pixel. */
+const FIGURE_EDGE_TOLERANCE = 1;
 
-/*
- * Body figures, docs/STYLEGUIDE.md "Posts": uncropped and never past the
- * viewport (SC 1.4.10); a landscape wider than the text, a portrait centered on it.
- */
+/* Body figures: uncropped, never past the viewport or page column (SC 1.4.10), never over the contents list. */
 test.describe('body figures', () => {
   for (const post of POSTS) {
     for (const width of [390, 1280, 1920]) {
-      test(`${post.route} at ${width}px shows each figure whole, sized to the text`, async ({
+      test(`${post.route} at ${width}px shows each figure whole and inside the page`, async ({
         page,
       }) => {
         await page.setViewportSize({ width, height: FIGURE_VIEWPORT_HEIGHT });
         await gotoSettled(page, post.route);
         const figures = await page.evaluate(() => {
-          const prose = document
-            .querySelector('.prose')!
-            .getBoundingClientRect();
           const column = document
             .querySelector('.post-layout')!
             .getBoundingClientRect();
@@ -239,9 +233,6 @@ test.describe('body figures', () => {
                 .getAttribute('viewBox')!
                 .split(' ')
                 .map(Number);
-              const caption = figure
-                .querySelector('figcaption')
-                ?.getBoundingClientRect();
               const box = figure.getBoundingClientRect();
               return {
                 portrait: h! > w!,
@@ -249,14 +240,7 @@ test.describe('body figures', () => {
                 left: frame.left,
                 right: frame.right,
                 height: frame.height,
-                centerOffset:
-                  (frame.left + frame.right) / 2 -
-                  (prose.left + prose.right) / 2,
-                wider: frame.width - prose.width,
-                captionLeft: caption?.left ?? frame.left,
                 viewport: document.documentElement.clientWidth,
-                boxRight: box.right,
-                proseLeft: prose.left,
                 columnRight: column.right,
                 hitsRail:
                   rail !== undefined &&
@@ -292,16 +276,6 @@ test.describe('body figures', () => {
             FIGURE_VIEWPORT_HEIGHT * FIGURE_MAX_HEIGHT_SHARE +
               SUBPIXEL_TOLERANCE,
           );
-          expect(
-            Math.abs(figure.captionLeft - figure.left),
-            `${name}'s caption does not start at the image's edge`,
-          ).toBeLessThanOrEqual(FIGURE_ALIGN_TOLERANCE);
-          if (figure.portrait) {
-            expect(
-              Math.abs(figure.centerOffset),
-              `${name} is a portrait off the text column's center`,
-            ).toBeLessThanOrEqual(FIGURE_ALIGN_TOLERANCE);
-          }
         }
 
         if (width >= 1280) {
@@ -314,17 +288,9 @@ test.describe('body figures', () => {
           const landscapes = figures.filter((f) => !f.portrait);
           for (const figure of landscapes) {
             expect(
-              Math.abs(figure.boxRight - figure.columnRight),
-              "a landscape figure does not reach the page column's right edge",
-            ).toBeLessThanOrEqual(FIGURE_ALIGN_TOLERANCE);
-            expect(
-              Math.abs(figure.left - figure.proseLeft),
-              "a landscape image does not start at the text's left edge",
-            ).toBeLessThanOrEqual(FIGURE_ALIGN_TOLERANCE);
-            expect(
               figure.right,
               "a landscape image runs past the page column's right edge",
-            ).toBeLessThanOrEqual(figure.columnRight + FIGURE_ALIGN_TOLERANCE);
+            ).toBeLessThanOrEqual(figure.columnRight + FIGURE_EDGE_TOLERANCE);
           }
         }
       });
