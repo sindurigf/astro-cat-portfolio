@@ -34,9 +34,17 @@ import {
   type PropRig,
 } from './about-cats-rig';
 import type { PropState } from './about-cats-types';
+import {
+  createIdle,
+  idleFrameMs,
+  idleOffsets,
+  tickIdle,
+  type IdleOffsets,
+  type IdleState,
+} from './about-cats-idle';
 
-/** A short still beat after each move, in ms, so play flows but each move reads. */
-const PAUSE_MS = [300, 900] as const;
+/** The rest after each move, in ms, while the cat idles: cats act in bursts. */
+const PAUSE_MS = [1500, 4500] as const;
 /** What a frame did for a cat: drew it, left it settled, or held it in a pause. */
 type StepResult = 'draw' | 'still' | 'rest';
 
@@ -62,7 +70,7 @@ const LEAPS: Partial<Record<MoveName, number>> = {
 /** Where a cat stands from the card's edge to push the cup, the track's end: CUP_AHEAD plus its push takes the cup past the edge. */
 export const CUP_EDGE = TRACK_MARGIN;
 /** A pointer that has not moved for this long no longer draws a cat's eye. */
-const POINTER_IDLE_MS = 4000;
+export const POINTER_IDLE_MS = 4000;
 const FACE_DEADBAND = 20;
 const WATCH_EASE = 0.12;
 const TILT_GAIN = 20;
@@ -143,6 +151,10 @@ interface CatState extends CatSpot {
   blinkUntil: number;
   /** No new move before this; a nap still starts at once. */
   restUntil: number;
+  idle: IdleState;
+  /** Resting between moves: breathing, ear flicks and glances are drawn on its pose. */
+  idling: boolean;
+  idleDrawnAt: number;
 }
 
 const rand = (lo: number, hi: number): number => lo + Math.random() * (hi - lo);
@@ -267,6 +279,9 @@ export const createColony = (
     nextBlink: 0,
     blinkUntil: 0,
     restUntil: 0,
+    idle: createIdle(),
+    idling: false,
+    idleDrawnAt: 0,
   }));
   const watcherId = cats[Math.floor(Math.random() * cats.length)]?.id ?? '';
   const pointerAt = new Map<CatSpot['id'], { x: number; y: number }>();
@@ -297,8 +312,17 @@ export const createColony = (
     updateMood(cat);
   };
 
+  const addIdle = (p: Pose, { ta, bt, ears, hr, tw }: IdleOffsets): void => {
+    p.ta += ta;
+    p.bt += bt;
+    p.ears = Math.max(p.ears, ears);
+    p.hr += hr;
+    p.tw = Math.max(p.tw, tw);
+  };
+
   const draw = (cat: CatState, now: number): void => {
     const p = clonePose(cat.pose);
+    if (cat.idling) addIdle(p, idleOffsets(cat.idle, now));
     if (now < cat.blinkUntil) p.eyes = 0;
     renderCat(cat.rig, p, now, p.x, cat.groundY);
   };
@@ -336,6 +360,11 @@ export const createColony = (
     settle = false,
   ): void => {
     const from = clonePose(cat.pose);
+    /* The move starts from the pose last drawn, glance and breath included. */
+    if (cat.idling) {
+      addIdle(from, idleOffsets(cat.idle, now));
+      cat.idling = false;
+    }
     const origin = from.x;
     from.x = 0;
     from.face = from.face * dir;
@@ -545,12 +574,25 @@ export const createColony = (
       if (cat.hiddenAt !== undefined) continue;
       const result = step(cat, now, frames);
       const tailMoving = cat.rig.tailSpeed.some((v) => Math.abs(v) > TAIL_REST);
-      /* A paused cat needs no frame until its pause ends, or its nap is due. */
-      if (result === 'rest')
-        wakeAt = Math.min(wakeAt, cat.restUntil, cat.napAt);
-      /* A settled, paused or sleeping cat keeps its last drawing. */
-      if (result !== 'draw' && !tailMoving) continue;
-      wakeAt = now;
+      cat.idling = result === 'rest';
+      if (cat.idling) {
+        tickIdle(cat.idle, now);
+        const gap = idleFrameMs(cat.idle, now);
+        const due = tailMoving || now - cat.idleDrawnAt >= gap;
+        /* Next frame: the tail's, the next idle one, the pause's end, or the nap. */
+        wakeAt = Math.min(
+          wakeAt,
+          cat.restUntil,
+          cat.napAt,
+          tailMoving ? now : (due ? now : cat.idleDrawnAt) + gap,
+        );
+        if (!due) continue;
+        cat.idleDrawnAt = now;
+      } else {
+        /* A settled or sleeping cat keeps its last drawing. */
+        if (result !== 'draw' && !tailMoving) continue;
+        wakeAt = now;
+      }
       if (!cat.asleep && now > cat.nextBlink) {
         cat.blinkUntil = now + BLINK_MS;
         cat.nextBlink = now + rand(...BLINK_EVERY_MS);
