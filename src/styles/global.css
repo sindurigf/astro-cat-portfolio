@@ -44,6 +44,9 @@
 /* Under the 320px reflow floor: 1280px at 500% zoom is 256px (SC 1.4.8). */
 @custom-variant below-reflow (@media (width < 20rem));
 
+/* The footer's 280px sticker grid (four --size-sticker, three gaps, padding) stops fitting. */
+@custom-variant stickers-wrap (@media (width < 17.5rem));
+
 @theme static {
   --color-background: #131313;
   --color-surface: #1a1a1a;

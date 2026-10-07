@@ -56,8 +56,10 @@
     gap: --spacing(6);
     padding: --spacing(2) --spacing(2) --spacing(4);
 
-    @variant below-reflow {
+    @variant stickers-wrap {
+      width: 100%;
       grid-template-columns: repeat(auto-fill, var(--size-sticker));
+      justify-content: center;
     }
   }
 
