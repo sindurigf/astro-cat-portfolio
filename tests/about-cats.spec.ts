@@ -40,6 +40,7 @@ import { CAT_INSPIRATION } from '../src/lib/credits';
 import {
   CONTROL_ROOM,
   MAX_OVERHANG,
+  NAP_AFTER_MS,
   POINTER_IDLE_MS,
   TAIL_REST,
   TRACK_MARGIN,
@@ -78,6 +79,8 @@ const PAUSES_WINDOW_MS = 8000;
  * just before the pause ends, and a new move's unchanged first pose. Running through a pause is 20 or more.
  */
 const MAX_EMPTY_FRAMES_IN_A_ROW = 6;
+/** Long enough for a loop running every frame to pass MAX_EMPTY_FRAMES_IN_A_ROW many times over. */
+const LOOP_WINDOW_MS = 500;
 
 /*
  * Scroll anchoring picks its anchor near the top of the viewport, so each band
@@ -612,34 +615,88 @@ test(
   },
 );
 
+/** A head turned at least this far, in degrees, has turned to the pointer; under this, it is level again. */
+const HEAD_TURNED_DEG = 5;
+const HEAD_LEVEL_DEG = 1;
+/** How far a cat's head is turned, in degrees, read from its drawn transform. */
+const headTurn = (page: Page, id: (typeof CATS)[number]) =>
+  page.locator(`#cat-spot-${id} .cat-fill`).evaluate((fill) => {
+    /* The head is the one part placed with a translate and a single-argument rotate. */
+    for (const part of fill.querySelectorAll('[transform]')) {
+      const turn = /translate\([^)]*\) rotate\(([-\d.]+)\)/.exec(
+        part.getAttribute('transform') ?? '',
+      );
+      if (turn) return Math.abs(Number(turn[1]));
+    }
+    throw new Error('The cat has no head turn to read.');
+  });
+
+/** Frames a loaded runner draws late, beyond the 5 s bound for lying down. */
 const SLEEP_MARGIN_MS = 1000;
+/** A cat counts as settled once its drawing has not changed for this long. */
+const QUIET_MS = 500;
+/** Resolves true once a cat's drawing has been unchanged for QUIET_MS, or false if it is still changing after `limitMs`. */
+const settles = (page: Page, id: (typeof CATS)[number], limitMs: number) =>
+  page.evaluate(
+    ([spotId, quietMs, maxMs]) =>
+      new Promise<boolean>((resolve) => {
+        const drawing = document
+          .getElementById(String(spotId))
+          ?.querySelector('.cat-svg');
+        if (!drawing) throw new Error(`#${spotId} has no .cat-svg to watch.`);
+        let quiet = 0;
+        let limit = 0;
+        const finish = (settled: boolean) => {
+          observer.disconnect();
+          clearTimeout(quiet);
+          clearTimeout(limit);
+          resolve(settled);
+        };
+        const observer = new MutationObserver(() => {
+          clearTimeout(quiet);
+          quiet = window.setTimeout(() => finish(true), Number(quietMs));
+        });
+        observer.observe(drawing, {
+          attributes: true,
+          childList: true,
+          subtree: true,
+        });
+        quiet = window.setTimeout(() => finish(true), Number(quietMs));
+        limit = window.setTimeout(() => finish(false), Number(maxMs));
+      }),
+    [`cat-spot-${id}`, QUIET_MS, limitMs] as const,
+  );
 
 /** Counts the changes to one cat's drawing (its SVG, props included, not its controls) over a window: a redraw rewrites its paths. */
 const MUTATION_WINDOW_MS = 1200;
-const drawnIn = (page: Page, id: (typeof CATS)[number]) =>
+const drawnIn = (
+  page: Page,
+  id: (typeof CATS)[number],
+  windowMs = MUTATION_WINDOW_MS,
+) =>
   page.evaluate(
     ([spotId, ms]) =>
       new Promise<number>((resolve) => {
         const drawing = document
           .getElementById(String(spotId))
           ?.querySelector('.cat-svg');
+        if (!drawing) throw new Error(`#${spotId} has no .cat-svg to watch.`);
         let count = 0;
         const observer = new MutationObserver((records) => {
           count += records.length;
         });
-        if (drawing)
-          observer.observe(drawing, {
-            attributes: true,
-            childList: true,
-            subtree: true,
-          });
+        observer.observe(drawing, {
+          attributes: true,
+          childList: true,
+          subtree: true,
+        });
         setTimeout(() => {
           count += observer.takeRecords().length;
           observer.disconnect();
           resolve(count);
         }, Number(ms));
       }),
-    [`cat-spot-${id}`, MUTATION_WINDOW_MS] as const,
+    [`cat-spot-${id}`, windowMs] as const,
   );
 
 /** Animation frames in which one cat's drawing changed over a window. */
@@ -1344,24 +1401,68 @@ test.describe('About cats', () => {
     ).toHaveCount(0);
   });
 
-  test('a held cat, a sleeping cat and every cat under reduced motion are not redrawn (SC 2.2.2, 2.3.3)', async ({
+  test('a held cat relaxes its head once the pointer goes idle, even with every other cat on screen asleep', async ({
     browser,
   }) => {
     const context = await browser.newContext({ viewport: PEPPER_AND_MOCHI });
     const page = await context.newPage();
     await gotoSettled(page, ROUTE);
+    await napControl(page, 'mochi').click();
+    await expectMood(page, 'mochi', 'asleep', 'Mochi did not fall asleep');
+    expect(
+      await settles(page, 'mochi', SC_2_2_2_MS + SLEEP_MARGIN_MS),
+      'Mochi was still moving after lying down',
+    ).toBe(true);
+    /* Biscuit is below the viewport, so only Pepper's own schedule can wake the loop. */
     await pointAt(page, 'pepper');
-    /* A held cat turns to the pointer, relaxes once it has been idle for POINTER_IDLE_MS, and settles its tail. */
-    await page.waitForTimeout(POINTER_IDLE_MS + SETTLE_MS);
+    await expect
+      .poll(() => headTurn(page, 'pepper'), {
+        message: 'a held cat never turned its head to the pointer',
+        timeout: POINTER_IDLE_MS,
+      })
+      .toBeGreaterThan(HEAD_TURNED_DEG);
+    await expect
+      .poll(() => headTurn(page, 'pepper'), {
+        message: 'a held cat kept its head turned to an idle pointer',
+        timeout: POINTER_IDLE_MS + SC_2_2_2_MS,
+      })
+      .toBeLessThan(HEAD_LEVEL_DEG);
+    await context.close();
+  });
+
+  test('a held cat, a sleeping cat and every cat under reduced motion are not redrawn (SC 2.2.2, 2.3.3)', async ({
+    browser,
+  }) => {
+    /* Up to about 25 s of waits by design (pointer idle, two settles, three windows), before page loads. */
+    test.slow();
+    const context = await browser.newContext({ viewport: PEPPER_AND_MOCHI });
+    const page = await context.newPage();
+    await gotoSettled(page, ROUTE);
+    await pointAt(page, 'pepper');
+    /* A held cat relaxes its head once the pointer has been idle for POINTER_IDLE_MS; settling before that is not the end. */
+    await page.waitForTimeout(POINTER_IDLE_MS);
+    /* The relax starts on the colony's next frame, not on a timer: let two frames run so it has begun before quiet is measured. */
+    /* If the loop is parked on its wake timer (other cats resting), that frame can come later; the quiet window covers it. */
+    await page.evaluate(
+      () =>
+        new Promise((resolve) =>
+          requestAnimationFrame(() => requestAnimationFrame(resolve)),
+        ),
+    );
+    expect(
+      await settles(page, 'pepper', SC_2_2_2_MS),
+      'a held cat was still moving 5 s after the pointer went idle',
+    ).toBe(true);
     expect(
       await drawnIn(page, 'pepper'),
       'a held cat that has settled was redrawn',
     ).toBe(0);
     await napControl(page, 'mochi').click();
     await expectMood(page, 'mochi', 'asleep', 'Mochi did not fall asleep');
-    /* Lying down and the tail's settling end within 5 s (SC 2.2.2). */
-    /* The margin covers frames a loaded runner draws late. */
-    await page.waitForTimeout(SC_2_2_2_MS + SLEEP_MARGIN_MS);
+    expect(
+      await settles(page, 'mochi', SC_2_2_2_MS + SLEEP_MARGIN_MS),
+      'a sleeping cat was still moving 5 s after lying down (SC 2.2.2)',
+    ).toBe(true);
     expect(await drawnIn(page, 'mochi'), 'a sleeping cat was redrawn').toBe(0);
     await context.close();
 
@@ -1514,6 +1615,55 @@ test.describe('About cats', () => {
   });
 
   /* Counted in a row, not in total: a loaded machine runs fewer frames, never longer empty runs. */
+  test('a cat whose card stays open past its nap time does not keep the loop running', async ({
+    browser,
+  }) => {
+    const context = await browser.newContext({ viewport: PEPPER_AND_MOCHI });
+    const page = await context.newPage();
+    await page.clock.install();
+    await gotoSettled(page, ROUTE);
+    await napControl(page, 'mochi').click();
+    await expectMood(page, 'mochi', 'asleep', 'Mochi did not fall asleep');
+    expect(
+      await settles(page, 'mochi', SC_2_2_2_MS + SLEEP_MARGIN_MS),
+      'Mochi was still moving after lying down',
+    ).toBe(true);
+    await catButton(page, 'pepper').focus();
+    await page.keyboard.press('Enter');
+    await expect(
+      page.getByRole('dialog', { name: NAMES.pepper }),
+    ).toBeVisible();
+    /* A cat with its card open never naps, so its nap time passes without being used. */
+    await page.clock.fastForward(NAP_AFTER_MS + POINTER_IDLE_MS);
+    /* The jump runs no frames, so she first finishes turning to sit. */
+    expect(
+      await settles(page, 'pepper', SC_2_2_2_MS + SLEEP_MARGIN_MS),
+      'Pepper was still moving with her card open',
+    ).toBe(true);
+    const frames = await page.evaluate(
+      (ms) =>
+        new Promise<number>((resolve) => {
+          let count = 0;
+          const request = window.requestAnimationFrame.bind(window);
+          window.requestAnimationFrame = (callback) =>
+            request((now) => {
+              count += 1;
+              callback(now);
+            });
+          setTimeout(() => {
+            window.requestAnimationFrame = request;
+            resolve(count);
+          }, ms);
+        }),
+      LOOP_WINDOW_MS,
+    );
+    expect(
+      frames,
+      'the loop kept running frames for a cat whose card is open',
+    ).toBeLessThanOrEqual(MAX_EMPTY_FRAMES_IN_A_ROW);
+    await context.close();
+  });
+
   test('a cat pausing between moves runs no empty animation frames', async ({
     browser,
   }) => {
