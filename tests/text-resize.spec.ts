@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { expect, test, type Page } from './test';
 import { gotoSettled } from './settle';
+import { NODE } from './tags';
 
 /*
  * SC 1.4.4: 2x must be reachable "in some way", not at 200% zoom
@@ -52,7 +53,7 @@ const tokenSizes = (page: Page): Promise<number[]> =>
     return sizes;
   }, VIEWPORT_TEXT_TOKENS);
 
-test('the viewport text tokens are found in global.css', () => {
+test('the viewport text tokens are found in global.css', NODE, () => {
   expect(
     VIEWPORT_TEXT_TOKENS.length,
     `only ${VIEWPORT_TEXT_TOKENS.length} viewport text tokens matched in global.css`,
