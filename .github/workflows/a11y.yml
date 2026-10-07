@@ -317,8 +317,24 @@ jobs:
           path: ~/.cache/ms-playwright
           key: ${{ runner.os }}-playwright-chromium-${{ steps.playwright.outputs.version }}
 
+      - name: Read the runner image version
+        id: image
+        run: echo "version=$ImageVersion" >> "$GITHUB_OUTPUT"
+
+      # The checks job's restore-only apt set.
+      - name: Restore apt packages
+        id: debs
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/apt-archives
+          key: ${{ runner.os }}-apt-debs-${{ steps.playwright.outputs.version }}-${{ steps.image.outputs.version }}
+
       - name: Install Chromium
-        run: npx playwright install --with-deps chromium
+        timeout-minutes: 12
+        uses: ./.github/actions/install-browser-deps
+        with:
+          browsers: chromium
+          cache-hit: ${{ steps.debs.outputs.cache-hit }}
 
       - name: Demo tests
         run: npm run test:demo -- --fail-on-flaky-tests
