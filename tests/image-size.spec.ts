@@ -15,6 +15,12 @@ const OVERSIZE_LIMIT = 1.5;
 /** Integer rounding between a generated file and a fractional layout box. */
 const ROUNDING_PX = 1;
 
+/** Routes that draw no `<img>`, each with why; any other route must draw one, so the check cannot pass on nothing. */
+const NO_IMAGE_ROUTES: Readonly<Record<string, string>> = {
+  '/talks/sample-talk':
+    'the sample deck is text slides, and the logo is inline SVG',
+};
+
 const DIMENSIONS = [
   { drawn: 'width', natural: 'naturalWidth' },
   { drawn: 'height', natural: 'naturalHeight' },
@@ -85,6 +91,18 @@ for (const route of SAMPLED_ROUTES) {
     await gotoSettled(page, route);
 
     const { ratio, images } = await measureImages(page);
+
+    if (route in NO_IMAGE_ROUTES) {
+      expect(
+        images.length,
+        `${route} draws an image now; remove it from NO_IMAGE_ROUTES.`,
+      ).toBe(0);
+    } else {
+      expect(
+        images.length,
+        `${route} draws no image to measure.`,
+      ).toBeGreaterThan(0);
+    }
 
     for (const image of images) expectServedAtDrawnSize(image, ratio);
   });
