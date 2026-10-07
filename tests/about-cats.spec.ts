@@ -693,23 +693,24 @@ const catState = async (page: Page, id: (typeof CATS)[number]) => {
         new Promise<Record<string, unknown>>((resolve) => {
           const spot = document.getElementById(String(spotId));
           let frames = 0;
+          let done = false;
           const count = () => {
+            if (done) return;
             frames += 1;
             requestAnimationFrame(count);
           };
           requestAnimationFrame(count);
-          setTimeout(
-            () =>
-              resolve({
-                state: spot
-                  ?.querySelector('[data-cat-state]')
-                  ?.getAttribute('data-cat-state'),
-                bandVisible: spot?.hasAttribute('data-cat-visible'),
-                documentHidden: document.hidden,
-                framesIn500ms: frames,
-              }),
-            Number(windowMs),
-          );
+          setTimeout(() => {
+            done = true;
+            resolve({
+              state: spot
+                ?.querySelector('[data-cat-state]')
+                ?.getAttribute('data-cat-state'),
+              bandVisible: spot?.hasAttribute('data-cat-visible'),
+              documentHidden: document.hidden,
+              framesIn500ms: frames,
+            });
+          }, Number(windowMs));
         }),
       [`cat-spot-${id}`, FRAME_COUNT_MS] as const,
     );
