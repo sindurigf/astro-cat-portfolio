@@ -298,9 +298,6 @@
   --tracking-title: -0.02em;
   --tracking-label: 0.1em;
 
-  /* Zero everywhere except the logo tile and its copies. */
-  --radius-nav: 14px;
-
   /*
    * Hard offset shadows, one job per color: pink is depth and pressables, cyan
    * is hover and focus. Gold casts none: gold on gold shows nothing, and pink is
@@ -310,7 +307,9 @@
   --shadow-hard-pink-8: 8px 8px 0 var(--color-pink);
   --shadow-hard-mark-4: 4px 4px 0 var(--color-mark);
   --shadow-hard-mark-8: 8px 8px 0 var(--color-mark);
-  --shadow-hard-mark-12: 12px 12px 0 var(--color-mark);
+  /* The same offsets on the eared logo, whose shadow follows its ears. */
+  --drop-shadow-hard-mark-8: 8px 8px 0 var(--color-mark);
+  --drop-shadow-hard-mark-12: 12px 12px 0 var(--color-mark);
   --shadow-hard-cyan-8: 8px 8px 0 var(--color-cyan);
   /* A card on gold: `gold-border` passes SC 1.4.11 there, pink does not. */
   --shadow-hard-gold-border-8: 8px 8px 0 var(--color-gold-border);

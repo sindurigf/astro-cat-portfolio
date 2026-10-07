@@ -72,22 +72,27 @@ const translateOf = (page: Page, selector: string) =>
     });
 
 /* A hard shadow layer that is not inset and not the transparent placeholder
- * Tailwind composes `shadow-none` from. */
+ * Tailwind composes `shadow-none` from, or the logo's offset drop shadow. */
 const castsShadow = (page: Page, selector: string) =>
   page
     .locator(selector)
     .first()
-    .evaluate((el) =>
-      getComputedStyle(el)
-        .boxShadow.split(/,(?![^(]*\))/)
+    .evaluate((el) => {
+      const style = getComputedStyle(el);
+      const boxShadow = style.boxShadow
+        .split(/,(?![^(]*\))/)
         .map((layer) => layer.trim())
         .some(
           (layer) =>
             !layer.includes('inset') &&
             !layer.startsWith('rgba(0, 0, 0, 0)') &&
             /[1-9]\d*px [1-9]\d*px 0px 0px/.test(layer),
-        ),
-    );
+        );
+      return (
+        boxShadow ||
+        /drop-shadow\(rgba?\([^)]*\) [1-9]\d*px [1-9]\d*px/.test(style.filter)
+      );
+    });
 
 // A real pointer press so :hover and :active both apply; the click is canceled.
 // Waits for :active: read before the press lands, a control that never moves
@@ -123,7 +128,7 @@ const pressLook = (page: Page, selector: string) =>
     .first()
     .evaluate((el) => {
       const s = getComputedStyle(el);
-      return `${s.translate} | ${s.boxShadow}`;
+      return `${s.translate} | ${s.boxShadow} | ${s.filter}`;
     });
 
 test.describe('a press is drawn', () => {
@@ -151,6 +156,11 @@ test.describe('a press is drawn', () => {
       await page.emulateMedia({ reducedMotion: 'reduce' });
       await page.setViewportSize(DESKTOP_VIEWPORT);
       await gotoSettled(page, p.route);
+      await page.locator(p.control).first().hover();
+      expect(
+        await castsShadow(page, p.moves),
+        'no shadow before the press, so its loss below would prove nothing.',
+      ).toBe(true);
       await pressCenter(page, p.control);
       expect(await translateOf(page, p.moves)).toEqual([0, 0]);
       expect(

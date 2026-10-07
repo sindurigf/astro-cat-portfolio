@@ -7,6 +7,12 @@ import {
   profileLinkName,
 } from '../lib/profiles';
 import { FIRST_PUBLISHED, MOTTO, REPOSITORY_URL, SITE_NAME } from '../lib/site';
+import {
+  MARK_HEAD,
+  MARK_SIZE,
+  markMarkup,
+  tokenPaint,
+} from '../lib/brand-mark';
 /* Hashed under /_astro/ and cached once, instead of inline on every page. */
 import socialIcons from '../assets/social-icons.svg?url';
 
@@ -33,6 +39,24 @@ const AI_DISCLOSURE_HREF = `${REPOSITORY_URL}/blob/main/AI_DISCLOSURE.md`;
 
 /* Not inline: Astro drops the space between two expressions on separate lines. */
 const copyright = `© ${FIRST_PUBLISHED} ${SITE_NAME}`;
+
+/* The logo's head at twice its size, sunk below the ground up to its whiskers. */
+const HEAD_SCALE = 2;
+const HEAD_CENTER = -9;
+/** Mark units of the head left above the ground, from the ear tips to the chin's top. */
+const HEAD_ROW = 55;
+const HEAD_X = HEAD_CENTER - (MARK_SIZE / 2) * HEAD_SCALE;
+const HEAD_Y = -HEAD_ROW * HEAD_SCALE;
+const SHADOW = 6;
+/** Paw centers, outside the head's sides, in mark units from its center. */
+const PAW_REACH = 44;
+const PAW_XS = [-PAW_REACH, PAW_REACH].map(
+  (dx) => HEAD_CENTER + dx * HEAD_SCALE,
+);
+/* A mitt over the ground line, its toes hanging below it. */
+const PAW =
+  'M-15 4V-2Q-15 -10 -6 -10H6Q15 -10 15 -2V4Q15 7 12 7H-12Q-15 7 -15 4Z';
+const TOES = 'M-5 2V6M0 2V6.5M5 2V6';
 ---
 
 <footer class="page-gutter bg-background">
@@ -99,52 +123,51 @@ const copyright = `© ${FIRST_PUBLISHED} ${SITE_NAME}`;
           </small>
         </div>
 
-        {/* Origin at the mascot's middle on the ground; viewBox cropped to the drawing. */}
+        {/* Origin where the head meets the ground; the head below the ground is clipped. */}
         <svg
           class="footer-tuft"
-          viewBox="-142 -94 266 102"
+          viewBox="-142 -120 266 136"
           aria-hidden="true"
           focusable="false"
         >
+          <defs>
+            <clipPath id="footer-above-ground">
+              <rect x="-142" y="-120" width="266" height="120"></rect>
+            </clipPath>
+          </defs>
           <g class="tuft-back">
-            <path d="M-132.18 0Q-135.75 -32.73 -139.4 -59.5Q-128.18 -29.75 -122.83 0Z"></path>
-            <path d="M-113.47 0Q-115 -44.88 -113.9 -81.6Q-106.42 -40.8 -104.12 0Z"></path>
-            <path d="M-96.47 0Q-93.92 -27.12 -83.3 -49.3Q-83.3 -24.65 -87.12 0Z"></path>
-            <path d="M78.62 0Q81.69 -39.27 93.5 -71.4Q92.56 -35.7 87.97 0Z"></path>
-            <path d="M95.62 0Q100.22 -28.05 115.6 -51Q111.86 -25.5 104.97 0Z"></path>
-            <path d="M110.92 0Q112.45 -18.7 120.7 -34Q122.57 -17 120.27 0Z"></path>
+            <path d="M-138 0Q-140 -32 -142 -58Q-132 -30 -129 0Z"></path>
+            <path d="M-124 0Q-125 -44 -122 -82Q-115 -40 -114 0Z"></path>
+            <path d="M96 0Q99 -38 111 -70Q109 -34 105 0Z"></path>
+            <path d="M110 0Q115 -27 124 -48Q122 -24 118 0Z"></path>
           </g>
-          <g class="mascot-shadow" transform="translate(6 6) scale(1.7)">
-            <path d="M19.42 -4.85 21.46 -4.62 23.5 -4.4 25.55 -4.19 27.59 -4.01 29.63 -3.84 31.67 -3.68 33.71 -3.54 35.73 -3.42A2.1 2.1 0 0 0 36.27 -7.58L36.27 -7.58 34.29 -7.98 32.33 -8.38 30.37 -8.81 28.41 -9.24 26.45 -9.7 24.5 -10.16 22.54 -10.65 20.58 -11.15Z"></path>
-            <ellipse cx="38.5" cy="-5.2" rx="5" ry="2.4"></ellipse>
-            <path d="M21.11 -2.61 23.45 -2.16 25.82 -1.76 28.19 -1.44 30.55 -1.18 32.91 -1.01 35.26 -0.9 37.59 -0.86 39.89 -0.9A2.3 2.3 0 0 0 40.11 -5.5L40.11 -5.5 37.91 -5.75 35.74 -6.08 33.59 -6.46 31.45 -6.92 29.31 -7.43 27.18 -8.01 25.05 -8.66 22.89 -9.39Z"></path>
-            <ellipse cx="43" cy="-2.6" rx="5.5" ry="2.6"></ellipse>
-            <path d="M38 -3C42 -12 40 -21 32 -26C24 -31 11 -34 -2 -33C-24 -34 -41 -25 -41 -9C-41 -3 -37 0 -32 0L32 0C35 0 37 -1 38 -3Z"></path>
-            <path d="M-38 -8C-39 -22 -18 -26 -13 -13C-11 -5 -15 0 -21 0L-32 0C-36 0 -38 -4 -38 -8Z"></path>
-            <path d="M-38.81 -11.64 -41.26 -9.85 -43.19 -8.09 -44.56 -6.06 -44.78 -3.01 -42.82 -0.71 -40.56 0.03 -38.02 0.26 -34.79 0.19 -30.89 -0.46 -27.2 -1.16 -23.57 -1.91 -20.01 -2.73 -16.51 -3.6 -13.08 -4.54 -9.71 -5.53 -6.43 -6.58A2 2 0 0 0 -7.57 -10.42L-7.57 -10.42 -10.85 -9.53 -14.17 -8.7 -17.55 -7.93 -20.99 -7.22 -24.49 -6.57 -28.05 -5.98 -31.68 -5.45 -35.21 -4.99 -37.73 -5.09 -39.44 -5.36 -39.93 -5.57 -39.22 -4.69 -39.19 -3.52 -38.81 -3.84 -37.49 -4.88 -35.19 -6.36Z"></path>
-            <path d="M34 -36L38.5 -46.5Q39.5 -48.5 40.5 -46.5L42.5 -33.5Z"></path>
-            <path d="M22.5 -34L25.5 -46Q26.5 -48 28 -46.2L33 -37.5Z"></path>
-            <path d="M20 -29C20 -36 26 -40.5 32 -40.5C39 -40.5 43.5 -35.5 43.5 -30.5C47 -29.5 48.5 -26 47 -23.5C45.5 -21 42 -20 39 -20.5C36 -19 32 -18.5 29 -19C24 -19.5 20 -23 20 -29Z"></path>
+          <rect
+            class="tuft-ground"
+            x="-142"
+            y="0"
+            width="266"
+            height="4"
+          ></rect>
+          <g clip-path="url(#footer-above-ground)">
+            <path
+              class="mascot-shadow"
+              d={MARK_HEAD}
+              transform={`translate(${HEAD_X + SHADOW} ${HEAD_Y + SHADOW}) scale(${HEAD_SCALE})`}
+            ></path>
+            <g
+              transform={`translate(${HEAD_X} ${HEAD_Y}) scale(${HEAD_SCALE})`}
+              set:html={markMarkup(tokenPaint, { id: 'footer' })}
+            />
           </g>
-          <g class="mascot" transform="scale(1.7)">
-            <path d="M19.42 -4.85 21.46 -4.62 23.5 -4.4 25.55 -4.19 27.59 -4.01 29.63 -3.84 31.67 -3.68 33.71 -3.54 35.73 -3.42A2.1 2.1 0 0 0 36.27 -7.58L36.27 -7.58 34.29 -7.98 32.33 -8.38 30.37 -8.81 28.41 -9.24 26.45 -9.7 24.5 -10.16 22.54 -10.65 20.58 -11.15Z"></path>
-            <ellipse cx="38.5" cy="-5.2" rx="5" ry="2.4"></ellipse>
-            <path d="M21.11 -2.61 23.45 -2.16 25.82 -1.76 28.19 -1.44 30.55 -1.18 32.91 -1.01 35.26 -0.9 37.59 -0.86 39.89 -0.9A2.3 2.3 0 0 0 40.11 -5.5L40.11 -5.5 37.91 -5.75 35.74 -6.08 33.59 -6.46 31.45 -6.92 29.31 -7.43 27.18 -8.01 25.05 -8.66 22.89 -9.39Z"></path>
-            <ellipse cx="43" cy="-2.6" rx="5.5" ry="2.6"></ellipse>
-            <path d="M38 -3C42 -12 40 -21 32 -26C24 -31 11 -34 -2 -33C-24 -34 -41 -25 -41 -9C-41 -3 -37 0 -32 0L32 0C35 0 37 -1 38 -3Z"></path>
-            <path d="M-38 -8C-39 -22 -18 -26 -13 -13C-11 -5 -15 0 -21 0L-32 0C-36 0 -38 -4 -38 -8Z"></path>
-            <path d="M-38.81 -11.64 -41.26 -9.85 -43.19 -8.09 -44.56 -6.06 -44.78 -3.01 -42.82 -0.71 -40.56 0.03 -38.02 0.26 -34.79 0.19 -30.89 -0.46 -27.2 -1.16 -23.57 -1.91 -20.01 -2.73 -16.51 -3.6 -13.08 -4.54 -9.71 -5.53 -6.43 -6.58A2 2 0 0 0 -7.57 -10.42L-7.57 -10.42 -10.85 -9.53 -14.17 -8.7 -17.55 -7.93 -20.99 -7.22 -24.49 -6.57 -28.05 -5.98 -31.68 -5.45 -35.21 -4.99 -37.73 -5.09 -39.44 -5.36 -39.93 -5.57 -39.22 -4.69 -39.19 -3.52 -38.81 -3.84 -37.49 -4.88 -35.19 -6.36Z"></path>
-            <path d="M34 -36L38.5 -46.5Q39.5 -48.5 40.5 -46.5L42.5 -33.5Z"></path>
-            <path d="M22.5 -34L25.5 -46Q26.5 -48 28 -46.2L33 -37.5Z"></path>
-            <path d="M20 -29C20 -36 26 -40.5 32 -40.5C39 -40.5 43.5 -35.5 43.5 -30.5C47 -29.5 48.5 -26 47 -23.5C45.5 -21 42 -20 39 -20.5C36 -19 32 -18.5 29 -19C24 -19.5 20 -23 20 -29Z"></path>
-            <path class="mascot-line" d="M34.5 -30Q37 -33 39.5 -30"></path>
-            <path class="mascot-line" d="M44 -24.5L54 -27M44 -23L54 -22"></path>
-            <circle class="mascot-nose" cx="47" cy="-26.5" r="1.5"></circle>
-          </g>
+          {PAW_XS.map((x) => (
+            <g transform={`translate(${x} 0) scale(${HEAD_SCALE})`}>
+              <path class="mascot-paw-fill" d={PAW}></path>
+              <path class="mascot-paw-toes" d={TOES}></path>
+            </g>
+          ))}
           <g class="tuft-front">
-            <path d="M-63.75 0Q-65.79 -11.22 -66.3 -20.4Q-58.31 -10.2 -55.25 0Z"></path>
-            <path d="M-12.75 0Q-11.22 -8.42 -3.4 -15.3Q-1.96 -7.65 -4.25 0Z"></path>
-            <path d="M38.25 0Q40.8 -10.29 51 -18.7Q50.58 -9.35 46.75 0Z"></path>
+            <path d="M-128 0Q-130 -11 -130 -20Q-123 -10 -120 0Z"></path>
+            <path d="M104 0Q107 -10 113 -18Q113 -9 111 0Z"></path>
           </g>
         </svg>
       </div>
