@@ -39,7 +39,7 @@ blur, uppercase headings, tilted marks.
 | 1b  | Ground, thin slab: `/contact/sent`, both posts                                                     | 3 routes                               |
 | 1c  | Ground, mid-page: a `Section surface="gold"`, the About quote, `/contact`'s closing band           | `/career`, `/about`, `/`, `/contact`   |
 | 2   | The primary action: `.nav-cta`, `.btn-primary`                                                     | 11 routes, 4 routes                    |
-| 3   | the logo marks: the logo tile and its copies, the roundel, the footer mascot, the homepage sticker | 11 routes, 9 routes                    |
+| 3   | the logo marks: the roundel, the homepage sticker; the logo cat is Mochi's coat, not gold          | 9 routes, `/`                          |
 | 4   | Card labels, `.label text-gold`; a form's field labels are `text`                                  | `/about`, `/accessibility`, `/contact` |
 | 4a  | A talk slide's label, bold words and part number, as the deck's Markdown sets them                 | `/talks/<deck>/`                       |
 | 5   | Category: the blog label and the homepage glyph tiles                                              | 3 routes                               |
@@ -259,8 +259,9 @@ The switch and what it scopes: [ARCHITECTURE.md](../ARCHITECTURE.md#light-mode).
   their `#FFC000` fill, always under `#131313` (11.32).
 - Gold text turns ink; a `.label.text-gold` and a slide label gain a gold
   square before the word.
-- Logo marks use `mark`, `tile-edge` and `shadow-hard-mark-*`, never
-  `pink` or `border`: they do not change with the mode.
+- Logo marks use `mark`, `tile-edge`, the `cat-mochi*` coat and
+  `shadow-hard-mark-*` or `drop-shadow-hard-mark-*`, never `pink` or `border`:
+  they do not change with the mode.
 - The label on a gold fill is `gold-text`, never `background` (white in
   light).
 - RIDET and `.sticker` are black blocks.

@@ -6,7 +6,7 @@ const PRIORITY = /<img\b[^>]*\bfetchpriority="high"[^>]*>/g;
 
 const BLOG_PHOTO_ROUTES = BLOG_FEATURES_COVER ? ['/blog'] : [];
 
-/** The first content image, after the header's logo. */
+/** The first image in <main>, past the logo files a page may draw there. */
 const firstContentImage = (html: string): string | undefined =>
   html
     .slice(html.indexOf('<main'))
