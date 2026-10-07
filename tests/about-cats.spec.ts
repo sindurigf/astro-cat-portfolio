@@ -27,12 +27,20 @@ import {
   reachOf,
   stepTail,
 } from '../src/lib/about-cats-rig';
+import {
+  createIdle,
+  idleFrameMs,
+  idleOffsets,
+  rearmIdle,
+  tickIdle,
+} from '../src/lib/about-cats-idle';
 import { isTricksData, tricksOf } from '../src/lib/about-cats-tricks';
 import tricksData from '../src/lib/about-cats-tricks.json' with { type: 'json' };
 import { CAT_INSPIRATION } from '../src/lib/credits';
 import {
   CONTROL_ROOM,
   MAX_OVERHANG,
+  POINTER_IDLE_MS,
   TAIL_REST,
   TRACK_MARGIN,
   cupPush,
@@ -487,6 +495,188 @@ test(
       );
   },
 );
+
+test(
+  'a resting cat idles in small offsets: breath, glance, ear and tail stay in range, and each really moves',
+  NODE,
+  () => {
+    const MAX = { bt: 2, hr: 15, ears: 1, ta: 8 };
+    const SPAN_MS = 120_000;
+    const STEP_MS = 50;
+    for (const roll of [() => 0, () => 0.9, () => 1, Math.random]) {
+      const idle = createIdle();
+      const seen = { bt: 0, hr: 0, ears: 0, tw: 0 };
+      const outOfRange: string[] = [];
+      for (let now = 0; now < SPAN_MS; now += STEP_MS) {
+        tickIdle(idle, now, roll);
+        const o = idleOffsets(idle, now);
+        if (Math.abs(o.bt) > MAX.bt) outOfRange.push(`chest ${o.bt} at ${now}`);
+        if (Math.abs(o.hr) > MAX.hr) outOfRange.push(`head ${o.hr} at ${now}`);
+        if (Math.abs(o.ta) > MAX.ta) outOfRange.push(`tail ${o.ta} at ${now}`);
+        if (o.ears < 0 || o.ears > MAX.ears)
+          outOfRange.push(`ear ${o.ears} at ${now}`);
+        seen.bt = Math.max(seen.bt, Math.abs(o.bt));
+        seen.hr = Math.max(seen.hr, Math.abs(o.hr));
+        seen.ears = Math.max(seen.ears, o.ears);
+        seen.tw = Math.max(seen.tw, o.tw);
+      }
+      expect(outOfRange.slice(0, 3), 'an idle offset left its range').toEqual(
+        [],
+      );
+      expect(seen.bt, 'the chest never moved').toBeGreaterThan(0);
+      expect(seen.ears, 'no ear ever flicked').toBeGreaterThan(0);
+      expect(seen.tw, 'the tail tip never twitched').toBeGreaterThan(0);
+    }
+    const glancing = createIdle();
+    let turned = 0;
+    for (let now = 0; now < SPAN_MS; now += STEP_MS) {
+      tickIdle(glancing, now, () => 0.9);
+      turned = Math.max(turned, Math.abs(idleOffsets(glancing, now).hr));
+    }
+    expect(turned, 'the head never turned').toBeGreaterThan(0);
+  },
+);
+
+test(
+  'after a move, resting cats start their timers again and do not flick, glance or twitch together',
+  NODE,
+  () => {
+    const START_MS = 10_000;
+    const MOVE_MS = 30_000;
+    const resumeAt = START_MS + MOVE_MS;
+    const cats = [0.1, 0.5, 0.9].map((fixed) => {
+      const idle = createIdle();
+      tickIdle(idle, START_MS, () => fixed);
+      return { idle, fixed };
+    });
+    for (const { idle, fixed } of cats) {
+      rearmIdle(idle);
+      tickIdle(idle, resumeAt, () => fixed);
+      const first = idleOffsets(idle, resumeAt);
+      expect(
+        [first.ears, first.hr, first.tw],
+        'a cat flicked, glanced or twitched on its first frame after a move',
+      ).toEqual([0, 0, 0]);
+    }
+    const firstFlick = cats.map(({ idle, fixed }) => {
+      for (let now = resumeAt; now < resumeAt + 20_000; now += 50) {
+        tickIdle(idle, now, () => fixed);
+        if (idleOffsets(idle, now).ears > 0) return now;
+      }
+      return Infinity;
+    });
+    expect(
+      new Set(firstFlick).size,
+      `cats flicked an ear together after a move: ${firstFlick.join(', ')}`,
+    ).toBe(firstFlick.length);
+  },
+);
+
+test(
+  'resting cats do not flick, glance or twitch together, and idle frames slow down while only the breath moves',
+  NODE,
+  () => {
+    const START_MS = 10_000;
+    const firstFlick = [0.1, 0.5, 0.9].map((fixed) => {
+      const idle = createIdle();
+      for (let now = START_MS; now < START_MS + 20_000; now += 50) {
+        tickIdle(idle, now, () => fixed);
+        if (idleOffsets(idle, now).ears > 0) return now;
+      }
+      return Infinity;
+    });
+    expect(
+      new Set(firstFlick).size,
+      `cats flicked an ear together: ${firstFlick.join(', ')}`,
+    ).toBe(firstFlick.length);
+    expect(
+      Math.min(...firstFlick),
+      'a cat flicked on its first idle frame',
+    ).toBeGreaterThan(START_MS);
+    const idle = createIdle();
+    tickIdle(idle, START_MS, () => 0.5);
+    const calm = idleFrameMs(idle, START_MS);
+    let busy = Infinity;
+    for (let now = START_MS; now < START_MS + 20_000; now += 50) {
+      tickIdle(idle, now, () => 0.5);
+      busy = Math.min(busy, idleFrameMs(idle, now));
+    }
+    expect(
+      idleFrameMs(createIdle(), 0),
+      'a cat that has not yet had an event draws at the busy rate',
+    ).toBe(calm);
+    expect(
+      busy,
+      'a flick or glance drew no faster than the breath',
+    ).toBeLessThan(calm);
+  },
+);
+
+const SLEEP_MARGIN_MS = 1000;
+
+/** Counts the changes to one cat's drawing (its SVG, props included, not its controls) over a window: a redraw rewrites its paths. */
+const MUTATION_WINDOW_MS = 1200;
+const drawnIn = (page: Page, id: (typeof CATS)[number]) =>
+  page.evaluate(
+    ([spotId, ms]) =>
+      new Promise<number>((resolve) => {
+        const drawing = document
+          .getElementById(String(spotId))
+          ?.querySelector('.cat-svg');
+        let count = 0;
+        const observer = new MutationObserver((records) => {
+          count += records.length;
+        });
+        if (drawing)
+          observer.observe(drawing, {
+            attributes: true,
+            childList: true,
+            subtree: true,
+          });
+        setTimeout(() => {
+          count += observer.takeRecords().length;
+          observer.disconnect();
+          resolve(count);
+        }, Number(ms));
+      }),
+    [`cat-spot-${id}`, MUTATION_WINDOW_MS] as const,
+  );
+
+/** Animation frames in which one cat's drawing changed over a window. */
+const framesDrawnIn = (page: Page, id: (typeof CATS)[number], ms: number) =>
+  page.evaluate(
+    ([spotId, windowMs]) =>
+      new Promise<number>((resolve) => {
+        const drawing = document
+          .getElementById(String(spotId))
+          ?.querySelector('.cat-svg');
+        const observer = new MutationObserver(() => {});
+        if (drawing)
+          observer.observe(drawing, {
+            attributes: true,
+            childList: true,
+            subtree: true,
+          });
+        let frames = 0;
+        const request = window.requestAnimationFrame.bind(window);
+        window.requestAnimationFrame = (callback) =>
+          request((now) => {
+            callback(now);
+            if (observer.takeRecords().length > 0) frames += 1;
+          });
+        setTimeout(() => {
+          observer.disconnect();
+          window.requestAnimationFrame = request;
+          resolve(frames);
+        }, Number(windowMs));
+      }),
+    [`cat-spot-${id}`, ms] as const,
+  );
+
+/** A resting cat is drawn at most this often, in frames a second: the quick idle rate, well below the animation frame rate. */
+const IDLE_MAX_FPS = 25;
+/** Frames that must show a resting cat is idling, not frozen, in the window. */
+const IDLE_MIN_FRAMES = 3;
 
 test.describe('About cats', () => {
   test('each cat is a named button that opens its photo in a dialog, Close first, and returns focus', async ({
@@ -1152,6 +1342,76 @@ test.describe('About cats', () => {
       list.getByRole('button', { name: TRICKS.fly.label }),
       'a trick that cannot fit the band is offered',
     ).toHaveCount(0);
+  });
+
+  test('a held cat, a sleeping cat and every cat under reduced motion are not redrawn (SC 2.2.2, 2.3.3)', async ({
+    browser,
+  }) => {
+    const context = await browser.newContext({ viewport: PEPPER_AND_MOCHI });
+    const page = await context.newPage();
+    await gotoSettled(page, ROUTE);
+    await pointAt(page, 'pepper');
+    /* A held cat turns to the pointer, relaxes once it has been idle for POINTER_IDLE_MS, and settles its tail. */
+    await page.waitForTimeout(POINTER_IDLE_MS + SETTLE_MS);
+    expect(
+      await drawnIn(page, 'pepper'),
+      'a held cat that has settled was redrawn',
+    ).toBe(0);
+    await napControl(page, 'mochi').click();
+    await expectMood(page, 'mochi', 'asleep', 'Mochi did not fall asleep');
+    /* Lying down and the tail's settling end within 5 s (SC 2.2.2). */
+    /* The margin covers frames a loaded runner draws late. */
+    await page.waitForTimeout(SC_2_2_2_MS + SLEEP_MARGIN_MS);
+    expect(await drawnIn(page, 'mochi'), 'a sleeping cat was redrawn').toBe(0);
+    await context.close();
+
+    const still = await browser.newContext({
+      reducedMotion: 'reduce',
+      viewport: PEPPER_AND_MOCHI,
+    });
+    const quiet = await still.newPage();
+    await gotoSettled(quiet, ROUTE);
+    await quiet.waitForTimeout(STILL_WINDOW_MS);
+    for (const id of CATS)
+      expect(
+        await drawnIn(quiet, id),
+        `${NAMES[id]} was redrawn under reduced motion`,
+      ).toBe(0);
+    await still.close();
+  });
+
+  test('a resting cat is drawn at the idle rate, not every animation frame', async ({
+    browser,
+  }) => {
+    const context = await browser.newContext({
+      viewport: { width: 1280, height: 4200 },
+    });
+    await context.addInitScript(() => {
+      /* Near 1: the longest pause after a move, and no other random move or idle event inside the window. */
+      Math.random = () => 0.99;
+    });
+    const page = await context.newPage();
+    await gotoSettled(page, ROUTE);
+    const id = 'biscuit';
+    await showCat(page, id);
+    await tricksButton(page, id).click();
+    await tricksList(page, id)
+      .getByRole('button', { name: tricksData.tricks.look.label })
+      .click();
+    /* Look Around, a turn to face its way first, then a pause: the window sits inside the pause. */
+    const AFTER_LOOK_MS = duration(MOVES.look()) + 2200;
+    await page.waitForTimeout(AFTER_LOOK_MS);
+    const WINDOW_MS = 1200;
+    const frames = await framesDrawnIn(page, id, WINDOW_MS);
+    expect(
+      frames,
+      'a resting cat was never drawn, so it was not idling',
+    ).toBeGreaterThanOrEqual(IDLE_MIN_FRAMES);
+    expect(
+      frames,
+      'a resting cat was drawn nearly every animation frame',
+    ).toBeLessThanOrEqual((IDLE_MAX_FPS * WINDOW_MS) / 1000);
+    await context.close();
   });
 
   test('under reduced motion the cats sit still with no sleep control', async ({

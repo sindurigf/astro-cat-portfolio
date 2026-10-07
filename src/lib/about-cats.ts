@@ -34,9 +34,18 @@ import {
   type PropRig,
 } from './about-cats-rig';
 import type { PropState } from './about-cats-types';
+import {
+  createIdle,
+  idleFrameMs,
+  idleOffsets,
+  rearmIdle,
+  tickIdle,
+  type IdleOffsets,
+  type IdleState,
+} from './about-cats-idle';
 
-/** A short still beat after each move, in ms, so play flows but each move reads. */
-const PAUSE_MS = [300, 900] as const;
+/** The rest after each move, in ms, while the cat idles: cats act in bursts. */
+const PAUSE_MS = [1500, 4500] as const;
 /** What a frame did for a cat: drew it, left it settled, or held it in a pause. */
 type StepResult = 'draw' | 'still' | 'rest';
 
@@ -62,7 +71,7 @@ const LEAPS: Partial<Record<MoveName, number>> = {
 /** Where a cat stands from the card's edge to push the cup, the track's end: CUP_AHEAD plus its push takes the cup past the edge. */
 export const CUP_EDGE = TRACK_MARGIN;
 /** A pointer that has not moved for this long no longer draws a cat's eye. */
-const POINTER_IDLE_MS = 4000;
+export const POINTER_IDLE_MS = 4000;
 const FACE_DEADBAND = 20;
 const WATCH_EASE = 0.12;
 const TILT_GAIN = 20;
@@ -77,6 +86,8 @@ const MAX_FRAMES_PER_STEP = 6;
 const SETTLED = 0.01;
 /** ms a prop takes to fade when its move is cut short. */
 const PROP_FADE_MS = 250;
+/** A resting cat's tail swaying with its idle motion peaks at about 0.5; a landing whips it past this, and it is drawn at the quicker rate until it slows. */
+const IDLE_TAIL_WHIP = 1;
 /** Tail segment speed below which the tail counts as at rest. */
 export const TAIL_REST = 0.02;
 
@@ -143,6 +154,12 @@ interface CatState extends CatSpot {
   blinkUntil: number;
   /** No new move before this; a nap still starts at once. */
   restUntil: number;
+  idle: IdleState;
+  /** Resting between moves: breathing, ear flicks and glances are drawn on its pose. */
+  idling: boolean;
+  idleDrawnAt: number;
+  /** The idle offsets on screen: a move starts from these, not from offsets a frame newer. */
+  idleShown: IdleOffsets;
 }
 
 const rand = (lo: number, hi: number): number => lo + Math.random() * (hi - lo);
@@ -267,6 +284,10 @@ export const createColony = (
     nextBlink: 0,
     blinkUntil: 0,
     restUntil: 0,
+    idle: createIdle(),
+    idling: false,
+    idleDrawnAt: 0,
+    idleShown: { ta: 0, bt: 0, ears: 0, hr: 0, tw: 0 },
   }));
   const watcherId = cats[Math.floor(Math.random() * cats.length)]?.id ?? '';
   const pointerAt = new Map<CatSpot['id'], { x: number; y: number }>();
@@ -297,8 +318,17 @@ export const createColony = (
     updateMood(cat);
   };
 
+  const addIdle = (p: Pose, { ta, bt, ears, hr, tw }: IdleOffsets): void => {
+    p.ta += ta;
+    p.bt += bt;
+    p.ears = Math.max(p.ears, ears);
+    p.hr += hr;
+    p.tw = Math.max(p.tw, tw);
+  };
+
   const draw = (cat: CatState, now: number): void => {
     const p = clonePose(cat.pose);
+    if (cat.idling) addIdle(p, cat.idleShown);
     if (now < cat.blinkUntil) p.eyes = 0;
     renderCat(cat.rig, p, now, p.x, cat.groundY);
   };
@@ -336,6 +366,11 @@ export const createColony = (
     settle = false,
   ): void => {
     const from = clonePose(cat.pose);
+    /* The move starts from the pose last drawn, glance and breath included. */
+    if (cat.idling) {
+      addIdle(from, cat.idleShown);
+      cat.idling = false;
+    }
     const origin = from.x;
     from.x = 0;
     from.face = from.face * dir;
@@ -545,12 +580,32 @@ export const createColony = (
       if (cat.hiddenAt !== undefined) continue;
       const result = step(cat, now, frames);
       const tailMoving = cat.rig.tailSpeed.some((v) => Math.abs(v) > TAIL_REST);
-      /* A paused cat needs no frame until its pause ends, or its nap is due. */
-      if (result === 'rest')
-        wakeAt = Math.min(wakeAt, cat.restUntil, cat.napAt);
-      /* A settled, paused or sleeping cat keeps its last drawing. */
-      if (result !== 'draw' && !tailMoving) continue;
-      wakeAt = now;
+      const resting = result === 'rest';
+      /* Timers run only while resting, so each rest starts them afresh. */
+      if (resting && !cat.idling) rearmIdle(cat.idle);
+      cat.idling = resting;
+      if (cat.idling) {
+        tickIdle(cat.idle, now);
+        const whipping = cat.rig.tailSpeed.some(
+          (v) => Math.abs(v) > IDLE_TAIL_WHIP,
+        );
+        const gap = idleFrameMs(cat.idle, now, whipping);
+        const due = now - cat.idleDrawnAt >= gap;
+        /* Next frame: the next idle one, the pause's end, or the nap. The idle sway keeps the tail moving, so it does not hold the loop awake. */
+        wakeAt = Math.min(
+          wakeAt,
+          cat.restUntil,
+          cat.napAt,
+          (due ? now : cat.idleDrawnAt) + gap,
+        );
+        if (!due) continue;
+        cat.idleDrawnAt = now;
+        cat.idleShown = idleOffsets(cat.idle, now);
+      } else {
+        /* A settled or sleeping cat keeps its last drawing. */
+        if (result !== 'draw' && !tailMoving) continue;
+        wakeAt = now;
+      }
       if (!cat.asleep && now > cat.nextBlink) {
         cat.blinkUntil = now + BLINK_MS;
         cat.nextBlink = now + rand(...BLINK_EVERY_MS);
@@ -612,6 +667,8 @@ export const createColony = (
       const hiddenAt = cat.hiddenAt;
       if (hiddenAt === undefined) return;
       cat.hiddenAt = undefined;
+      /* Back on screen mid-rest: timers start afresh. */
+      cat.idling = false;
       updateMood(cat);
       if (cat.napAt === Infinity) {
         wakeCat(cat, now);
@@ -675,6 +732,7 @@ export const createColony = (
       for (const { prop } of fading.splice(0)) prop.remove();
       for (const cat of cats) {
         drop(cat);
+        cat.idling = false;
         cat.pose = pose(cat.asleep ? 'sleep' : 'sit', {
           x: cat.pose.x,
           face: Math.sign(cat.pose.face) || cat.facing,
