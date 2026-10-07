@@ -41,6 +41,9 @@
  */
 @custom-variant short (@media (height < 30rem));
 
+/* Under the 320px reflow floor: 1280px at 500% zoom is 256px (SC 1.4.8). */
+@custom-variant below-reflow (@media (width < 20rem));
+
 @theme static {
   --color-background: #131313;
   --color-surface: #1a1a1a;

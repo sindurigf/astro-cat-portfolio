@@ -70,6 +70,25 @@
     overflow-wrap: break-word;
   }
 
+  /* Breaking anywhere and shrinking every box keep each line on screen at 500% zoom. */
+  body,
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @variant below-reflow {
+      overflow-wrap: anywhere;
+    }
+  }
+
+  :where(body *) {
+    @variant below-reflow {
+      min-width: 0;
+    }
+  }
+
   h1 {
     font-size: var(--text-h1);
     line-height: 0.94;
