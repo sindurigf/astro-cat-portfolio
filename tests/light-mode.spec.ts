@@ -260,66 +260,6 @@ test.describe('the switch', () => {
     await context.close();
   });
 
-  test('a device that changes mode moves the page until a choice is stored', async ({
-    page,
-  }) => {
-    await gotoSettled(page, '/about');
-    const toggle = page.getByRole('button', { name: SWITCH_NAME });
-
-    await page.emulateMedia({ colorScheme: 'light' });
-    await expect(toggle).toHaveAttribute('aria-pressed', 'true');
-    expect(await mainIsLight(page)).toBe(true);
-
-    await toggle.click();
-    await expect(toggle).toHaveAttribute('aria-pressed', 'false');
-    await page.emulateMedia({ colorScheme: 'dark' });
-    await page.emulateMedia({ colorScheme: 'light' });
-    await expect(
-      toggle,
-      'a device change overrode the stored choice',
-    ).toHaveAttribute('aria-pressed', 'false');
-    expect(await mainIsLight(page)).toBe(false);
-  });
-
-  test('a stored value that is not a theme does not stop the page following the device', async ({
-    browser,
-  }) => {
-    const context = await browser.newContext({ colorScheme: 'dark' });
-    await context.addInitScript(() => localStorage.setItem('theme', 'purple'));
-    const page = await context.newPage();
-    await gotoSettled(page, '/about');
-    await page.emulateMedia({ colorScheme: 'light' });
-    await expect(
-      page.getByRole('button', { name: SWITCH_NAME }),
-    ).toHaveAttribute('aria-pressed', 'true');
-    await context.close();
-  });
-
-  test('a press holds against a device change when storage is blocked', async ({
-    browser,
-  }) => {
-    const context = await browser.newContext({ colorScheme: 'dark' });
-    await context.addInitScript(() => {
-      const blocked = () => {
-        throw new DOMException('blocked', 'SecurityError');
-      };
-      Storage.prototype.getItem = blocked;
-      Storage.prototype.setItem = blocked;
-    });
-    const page = await context.newPage();
-    await gotoSettled(page, '/about');
-    const toggle = page.getByRole('button', { name: SWITCH_NAME });
-    await toggle.click();
-    await expect(toggle).toHaveAttribute('aria-pressed', 'true');
-    await page.emulateMedia({ colorScheme: 'light' });
-    await page.emulateMedia({ colorScheme: 'dark' });
-    await expect(toggle, 'a device change overrode the press').toHaveAttribute(
-      'aria-pressed',
-      'true',
-    );
-    await context.close();
-  });
-
   test('keyboard focus rings the tile', async ({ page }) => {
     await gotoSettled(page, '/about');
     const toggle = page.getByRole('button', { name: SWITCH_NAME });

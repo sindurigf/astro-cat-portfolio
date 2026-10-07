@@ -103,7 +103,6 @@ Dark is the default. Colors and rules:
   theme first.
 - `src/components/ThemeSwitch.astro` is a `<button aria-pressed>` named "Light
   mode"; `src/scripts/theme-switch.ts` wires it and a press saves the choice.
-  Until a choice is saved, a change of the device's mode moves the page.
 - Without JavaScript the page is dark and the switch hidden.
 - `HeroField.vue` (through `use-hero-field.ts`) reads its palette from its own element and rebuilds when a
   `MutationObserver` sees `data-theme` change. Its ground is `hero-ground`.

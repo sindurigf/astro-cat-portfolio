@@ -20,22 +20,6 @@ const remember = (theme: Theme): void => {
   }
 };
 
-const isTheme = (value: string | null): value is Theme =>
-  value === 'light' || value === 'dark';
-
-/* Set on a press, so blocked storage cannot let the system override it. */
-let pressed = false;
-
-/* The head script in BaseLayout.astro ignores any other stored value. */
-const hasChoice = (): boolean => {
-  if (pressed) return true;
-  try {
-    return isTheme(localStorage.getItem(THEME_STORAGE_KEY));
-  } catch {
-    return false;
-  }
-};
-
 /* Every switch reads the one `data-theme`, so two on a page never disagree. */
 const buttons = [
   ...document.querySelectorAll<HTMLButtonElement>('.theme-switch'),
@@ -44,7 +28,6 @@ const buttons = [
 const toggle = (): void => {
   const next: Theme = currentTheme() === 'light' ? 'dark' : 'light';
   root.dataset.theme = next;
-  pressed = true;
   buttons.forEach(reflect);
   remember(next);
 };
@@ -53,13 +36,3 @@ for (const button of buttons) {
   reflect(button);
   button.addEventListener('click', toggle);
 }
-
-/* Until the visitor chooses, the page follows the system. */
-matchMedia('(prefers-color-scheme: light)').addEventListener(
-  'change',
-  (event) => {
-    if (hasChoice()) return;
-    root.dataset.theme = event.matches ? 'light' : 'dark';
-    buttons.forEach(reflect);
-  },
-);
