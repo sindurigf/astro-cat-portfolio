@@ -41,8 +41,11 @@
  */
 @custom-variant short (@media (height < 30rem));
 
-/* Under the 320px reflow floor: 1280px at 500% zoom is 256px (SC 1.4.8). */
-@custom-variant below-reflow (@media (width < 20rem));
+/*
+ * Under 305px, the narrowest width tests/reflow.spec.ts holds unchanged; 1280px
+ * at 500% zoom is 256px (SC 1.4.8).
+ */
+@custom-variant below-reflow (@media (width < 19rem));
 
 /* The footer's 280px sticker grid (four --size-sticker, three gaps, padding) stops fitting. */
 @custom-variant stickers-wrap (@media (width < 17.5rem));
