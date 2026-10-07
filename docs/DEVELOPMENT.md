@@ -97,7 +97,7 @@ npm run test:webkit -- tests/reflow.spec.ts
   (`check:pins` enforces it), with no network and a read-only mount.
 - Exit codes: 0 all pass, 1 a failure, 2 could not run (e.g. no Docker).
 - `EXPECTED_FAILURES` in `scripts/check-pdf.mjs` lists known non-conforming
-  files (currently empty), pinned to a SHA-256 and to an [ACCESSIBILITY.md](../ACCESSIBILITY.md)
+  files (empty), pinned to a SHA-256 and to an [ACCESSIBILITY.md](../ACCESSIBILITY.md)
   section 7 gap. It fails when the bytes change, the file starts passing, or
   the gap no longer names it.
 - CI runs it; it stays out of `npm run check`, which needs no Docker.
@@ -133,7 +133,7 @@ npm run test:webkit -- tests/reflow.spec.ts
 | `CLOUDFLARE_ACCOUNT_ID`         | unset                    | Needed with the token: a D1-only token cannot look it up |
 | `CHECK_LIVE_SKIP_D1`            | unset                    | `1` skips that D1 count                                  |
 | `CI`                            | unset                    | Adds the WebKit project and one retry; set by CI         |
-| `TRUST_DEPENDABOT`              | unset                    | `1` skips `check:commits` subject checks for Dependabot  |
+| `TRUST_DEPENDABOT`              | unset                    | `1` skips `check:commits` for Dependabot's commits       |
 | `COVERAGE`                      | unset                    | `1` builds source maps; set by `test:coverage`           |
 | `WORKERS_CI`                    | unset                    | `1` skips the build fingerprint, set in Workers Builds   |
 
