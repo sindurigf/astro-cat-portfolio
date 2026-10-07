@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 /*
  * Renders every logo file from src/lib/brand-mark.ts, in Chromium with the
- * site tokens: the tab icons, the app icons and the one-color mark. Rerun
+ * site tokens: the logo file, the tab icons, the app icons and the one-color
+ * mark. Rerun
  * after changing the mark or a color it uses.
  *
  *   npm run icons
@@ -91,6 +92,10 @@ const ico = (frames) => {
 
 try {
   writeFileSync('public/favicon.svg', `${tab(true)}\n`);
+  writeFileSync(
+    'src/assets/logo-cat.svg',
+    `${svg(`0 0 ${MARK_SIZE} ${MARK_SIZE}`, markMarkup(paint, { id: 'logo' }))}\n`,
+  );
   writeFileSync('artwork/mark-dark.svg', `${oneColor}\n`);
 
   const frames = [];

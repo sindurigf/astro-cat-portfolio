@@ -25,6 +25,10 @@ const SERVED_AS_IS = new Map([
       'rendered on demand.',
   ],
   [
+    'logo-cat.svg',
+    'CatMark.astro imports it with `?url`: a vector file, cached once for every page.',
+  ],
+  [
     'social-icons.svg',
     'the footer imports it with `?url` and every page links it as a <use> sprite.',
   ],

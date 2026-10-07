@@ -141,12 +141,6 @@
     forced-color-adjust: auto;
   }
 
-  /* The logo cat (CatMark.astro), back to `auto` for the same reason. */
-  .logo-mark,
-  .logo-mark * {
-    forced-color-adjust: auto;
-  }
-
   @media (forced-colors: active) {
     .theme-switch {
       border-color: ButtonText;

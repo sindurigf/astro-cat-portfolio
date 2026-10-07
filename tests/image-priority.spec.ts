@@ -11,7 +11,7 @@ const firstContentImage = (html: string): string | undefined =>
   html
     .slice(html.indexOf('<main'))
     .match(/<img\b[^>]*>/g)
-    ?.find((tag) => !/mark-dark/.test(tag));
+    ?.find((tag) => !/mark-dark|logo-cat/.test(tag));
 
 test.describe('image priority', NODE, () => {
   test('no page asks for more than one image first', () => {

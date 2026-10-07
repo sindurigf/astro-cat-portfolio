@@ -1,20 +1,29 @@
 ---
-import { MARK_SIZE, markMarkup, tokenPaint } from '../lib/brand-mark';
+import logoCat from '../assets/logo-cat.svg?url';
+import { MARK_BODY, MARK_SIZE } from '../lib/brand-mark';
 
-/* The logo cat (src/lib/brand-mark.ts). Decoration: the link around it carries the name. */
+/*
+ * The logo cat as a cached file (`npm run icons` writes it from
+ * src/lib/brand-mark.ts); its colors are the same in both modes. alt="": the
+ * link around it carries the name.
+ */
 interface Props {
-  /** Unique per page: the mark's clip path id. */
-  id: string;
+  /** The tile body's width in px; the file is drawn wider to fit the ears' room. */
+  body: number;
   class?: string;
+  eager?: boolean;
 }
 
-const { id, class: className } = Astro.props;
+const { body, class: className, eager = false } = Astro.props;
+const size = Math.round((body * MARK_SIZE) / MARK_BODY);
 ---
 
-<svg
-  class:list={['logo-mark', className]}
-  viewBox={`0 0 ${MARK_SIZE} ${MARK_SIZE}`}
-  aria-hidden="true"
-  focusable="false"
-  set:html={markMarkup(tokenPaint, { id })}
+<img
+  src={logoCat}
+  alt=""
+  width={size}
+  height={size}
+  decoding="async"
+  loading={eager ? 'eager' : 'lazy'}
+  class={className}
 />

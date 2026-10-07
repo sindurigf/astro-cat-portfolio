@@ -41,8 +41,12 @@ const measureImages = (page: Page) =>
       await probe.decode();
       return { width: probe.naturalWidth, height: probe.naturalHeight };
     };
+    /* A vector file is honest at any size. */
     const drawn = all.filter(
-      (img) => img.offsetWidth > 0 && img.offsetHeight > 0,
+      (img) =>
+        img.offsetWidth > 0 &&
+        img.offsetHeight > 0 &&
+        !new URL(img.currentSrc).pathname.endsWith('.svg'),
     );
     return {
       ratio: window.devicePixelRatio,

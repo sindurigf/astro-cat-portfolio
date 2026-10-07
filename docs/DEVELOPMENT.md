@@ -296,9 +296,10 @@ Sizes and roles of every file: [ARCHITECTURE.md assets](../ARCHITECTURE.md#asset
 and [the favicon set](../ARCHITECTURE.md#the-favicon-set).
 
 1. Redraw the cat in `src/lib/brand-mark.ts`: the head path, patches, ears
-   and face, in a 64-unit square, painted only with color tokens. The header,
-   `/about` and the footer draw it from there.
-2. Run `npm run icons`. It writes the tab icons and `favicon.ico`, the app
+   and face, in a 64-unit square, painted only with color tokens. The footer
+   draws it from there; the rest draw the files below.
+2. Run `npm run icons`. It writes `src/assets/logo-cat.svg` for the header
+   and `/about`, the tab icons and `favicon.ico`, the app
    icons on a full-bleed `background` square (maskable inside the 80% safe
    zone), and the one-color `artwork/mark-dark.svg` and
    `src/assets/mark-dark.png` for the roundels.

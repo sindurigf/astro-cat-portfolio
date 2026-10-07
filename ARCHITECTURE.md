@@ -367,14 +367,17 @@ in `wrangler.jsonc`).
   ([DEVELOPMENT.md](docs/DEVELOPMENT.md#the-sharing-image)). A PNG in `public/`
   because scrapers need a stable URL and format.
 - `src/lib/brand-mark.ts`: the logo cat, an eared tile in Mochi's calico with
-  happy eyes; the one source for `CatMark.astro` (header, `/about`), the footer
-  head, `npm run icons` and `npm run og`.
+  happy eyes; the one source for the footer head, `npm run icons` (which writes
+  `logo-cat.svg` for `CatMark.astro`) and `npm run og`.
 - `artwork/mark-dark.svg`: the one-color cat for the roundels, written by
   `npm run icons`.
 - The mark, icons, sharing image and hero poneglyph are drawn by AI
   ([AI_DISCLOSURE.md](AI_DISCLOSURE.md)).
-- The header and `/about` draw the cat as inline SVG; the roundel renders
-  `mark-dark.png` through `<Image>` with `widths` and `sizes`.
+- The header and `/about` draw `src/assets/logo-cat.svg` (written by
+  `npm run icons`) as an `<img alt="">`, cached once for every page; the
+  footer draws the head inline, since its tufts take theme and forced-color
+  CSS. The roundel renders `mark-dark.png` through `<Image>` with `widths` and
+  `sizes`.
 - A `.vue` component cannot reach `astro:assets`: call `getImage()` in Astro
   and pass the result as a prop.
 - Footer links: seven sticker tiles with Simple Icons (CC0) paths, one
