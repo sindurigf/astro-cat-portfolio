@@ -281,6 +281,20 @@ test.describe('the switch', () => {
     expect(await mainIsLight(page)).toBe(false);
   });
 
+  test('a stored value that is not a theme does not stop the page following the device', async ({
+    browser,
+  }) => {
+    const context = await browser.newContext({ colorScheme: 'dark' });
+    await context.addInitScript(() => localStorage.setItem('theme', 'purple'));
+    const page = await context.newPage();
+    await gotoSettled(page, '/about');
+    await page.emulateMedia({ colorScheme: 'light' });
+    await expect(
+      page.getByRole('button', { name: SWITCH_NAME }),
+    ).toHaveAttribute('aria-pressed', 'true');
+    await context.close();
+  });
+
   test('keyboard focus rings the tile', async ({ page }) => {
     await gotoSettled(page, '/about');
     const toggle = page.getByRole('button', { name: SWITCH_NAME });

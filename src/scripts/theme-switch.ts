@@ -20,9 +20,13 @@ const remember = (theme: Theme): void => {
   }
 };
 
+const isTheme = (value: string | null): value is Theme =>
+  value === 'light' || value === 'dark';
+
+/* The head script in BaseLayout.astro ignores any other stored value. */
 const hasChoice = (): boolean => {
   try {
-    return localStorage.getItem(THEME_STORAGE_KEY) !== null;
+    return isTheme(localStorage.getItem(THEME_STORAGE_KEY));
   } catch {
     return false;
   }
