@@ -4,8 +4,6 @@ import { expect, test } from './test';
 import { DIST_DIR } from './routes';
 import { NODE } from './tags';
 
-/** The browser bundles carry no server-only `process` shim (astro.config.mjs, vite.environments.client). */
-
 const CHUNKS = join(DIST_DIR, '_astro');
 
 /** A global `process` read: `process.x` not preceded by a name character or a dot. */
