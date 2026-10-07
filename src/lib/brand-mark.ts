@@ -60,7 +60,7 @@ export const markMarkup = (
   const face = small
     ? `<path d="${SMALL_EYES}" fill="none" stroke="${paint('gold-text')}" stroke-width="${SMALL_EYE_WIDTH}" stroke-linecap="round" stroke-linejoin="round"/>`
     : `<path d="${HAPPY_EYES}" fill="none" stroke="${paint('gold-text')}" stroke-width="${EYE_WIDTH}" stroke-linecap="round" stroke-linejoin="round"/>` +
-      `<path d="${NOSE}" fill="${paint('gold-text')}"/>` +
+      `<path d="${NOSE}" fill="${paint('mark')}"/>` +
       `<path d="${WHISKERS}" fill="none" stroke="${paint('gold-text')}" stroke-width="${WHISKER_WIDTH}" stroke-linecap="round"/>`;
   return (
     `<defs><clipPath id="${clip}"><path d="${MARK_HEAD}"/></clipPath></defs>` +
