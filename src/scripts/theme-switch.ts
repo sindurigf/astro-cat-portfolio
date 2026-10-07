@@ -23,8 +23,12 @@ const remember = (theme: Theme): void => {
 const isTheme = (value: string | null): value is Theme =>
   value === 'light' || value === 'dark';
 
+/* Set on a press, so blocked storage cannot let the system override it. */
+let pressed = false;
+
 /* The head script in BaseLayout.astro ignores any other stored value. */
 const hasChoice = (): boolean => {
+  if (pressed) return true;
   try {
     return isTheme(localStorage.getItem(THEME_STORAGE_KEY));
   } catch {
@@ -40,6 +44,7 @@ const buttons = [
 const toggle = (): void => {
   const next: Theme = currentTheme() === 'light' ? 'dark' : 'light';
   root.dataset.theme = next;
+  pressed = true;
   buttons.forEach(reflect);
   remember(next);
 };
