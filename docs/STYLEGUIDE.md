@@ -418,7 +418,6 @@ with a comment beside it.
 - Derived so the disc keeps at least 24px to the hero's last line and 32px to
   the next content; it is lifted `--spacing(1)` above the edge to split the
   space 24 and 32.
-- A fixed 96px disc leaves 8px to the title on a phone.
 - `--spacing-roundel-mark` is half the disc.
 - `tests/page-hero.spec.ts` checks the roundel and the photo cover no text at
   320, 640, 768, 1023, 1024 and 1280px.
