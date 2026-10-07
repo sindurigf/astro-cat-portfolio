@@ -315,10 +315,14 @@ Commits, copy rules and process: [AGENTS.md](AGENTS.md).
   `node_modules/.astro/assets` and the shards restore it, so the shards still
   start together. A shared `dist/` artifact would need a build job in front of
   them.
-- **The apt package cache is a trust boundary.** apt accepts a cached `.deb` of
-  the right size without re-checking its hash; a corrupt same-size file fails in
-  dpkg. Only pushes to main (shard 1) save it. Do not widen that to pull
-  requests.
+- **The apt package cache is a trust boundary.** Only pushes to main (shard 1)
+  write it. An exact hit (same Playwright version and runner image) installs
+  the cached `.deb` files with `dpkg -i`, unverified. Any other path runs
+  install-deps: apt picks versions from the signed index and reuses a cached
+  file whose name and size match without re-hashing it
+  ([apt 2.8.3](https://salsa.debian.org/apt-team/apt/-/blob/2.8.3/apt-pkg/acquire-item.cc#L3494-L3507),
+  the runner's version). A corrupt file fails in dpkg. Do not widen the writes
+  to pull requests.
 - Post, category and tag routes in `tests/routes.ts` are read from
   `src/content/blog/` frontmatter, which exists at collection. A test that
   needs a particular post picks it by property (`CONTENTS_POST_ROUTE`,
@@ -697,6 +701,10 @@ evidence.
   override of Tailwind preflight's `cursor: default` on buttons, and the
   `not-allowed` cursor the button styles give `aria-disabled` buttons, an
   interaction state.
+- **Copy the restored apt packages into apt's archive directory when the dpkg
+  path falls back:** apt reuses a cached file of the right size, so a corrupt
+  `.deb` would fail in dpkg again. After a failed `dpkg -i` the fallback only
+  fetches what failed.
 
 ## Content notes
 

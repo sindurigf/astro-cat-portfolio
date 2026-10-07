@@ -128,21 +128,26 @@ jobs:
           path: ~/.cache/ms-playwright
           key: ${{ runner.os }}-playwright-chromium-${{ steps.playwright.outputs.version }}
 
+      - name: Read the runner image version
+        id: image
+        run: echo "version=$ImageVersion" >> "$GITHUB_OUTPUT"
+
+      # The shards' exact-image apt set, restore only: it holds Chromium's deps
+      # and more. A miss or a failed dpkg goes through install-deps.
+      - name: Restore apt packages
+        id: debs
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/apt-archives
+          key: ${{ runner.os }}-apt-debs-${{ steps.playwright.outputs.version }}-${{ steps.image.outputs.version }}
+
       # Chromium only, for the contact error pages; the rest is HTTP.
-      # apt can stall silently: each try is cut off and retried once. install-deps
-      # runs as root, so `timeout` can kill a stuck apt and free the dpkg lock.
       - name: Install Chromium
         timeout-minutes: 12
-        run: |
-          retry() {
-            for attempt in 1 2; do
-              "$@" && return 0
-              echo "::warning::$* failed or stalled (try $attempt)"
-            done
-            return 1
-          }
-          retry sudo env "PATH=$PATH" timeout --kill-after=30s 5m node_modules/.bin/playwright install-deps chromium
-          retry timeout --kill-after=30s 5m node_modules/.bin/playwright install chromium
+        uses: ./.github/actions/install-browser-deps
+        with:
+          browsers: chromium
+          cache-hit: ${{ steps.debs.outputs.cache-hit }}
 
       # Once here rather than in every shard. A test that passes only on retry
       # fails the run: AGENTS.md has every flaky test fixed, not retried away.
@@ -217,7 +222,7 @@ jobs:
           restore-keys: ${{ runner.os }}-apt-debs-${{ steps.playwright.outputs.version }}-
 
       - name: Put the restored packages where apt looks
-        if: ${{ steps.debs.outputs.cache-matched-key != '' }}
+        if: ${{ steps.debs.outputs.cache-matched-key != '' && steps.debs.outputs.cache-hit != 'true' }}
         run: |
           shopt -s nullglob
           debs=("$HOME"/apt-archives/*.deb)
@@ -227,20 +232,12 @@ jobs:
           fi
 
       # WebKit runs here; locally it needs `npm run test:webkit` (Docker).
-      # apt can stall silently: each try is cut off and retried once. install-deps
-      # runs as root, so `timeout` can kill a stuck apt and free the dpkg lock.
       - name: Install Playwright browsers
         timeout-minutes: 12
-        run: |
-          retry() {
-            for attempt in 1 2; do
-              "$@" && return 0
-              echo "::warning::$* failed or stalled (try $attempt)"
-            done
-            return 1
-          }
-          retry sudo env "PATH=$PATH" timeout --kill-after=30s 5m node_modules/.bin/playwright install-deps chromium firefox webkit
-          retry timeout --kill-after=30s 5m node_modules/.bin/playwright install chromium firefox webkit
+        uses: ./.github/actions/install-browser-deps
+        with:
+          browsers: chromium firefox webkit
+          cache-hit: ${{ steps.debs.outputs.cache-hit }}
 
       # apt trusts a cached package by its size, so a corrupt file fails the
       # install in dpkg. autoclean drops superseded versions, which bounds the
@@ -261,7 +258,7 @@ jobs:
           echo "count=${#debs[@]}" >> "$GITHUB_OUTPUT"
 
       - name: Save apt packages
-        if: ${{ steps.collect.outputs.count != '' && steps.collect.outputs.count != '0' }}
+        if: ${{ github.ref == 'refs/heads/main' && matrix.shard == 1 && steps.collect.outputs.count != '' && steps.collect.outputs.count != '0' }}
         continue-on-error: true
         uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
@@ -320,8 +317,24 @@ jobs:
           path: ~/.cache/ms-playwright
           key: ${{ runner.os }}-playwright-chromium-${{ steps.playwright.outputs.version }}
 
+      - name: Read the runner image version
+        id: image
+        run: echo "version=$ImageVersion" >> "$GITHUB_OUTPUT"
+
+      # The checks job's restore-only apt set.
+      - name: Restore apt packages
+        id: debs
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/apt-archives
+          key: ${{ runner.os }}-apt-debs-${{ steps.playwright.outputs.version }}-${{ steps.image.outputs.version }}
+
       - name: Install Chromium
-        run: npx playwright install --with-deps chromium
+        timeout-minutes: 12
+        uses: ./.github/actions/install-browser-deps
+        with:
+          browsers: chromium
+          cache-hit: ${{ steps.debs.outputs.cache-hit }}
 
       - name: Demo tests
         run: npm run test:demo -- --fail-on-flaky-tests
