@@ -63,6 +63,8 @@
    */
   --color-mark: #ff007a;
   --color-tile-edge: #5a87a8;
+  /* The system color forced-colors mode pairs with the button face; bars on it use `forced-colors:bg-button-text`. */
+  --color-button-text: ButtonText;
   /*
    * The About cats, read by about-cats.css. Fills are decoration: the sticker
    * edge (`text`) carries SC 1.4.11, so none of these delimits a control.
@@ -214,7 +216,7 @@
   /* 24 against 36, the page scale's 1.5 ratio. */
   --text-post-h3: clamp(1.1875rem, 2vw, 1.5rem);
   --text-post-h3--line-height: 1.15;
-  --text-contents: 16px;
+  --text-contents: 1rem;
   --text-contents--line-height: 1.35;
   /* Card titles are h2s: floor 19px, the smallest heading's. */
   --text-post-card: clamp(1.1875rem, 2.6vw, 2rem);
@@ -275,7 +277,7 @@
   --text-button: var(--text-label);
   --text-button--line-height: 1.2;
   /* Just under the 22px footer icons; one line, so a label's line height. */
-  --text-copyright: 20px;
+  --text-copyright: 1.25rem;
   --text-copyright--line-height: 1.2;
   /*
    * The motto in the footer, one line in the 288px phone box: 32px

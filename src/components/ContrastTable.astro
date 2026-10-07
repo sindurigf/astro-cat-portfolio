@@ -15,9 +15,10 @@ interface Row {
 
 interface Props {
   rows: readonly Row[];
+  caption: string;
 }
 
-const { rows } = Astro.props;
+const { rows, caption } = Astro.props;
 
 const SAMPLE_BG: Record<string, string> = {
   background: 'bg-background',
@@ -67,6 +68,7 @@ const sampleOf = (row: Row): string[] | null => {
 
 <div class="prose max-w-none">
   <table>
+    <caption class="sr-only">{caption}</caption>
     <thead>
       <tr>
         <th scope="col">Pair</th>
@@ -83,7 +85,7 @@ const sampleOf = (row: Row): string[] | null => {
               sample ? (row.needs === TEXT_NEEDS ? 'text' : 'edge') : undefined
             }
           >
-            <td>
+            <th scope="row">
               <span class="flex items-center gap-2">
                 {sample && (
                   <span
@@ -100,10 +102,10 @@ const sampleOf = (row: Row): string[] | null => {
                   <code>{row.fg}</code> on <code>{row.bg}</code>
                 </span>
               </span>
-            </td>
+            </th>
             <td class="text-subtle">{row.use}</td>
             <td>
-              {row.ratio} · {row.result}
+              {row.ratio}, {row.result}
               {row.needs !== 'n/a' && ` (${row.needs})`}
             </td>
           </tr>
