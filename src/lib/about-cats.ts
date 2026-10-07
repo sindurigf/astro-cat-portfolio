@@ -461,13 +461,17 @@ export const createColony = (
     if (!begin(cat, pickWeighted(CAT_WEIGHTS[cat.id]), now)) leap(cat, now);
   };
 
+  /* One test for both reading and waking: written two ways, float rounding can make them disagree at the deadline. */
+  const pointerLive = (now: number): boolean =>
+    now - pointerTime <= POINTER_IDLE_MS;
+
   /** Where the pointer is from this cat, while it is still moving. */
   const pointerFor = (
     cat: CatState,
     now: number,
   ): { x: number; y: number } | undefined => {
     const target = pointerAt.get(cat.id);
-    return target && now - pointerTime <= POINTER_IDLE_MS ? target : undefined;
+    return target && pointerLive(now) ? target : undefined;
   };
 
   const tiltTowards = (cat: CatState, target: { x: number; y: number }) =>
@@ -601,6 +605,19 @@ export const createColony = (
         cat.idleDrawnAt = now;
         cat.idleShown = idleOffsets(cat.idle, now);
       } else {
+        /* A held cat relaxes its head when the pointer goes idle, and may nap: no other cat need wake the loop for it. */
+        if (cat.holds.size > 0 && !cat.asleep)
+          wakeAt = Math.min(
+            wakeAt,
+            /* A cat with its card open does not nap (step), so its nap time is no reason to wake. */
+            cat.holds.has('card') ? Infinity : cat.napAt,
+            /* A frame after the loop slept covers no time, so it cannot ease the head: one more follows. */
+            frames === 0
+              ? now
+              : pointerLive(now)
+                ? pointerTime + POINTER_IDLE_MS
+                : Infinity,
+          );
         /* A settled or sleeping cat keeps its last drawing. */
         if (result !== 'draw' && !tailMoving) continue;
         wakeAt = now;
