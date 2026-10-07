@@ -22,16 +22,17 @@
 
   /*
    * Before the script is ready, show only the slide it will open on: the linked
-   * one, or the cover. Without JavaScript every slide stays on the page.
+   * one, or the cover. Without JavaScript, or once the script has failed
+   * (`data-deck-failed`), every slide stays on the page.
    */
   @media screen {
-    .deck[data-deck-ready] .slide:not([data-current]),
+    .deck[data-deck-ready]:not([data-deck-failed]) .slide:not([data-current]),
     :root.js
-      .deck:not([data-deck-ready])
+      .deck:not([data-deck-ready], [data-deck-failed])
       .deck-stage:not(:has(> .slide:target))
       > .slide:not(:first-child),
     :root.js
-      .deck:not([data-deck-ready])
+      .deck:not([data-deck-ready], [data-deck-failed])
       .deck-stage:has(> .slide:target)
       > .slide:not(:target) {
       display: none;
@@ -214,7 +215,8 @@
     @apply invisible;
   }
 
-  :root:not(.js) .deck:not([data-deck-ready]) .deck-bar {
+  :root:not(.js) .deck:not([data-deck-ready]) .deck-bar,
+  .deck[data-deck-failed]:not([data-deck-ready]) .deck-bar {
     @apply hidden;
   }
 
