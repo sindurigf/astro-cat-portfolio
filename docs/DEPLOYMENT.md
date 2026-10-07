@@ -223,4 +223,5 @@ Dashboard settings that change what ships without a file change.
 - Optional Actions secret `CLOUDFLARE_API_TOKEN` and variable
   `CLOUDFLARE_ACCOUNT_ID`: let the weekly `check:live` count unsent
   notifications in production D1. Scope the token to D1 Read on your account.
-  Without both that check is skipped by name.
+  Without both, the workflow sets `CHECK_LIVE_SKIP_D1=1` and `check:live`
+  prints a skip line for the D1 check.
