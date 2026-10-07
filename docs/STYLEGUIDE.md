@@ -817,6 +817,8 @@ Enforced by `tests/post-page.spec.ts`.
   photo; a height-capped one ends short. A portrait stays
   on the measure, centered.
   Both stop at 80vh tall, uncropped, caption on the image's left edge.
+  Placement is design, not tested; the spec checks uncropped, inside the
+  viewport and column, under 80vh and off the contents list.
 - Figure `sizes`, from `post-figure.mjs`: that slot, capped by the file's width
   and by 80vh times its ratio. Markdown images take `MARKDOWN_WIDTHS`, to 2400.
 
