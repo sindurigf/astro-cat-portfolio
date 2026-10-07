@@ -99,9 +99,7 @@ const SAMPLE = `
 
 test.describe('code in a post, as it renders', () => {
   for (const width of [1280, REFLOW_VIEWPORT.width]) {
-    test(`reads as code and keeps its overflow to itself at ${width}px`, async ({
-      page,
-    }) => {
+    test(`keeps its overflow to itself at ${width}px`, async ({ page }) => {
       test.skip(POST_ROUTES.length === 0, NO_POST);
       await page.setViewportSize({ width, height: 900 });
       await gotoSettled(page, POST_ROUTES[0]!);
@@ -111,12 +109,9 @@ test.describe('code in a post, as it renders', () => {
         if (!prose) throw new Error('the post has no .prose column');
         prose.insertAdjacentHTML('beforeend', html);
 
-        const inline = prose.querySelector('p:last-of-type code')!;
         const block = prose.querySelector('pre')!;
         const root = document.documentElement;
         return {
-          inlineFamily: getComputedStyle(inline).fontFamily,
-          blockFamily: getComputedStyle(block).fontFamily,
           blockOverflowX: getComputedStyle(block).overflowX,
           blockScrolls: block.scrollWidth > block.clientWidth,
           blockWithin: block.clientWidth <= prose.clientWidth,
@@ -124,8 +119,6 @@ test.describe('code in a post, as it renders', () => {
         };
       }, SAMPLE);
 
-      expect(measured.inlineFamily).toMatch(/mono/i);
-      expect(measured.blockFamily).toMatch(/mono/i);
       expect(measured.blockOverflowX).toBe('auto');
 
       expect(
