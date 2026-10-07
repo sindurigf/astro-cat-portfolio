@@ -686,36 +686,54 @@ const headTurn = (page: Page, id: (typeof CATS)[number]) =>
 const SLEEP_MARGIN_MS = 1000;
 /** A cat counts as settled once its drawing has not changed for this long. */
 const QUIET_MS = 500;
-/** Resolves true once a cat's drawing has been unchanged for QUIET_MS, or false if it is still changing after `limitMs`. */
+/* Frames as well as time: a starved runner can draw no frame for QUIET_MS while the cat is still mid-move. */
+const QUIET_FRAMES = 10;
+/** Resolves true once a cat's drawing is unchanged for QUIET_MS and QUIET_FRAMES frames, or false if it is still changing after `limitMs`. */
 const settles = (page: Page, id: (typeof CATS)[number], limitMs: number) =>
   page.evaluate(
-    ([spotId, quietMs, maxMs]) =>
+    ([spotId, quietMs, quietFrames, maxMs]) =>
       new Promise<boolean>((resolve) => {
         const drawing = document
           .getElementById(String(spotId))
           ?.querySelector('.cat-svg');
         if (!drawing) throw new Error(`#${spotId} has no .cat-svg to watch.`);
-        let quiet = 0;
-        let limit = 0;
-        const finish = (settled: boolean) => {
-          observer.disconnect();
-          clearTimeout(quiet);
-          clearTimeout(limit);
-          resolve(settled);
-        };
+        let changed = false;
         const observer = new MutationObserver(() => {
-          clearTimeout(quiet);
-          quiet = window.setTimeout(() => finish(true), Number(quietMs));
+          changed = true;
         });
         observer.observe(drawing, {
           attributes: true,
           childList: true,
           subtree: true,
         });
-        quiet = window.setTimeout(() => finish(true), Number(quietMs));
-        limit = window.setTimeout(() => finish(false), Number(maxMs));
+        let started = -1;
+        let changedAt = -1;
+        let still = 0;
+        const check = (now: number) => {
+          if (started < 0) started = changedAt = now;
+          if (changed || observer.takeRecords().length > 0) {
+            changed = false;
+            changedAt = now;
+            still = 0;
+          } else {
+            still += 1;
+          }
+          if (
+            still >= Number(quietFrames) &&
+            now - changedAt >= Number(quietMs)
+          ) {
+            observer.disconnect();
+            resolve(true);
+          } else if (now - started >= Number(maxMs)) {
+            observer.disconnect();
+            resolve(false);
+          } else {
+            requestAnimationFrame(check);
+          }
+        };
+        requestAnimationFrame(check);
       }),
-    [`cat-spot-${id}`, QUIET_MS, limitMs] as const,
+    [`cat-spot-${id}`, QUIET_MS, QUIET_FRAMES, limitMs] as const,
   );
 
 /** Counts the changes to one cat's drawing (its SVG, props included, not its controls) over a window: a redraw rewrites its paths. */
