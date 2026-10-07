@@ -693,6 +693,10 @@ evidence.
   these are a few words each, cased by the
   [case rule](docs/STYLEGUIDE.md#uppercase). How screen readers
   speak them is checked in the screen-reader pass.
+- **Remove `tests/cursor.spec.ts` as decoration:** it guards `base.css`'s
+  override of Tailwind preflight's `cursor: default` on buttons, and the
+  `not-allowed` cursor the button styles give `aria-disabled` buttons, an
+  interaction state.
 
 ## Content notes
 
