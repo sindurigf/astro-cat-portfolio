@@ -46,28 +46,33 @@ What happens without the `CONTACT_NOTIFY_TO` secret:
 
 ## Commands
 
-| Command                      | Does                                                                                                                                               |
-| ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `npm run dev`                | Dev server at `http://localhost:4340`                                                                                                              |
-| `npm test`                   | `test:a11y`, then `test:worker`; each builds first                                                                                                 |
-| `npm run build`              | Build to `dist/client` (assets) and `dist/server` (Worker)                                                                                         |
-| `npm run preview`            | Serve the build through the Worker runtime                                                                                                         |
-| `npm run typecheck`          | `astro check` (fails on hints), then `vue-tsc` on `.vue` files                                                                                     |
-| `npm run format`             | Prettier, write                                                                                                                                    |
-| `npm run check`              | `check:tokens`, `links`, `pins`, `classes`, `untransformed`, `title-case`, `exif`, `format:check`, `commits`, `leaks`; needs `npm run build` first |
-| `npm run format:check`       | Prettier, check only                                                                                                                               |
-| `npm run test:a11y`          | Playwright suite in Chromium and Firefox; CI adds WebKit                                                                                           |
-| `npm run test:webkit`        | The same suite in WebKit, in Playwright's Docker image                                                                                             |
-| `npm run test:a11y:ui`       | The same suite in Playwright's UI mode                                                                                                             |
-| `npm run test:worker`        | Worker specs, local D1: contact endpoint, byte ranges, types, /blog pager                                                                          |
-| `npm run test:demo`          | Demo specs against a `NOINDEX` demo build                                                                                                          |
-| `npm run test:coverage`      | `test:a11y` in Chromium, with line and branch coverage of `src/`                                                                                   |
-| `npm run check:live`         | Production headers and markup against this repository                                                                                              |
-| `npm run check:live:console` | Every production route in a browser, failing on console errors                                                                                     |
-| `npm run check:umami`        | The vendored Umami tracker against the one Umami serves                                                                                            |
-| `npm run check:pdf`          | Every PDF in `public/` against PDF/UA-1, veraPDF in Docker                                                                                         |
-| `npm run publish:talk`       | Print a talk's slideshow to its tagged PDF in `public/talks/`                                                                                      |
-| `npm run og`                 | Render `public/images/og-default.png` from `src/site.config.ts`                                                                                    |
+| Command                       | Does                                                                                                                                               |
+| ----------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `npm run dev`                 | Dev server at `http://localhost:4340`                                                                                                              |
+| `npm test`                    | `test:a11y`, then `test:worker`; each builds first                                                                                                 |
+| `npm run build`               | Build to `dist/client` (assets) and `dist/server` (Worker)                                                                                         |
+| `npm run preview`             | Serve the build through the Worker runtime                                                                                                         |
+| `npm run typecheck`           | `astro check` (fails on hints), then `vue-tsc` on `.vue` files                                                                                     |
+| `npm run format`              | Prettier, write                                                                                                                                    |
+| `npm run check`               | `check:tokens`, `links`, `pins`, `classes`, `untransformed`, `title-case`, `exif`, `format:check`, `commits`, `leaks`; needs `npm run build` first |
+| `npm run format:check`        | Prettier, check only                                                                                                                               |
+| `npm run check:links`         | Relative Markdown links and `#heading` anchors resolve; no link names a gitignored path; no network                                                |
+| `npm run check:classes`       | Every class in the built HTML has a CSS rule                                                                                                       |
+| `npm run check:untransformed` | No built file is byte-identical to a source image                                                                                                  |
+| `npm run check:exif`          | No EXIF or XMP metadata in images under `src/assets` and `public`                                                                                  |
+| `npm run check:leaks`         | No names or ids from the project this template came from; `--pdf <file>` checks one PDF                                                            |
+| `npm run test:a11y`           | Playwright suite in Chromium and Firefox; CI adds WebKit                                                                                           |
+| `npm run test:webkit`         | The same suite in WebKit, in Playwright's Docker image                                                                                             |
+| `npm run test:a11y:ui`        | The same suite in Playwright's UI mode                                                                                                             |
+| `npm run test:worker`         | Worker specs, local D1: contact endpoint, byte ranges, types, /blog pager                                                                          |
+| `npm run test:demo`           | Demo specs against a `NOINDEX` demo build                                                                                                          |
+| `npm run test:coverage`       | `test:a11y` in Chromium, with line and branch coverage of `src/`                                                                                   |
+| `npm run check:live`          | Production headers and markup against this repository                                                                                              |
+| `npm run check:live:console`  | Every production route in a browser, failing on console errors                                                                                     |
+| `npm run check:umami`         | The vendored Umami tracker against the one Umami serves                                                                                            |
+| `npm run check:pdf`           | Every PDF in `public/` against PDF/UA-1, veraPDF in Docker                                                                                         |
+| `npm run publish:talk`        | Print a talk's slideshow to its tagged PDF in `public/talks/`                                                                                      |
+| `npm run og`                  | Render `public/images/og-default.png` from `src/site.config.ts`                                                                                    |
 
 ### WebKit
 
@@ -118,9 +123,16 @@ npm run test:webkit -- tests/reflow.spec.ts
 - `dev` and `build` pass `--force` to clear Astro's content cache, which does
   not invalidate when a plugin in `src/plugins/` changes. The resulting
   `[WARN] [content] data store cleared (force)` is expected.
-- `build` first copies images from other worktrees on the same sharp and
-  libvips into an empty `node_modules/.astro/assets`, so a new worktree does not
+- `prebuild` (`scripts/seed-image-cache.mjs`) copies images from other
+  worktrees on the same sharp and libvips into an empty
+  `node_modules/.astro/assets` before `build`, so a new worktree does not
   regenerate them all.
+- Helpers, not run directly: `scripts/build-fingerprint.mjs` stamps `dist/`,
+  and checks that read `dist/` refuse a stale build; `scripts/mime-types.mjs`
+  holds content types for the test servers; `scripts/pdf-pages.mjs` counts PDF
+  pages for `publish:talk` and `tests/talk-pdf.spec.ts`;
+  `scripts/noindex.mjs` rewrites `_headers` and `_redirects` on a
+  [`NOINDEX` build](DEPLOYMENT.md#run-a-demo).
 - [AGENTS.md](../AGENTS.md) lists what must pass before a change is done.
 
 | Variable                        | Default                  | Effect                                                   |
