@@ -144,6 +144,10 @@
 
   .cat-tricks-note {
     @apply m-0 p-3 text-label text-text;
+
+    &:empty {
+      @apply hidden;
+    }
   }
 
   .cat-tricks li:last-child .cat-trick {
