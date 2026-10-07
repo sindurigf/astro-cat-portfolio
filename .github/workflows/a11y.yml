@@ -141,44 +141,13 @@ jobs:
           path: ~/apt-archives
           key: ${{ runner.os }}-apt-debs-${{ steps.playwright.outputs.version }}-${{ steps.image.outputs.version }}
 
-      - name: Install system deps from the cache
-        id: dpkg
-        if: ${{ steps.debs.outputs.cache-hit == 'true' }}
-        run: |
-          shopt -s nullglob
-          debs=("$HOME"/apt-archives/*.deb)
-          if [ "${#debs[@]}" -gt 0 ] && sudo dpkg -i "${debs[@]}" > "$RUNNER_TEMP/dpkg.log" 2>&1 && [ -z "$(sudo dpkg --audit)" ]; then
-            echo "result=dpkg" >> "$GITHUB_OUTPUT"
-          else
-            echo "::warning::dpkg -i of the cached apt packages failed; repairing, then install-deps."
-            grep -m3 -E 'error|dependency problems' "$RUNNER_TEMP/dpkg.log" || true
-            echo "result=fallback" >> "$GITHUB_OUTPUT"
-          fi
-
       # Chromium only, for the contact error pages; the rest is HTTP.
-      # A slow or unreachable apt mirror can stall a try: each is cut off and
-      # retried once. Root `timeout` can kill a stuck apt and free the dpkg lock.
       - name: Install Chromium
         timeout-minutes: 12
-        env:
-          DPKG_RESULT: ${{ steps.dpkg.outputs.result }}
-        run: |
-          retry() {
-            for attempt in 1 2; do
-              "$@" && return 0
-              echo "::warning::$* failed or stalled (try $attempt)"
-            done
-            return 1
-          }
-          if [ "$DPKG_RESULT" = fallback ]; then
-            sudo dpkg --configure -a || true
-            retry sudo timeout --kill-after=30s 5m apt-get update
-            retry sudo timeout --kill-after=30s 5m apt-get -f install -y
-          fi
-          if [ "$DPKG_RESULT" != dpkg ]; then
-            retry sudo env "PATH=$PATH" timeout --kill-after=30s 5m node_modules/.bin/playwright install-deps chromium
-          fi
-          retry timeout --kill-after=30s 5m node_modules/.bin/playwright install chromium
+        uses: ./.github/actions/install-browser-deps
+        with:
+          browsers: chromium
+          cache-hit: ${{ steps.debs.outputs.cache-hit }}
 
       # Once here rather than in every shard. A test that passes only on retry
       # fails the run: AGENTS.md has every flaky test fixed, not retried away.
@@ -252,23 +221,6 @@ jobs:
           key: ${{ runner.os }}-apt-debs-${{ steps.playwright.outputs.version }}-${{ steps.image.outputs.version }}
           restore-keys: ${{ runner.os }}-apt-debs-${{ steps.playwright.outputs.version }}-
 
-      # An exact-image hit installs the cached set with one dpkg call and skips
-      # apt-get update, whose index fetch is what stalls. A prefix hit, a miss or
-      # a failed dpkg goes through install-deps.
-      - name: Install system deps from the cache
-        id: dpkg
-        if: ${{ steps.debs.outputs.cache-hit == 'true' }}
-        run: |
-          shopt -s nullglob
-          debs=("$HOME"/apt-archives/*.deb)
-          if [ "${#debs[@]}" -gt 0 ] && sudo dpkg -i "${debs[@]}" > "$RUNNER_TEMP/dpkg.log" 2>&1 && [ -z "$(sudo dpkg --audit)" ]; then
-            echo "result=dpkg" >> "$GITHUB_OUTPUT"
-          else
-            echo "::warning::dpkg -i of the cached apt packages failed; repairing, then install-deps."
-            grep -m3 -E 'error|dependency problems' "$RUNNER_TEMP/dpkg.log" || true
-            echo "result=fallback" >> "$GITHUB_OUTPUT"
-          fi
-
       - name: Put the restored packages where apt looks
         if: ${{ steps.debs.outputs.cache-matched-key != '' && steps.debs.outputs.cache-hit != 'true' }}
         run: |
@@ -280,29 +232,12 @@ jobs:
           fi
 
       # WebKit runs here; locally it needs `npm run test:webkit` (Docker).
-      # A slow or unreachable apt mirror can stall a try: each is cut off and
-      # retried once. Root `timeout` can kill a stuck apt and free the dpkg lock.
       - name: Install Playwright browsers
         timeout-minutes: 12
-        env:
-          DPKG_RESULT: ${{ steps.dpkg.outputs.result }}
-        run: |
-          retry() {
-            for attempt in 1 2; do
-              "$@" && return 0
-              echo "::warning::$* failed or stalled (try $attempt)"
-            done
-            return 1
-          }
-          if [ "$DPKG_RESULT" = fallback ]; then
-            sudo dpkg --configure -a || true
-            retry sudo timeout --kill-after=30s 5m apt-get update
-            retry sudo timeout --kill-after=30s 5m apt-get -f install -y
-          fi
-          if [ "$DPKG_RESULT" != dpkg ]; then
-            retry sudo env "PATH=$PATH" timeout --kill-after=30s 5m node_modules/.bin/playwright install-deps chromium firefox webkit
-          fi
-          retry timeout --kill-after=30s 5m node_modules/.bin/playwright install chromium firefox webkit
+        uses: ./.github/actions/install-browser-deps
+        with:
+          browsers: chromium firefox webkit
+          cache-hit: ${{ steps.debs.outputs.cache-hit }}
 
       # apt trusts a cached package by its size, so a corrupt file fails the
       # install in dpkg. autoclean drops superseded versions, which bounds the

@@ -1,0 +1,57 @@
+name: Install browser deps
+description: >-
+  Installs Playwright's system deps and browsers. An exact apt-cache hit
+  installs the cached set with one dpkg call and skips apt-get update, whose
+  index fetch stalls; a miss or a failed dpkg goes through install-deps.
+
+inputs:
+  browsers:
+    description: Space-separated Playwright browsers to install.
+    required: true
+  cache-hit:
+    description: The apt cache restore's cache-hit output.
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Install system deps from the cache
+      id: dpkg
+      if: ${{ inputs.cache-hit == 'true' }}
+      shell: bash
+      run: |
+        shopt -s nullglob
+        debs=("$HOME"/apt-archives/*.deb)
+        if [ "${#debs[@]}" -gt 0 ] && sudo dpkg -i "${debs[@]}" > "$RUNNER_TEMP/dpkg.log" 2>&1 && [ -z "$(sudo dpkg --audit)" ]; then
+          echo "result=dpkg" >> "$GITHUB_OUTPUT"
+        else
+          echo "::warning::dpkg -i of the cached apt packages failed; repairing, then install-deps."
+          grep -m3 -E 'error|dependency problems' "$RUNNER_TEMP/dpkg.log" || true
+          echo "result=fallback" >> "$GITHUB_OUTPUT"
+        fi
+
+    # A slow or unreachable apt mirror can stall a try: each is cut off and
+    # retried once. Root `timeout` can kill a stuck apt and free the dpkg lock.
+    - name: Install deps and browsers
+      shell: bash
+      env:
+        DPKG_RESULT: ${{ steps.dpkg.outputs.result }}
+        BROWSERS: ${{ inputs.browsers }}
+      run: |
+        retry() {
+          for attempt in 1 2; do
+            "$@" && return 0
+            echo "::warning::$* failed or stalled (try $attempt)"
+          done
+          return 1
+        }
+        read -ra browsers <<< "$BROWSERS"
+        if [ "$DPKG_RESULT" = fallback ]; then
+          sudo dpkg --configure -a || true
+          retry sudo timeout --kill-after=30s 5m apt-get update
+          retry sudo timeout --kill-after=30s 5m apt-get -f install -y
+        fi
+        if [ "$DPKG_RESULT" != dpkg ]; then
+          retry sudo env "PATH=$PATH" timeout --kill-after=30s 5m node_modules/.bin/playwright install-deps "${browsers[@]}"
+        fi
+        retry timeout --kill-after=30s 5m node_modules/.bin/playwright install "${browsers[@]}"
