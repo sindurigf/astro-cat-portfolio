@@ -222,7 +222,7 @@ merge.
 | `tests/failed-images.spec.ts`       | 1.1.1                                              | A failed photo shows its alt text                                                                                                                                                                                                                                                           |
 | `tests/contact.spec.ts`             | 3.3.1, 3.3.2, 3.3.3, 3.3.5, 3.3.6, 2.4.12          | 422 and 503 in a browser: input kept, hints beside errors, no focus covered; honeypot, rate limit                                                                                                                                                                                           |
 | `tests/contact-sending.spec.ts`     | 4.1.3                                              | Status text, no busy ancestor, no second submit                                                                                                                                                                                                                                             |
-| `tests/slideshow.spec.ts`           | 1.4.4, 1.4.12, 2.1.1, 2.4.7, 4.1.3                 | Buttons, keys, live region, focus, full screen (keys, focus ring, 200% zoom, text spacing), no JS                                                                                                                                                                                           |
+| `tests/slideshow.spec.ts`           | 1.4.11, 1.4.12, 2.1.1, 2.4.7, 4.1.3                | Buttons, keys, live region, focus, full screen (keys, focus ring, 200% zoom clipping, text spacing), no JS                                                                                                                                                                                  |
 | `tests/word-spacing.spec.ts`        | 1.3.1                                              | No word glued to an inline element                                                                                                                                                                                                                                                          |
 | `tests/wave-alerts.spec.ts`         |                                                    | WAVE's possible-heading, redundant-link and noscript alerts                                                                                                                                                                                                                                 |
 | `tests/console.spec.ts`             |                                                    | No console error, CSP violation or failed request on any route                                                                                                                                                                                                                              |
@@ -318,6 +318,12 @@ template ships with none of it run; record your own results. Not automated:
    whether viewers expose the structure are unchecked
    ([MANUAL_TESTING.md](docs/MANUAL_TESTING.md) §13). The HTML slideshow at
    `/talks/sample-talk/` passes the route suites; nobody has heard it (§13.5).
+7. **Talk slide text does not reach 2x at 200% zoom (SC 1.4.4).**
+   `--text-slide` and `--text-slide-title` follow the screen, so zoom shrinks
+   them with it: at 1280x720 zoomed to 200%, slide titles stay the same size
+   (1.0x) and full-screen body text grows 1.48x. Page-view body text uses
+   `--text-body` and grows 2x. `tests/slideshow.spec.ts` asserts only that
+   nothing is cut off at 200%.
 
 ## 8. Reporting a barrier
 

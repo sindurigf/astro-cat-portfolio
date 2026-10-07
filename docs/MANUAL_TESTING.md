@@ -723,8 +723,9 @@ page numbers or running headers read as content, decoration announced.
       ring around the card; Escape leaves and focus is on Full Screen. Real
       full screen needs a click, so check by hand in Firefox and Safari too:
       headless Firefox ignores the test screen size. → SC 2.1.1, 2.4.3, 2.4.7
-- [ ] Full screen at 200% zoom and with the text-spacing bookmarklet: text
-      grows, nothing is cut off, long slides scroll. → SC 1.4.4, 1.4.12
+- [ ] Full screen at 200% zoom and with the text-spacing bookmarklet: nothing
+      is cut off, long slides scroll. Titles do not grow
+      ([ACCESSIBILITY.md](../ACCESSIBILITY.md) §7). → SC 1.4.12
 - [ ] Print preview: one page per slide, no controls. Matches the PDF.
 - [ ] Presenter view (`astro dev` only, `/talks/<deck>/presenter/`): the
       timer button reads "Start Timer" then "Pause Timer", the time is not
