@@ -1,0 +1,29 @@
+---
+import logoCat from '../assets/logo-cat.svg?url';
+import { MARK_BODY, MARK_SIZE } from '../lib/brand-mark';
+
+/*
+ * The logo cat as a cached file (`npm run icons` writes it from
+ * src/lib/brand-mark.ts); its colors are the same in both modes. alt="": the
+ * link around it carries the name.
+ */
+interface Props {
+  /** The tile body's width in px; the file is drawn wider to fit the ears' room. */
+  body: number;
+  class?: string;
+  eager?: boolean;
+}
+
+const { body, class: className, eager = false } = Astro.props;
+const size = Math.round((body * MARK_SIZE) / MARK_BODY);
+---
+
+<img
+  src={logoCat}
+  alt=""
+  width={size}
+  height={size}
+  decoding="async"
+  loading={eager ? 'eager' : 'lazy'}
+  class={className}
+/>

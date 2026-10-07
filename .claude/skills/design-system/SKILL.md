@@ -21,7 +21,7 @@ before changing anything it covers.
 - A shadow on a focusable element without its lift.
 - State signaled by color alone.
 - Text over a photograph, or `aspect-ratio` on an `<img>`.
-- A radius other than `rounded-nav`, `rounded-full` or `rounded-none`.
+- A radius other than `rounded-full` or `rounded-none`.
 - ARIA where a native element works; an `aria-label` over visible text
   ([ACCESSIBILITY.md §9](../../../ACCESSIBILITY.md#9-contributor-checklist)).
 - Horizontal padding on a page container.
