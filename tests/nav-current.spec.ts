@@ -1,4 +1,4 @@
-import { expect, test } from './test';
+import { expect, test, type Page } from './test';
 import {
   CTA,
   HOME_HREF,
@@ -32,6 +32,16 @@ const HEADER_CTA = `${HEADER_NAV} + div a[href="${CTA.href}"]:not(dialog a)`;
 
 // The child combinator keeps out the mobile dialog's Home link.
 const HEADER_LOGO = `header > div > a[href="${HOME_HREF}"]`;
+
+/** The current header link's ground against a non-current one's. */
+const currentFillContrast = (page: Page): Promise<number> =>
+  page.evaluate(`(() => {
+    ${PAGE_HELPERS}
+    const current = document.querySelector('${HEADER_NAV} a[aria-current]');
+    const rest = document.querySelector('${HEADER_NAV} a:not([aria-current])');
+    if (!current || !rest) throw new Error('the header nav has no current or no other link');
+    return ratio(effectiveBackground(current), effectiveBackground(rest));
+  })()`) as Promise<number>;
 
 test.describe('the current page, as the navigation reports it', () => {
   test('a route is its own current page', NODE, () => {
@@ -306,14 +316,15 @@ test.describe('the current page, as the navigation reports it', () => {
       ).toHaveAttribute('aria-current', 'true');
     }
 
-    const sectionFill = await page
-      .locator(`${HEADER_NAV} a[href="${blog}"]`)
-      .evaluate((link) => getComputedStyle(link).backgroundColor);
+    expect(
+      await currentFillContrast(page),
+      'on a post, the Blog fill is not 3:1 against the other links (SC 1.4.1, 1.4.11)',
+    ).toBeGreaterThanOrEqual(NON_TEXT);
     await gotoSettled(page, blog);
-    await expect(
-      page.locator(`${HEADER_NAV} a[href="${blog}"]`),
-      'Blog is drawn differently on a post than on /blog/.',
-    ).toHaveCSS('background-color', sectionFill);
+    expect(
+      await currentFillContrast(page),
+      'on /blog/, the Blog fill is not 3:1 against the other links (SC 1.4.1, 1.4.11)',
+    ).toBeGreaterThanOrEqual(NON_TEXT);
   });
 
   test('on /blog/, every navigation marks Blog as the current page', async ({

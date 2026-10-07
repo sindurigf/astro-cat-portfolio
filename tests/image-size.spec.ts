@@ -15,6 +15,12 @@ const OVERSIZE_LIMIT = 1.5;
 /** Integer rounding between a generated file and a fractional layout box. */
 const ROUNDING_PX = 1;
 
+/** Routes that draw no `<img>`, each with why; any other route must draw one, so the check cannot pass on nothing. */
+const NO_IMAGE_ROUTES: Readonly<Record<string, string>> = {
+  '/talks/sample-talk':
+    'the sample deck is text slides; the logo is a vector image, which the size check skips',
+};
+
 const DIMENSIONS = [
   { drawn: 'width', natural: 'naturalWidth' },
   { drawn: 'height', natural: 'naturalHeight' },
@@ -35,8 +41,12 @@ const measureImages = (page: Page) =>
       await probe.decode();
       return { width: probe.naturalWidth, height: probe.naturalHeight };
     };
+    /* A vector file is honest at any size. */
     const drawn = all.filter(
-      (img) => img.offsetWidth > 0 && img.offsetHeight > 0,
+      (img) =>
+        img.offsetWidth > 0 &&
+        img.offsetHeight > 0 &&
+        !new URL(img.currentSrc).pathname.endsWith('.svg'),
     );
     return {
       ratio: window.devicePixelRatio,
@@ -86,10 +96,17 @@ for (const route of SAMPLED_ROUTES) {
 
     const { ratio, images } = await measureImages(page);
 
-    expect(
-      images.length,
-      'no image is drawn on this page, though the header mark is on every route.',
-    ).toBeGreaterThan(0);
+    if (route in NO_IMAGE_ROUTES) {
+      expect(
+        images.length,
+        `${route} draws an image now; remove it from NO_IMAGE_ROUTES.`,
+      ).toBe(0);
+    } else {
+      expect(
+        images.length,
+        `${route} draws no image to measure.`,
+      ).toBeGreaterThan(0);
+    }
 
     for (const image of images) expectServedAtDrawnSize(image, ratio);
   });

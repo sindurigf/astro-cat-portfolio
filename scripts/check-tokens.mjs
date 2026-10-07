@@ -55,7 +55,7 @@ const BORDER_WIDTHS = new Set(['0', '4', '8']);
 
 const RADIUS =
   /(?<![\w.-])(?:[a-z0-9]+:)*rounded(?:-([a-z0-9]+))?(?![\w-])(?!\s*:)/g;
-const RADII = new Set(['nav', 'full', 'none']);
+const RADII = new Set(['full', 'none']);
 
 /* Weights 400 and 900 only; `leading-none` and `tracking-normal` allowed. */
 const DEFAULT_TYPE =
@@ -228,7 +228,7 @@ for (const path of sourceFiles) {
   for (const match of source.matchAll(RADIUS)) {
     if (match[1] !== undefined && RADII.has(match[1])) continue;
     failures.push(
-      `${name}:${locate(source, match.index)}  radius not rounded-nav or rounded-full  ${match[0]}`,
+      `${name}:${locate(source, match.index)}  radius not rounded-full  ${match[0]}`,
     );
   }
 

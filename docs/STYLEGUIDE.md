@@ -39,7 +39,7 @@ blur, uppercase headings, tilted marks.
 | 1b  | Ground, thin slab: `/contact/sent`, both posts                                                     | 3 routes                               |
 | 1c  | Ground, mid-page: a `Section surface="gold"`, the About quote, `/contact`'s closing band           | `/career`, `/about`, `/`, `/contact`   |
 | 2   | The primary action: `.nav-cta`, `.btn-primary`                                                     | 11 routes, 4 routes                    |
-| 3   | the logo marks: the logo tile and its copies, the roundel, the footer mascot, the homepage sticker | 11 routes, 9 routes                    |
+| 3   | the logo marks: the roundel, the homepage sticker; the logo cat is Mochi's coat, not gold          | 9 routes, `/`                          |
 | 4   | Card labels, `.label text-gold`; a form's field labels are `text`                                  | `/about`, `/accessibility`, `/contact` |
 | 4a  | A talk slide's label, bold words and part number, as the deck's Markdown sets them                 | `/talks/<deck>/`                       |
 | 5   | Category: the blog label and the homepage glyph tiles                                              | 3 routes                               |
@@ -259,8 +259,9 @@ The switch and what it scopes: [ARCHITECTURE.md](../ARCHITECTURE.md#light-mode).
   their `#FFC000` fill, always under `#131313` (11.32).
 - Gold text turns ink; a `.label.text-gold` and a slide label gain a gold
   square before the word.
-- Logo marks use `mark`, `tile-edge` and `shadow-hard-mark-*`, never
-  `pink` or `border`: they do not change with the mode.
+- Logo marks use `mark`, `tile-edge`, the `cat-mochi*` coat and
+  `shadow-hard-mark-*` or `drop-shadow-hard-mark-*`, never `pink` or `border`:
+  they do not change with the mode.
 - The label on a gold fill is `gold-text`, never `background` (white in
   light).
 - RIDET and `.sticker` are black blocks.
@@ -442,15 +443,19 @@ with a comment beside it.
 | `shadow-hard-cyan-8`        | A hovered linked card or contact card, in place of pink                                                  |
 | `shadow-hard-gold-border-8` | A card on gold                                                                                           |
 | `shadow-hard-mark-4`        | `.sticker`, `.btn-gold-primary`                                                                          |
-| `shadow-hard-mark-8`        | The logo tile, the roundel, the homepage stickers                                                        |
-| `shadow-hard-mark-12`       | The logo tile's larger copy on `/about`                                                                  |
+| `shadow-hard-mark-8`        | The roundel, the homepage stickers                                                                       |
+| `drop-shadow-hard-mark-8`   | The logo tile, following its ears                                                                        |
+| `drop-shadow-hard-mark-12`  | The logo tile's larger copy on `/about`                                                                  |
 
 - `mark` is `pink`'s hex but stays pink in light mode, where `pink` turns
   ink.
 - Anything focusable with a shadow sets its lift: [Focus](#focus).
-- Radius is 0 everywhere (base layer). `rounded-nav` (14px): the logo tile and
-  its copies (`Header.astro`, the motto panel on `/about`). `rounded-full`:
-  the roundel. No pills; any other rounded corner is a bug.
+- Radius is 0 everywhere (base layer). `rounded-full`: the roundel. No pills;
+  any other rounded corner is a bug.
+- The logo tile is an eared tile: a cat's head in the tile's shape, with
+  rounded ears and corners, its 4px `tile-edge` edge and 3deg tilt
+  (`src/lib/brand-mark.ts`, `CatMark.astro`). It is a mark, not a radius: the
+  rule above does not apply to it, and its shadow is a `drop-shadow-*`.
 
 ## Components
 
@@ -813,6 +818,8 @@ Enforced by `tests/post-page.spec.ts`.
   photo; a height-capped one ends short. A portrait stays
   on the measure, centered.
   Both stop at 80vh tall, uncropped, caption on the image's left edge.
+  Placement is design, not tested; the spec checks uncropped, inside the
+  viewport and column, under 80vh and off the contents list.
 - Figure `sizes`, from `post-figure.mjs`: that slot, capped by the file's width
   and by 80vh times its ratio. Markdown images take `MARKDOWN_WIDTHS`, to 2400.
 

@@ -161,8 +161,8 @@
   }
 
   /*
-   * 266x102 viewBox, 220px wide on a phone, 1:1 from `md`; the mascot's ground
-   * sits 8 units up, on the footer's bottom edge. Gold with gold-text lines.
+   * 266x136 viewBox, 220px wide on a phone, 1:1 from `md`. The logo's head
+   * (src/lib/brand-mark.ts) peeks over a ground line 16 units up, mitts on it.
    */
   .footer-tuft {
     display: block;
@@ -171,7 +171,8 @@
     overflow: visible;
   }
 
-  .footer-tuft .tuft-back {
+  .footer-tuft .tuft-back,
+  .footer-tuft .tuft-ground {
     fill: var(--color-border);
   }
 
@@ -180,24 +181,22 @@
   }
 
   .footer-tuft .mascot-shadow {
-    fill: var(--color-pink);
+    fill: var(--color-mark);
   }
 
-  .footer-tuft .mascot {
-    fill: var(--color-gold);
-    stroke: var(--color-gold-text);
-    stroke-width: 1.9;
-    stroke-linecap: round;
+  .footer-tuft .mascot-paw-fill {
+    fill: var(--color-cat-mochi);
+    stroke: var(--color-tile-edge);
+    /* Must match MARK_EDGE in src/lib/brand-mark.ts: the paws share the head's edge. */
+    stroke-width: 4.67;
     stroke-linejoin: round;
   }
 
-  .footer-tuft .mascot-line {
+  .footer-tuft .mascot-paw-toes {
     fill: none;
-  }
-
-  .footer-tuft .mascot-nose {
-    fill: var(--color-gold-text);
-    stroke: none;
+    stroke: var(--color-gold-text);
+    stroke-width: 1.8;
+    stroke-linecap: round;
   }
 
   /*
@@ -310,13 +309,8 @@
   @media (forced-colors: active) {
     .footer-tuft .tuft-back,
     .footer-tuft .tuft-front,
-    .footer-tuft .mascot-nose {
+    .footer-tuft .tuft-ground {
       fill: CanvasText;
-    }
-
-    .footer-tuft .mascot {
-      fill: Canvas;
-      stroke: CanvasText;
     }
 
     .footer-tuft .mascot-shadow {

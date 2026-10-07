@@ -12,6 +12,7 @@ import { SOCIAL_PROFILES } from '../src/lib/profiles';
 import { usePolicyServer } from './headers-fixture';
 import { builtPages, DIST_DIR, PAIRED_TALKS } from './routes';
 import { waitForHydration } from './settle';
+import { NODE } from './tags';
 import { configuredSite } from './source';
 import { fakeCollector, type UmamiSend } from './umami';
 import { REFLOW_VIEWPORT } from './wcag';
@@ -57,9 +58,10 @@ const policy = usePolicyServer();
 
 // Closing the context mid route.fetch() fails a passed test ("Fetch response has
 // been disposed"); `wait` instead can hit "Route is already handled!".
-test.afterEach(async ({ context }) => {
-  await context.unrouteAll({ behavior: 'ignoreErrors' });
-});
+const unrouteAfterEach = () =>
+  test.afterEach(async ({ context }) => {
+    await context.unrouteAll({ behavior: 'ignoreErrors' });
+  });
 
 /** Serves the build as production; stubs every other origin so outbound links never hit the network. */
 const openAsProduction = async (
@@ -136,7 +138,7 @@ const holdNavigation = async (page: Page, selector: string): Promise<void> => {
 test.describe('analytics off', () => {
   test.skip(ANALYTICS_ON, 'analytics is on in src/site.config.ts');
 
-  test('no page loads the tracker', () => {
+  test('no page loads the tracker', NODE, () => {
     const loading = builtPages()
       .filter(({ file }) =>
         /<script\b[^>]*umami[^>]*>/.test(readFileSync(file, 'utf8')),
@@ -146,62 +148,70 @@ test.describe('analytics off', () => {
     expect(loading, 'these pages load the tracker').toEqual([]);
   });
 
-  test('nothing is sent from production either', async ({ page }) => {
-    const sent = await openAsProduction(page, '/');
-    await page
-      .getByRole('contentinfo')
-      .getByRole('link', { name: 'Privacy' })
-      .click();
-    await page.waitForURL(`${SITE}/privacy/`);
+  test.describe('in a browser', () => {
+    unrouteAfterEach();
 
-    expect(
-      await page.evaluate(() => 'umami' in window),
-      'the tracker loaded',
-    ).toBe(false);
-    expect(sent, 'something reached the collector').toEqual([]);
+    test('nothing is sent from production either', async ({ page }) => {
+      const sent = await openAsProduction(page, '/');
+      await page
+        .getByRole('contentinfo')
+        .getByRole('link', { name: 'Privacy' })
+        .click();
+      await page.waitForURL(`${SITE}/privacy/`);
+
+      expect(
+        await page.evaluate(() => 'umami' in window),
+        'the tracker loaded',
+      ).toBe(false);
+      expect(sent, 'something reached the collector').toEqual([]);
+    });
   });
 });
 
 test.describe('analytics', () => {
   test.skip(!ANALYTICS_ON, ANALYTICS_OFF);
 
-  test('every page loads the vendored tracker, configured as /privacy says', () => {
-    const host = new URL(SITE).hostname;
+  test(
+    'every page loads the vendored tracker, configured as /privacy says',
+    NODE,
+    () => {
+      const host = new URL(SITE).hostname;
 
-    for (const { route, file } of builtPages()) {
-      const html = readFileSync(file, 'utf8');
-      const tags = [...html.matchAll(/<script\b[^>]*umami[^>]*>/g)].map(
-        (match) => match[0],
-      );
+      for (const { route, file } of builtPages()) {
+        const html = readFileSync(file, 'utf8');
+        const tags = [...html.matchAll(/<script\b[^>]*umami[^>]*>/g)].map(
+          (match) => match[0],
+        );
 
-      expect(
-        tags,
-        `${route} should load the tracker exactly once`,
-      ).toHaveLength(1);
-      const tag = tags[0]!;
+        expect(
+          tags,
+          `${route} should load the tracker exactly once`,
+        ).toHaveLength(1);
+        const tag = tags[0]!;
 
-      expect(
-        tag,
-        `${route} loads the tracker from somewhere other than this origin`,
-      ).toContain(`src="${UMAMI_SCRIPT_PATH}"`);
-      expect(tag).toContain(`data-website-id="${UMAMI_WEBSITE_ID}"`);
-      expect(tag).toContain(`data-host-url="${UMAMI_HOST_URL}"`);
-      expect(
-        tag,
-        `${route}: without data-domains every localhost run and preview deploy is counted`,
-      ).toContain(`data-domains="${host}"`);
-      expect(
-        tag,
-        `${route}: /privacy says a browser with Do Not Track on sends nothing`,
-      ).toContain('data-do-not-track="true"');
-      expect(
-        tag,
-        `${route}: inbound query strings (utm, fbclid) would reach Umami`,
-      ).toContain('data-exclude-search="true"');
-    }
-  });
+        expect(
+          tag,
+          `${route} loads the tracker from somewhere other than this origin`,
+        ).toContain(`src="${UMAMI_SCRIPT_PATH}"`);
+        expect(tag).toContain(`data-website-id="${UMAMI_WEBSITE_ID}"`);
+        expect(tag).toContain(`data-host-url="${UMAMI_HOST_URL}"`);
+        expect(
+          tag,
+          `${route}: without data-domains every localhost run and preview deploy is counted`,
+        ).toContain(`data-domains="${host}"`);
+        expect(
+          tag,
+          `${route}: /privacy says a browser with Do Not Track on sends nothing`,
+        ).toContain('data-do-not-track="true"');
+        expect(
+          tag,
+          `${route}: inbound query strings (utm, fbclid) would reach Umami`,
+        ).toContain('data-exclude-search="true"');
+      }
+    },
+  );
 
-  test('the served tracker is the vendored file, unmodified', () => {
+  test('the served tracker is the vendored file, unmodified', NODE, () => {
     const vendored = readFileSync(join('public', UMAMI_SCRIPT_PATH));
     const built = readFileSync(join(DIST_DIR, UMAMI_SCRIPT_PATH));
 
@@ -211,280 +221,289 @@ test.describe('analytics', () => {
     ).toBe(true);
   });
 
-  test('every field the tracker may send is disclosed in the /privacy text', () => {
-    const privacy = readFileSync(
-      join(DIST_DIR, 'privacy', 'index.html'),
-      'utf8',
-    )
-      .replace(/<[^>]+>/g, ' ')
-      .replace(/\s+/g, ' ');
-    const phrases = [
-      ...Object.values(PAYLOAD_DISCLOSED),
-      ...Object.values(EVENT_DATA_DISCLOSED),
-    ].filter((phrase) => phrase !== null);
-    expect(
-      phrases.filter((phrase) => !privacy.includes(phrase)),
-      '/privacy no longer says it sends these',
-    ).toEqual([]);
-  });
-
-  test('nothing is sent from any host but production', async ({ page }) => {
-    const sent = await fakeCollector(page.context());
-
-    await page.goto(`${policy().origin}/`);
-    await waitForHydration(page);
-    await page.getByRole('link', { name: 'Privacy' }).first().click();
-    await page.waitForURL('**/privacy/');
-    await sendProbe(page);
-
-    expect(
-      sent,
-      'the tracker sent from 127.0.0.1; data-domains should stop that.',
-    ).toEqual([]);
-  });
-
-  test('a page view is sent, with only the fields /privacy lists', async ({
-    page,
-  }) => {
-    const sent = await openAsProduction(page, '/about/');
-
-    await expect
-      .poll(() => sent.length, { timeout: SEND_TIMEOUT_MS })
-      .toBeGreaterThan(0);
-
-    const [view] = sent;
-    expect(view!.type).toBe('event');
-    expect(view!.payload.website).toBe(UMAMI_WEBSITE_ID);
-    expect(String(view!.payload.url)).toContain('/about/');
-
-    const undisclosed = Object.keys(view!.payload).filter(
-      (key) => !PAYLOAD_KEYS.includes(key),
-    );
-    expect(
-      undisclosed,
-      'the tracker sends field(s) /privacy does not list.',
-    ).toEqual([]);
-  });
-
-  /* Control for the silence checks: a probe that never sends would pass both. */
-  test('the silence probe is sent where sending is allowed', async ({
-    page,
-  }) => {
-    const sent = await openAsProduction(page, '/');
-    await sendProbe(page);
-
-    await expect
-      .poll(() => events(sent).map((event) => event.name), {
-        timeout: SEND_TIMEOUT_MS,
-        message:
-          'the probe was never sent, so the silence checks prove nothing.',
-      })
-      .toContain(PROBE_EVENT);
-  });
-
-  test('Do Not Track sends nothing', async ({ page }) => {
-    await page.addInitScript(() => {
-      Object.defineProperty(Navigator.prototype, 'doNotTrack', {
-        get: () => '1',
-      });
-    });
-    const sent = await openAsProduction(page, '/');
-    await sendProbe(page);
-
-    expect(sent, '/privacy says Do Not Track stops all sending').toEqual([]);
-  });
-
-  test('a followed internal link is counted and still navigates', async ({
-    page,
-  }) => {
-    const sent = await openAsProduction(page, '/');
-
-    await page
-      .getByRole('contentinfo')
-      .getByRole('link', { name: 'Privacy' })
-      .click();
-    await page.waitForURL(`${SITE}/privacy/`);
-
-    await expect
-      .poll(() => events(sent), { timeout: SEND_TIMEOUT_MS })
-      .toContainEqual(
-        expect.objectContaining({
-          name: CLICK_EVENTS.internalLink,
-          data: { label: 'Privacy', area: 'footer', target: '/privacy/' },
-        }),
-      );
-  });
-
-  test('outbound, email and button clicks are counted', async ({ page }) => {
-    await page.setViewportSize(REFLOW_VIEWPORT);
-    const sent = await openAsProduction(page, '/');
-
-    const [profile] = SOCIAL_PROFILES;
-    const outbound = `footer a[href="${profile.href}"]`;
-    const email = 'footer a[href^="mailto:"]';
-    for (const selector of [outbound, email]) {
-      await holdNavigation(page, selector);
-      await page.locator(selector).first().click();
-    }
-    await page.getByRole('button', { name: /menu/i }).click();
-
-    const recorded = (): Record<string, unknown>[] => events(sent);
-    await expect
-      .poll(() => recorded().length, { timeout: SEND_TIMEOUT_MS })
-      .toBeGreaterThanOrEqual(3);
-
-    const byName = (name: string) =>
-      recorded().find((event) => event.name === name);
-
-    expect(byName(CLICK_EVENTS.outboundLink)).toMatchObject({
-      data: {
-        area: 'footer',
-        target: `${new URL(profile.href).origin}${new URL(profile.href).pathname}`,
-      },
-    });
-    expect(
-      (byName(CLICK_EVENTS.email)?.data as Record<string, unknown>)?.target,
-      'an email click should not send the address',
-    ).toBeUndefined();
-    expect(byName(CLICK_EVENTS.button)).toMatchObject({
-      data: { area: 'header' },
-    });
-    expectOnlyDisclosedData(recorded());
-  });
-
-  test('a download click is counted', async ({ page }) => {
-    test.skip(!PAIRED, 'no post links a talk PDF to download');
-    const target = `${PAIRED!.talk}.pdf`;
-    const sent = await openAsProduction(page, `${PAIRED!.post}/`);
-
-    const download = `a[href="${target}"]`;
-    await holdNavigation(page, download);
-    await page.locator(download).first().click();
-
-    await expect
-      .poll(
-        () =>
-          events(sent).find((event) => event.name === CLICK_EVENTS.download),
-        { timeout: SEND_TIMEOUT_MS },
+  test(
+    'every field the tracker may send is disclosed in the /privacy text',
+    NODE,
+    () => {
+      const privacy = readFileSync(
+        join(DIST_DIR, 'privacy', 'index.html'),
+        'utf8',
       )
-      .toMatchObject({ data: { target } });
-    expectOnlyDisclosedData(events(sent));
-  });
+        .replace(/<[^>]+>/g, ' ')
+        .replace(/\s+/g, ' ');
+      const phrases = [
+        ...Object.values(PAYLOAD_DISCLOSED),
+        ...Object.values(EVENT_DATA_DISCLOSED),
+      ].filter((phrase) => phrase !== null);
+      expect(
+        phrases.filter((phrase) => !privacy.includes(phrase)),
+        '/privacy no longer says it sends these',
+      ).toEqual([]);
+    },
+  );
 
-  test('only the mobile menu reports area menu; the photo viewer and cat card report main', async ({
-    page,
-  }) => {
-    await page.setViewportSize(REFLOW_VIEWPORT);
-    const sent = await openAsProduction(page, '/about/');
+  test.describe('in a browser', () => {
+    unrouteAfterEach();
 
-    await page.getByRole('button', { name: /menu/i }).click();
-    const menuLink = '#mobile-menu-panel a[href]';
-    const menuTarget = await page
-      .locator(menuLink)
-      .first()
-      .getAttribute('href');
-    await holdNavigation(page, menuLink);
-    await page.locator(menuLink).first().click();
-    await page.keyboard.press('Escape');
-    await expect(page.locator('#mobile-menu-panel')).toBeHidden();
+    test('nothing is sent from any host but production', async ({ page }) => {
+      const sent = await fakeCollector(page.context());
 
-    const photos = page.locator('a[data-photo="people"]');
-    await photos.first().click();
-    const viewer = page.getByRole('dialog', { name: 'Photo' });
-    await viewer.getByRole('button', { name: 'Next' }).click();
-    await viewer.getByRole('button', { name: 'Close' }).click();
-    await expect(viewer).toBeHidden();
-    /* The viewer's close event, a task after Close, focuses the photo shown; a cat focused before it loses focus to it. */
-    await expect(photos.nth(1)).toBeFocused();
+      await page.goto(`${policy().origin}/`);
+      await waitForHydration(page);
+      await page.getByRole('link', { name: 'Privacy' }).first().click();
+      await page.waitForURL('**/privacy/');
+      await sendProbe(page);
 
-    const cat = page.locator('#cat-spot-pepper .cat-button');
-    await cat.focus();
-    await expect(cat).toBeFocused();
-    await page.keyboard.press('Enter');
-    const card = page.getByRole('dialog', { name: 'Pepper' });
-    await expect(card).toBeVisible();
-    await card.getByRole('button', { name: 'Close' }).click();
+      expect(
+        sent,
+        'the tracker sent from 127.0.0.1; data-domains should stop that.',
+      ).toEqual([]);
+    });
 
-    const areaOf = (label: string) =>
-      events(sent)
-        .filter(
-          (event) =>
-            event.name === CLICK_EVENTS.button &&
-            (event.data as { label?: unknown }).label === label,
-        )
-        .map((event) => (event.data as { area?: unknown }).area);
+    test('a page view is sent, with only the fields /privacy lists', async ({
+      page,
+    }) => {
+      const sent = await openAsProduction(page, '/about/');
 
-    await expect
-      .poll(() => areaOf('Close').length, {
-        timeout: SEND_TIMEOUT_MS,
-      })
-      .toBe(2);
-    expect(
-      events(sent)
-        .filter(
-          (event) => (event.data as { target?: unknown }).target === menuTarget,
-        )
-        .map((event) => (event.data as { area?: unknown }).area),
-      'a menu link is not reported as menu',
-    ).toEqual(['menu']);
-    expect(
-      [...areaOf('Next'), ...areaOf('Close')],
-      'a click in the photo viewer or cat card is not reported as main',
-    ).toEqual(['main', 'main', 'main']);
-  });
+      await expect
+        .poll(() => sent.length, { timeout: SEND_TIMEOUT_MS })
+        .toBeGreaterThan(0);
 
-  /* The /contact email card's text contains the address, so a text label would leak it. */
-  test('no email click sends the address, in any field', async ({ page }) => {
-    const sent = await openAsProduction(page, '/contact/');
-    const email = 'a[href^="mailto:"]';
-    const links = page.locator(email);
-    const count = await links.count();
-    expect(count, '/contact should carry mailto links').toBeGreaterThan(1);
+      const [view] = sent;
+      expect(view!.type).toBe('event');
+      expect(view!.payload.website).toBe(UMAMI_WEBSITE_ID);
+      expect(String(view!.payload.url)).toContain('/about/');
 
-    for (let index = 0; index < count; index += 1) {
-      const link = links.nth(index);
-      await link.evaluate((element) =>
-        element.addEventListener('click', (event) => event.preventDefault()),
+      const undisclosed = Object.keys(view!.payload).filter(
+        (key) => !PAYLOAD_KEYS.includes(key),
       );
-      await link.click();
-    }
+      expect(
+        undisclosed,
+        'the tracker sends field(s) /privacy does not list.',
+      ).toEqual([]);
+    });
 
-    const emailEvents = (): Record<string, unknown>[] =>
-      events(sent).filter((event) => event.name === CLICK_EVENTS.email);
-    await expect
-      .poll(() => emailEvents().length, { timeout: SEND_TIMEOUT_MS })
-      .toBe(count);
+    /* Control for the silence checks: a probe that never sends would pass both. */
+    test('the silence probe is sent where sending is allowed', async ({
+      page,
+    }) => {
+      const sent = await openAsProduction(page, '/');
+      await sendProbe(page);
 
-    expect(
-      JSON.stringify(emailEvents()),
-      '/privacy says an email click leaves the address out',
-    ).not.toContain(CONTACT_EMAIL);
-  });
+      await expect
+        .poll(() => events(sent).map((event) => event.name), {
+          timeout: SEND_TIMEOUT_MS,
+          message:
+            'the probe was never sent, so the silence checks prove nothing.',
+        })
+        .toContain(PROBE_EVENT);
+    });
 
-  test('typing into the contact form sends nothing', async ({ page }) => {
-    const sent = await openAsProduction(page, '/contact/');
-    await expect
-      .poll(() => sent.length, { timeout: SEND_TIMEOUT_MS })
-      .toBeGreaterThan(0);
-    const before = sent.length;
+    test('Do Not Track sends nothing', async ({ page }) => {
+      await page.addInitScript(() => {
+        Object.defineProperty(Navigator.prototype, 'doNotTrack', {
+          get: () => '1',
+        });
+      });
+      const sent = await openAsProduction(page, '/');
+      await sendProbe(page);
 
-    const secret = 'do-not-send-this-text';
-    await page.getByRole('textbox').first().click();
-    await page.getByRole('textbox').first().fill(secret);
-    await sendProbe(page);
-    await expect
-      .poll(() => events(sent).map((event) => event.name), {
-        timeout: SEND_TIMEOUT_MS,
-      })
-      .toContain(PROBE_EVENT);
+      expect(sent, '/privacy says Do Not Track stops all sending').toEqual([]);
+    });
 
-    expect(
-      JSON.stringify(sent),
-      '/privacy says what you type is never sent to Umami',
-    ).not.toContain(secret);
-    expect(
-      sent.length,
-      'clicking into a field is not a click on a control',
-    ).toBe(before + 1);
+    test('a followed internal link is counted and still navigates', async ({
+      page,
+    }) => {
+      const sent = await openAsProduction(page, '/');
+
+      await page
+        .getByRole('contentinfo')
+        .getByRole('link', { name: 'Privacy' })
+        .click();
+      await page.waitForURL(`${SITE}/privacy/`);
+
+      await expect
+        .poll(() => events(sent), { timeout: SEND_TIMEOUT_MS })
+        .toContainEqual(
+          expect.objectContaining({
+            name: CLICK_EVENTS.internalLink,
+            data: { label: 'Privacy', area: 'footer', target: '/privacy/' },
+          }),
+        );
+    });
+
+    test('outbound, email and button clicks are counted', async ({ page }) => {
+      await page.setViewportSize(REFLOW_VIEWPORT);
+      const sent = await openAsProduction(page, '/');
+
+      const [profile] = SOCIAL_PROFILES;
+      const outbound = `footer a[href="${profile.href}"]`;
+      const email = 'footer a[href^="mailto:"]';
+      for (const selector of [outbound, email]) {
+        await holdNavigation(page, selector);
+        await page.locator(selector).first().click();
+      }
+      await page.getByRole('button', { name: /menu/i }).click();
+
+      const recorded = (): Record<string, unknown>[] => events(sent);
+      await expect
+        .poll(() => recorded().length, { timeout: SEND_TIMEOUT_MS })
+        .toBeGreaterThanOrEqual(3);
+
+      const byName = (name: string) =>
+        recorded().find((event) => event.name === name);
+
+      expect(byName(CLICK_EVENTS.outboundLink)).toMatchObject({
+        data: {
+          area: 'footer',
+          target: `${new URL(profile.href).origin}${new URL(profile.href).pathname}`,
+        },
+      });
+      expect(
+        (byName(CLICK_EVENTS.email)?.data as Record<string, unknown>)?.target,
+        'an email click should not send the address',
+      ).toBeUndefined();
+      expect(byName(CLICK_EVENTS.button)).toMatchObject({
+        data: { area: 'header' },
+      });
+      expectOnlyDisclosedData(recorded());
+    });
+
+    test('a download click is counted', async ({ page }) => {
+      test.skip(!PAIRED, 'no post links a talk PDF to download');
+      const target = `${PAIRED!.talk}.pdf`;
+      const sent = await openAsProduction(page, `${PAIRED!.post}/`);
+
+      const download = `a[href="${target}"]`;
+      await holdNavigation(page, download);
+      await page.locator(download).first().click();
+
+      await expect
+        .poll(
+          () =>
+            events(sent).find((event) => event.name === CLICK_EVENTS.download),
+          { timeout: SEND_TIMEOUT_MS },
+        )
+        .toMatchObject({ data: { target } });
+      expectOnlyDisclosedData(events(sent));
+    });
+
+    test('only the mobile menu reports area menu; the photo viewer and cat card report main', async ({
+      page,
+    }) => {
+      await page.setViewportSize(REFLOW_VIEWPORT);
+      const sent = await openAsProduction(page, '/about/');
+
+      await page.getByRole('button', { name: /menu/i }).click();
+      const menuLink = '#mobile-menu-panel a[href]';
+      const menuTarget = await page
+        .locator(menuLink)
+        .first()
+        .getAttribute('href');
+      await holdNavigation(page, menuLink);
+      await page.locator(menuLink).first().click();
+      await page.keyboard.press('Escape');
+      await expect(page.locator('#mobile-menu-panel')).toBeHidden();
+
+      const photos = page.locator('a[data-photo="people"]');
+      await photos.first().click();
+      const viewer = page.getByRole('dialog', { name: 'Photo' });
+      await viewer.getByRole('button', { name: 'Next' }).click();
+      await viewer.getByRole('button', { name: 'Close' }).click();
+      await expect(viewer).toBeHidden();
+      /* The viewer's close event, a task after Close, focuses the photo shown; a cat focused before it loses focus to it. */
+      await expect(photos.nth(1)).toBeFocused();
+
+      const cat = page.locator('#cat-spot-pepper .cat-button');
+      await cat.focus();
+      await expect(cat).toBeFocused();
+      await page.keyboard.press('Enter');
+      const card = page.getByRole('dialog', { name: 'Pepper' });
+      await expect(card).toBeVisible();
+      await card.getByRole('button', { name: 'Close' }).click();
+
+      const areaOf = (label: string) =>
+        events(sent)
+          .filter(
+            (event) =>
+              event.name === CLICK_EVENTS.button &&
+              (event.data as { label?: unknown }).label === label,
+          )
+          .map((event) => (event.data as { area?: unknown }).area);
+
+      await expect
+        .poll(() => areaOf('Close').length, {
+          timeout: SEND_TIMEOUT_MS,
+        })
+        .toBe(2);
+      expect(
+        events(sent)
+          .filter(
+            (event) =>
+              (event.data as { target?: unknown }).target === menuTarget,
+          )
+          .map((event) => (event.data as { area?: unknown }).area),
+        'a menu link is not reported as menu',
+      ).toEqual(['menu']);
+      expect(
+        [...areaOf('Next'), ...areaOf('Close')],
+        'a click in the photo viewer or cat card is not reported as main',
+      ).toEqual(['main', 'main', 'main']);
+    });
+
+    /* The /contact email card's text contains the address, so a text label would leak it. */
+    test('no email click sends the address, in any field', async ({ page }) => {
+      const sent = await openAsProduction(page, '/contact/');
+      const email = 'a[href^="mailto:"]';
+      const links = page.locator(email);
+      const count = await links.count();
+      expect(count, '/contact should carry mailto links').toBeGreaterThan(1);
+
+      for (let index = 0; index < count; index += 1) {
+        const link = links.nth(index);
+        await link.evaluate((element) =>
+          element.addEventListener('click', (event) => event.preventDefault()),
+        );
+        await link.click();
+      }
+
+      const emailEvents = (): Record<string, unknown>[] =>
+        events(sent).filter((event) => event.name === CLICK_EVENTS.email);
+      await expect
+        .poll(() => emailEvents().length, { timeout: SEND_TIMEOUT_MS })
+        .toBe(count);
+
+      expect(
+        JSON.stringify(emailEvents()),
+        '/privacy says an email click leaves the address out',
+      ).not.toContain(CONTACT_EMAIL);
+    });
+
+    test('typing into the contact form sends nothing', async ({ page }) => {
+      const sent = await openAsProduction(page, '/contact/');
+      await expect
+        .poll(() => sent.length, { timeout: SEND_TIMEOUT_MS })
+        .toBeGreaterThan(0);
+      const before = sent.length;
+
+      const secret = 'do-not-send-this-text';
+      await page.getByRole('textbox').first().click();
+      await page.getByRole('textbox').first().fill(secret);
+      await sendProbe(page);
+      await expect
+        .poll(() => events(sent).map((event) => event.name), {
+          timeout: SEND_TIMEOUT_MS,
+        })
+        .toContain(PROBE_EVENT);
+
+      expect(
+        JSON.stringify(sent),
+        '/privacy says what you type is never sent to Umami',
+      ).not.toContain(secret);
+      expect(
+        sent.length,
+        'clicking into a field is not a click on a control',
+      ).toBe(before + 1);
+    });
   });
 });
