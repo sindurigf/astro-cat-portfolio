@@ -82,6 +82,10 @@ const wire = (deck: HTMLElement): void => {
 
   const inFullScreen = (): boolean => document.fullscreenElement === deck;
 
+  /* The presenter view keeps its controls in full screen, so only the audience deck takes presentation keys. */
+  const presenting = (): boolean =>
+    inFullScreen() && !deck.classList.contains('presenter');
+
   const indexOf = (hash: string): number | undefined => {
     const number = Number(SLIDE_ID.exec(hash)?.[1]);
     const index = slides.findIndex((slide) => slide.id === `slide-${number}`);
@@ -190,17 +194,17 @@ const wire = (deck: HTMLElement): void => {
   };
 
   const isNext = (key: string): boolean =>
-    NEXT_KEYS.has(key) || (inFullScreen() && FULL_SCREEN_NEXT_KEYS.has(key));
+    NEXT_KEYS.has(key) || (presenting() && FULL_SCREEN_NEXT_KEYS.has(key));
 
   const isPrevious = (key: string): boolean =>
     PREVIOUS_KEYS.has(key) ||
-    (inFullScreen() && FULL_SCREEN_PREVIOUS_KEYS.has(key));
+    (presenting() && FULL_SCREEN_PREVIOUS_KEYS.has(key));
 
   document.addEventListener('keydown', (event) => {
     if (event.defaultPrevented || event.altKey || event.ctrlKey) return;
     if (event.metaKey) return;
     const key = event.key;
-    const backSpace = key === ' ' && event.shiftKey && inFullScreen();
+    const backSpace = key === ' ' && event.shiftKey && presenting();
     if (event.shiftKey && !backSpace) return;
     const target = event.target;
     /* Only from the deck or the page itself: the footer and header keep their keys. */
@@ -227,6 +231,8 @@ const wire = (deck: HTMLElement): void => {
       scrollSlide(forward);
       return;
     }
+    /* A held key turns one slide, not the deck. */
+    if (event.repeat) return;
     if (forward) go(current + 1);
     else if (backward) go(current - 1);
     else go(ends.get(key) ?? current);
@@ -241,7 +247,7 @@ const wire = (deck: HTMLElement): void => {
   const wake = (): void => {
     window.clearTimeout(idleTimer);
     delete deck.dataset.deckIdle;
-    if (!inFullScreen()) return;
+    if (!presenting()) return;
     idleTimer = window.setTimeout(() => {
       deck.dataset.deckIdle = '';
     }, CURSOR_IDLE_MS);
@@ -259,12 +265,16 @@ const wire = (deck: HTMLElement): void => {
         status.textContent = 'Full screen is not available here.';
       });
     });
-    /* The bar is hidden in full screen, so focus goes to the slide and comes back to the button. */
+    /* The audience deck hides its bar in full screen, so focus goes to the slide and back to the button. */
+    let wasFullScreen = false;
     document.addEventListener('fullscreenchange', () => {
-      fullscreen.setAttribute('aria-pressed', String(inFullScreen()));
+      const entered = inFullScreen();
+      if (entered === wasFullScreen) return;
+      wasFullScreen = entered;
+      fullscreen.setAttribute('aria-pressed', String(entered));
       wake();
-      if (inFullScreen()) show(current, { focus: true, address: false });
-      else fullscreen.focus();
+      if (presenting()) show(current, { focus: true, address: false });
+      else if (!entered) fullscreen.focus();
     });
   }
 

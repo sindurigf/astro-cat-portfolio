@@ -1,8 +1,8 @@
 @layer components {
   /*
    * Talk slideshow, src/pages/talks/[deck].astro. Every slide shows without
-   * JavaScript and in print; src/scripts/slideshow.ts shows one. Slides grow
-   * rather than scroll, so none is a tab stop.
+   * JavaScript and in print; src/scripts/slideshow.ts shows one. On the page
+   * slides grow; in full screen a tall one scrolls with Space and the Page keys.
    */
   .deck {
     @apply mx-auto flex w-full max-w-page flex-col gap-6 py-6;
@@ -50,8 +50,8 @@
     outline-color: transparent;
   }
 
-  .deck:fullscreen[data-deck-idle],
-  .deck:fullscreen[data-deck-idle] * {
+  .deck:not(.presenter):fullscreen[data-deck-idle],
+  .deck:not(.presenter):fullscreen[data-deck-idle] * {
     cursor: none;
   }
 
