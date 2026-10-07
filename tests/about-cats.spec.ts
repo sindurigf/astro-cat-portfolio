@@ -400,6 +400,57 @@ test(
   },
 );
 
+test(
+  "the pounce's and the stalk's leap spans the air and the landing, so the paws touch down as the arc ends",
+  NODE,
+  () => {
+    for (const name of ['pounce', 'stalk'] as const) {
+      const move = MOVES[name]();
+      const air = move.steps.findIndex(
+        (s) =>
+          JSON.stringify(s.pose) ===
+          JSON.stringify(pose('air', { x: s.pose.x })),
+      );
+      expect(air, `${name} has no leap`).toBeGreaterThan(0);
+      const airFrom = move.steps
+        .slice(0, air)
+        .reduce((sum, s) => sum + s.ms, 0);
+      const landed = airFrom + move.steps[air].ms + move.steps[air + 1].ms;
+      expect(
+        move.mods.some((m) => m.from === airFrom && m.to === landed),
+        `${name}'s arc does not run from take-off to touchdown`,
+      ).toBe(true);
+    }
+  },
+);
+
+/** How far any pose value may sit from the plain sit pose at a move's end. */
+const SIT_TOLERANCE = 0.01;
+
+test(
+  'every play move ends in a plain sit on the ground, so the cat settles and the next move starts from rest',
+  NODE,
+  () => {
+    const start = pose('sit');
+    const playMoves = (Object.keys(MOVES) as MoveName[]).filter(
+      (name) => name !== 'sleep' && name !== 'wake',
+    );
+    for (const name of playMoves) {
+      const end = poseAt(MOVES[name](), start, duration(MOVES[name]()));
+      const sit = pose('sit', { x: end.x, face: end.face });
+      const off = (Object.keys(sit) as (keyof typeof sit)[]).filter((key) => {
+        const a = end[key];
+        const b = sit[key];
+        return Array.isArray(a) && Array.isArray(b)
+          ? Math.abs(a[0] - b[0]) > SIT_TOLERANCE ||
+              Math.abs(a[1] - b[1]) > SIT_TOLERANCE
+          : Math.abs(Number(a) - Number(b)) > SIT_TOLERANCE;
+      });
+      expect(off, `${name} ends away from a plain sit`).toEqual([]);
+    }
+  },
+);
+
 /** Frames this far apart, as a loaded device drew them in CI; the tail must still settle in time. */
 const SLOW_FRAME_MS = 530;
 /** Frames a slow device may still draw after a move ends: the move's last, and the tail's. */
