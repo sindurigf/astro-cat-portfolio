@@ -467,7 +467,7 @@ test.describe('the contact endpoint', () => {
       html,
       'no focused error summary saying the message was not sent',
     ).toMatch(
-      /<div class="error-summary"[^>]*autofocus[^>]*>\s*<h2[^>]*>\s*Your message was not sent\s*<\/h2>/,
+      /<div class="error-summary"[^>]*autofocus[^>]*>\s*<h2[^>]*>\s*Your Message Was Not Sent\s*<\/h2>/,
     );
   };
 
