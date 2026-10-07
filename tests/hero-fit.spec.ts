@@ -1,5 +1,5 @@
 import { test, expect, type Page } from './test';
-import { waitForHydration } from './settle';
+import { HYDRATION_TIMEOUT, waitForHydration } from './settle';
 import { TEXT_SPACING_OVERRIDE } from './wcag';
 
 // 200% text-only zoom is a by-hand check (docs/MANUAL_TESTING.md section 7):
@@ -19,9 +19,6 @@ const VIEWPORTS = [
 
 /** CSS px. Boxes are fractional and the stickers tilt three degrees; half a pixel hides no mark. */
 const SUBPIXEL_TOLERANCE = 0.5;
-
-/* The field island can take more than an assertion's 5s to mount under load. */
-const HYDRATION_TIMEOUT = 20_000;
 
 const openHero = async (page: Page): Promise<void> => {
   await page.goto('/', { waitUntil: 'load' });
