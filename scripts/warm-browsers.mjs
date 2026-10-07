@@ -1,8 +1,7 @@
 /*
- * Opens one page in each browser so their per-user caches (fontconfig,
- * WebKit's GStreamer registry, Mesa shaders) exist before the tests. A cold
- * first page in a CI worker counts against that test's 30s timeout.
- * Usage: node scripts/warm-browsers.mjs chromium firefox webkit
+ * Opens one page per browser so its per-user caches (fontconfig, WebKit's
+ * GStreamer registry, Mesa shaders) exist before the tests; a cold first page
+ * in a CI worker counts against that test's 30s timeout.
  */
 import { chromium, firefox, webkit } from '@playwright/test';
 
