@@ -10,7 +10,19 @@ const SLIDE_ID = /^#slide-(\d+)$/;
 const NEXT_KEYS = new Set(['ArrowRight', 'PageDown']);
 const PREVIOUS_KEYS = new Set(['ArrowLeft', 'PageUp']);
 
+/* Presentation-app keys, full screen only: on the page they scroll as usual. */
+const FULL_SCREEN_NEXT_KEYS = new Set([' ', 'Enter', 'ArrowDown']);
+const FULL_SCREEN_PREVIOUS_KEYS = new Set(['ArrowUp']);
+
+/* Keys that scroll a slide taller than its screen or frame before they turn it. */
+const SCROLL_FIRST_KEYS = new Set(['PageDown', 'PageUp', ' ']);
+
 const TYPING = 'input, textarea, select, [contenteditable]';
+
+/* Space and Enter on these press or follow them, so the deck leaves them alone. */
+const ACTIVATES = 'a[href], button, summary, [tabindex]:not([tabindex="-1"])';
+
+const CURSOR_IDLE_MS = 2000;
 
 /* Share of the viewport one Page Up or Down scrolls, leaving a line of overlap. */
 const PAGE_STEP = 0.875;
@@ -63,6 +75,17 @@ const wire = (deck: HTMLElement): void => {
       ? new BroadcastChannel(`talk:${deck.dataset.deck}`)
       : undefined;
 
+  const ends = new Map([
+    ['Home', 0],
+    ['End', slides.length - 1],
+  ]);
+
+  const inFullScreen = (): boolean => document.fullscreenElement === deck;
+
+  /* The presenter view keeps its controls in full screen, so only the audience deck takes presentation keys. */
+  const presenting = (): boolean =>
+    inFullScreen() && !deck.classList.contains('presenter');
+
   const indexOf = (hash: string): number | undefined => {
     const number = Number(SLIDE_ID.exec(hash)?.[1]);
     const index = slides.findIndex((slide) => slide.id === `slide-${number}`);
@@ -74,7 +97,7 @@ const wire = (deck: HTMLElement): void => {
   const show = (
     index: number,
     { focus, address = true }: { focus: boolean; address?: boolean },
-  ): void => {
+  ): boolean => {
     const target = slides[index];
     const focusWasInside = slides[current].contains(document.activeElement);
     current = index;
@@ -99,6 +122,7 @@ const wire = (deck: HTMLElement): void => {
     setUnavailable(next, index === slides.length - 1);
     if (address) history.replaceState(null, '', `#${target.id}`);
 
+    target.scrollTop = 0;
     if (target.getBoundingClientRect().top < 0) {
       target.scrollIntoView({ block: 'start' });
     }
@@ -112,19 +136,22 @@ const wire = (deck: HTMLElement): void => {
       active.scrollIntoView({ block: 'nearest' });
     }
 
-    if (focus || focusWasInside) {
+    const moveFocus = focus || focusWasInside;
+    if (moveFocus) {
       const title = heading(target);
       title.tabIndex = -1;
       title.focus();
     }
+    return moveFocus;
   };
 
   const go = (index: number, { tell = true } = {}): void => {
     if (index < 0 || index >= slides.length || index === current) return;
-    show(index, { focus: false });
-    status.textContent = `Slide ${index + 1} of ${slides.length}: ${titleOf(
-      slides[index],
-    )}`;
+    /* A focused heading is announced, so the live region would say it twice. */
+    const announced = show(index, { focus: false });
+    status.textContent = announced
+      ? ''
+      : `Slide ${index + 1} of ${slides.length}: ${titleOf(slides[index])}`;
     if (tell) channel?.postMessage({ slide: slides[index].id });
   };
 
@@ -137,25 +164,48 @@ const wire = (deck: HTMLElement): void => {
   previous.addEventListener('click', () => go(current - 1));
   next.addEventListener('click', () => go(current + 1));
 
-  /* Page keys scroll a slide taller than the screen, as at 400% zoom, before they turn it. */
-  const slideRunsPast = (key: string): boolean => {
-    const box = slides[current].getBoundingClientRect();
-    if (key === 'PageDown') return box.bottom > window.innerHeight;
-    if (key === 'PageUp') return box.top < usableTop();
-    return false;
+  /* In full screen slides.css makes the slide its own scroller; on the page the window scrolls. */
+  const scrollsInside = (slide: HTMLElement): boolean =>
+    getComputedStyle(slide).overflowY !== 'visible';
+
+  /* Scroll-first keys scroll a slide taller than the screen, as at 400% zoom, before they turn it. */
+  const slideRunsPast = (forward: boolean): boolean => {
+    const slide = slides[current];
+    if (scrollsInside(slide)) {
+      return forward
+        ? slide.scrollTop + slide.clientHeight < slide.scrollHeight - 1
+        : slide.scrollTop > 0;
+    }
+    const box = slide.getBoundingClientRect();
+    return forward ? box.bottom > window.innerHeight : box.top < usableTop();
   };
 
-  const targetFor = (key: string): number | undefined => {
-    if (NEXT_KEYS.has(key)) return current + 1;
-    if (PREVIOUS_KEYS.has(key)) return current - 1;
-    if (key === 'Home') return 0;
-    if (key === 'End') return slides.length - 1;
-    return undefined;
+  const scrollSlide = (forward: boolean): void => {
+    const slide = slides[current];
+    const direction = forward ? 1 : -1;
+    const scroller = scrollsInside(slide) ? slide : window;
+    const height = scrollsInside(slide)
+      ? slide.clientHeight
+      : window.innerHeight;
+    scroller.scrollBy({
+      top: direction * height * PAGE_STEP,
+      behavior: 'instant',
+    });
   };
+
+  const isNext = (key: string): boolean =>
+    NEXT_KEYS.has(key) || (presenting() && FULL_SCREEN_NEXT_KEYS.has(key));
+
+  const isPrevious = (key: string): boolean =>
+    PREVIOUS_KEYS.has(key) ||
+    (presenting() && FULL_SCREEN_PREVIOUS_KEYS.has(key));
 
   document.addEventListener('keydown', (event) => {
     if (event.defaultPrevented || event.altKey || event.ctrlKey) return;
-    if (event.metaKey || event.shiftKey) return;
+    if (event.metaKey) return;
+    const key = event.key;
+    const backSpace = key === ' ' && event.shiftKey && presenting();
+    if (event.shiftKey && !backSpace) return;
     const target = event.target;
     /* Only from the deck or the page itself: the footer and header keep their keys. */
     const inDeck =
@@ -164,26 +214,45 @@ const wire = (deck: HTMLElement): void => {
       (target instanceof Node && deck.contains(target));
     if (!inDeck) return;
     if (target instanceof Element && target.closest(TYPING)) return;
-    if (slideRunsPast(event.key)) {
-      /* Scrolled here, not left to the browser, which may target the hidden slides. */
-      event.preventDefault();
-      const direction = event.key === 'PageDown' ? 1 : -1;
-      window.scrollBy({
-        top: direction * window.innerHeight * PAGE_STEP,
-        behavior: 'instant',
-      });
+    const pressesControl = key === ' ' || key === 'Enter';
+    if (
+      pressesControl &&
+      target instanceof Element &&
+      target.closest(ACTIVATES)
+    ) {
       return;
     }
-    const to = targetFor(event.key);
-    if (to === undefined) return;
+    const forward = !backSpace && isNext(key);
+    const backward = backSpace || isPrevious(key);
+    if (!forward && !backward && !ends.has(key)) return;
     event.preventDefault();
-    go(to);
+    /* Scrolled here, not left to the browser, which may target the hidden slides. */
+    if (SCROLL_FIRST_KEYS.has(key) && slideRunsPast(forward)) {
+      scrollSlide(forward);
+      return;
+    }
+    /* A held key turns one slide, not the deck. */
+    if (event.repeat) return;
+    if (forward) go(current + 1);
+    else if (backward) go(current - 1);
+    else go(ends.get(key) ?? current);
   });
 
   window.addEventListener('hashchange', () => {
     const index = indexOf(location.hash);
     if (index !== undefined) show(index, { focus: true });
   });
+
+  let idleTimer: number | undefined;
+  const wake = (): void => {
+    window.clearTimeout(idleTimer);
+    delete deck.dataset.deckIdle;
+    if (!presenting()) return;
+    idleTimer = window.setTimeout(() => {
+      deck.dataset.deckIdle = '';
+    }, CURSOR_IDLE_MS);
+  };
+  deck.addEventListener('pointermove', wake);
 
   /* iPhone has no Fullscreen API outside video, so the button stays hidden. */
   if (document.fullscreenEnabled) {
@@ -196,11 +265,16 @@ const wire = (deck: HTMLElement): void => {
         status.textContent = 'Full screen is not available here.';
       });
     });
+    /* The audience deck hides its bar in full screen, so focus goes to the slide and back to the button. */
+    let wasFullScreen = false;
     document.addEventListener('fullscreenchange', () => {
-      fullscreen.setAttribute(
-        'aria-pressed',
-        String(document.fullscreenElement === deck),
-      );
+      const entered = inFullScreen();
+      if (entered === wasFullScreen) return;
+      wasFullScreen = entered;
+      fullscreen.setAttribute('aria-pressed', String(entered));
+      wake();
+      if (presenting()) show(current, { focus: true, address: false });
+      else if (!entered) fullscreen.focus();
     });
   }
 
