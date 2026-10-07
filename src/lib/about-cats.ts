@@ -50,7 +50,7 @@ const PAUSE_MS = [1500, 4500] as const;
 type StepResult = 'draw' | 'still' | 'rest';
 
 /** On-screen play time after waking before a cat naps. */
-const NAP_AFTER_MS = 30_000;
+export const NAP_AFTER_MS = 30_000;
 
 /** Distance from each card end the cat's origin keeps, so its drawing reaches at most MAX_OVERHANG past the end. */
 export const TRACK_MARGIN = 48;
