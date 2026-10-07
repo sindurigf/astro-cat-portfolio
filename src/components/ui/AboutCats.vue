@@ -110,6 +110,14 @@ const TRICKS_MIN_HEIGHT = 176;
 const tricks = shallowRef<TricksData | null>(null);
 const tricksNote = ref('Loading tricks.');
 
+/* A list that finished loading while its popover was open and focus had not left the paw: `autofocus` only runs on open. */
+const focusFirstTrickIfOnPaw = (): void => {
+  if (!document.activeElement?.matches('.cat-tricks-button')) return;
+  document
+    .querySelector<HTMLElement>('.cat-tricks:popover-open .cat-trick')
+    ?.focus();
+};
+
 const loadTricks = (): void => {
   if (tricks.value) return;
   fetch(tricksUrl)
@@ -119,6 +127,7 @@ const loadTricks = (): void => {
     .then((data: unknown) => {
       if (!isTricksData(data)) throw new Error('Unexpected tricks data');
       tricks.value = data;
+      nextTick(focusFirstTrickIfOnPaw);
     })
     .catch((error: unknown) => {
       console.error(error);
@@ -562,7 +571,9 @@ onBeforeUnmount(() => {
               </button>
             </li>
           </ul>
-          <p v-else class="cat-tricks-note">{{ tricksNote }}</p>
+          <p role="status" class="cat-tricks-note">
+            {{ tricks ? '' : tricksNote }}
+          </p>
         </div>
       </template>
     </Teleport>

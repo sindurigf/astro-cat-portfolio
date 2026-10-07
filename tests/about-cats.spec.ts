@@ -1067,6 +1067,33 @@ test.describe('About cats', () => {
     });
   });
 
+  test('a trick list still loading is announced in a status region and takes focus when it arrives', async ({
+    page,
+  }) => {
+    const id = 'pepper';
+    let release!: () => void;
+    const held = new Promise<void>((resolve) => (release = resolve));
+    await page.route('**/about-cats-tricks*.json', async (route) => {
+      await held;
+      await route.fulfill({ json: tricksData });
+    });
+    await gotoSettled(page, ROUTE);
+    await showCat(page, id);
+    await page.keyboard.press('Shift');
+    await tricksButton(page, id).focus();
+    await page.keyboard.press('Enter');
+    await expect(
+      tricksList(page, id).getByRole('status'),
+      'the loading note is not in a status region',
+    ).toHaveText('Loading tricks.');
+    release();
+    await expect(
+      tricksList(page, id).getByRole('button', { name: 'Random' }),
+      'focus stayed on the paw when the list arrived',
+    ).toBeFocused();
+    await expect(tricksList(page, id).getByRole('status')).toBeHidden();
+  });
+
   test('a trick list that cannot load says so, and loads on the next open', async ({
     page,
   }) => {
