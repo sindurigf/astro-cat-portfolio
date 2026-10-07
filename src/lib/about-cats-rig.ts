@@ -32,7 +32,7 @@ const PHYS_MAX_STEPS = 30;
 const EARS = 'M-11 -4L-12 -19.5L-2 -10.5ZM2 -10.5L10.5 -19.5L11 -4Z';
 /** Mochi's orange front ear, inset from the ear's edge. */
 const FRONT_EAR_PATCH = 'M2.6 -11L10 -18.4L10.4 -5.2Z';
-const EYE_CENTRES: readonly (readonly [number, number])[] = [
+const EYE_CENTERS: readonly (readonly [number, number])[] = [
   [-1, -1],
   [7, -1.5],
 ];
@@ -290,7 +290,7 @@ export const createCatRig = (svg: SVGSVGElement, id: CatId): CatRig => {
 
   const eye = EYES[id];
   const eyesOpen = el('g', {}, top.head);
-  for (const [cx, cy] of EYE_CENTRES) {
+  for (const [cx, cy] of EYE_CENTERS) {
     el('circle', { cx, cy, r: eye.r, class: 'cat-solid-eye' }, eyesOpen);
     if (eye.pupil > 0)
       el(
