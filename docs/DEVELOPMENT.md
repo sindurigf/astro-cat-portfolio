@@ -132,7 +132,9 @@ npm run test:webkit -- tests/reflow.spec.ts
   holds content types for the test servers; `scripts/pdf-pages.mjs` counts PDF
   pages for `publish:talk` and `tests/talk-pdf.spec.ts`;
   `scripts/noindex.mjs` rewrites `_headers` and `_redirects` on a
-  [`NOINDEX` build](DEPLOYMENT.md#run-a-demo).
+  [`NOINDEX` build](DEPLOYMENT.md#run-a-demo); `scripts/warm-browsers.mjs`
+  opens one page per browser in CI before the tests, so no worker's first page
+  builds the browser caches inside a test.
 - [AGENTS.md](../AGENTS.md) lists what must pass before a change is done.
 
 | Variable                        | Default                  | Effect                                                   |
