@@ -64,7 +64,6 @@ const FIT_STEPS = 24;
 const LEAP_CHANCE = 0.15;
 /* Ways to get about, one at a time and weighted; there is no walking. */
 const LEAPS: Partial<Record<MoveName, number>> = {
-  bigJump: 3,
   pounce: 3,
   stalk: 1,
 };

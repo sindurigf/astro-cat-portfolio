@@ -194,19 +194,6 @@ const POSES = {
     ta: 182,
     tc: 1,
   }),
-  reach: derive(BASE, {
-    ba: -8,
-    by: 22,
-    sq: 1.05,
-    fN: [20, 20],
-    fF: [16, 22],
-    hN: [-18, 4],
-    hF: [-15, 6],
-    hx: 9,
-    hy: -8,
-    ta: 186,
-    tc: 2,
-  }),
   /* Straight up after a fly: body upright, front paws high, tail streaming. */
   leap: derive(BASE, {
     ba: 62,
@@ -407,7 +394,6 @@ const earFlick = (at: number): Mod =>
   });
 
 /* Arcs in px; with them the tallest move stays under --spacing-cat-band (tests/about-cats.spec.ts). */
-const JUMP_HEIGHT = 58;
 const POUNCE_HEIGHT = 56;
 const LEAP_HEIGHT = 40;
 /** The scratching post stands this far ahead of the cat, clear of its chest. */
@@ -527,10 +513,6 @@ export const MOVES = {
     ],
     mods: [blinkAt(600), earFlick(1500), blinkAt(2500)],
   }),
-  lie: (): Move => ({
-    steps: [step(700, 'loaf'), step(2200, 'loaf', { hr: 4 }), step(600, 'sit')],
-    mods: [blinkAt(1600)],
-  }),
   /* A long crouched creep with a freeze halfway, then the pounce. */
   stalk: (): Move => ({
     steps: [
@@ -566,19 +548,6 @@ export const MOVES = {
       step(600, 'sit', { x: 84 }),
     ],
     mods: [wiggle(400, 1300), arc(1440, 1990, POUNCE_HEIGHT)],
-  }),
-  bigJump: (): Move => ({
-    steps: [
-      step(400, 'crouch'),
-      step(1200, 'crouch'),
-      step(160, 'crouch', { x: -2, sq: 0.88 }, 'in'),
-      step(320, 'air', { x: 70, ba: 18 }, 'linear'),
-      step(320, 'reach', { x: 140 }, 'linear'),
-      step(160, 'crouch', { x: 148, sq: 0.8 }, 'out'),
-      step(320, 'crouch', { x: 148 }, 'back'),
-      step(700, 'sit', { x: 148 }),
-    ],
-    mods: [wiggle(400, 1600), arc(1760, 2400, JUMP_HEIGHT)],
   }),
   stretch: (): Move => ({
     steps: [
@@ -1010,14 +979,12 @@ export const CAT_WEIGHTS: Record<CatId, Partial<Record<MoveName, number>>> = {
     yarn: 5,
     fly: 5,
     stretch: 5,
-    lie: 4,
     post: 4,
     knock: 4,
     stalk: 3,
     toy: 3,
     belly: 3,
     pounce: 2,
-    bigJump: 2,
   },
   /* The conspirator: stalks and knocks the cup off, and chases yarn. */
   mochi: {
@@ -1028,11 +995,9 @@ export const CAT_WEIGHTS: Record<CatId, Partial<Record<MoveName, number>>> = {
     pounce: 4,
     look: 3,
     toy: 3,
-    bigJump: 2,
     post: 2,
     stretch: 2,
     belly: 2,
-    lie: 1,
   },
   /* The baby: chases everything, yarn and flies most. */
   biscuit: {
@@ -1043,12 +1008,10 @@ export const CAT_WEIGHTS: Record<CatId, Partial<Record<MoveName, number>>> = {
     stalk: 5,
     pounce: 4,
     belly: 4,
-    bigJump: 3,
     knock: 3,
     post: 2,
     stretch: 2,
     look: 2,
-    lie: 1,
   },
 };
 
