@@ -298,9 +298,6 @@
   --tracking-title: -0.02em;
   --tracking-label: 0.1em;
 
-  /* Zero everywhere except the logo tile and its copies. */
-  --radius-nav: 14px;
-
   /*
    * Hard offset shadows, one job per color: pink is depth and pressables, cyan
    * is hover and focus. Gold casts none: gold on gold shows nothing, and pink is

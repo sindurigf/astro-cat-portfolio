@@ -125,7 +125,7 @@ Dark is the default. Colors and rules:
   allowed)
 - spacing utilities off the 0, 1, 2, 3, 4, 6, 8, 12, 16, 24 scale
 - border widths other than 0, 4, 8 (a bare `border` included)
-- radius other than `rounded-nav`, `rounded-full`, `rounded-none`
+- radius other than `rounded-full`, `rounded-none`
 - weights other than `font-normal`, `font-black`; Tailwind's own sizes,
   leading or tracking (`leading-none`, `tracking-normal` allowed)
 - a removed outline
