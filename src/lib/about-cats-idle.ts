@@ -14,9 +14,9 @@ const EAR_FLICK_MS = 260;
 const EAR_FLICK_SWING = 1;
 const GLANCE_EVERY_MS = [2500, 6000] as const;
 const GLANCE_MS = 700;
-/** Largest head turn in degrees; the head returns to centre about half the time. */
+/** Largest head turn in degrees; the head returns to center about half the time. */
 const GLANCE_DEG = 28;
-const GLANCE_CENTRE_CHANCE = 0.5;
+const GLANCE_CENTER_CHANCE = 0.5;
 /** A turn is to either side with equal chance, and at least this share of the largest. */
 const GLANCE_SIDE_CHANCE = 0.5;
 const GLANCE_MIN_SHARE = 0.5;
@@ -105,7 +105,7 @@ export const tickIdle = (
   if (now >= state.nextGlance) {
     state.glanceFrom = glanceNow(state, now);
     state.glanceTo =
-      roll() < GLANCE_CENTRE_CHANCE
+      roll() < GLANCE_CENTER_CHANCE
         ? 0
         : (roll() < GLANCE_SIDE_CHANCE ? -1 : 1) *
           GLANCE_DEG *
