@@ -724,8 +724,11 @@ page numbers or running headers read as content, decoration announced.
       full screen needs a click, so check by hand in Firefox and Safari too:
       headless Firefox ignores the test screen size. → SC 2.1.1, 2.4.3, 2.4.7
 - [ ] Full screen at 200% zoom and with the text-spacing bookmarklet: nothing
-      is cut off, long slides scroll. Titles do not grow
-      ([ACCESSIBILITY.md](../ACCESSIBILITY.md) §7). → SC 1.4.12
+      is cut off, long slides scroll. Titles reach 2x only at higher zoom
+      ([ACCESSIBILITY.md](../ACCESSIBILITY.md) §7). → SC 1.4.4, 1.4.12
+- [ ] Page view at 200% zoom: slide text doubles; titles double at 200% from
+      1280, by 500% from narrower screens. At 320px no title word is cut
+      without a hyphen and nothing scrolls sideways. → SC 1.4.4, 1.4.10
 - [ ] Print preview: one page per slide, no controls. Matches the PDF.
 - [ ] Presenter view (`astro dev` only, `/talks/<deck>/presenter/`): the
       timer button reads "Start Timer" then "Pause Timer", the time is not

@@ -57,6 +57,7 @@
 
   .deck-stage {
     @apply grid gap-12;
+    container-type: inline-size;
   }
 
   /*
@@ -82,10 +83,31 @@
    * `--deck-chrome`: deck padding, the gap above the control row, the row, and
    * the slide's 8px shadow.
    */
+  /*
+   * Padding grows as a share of the card's width (`.deck-stage` is the
+   * container), never below the card's own padding.
+   */
   .slide {
-    @apply flex flex-col justify-center lg:px-16;
+    @apply flex flex-col justify-center;
     --deck-chrome: calc(var(--spacing-deck-bar) + --spacing(20));
+    --slide-pad-inline: var(--spacing-card-tight);
+    --slide-pad-block: var(--spacing-card-tight);
     min-height: calc(100svh - var(--spacing-header) - var(--deck-chrome));
+    padding-inline: max(var(--slide-pad-inline), 8cqi);
+    padding-block: max(var(--slide-pad-block), 4cqi);
+  }
+
+  @variant sm {
+    .slide {
+      --slide-pad-inline: var(--spacing-card);
+      --slide-pad-block: var(--spacing-card);
+    }
+  }
+
+  @variant lg {
+    .slide {
+      --slide-pad-inline: --spacing(16);
+    }
   }
 
   .presenter:fullscreen .slide {
@@ -117,6 +139,16 @@
 
   .slide-cover .slide-title {
     @apply text-h1;
+  }
+
+  /*
+   * `anywhere`, not base.css's `break-word`, so a long word also shrinks
+   * min-content under text spacing (SC 1.4.12). Full screen keeps its own size.
+   */
+  @media screen {
+    .deck:not(:fullscreen) .slide:not(.slide-cover) .slide-title {
+      @apply text-slide-title-page wrap-anywhere;
+    }
   }
 
   /*

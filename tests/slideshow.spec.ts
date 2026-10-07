@@ -1,9 +1,9 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { expect, test, type Page } from './test';
+import { expect, test, type Browser, type Page } from './test';
 import { gotoSettled } from './settle';
 import { deckOf, NO_TALK, TALK_ROUTES, TALKS_DIR } from './routes';
-import { NARROW_WIDTH, TEXT_SPACING_OVERRIDE } from './wcag';
+import { NARROW_WIDTH, REFLOW_VIEWPORT, TEXT_SPACING_OVERRIDE } from './wcag';
 import { NON_TEXT, PAGE_HELPERS } from './contrast';
 import { DECK_READY_TIMEOUT_MS } from '../src/lib/deck-ready';
 import { DECK_FILE, splitDeck } from '../src/lib/slides';
@@ -670,5 +670,149 @@ test.describe('the talk slideshow in full screen', () => {
     await pressUntil('Space', 'atEnd');
     await page.keyboard.press('Space');
     await expect(visible(page)).toHaveId(after);
+  });
+});
+
+/** Body text doubles at 200% below 1920, where `--text-body` caps (ACCESSIBILITY.md section 7). */
+const BODY_WIDTHS = [390, 1000, 1280] as const;
+/** Titles fit the screen, so narrower starts need more zoom; section 7 lists the measured levels. */
+const TITLE_ZOOM = [
+  { width: 390, zoom: 5 },
+  { width: 1000, zoom: 5 },
+  { width: 1280, zoom: 2 },
+  { width: 1920, zoom: 2 },
+] as const;
+const PAGE_HEIGHT = 900;
+/** Rounding of fractional px at fractional device scale. */
+const RATIO_TOLERANCE = 0.01;
+const DOUBLE = 2;
+/** reflow.spec.ts's narrowest width: 320px less a classic scrollbar. */
+const SLIDE_PHONE = { width: NARROW_WIDTH, height: PAGE_HEIGHT };
+
+/* Device px of the second slide's title and first body line, at `zoom` modeled as viewport / zoom at zoom x device scale. */
+const deviceSizes = async (browser: Browser, width: number, zoom: number) => {
+  const context = await browser.newContext({
+    viewport: {
+      width: Math.round(width / zoom),
+      height: Math.round(PAGE_HEIGHT / zoom),
+    },
+    deviceScaleFactor: zoom,
+    baseURL: test.info().project.use.baseURL,
+  });
+  try {
+    const page = await context.newPage();
+    await open(page, '#slide-2');
+    const sizes = await visible(page).evaluate((slide) => {
+      const size = (selector: string) =>
+        parseFloat(getComputedStyle(slide.querySelector(selector)!).fontSize);
+      return {
+        title: size('.slide-title'),
+        body: size('.slide-body :is(p, li)'),
+      };
+    });
+    return { title: sizes.title * zoom, body: sizes.body * zoom };
+  } finally {
+    await context.close();
+  }
+};
+
+test.describe('the talk slideshow on the page at 200% zoom', () => {
+  test.skip(!ROUTE, NO_TALK);
+
+  for (const { width, zoom } of TITLE_ZOOM) {
+    test(`from ${width}px, slide titles reach 2x by ${zoom * 100}% page zoom (SC 1.4.4)`, async ({
+      browser,
+    }) => {
+      const unzoomed = await deviceSizes(browser, width, 1);
+      const zoomed = await deviceSizes(browser, width, zoom);
+      expect(
+        zoomed.title / unzoomed.title,
+        'the slide title grows less than 2x',
+      ).toBeGreaterThanOrEqual(DOUBLE - RATIO_TOLERANCE);
+    });
+  }
+
+  for (const width of BODY_WIDTHS) {
+    test(`from ${width}px, slide text doubles at 200% (SC 1.4.4)`, async ({
+      browser,
+    }) => {
+      const unzoomed = await deviceSizes(browser, width, 1);
+      const zoomed = await deviceSizes(browser, width, DOUBLE);
+      expect(
+        zoomed.body / unzoomed.body,
+        'the slide text grows less than 2x',
+      ).toBeGreaterThanOrEqual(DOUBLE - RATIO_TOLERANCE);
+    });
+  }
+
+  // Hidden slides included: reflow.spec.ts measures only the slide on screen.
+  test('every word of every slide title fits its slide at 305px, so none is cut without a hyphen', async ({
+    page,
+  }) => {
+    await page.setViewportSize(SLIDE_PHONE);
+    await open(page);
+    const tooWide = await page.evaluate(() => {
+      const out: string[] = [];
+      const slides = [...document.querySelectorAll<HTMLElement>('.slide')];
+      for (const slide of slides) {
+        slides.forEach((s) => s.toggleAttribute('data-current', s === slide));
+        const title = slide.querySelector<HTMLElement>('.slide-title')!;
+        const style = getComputedStyle(title);
+        const probe = document.createElement('span');
+        Object.assign(probe.style, {
+          position: 'absolute',
+          whiteSpace: 'nowrap',
+          font: style.font,
+          letterSpacing: style.letterSpacing,
+          textTransform: style.textTransform,
+        });
+        document.body.append(probe);
+        const words = (title.textContent ?? '').split(/[\s-]+/).filter(Boolean);
+        for (const word of words) {
+          // A break at a soft hyphen paints a hyphen on the leading part.
+          const parts = word.split('\u00ad');
+          parts.forEach((part, i) => {
+            probe.textContent = i < parts.length - 1 ? `${part}-` : part;
+            const width = probe.getBoundingClientRect().width;
+            if (width > title.clientWidth + 0.5) {
+              out.push(
+                `${slide.id} "${probe.textContent}" ${width.toFixed(0)}px in ${title.clientWidth}px`,
+              );
+            }
+          });
+        }
+        probe.remove();
+      }
+      return out;
+    });
+    expect(
+      tooWide,
+      'slide title words wider than their slide at 305px',
+    ).toEqual([]);
+  });
+  // Hyphens are forced off: hyphenation dictionaries vary by engine, so the fit must come from overflow-wrap.
+  test('every slide title fits 320px without sideways scrolling (SC 1.4.10)', async ({
+    page,
+  }) => {
+    await page.setViewportSize(REFLOW_VIEWPORT);
+    await open(page);
+    await page.addStyleTag({
+      content: '.slide-title { hyphens: manual !important; }',
+    });
+    const count = await page.locator('.slide').count();
+    const over: string[] = [];
+    for (let at = 1; at <= count; at++) {
+      await expect(visible(page)).toHaveId(`slide-${at}`);
+      const extra = await visible(page).evaluate((slide) => {
+        const title = slide.querySelector<HTMLElement>('.slide-title')!;
+        return Math.max(
+          document.documentElement.scrollWidth - innerWidth,
+          title.scrollWidth - title.clientWidth,
+        );
+      });
+      if (extra > 0) over.push(`slide-${at} +${extra}px`);
+      await page.keyboard.press('ArrowRight');
+    }
+    expect(over, 'slides whose title scrolls sideways at 320px').toEqual([]);
   });
 });
