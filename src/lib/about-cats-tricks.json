@@ -1,0 +1,168 @@
+{
+  "tricks": {
+    "random": {
+      "label": "Random",
+      "icon": "random"
+    },
+    "look": {
+      "label": "Look Around",
+      "icon": "look"
+    },
+    "lie": {
+      "label": "Loaf",
+      "icon": "loaf"
+    },
+    "stretch": {
+      "label": "Stretch",
+      "icon": "stretch"
+    },
+    "belly": {
+      "label": "Belly Up",
+      "icon": "belly"
+    },
+    "post": {
+      "label": "Scratch Post",
+      "icon": "post"
+    },
+    "yarn": {
+      "label": "Yarn",
+      "icon": "yarn"
+    },
+    "fly": {
+      "label": "Chase the Fly",
+      "icon": "fly"
+    },
+    "toy": {
+      "label": "Feather Toy",
+      "icon": "feather"
+    },
+    "wand": {
+      "label": "Wand",
+      "icon": "wand"
+    },
+    "knock": {
+      "label": "Knock the Cup",
+      "icon": "cup"
+    },
+    "stalk": {
+      "label": "Stalk",
+      "icon": "stalk"
+    },
+    "pounce": {
+      "label": "Pounce",
+      "icon": "pounce"
+    },
+    "bigJump": {
+      "label": "Big Jump",
+      "icon": "bigjump"
+    }
+  },
+  "icons": {
+    "random": [
+      {
+        "d": "M3 3h18v18h-18Z"
+      },
+      {
+        "d": "M6.4 8a1.6 1.6 0 1 0 3.2 0a1.6 1.6 0 1 0 -3.2 0",
+        "solid": true
+      },
+      {
+        "d": "M14.4 8a1.6 1.6 0 1 0 3.2 0a1.6 1.6 0 1 0 -3.2 0",
+        "solid": true
+      },
+      {
+        "d": "M10.4 12a1.6 1.6 0 1 0 3.2 0a1.6 1.6 0 1 0 -3.2 0",
+        "solid": true
+      },
+      {
+        "d": "M6.4 16a1.6 1.6 0 1 0 3.2 0a1.6 1.6 0 1 0 -3.2 0",
+        "solid": true
+      },
+      {
+        "d": "M14.4 16a1.6 1.6 0 1 0 3.2 0a1.6 1.6 0 1 0 -3.2 0",
+        "solid": true
+      }
+    ],
+    "look": [
+      {
+        "d": "M2 12C6 6 18 6 22 12C18 18 6 18 2 12Z"
+      },
+      {
+        "d": "M9 12a3 3 0 1 0 6 0a3 3 0 1 0 -6 0"
+      }
+    ],
+    "loaf": [
+      {
+        "d": "M3 19V15C3 9 8 7 12 7C16 7 21 9 21 15V19Z"
+      }
+    ],
+    "stretch": [
+      {
+        "d": "M3 12H21M7 8L3 12L7 16M17 8L21 12L17 16"
+      }
+    ],
+    "belly": [
+      {
+        "d": "M6 15a6 6 0 1 0 12 0a6 6 0 1 0 -12 0"
+      },
+      {
+        "d": "M6 9V4M10 7V3M14 7V3M18 9V4"
+      }
+    ],
+    "post": [
+      {
+        "d": "M9 3H15V18H9ZM4 21H20"
+      }
+    ],
+    "yarn": [
+      {
+        "d": "M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"
+      },
+      {
+        "d": "M4 10C10 16 14 7 20 14M6 17C11 11 15 19 19 7"
+      }
+    ],
+    "fly": [
+      {
+        "d": "M9.4 14a2.6 4.6 0 1 0 5.2 0a2.6 4.6 0 1 0 -5.2 0",
+        "solid": true
+      },
+      {
+        "d": "M10 11C3 3 2 11 9 12M14 11C21 3 22 11 15 12"
+      }
+    ],
+    "feather": [
+      {
+        "d": "M4 21C6 10 13 4 21 4C21 12 15 19 4 21ZM4 21L15 10"
+      }
+    ],
+    "wand": [
+      {
+        "d": "M4 21L15 9M15 9C15 5 18 3 21 3C21 7 19 9 15 9"
+      }
+    ],
+    "cup": [
+      {
+        "d": "M5 5H18V14C18 18 15 20 11.5 20C8 20 5 18 5 14ZM18 8H21V12H18"
+      }
+    ],
+    "stalk": [
+      {
+        "d": "M4.5 16a2.5 3.5 0 1 0 5 0a2.5 3.5 0 1 0 -5 0"
+      },
+      {
+        "d": "M14.5 8a2.5 3.5 0 1 0 5 0a2.5 3.5 0 1 0 -5 0"
+      }
+    ],
+    "pounce": [
+      {
+        "d": "M3 18Q9 3 19 15M14 14L19 15.5L20 10"
+      }
+    ],
+    "bigjump": [
+      {
+        "d": "M2 20Q12 -6 22 20M18 18L22 20L23.5 15"
+      }
+    ]
+  }
+}

@@ -27,6 +27,8 @@ import {
   reachOf,
   stepTail,
 } from '../src/lib/about-cats-rig';
+import { isTricksData, tricksOf } from '../src/lib/about-cats-tricks';
+import tricksData from '../src/lib/about-cats-tricks.json' with { type: 'json' };
 import { CAT_INSPIRATION } from '../src/lib/credits';
 import {
   CONTROL_ROOM,
@@ -100,6 +102,15 @@ const napControl = (page: Page, id: (typeof CATS)[number]) =>
 
 /** The top-left corner of the viewport, outside the centered card. */
 const BACKDROP_POINT = { x: 4, y: 4 };
+
+const tricksButton = (page: Page, id: (typeof CATS)[number]) =>
+  page.locator(`#cat-spot-${id} .cat-tricks-button`);
+
+const tricksList = (page: Page, id: (typeof CATS)[number]) =>
+  page.locator(`#cat-tricks-${id}`);
+
+const { tricks: TRICKS } = tricksData;
+const ICONS: Record<string, unknown[]> = tricksData.icons;
 
 const catButton = (page: Page, id: (typeof CATS)[number]) =>
   page.locator(`#cat-spot-${id} .cat-button`);
@@ -409,6 +420,71 @@ test(
       now,
       'the tail was still swinging 5 s after it was left to settle',
     ).toBeLessThan(SC_2_2_2_MS);
+  },
+);
+
+test(
+  "every cat's tricks are named and drawn once each, and every play move is on a list",
+  NODE,
+  () => {
+    const listed = new Set<string>();
+    for (const id of CATS) {
+      const names = tricksOf(id);
+      const labels = names.map((name) => TRICKS[name].label);
+      expect(new Set(labels).size, `${NAMES[id]} lists a trick twice`).toBe(
+        labels.length,
+      );
+      for (const name of names) {
+        listed.add(name);
+        expect(
+          ICONS[TRICKS[name].icon].length,
+          `${name} has no icon`,
+        ).toBeGreaterThan(0);
+      }
+    }
+    for (const [name, trick] of Object.entries(TRICKS))
+      expect(
+        ICONS[trick.icon]?.length,
+        `${name} names an icon that is not drawn`,
+      ).toBeGreaterThan(0);
+    const playMoves = (Object.keys(MOVES) as MoveName[]).filter(
+      (name) => name !== 'sleep' && name !== 'wake',
+    );
+    expect(
+      playMoves.filter((name) => !listed.has(name)),
+      "a play move is on no cat's list",
+    ).toEqual([]);
+  },
+);
+
+test(
+  'isTricksData accepts the shipped JSON and refuses a body that would fail at render',
+  NODE,
+  () => {
+    expect(
+      isTricksData(tricksData),
+      'the shipped JSON fails its own guard',
+    ).toBe(true);
+    const without = (key: string) => {
+      const copy = structuredClone(tricksData) as Record<
+        string,
+        Record<string, unknown>
+      >;
+      delete copy.tricks[key];
+      return copy;
+    };
+    expect(isTricksData(without('random')), 'a missing Random').toBe(false);
+    expect(isTricksData(without('fly')), 'a missing move').toBe(false);
+    const noIcon = structuredClone(tricksData) as Record<
+      string,
+      Record<string, unknown>
+    >;
+    delete noIcon.icons.fly;
+    expect(isTricksData(noIcon), 'a trick whose icon is not drawn').toBe(false);
+    for (const body of [null, 'Not found', [], {}, { tricks: {}, icons: {} }])
+      expect(isTricksData(body), `accepted ${JSON.stringify(body)}`).toBe(
+        false,
+      );
   },
 );
 
@@ -813,7 +889,7 @@ test.describe('About cats', () => {
       ).toHaveAccessibleName(`Wake ${NAMES[id]}`);
       await expect(
         page.locator(`#cat-spot-${id} .cat-prop`),
-        `a toy or box stayed out after ${NAMES[id]} fell asleep`,
+        `a toy or prop stayed out after ${NAMES[id]} fell asleep`,
       ).toHaveCount(0);
       await control.click();
       await expectMood(
@@ -920,6 +996,137 @@ test.describe('About cats', () => {
     });
   }
 
+  test("the paw opens the cat's tricks, Random first and focused, each row a 44px target, and Escape returns focus to it", async ({
+    page,
+  }) => {
+    await gotoSettled(page, ROUTE);
+    const id = 'pepper';
+    await showCat(page, id);
+    const paw = tricksButton(page, id);
+    await expect(paw).toHaveAccessibleName(`Choose a trick for ${NAMES[id]}`);
+    await expect(
+      paw,
+      'the closed paw is not exposed as collapsed from load',
+    ).toHaveAttribute('aria-expanded', 'false');
+    await page.keyboard.press('Shift');
+    await paw.focus();
+    await page.keyboard.press('Enter');
+    const list = tricksList(page, id);
+    await expect(list).toBeVisible();
+    await expect(
+      paw,
+      'an open list is not exposed as expanded',
+    ).toMatchAriaSnapshot(
+      `- button "Choose a trick for ${NAMES[id]}" [expanded]`,
+    );
+    const rows = list.getByRole('button');
+    await expect(rows.first()).toHaveAccessibleName('Random');
+    await expect(rows).toHaveCount(tricksOf(id).length + 1);
+    for (const height of await rows.evaluateAll((nodes) =>
+      nodes.map((node) => node.getBoundingClientRect().height),
+    ))
+      expect(height, 'a trick row is shorter than 44px').toBeGreaterThanOrEqual(
+        MIN_TARGET - SUBPIXEL_TOLERANCE,
+      );
+    await expect(
+      rows.first(),
+      'opening the list left focus on the paw',
+    ).toBeFocused();
+    await page.keyboard.press('Escape');
+    await expect(list).toBeHidden();
+    await expect(paw, 'Escape lost focus').toBeFocused();
+    await expect(
+      paw,
+      'a closed list is still exposed as expanded',
+    ).toHaveAttribute('aria-expanded', 'false');
+  });
+
+  test('a picked trick plays, and a sleeping cat gets up for it', async ({
+    page,
+  }) => {
+    await gotoSettled(page, ROUTE);
+    const id = 'mochi';
+    await showCat(page, id);
+    await napControl(page, id).click();
+    await expectMood(page, id, 'asleep', `${NAMES[id]} did not go to sleep`);
+    const wing = page.locator(`#cat-spot-${id} .cat-prop-wing`);
+    await expect(wing).toHaveCount(0);
+    await tricksButton(page, id).click();
+    const row = tricksList(page, id).getByRole('button', {
+      name: TRICKS.fly.label,
+    });
+    await row.focus();
+    await page.keyboard.press('Enter');
+    await expect(tricksList(page, id)).toBeHidden();
+    await expect(
+      napControl(page, id),
+      `${NAMES[id]} stayed asleep for the trick`,
+    ).toHaveAccessibleName(`Put ${NAMES[id]} to sleep`);
+    await expect(wing.first(), 'the picked fly never appeared').toBeAttached({
+      timeout: NAP_TIMEOUT_MS,
+    });
+  });
+
+  test('a trick list that cannot load says so, and loads on the next open', async ({
+    page,
+  }) => {
+    const id = 'pepper';
+    const TRICKS_JSON = '**/about-cats-tricks*.json';
+    const bodies = [
+      { status: 404, body: 'Not found' },
+      { status: 200, body: '{}' },
+    ];
+    for (const failure of bodies) {
+      await page.route(TRICKS_JSON, (route) => route.fulfill(failure));
+      await gotoSettled(page, ROUTE);
+      await showCat(page, id);
+      await tricksButton(page, id).click();
+      await expect(
+        tricksList(page, id),
+        `a ${failure.status} body ${failure.body} left no note`,
+      ).toContainText('The tricks did not load');
+      await page.keyboard.press('Escape');
+      await page.unroute(TRICKS_JSON);
+      await tricksButton(page, id).click();
+      await expect(
+        tricksList(page, id).getByRole('button', { name: 'Random' }),
+        'the next open did not load the tricks',
+      ).toBeVisible();
+    }
+  });
+
+  test('on a phone a trick that needs room still plays and one that cannot fit is not offered', async ({
+    page,
+  }) => {
+    await page.setViewportSize(PHONE_VIEWPORT);
+    await gotoSettled(page, ROUTE);
+    const id = 'biscuit';
+    await showCat(page, id);
+    await tricksButton(page, id).click();
+    const list = tricksList(page, id);
+    await expect(
+      list.getByRole('button', { name: TRICKS.yarn.label }),
+      'a trick that cannot fit the band is offered',
+    ).toHaveCount(0);
+    await list.getByRole('button', { name: TRICKS.fly.label }).click();
+    await expect(
+      page.locator(`#cat-spot-${id} .cat-prop-wing`).first(),
+      'the picked fly never appeared',
+    ).toBeAttached({ timeout: NAP_TIMEOUT_MS });
+
+    await page.setViewportSize(REFLOW_VIEWPORT);
+    await showCat(page, id);
+    await tricksButton(page, id).click();
+    await expect(list).toBeVisible();
+    await expect(
+      list.getByRole('button', { name: TRICKS.look.label }),
+    ).toBeAttached();
+    await expect(
+      list.getByRole('button', { name: TRICKS.fly.label }),
+      'a trick that cannot fit the band is offered',
+    ).toHaveCount(0);
+  });
+
   test('under reduced motion the cats sit still with no sleep control', async ({
     browser,
   }) => {
@@ -932,6 +1139,10 @@ test.describe('About cats', () => {
     await expect(
       page.locator('.cat-nap'),
       'a sleep control shows while nothing moves',
+    ).toHaveCount(0);
+    await expect(
+      page.locator('.cat-tricks-button'),
+      'a trick list shows while nothing moves',
     ).toHaveCount(0);
     for (const id of CATS) {
       await page.locator(`#cat-spot-${id}`).scrollIntoViewIfNeeded();
@@ -1278,12 +1489,17 @@ test.describe('About cats', () => {
     await gotoSettled(page, ROUTE);
     for (const id of CATS) {
       const drawings = page.locator(`#cat-spot-${id} svg`);
-      await expect(drawings, 'the cat and its sleep icon').toHaveCount(2);
+      await expect(
+        drawings.nth(2),
+        'the cat, its sleep icon and the trick icons',
+      ).toBeAttached();
       for (const svg of await drawings.all())
         await expect(svg).toHaveAttribute('aria-hidden', 'true');
     }
     await expect(
-      page.getByText('The moving cats are drawn with AI.'),
+      page.getByText(
+        'The moving cats and their trick icons are drawn with AI.',
+      ),
     ).toBeVisible();
   });
 
@@ -1295,7 +1511,9 @@ test.describe('About cats', () => {
     await page.goto(ROUTE);
     await expect(page.locator('.cat-button')).toHaveCount(0);
     await expect(
-      page.getByText('The moving cats are drawn with AI.'),
+      page.getByText(
+        'The moving cats and their trick icons are drawn with AI.',
+      ),
     ).toBeVisible();
     await context.close();
   });

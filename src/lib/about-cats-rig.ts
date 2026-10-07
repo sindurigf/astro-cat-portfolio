@@ -51,9 +51,6 @@ const STRIPES = [0.3, 0.5, 0.7];
 const STRING_TOP = -136;
 /** The scratching post's height in px, cap aside; with it, it stays under the band. */
 export const POST_HEIGHT = 92;
-/** A small, snug box: a resting cat's head and back show over its rim. */
-const BOX_HALF = 22;
-const BOX_HEIGHT = 15;
 /** A small and a larger "z", drawn from the lower left of the small one. */
 const ZZ = 'M0 0h4l-4 5h4M6 -9h6l-6 7h6';
 const ZZ_HEIGHT = 14;
@@ -662,7 +659,7 @@ export interface PropRig {
 }
 
 /* Props share the cat classes, so they follow the theme too. */
-/* `front` is drawn over the cat: a box's front panel hides the cat sitting in it. */
+/* `front` is drawn over the cat: the yarn ball held in its paws. */
 export const createProp = (
   parent: SVGGElement,
   front: SVGGElement,
@@ -670,10 +667,8 @@ export const createProp = (
 ): PropRig => {
   /* The yarn ball is held in the paws, so it draws over the cat. */
   const node = el('g', { class: 'cat-prop' }, kind === 'yarn' ? front : parent);
-  const cover = kind === 'box' ? el('g', { class: 'cat-prop' }, front) : null;
   const remove = (): void => {
     node.remove();
-    cover?.remove();
   };
   const edge = {
     class: 'cat-prop-solid',
@@ -796,59 +791,6 @@ export const createProp = (
       },
       node,
     );
-  } else if (kind === 'blanket') {
-    /* A soft, rumpled blanket with a folded corner and two stripes: wide and low, not a toy. */
-    el(
-      'path',
-      {
-        d: 'M-40 0C-41 -5 -36 -9 -28 -8C-18 -11 -8 -7 2 -9C12 -11 22 -7 30 -9C36 -10 40 -5 38 0Z',
-        ...edge,
-        class: 'cat-prop-solid cat-prop-blanket',
-      },
-      node,
-    );
-    el(
-      'path',
-      {
-        d: 'M-30 -4C-18 -6 -6 -3 6 -5C16 -7 26 -4 34 -5M-34 -1C-20 -3 -4 0 10 -2C20 -3 28 -1 36 -2',
-        class: 'cat-prop-stripe',
-        'stroke-width': 1.6,
-        'stroke-linecap': 'round',
-      },
-      node,
-    );
-    el(
-      'path',
-      {
-        d: 'M30 -9L38 0L28 -2Z',
-        ...edge,
-        class: 'cat-prop-solid cat-prop-fold',
-      },
-      node,
-    );
-  } else if (kind === 'box') {
-    el(
-      'path',
-      {
-        d: `M${-BOX_HALF} ${-BOX_HEIGHT}l-7 -7M${BOX_HALF} ${-BOX_HEIGHT}l7 -7`,
-        class: 'cat-prop-string',
-        'stroke-width': 3,
-        'stroke-linecap': 'round',
-      },
-      node,
-    );
-    el(
-      'rect',
-      {
-        x: -BOX_HALF,
-        y: -BOX_HEIGHT,
-        width: 2 * BOX_HALF,
-        height: BOX_HEIGHT,
-        ...edge,
-        class: 'cat-prop-solid cat-prop-card',
-      },
-      cover ?? node,
-    );
   } else {
     el(
       'path',
@@ -870,13 +812,11 @@ export const createProp = (
     node,
     remove,
     draw: (s) => {
-      for (const layer of cover ? [node, cover] : [node]) {
-        layer.setAttribute(
-          'transform',
-          `translate(${f(s.x)} ${f(s.y)}) rotate(${f(s.r)})`,
-        );
-        layer.setAttribute('opacity', f(s.o));
-      }
+      node.setAttribute(
+        'transform',
+        `translate(${f(s.x)} ${f(s.y)}) rotate(${f(s.r)})`,
+      );
+      node.setAttribute('opacity', f(s.o));
     },
   };
 };

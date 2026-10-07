@@ -50,7 +50,9 @@
   .cat-svg,
   .cat-svg *,
   .cat-nap-icon,
-  .cat-nap-icon * {
+  .cat-nap-icon *,
+  .cat-trick-icon,
+  .cat-trick-icon * {
     forced-color-adjust: auto;
   }
 
@@ -84,6 +86,68 @@
   .cat-nap-icon .cat-nap-solid {
     fill: currentColor;
     stroke: none;
+  }
+
+  /* Under the sleep control, in the same corner column the cat's track stops short of. */
+  .cat-tricks-button {
+    @apply pointer-events-auto absolute right-0 grid size-target
+      place-items-center border-4 border-border bg-surface text-gold;
+
+    top: --spacing(12);
+  }
+
+  .cat-tricks-button:hover {
+    @apply bg-gold text-gold-text;
+  }
+
+  .cat-trick-icon {
+    @apply size-6 shrink-0;
+
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2.2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .cat-trick-solid {
+    fill: currentColor;
+    stroke: none;
+  }
+
+  /* AboutCats.vue places it under the band. */
+  .cat-tricks {
+    @apply pointer-events-auto m-0 w-60 overflow-y-auto border-4 border-border
+      bg-surface p-0 text-text shadow-hard-pink-4;
+
+    position: fixed;
+    inset: auto;
+    right: var(--tricks-right);
+    top: var(--tricks-top);
+    max-height: var(--tricks-max);
+    overscroll-behavior: contain;
+  }
+
+  .cat-trick {
+    @apply flex min-h-target w-full items-center gap-3 border-0 border-b-4
+      border-border bg-transparent px-3 text-left text-label text-text;
+
+    /* Inside the list: an outer ring would be clipped by its scrolling. */
+    &:focus-visible {
+      outline-offset: calc(var(--focus-width) * -1);
+    }
+
+    &:hover {
+      @apply bg-gold text-gold-text;
+    }
+  }
+
+  .cat-tricks-note {
+    @apply m-0 p-3 text-label text-text;
+  }
+
+  .cat-tricks li:last-child .cat-trick {
+    @apply border-b-0;
   }
 
   /* Unpainted, so `all`: the box takes clicks between the legs and around the tail. */
@@ -211,19 +275,6 @@
   .cat-prop-cup,
   .cat-prop-wing {
     fill: var(--color-subtle);
-  }
-
-  .cat-prop-blanket {
-    fill: var(--color-cat-mochi-orange);
-  }
-
-  .cat-prop-fold {
-    fill: var(--color-cat-cardboard);
-  }
-
-  .cat-prop-stripe {
-    fill: none;
-    stroke: var(--color-cat-mochi);
   }
 
   .cat-prop-card {
