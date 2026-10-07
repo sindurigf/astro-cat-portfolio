@@ -156,6 +156,11 @@ test.describe('a press is drawn', () => {
       await page.emulateMedia({ reducedMotion: 'reduce' });
       await page.setViewportSize(DESKTOP_VIEWPORT);
       await gotoSettled(page, p.route);
+      await page.locator(p.control).first().hover();
+      expect(
+        await castsShadow(page, p.moves),
+        'no shadow before the press, so its loss below would prove nothing.',
+      ).toBe(true);
       await pressCenter(page, p.control);
       expect(await translateOf(page, p.moves)).toEqual([0, 0]);
       expect(
