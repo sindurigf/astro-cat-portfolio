@@ -159,7 +159,7 @@ less than the zoom factor, so 2x comes at a higher page zoom.
   `tests/text-resize.spec.ts` finds the lowest zoom that reaches 2x for every
   such token at 390, 1000, 1280 and 1920px and fails if none does.
 - **Headroom:** several heading and slide tokens reach 2x only at 500% at
-  some widths, the browsers' ceiling; the annotation below names them.
+  some widths, the browsers' ceiling; the spec's annotation names them.
 - **Safari:** its Page Zoom list stops at 300% on macOS and iOS, not
   confirmed from an Apple or WebKit source. The spec runs WebKit up to 300%
   and records which tokens reach 2x there without failing. Others reach 2x in
