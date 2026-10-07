@@ -5,7 +5,10 @@ import { expect, type Page, type Response } from '@playwright/test';
  * navigation stall is in the harness, not here; see `retries` in playwright.config.ts.
  */
 
-/* A margin for a shared runner whose main thread can stay busy past an assertion's 5s, not a fix for a known cause. */
+/*
+ * A margin for a shared runner whose main thread can stay busy past an assertion's 5s,
+ * not a fix for a known cause. With STATE_ANSWER_MS it stays inside the 30s default test timeout.
+ */
 export const HYDRATION_TIMEOUT = 20_000;
 
 /* The page may be too busy to answer, which is itself the evidence. */
@@ -25,35 +28,41 @@ const hydrationState = async (page: Page): Promise<string> => {
       pendingIslands: document.querySelectorAll('astro-island[ssr]').length,
     };
   });
-  const unanswered = new Promise<string>((resolve) =>
-    setTimeout(
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const unanswered = new Promise<string>((resolve) => {
+    timer = setTimeout(
       () => resolve(`the page did not answer in ${STATE_ANSWER_MS}ms`),
       STATE_ANSWER_MS,
-    ),
-  );
+    );
+  });
   try {
     return JSON.stringify(await Promise.race([state, unanswered]));
   } catch (error) {
     return `the page state could not be read: ${String(error)}`;
+  } finally {
+    clearTimeout(timer);
   }
 };
 
 /**
  * `data-menu-ready` is on every route, so it is the signal the page's script ran;
  * Astro removes `ssr` from an island once it mounts. Needs the site header.
- * A timeout appends the page's state, so a repeat failure says where hydration stopped.
+ * Both waits share one HYDRATION_TIMEOUT; a timeout appends the page's state.
  */
 export const waitForHydration = async (page: Page): Promise<void> => {
+  const deadline = Date.now() + HYDRATION_TIMEOUT;
+  // Playwright reads a timeout of 0 as none, so the floor is 1ms.
+  const remaining = () => ({ timeout: Math.max(1, deadline - Date.now()) });
   try {
     await expect(
       page.locator('[data-mobile-menu][data-menu-ready]'),
       'the header menu never marked itself ready, so its script did not run.',
-    ).toHaveCount(1, { timeout: HYDRATION_TIMEOUT });
+    ).toHaveCount(1, remaining());
 
     await expect(
       page.locator('astro-island[ssr]'),
       'an island never hydrated; a stale script hash in the CSP looks like this.',
-    ).toHaveCount(0, { timeout: HYDRATION_TIMEOUT });
+    ).toHaveCount(0, remaining());
   } catch (error) {
     if (error instanceof Error) {
       error.message += `\nPage state: ${await hydrationState(page)}`;
