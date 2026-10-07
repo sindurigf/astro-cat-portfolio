@@ -89,7 +89,7 @@ const castsShadow = (page: Page, selector: string) =>
         ),
     );
 
-// A real pointer press so :hover and :active both apply; the click is cancelled.
+// A real pointer press so :hover and :active both apply; the click is canceled.
 // Waits for :active: read before the press lands, a control that never moves
 // reads as one that correctly did not.
 const pressCenter = async (page: Page, control: string) => {
