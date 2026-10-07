@@ -13,6 +13,8 @@ export const MARK_SIZE = 64;
 export const MARK_BODY = 56;
 /** The 4px edge of a 48px tile, in mark units. */
 export const MARK_EDGE = 4.67;
+/** The 8px shadow of a 48px tile, in mark units. */
+export const MARK_SHADOW_OFFSET = 9.33;
 
 export const MARK_HEAD =
   'M4 46L4 13Q4 4 12 8L23 15Q26 17 30 17H34Q38 17 41 15L52 8Q60 4 60 13V46Q60 60 46 60H18Q4 60 4 46Z';

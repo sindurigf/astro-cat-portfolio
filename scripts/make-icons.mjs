@@ -12,6 +12,7 @@ import { writeFileSync } from 'node:fs';
 import { chromium } from '@playwright/test';
 import { cssColorToken } from '../src/lib/css-token.ts';
 import {
+  MARK_SHADOW_OFFSET as SHADOW_OFFSET,
   MARK_SIZE,
   markMarkup,
   markOneColor,
@@ -25,8 +26,6 @@ const SHADOW = paint('mark');
 
 /* The rim reaches 5.3 units past the head; two more keep it off the edge. */
 const TAB_VIEWBOX = '-2 -2 68 68';
-/* The tile's 8px shadow at 48px, in mark units, and room for it. */
-const SHADOW_OFFSET = 9.33;
 const APP_VIEWBOX = `0 0 ${MARK_SIZE + SHADOW_OFFSET} ${MARK_SIZE + SHADOW_OFFSET}`;
 /** Share of a full-bleed app icon the mark spans; maskable stays inside the 80% safe circle. */
 const APP_SPAN = 0.72;
@@ -132,6 +131,7 @@ try {
     `<!doctype html><html><body style="margin:0;width:${ONE_COLOR.width}px;height:${ONE_COLOR.height}px;display:grid;place-items:center">` +
       oneColor.replace(
         '<svg ',
+        /* Square, as the mark is: the 840x900 frame pads it top and bottom. */
         `<svg width="${ONE_COLOR.width}" height="${ONE_COLOR.width}" `,
       ) +
       '</body></html>',

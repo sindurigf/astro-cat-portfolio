@@ -11,6 +11,7 @@ import { readFileSync } from 'node:fs';
 import { chromium } from '@playwright/test';
 import { cssColorToken } from '../src/lib/css-token.ts';
 import {
+  MARK_SHADOW_OFFSET as SHADOW_OFFSET,
   MARK_SIZE,
   markMarkup,
   markSilhouette,
@@ -43,9 +44,6 @@ if (personName.length > MAX_NAME_LENGTH) {
     `make-og: the name is over ${MAX_NAME_LENGTH} characters and will not fit.`,
   );
 }
-
-/* The tile's 8px shadow at 48px, in mark units. */
-const SHADOW_OFFSET = 9.33;
 
 const markSvg = () =>
   `<svg class="mark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${MARK_SIZE + SHADOW_OFFSET} ${MARK_SIZE + SHADOW_OFFSET}">` +
