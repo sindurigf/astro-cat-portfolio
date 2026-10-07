@@ -16,6 +16,45 @@
     @apply max-w-none overflow-y-auto bg-background px-12 py-6;
   }
 
+  /*
+   * Full screen is a presentation: one 16:9 slide, letterboxed, no controls.
+   * Sized by CSS, not scaled, so zoom and text size still grow the text (SC
+   * 1.4.4, 1.4.12); a slide that outgrows the frame scrolls inside it.
+   */
+  .deck:not(.presenter):fullscreen {
+    @apply grid h-full place-content-center overflow-hidden;
+    container-type: size;
+  }
+
+  .deck:not(.presenter):fullscreen .deck-bar {
+    @apply hidden;
+  }
+
+  .deck:not(.presenter):fullscreen .deck-stage {
+    @apply aspect-video;
+    width: min(100cqw, 100cqh * 16 / 9);
+  }
+
+  .deck:not(.presenter):fullscreen .slide {
+    @apply h-full min-h-0 overflow-y-auto;
+    justify-content: safe center;
+  }
+
+  /* The focused heading's ring goes around the whole card, which reads as the active slide. */
+  .deck:not(.presenter):fullscreen .slide:has(> .slide-title:focus-visible) {
+    outline: var(--focus-width) solid var(--color-cyan);
+    outline-offset: calc(var(--focus-gap) + var(--lift-object));
+  }
+
+  .deck:not(.presenter):fullscreen .slide-title:focus-visible {
+    outline-color: transparent;
+  }
+
+  .deck:fullscreen[data-deck-idle],
+  .deck:fullscreen[data-deck-idle] * {
+    cursor: none;
+  }
+
   .deck-stage {
     @apply grid gap-12;
   }
@@ -49,7 +88,7 @@
     min-height: calc(100svh - var(--spacing-header) - var(--deck-chrome));
   }
 
-  .deck:fullscreen .slide {
+  .presenter:fullscreen .slide {
     min-height: calc(100svh - var(--deck-chrome));
   }
 
