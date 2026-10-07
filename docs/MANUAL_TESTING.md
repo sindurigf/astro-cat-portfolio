@@ -482,7 +482,7 @@ Setup: a rate-limited or server-failed submit (`npm run test:worker` serves
 it, or submit on preview until the limit trips).
 
 - [ ] The summary is announced on arrival without a key press. → SC 3.3.1
-- [ ] "Your message was not sent" comes before the reason. → SC 3.3.1
+- [ ] "Your Message Was Not Sent" comes before the reason. → SC 3.3.1
 - [ ] The reason tells a rate limit from a server failure. → SC 3.3.1
 - [ ] The typed message is still there and reachable with `Down`. → SC 3.3.1
 
