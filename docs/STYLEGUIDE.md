@@ -1040,6 +1040,12 @@ Enforced by `tests/nav-current.spec.ts`, `tests/mobile-menu.spec.ts`,
 - Each cat's SC 2.2.2 control sits in its band's corner: Zz ("Put Pepper to
   sleep") while it plays, a paw ("Wake Pepper") while it sleeps.
   Hidden under reduced motion, where nothing moves.
+- A paw button under Zz ("Choose a trick for Pepper") opens that cat's tricks:
+  Random first, then its own moves, each an icon and a name
+  (`src/lib/about-cats-tricks.ts`, fetched from its JSON after load, so `/about`
+  stays within its script budget). A pick plays once, wakes a sleeping cat
+  first, and trots the cat to room if the move needs it; the cat then plays on
+  at random. The list leaves out moves that cannot fit the band's width.
 - A cat naps after `NAP_AFTER_MS` of on-screen play (`src/lib/about-cats.ts`).
   Lying down, and the breaths and "z" after it, end within 5 s, then the cat is
   still.

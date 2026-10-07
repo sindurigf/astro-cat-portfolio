@@ -5,13 +5,20 @@ import {
   onBeforeUnmount,
   onMounted,
   ref,
+  shallowRef,
   useTemplateRef,
 } from 'vue';
 import { IDLE, useMotionLoop } from '../../composables/use-motion-loop';
 import { markFailed } from '../../scripts/failed-frame';
 import { clamp, createCatRig } from '../../lib/about-cats-rig';
 import type { CatId } from '../../lib/about-cats-types';
-import { EXTENT_WARMUPS } from '../../lib/about-cats-moves';
+import tricksUrl from '../../lib/about-cats-tricks-url';
+import {
+  isTricksData,
+  type PlayMove,
+  type TricksData,
+} from '../../lib/about-cats-tricks';
+import { CAT_WEIGHTS, EXTENT_WARMUPS } from '../../lib/about-cats-moves';
 import {
   createColony,
   type CatInfo,
@@ -94,6 +101,79 @@ const toggleNap = (id: CatId): void => {
   start();
 };
 
+/** The trick list's distance from its band and from the viewport's edges. */
+const TRICKS_MARGIN = 16;
+/** A list placed lower than this would be too short to use; it moves up instead. */
+const TRICKS_MIN_HEIGHT = 176;
+
+/* Names and icons are data, fetched after load, so /about's script carries none of them. */
+const tricks = shallowRef<TricksData | null>(null);
+const tricksNote = ref('Loading tricks.');
+
+const loadTricks = (): void => {
+  if (tricks.value) return;
+  fetch(tricksUrl)
+    .then((response) =>
+      response.ok ? response.json() : Promise.reject(response.status),
+    )
+    .then((data: unknown) => {
+      if (!isTricksData(data)) throw new Error('Unexpected tricks data');
+      tricks.value = data;
+    })
+    .catch((error: unknown) => {
+      console.error(error);
+      tricksNote.value = 'The tricks did not load. Open the list again.';
+    });
+};
+
+/** Each cat's tricks that fit its band, read when its list opens: a narrow band cannot hold them all. */
+const listed = ref<Partial<Record<CatId, PlayMove[]>>>({});
+const closeTricks = (): void =>
+  document
+    .querySelectorAll<HTMLElement>('.cat-tricks:popover-open')
+    .forEach((list) => list.hidePopover());
+
+const onTricksToggle = (id: CatId, event: Event): void => {
+  const open = (event as ToggleEvent).newState === 'open';
+  const method = open ? 'addEventListener' : 'removeEventListener';
+  /* A viewport-fixed list would stay behind a scrolled page; its own scrolling does not bubble here. */
+  window[method]('scroll', closeTricks);
+  const spot = document.getElementById(`cat-spot-${id}`);
+  const paw = spot?.querySelector('.cat-tricks-button');
+  paw?.setAttribute('aria-expanded', String(open));
+  const list = document.getElementById(`cat-tricks-${id}`);
+  if (!open || !colony || !spot || !paw || !list) return;
+  loadTricks();
+  const current = colony;
+  listed.value = {
+    ...listed.value,
+    [id]: (Object.keys(CAT_WEIGHTS[id]) as PlayMove[]).filter((name) =>
+      current.playable(id, name),
+    ),
+  };
+  const top = clamp(
+    spot.getBoundingClientRect().bottom + TRICKS_MARGIN,
+    TRICKS_MARGIN,
+    window.innerHeight - TRICKS_MIN_HEIGHT - TRICKS_MARGIN,
+  );
+  /* CSSOM custom properties: the CSP refuses style attributes, not these. */
+  list.style.setProperty(
+    '--tricks-right',
+    `${document.documentElement.clientWidth - paw.getBoundingClientRect().right}px`,
+  );
+  list.style.setProperty('--tricks-top', `${top}px`);
+  list.style.setProperty(
+    '--tricks-max',
+    `${window.innerHeight - top - TRICKS_MARGIN}px`,
+  );
+};
+
+const pickTrick = (id: CatId, name: PlayMove | 'random'): void => {
+  closeTricks();
+  colony?.trick(id, name, performance.now());
+  start();
+};
+
 /* Rects are read here, once a frame before drawing, not on every pointermove. */
 const feedPointer = (): void => {
   if (!colony || !pointerAt) return;
@@ -169,10 +249,16 @@ const onVisibility = (): void => {
 const onReducedMotion = (reduced: boolean): void => {
   if (!colony) return;
   if (reduced) {
-    /* The sleep control goes; focus on it moves to its cat rather than the page. */
+    /* The cat's controls go; focus on one moves to its cat rather than the page. */
     const focused = document.activeElement;
-    if (focused instanceof HTMLElement && focused.matches('.cat-nap'))
-      focused.parentElement?.querySelector<HTMLElement>('.cat-button')?.focus();
+    if (
+      focused instanceof HTMLElement &&
+      focused.matches('.cat-nap, .cat-tricks-button, .cat-trick')
+    )
+      focused
+        .closest('.cat-spot')
+        ?.querySelector<HTMLElement>('.cat-button')
+        ?.focus();
     colony.still();
   } else {
     for (const node of spots())
@@ -337,7 +423,10 @@ onMounted(async () => {
   });
   layout();
   if (reducedMotion.value) colony.still();
-  else warmExtents(EXTENT_WARMUPS);
+  else {
+    warmExtents(EXTENT_WARMUPS);
+    loadTricks();
+  }
 
   resizeObserver = new ResizeObserver(layout);
   for (const node of spots()) resizeObserver.observe(node);
@@ -356,6 +445,7 @@ onMounted(async () => {
 
 onBeforeUnmount(() => {
   followCat(false);
+  closeTricks();
   cancelWarm();
   resizeObserver?.disconnect();
   document.removeEventListener('pointermove', onPointer);
@@ -423,6 +513,58 @@ onBeforeUnmount(() => {
         </svg>
         <span class="sr-only">{{ napLabel(cat) }}</span>
       </button>
+      <template v-if="!reducedMotion">
+        <button
+          type="button"
+          class="cat-tricks-button"
+          aria-expanded="false"
+          v-bind="{ popovertarget: `cat-tricks-${cat.id}` }"
+        >
+          <svg class="cat-trick-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <ellipse cx="12" cy="16" rx="5" ry="4" />
+            <circle cx="5" cy="10" r="2" />
+            <circle cx="9.5" cy="5.5" r="2" />
+            <circle cx="14.5" cy="5.5" r="2" />
+            <circle cx="19" cy="10" r="2" />
+          </svg>
+          <span class="sr-only">Choose a trick for {{ cat.name }}</span>
+        </button>
+        <div
+          :id="`cat-tricks-${cat.id}`"
+          popover
+          class="cat-tricks"
+          @beforetoggle="onTricksToggle(cat.id, $event)"
+        >
+          <ul v-if="tricks" class="cat-trick-list">
+            <li
+              v-for="(name, i) in ['random', ...(listed[cat.id] ?? [])]"
+              :key="name"
+            >
+              <button
+                type="button"
+                class="cat-trick"
+                :autofocus="i === 0"
+                @click="pickTrick(cat.id, name)"
+              >
+                <svg
+                  class="cat-trick-icon"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
+                  <path
+                    v-for="(shape, i) in tricks.icons[tricks.tricks[name].icon]"
+                    :key="i"
+                    :d="shape.d"
+                    :class="{ 'cat-trick-solid': shape.solid }"
+                  />
+                </svg>
+                {{ tricks.tricks[name].label }}
+              </button>
+            </li>
+          </ul>
+          <p v-else class="cat-tricks-note">{{ tricksNote }}</p>
+        </div>
+      </template>
     </Teleport>
   </template>
 

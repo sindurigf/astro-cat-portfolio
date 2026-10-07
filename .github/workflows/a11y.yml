@@ -200,6 +200,32 @@ jobs:
           path: ~/.cache/ms-playwright
           key: ${{ runner.os }}-playwright-${{ steps.playwright.outputs.version }}
 
+      - name: Read the runner image version
+        id: image
+        run: echo "version=$ImageVersion" >> "$GITHUB_OUTPUT"
+
+      # install-deps downloads about 125 MB from an apt mirror that sometimes
+      # crawls at under 300 kB/s. A restore from an older runner image still
+      # saves most of it; apt fetches what is missing. Only pushes to main save,
+      # so a pull request cannot write a cache that main restores.
+      - name: Restore apt packages
+        id: debs
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/apt-archives
+          key: ${{ runner.os }}-apt-debs-${{ steps.playwright.outputs.version }}-${{ steps.image.outputs.version }}
+          restore-keys: ${{ runner.os }}-apt-debs-${{ steps.playwright.outputs.version }}-
+
+      - name: Put the restored packages where apt looks
+        if: ${{ steps.debs.outputs.cache-matched-key != '' }}
+        run: |
+          shopt -s nullglob
+          debs=("$HOME"/apt-archives/*.deb)
+          if [ "${#debs[@]}" -gt 0 ]; then
+            sudo mkdir -p /var/cache/apt/archives
+            sudo cp "${debs[@]}" /var/cache/apt/archives/
+          fi
+
       # WebKit runs here; locally it needs `npm run test:webkit` (Docker).
       # apt can stall silently: each try is cut off and retried once. install-deps
       # runs as root, so `timeout` can kill a stuck apt and free the dpkg lock.
@@ -215,6 +241,32 @@ jobs:
           }
           retry sudo env "PATH=$PATH" timeout --kill-after=30s 5m node_modules/.bin/playwright install-deps chromium firefox webkit
           retry timeout --kill-after=30s 5m node_modules/.bin/playwright install chromium firefox webkit
+
+      # apt trusts a cached package by its size, so a corrupt file fails the
+      # install in dpkg. autoclean drops superseded versions, which bounds the
+      # cache. A cache write must never fail the gate.
+      - name: Collect apt packages
+        id: collect
+        if: ${{ github.ref == 'refs/heads/main' && matrix.shard == 1 && steps.debs.outputs.cache-hit != 'true' }}
+        continue-on-error: true
+        run: |
+          sudo apt-get autoclean
+          shopt -s nullglob
+          debs=(/var/cache/apt/archives/*.deb)
+          if [ "${#debs[@]}" -gt 0 ]; then
+            mkdir -p "$HOME/apt-archives"
+            sudo cp "${debs[@]}" "$HOME/apt-archives/"
+            sudo chown -R "$USER" "$HOME/apt-archives"
+          fi
+          echo "count=${#debs[@]}" >> "$GITHUB_OUTPUT"
+
+      - name: Save apt packages
+        if: ${{ steps.collect.outputs.count != '' && steps.collect.outputs.count != '0' }}
+        continue-on-error: true
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/apt-archives
+          key: ${{ steps.debs.outputs.cache-primary-key }}
 
       # No axe rule is excluded.
       - name: Accessibility tests

@@ -96,7 +96,9 @@ Dark is the default. Colors and rules:
 - `mark` and `tile-edge` hold the mode-independent logo-tile colors.
 - An inline script in `BaseLayout.astro`'s `<head>` sets `data-theme` from the
   saved choice or `prefers-color-scheme` before the body parses, and adds the
-  `js` class the slideshow's pre-hide keys on. Its hash is in `script-src`.
+  `js` class the slideshow's pre-hide keys on. After `DECK_READY_TIMEOUT_MS` it
+  sets `data-deck-failed` on a deck that is not ready, and the deck then shows
+  every slide. Its hash is in `script-src`.
   It sits in `<head>`, not beside the switch, so nothing paints in the wrong
   theme first.
 - `src/components/ThemeSwitch.astro` is a `<button aria-pressed>` named "Light
@@ -313,6 +315,10 @@ Commits, copy rules and process: [AGENTS.md](AGENTS.md).
   `node_modules/.astro/assets` and the shards restore it, so the shards still
   start together. A shared `dist/` artifact would need a build job in front of
   them.
+- **The apt package cache is a trust boundary.** apt accepts a cached `.deb` of
+  the right size without re-checking its hash; a corrupt same-size file fails in
+  dpkg. Only pushes to main (shard 1) save it. Do not widen that to pull
+  requests.
 - Post, category and tag routes in `tests/routes.ts` are read from
   `src/content/blog/` frontmatter, which exists at collection. A test that
   needs a particular post picks it by property (`CONTENTS_POST_ROUTE`,

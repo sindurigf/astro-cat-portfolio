@@ -43,7 +43,7 @@ test.describe('/brand', () => {
   }) => {
     await gotoSettled(page, ROUTE);
     const pairs = await page
-      .locator('#contrast .contrast-dark details tbody tr td:first-child')
+      .locator('#contrast .contrast-dark details tbody tr th')
       .evaluateAll((cells) =>
         cells.map((cell) =>
           [...cell.querySelectorAll('code')]
@@ -59,6 +59,27 @@ test.describe('/brand', () => {
         (row: { fg: string; bg: string }) => `${row.fg} on ${row.bg}`,
       ),
     );
+  });
+
+  test('every contrast table has a caption and a row header per row (SC 1.3.1)', async ({
+    page,
+  }) => {
+    await gotoSettled(page, ROUTE);
+    const tables = await page.locator('#contrast table').evaluateAll((all) =>
+      all.map((table) => ({
+        caption: table.querySelector('caption')?.textContent?.trim() ?? '',
+        rows: table.querySelectorAll('tbody tr').length,
+        rowHeaders: table.querySelectorAll('tbody th[scope="row"]').length,
+      })),
+    );
+    expect(tables.length, 'the page has no contrast table').toBeGreaterThan(0);
+    for (const table of tables) {
+      expect(table.caption, 'a contrast table has no caption').not.toBe('');
+      expect(
+        table.rowHeaders,
+        `${table.caption} has a row with no header`,
+      ).toBe(table.rows);
+    }
   });
 
   for (const theme of ['dark', 'light'] as const) {
@@ -84,7 +105,8 @@ test.describe('/brand', () => {
 
       const rows = await shown.locator('tbody tr').evaluateAll((trs) =>
         trs.map((tr) => {
-          const [pair, , ratio] = tr.querySelectorAll('td');
+          const pair = tr.querySelector('th');
+          const [, ratio] = tr.querySelectorAll('td');
           const [fg, bg] = [...pair!.querySelectorAll('code')].map(
             (c) => c.textContent!,
           );

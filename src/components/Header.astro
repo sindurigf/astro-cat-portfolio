@@ -33,7 +33,7 @@ const LINK_REST = 'border-transparent text-text hover:text-cyan';
 
 {/* Gutter on <header>, not the column, so its content box matches <main> and the footer. */}
 <header class="page-gutter sticky top-0 z-50 h-header border-b-8 border-border bg-background short:static">
-  {/* Grid from `lg`, not `md`: between 768 and 1023px the row barely fits and centring wastes slack. */}
+  {/* Grid from `lg`, not `md`: between 768 and 1023px the row barely fits and centering wastes slack. */}
   <div class="mx-auto flex h-full max-w-page items-center justify-between lg:grid lg:grid-cols-header">
     {/*
       The desktop nav has no Home item, so this link carries aria-current on `/`.
@@ -109,9 +109,9 @@ const LINK_REST = 'border-transparent text-text hover:text-cyan';
           data-menu-trigger
         >
           <span aria-hidden="true" class="relative block h-4 w-6">
-            <span class="absolute left-0 top-0 block h-menu-bar w-6 bg-gold group-aria-expanded:top-menu-bar-mid group-aria-expanded:rotate-45" />
-            <span class="absolute left-0 top-menu-bar-mid block h-menu-bar w-6 bg-gold opacity-100 group-aria-expanded:opacity-0" />
-            <span class="absolute left-0 top-menu-bar-end block h-menu-bar w-6 bg-gold group-aria-expanded:top-menu-bar-mid group-aria-expanded:-rotate-45" />
+            <span class="absolute left-0 top-0 block h-menu-bar w-6 bg-gold forced-colors:bg-button-text group-aria-expanded:top-menu-bar-mid group-aria-expanded:rotate-45" />
+            <span class="absolute left-0 top-menu-bar-mid block h-menu-bar w-6 bg-gold forced-colors:bg-button-text opacity-100 group-aria-expanded:opacity-0" />
+            <span class="absolute left-0 top-menu-bar-end block h-menu-bar w-6 bg-gold forced-colors:bg-button-text group-aria-expanded:top-menu-bar-mid group-aria-expanded:-rotate-45" />
           </span>
         </button>
 
