@@ -518,8 +518,7 @@ drawings are `aria-hidden`.
       the paw. → SC 2.4.3, 4.1.2
 - [ ] Choosing "Chase the Fly" plays it; choosing a trick for a sleeping cat
       wakes it first. → SC 2.2.2
-- [ ] The drawings announce nothing; "The moving cats and their trick icons are drawn with AI" is
-      read. → SC 1.1.1
+- [ ] The drawings announce nothing. → SC 1.1.1
 
 Heard: `________________________`
 

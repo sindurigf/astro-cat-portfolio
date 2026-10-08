@@ -151,8 +151,9 @@ Rules:
 - The sample persona's copy is the one exception: AI-written, labeled in the
   footer and listed in [AI_DISCLOSURE.md](AI_DISCLOSURE.md).
 - New images, video, audio or editorial text: record whether AI made or edited
-  it. If so, label it on the page and in
-  [AI_DISCLOSURE.md](AI_DISCLOSURE.md#keeping-this-current) (EU AI Act Art. 50).
+  it. If so, list it under Made with AI on `/credits/` and in
+  [AI_DISCLOSURE.md](AI_DISCLOSURE.md#keeping-this-current). Only a deep fake
+  (EU AI Act Art. 50(4)) also needs a label on its page.
 - Photos are stripped of EXIF and XMP before commit; `npm run check` fails
   otherwise.
 

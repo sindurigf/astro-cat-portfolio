@@ -2034,7 +2034,7 @@ test.describe('About cats', () => {
     });
   }
 
-  test('the drawings are hidden from assistive technology and the AI label is on the page', async ({
+  test('the drawings are hidden from assistive technology', async ({
     page,
   }) => {
     await gotoSettled(page, ROUTE);
@@ -2047,25 +2047,13 @@ test.describe('About cats', () => {
       for (const svg of await drawings.all())
         await expect(svg).toHaveAttribute('aria-hidden', 'true');
     }
-    await expect(
-      page.getByText(
-        'The moving cats and their trick icons are drawn with AI.',
-      ),
-    ).toBeVisible();
   });
 
-  test('without JavaScript there are no cats and the AI label stays', async ({
-    browser,
-  }) => {
+  test('without JavaScript there are no cats', async ({ browser }) => {
     const context = await browser.newContext({ javaScriptEnabled: false });
     const page = await context.newPage();
     await page.goto(ROUTE);
     await expect(page.locator('.cat-button')).toHaveCount(0);
-    await expect(
-      page.getByText(
-        'The moving cats and their trick icons are drawn with AI.',
-      ),
-    ).toBeVisible();
     await context.close();
   });
 });

@@ -119,6 +119,15 @@ const GUIDES = [
   },
 ] as const;
 
+/* Keep in step with AI_DISCLOSURE.md "AI-drawn art". */
+const MADE_WITH_AI = [
+  { name: 'The About cats and their trick icons', href: '/about/' },
+  { name: 'The poneglyph in the homepage field', href: '/' },
+  { name: 'The logo cat, its icons and the sharing image', href: '/' },
+] as const;
+
+const AI_DISCLOSURE_HREF = `${REPOSITORY_URL}/blob/main/AI_DISCLOSURE.md`;
+
 /* Named photographers only; the sample's one entry points back to this card. */
 const photographers = Object.entries(PHOTOGRAPHERS)
   .filter(([, href]) => href !== PHOTO_CREDITS_PATH)
@@ -335,6 +344,23 @@ const NAMED_ENTRY = 'min-w-0 bg-background p-card-tight';
           <a href={ORIGIN.href} class={LINK_ITEM}>
             {ORIGIN.text}
           </a>
+        </p>
+      </div>
+
+      <div id="ai" class="card lg:col-span-2">
+        <h2 class={CARD_HEADING}>Made with AI</h2>
+        <ul class="bullet-list mt-6">
+          {MADE_WITH_AI.map((item) => (
+            <li>
+              <a href={item.href} class={LINK_ITEM}>
+                {item.name}
+              </a>
+            </li>
+          ))}
+        </ul>
+        <p class="mt-6 text-body text-text text-pretty">
+          How AI helped build the site:{' '}
+          <a href={AI_DISCLOSURE_HREF}>AI disclosure</a>.
         </p>
       </div>
     </div>
