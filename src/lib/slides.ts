@@ -309,12 +309,18 @@ const LEAD_IN = new RegExp(
   'g',
 );
 
+/* "**Linux**: …" renders the colon outside the bold; it belongs to the term. */
+const BOLD_LEAD_IN = /(<(?:li|p)><strong>)([^<]+)<\/strong>:/g;
+
 /**
  * Marks the plain-text term before a colon that opens a list item or
- * paragraph ("The myth: …"); a term already in bold is left as written.
+ * paragraph ("The myth: …"), and pulls the colon after an opening bold term
+ * into the bold, so each lead-in is one gold unit.
  */
 export const markLeadIns = (html: string): string =>
-  html.replace(LEAD_IN, '$1<span class="slide-lead">$2:</span>');
+  html
+    .replace(LEAD_IN, '$1<span class="slide-lead">$2:</span>')
+    .replace(BOLD_LEAD_IN, '$1$2:</strong>');
 
 /** Hashed into the PDF; tests/talk-pdf.spec.ts fails when slides.md drifts. */
 export const printedContent = (source: string, file: string): string =>
