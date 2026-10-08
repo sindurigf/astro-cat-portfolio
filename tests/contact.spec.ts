@@ -27,6 +27,7 @@ import { timedScan } from './axe';
 import { obscuredReport, readObscured } from './obscured';
 import { settleFocusScroll, tabWalk } from './tab-walk';
 import { DESKTOP_VIEWPORT, REFLOW_VIEWPORT } from './wcag';
+import { setViewportSettled } from './settle';
 
 /**
  * `/contact/send/`, the only on-demand route. Runs under
@@ -958,7 +959,7 @@ test.describe('the contact error pages in a browser', () => {
   const expectFocusUncovered = async (page: Page, label: string) => {
     for (const viewport of [REFLOW_VIEWPORT, DESKTOP_VIEWPORT]) {
       for (const { key, start } of WALKS) {
-        await page.setViewportSize(viewport);
+        await setViewportSettled(page, viewport);
         await start(page).focus();
         const stops = await tabWalk(page, () => readObscured(page), {
           key,
