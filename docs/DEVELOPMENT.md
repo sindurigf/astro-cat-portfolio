@@ -135,7 +135,9 @@ npm run test:webkit -- tests/reflow.spec.ts
   `scripts/noindex.mjs` rewrites `_headers` and `_redirects` on a
   [`NOINDEX` build](DEPLOYMENT.md#run-a-demo); `scripts/warm-browsers.mjs`
   opens one page per browser in CI before the tests, so no worker's first page
-  builds the browser caches inside a test.
+  builds the browser caches inside a test;
+  `scripts/shard-tests.mjs` deals CI's tests to the shards in turn and checks
+  each shard's `--test-list` selects exactly its share.
 - [AGENTS.md](../AGENTS.md) lists what must pass before a change is done.
 
 | Variable                        | Default                  | Effect                                                   |
