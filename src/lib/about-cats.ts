@@ -494,17 +494,22 @@ export const createColony = (
       Math.abs(dx) > FACE_DEADBAND
         ? Math.sign(dx)
         : Math.sign(cat.pose.face) || 1;
-    const settled = mixPose(
-      cat.pose,
-      pose('sit', { x: cat.pose.x, hr: target ? tiltTowards(cat, target) : 0 }),
-      eased(WATCH_EASE, frames),
-    );
-    settled.x = cat.pose.x;
-    /* A flat sticker flips; easing the width through zero shows a sliver. */
-    settled.face = want;
-    const moving = poseGap(cat.pose, settled) > SETTLED;
-    cat.pose = settled;
-    return moving;
+    const aim = pose('sit', {
+      x: cat.pose.x,
+      hr: target ? tiltTowards(cat, target) : 0,
+    });
+    aim.face = want;
+    const toward = (frameCount: number): Pose => {
+      const next = mixPose(cat.pose, aim, eased(WATCH_EASE, frameCount));
+      next.x = cat.pose.x;
+      /* A flat sticker flips; easing the width through zero shows a sliver. */
+      next.face = want;
+      return next;
+    };
+    /* Settled is judged on one frame's step, so a long frame cannot ease the residue past SETTLED and redraw a still cat. */
+    if (poseGap(cat.pose, toward(1)) <= SETTLED) return false;
+    cat.pose = toward(frames);
+    return true;
   };
 
   /** Turns to a moving pointer and tilts its head to it; with none, the watcher plays like the others. */

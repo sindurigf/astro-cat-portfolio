@@ -722,6 +722,8 @@ const catState = async (page: Page, id: (typeof CATS)[number]) => {
 
 /** Frames a loaded runner draws late, beyond the 5 s bound for lying down. */
 const SLEEP_MARGIN_MS = 1000;
+/* Longer than MAX_FRAMES_PER_STEP frames at 60fps, so the next frame covers the most a frame can. */
+const STALL_MS = 150;
 /** A cat counts as settled once its drawing has not changed for this long. */
 const QUIET_MS = 500;
 /* Frames as well as time: a starved runner can draw no frame for QUIET_MS while the cat is still mid-move. */
@@ -1541,6 +1543,59 @@ test.describe('About cats', () => {
       }
       throw error;
     }
+    await context.close();
+  });
+
+  test('a held cat that has settled is not redrawn after a slow frame', async ({
+    browser,
+  }) => {
+    const context = await browser.newContext({ viewport: PEPPER_AND_MOCHI });
+    const page = await context.newPage();
+    await gotoSettled(page, ROUTE);
+    /* Mochi playing keeps the loop running, so a frame follows the stall. */
+    await expectMood(
+      page,
+      'mochi',
+      'playing',
+      'Mochi is not playing beside her',
+    );
+    await pointAt(page, 'pepper');
+    await page.waitForTimeout(POINTER_IDLE_MS);
+    expect(
+      await settles(page, 'pepper', SC_2_2_2_MS),
+      'a held cat was still moving 5 s after the pointer went idle',
+    ).toBe(true);
+    const redraws = await page.evaluate(
+      ([spotId, stallMs, windowMs]) =>
+        new Promise<number>((resolve) => {
+          const drawing = document
+            .getElementById(String(spotId))
+            ?.querySelector('.cat-svg');
+          if (!drawing) throw new Error(`#${spotId} has no .cat-svg to watch.`);
+          let records = 0;
+          const observer = new MutationObserver((changes) => {
+            records += changes.length;
+          });
+          observer.observe(drawing, {
+            attributes: true,
+            childList: true,
+            subtree: true,
+          });
+          setTimeout(() => {
+            const end = performance.now() + Number(stallMs);
+            while (performance.now() < end);
+          }, 0);
+          setTimeout(() => {
+            observer.disconnect();
+            resolve(records);
+          }, Number(windowMs));
+        }),
+      ['cat-spot-pepper', STALL_MS, MUTATION_WINDOW_MS] as const,
+    );
+    expect(
+      redraws,
+      'a held cat that had settled was redrawn after one slow frame',
+    ).toBe(0);
     await context.close();
   });
 
