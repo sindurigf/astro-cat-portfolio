@@ -16,7 +16,7 @@ current once the site is yours.
 
 AI-drawn art, all by Claude:
 
-- The animated About cats and their trick icons (`src/lib/about-cats-tricks.json`), labeled on `/about`.
+- The animated About cats and their trick icons (`src/lib/about-cats-tricks.json`).
 - The poneglyph and its lighting script in the homepage field
   (`src/lib/hero-field-poneglyph.ts`).
 - The logo cat, a calico head shaped like the logo tile (`src/lib/brand-mark.ts`),
@@ -29,8 +29,8 @@ AI-drawn art, all by Claude:
   `scripts/make-og.mjs` with the logo cat.
 
 Every page's footer says "Cat drawings and text made with AI" and links this
-file (`tests/ai-label.spec.ts` checks every route). `/about` also labels its
-moving cats and their trick icons where they play.
+file (`tests/ai-label.spec.ts` checks every route). The art is also listed
+under Made with AI at the end of `/credits/`.
 
 - The cat photos are real photographs, not generated or edited by AI.
 - The sample persona and all her text are written by Claude:
@@ -45,8 +45,9 @@ moving cats and their trick icons where they play.
 
 ## EU AI Act, Article 50
 
-- Article 50 requires that AI-generated or AI-manipulated images, video, audio
-  and text published to inform the public are disclosed as such.
+- Article 50(4) requires a label on AI-made deep fakes (Art. 3(60): realistic
+  enough to pass as authentic) and on AI text published to inform the public on
+  matters of public interest, unless a person holds editorial responsibility.
 - This template labels its AI-drawn art and AI-written text on every page, and
   lists them here.
 
@@ -54,8 +55,8 @@ moving cats and their trick icons where they play.
 
 - Update this file in the same commit when you change the model or tool, add
   AI-made images, video, audio or editorial text, or run any AI at runtime.
-- Label AI-made or AI-edited media and editorial text on the page that shows
-  it, as `/about` does for the cats.
+- List AI-made or AI-edited media under Made with AI on `/credits/`. Label a
+  deep fake, or AI text no person has reviewed, on the page that shows it.
 - The pull request template asks for this under "Content".
 
 ## Attribution
