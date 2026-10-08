@@ -116,7 +116,7 @@
   }
 
   .slide-cover .slide-title {
-    @apply text-h1;
+    @apply text-deck-cover;
   }
 
   /*
