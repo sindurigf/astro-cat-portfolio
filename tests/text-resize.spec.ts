@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { expect, test, type Page } from './test';
-import { gotoSettled } from './settle';
+import { gotoSettled, setViewportSettled } from './settle';
 import { NODE } from './tags';
 
 /*
@@ -46,6 +46,7 @@ const PLAIN_ZOOM_TOKENS = [
   '--text-hero-h1-column',
   '--text-hero-h1-column-phone',
   '--text-h2',
+  '--text-h3',
   '--text-post-title',
   '--text-post-card',
   '--text-post-card-feature',
@@ -93,11 +94,11 @@ for (const { width, height } of WINDOWS) {
   test(`every heading token reaches 2x at 200% zoom at ${width}px`, async ({
     page,
   }) => {
-    await page.setViewportSize({ width, height });
+    await setViewportSettled(page, { width, height });
     await gotoSettled(page, '/');
     const base = await tokenSizes(page, PLAIN_ZOOM_TOKENS);
 
-    await page.setViewportSize({
+    await setViewportSettled(page, {
       width: Math.round(width / PLAIN_ZOOM),
       height: Math.round(height / PLAIN_ZOOM),
     });
@@ -121,13 +122,13 @@ for (const { width, height } of WINDOWS) {
   }, testInfo) => {
     const levels = ZOOM_LEVELS[browserName as keyof typeof ZOOM_LEVELS];
 
-    await page.setViewportSize({ width, height });
+    await setViewportSettled(page, { width, height });
     await gotoSettled(page, '/');
     const base = await tokenSizes(page);
 
     const lowest: (number | null)[] = base.map(() => null);
     for (const zoom of levels) {
-      await page.setViewportSize({
+      await setViewportSettled(page, {
         width: Math.round(width / zoom),
         height: Math.round(height / zoom),
       });
