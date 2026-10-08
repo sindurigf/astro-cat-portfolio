@@ -682,6 +682,44 @@ const headTurn = (page: Page, id: (typeof CATS)[number]) =>
     throw new Error('The cat has no head turn to read.');
   });
 
+/* Window for counting animation frames: none in it means the renderer, not the cat loop, has stopped. */
+const FRAME_COUNT_MS = 500;
+
+/** What a stuck cat's page shows: its reported state, band visibility, tab visibility and frame rate. */
+const catState = async (page: Page, id: (typeof CATS)[number]) => {
+  try {
+    const state = await page.evaluate(
+      ([spotId, windowMs]) =>
+        new Promise<Record<string, unknown>>((resolve) => {
+          const spot = document.getElementById(String(spotId));
+          let frames = 0;
+          let done = false;
+          const count = () => {
+            if (done) return;
+            frames += 1;
+            requestAnimationFrame(count);
+          };
+          requestAnimationFrame(count);
+          setTimeout(() => {
+            done = true;
+            resolve({
+              state: spot
+                ?.querySelector('[data-cat-state]')
+                ?.getAttribute('data-cat-state'),
+              bandVisible: spot?.hasAttribute('data-cat-visible'),
+              documentHidden: document.hidden,
+              framesIn500ms: frames,
+            });
+          }, Number(windowMs));
+        }),
+      [`cat-spot-${id}`, FRAME_COUNT_MS] as const,
+    );
+    return JSON.stringify({ ...state, headTurn: await headTurn(page, id) });
+  } catch (error) {
+    return `the page state could not be read: ${String(error)}`;
+  }
+};
+
 /** Frames a loaded runner draws late, beyond the 5 s bound for lying down. */
 const SLEEP_MARGIN_MS = 1000;
 /** A cat counts as settled once its drawing has not changed for this long. */
@@ -1490,12 +1528,19 @@ test.describe('About cats', () => {
         timeout: POINTER_IDLE_MS,
       })
       .toBeGreaterThan(HEAD_TURNED_DEG);
-    await expect
-      .poll(() => headTurn(page, 'pepper'), {
-        message: 'a held cat kept its head turned to an idle pointer',
-        timeout: POINTER_IDLE_MS + SC_2_2_2_MS,
-      })
-      .toBeLessThan(HEAD_LEVEL_DEG);
+    try {
+      await expect
+        .poll(() => headTurn(page, 'pepper'), {
+          message: 'a held cat kept its head turned to an idle pointer',
+          timeout: POINTER_IDLE_MS + SC_2_2_2_MS,
+        })
+        .toBeLessThan(HEAD_LEVEL_DEG);
+    } catch (error) {
+      if (error instanceof Error) {
+        error.message += `\nCat state: ${await catState(page, 'pepper')}`;
+      }
+      throw error;
+    }
     await context.close();
   });
 
