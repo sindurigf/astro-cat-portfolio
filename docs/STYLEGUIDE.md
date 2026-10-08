@@ -601,6 +601,9 @@ The grid rule in `scripts/check-tokens.mjs` enforces the grid;
 - **Reflow:** every type is one column below 640px, on the 288px content box
   at 320px. At 200% zoom a 1280px window is 640 CSS px. Only photo strips
   and wide tables scroll sideways, each in its own region.
+- **Below 305px:** `below-reflow:` (under 19rem) is for 500% zoom only: words
+  break anywhere and the header name is visually hidden. `stickers-wrap:`
+  (under 17.5rem) wraps the footer stickers. Nothing changes from 305px up.
 
 ### Page compositions
 

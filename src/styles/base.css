@@ -70,6 +70,19 @@
     overflow-wrap: break-word;
   }
 
+  /* Breaking anywhere keeps each line on screen at 500% zoom. */
+  body,
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @variant below-reflow {
+      overflow-wrap: anywhere;
+    }
+  }
+
   h1 {
     font-size: var(--text-h1);
     line-height: 0.94;
