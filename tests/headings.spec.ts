@@ -2,10 +2,7 @@ import { expect, test } from './test';
 import { ROUTES } from './routes';
 import { gotoSettled } from './settle';
 
-/**
- * One h1, no skipped level, nothing below --text-post-h3 (19px, label size
- * reads as a label), and each post heading a clear step under its parent.
- */
+/** One h1, no skipped level, none under 19px or above its parent; post levels step by 0.8. */
 const HEADING_FLOOR = 19;
 const STEP = 0.8;
 
