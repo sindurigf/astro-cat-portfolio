@@ -30,6 +30,7 @@ for (const route of ROUTES)
               .slice(0, 40),
             size: parseFloat(getComputedStyle(h).fontSize),
             inPost: h.closest('.post-layout .prose') !== null,
+            example: h.closest('[data-example]') !== null,
             section:
               h.tagName === 'H2' &&
               h.closest('main > section') !== null &&
@@ -59,6 +60,20 @@ for (const route of ROUTES)
               `${h.text}: h${h.level} at ${h.size}px is not a step under its h${parent.level} at ${parent.size}px`,
             );
           }
+        }
+      });
+      // On every page, no h3 or lower looks bigger than its parent level. A /brand
+      // example shows another page's heading at that page's size, so it is skipped.
+      headings.forEach((h, i) => {
+        if (h.level < 3 || h.example) return;
+        const parent = headings
+          .slice(0, i)
+          .reverse()
+          .find((p) => p.level === h.level - 1 && !p.example);
+        if (parent && h.size > parent.size) {
+          problems.push(
+            `${h.text}: h${h.level} at ${h.size}px above its h${parent.level} at ${parent.size}px`,
+          );
         }
       });
       // Section h2s are one level, so one size; and no h2 looks bigger than the h1.
