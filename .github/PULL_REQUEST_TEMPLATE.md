@@ -26,5 +26,5 @@ Delete this section if the PR touches no markup or CSS.
 
 Delete this section if the PR adds no images, video, audio or editorial text.
 
-- [ ] AI made or edited none of it, or it is labeled on the page and in
+- [ ] AI made or edited none of it, or it is listed on `/credits/` and in
       `AI_DISCLOSURE.md`.
