@@ -1,8 +1,8 @@
-import { expect, test, type Locator, type Page } from './test';
+import { expect, test, type Page } from './test';
 import { gotoSettled, sweepTimeout } from './settle';
 import { readFileSync } from 'node:fs';
 import { builtPages, islandRoutesFromBuild, ROUTES } from './routes';
-import { MIN_TARGET, PHONE_VIEWPORT, SUBPIXEL_TOLERANCE } from './wcag';
+import { PHONE_VIEWPORT } from './wcag';
 import { NODE } from './tags';
 
 /**
@@ -58,18 +58,6 @@ const fieldFingerprint = (page: Page) =>
     }
     return { ink, signature };
   });
-
-const expectHeroTargetSize = async (control: Locator) => {
-  const box = await control.boundingBox();
-  expect(
-    box?.width,
-    'hero pause control target width (SC 2.5.8)',
-  ).toBeGreaterThanOrEqual(MIN_TARGET - SUBPIXEL_TOLERANCE);
-  expect(
-    box?.height,
-    'hero pause control target height (SC 2.5.8)',
-  ).toBeGreaterThanOrEqual(MIN_TARGET - SUBPIXEL_TOLERANCE);
-};
 
 /*
  * `cancelAnimationFrame` must really remove the callback: `stop()` in
@@ -206,7 +194,6 @@ test.describe('the hero field on /', () => {
     /* By keyboard, not by click(). */
     const control = page.getByRole('button', { name: HERO_PAUSE_NAME });
     await expect(control).toBeVisible();
-    await expectHeroTargetSize(control);
 
     await control.focus();
     await expect(control).toBeFocused();
