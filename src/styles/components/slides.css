@@ -44,6 +44,25 @@
     @apply justify-start;
   }
 
+  /*
+   * One composition at every frame size: spacing and type follow the frame's
+   * height (`cqh`), matching 1280x720, with the rem floors and caps of the
+   * global tokens so page zoom still reaches 2x.
+   */
+  .deck:not(.presenter):fullscreen .deck-stage {
+    container-type: size;
+  }
+
+  .deck:not(.presenter):fullscreen .slide {
+    --spacing: 0.6cqh;
+    --spacing-head: 7.2cqh;
+    --slide-pad-inline: calc(var(--spacing) * 0);
+    --slide-pad-block: calc(var(--spacing) * 0);
+    --text-slide: var(--text-slide-frame);
+    --text-slide-title: var(--text-slide-title-frame);
+    --text-slide-number: var(--text-slide-number-frame);
+  }
+
   /* The focused heading's ring goes around the whole card, which reads as the active slide. */
   .deck:not(.presenter):fullscreen .slide:has(> .slide-title:focus-visible) {
     outline: var(--focus-width) solid var(--color-cyan);

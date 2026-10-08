@@ -53,6 +53,11 @@
     text-decoration-color: currentColor;
   }
 
+  /* Hover takes the light page's link hover color, as every other link does. */
+  :root[data-theme='light'] main .slide-body a:not([class]):hover {
+    color: var(--color-cyan);
+  }
+
   :root[data-theme='light'] main :is(.label.text-gold, .slide-label)::before {
     content: '';
 
