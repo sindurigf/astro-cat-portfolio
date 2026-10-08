@@ -709,6 +709,11 @@ evidence.
 - **Drop `tests/header-fit.spec.ts`'s sideways-scroll check as a reflow
   duplicate:** it is the only sideways check at 336px (`--breakpoint-xs`), and
   it reads one number from the page state the test already measures.
+- **Change the contact endpoint for an over-cap chunked 500
+  (run 37695518322):** the dev proxy (`@cloudflare/vite-plugin` 1.62.5)
+  answers 500 after the endpoint's 413. It can recur in CI under
+  `--fail-on-flaky-tests`: the log shows `POST /contact/send/ 413`, then
+  undici "fetch failed". Keep the test strict.
 
 ## Content notes
 
