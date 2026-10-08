@@ -301,6 +301,21 @@ export const cardGroups = (body: string): string => {
   return out.join('\n\n');
 };
 
+/* Longer than this before the colon is a sentence, not a lead-in term. */
+const LEAD_IN_MAX_CHARACTERS = 40;
+
+const LEAD_IN = new RegExp(
+  `(<(?:li|p)>)([^<>:\\n]{1,${LEAD_IN_MAX_CHARACTERS}}):(?=\\s)`,
+  'g',
+);
+
+/**
+ * Marks the plain-text term before a colon that opens a list item or
+ * paragraph ("The myth: …"); a term already in bold is left as written.
+ */
+export const markLeadIns = (html: string): string =>
+  html.replace(LEAD_IN, '$1<span class="slide-lead">$2:</span>');
+
 /** Hashed into the PDF; tests/talk-pdf.spec.ts fails when slides.md drifts. */
 export const printedContent = (source: string, file: string): string =>
   JSON.stringify(

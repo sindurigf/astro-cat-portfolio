@@ -33,20 +33,22 @@ blur, uppercase headings, tilted marks.
 - **A gold use not on this list adds a row, with its argument, in the same
   change.**
 
-| #   | Where gold is spent                                                                                | Measured on                            |
-| --- | -------------------------------------------------------------------------------------------------- | -------------------------------------- |
-| 1a  | Ground, full slab: `/about`, `/career`, `/contact`, `/blog`, `/credits`, `/brand`                  | 6 routes                               |
-| 1b  | Ground, thin slab: `/contact/sent`, both posts                                                     | 3 routes                               |
-| 1c  | Ground, mid-page: a `Section surface="gold"`, the About quote, `/contact`'s closing band           | `/career`, `/about`, `/`, `/contact`   |
-| 2   | The primary action: `.nav-cta`, `.btn-primary`                                                     | 11 routes, 4 routes                    |
-| 3   | the logo marks: the roundel, the homepage sticker; the logo cat is Mochi's coat, not gold          | 9 routes, `/`                          |
-| 4   | Card labels, `.label text-gold`; a form's field labels are `text`                                  | `/about`, `/accessibility`, `/contact` |
-| 4a  | A talk slide's label, bold words and part number, as the deck's Markdown sets them                 | `/talks/<deck>/`                       |
-| 5   | Category: the blog label and the homepage glyph tiles                                              | 3 routes                               |
-| 6   | Display words: the homepage family name                                                            | `/`                                    |
-| 7   | List markers in `.bullet-list`                                                                     | wherever a bulleted list is            |
-| 8   | The `gold` swatch and the dark-mode contrast samples on gold on `/brand`; fills, hex in both modes | `/brand`                               |
+| #   | Where gold is spent                                                                                             | Measured on                            |
+| --- | --------------------------------------------------------------------------------------------------------------- | -------------------------------------- |
+| 1a  | Ground, full slab: `/about`, `/career`, `/contact`, `/blog`, `/credits`, `/brand`                               | 6 routes                               |
+| 1b  | Ground, thin slab: `/contact/sent`, both posts                                                                  | 3 routes                               |
+| 1c  | Ground, mid-page: a `Section surface="gold"`, the About quote, `/contact`'s closing band                        | `/career`, `/about`, `/`, `/contact`   |
+| 2   | The primary action: `.nav-cta`, `.btn-primary`                                                                  | 11 routes, 4 routes                    |
+| 3   | the logo marks: the roundel, the homepage sticker; the logo cat is Mochi's coat, not gold                       | 9 routes, `/`                          |
+| 4   | Card labels, `.label text-gold`; a form's field labels are `text`                                               | `/about`, `/accessibility`, `/contact` |
+| 4a  | A talk slide's label, bold words, part number and lead-in term before a colon; its text links, still underlined | `/talks/<deck>/`                       |
+| 5   | Category: the blog label and the homepage glyph tiles                                                           | 3 routes                               |
+| 6   | Display words: the homepage family name                                                                         | `/`                                    |
+| 7   | List markers in `.bullet-list`                                                                                  | wherever a bulleted list is            |
+| 8   | The `gold` swatch and the dark-mode contrast samples on gold on `/brand`; fills, hex in both modes              | `/brand`                               |
 
+- 4a's lead-in terms and links make a projected slide's key words readable at
+  a glance; light mode turns them ink, like bold words.
 - A use with a replacement takes it: a `/career` date is `subtle`; the
   homepage stat numbers are `gold-text` on their gold band (gold on gold is
   1.00).
