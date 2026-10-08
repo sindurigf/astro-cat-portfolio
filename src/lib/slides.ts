@@ -310,7 +310,7 @@ const LEAD_IN = new RegExp(
 );
 
 /* "**Linux**: …" renders the colon outside the bold; it belongs to the term. */
-const BOLD_LEAD_IN = /(<(?:li|p)><strong>)([^<]+)<\/strong>:/g;
+const BOLD_LEAD_IN = /(<(?:li|p)><strong>)([^<]+)<\/strong>:(?=\s)/g;
 
 /**
  * Marks the plain-text term before a colon that opens a list item or

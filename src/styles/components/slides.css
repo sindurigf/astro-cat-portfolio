@@ -296,7 +296,7 @@
     @apply mt-3;
   }
 
-  /* A lone card keeps the tighter padding, so slide 25's fits 1024x768. */
+  /* A lone card keeps the tighter padding, so slide 25 fits 1024x768. */
   .slide-body > .slide-card {
     @apply mt-6 py-4;
   }
