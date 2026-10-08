@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { expect, test, type Page } from './test';
-import { gotoSettled } from './settle';
+import { gotoSettled, setViewportSettled } from './settle';
 import { NODE } from './tags';
 
 /*
@@ -38,10 +38,31 @@ const TARGET_SCALE = 2;
 /* The hero h1 tokens reach exactly 2x at 500%; this absorbs sub-pixel rounding only. */
 const ROUNDING_TOLERANCE = 0.01;
 
-/** Fewer tokens than this means the pattern stopped matching global.css. */
-const FEWEST_TOKENS = 20;
+/** Heading tokens held to the plain reading: 2x at 200% zoom at every width. */
+const PLAIN_ZOOM_TOKENS = [
+  '--text-h1',
+  '--text-reading-h1',
+  '--text-hero-h1',
+  '--text-hero-h1-column',
+  '--text-hero-h1-column-phone',
+  '--text-h2',
+  '--text-h3',
+  '--text-post-title',
+  '--text-post-card',
+  '--text-post-card-feature',
+  '--text-post-h2',
+  '--text-post-h3',
+] as const;
 
-const tokenSizes = (page: Page): Promise<number[]> =>
+const PLAIN_ZOOM = 2;
+
+/** Fewer tokens than this means the pattern stopped matching global.css. */
+const FEWEST_TOKENS = 10;
+
+const tokenSizes = (
+  page: Page,
+  tokens: readonly string[] = VIEWPORT_TEXT_TOKENS,
+): Promise<number[]> =>
   page.evaluate((tokens) => {
     const probe = document.createElement('div');
     document.body.append(probe);
@@ -51,7 +72,7 @@ const tokenSizes = (page: Page): Promise<number[]> =>
     });
     probe.remove();
     return sizes;
-  }, VIEWPORT_TEXT_TOKENS);
+  }, tokens);
 
 test('the viewport text tokens are found in global.css', NODE, () => {
   expect(
@@ -60,6 +81,40 @@ test('the viewport text tokens are found in global.css', NODE, () => {
   ).toBeGreaterThanOrEqual(FEWEST_TOKENS);
 });
 
+test('every plain-zoom heading token is defined in global.css', NODE, () => {
+  expect(
+    PLAIN_ZOOM_TOKENS.filter(
+      (token) => !new RegExp(`^\\s*${token}:`, 'm').test(GLOBAL_CSS),
+    ),
+    'plain-zoom heading tokens missing from global.css',
+  ).toEqual([]);
+});
+
+for (const { width, height } of WINDOWS) {
+  test(`every heading token reaches 2x at 200% zoom at ${width}px`, async ({
+    page,
+  }) => {
+    await setViewportSettled(page, { width, height });
+    await gotoSettled(page, '/');
+    const base = await tokenSizes(page, PLAIN_ZOOM_TOKENS);
+
+    await setViewportSettled(page, {
+      width: Math.round(width / PLAIN_ZOOM),
+      height: Math.round(height / PLAIN_ZOOM),
+    });
+    const zoomed = await tokenSizes(page, PLAIN_ZOOM_TOKENS);
+
+    expect(
+      PLAIN_ZOOM_TOKENS.flatMap((token, i) =>
+        zoomed[i] * PLAIN_ZOOM < TARGET_SCALE * base[i] - ROUNDING_TOLERANCE
+          ? [`${token}: ${base[i]}px, ${zoomed[i]}px at 200%`]
+          : [],
+      ),
+      `heading text under 2x at 200% zoom at ${width}px`,
+    ).toEqual([]);
+  });
+}
+
 for (const { width, height } of WINDOWS) {
   test(`every viewport text token reaches 2x by page zoom at ${width}px`, async ({
     page,
@@ -67,13 +122,13 @@ for (const { width, height } of WINDOWS) {
   }, testInfo) => {
     const levels = ZOOM_LEVELS[browserName as keyof typeof ZOOM_LEVELS];
 
-    await page.setViewportSize({ width, height });
+    await setViewportSettled(page, { width, height });
     await gotoSettled(page, '/');
     const base = await tokenSizes(page);
 
     const lowest: (number | null)[] = base.map(() => null);
     for (const zoom of levels) {
-      await page.setViewportSize({
+      await setViewportSettled(page, {
         width: Math.round(width / zoom),
         height: Math.round(height / zoom),
       });

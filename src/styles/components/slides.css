@@ -140,7 +140,7 @@
   }
 
   .slide-cover .slide-title {
-    @apply text-h1;
+    @apply text-deck-cover;
   }
 
   /*
@@ -349,7 +349,7 @@
   }
 
   .presenter-upcoming {
-    @apply mt-4 text-h3 font-black;
+    @apply mt-4 text-display font-black;
   }
 
   /* One slide per 16:9 page; nothing else prints. */

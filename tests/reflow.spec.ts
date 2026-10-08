@@ -114,7 +114,11 @@ const headingWordsWiderThanTheirBox = (softHyphen: string): string[] => {
     probe.style.textTransform = style.textTransform;
     probe.style.fontWeight = style.fontWeight;
 
-    for (const word of (heading.textContent ?? '').split(/\s+/)) {
+    // A popover renders in the top layer at its own size, not the heading's.
+    const shown = heading.cloneNode(true) as Element;
+    for (const tip of shown.querySelectorAll('[popover]')) tip.remove();
+
+    for (const word of (shown.textContent ?? '').split(/\s+/)) {
       if (!word) continue;
       const segments = word.split(softHyphen);
       segments.forEach((segment, i) => {

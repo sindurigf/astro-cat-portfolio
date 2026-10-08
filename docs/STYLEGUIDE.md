@@ -269,40 +269,43 @@ The switch and what it scopes: [ARCHITECTURE.md](../ARCHITECTURE.md#light-mode).
 
 ## Type scale
 
-Lexend Variable, weights 400 and 900 only. Sizes are `clamp()` tokens; the
+Lexend Variable, weights 400 and 900 only. Heading sizes are fixed so 200%
+zoom doubles them (SC 1.4.4); other sizes are `clamp()` tokens; the
 copyright and contents list are fixed, and `text-code` is `max(1rem, 0.92em)`,
 0.92 of the text around it with a 16px floor.
 
-| Token                    | Min px | Max px | Line height | Weight | Use                              |
-| ------------------------ | ------ | ------ | ----------- | ------ | -------------------------------- |
-| `text-hero-h1`           | 28     | 70     | 0.94        | 900    | Homepage name only               |
-| `text-h1`                | 33     | 80     | 0.94        | 900    | Page title                       |
-| `text-reading-h1`        | 33     | 70     | 0.94        | 900    | Privacy, Accessibility title     |
-| `text-h2`                | 26     | 64     | 0.96        | 900    | Section and panel heading        |
-| `text-h3`                | 20     | 32     | 1.1         | 900    | Third-level heading, card title  |
-| `text-lead`              | 20     | 32     | 1.55        | 400    | Lead; card paragraph at h3 size  |
-| `text-post-title`        | 28     | 52     | 1.06        | 900    | Post title, in its own case      |
-| `text-post-h2`           | 24     | 36     | 1.02        | 900    | Post section; `.reading-layout`  |
-| `text-post-h3`           | 19     | 24     | 1.15        | 900    | Post subsection, last level      |
-| `text-post-card`         | 19     | 32     | 1.15        | 900    | Post card title (an `h2`)        |
-| `text-post-card-feature` | 26     | 64     | 1.02        | 900    | Featured post card title         |
-| `text-contents`          | 16     | 16     | 1.35        | 400    | A post's contents list           |
-| `text-standfirst`        | 20     | 36     | 1.55        | 400    | Slab aside, `.standfirst`        |
-| `text-post-teaser`       | 21     | 26     | 1.55        | 400    | Post and plain-tier aside        |
-| `text-body`              | 18     | 19     | 1.62        | 400    | Reading text                     |
-| `text-code`              | 16     | none   | 1.5         | 400    | Code, `--font-mono`; tracks body |
-| `text-button`            | 14     | 16     | 1.2         | 900    | Buttons; same as `text-label`    |
-| `text-label`             | 14     | 16     | 1.2         | 900    | Labels; 16 to 40rem, 14 at 48rem |
-| `text-hero-sticker`      | 18     | 30     | 1.02        | 900    | Homepage hero stickers           |
-| `text-menu`              | 34     | 56     | 1           | 900    | Mobile menu links                |
-| `text-slide`             | 17     | 34     | 1.35        | 400    | Slide text: full screen, print   |
-| `text-slide-title`       | 26     | 65     | 1           | 900    | Talk slide title, its own case   |
-| `text-slide-title-page`  | 24     | 56     | 1           | 900    | Slide title on the page          |
-| `text-slide-number`      | 72     | 160    | 1           | 900    | Talk part number                 |
-| `text-copyright`         | 20     | 20     | 1.2         | 900    | Footer copyright                 |
-| `text-footer-name`       | 32     | 40     | 1           | 900    | Footer name                      |
-| `text-section-number`    | 21     | 28     | 1           | 900    | Category glyph tile              |
-| `text-quote-mark`        | 64     | 144    | 0.75        | 900    | About quote mark                 |
+| Token                    | Min px | Max px | Line height | Weight | Use                                   |
+| ------------------------ | ------ | ------ | ----------- | ------ | ------------------------------------- |
+| `text-hero-h1`           | 36     | 36     | 0.94        | 900    | Homepage name only                    |
+| `text-h1`                | 48     | 48     | 0.94        | 900    | Page title                            |
+| `text-deck-cover`        | 33     | 80     | 0.94        | 900    | Talk cover title                      |
+| `text-reading-h1`        | 40     | 40     | 0.94        | 900    | Privacy, Accessibility title          |
+| `text-h2`                | 28     | 28     | 0.96        | 900    | Section and panel heading             |
+| `text-h3`                | 22     | 22     | 1.1         | 900    | Third-level heading, card title       |
+| `text-display`           | 20     | 32     | 1.1         | 900    | Links, values and stats, not headings |
+| `text-lead`              | 24     | 24     | 1.55        | 400    | Lead; card paragraph                  |
+| `text-post-title`        | 32     | 32     | 1.06        | 900    | Post title, in its own case           |
+| `text-post-h2`           | 28     | 28     | 1.02        | 900    | Post section; `.reading-layout`       |
+| `text-post-h3`           | 22     | 22     | 1.15        | 900    | Post subsection, last level           |
+| `text-post-card`         | 24     | 24     | 1.15        | 900    | Post card title (an `h2`)             |
+| `text-post-card-feature` | 28     | 28     | 1.02        | 900    | Featured post card title              |
+| `text-contents`          | 16     | 16     | 1.35        | 400    | A post's contents list                |
+| `text-standfirst`        | 20     | 36     | 1.55        | 400    | Slab aside, `.standfirst`             |
+| `text-post-teaser`       | 21     | 26     | 1.55        | 400    | Post and plain-tier aside             |
+| `text-body`              | 18     | 19     | 1.62        | 400    | Reading text                          |
+| `text-code`              | 16     | none   | 1.5         | 400    | Code, `--font-mono`; tracks body      |
+| `text-button`            | 14     | 16     | 1.2         | 900    | Buttons; same as `text-label`         |
+| `text-label`             | 14     | 16     | 1.2         | 900    | Labels; 16 to 40rem, 14 at 48rem      |
+| `text-hero-sticker`      | 18     | 30     | 1.02        | 900    | Homepage hero stickers                |
+| `text-menu`              | 34     | 56     | 1           | 900    | Mobile menu links                     |
+| `text-slide`             | 17     | 34     | 1.35        | 400    | Slide text: full screen, print        |
+| `text-slide-title`       | 26     | 65     | 1           | 900    | Talk slide title, its own case        |
+| `text-slide-title-page`  | 24     | 56     | 1           | 900    | Slide title on the page               |
+| `text-slide-number`      | 72     | 160    | 1           | 900    | Talk part number                      |
+| `text-copyright`         | 20     | 20     | 1.2         | 900    | Footer copyright                      |
+| `text-footer-name`       | 32     | 40     | 1           | 900    | Footer name                           |
+| `text-section-number`    | 21     | 28     | 1           | 900    | Category glyph tile                   |
+| `text-quote-mark`        | 64     | 144    | 0.75        | 900    | About quote mark                      |
 
 - Lexend, self-hosted from `@fontsource-variable/lexend` (OFL-1.1), family
   `'Lexend Variable'`. Only the latin subset is declared, in the `@font-face`
@@ -321,10 +324,13 @@ copyright and contents list are fixed, and `text-code` is `max(1rem, 0.92em)`,
 - Every size is a token. No breakpoint steps.
 - Nothing renders under 16px on a phone: `text-label` and `text-button` are
   16px to 40rem (`tests/text-size.spec.ts`).
-- Headings never skip levels; one `<h1>` per page.
-- `text-hero-h1` floors at 28px so the homepage name stays two lines.
-- `text-reading-h1` is for the Privacy and Accessibility titles only. It
-  shares `text-h1`'s 33px floor and `9vw` term: change both together.
+- Headings never skip levels; one `<h1>` per page. No heading is larger than
+  the level above it (`tests/headings.spec.ts`); a /brand example, shown at
+  another page's size, is exempt.
+- `text-hero-h1` is 36px so the homepage name stays two lines.
+- `text-reading-h1` is for the Privacy and Accessibility titles only.
+- The talk cover keeps the fluid `text-deck-cover`; the deck has its own
+  rule ([ACCESSIBILITY.md](../ACCESSIBILITY.md) gap 7).
 - Posts use `text-post-*`. Do not raise them to the page scale.
 - The footer motto's 32px floor keeps about 11 characters on one line at 288px.
 - Tracking: `--tracking-heading` -0.05em on h1 and h2, `--tracking-title`
@@ -335,15 +341,17 @@ copyright and contents list are fixed, and `text-code` is `max(1rem, 0.92em)`,
 ### Heading floors
 
 Set by reflow, not taste. `.page-gutter` leaves a 273px content box at 305px
-(400% zoom) and 288px at 320px. `tests/reflow.spec.ts` holds them; rerun it
-before raising one.
+(400% zoom) and 288px at 320px. Each fixed heading size is the largest whose
+longest word fits there; `tests/reflow.spec.ts` holds them.
 
-- `text-h1` 33px: `PROFESSIONAL` and `ACCESSIBILITY` fit 273px; 34px leaves
-  `ACCESSIBILITY` 2px of room.
-- `text-h2` 26px, `text-h3` 20px. Do not raise h2 to 29px or h3 to 24px:
-  26:24 reads as one size at 320px. Do not even out the h1:h2 ratio by
-  raising h2.
-- `ANNOUNCEMENTS` needs 29px and is not fitted.
+- `text-h1` 48px: `CREDITS` fits 273px.
+- `text-reading-h1` 40px: `ACCES-SIBILITY` breaks at its soft hyphen.
+- `text-hero-h1` 36px: a ten-letter family name fits the name's 241px window.
+- `text-h2` 28px: `ARCHAEOLOGY` fits. `text-h3` 22px, 0.8 of it.
+- `text-post-title` 32px.
+- A longer word in a heading fails `reflow.spec.ts`'s heading-word fit on
+  every built route. The fix is a soft hyphen in the source, not a smaller
+  token.
 - Never zero the gutter below `sm`; move the floors instead.
 - Headings set `hyphens: auto` and `overflow-wrap: break-word`. Never
   `hyphens: none` on a heading.
@@ -373,8 +381,8 @@ before raising one.
 - A word over twelve characters in an `h1` or `h2` takes a soft hyphen
   (U+00AD) at a syllable boundary. Chromium's hyphenation dictionary misses
   uppercased words; a soft hyphen survives `text-transform`.
-- Width, not count, is the real test: measure against 273px at 33px
-  (`WOODWORKING`, eleven letters, overflows).
+- Width, not count, is the real test: measure against 273px at the heading's
+  size (`WOODWORKING`, eleven letters, overflows at 33px).
 
 | Path                                     | Write                         |
 | ---------------------------------------- | ----------------------------- |
@@ -471,7 +479,7 @@ file per area.
 | `.card-title`                           | Every card heading, `text-h3` 900                                                                                                                                                        |
 | `.card-link`                            | Title link stretched over the card; inline-block, 44px min; card hover turns title and shadow cyan                                                                                       |
 | `.card-solid`                           | The subject card, a `text` fill; raised in a `.card-block`, or `.card-raised` in a dark group                                                                                            |
-| `.lead`                                 | Paragraph under a section heading, `text-h3` 400, 24px under it                                                                                                                          |
+| `.lead`                                 | Paragraph under a section heading, `text-lead` 400, 24px under it                                                                                                                        |
 | `.standfirst`                           | Line beside PageHero's title, `text-standfirst` 400                                                                                                                                      |
 | `.bullet-list`                          | Bulleted list, gold markers                                                                                                                                                              |
 | `.chip`                                 | Tags, jump links, filters, pager. Always a link. `border-4`, 44px target; a chip list is `gap-6`                                                                                         |
@@ -577,7 +585,7 @@ The grid rule in `scripts/check-tokens.mjs` enforces the grid;
 - `<section aria-labelledby="{id}-heading">` with `<h2 id="{id}-heading">`.
 - Heading: `text-h2`, 900, uppercase, `--tracking-heading`, `text` (14.42). No
   eyebrow label; labels belong to cards.
-- Lead: `.lead`, `text-h3` at 400, 24px under the heading.
+- Lead: `.lead`, `text-lead` (24px) at 400, 24px under the heading.
 - Content: `--spacing-head` under the heading or lead.
 - `Section headless` when the heading sits beside a picture: the slot renders
   the `h2` with id `<id>-heading`. No rule above a heading.
@@ -647,13 +655,12 @@ how important the page is.
 
 - **Full:** the opening is a statement and the other half of the composition
   has content.
-- **Thin:** one short line and no section headings after it. A 52px thin title
-  under 64px panel headings would be outranked, so a page with panels is never
-  thin. `/blog` is not thin: its featured title is `text-post-card-feature` at
-  64px.
+- **Thin:** one short line and no section headings after it. A 32px thin title
+  over 28px panel headings is not a 0.8 step, so a page with panels is never
+  thin. `/blog` is not thin: its featured title is `text-post-card-feature`.
 - **Plain:** a document, or a page whose chips and cards say what it is. Takes
   `.reading-layout` in the same change, which sets `.prose h2` to
-  `text-post-h2` (title to first heading 1.94:1, against 1.09:1 at `text-h2`).
+  `text-post-h2` (40px title over a 28px first heading).
 - The plain tier is a dark slab in the gold column's shape holding the title
   and roundel; the breadcrumb sits above it and everything else under it, on
   the page body's column (the measure on a reading page, the page column on a
@@ -813,8 +820,8 @@ Enforced by `tests/post-page.spec.ts`.
   and tags, and for Privacy and Accessibility. At most 75 characters per line
   at the 18px body floor.
 - In rem, not `ch`: Firefox measures Lexend's `ch` wider than Chromium.
-- `text-reading-h1` stops at 70px so ACCESSIBILITY fits one line; never 64px
-  or less (`text-h2`'s ceiling).
+- `text-reading-h1` is 40px; ACCESSIBILITY breaks at its soft hyphen at
+  305px.
 - Body figures break out of the measure; the text does not. A landscape
   takes the page column, and from `xl` the measure plus the track right of it,
   from the text's left edge toward the page column's right edge like the hero
@@ -840,8 +847,8 @@ Enforced by `tests/post-page.spec.ts`.
 | Element     | Treatment                                                                                                                                               |
 | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Paragraph   | `mt-6`, `text-body` (18 to 19px, line height 1.62), `text`                                                                                              |
-| `h2`        | `mt-16`, `text-post-h2` (24 to 36px); its text follows at the next `mt-6`                                                                               |
-| `h3`        | `mt-12`, `text-post-h3` (19 to 24px). The last level                                                                                                    |
+| `h2`        | `mt-16`, `text-post-h2` (28px); its text follows at the next `mt-6`                                                                                     |
+| `h3`        | `mt-12`, `text-post-h3` (22px). The last level                                                                                                          |
 | Inline code | `.prose code`: the mono stack at `--text-code`, on a `surface` fill with `px-1` and no border                                                           |
 | Code block  | `.prose pre`: mono, `border-4 border-border` on `surface`, `p-4`, scrolls sideways, a named tab stop                                                    |
 | Lists       | `mt-6 pl-6`, items `mt-3`, gold markers; a link-only item is 44px tall                                                                                  |
@@ -871,9 +878,9 @@ Enforced by `tests/post-page.spec.ts`.
 
 - `tests/headings.spec.ts` holds a post at 1280px and 320px to a 19px floor
   (`HEADING_FLOOR`) and a 0.8 step (`STEP`) between levels.
-- At 320px `--text-post-h3` is at its 19px floor, so an `h4` would need to be
-  at most 15.2px and at least 19px. The spec fails it at 320px.
-- The `h3` floor stays 19px and level 4 is not exempt from `STEP`.
+- `--text-post-h3` is 22px, so an `h4` would need to be at most 17.6px and
+  at least 19px. The spec fails it at 320px.
+- The heading floor stays 19px and level 4 is not exempt from `STEP`.
 - A post that needs a fourth level is reopened as a deliberate decision.
 
 ### Contents and tags

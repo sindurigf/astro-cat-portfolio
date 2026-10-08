@@ -107,6 +107,7 @@ const TYPE_CLASS: Record<string, string> = {
   'text-h1': 'text-h1 tracking-heading',
   'text-h2': 'text-h2 tracking-heading',
   'text-h3': 'text-h3',
+  'text-display': 'text-display',
   'text-standfirst': 'text-standfirst',
   'text-body': 'text-body',
   'text-label': 'text-label uppercase tracking-label',
@@ -229,7 +230,7 @@ const SWATCH_BOX = 'grid size-16 shrink-0 place-items-center';
               />
             ) : GLYPH.test(swatch) ? (
               <span
-                class:list={[SWATCH_BOX, 'text-h3 font-black', swatch]}
+                class:list={[SWATCH_BOX, 'text-display font-black', swatch]}
                 aria-hidden="true"
               >
                 Aa

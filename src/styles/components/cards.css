@@ -168,7 +168,7 @@
   }
 
   .post-contents-marker::before {
-    @apply text-h3 leading-none font-black;
+    @apply text-display leading-none font-black;
 
     content: '+';
   }

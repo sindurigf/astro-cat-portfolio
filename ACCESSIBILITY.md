@@ -104,8 +104,8 @@ view (development server only, never published), and forks.
   than its box, and no text or control sits past either edge. Below 320px
   (1000px and 1280px windows at 500% zoom), every line of text stays on
   screen and no route scrolls sideways at 200px or 256px (SC 1.4.8).
-- **Text resize.** Every text token reaches 2x by page zoom in Chromium and
-  Firefox ([Text resize](#text-resize-sc-144)).
+- **Text resize.** Headings reach 2x at 200% zoom; other text reaches 2x by
+  page zoom in Chromium and Firefox ([Text resize](#text-resize-sc-144)).
 - **Target size.** A 44px square centered on every target outside a sentence
   hits only that target, at 305px and 1280px, on every page (listings sampled
   as below) and in the open cat card, photo viewer and menu (SC 2.5.5).
@@ -157,21 +157,24 @@ Passing axe is not conformance.
 
 [Understanding 1.4.4](https://www.w3.org/WAI/WCAG22/Understanding/resize-text.html):
 "it should still be possible to get 200% text enlargement in some way
-compared to the default 100% zoom". Text tokens with a `vw` or `svh` term grow
-less than the zoom factor, so 2x comes at a higher page zoom.
+compared to the default 100% zoom".
 
-- **Met by:** page zoom up to 500% in Chromium and Firefox.
-  `tests/text-resize.spec.ts` finds the lowest zoom that reaches 2x for every
-  such token at 390, 1000, 1280 and 1920px and fails if none does.
-- **Headroom:** several heading and slide tokens reach 2x only at 500% at
-  some widths, the browsers' ceiling; the spec's annotation names them.
+- **Headings:** page, reading, hero, section (h2 and h3), post and card
+  titles are fixed sizes, so they reach 2x at 200% zoom at every width, in every browser and
+  with text-only zoom. `tests/text-resize.spec.ts` asserts it at 390, 1000,
+  1280 and 1920px.
+- **Other text:** tokens with a `vw` or `svh` term grow less than the zoom
+  factor, so 2x comes at a higher page zoom, up to 500% in Chromium and
+  Firefox. The spec finds the lowest zoom that reaches 2x for each and fails
+  if none does. Some slide tokens reach 2x only at 500%, the browsers'
+  ceiling; the spec's annotation names them.
 - **Safari:** its Page Zoom list stops at 300% on macOS and iOS, not
   confirmed from an Apple or WebKit source. The spec runs WebKit up to 300%
   and records which tokens reach 2x there without failing. Others reach 2x in
   Safari only through system magnification (Zoom on macOS and iOS); the site
   does not use Dynamic Type (`-apple-system-body`). Known limit.
 - **Text-only zoom:** Firefox "Zoom Text Only" scales the `rem` parts only,
-  so `vw` text does not reach 2x that way. Under
+  so `vw` text other than headings does not reach 2x that way. Under
   [F94](https://www.w3.org/WAI/WCAG22/Techniques/failures/F94) one working
   method is enough.
 

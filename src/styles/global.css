@@ -175,17 +175,20 @@
     monospace;
 
   /*
-   * Floors are a reflow limit (SC 1.4.10, tests/reflow.spec.ts); never shrink
-   * the gutter instead.
+   * Heading sizes are fixed rem, so zoom reaches 2x at 200% (SC 1.4.4,
+   * tests/text-resize.spec.ts); each is the largest whose words fit at 305px.
    */
-  /* The ceiling keeps a PageHero title and its standfirst reading as a pair. */
-  --text-h1: clamp(2.0625rem, 9vw, 5rem);
+  /* CREDITS fits the 273px box at 305px. */
+  --text-h1: 3rem;
   --text-h1--line-height: 0.94;
+  /* The talk cover keeps the fluid title; the deck has its own rule (ACCESSIBILITY.md gap 7). */
+  --text-deck-cover: clamp(2.0625rem, 9vw, 5rem);
+  --text-deck-cover--line-height: 0.94;
   /*
-   * The homepage h1 only. `9vw` / `13svh` fit the viewport. 28px floor: a ten-letter family name must stay one line in the
+   * The homepage h1 only. A ten-letter family name must stay one line in the
    * window's 241px at 305px, and a third line breaks the layout.
    */
-  --text-hero-h1: clamp(1.75rem, min(9vw, 13svh), 4.375rem);
+  --text-hero-h1: 2.25rem;
   --text-hero-h1--line-height: 0.94;
   /*
    * Ink offsets inside the name's 0.94 line boxes, as fractions of font size,
@@ -195,11 +198,10 @@
   --hero-name-ink-foot: 0.0831;
   --hero-name-ink-head: 0.1188;
   /*
-   * Titles of Privacy and Accessibility, in the 576px `max-w-measure` column.
-   * 70px keeps ACCESSIBILITY (557px) on one line; must stay above text-h2's
-   * 64px ceiling.
+   * Titles of Privacy and Accessibility. ACCES-SIBILITY breaks at its soft
+   * hyphen at 305px.
    */
-  --text-reading-h1: clamp(2.0625rem, 9vw, 4.375rem);
+  --text-reading-h1: 2.5rem;
   --text-reading-h1--line-height: 0.94;
   /*
    * The opening quote mark on the /about quote card. Decoration, so no reflow
@@ -207,46 +209,42 @@
    */
   --text-quote-mark: clamp(4rem, 12vw, 9rem);
   --text-quote-mark--line-height: 0.75;
-  /*
-   * Blog post title, in its own case, beside the teaser on the slab: 52 over
-   * --text-post-teaser's 26 is 2:1.
-   */
-  --text-post-title: clamp(1.75rem, 4.8vw, 3.25rem);
+  /* Blog post title, in its own case, at or under the 48px page title. */
+  --text-post-title: 2rem;
   --text-post-title--line-height: 1.06;
   /* The post teaser beside the title on its slab, read as a standfirst. */
   --text-post-teaser: clamp(1.3125rem, 2vw, 1.625rem);
   --text-post-teaser--line-height: var(--leading-paragraph);
-  /*
-   * Floor 24px so the 19px h3 below it is 0.79 of it, not 0.86
-   * (tests/headings.spec.ts runs at 320px).
-   */
-  --text-post-h2: clamp(1.5rem, 3vw, 2.25rem);
+  /* Under the post title, over the h3 at 0.8 or less (tests/headings.spec.ts). */
+  --text-post-h2: 1.75rem;
   --text-post-h2--line-height: 1.02;
-  /* 24 against 36, the page scale's 1.5 ratio. */
-  --text-post-h3: clamp(1.1875rem, 2vw, 1.5rem);
+  --text-post-h3: 1.375rem;
   --text-post-h3--line-height: 1.15;
   --text-contents: 1rem;
   --text-contents--line-height: 1.35;
-  /* Card titles are h2s: floor 19px, the smallest heading's. */
-  --text-post-card: clamp(1.1875rem, 2.6vw, 2rem);
+  /* Card titles are h2s, at or under the 28px h1 of tag and category pages. */
+  --text-post-card: 1.5rem;
   --text-post-card--line-height: 1.15;
-  --text-post-card-feature: clamp(1.625rem, calc(5.6vw - 4px), 4rem);
+  --text-post-card-feature: 1.75rem;
   --text-post-card-feature--line-height: 1.02;
-  --text-h2: clamp(1.625rem, 5.6vw, 4rem);
+  --text-h2: 1.75rem;
   --text-h2--line-height: 0.96;
-  --text-h3: clamp(1.25rem, 2.6vw, 2rem);
+  --text-h3: 1.375rem;
   --text-h3--line-height: 1.1;
   /*
    * Display-size text that is a paragraph, not a heading: SC 1.4.8 asks 1.5 of
    * a block of more than one sentence; 1.55 stays clear after sub-pixel rounding.
    */
   --leading-paragraph: 1.55;
-  /* --text-h3's size at paragraph leading: a lead, or a card paragraph at h3 size. */
-  --text-lead: var(--text-h3);
+  /* Display text that is not a heading: links, values and stats at h3's old fluid size. */
+  --text-display: clamp(1.25rem, 2.6vw, 2rem);
+  --text-display--line-height: 1.1;
+  /* A lead or card paragraph: fixed, under the 28px h2 (SC 1.4.4 at 200% zoom). */
+  --text-lead: 1.5rem;
   --text-lead--line-height: var(--leading-paragraph);
   /*
-   * PageHero standfirst. Its own token because --text-h3 also sizes card titles
-   * and section leads. Floor matches --text-h3's 20px.
+   * PageHero standfirst. Its own token because --text-lead also sizes card
+   * paragraphs and section leads.
    */
   --text-standfirst: clamp(1.25rem, 2.8vw, 2.25rem);
   --text-standfirst--line-height: var(--leading-paragraph);
@@ -267,7 +265,7 @@
   /* A part opener's number, height-aware like the two above. */
   --text-slide-number: clamp(4.5rem, 16svh, 10rem);
   --text-slide-number--line-height: 1;
-  /* Height-aware like --text-hero-h1, so the stickers shrink with the name. */
+  /* Height-aware, so the stickers shrink on a short window. */
   --text-hero-sticker: clamp(1.125rem, min(2.1vw, 3.4svh), 1.875rem);
   --text-hero-sticker--line-height: 1.02;
   --text-menu: clamp(2.125rem, 8vw, 3.5rem);
@@ -426,15 +424,11 @@
   --hero-name-clearance: 8px;
 
   /*
-   * Its own vw: the column is narrower, and the family name wrapping moves the
-   * break off the top rule.
+   * The name in the column and below `sm`; layout.css swaps them into
+   * --text-hero-h1, so they hold literal values. tests/hero-fit.spec.ts.
    */
-  --text-hero-h1-column: clamp(1.75rem, min(6.6vw, 13svh), 4.375rem);
-  /*
-   * Below `sm`: 34px at 390, 28px at 305. tests/hero-fit.spec.ts counts lines
-   * at 305 and 390.
-   */
-  --text-hero-h1-column-phone: clamp(1.75rem, 8.7vw, 2.125rem);
+  --text-hero-h1-column: 2.25rem;
+  --text-hero-h1-column-phone: 2.25rem;
   /*
    * Reserved for the two sticker words at the top right, since `max-width` on
    * the name cannot see them. Holds the widest sticker plus border, padding,

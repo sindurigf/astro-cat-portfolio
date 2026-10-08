@@ -126,6 +126,7 @@ const TYPE_STEPS = [
   'text-h1',
   'text-h2',
   'text-h3',
+  'text-display',
   'text-standfirst',
   'text-body',
   'text-label',
