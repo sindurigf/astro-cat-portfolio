@@ -4,7 +4,7 @@ import { expect, test, type Browser, type Page } from './test';
 import { gotoSettled } from './settle';
 import { deckOf, NO_TALK, TALK_ROUTES, TALKS_DIR } from './routes';
 import { NARROW_WIDTH, REFLOW_VIEWPORT, TEXT_SPACING_OVERRIDE } from './wcag';
-import { NON_TEXT, PAGE_HELPERS } from './contrast';
+import { AA_TEXT, NON_TEXT, PAGE_HELPERS } from './contrast';
 import { DECK_READY_TIMEOUT_MS } from '../src/lib/deck-ready';
 import { DECK_FILE, splitDeck } from '../src/lib/slides';
 
@@ -582,6 +582,30 @@ test.describe('the talk slideshow in full screen', () => {
       .not.toBe('none');
   });
 
+  test('every content slide starts its title at one height', async ({
+    page,
+  }) => {
+    await open(page);
+    await enterFullScreen(page);
+    const count = await page.locator('.slide').count();
+    const tops = new Set<number>();
+    for (let at = 1; at <= count; at++) {
+      const top = await visible(page).evaluate((slide) =>
+        slide.matches('.slide-cover, .slide-opener')
+          ? undefined
+          : Math.round(
+              slide.querySelector('.slide-title')!.getBoundingClientRect().top -
+                slide.getBoundingClientRect().top,
+            ),
+      );
+      if (top !== undefined) tops.add(top);
+      await page.keyboard.press('ArrowRight');
+    }
+    expect([...tops], 'slide titles start at different heights').toHaveLength(
+      1,
+    );
+  });
+
   // A room cannot scroll a projected slide. 1280x720 is the tightest of the
   // measured sizes (1024x768 to 1920x1080).
   test('every slide fits its frame on a 1280x720 screen', async ({
@@ -930,4 +954,35 @@ test.describe('the talk below lg: the PDF and every slide as text', () => {
       'the slide heading is in the accessibility tree more than once',
     ).toHaveCount(1);
   });
+});
+
+test.describe('gold on talk slides', () => {
+  for (const theme of ['dark', 'light'] as const) {
+    test(`in ${theme} mode lead-in terms and slide links are at least 4.5:1 on their slide`, async ({
+      page,
+    }) => {
+      await page.addInitScript((value) => {
+        localStorage.setItem('theme', value);
+      }, theme);
+      await open(page);
+      const found = (await page.evaluate(`(() => {
+        ${PAGE_HELPERS}
+        return [...document.querySelectorAll('.slide-lead, .slide-body a:not([class])')].map((el) => {
+          const slide = el.closest('.slide');
+          return {
+            text: el.textContent.trim(),
+            ratio: ratio(parse(getComputedStyle(el).color), parse(getComputedStyle(slide).backgroundColor)),
+          };
+        });
+      })()`)) as { text: string; ratio: number }[];
+      expect(
+        found.length,
+        'the deck has no lead-in terms or links to measure',
+      ).toBeGreaterThan(1);
+      const low = found
+        .filter((f) => f.ratio < AA_TEXT)
+        .map((f) => `${f.text} ${f.ratio.toFixed(2)}`);
+      expect(low, 'gold text under 4.5:1 on its slide (SC 1.4.3)').toEqual([]);
+    });
+  }
 });

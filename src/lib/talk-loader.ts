@@ -3,7 +3,13 @@ import { existsSync } from 'node:fs';
 import { join, relative, sep } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import type { Loader, LoaderContext } from 'astro/loaders';
-import { cardGroups, DECK_FILE, splitDeck, type SourceSlide } from './slides';
+import {
+  cardGroups,
+  DECK_FILE,
+  markLeadIns,
+  splitDeck,
+  type SourceSlide,
+} from './slides';
 import { errorMessage } from './errors';
 
 /* Set by the loader; a slide setting one fails instead of being overwritten. */
@@ -129,7 +135,7 @@ const loadDeck = async (
       data,
       filePath: label,
       digest: context.generateDigest(`${slide.frontmatter}\n${slide.body}`),
-      rendered,
+      rendered: { ...rendered, html: markLeadIns(rendered.html) },
       assetImports: rendered.metadata?.imagePaths,
     });
   }

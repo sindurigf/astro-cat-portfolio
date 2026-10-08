@@ -3,6 +3,7 @@ import { join } from 'node:path';
 import { expect, test } from './test';
 import { builtPages, DIST_DIR, PAIRED_TALKS } from './routes';
 import { NODE } from './tags';
+import { markLeadIns } from '../src/lib/slides';
 
 /**
  * The format, size and page count beside the slides link are typed into
@@ -147,5 +148,27 @@ test.describe('the talk slides', NODE, () => {
       slideshow,
       `The slideshow is not linked before the PDF: ${JSON.stringify(hrefs)}.`,
     ).toBeLessThan(hrefs.indexOf(SLIDES_HREF));
+  });
+});
+
+test.describe('lead-in terms', NODE, () => {
+  test('the term before a colon that opens a list item or paragraph is marked', () => {
+    expect(markLeadIns('<li>The myth: success comes from code</li>')).toBe(
+      '<li><span class="slide-lead">The myth:</span> success comes from code</li>',
+    );
+    expect(markLeadIns('<p>Bus factor: one person</p>')).toBe(
+      '<p><span class="slide-lead">Bus factor:</span> one person</p>',
+    );
+  });
+
+  test('bold terms, sentences, links and mid-text colons are left alone', () => {
+    for (const html of [
+      '<li><strong>Linux</strong>: most servers</li>',
+      '<p>Most projects do not fail because of bad code alone: they stall</p>',
+      '<p>https://offon.dev/</p>',
+      '<li>Decide how you will decide, early</li>',
+    ]) {
+      expect(markLeadIns(html), html).toBe(html);
+    }
   });
 });

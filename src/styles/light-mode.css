@@ -40,10 +40,17 @@
       .cat-tricks-button,
       .slide-label,
       .slide-number,
-      .slide-body strong
+      .slide-body strong,
+      .slide-lead,
+      .slide-body a:not([class])
     ),
   :root[data-theme='light'] main :is(.prose, .bullet-list) li::marker {
     color: var(--color-text);
+  }
+
+  /* The underline follows the ink, as on every other link. */
+  :root[data-theme='light'] main .slide-body a:not([class]) {
+    text-decoration-color: currentColor;
   }
 
   :root[data-theme='light'] main :is(.label.text-gold, .slide-label)::before {

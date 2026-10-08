@@ -40,6 +40,10 @@
     justify-content: safe center;
   }
 
+  .deck:not(.presenter):fullscreen .slide:not(.slide-cover, .slide-opener) {
+    @apply justify-start;
+  }
+
   /* The focused heading's ring goes around the whole card, which reads as the active slide. */
   .deck:not(.presenter):fullscreen .slide:has(> .slide-title:focus-visible) {
     outline: var(--focus-width) solid var(--color-cyan);
@@ -97,6 +101,18 @@
     min-height: calc(100svh - var(--spacing-header) - var(--deck-chrome));
     padding-inline: max(var(--slide-pad-inline), 8cqi);
     padding-block: max(var(--slide-pad-block), 4cqi);
+  }
+
+  /* Titles start at one height; the bottom gives back what the top takes. Cover and openers stay centered. */
+  .slide:not(.slide-cover, .slide-opener) {
+    @apply justify-start;
+    --slide-title-drop: 1cqi;
+    padding-top: calc(
+      max(var(--slide-pad-block), 4cqi) + var(--slide-title-drop)
+    );
+    padding-bottom: calc(
+      max(var(--slide-pad-block), 4cqi) - var(--slide-title-drop)
+    );
   }
 
   @variant sm {
@@ -205,6 +221,38 @@
   /* Gold plus weight, so color is not the only cue (SC 1.4.1). */
   .slide-body strong {
     @apply text-gold;
+  }
+
+  /* A lead-in term (src/lib/slides.ts markLeadIns), weighted like bold. */
+  .slide-lead {
+    @apply font-black text-gold;
+  }
+
+  /* Underlined like every text link (base.css); gold at rest, cyan on hover. */
+  .slide-body a:not([class]) {
+    @apply text-gold decoration-gold;
+  }
+
+  .slide-body a:not([class]):hover {
+    @apply text-cyan decoration-cyan;
+  }
+
+  /*
+   * Lighter slides (three blocks or fewer, no long list, table, card or photo)
+   * get one step more space; denser ones keep the room they need.
+   */
+  .slide-body:not(
+    :has(> :nth-child(4), li:nth-child(6), table, .slide-card, .aspect-frame)
+  ) {
+    @apply mt-8;
+
+    & :is(p, ul, ol) {
+      @apply mt-6;
+    }
+
+    & li + li {
+      @apply mt-3;
+    }
   }
 
   /*
