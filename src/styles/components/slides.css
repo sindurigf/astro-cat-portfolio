@@ -45,9 +45,9 @@
   }
 
   /*
-   * One composition at every frame size: spacing and type follow the frame's
-   * height (`cqh`), matching 1280x720, with the rem floors and caps of the
-   * global tokens so page zoom still reaches 2x.
+   * Spacing and type follow the frame's height (`cqh`), as at 1280x720, with
+   * the tokens' rem floors. `--spacing` shrinks here: size a control on a
+   * slide from `--spacing-target`, never spacing units.
    */
   .deck:not(.presenter):fullscreen .deck-stage {
     container-type: size;
@@ -280,19 +280,25 @@
    * down, 4px edge and pink shadow. They wrap on narrow screens.
    */
   .slide-cards {
-    @apply mt-6 grid items-start gap-6;
+    @apply mt-6 grid items-stretch gap-6;
     grid-template-columns: repeat(
       auto-fit,
       minmax(min(100%, var(--container-slide-card)), 1fr)
     );
   }
 
+  /* Cards in a row share one height (`items-stretch` above). */
   .slide-card {
-    @apply border-4 border-border bg-background px-6 py-4 shadow-hard-pink-4;
+    @apply border-4 border-border bg-background px-6 py-6 shadow-hard-pink-4;
   }
 
+  .slide-body .slide-card li + li {
+    @apply mt-3;
+  }
+
+  /* A lone card keeps the tighter padding, so slide 25 fits 1024x768. */
   .slide-body > .slide-card {
-    @apply mt-6;
+    @apply mt-6 py-4;
   }
 
   /* Under `.slide-body` to outrank its margin rule. */

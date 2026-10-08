@@ -161,9 +161,15 @@ test.describe('lead-in terms', NODE, () => {
     );
   });
 
-  test('bold terms, sentences, links and mid-text colons are left alone', () => {
+  test('the colon after an opening bold term moves inside the bold', () => {
+    expect(markLeadIns('<li><strong>Linux</strong>: most servers</li>')).toBe(
+      '<li><strong>Linux:</strong> most servers</li>',
+    );
+  });
+
+  test('sentences, links and mid-text colons are left alone', () => {
     for (const html of [
-      '<li><strong>Linux</strong>: most servers</li>',
+      '<li><strong>10</strong>:30 doors open</li>',
       '<p>Most projects do not fail because of bad code alone: they stall</p>',
       '<p>https://offon.dev/</p>',
       '<li>Decide how you will decide, early</li>',
