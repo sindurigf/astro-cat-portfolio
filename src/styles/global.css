@@ -229,19 +229,19 @@
   --text-post-card-feature--line-height: 1.02;
   --text-h2: 1.75rem;
   --text-h2--line-height: 0.96;
-  --text-h3: clamp(1.25rem, 2.6vw, 2rem);
+  --text-h3: 1.375rem;
   --text-h3--line-height: 1.1;
   /*
    * Display-size text that is a paragraph, not a heading: SC 1.4.8 asks 1.5 of
    * a block of more than one sentence; 1.55 stays clear after sub-pixel rounding.
    */
   --leading-paragraph: 1.55;
-  /* --text-h3's size at paragraph leading: a lead, or a card paragraph at h3 size. */
-  --text-lead: var(--text-h3);
+  /* A lead, or a card paragraph: body text, so it keeps the fluid size h3 had. */
+  --text-lead: clamp(1.25rem, 2.6vw, 2rem);
   --text-lead--line-height: var(--leading-paragraph);
   /*
-   * PageHero standfirst. Its own token because --text-h3 also sizes card titles
-   * and section leads. Floor matches --text-h3's 20px.
+   * PageHero standfirst. Its own token because --text-lead also sizes card
+   * paragraphs and section leads. Floor matches --text-lead's 20px.
    */
   --text-standfirst: clamp(1.25rem, 2.8vw, 2.25rem);
   --text-standfirst--line-height: var(--leading-paragraph);
