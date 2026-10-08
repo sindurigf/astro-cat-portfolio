@@ -239,12 +239,12 @@
   /* Display text that is not a heading: links, values and stats at h3's old fluid size. */
   --text-display: clamp(1.25rem, 2.6vw, 2rem);
   --text-display--line-height: 1.1;
-  /* A lead, or a card paragraph, at --text-display's size and paragraph leading. */
-  --text-lead: var(--text-display);
+  /* A lead or card paragraph: fixed, under the 28px h2 (SC 1.4.4 at 200% zoom). */
+  --text-lead: 1.5rem;
   --text-lead--line-height: var(--leading-paragraph);
   /*
    * PageHero standfirst. Its own token because --text-lead also sizes card
-   * paragraphs and section leads. Floor matches --text-lead's 20px.
+   * paragraphs and section leads.
    */
   --text-standfirst: clamp(1.25rem, 2.8vw, 2.25rem);
   --text-standfirst--line-height: var(--leading-paragraph);
