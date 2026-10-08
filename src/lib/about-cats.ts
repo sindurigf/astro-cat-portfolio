@@ -141,6 +141,9 @@ interface CatState extends CatSpot {
   min: number;
   max: number;
   pose: Pose;
+  /** The pose a held cat settled in, and what it was turning to then. */
+  settledPose?: Pose;
+  settledAim?: Pose;
   playing?: Playing;
   asleep: boolean;
   napAt: number;
@@ -494,16 +497,25 @@ export const createColony = (
       Math.abs(dx) > FACE_DEADBAND
         ? Math.sign(dx)
         : Math.sign(cat.pose.face) || 1;
-    const settled = mixPose(
-      cat.pose,
-      pose('sit', { x: cat.pose.x, hr: target ? tiltTowards(cat, target) : 0 }),
-      eased(WATCH_EASE, frames),
-    );
+    const aim = pose('sit', {
+      x: cat.pose.x,
+      hr: target ? tiltTowards(cat, target) : 0,
+    });
+    aim.face = want;
+    /* Settled on this aim: easing the residue again after a long frame would redraw a still cat. */
+    if (
+      cat.settledPose === cat.pose &&
+      poseGap(cat.settledAim ?? aim, aim) === 0
+    )
+      return false;
+    const settled = mixPose(cat.pose, aim, eased(WATCH_EASE, frames));
     settled.x = cat.pose.x;
     /* A flat sticker flips; easing the width through zero shows a sliver. */
     settled.face = want;
     const moving = poseGap(cat.pose, settled) > SETTLED;
     cat.pose = settled;
+    cat.settledPose = moving ? undefined : settled;
+    cat.settledAim = moving ? undefined : aim;
     return moving;
   };
 
