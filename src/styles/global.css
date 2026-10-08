@@ -262,6 +262,13 @@
    */
   --text-slide-title-page: clamp(1.5rem, 9.25vw - 0.1875rem, 3.5rem);
   --text-slide-title-page--line-height: 1;
+  /*
+   * The three slide sizes in full screen, from the frame's height (`cqh` of
+   * the 16:9 stage); the same at 1280x720, same floors and caps.
+   */
+  --text-slide-frame: clamp(1.0625rem, 3.46cqh, 2.125rem);
+  --text-slide-title-frame: clamp(1.625rem, 8.44cqh, 4.0625rem);
+  --text-slide-number-frame: clamp(4.5rem, 17.3cqh, 10rem);
   /* A part opener's number, height-aware like the two above. */
   --text-slide-number: clamp(4.5rem, 16svh, 10rem);
   --text-slide-number--line-height: 1;
