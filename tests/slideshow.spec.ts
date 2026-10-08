@@ -876,6 +876,13 @@ test.describe('the talk below lg: the PDF and every slide as text', () => {
           `"${name}" is in the accessibility tree a different number of times than in the deck`,
         ).toHaveCount(titles.filter((t) => t === name).length);
       }
+      expect(
+        await page
+          .locator('main :is(h1, h2, h3, h4, h5, h6)')
+          .first()
+          .evaluate((h) => h.tagName),
+        'the PDF card or a slide puts a heading before the h1',
+      ).toBe('H1');
       const before = page.url();
       await page.keyboard.press('End');
       await page.keyboard.press('ArrowRight');
