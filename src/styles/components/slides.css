@@ -56,8 +56,9 @@
   .deck:not(.presenter):fullscreen .slide {
     --spacing: 0.6cqh;
     --spacing-head: 7.2cqh;
-    --slide-pad-inline: calc(var(--spacing) * 0);
-    --slide-pad-block: calc(var(--spacing) * 0);
+    /* The floor is the frame share itself, so padding scales with no px minimum. */
+    --slide-pad-inline: 8cqi;
+    --slide-pad-block: 4cqi;
     --text-slide: var(--text-slide-frame);
     --text-slide-title: var(--text-slide-title-frame);
     --text-slide-number: var(--text-slide-number-frame);

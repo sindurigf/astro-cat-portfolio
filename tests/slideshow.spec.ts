@@ -42,7 +42,7 @@ const SHORT_WINDOW = { width: 1024, height: 500 };
 /** A window shorter than slide 2, so it is taller than the screen. */
 const ZOOMED_SLIDE = { width: 1024, height: 300 };
 
-/** The tightest projected size measured (1024x768 to 1920x1080). */
+/** A 16:9 projector at 1280x720. */
 const PROJECTOR = { width: 1280, height: 720 };
 
 /** A 4:3 projector at the slideshow's narrowest width, `lg`. */
@@ -970,7 +970,15 @@ test.describe('gold on talk slides', () => {
       await page.addInitScript((value) => {
         localStorage.setItem('theme', value);
       }, theme);
-      await open(page, '#slide-12');
+      await open(page);
+      const withLink = await page.$$eval(
+        '.slide',
+        (slides) =>
+          slides.find((s) => s.querySelector('.slide-body a:not([class])'))?.id,
+      );
+      expect(withLink, 'no slide has a text link to hover').toBeTruthy();
+      await page.evaluate((id) => (location.hash = id), `#${withLink}`);
+      await expect(visible(page)).toHaveId(withLink!);
       const link = visible(page).locator('.slide-body a:not([class])').first();
       const color = () => link.evaluate((a) => getComputedStyle(a).color);
       const rest = await color();
