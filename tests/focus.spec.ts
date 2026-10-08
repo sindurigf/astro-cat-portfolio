@@ -30,6 +30,9 @@ const WALK_BUDGET_PER_STEP_MS = 600;
 /* light-mode.css swaps the focus color, so the rings are measured in both. */
 const SCHEMES = ['dark', 'light'] as const;
 
+/* Forward and backward in dark; forward only in light (see walkFor). */
+const WALKS = { dark: 2, light: 1 } as const;
+
 interface Stop {
   selector: string;
   text: string;
@@ -416,11 +419,10 @@ for (const colorScheme of SCHEMES) {
           expect(response?.status(), `${route} should serve a 200`).toBe(200);
 
           const controls = await page.locator(FOCUSABLE_SELECTOR).count();
-          const walks = colorScheme === 'dark' ? 2 : 1;
           test.setTimeout(
             Math.max(
               test.info().timeout,
-              controls * walks * WALK_BUDGET_PER_STEP_MS,
+              controls * WALKS[colorScheme] * WALK_BUDGET_PER_STEP_MS,
             ),
           );
 
