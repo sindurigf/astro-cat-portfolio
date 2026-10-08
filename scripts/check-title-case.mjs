@@ -63,9 +63,11 @@ const ENTITIES = {
   '&rsquo;': '’',
 };
 
+/* A popover (an Abbr expansion) is hidden until opened, so it is not heading text. */
 const textOf = (html) =>
   html
     .replace(/<script[\s\S]*?<\/script>/g, '')
+    .replace(/<(\w+)\b[^>]*\spopover\b[^>]*>[\s\S]*?<\/\1>/g, '')
     .replace(/<[^>]+>/g, ' ')
     .replace(/&[#a-z0-9]+;/gi, (entity) => ENTITIES[entity] ?? entity)
     .replace(/\s+/g, ' ')
