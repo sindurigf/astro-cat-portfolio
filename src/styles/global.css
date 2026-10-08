@@ -236,8 +236,11 @@
    * a block of more than one sentence; 1.55 stays clear after sub-pixel rounding.
    */
   --leading-paragraph: 1.55;
-  /* A lead, or a card paragraph: body text, so it keeps the fluid size h3 had. */
-  --text-lead: clamp(1.25rem, 2.6vw, 2rem);
+  /* Display text that is not a heading: links, values and stats at h3's old fluid size. */
+  --text-display: clamp(1.25rem, 2.6vw, 2rem);
+  --text-display--line-height: 1.1;
+  /* A lead, or a card paragraph, at --text-display's size and paragraph leading. */
+  --text-lead: var(--text-display);
   --text-lead--line-height: var(--leading-paragraph);
   /*
    * PageHero standfirst. Its own token because --text-lead also sizes card
