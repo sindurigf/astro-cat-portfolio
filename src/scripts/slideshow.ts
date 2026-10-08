@@ -24,6 +24,9 @@ const ACTIVATES = 'a[href], button, summary, [tabindex]:not([tabindex="-1"])';
 
 const CURSOR_IDLE_MS = 2000;
 
+/* Tailwind's `lg`: below it slides.css stacks every slide and hides the controls. */
+const SLIDESHOW_QUERY = '(min-width: 64rem)';
+
 /* Share of the viewport one Page Up or Down scrolls, leaving a line of overlap. */
 const PAGE_STEP = 0.875;
 
@@ -81,6 +84,8 @@ const wire = (deck: HTMLElement): void => {
   ]);
 
   const inFullScreen = (): boolean => document.fullscreenElement === deck;
+
+  const slideshow = window.matchMedia(SLIDESHOW_QUERY);
 
   /* The presenter view keeps its controls in full screen, so only the audience deck takes presentation keys. */
   const presenting = (): boolean =>
@@ -201,6 +206,7 @@ const wire = (deck: HTMLElement): void => {
     (presenting() && FULL_SCREEN_PREVIOUS_KEYS.has(key));
 
   document.addEventListener('keydown', (event) => {
+    if (!slideshow.matches && !inFullScreen()) return;
     if (event.defaultPrevented || event.altKey || event.ctrlKey) return;
     if (event.metaKey) return;
     const key = event.key;

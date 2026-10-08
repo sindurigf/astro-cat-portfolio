@@ -1,4 +1,6 @@
 ---
+import { existsSync, statSync } from 'node:fs';
+import { join } from 'node:path';
 import type { GetStaticPaths, InferGetStaticPropsType } from 'astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import TalkSlide from '../../components/TalkSlide.astro';
@@ -8,7 +10,8 @@ import { getSortedPosts } from '../../lib/blog';
 import { postHref } from '../../lib/paths';
 
 /*
- * Every slide is in the HTML; without JavaScript the page is a plain document.
+ * Every slide is in the HTML; without JavaScript, and below `lg`, the page is a
+ * plain document of stacked slides.
  * Slides are h2, not h3 under a part h2: shown one at a time, a part heading
  * would sit on no slide, so DeckBar names the part instead.
  */
@@ -30,10 +33,35 @@ const description = cover?.data.info;
 if (!cover || description === undefined) {
   throw new Error('A deck needs a cover slide with info: (talk-loader.ts).');
 }
+
+const PUBLIC_DIR = 'public';
+const BYTES_PER_KB = 1024;
+/* npm run publish:talk writes it; from cwd, as career.astro reads the CV. */
+const pdfHref = `/talks/${cover.data.deck}.pdf`;
+const pdfFile = join(process.cwd(), PUBLIC_DIR, pdfHref);
+const pdfKb = existsSync(pdfFile)
+  ? Math.round(statSync(pdfFile).size / BYTES_PER_KB)
+  : undefined;
 ---
 
 <BaseLayout title={`${cover.data.title}, the Slides`} description={description}>
   <div class="deck" data-deck={cover.data.deck}>
+    {/* No `download` attribute and no new window: the browser's viewer opens in place (SC 3.2.5). */}
+    <div class="deck-narrow card">
+      <p class="text-body">
+        The slideshow needs a wider screen.{' '}
+        {pdfKb === undefined
+          ? 'Every slide is below.'
+          : 'Download the PDF, or read every slide below.'}
+      </p>
+      {pdfKb !== undefined && (
+        <p class="actions mt-6">
+          <a href={pdfHref} class="btn-primary">
+            Download the Slides (PDF, {pdfKb} KB)
+          </a>
+        </p>
+      )}
+    </div>
     <DeckBar total={slides.length} />
     <div class="deck-stage">
       {slides.map(({ slide, part }) => (

@@ -21,7 +21,12 @@ const VIEWPORT_HEIGHT = 900;
 /* Routes with no block of two sentences and no paragraph pair, and why. */
 const NOTHING_TO_MEASURE: Readonly<Record<string, string>> = {
   '/talks/sample-talk':
-    'slides of headings, one-sentence bullets and lone one-sentence paragraphs',
+    'one slide of headings, one-sentence bullets or a lone one-sentence paragraph',
+};
+
+/** Below Tailwind's `lg` the talk stacks every slide, so there is text to measure. */
+const EXEMPT_FROM: Readonly<Record<string, number>> = {
+  '/talks/sample-talk': 1024,
 };
 
 interface Block {
@@ -161,7 +166,10 @@ for (const width of WIDTHS) {
           { minSentences: MIN_SENTENCES, newLineShare: NEW_LINE_SHARE },
         );
 
-        const exemption = NOTHING_TO_MEASURE[route];
+        const exemption =
+          width >= (EXEMPT_FROM[route] ?? 0)
+            ? NOTHING_TO_MEASURE[route]
+            : undefined;
         expect(
           measured.blocks.length + measured.pairs.length > 0,
           exemption
