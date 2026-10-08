@@ -26,7 +26,7 @@ test.describe('/credits Made with AI', () => {
         section.getByRole('link', {
           name: 'The logo cat, its icons and the sharing image',
         }),
-      ).toHaveAttribute('href', '/');
+      ).toHaveAttribute('href', '/about/');
     },
   );
 
