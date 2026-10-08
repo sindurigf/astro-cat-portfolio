@@ -45,9 +45,9 @@
   }
 
   /*
-   * One composition at every frame size: spacing and type follow the frame's
-   * height (`cqh`), matching 1280x720, with the rem floors and caps of the
-   * global tokens so page zoom still reaches 2x.
+   * Spacing and type follow the frame's height (`cqh`), as at 1280x720, with
+   * the tokens' rem floors. `--spacing` shrinks here: size a control on a
+   * slide from `--spacing-target`, never spacing units.
    */
   .deck:not(.presenter):fullscreen .deck-stage {
     container-type: size;
