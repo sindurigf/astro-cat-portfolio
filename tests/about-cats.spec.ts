@@ -1,5 +1,5 @@
 import { expect, test, type Page } from './test';
-import { gotoSettled } from './settle';
+import { gotoSettled, setViewportSettled } from './settle';
 import {
   MIN_TARGET,
   SUBPIXEL_TOLERANCE,
@@ -1495,7 +1495,7 @@ test.describe('About cats', () => {
       'the picked fly never appeared',
     ).toBeAttached({ timeout: NAP_TIMEOUT_MS });
 
-    await page.setViewportSize(REFLOW_VIEWPORT);
+    await setViewportSettled(page, REFLOW_VIEWPORT);
     await showCat(page, id);
     await tricksButton(page, id).click();
     await expect(list).toBeVisible();
