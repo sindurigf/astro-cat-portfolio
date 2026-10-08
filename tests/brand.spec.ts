@@ -3,7 +3,7 @@ import { gotoSettled } from './settle';
 import { PAGE_HELPERS } from './contrast';
 import { contrastRows } from '../scripts/contrast-table.mjs';
 import { REPOSITORY_URL, sourceUrl, templateUseUrl } from '../src/lib/site';
-import { NODE } from './tags';
+import { ENGINE_INVARIANT, NODE } from './tags';
 
 /*
  * /brand states the design system's facts; these tests hold them to the CSS the
@@ -38,28 +38,30 @@ const resolveTokens = (page: Page, tokens: string[]) =>
   }, tokens);
 
 test.describe('/brand', () => {
-  test('the full contrast table lists every pairing the site measures, in order', async ({
-    page,
-  }) => {
-    await gotoSettled(page, ROUTE);
-    const pairs = await page
-      .locator('#contrast .contrast-dark details tbody tr th')
-      .evaluateAll((cells) =>
-        cells.map((cell) =>
-          [...cell.querySelectorAll('code')]
-            .map((c) => c.textContent)
-            .join(' on '),
+  test(
+    'the full contrast table lists every pairing the site measures, in order',
+    ENGINE_INVARIANT,
+    async ({ page }) => {
+      await gotoSettled(page, ROUTE);
+      const pairs = await page
+        .locator('#contrast .contrast-dark details tbody tr th')
+        .evaluateAll((cells) =>
+          cells.map((cell) =>
+            [...cell.querySelectorAll('code')]
+              .map((c) => c.textContent)
+              .join(' on '),
+          ),
+        );
+      expect(
+        pairs,
+        'the page drops or reorders a pairing from scripts/contrast-table.mjs',
+      ).toEqual(
+        contrastRows().map(
+          (row: { fg: string; bg: string }) => `${row.fg} on ${row.bg}`,
         ),
       );
-    expect(
-      pairs,
-      'the page drops or reorders a pairing from scripts/contrast-table.mjs',
-    ).toEqual(
-      contrastRows().map(
-        (row: { fg: string; bg: string }) => `${row.fg} on ${row.bg}`,
-      ),
-    );
-  });
+    },
+  );
 
   test('every contrast table has a caption and a row header per row (SC 1.3.1)', async ({
     page,
@@ -231,37 +233,40 @@ test.describe('/brand', () => {
     });
   }
 
-  test('every component row has a name, what it is for, its rule and a live example', async ({
-    page,
-  }) => {
-    await gotoSettled(page, ROUTE);
-    const rows = await page.locator('[data-component]').evaluateAll((items) =>
-      items.map((item) => {
-        const [use, rule] = [...item.querySelectorAll(':scope > p')].map(
-          (p) => p.textContent?.trim() ?? '',
-        );
-        return {
-          id: item.getAttribute('data-component'),
-          name: item.querySelector(':scope > h3')?.textContent?.trim() ?? '',
-          use: use ?? '',
-          rule: rule ?? '',
-          example:
-            item.querySelector(':scope > [data-example]')?.children.length ?? 0,
-        };
-      }),
-    );
-    expect(rows.length, '/brand shows no component').toBeGreaterThan(0);
-    const incomplete = rows
-      .filter(
-        (row) =>
-          !row.name ||
-          !row.use.startsWith('Use it for ') ||
-          !row.rule ||
-          row.example === 0,
-      )
-      .map((row) => row.id);
-    expect(incomplete, 'a component row lacks a part').toEqual([]);
-  });
+  test(
+    'every component row has a name, what it is for, its rule and a live example',
+    ENGINE_INVARIANT,
+    async ({ page }) => {
+      await gotoSettled(page, ROUTE);
+      const rows = await page.locator('[data-component]').evaluateAll((items) =>
+        items.map((item) => {
+          const [use, rule] = [...item.querySelectorAll(':scope > p')].map(
+            (p) => p.textContent?.trim() ?? '',
+          );
+          return {
+            id: item.getAttribute('data-component'),
+            name: item.querySelector(':scope > h3')?.textContent?.trim() ?? '',
+            use: use ?? '',
+            rule: rule ?? '',
+            example:
+              item.querySelector(':scope > [data-example]')?.children.length ??
+              0,
+          };
+        }),
+      );
+      expect(rows.length, '/brand shows no component').toBeGreaterThan(0);
+      const incomplete = rows
+        .filter(
+          (row) =>
+            !row.name ||
+            !row.use.startsWith('Use it for ') ||
+            !row.rule ||
+            row.example === 0,
+        )
+        .map((row) => row.id);
+      expect(incomplete, 'a component row lacks a part').toEqual([]);
+    },
+  );
 
   test('ids and landmark names are unique, with the examples on the page', async ({
     page,
