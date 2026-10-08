@@ -141,9 +141,6 @@ interface CatState extends CatSpot {
   min: number;
   max: number;
   pose: Pose;
-  /** The pose a held cat settled in, and what it was turning to then. */
-  settledPose?: Pose;
-  settledAim?: Pose;
   playing?: Playing;
   asleep: boolean;
   napAt: number;
@@ -502,21 +499,17 @@ export const createColony = (
       hr: target ? tiltTowards(cat, target) : 0,
     });
     aim.face = want;
-    /* Settled on this aim: easing the residue again after a long frame would redraw a still cat. */
-    if (
-      cat.settledPose === cat.pose &&
-      poseGap(cat.settledAim ?? aim, aim) === 0
-    )
-      return false;
-    const settled = mixPose(cat.pose, aim, eased(WATCH_EASE, frames));
-    settled.x = cat.pose.x;
-    /* A flat sticker flips; easing the width through zero shows a sliver. */
-    settled.face = want;
-    const moving = poseGap(cat.pose, settled) > SETTLED;
-    cat.pose = settled;
-    cat.settledPose = moving ? undefined : settled;
-    cat.settledAim = moving ? undefined : aim;
-    return moving;
+    const toward = (frameCount: number): Pose => {
+      const next = mixPose(cat.pose, aim, eased(WATCH_EASE, frameCount));
+      next.x = cat.pose.x;
+      /* A flat sticker flips; easing the width through zero shows a sliver. */
+      next.face = want;
+      return next;
+    };
+    /* Settled is judged on one frame's step, so a long frame cannot ease the residue past SETTLED and redraw a still cat. */
+    if (poseGap(cat.pose, toward(1)) <= SETTLED) return false;
+    cat.pose = toward(frames);
+    return true;
   };
 
   /** Turns to a moving pointer and tilts its head to it; with none, the watcher plays like the others. */
