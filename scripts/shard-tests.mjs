@@ -77,5 +77,5 @@ if ([...selected].sort().join('\n') !== expected) {
 }
 
 console.log(
-  `Shard ${shard}/${total}: ${mine.length} of ${all.length} tests, every test in exactly one shard.`,
+  `Shard ${shard}/${total}: ${mine.length} of ${all.length} tests; this shard's share matches its --test-list.`,
 );
