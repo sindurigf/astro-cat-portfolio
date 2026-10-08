@@ -283,7 +283,7 @@ copyright and contents list are fixed, and `text-code` is `max(1rem, 0.92em)`,
 | `text-h2`                | 28     | 28     | 0.96        | 900    | Section and panel heading             |
 | `text-h3`                | 22     | 22     | 1.1         | 900    | Third-level heading, card title       |
 | `text-display`           | 20     | 32     | 1.1         | 900    | Links, values and stats, not headings |
-| `text-lead`              | 20     | 32     | 1.55        | 400    | Lead; card paragraph                  |
+| `text-lead`              | 24     | 24     | 1.55        | 400    | Lead; card paragraph                  |
 | `text-post-title`        | 32     | 32     | 1.06        | 900    | Post title, in its own case           |
 | `text-post-h2`           | 28     | 28     | 1.02        | 900    | Post section; `.reading-layout`       |
 | `text-post-h3`           | 22     | 22     | 1.15        | 900    | Post subsection, last level           |
@@ -479,7 +479,7 @@ file per area.
 | `.card-title`                           | Every card heading, `text-h3` 900                                                                                                                                                        |
 | `.card-link`                            | Title link stretched over the card; inline-block, 44px min; card hover turns title and shadow cyan                                                                                       |
 | `.card-solid`                           | The subject card, a `text` fill; raised in a `.card-block`, or `.card-raised` in a dark group                                                                                            |
-| `.lead`                                 | Paragraph under a section heading, `text-h3` 400, 24px under it                                                                                                                          |
+| `.lead`                                 | Paragraph under a section heading, `text-lead` 400, 24px under it                                                                                                                        |
 | `.standfirst`                           | Line beside PageHero's title, `text-standfirst` 400                                                                                                                                      |
 | `.bullet-list`                          | Bulleted list, gold markers                                                                                                                                                              |
 | `.chip`                                 | Tags, jump links, filters, pager. Always a link. `border-4`, 44px target; a chip list is `gap-6`                                                                                         |
@@ -585,7 +585,7 @@ The grid rule in `scripts/check-tokens.mjs` enforces the grid;
 - `<section aria-labelledby="{id}-heading">` with `<h2 id="{id}-heading">`.
 - Heading: `text-h2`, 900, uppercase, `--tracking-heading`, `text` (14.42). No
   eyebrow label; labels belong to cards.
-- Lead: `.lead`, `text-h3` at 400, 24px under the heading.
+- Lead: `.lead`, `text-lead` (24px) at 400, 24px under the heading.
 - Content: `--spacing-head` under the heading or lead.
 - `Section headless` when the heading sits beside a picture: the slot renders
   the `h2` with id `<id>-heading`. No rule above a heading.
