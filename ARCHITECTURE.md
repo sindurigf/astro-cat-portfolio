@@ -704,6 +704,11 @@ evidence.
   path falls back:** apt reuses a cached file of the right size, so a corrupt
   `.deb` would fail in dpkg again. After a failed `dpkg -i` the fallback only
   fetches what failed.
+- **Change the contact endpoint for a 500 on an over-cap chunked body
+  (run 37695518322):** the 500 comes from the dev proxy after the
+  endpoint's 413, not from the endpoint; keep the test strict.
+  `@cloudflare/vite-plugin` 1.62.5 turns undici's "fetch failed" into
+  `next(error)` when the Worker answers before the upload ends.
 
 ## Content notes
 
