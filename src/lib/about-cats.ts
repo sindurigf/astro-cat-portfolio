@@ -587,6 +587,7 @@ export const createColony = (
     for (const cat of cats) {
       if (cat.hiddenAt !== undefined) continue;
       const result = step(cat, now, frames);
+      if (cat.holds.size > 0) (window as any).__dbg?.push(`F ${cat.id} n=${now.toFixed(0)} fr=${frames.toFixed(1)} r=${result} live=${pointerLive(now)} pt=${pointerTime.toFixed(0)} hr=${(cat.pose as any).hr?.toFixed?.(1)} holds=${[...cat.holds].join('+')} nap=${cat.napAt.toFixed(0)} asleep=${cat.asleep} play=${!!cat.playing}`);
       const tailMoving = cat.rig.tailSpeed.some((v) => Math.abs(v) > TAIL_REST);
       const resting = result === 'rest';
       /* Timers run only while resting, so each rest starts them afresh. */
@@ -769,6 +770,7 @@ export const createColony = (
     },
     pointer: (x, y, now, rects) => {
       pointerTime = now;
+      (window as any).__dbg?.push(`P ${now.toFixed(0)} ${x},${y}`);
       for (const [id, rect] of rects)
         pointerAt.set(id, { x: x - rect.left, y: y - rect.top });
     },

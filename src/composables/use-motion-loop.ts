@@ -77,20 +77,22 @@ export const useMotionLoop = (options: MotionLoopOptions): MotionLoop => {
 
   const tick = (now: number): void => {
     frame = 0;
-    if (!running()) return;
+    if (!running()) { (window as any).__dbg?.push(`T ${now.toFixed(0)} notrunning`); return; }
     if (minGapMs > 0 && now - lastFrame < minGapMs) {
       frame = requestAnimationFrame(tick);
       return;
     }
     lastFrame = now;
     const wakeAt = options.frame(now);
-    if (!running() || wakeAt === IDLE) return;
+    if (!running() || wakeAt === IDLE) { (window as any).__dbg?.push(`T ${now.toFixed(0)} idle run=${running()}`); return; }
     const delay = wakeAt - performance.now();
+    if (delay > 0) (window as any).__dbg?.push(`T ${now.toFixed(0)} timer ${delay.toFixed(0)}`);
     if (delay > 0) wakeTimer = window.setTimeout(start, delay);
     else frame = requestAnimationFrame(tick);
   };
 
   function start(): void {
+    (window as any).__dbg?.push(`S p=${performance.now().toFixed(0)} f=${frame} run=${running()}`);
     if (frame || !running()) return;
     window.clearTimeout(wakeTimer);
     wakeTimer = 0;

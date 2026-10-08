@@ -1515,6 +1515,10 @@ test.describe('About cats', () => {
   }) => {
     const context = await browser.newContext({ viewport: PEPPER_AND_MOCHI });
     const page = await context.newPage();
+    await page.addInitScript(() => {
+      const buf: string[] = [];
+      (window as any).__dbg = { push: (x: string) => { buf.push(x); if (buf.length > 400) buf.shift(); }, buf };
+    });
     await gotoSettled(page, ROUTE);
     await napControl(page, 'mochi').click();
     await expectMood(page, 'mochi', 'asleep', 'Mochi did not fall asleep');
@@ -1540,6 +1544,7 @@ test.describe('About cats', () => {
     } catch (error) {
       if (error instanceof Error) {
         error.message += `\nCat state: ${await catState(page, 'pepper')}`;
+        console.log('DBGDUMP\n' + (await page.evaluate(() => (window as any).__dbg.buf.slice(-160).join('\n'))));
       }
       throw error;
     }
