@@ -274,37 +274,38 @@ zoom doubles them (SC 1.4.4); other sizes are `clamp()` tokens; the
 copyright and contents list are fixed, and `text-code` is `max(1rem, 0.92em)`,
 0.92 of the text around it with a 16px floor.
 
-| Token                    | Min px | Max px | Line height | Weight | Use                              |
-| ------------------------ | ------ | ------ | ----------- | ------ | -------------------------------- |
-| `text-hero-h1`           | 36     | 36     | 0.94        | 900    | Homepage name only               |
-| `text-h1`                | 48     | 48     | 0.94        | 900    | Page title                       |
-| `text-deck-cover`        | 33     | 80     | 0.94        | 900    | Talk cover title                 |
-| `text-reading-h1`        | 40     | 40     | 0.94        | 900    | Privacy, Accessibility title     |
-| `text-h2`                | 28     | 28     | 0.96        | 900    | Section and panel heading        |
-| `text-h3`                | 22     | 22     | 1.1         | 900    | Third-level heading, card title  |
-| `text-lead`              | 20     | 32     | 1.55        | 400    | Lead; card paragraph             |
-| `text-post-title`        | 32     | 32     | 1.06        | 900    | Post title, in its own case      |
-| `text-post-h2`           | 28     | 28     | 1.02        | 900    | Post section; `.reading-layout`  |
-| `text-post-h3`           | 22     | 22     | 1.15        | 900    | Post subsection, last level      |
-| `text-post-card`         | 24     | 24     | 1.15        | 900    | Post card title (an `h2`)        |
-| `text-post-card-feature` | 28     | 28     | 1.02        | 900    | Featured post card title         |
-| `text-contents`          | 16     | 16     | 1.35        | 400    | A post's contents list           |
-| `text-standfirst`        | 20     | 36     | 1.55        | 400    | Slab aside, `.standfirst`        |
-| `text-post-teaser`       | 21     | 26     | 1.55        | 400    | Post and plain-tier aside        |
-| `text-body`              | 18     | 19     | 1.62        | 400    | Reading text                     |
-| `text-code`              | 16     | none   | 1.5         | 400    | Code, `--font-mono`; tracks body |
-| `text-button`            | 14     | 16     | 1.2         | 900    | Buttons; same as `text-label`    |
-| `text-label`             | 14     | 16     | 1.2         | 900    | Labels; 16 to 40rem, 14 at 48rem |
-| `text-hero-sticker`      | 18     | 30     | 1.02        | 900    | Homepage hero stickers           |
-| `text-menu`              | 34     | 56     | 1           | 900    | Mobile menu links                |
-| `text-slide`             | 17     | 34     | 1.35        | 400    | Slide text: full screen, print   |
-| `text-slide-title`       | 26     | 65     | 1           | 900    | Talk slide title, its own case   |
-| `text-slide-title-page`  | 24     | 56     | 1           | 900    | Slide title on the page          |
-| `text-slide-number`      | 72     | 160    | 1           | 900    | Talk part number                 |
-| `text-copyright`         | 20     | 20     | 1.2         | 900    | Footer copyright                 |
-| `text-footer-name`       | 32     | 40     | 1           | 900    | Footer name                      |
-| `text-section-number`    | 21     | 28     | 1           | 900    | Category glyph tile              |
-| `text-quote-mark`        | 64     | 144    | 0.75        | 900    | About quote mark                 |
+| Token                    | Min px | Max px | Line height | Weight | Use                                   |
+| ------------------------ | ------ | ------ | ----------- | ------ | ------------------------------------- |
+| `text-hero-h1`           | 36     | 36     | 0.94        | 900    | Homepage name only                    |
+| `text-h1`                | 48     | 48     | 0.94        | 900    | Page title                            |
+| `text-deck-cover`        | 33     | 80     | 0.94        | 900    | Talk cover title                      |
+| `text-reading-h1`        | 40     | 40     | 0.94        | 900    | Privacy, Accessibility title          |
+| `text-h2`                | 28     | 28     | 0.96        | 900    | Section and panel heading             |
+| `text-h3`                | 22     | 22     | 1.1         | 900    | Third-level heading, card title       |
+| `text-display`           | 20     | 32     | 1.1         | 900    | Links, values and stats, not headings |
+| `text-lead`              | 20     | 32     | 1.55        | 400    | Lead; card paragraph                  |
+| `text-post-title`        | 32     | 32     | 1.06        | 900    | Post title, in its own case           |
+| `text-post-h2`           | 28     | 28     | 1.02        | 900    | Post section; `.reading-layout`       |
+| `text-post-h3`           | 22     | 22     | 1.15        | 900    | Post subsection, last level           |
+| `text-post-card`         | 24     | 24     | 1.15        | 900    | Post card title (an `h2`)             |
+| `text-post-card-feature` | 28     | 28     | 1.02        | 900    | Featured post card title              |
+| `text-contents`          | 16     | 16     | 1.35        | 400    | A post's contents list                |
+| `text-standfirst`        | 20     | 36     | 1.55        | 400    | Slab aside, `.standfirst`             |
+| `text-post-teaser`       | 21     | 26     | 1.55        | 400    | Post and plain-tier aside             |
+| `text-body`              | 18     | 19     | 1.62        | 400    | Reading text                          |
+| `text-code`              | 16     | none   | 1.5         | 400    | Code, `--font-mono`; tracks body      |
+| `text-button`            | 14     | 16     | 1.2         | 900    | Buttons; same as `text-label`         |
+| `text-label`             | 14     | 16     | 1.2         | 900    | Labels; 16 to 40rem, 14 at 48rem      |
+| `text-hero-sticker`      | 18     | 30     | 1.02        | 900    | Homepage hero stickers                |
+| `text-menu`              | 34     | 56     | 1           | 900    | Mobile menu links                     |
+| `text-slide`             | 17     | 34     | 1.35        | 400    | Slide text: full screen, print        |
+| `text-slide-title`       | 26     | 65     | 1           | 900    | Talk slide title, its own case        |
+| `text-slide-title-page`  | 24     | 56     | 1           | 900    | Slide title on the page               |
+| `text-slide-number`      | 72     | 160    | 1           | 900    | Talk part number                      |
+| `text-copyright`         | 20     | 20     | 1.2         | 900    | Footer copyright                      |
+| `text-footer-name`       | 32     | 40     | 1           | 900    | Footer name                           |
+| `text-section-number`    | 21     | 28     | 1           | 900    | Category glyph tile                   |
+| `text-quote-mark`        | 64     | 144    | 0.75        | 900    | About quote mark                      |
 
 - Lexend, self-hosted from `@fontsource-variable/lexend` (OFL-1.1), family
   `'Lexend Variable'`. Only the latin subset is declared, in the `@font-face`
