@@ -299,6 +299,7 @@ copyright and contents list are fixed, and `text-code` is `max(1rem, 0.92em)`,
 | `text-menu`              | 34     | 56     | 1           | 900    | Mobile menu links                |
 | `text-slide`             | 17     | 34     | 1.35        | 400    | Slide text: full screen, print   |
 | `text-slide-title`       | 26     | 65     | 1           | 900    | Talk slide title, its own case   |
+| `text-slide-title-page`  | 24     | 56     | 1           | 900    | Slide title on the page          |
 | `text-slide-number`      | 72     | 160    | 1           | 900    | Talk part number                 |
 | `text-copyright`         | 20     | 20     | 1.2         | 900    | Footer copyright                 |
 | `text-footer-name`       | 32     | 40     | 1           | 900    | Footer name                      |

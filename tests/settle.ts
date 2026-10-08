@@ -87,3 +87,22 @@ const SWEEP_BUDGET_PER_ROUTE_MS = 3_000;
 
 export const sweepTimeout = (routeCount: number): number =>
   SWEEP_BUDGET_PER_ROUTE_MS * routeCount;
+
+/**
+ * Resizes, then waits two frames: under load Chromium can measure existing
+ * elements with the previous width's viewport units for a frame after the
+ * resize lands (template run 37715580101).
+ */
+export const setViewportSettled = async (
+  page: Page,
+  size: { width: number; height: number },
+): Promise<void> => {
+  await page.setViewportSize(size);
+  await page.waitForFunction((width) => innerWidth === width, size.width);
+  await page.evaluate(
+    () =>
+      new Promise<void>((done) =>
+        requestAnimationFrame(() => requestAnimationFrame(() => done())),
+      ),
+  );
+};

@@ -57,14 +57,20 @@
 
   .deck-stage {
     @apply grid gap-12;
+    container-type: inline-size;
   }
 
   /*
-   * Before the script is ready, show only the slide it will open on: the linked
-   * one, or the cover. Without JavaScript, or once the script has failed
-   * (`data-deck-failed`), every slide stays on the page.
+   * From `lg`, before the script is ready, show only the slide it will open on:
+   * the linked one, or the cover. Below `lg`, without JavaScript, or once the
+   * script has failed (`data-deck-failed`), every slide stays on the page.
    */
-  @media screen {
+  .deck:fullscreen[data-deck-ready]:not([data-deck-failed])
+    .slide:not([data-current]) {
+    display: none;
+  }
+
+  @media screen and (width >= theme(--breakpoint-lg)) {
     .deck[data-deck-ready]:not([data-deck-failed]) .slide:not([data-current]),
     :root.js
       .deck:not([data-deck-ready], [data-deck-failed])
@@ -79,13 +85,31 @@
   }
 
   /*
-   * `--deck-chrome`: deck padding, the gap above the control row, the row, and
-   * the slide's 8px shadow.
+   * `--deck-chrome`: deck padding, gap, control row and 8px shadow. Padding is
+   * a share of the card's width (`.deck-stage` is the container), never below
+   * the card's own padding.
    */
   .slide {
-    @apply flex flex-col justify-center lg:px-16;
+    @apply flex flex-col justify-center;
     --deck-chrome: calc(var(--spacing-deck-bar) + --spacing(20));
+    --slide-pad-inline: var(--spacing-card-tight);
+    --slide-pad-block: var(--spacing-card-tight);
     min-height: calc(100svh - var(--spacing-header) - var(--deck-chrome));
+    padding-inline: max(var(--slide-pad-inline), 8cqi);
+    padding-block: max(var(--slide-pad-block), 4cqi);
+  }
+
+  @variant sm {
+    .slide {
+      --slide-pad-inline: var(--spacing-card);
+      --slide-pad-block: var(--spacing-card);
+    }
+  }
+
+  @variant lg {
+    .slide {
+      --slide-pad-inline: --spacing(16);
+    }
   }
 
   .presenter:fullscreen .slide {
@@ -117,6 +141,16 @@
 
   .slide-cover .slide-title {
     @apply text-deck-cover;
+  }
+
+  /*
+   * `anywhere`, not base.css's `break-word`, so a long word also shrinks
+   * min-content under text spacing (SC 1.4.12). Full screen keeps its own size.
+   */
+  @media screen {
+    .deck:not(:fullscreen) .slide:not(.slide-cover) .slide-title {
+      @apply text-slide-title-page wrap-anywhere;
+    }
   }
 
   /*
@@ -198,8 +232,9 @@
     @apply mt-0;
   }
 
+  /* 16px: paragraph spacing 1.5 times the line spacing at body size (SC 1.4.8). */
   .slide-body .slide-card > p:first-child + * {
-    @apply mt-2;
+    @apply mt-4;
   }
 
   .slide-body li {
@@ -241,9 +276,20 @@
     grid-row: 1 / span 12;
   }
 
+  /* Below `lg` the page is the stacked slides and the PDF, so no controls. */
   .deck-bar {
-    @apply order-last flex flex-wrap items-center gap-4;
+    @apply order-last flex flex-wrap items-center gap-4 max-lg:hidden;
     min-height: var(--spacing-deck-bar);
+  }
+
+  .deck-narrow {
+    @apply lg:hidden print:hidden;
+  }
+
+  @variant max-lg {
+    .slide {
+      min-height: 0;
+    }
   }
 
   /*

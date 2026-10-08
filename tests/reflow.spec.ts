@@ -355,7 +355,7 @@ test.describe('button labels reflow at 305px (SC 1.4.10)', () => {
   }
 });
 
-/* The scripted deck shows one slide at a time, so each slide is opened by its link. */
+/* Below `lg` the deck stacks every slide, so one page holds them all. */
 for (const route of TALK_ROUTES) {
   test.describe(`every slide of ${route} reflows at 305px`, () => {
     test.use({ viewport: { width: NARROW_WIDTH, height: REFLOW_HEIGHT } });
@@ -367,21 +367,20 @@ for (const route of TALK_ROUTES) {
         await gotoSettled(page, `${route}/`);
         await page.waitForSelector('[data-deck-ready]');
         if (spacing) await page.addStyleTag({ content: TEXT_SPACING_OVERRIDE });
-        const ids = await page.$$eval('.slide[id]', (all) =>
-          all.map((s) => s.id),
-        );
-        expect(ids.length, `${route} has no slides`).toBeGreaterThan(1);
+        const count = await page.locator('.slide[id]').count();
+        expect(count, `${route} has no slides`).toBeGreaterThan(1);
+        await expect(page.locator('.slide:visible')).toHaveCount(count);
 
-        const wide: string[] = [];
-        for (const id of ids) {
-          await page.evaluate((hash) => (location.hash = hash), id);
-          await expect(page.locator('.slide:visible')).toHaveId(id);
-          const { scrollWidth, clientWidth } = await page.evaluate(() => ({
-            scrollWidth: document.documentElement.scrollWidth,
-            clientWidth: document.documentElement.clientWidth,
-          }));
-          if (scrollWidth > clientWidth) wide.push(`${id}: ${scrollWidth}px`);
-        }
+        const wide = await page.$$eval('.slide[id]', (all) => {
+          const page = document.documentElement;
+          const out = all
+            .filter((slide) => slide.scrollWidth > slide.clientWidth)
+            .map((slide) => `${slide.id}: ${slide.scrollWidth}px`);
+          if (page.scrollWidth > page.clientWidth) {
+            out.push(`page: ${page.scrollWidth}px`);
+          }
+          return out;
+        });
         expect(wide, `${route} slides that scroll sideways at 305px`).toEqual(
           [],
         );

@@ -1,6 +1,6 @@
 import { expect, test, type Page } from './test';
 import { builtHtml, SAMPLED_ROUTES } from './routes';
-import { gotoSettled } from './settle';
+import { gotoSettled, setViewportSettled } from './settle';
 import { NODE } from './tags';
 
 /*
@@ -213,7 +213,7 @@ for (const route of SAMPLED_ROUTES) {
     const measured = new Set<number>();
     const measureAtEveryWidth = async () => {
       for (const width of SIZES_VIEWPORTS) {
-        await page.setViewportSize({
+        await setViewportSettled(page, {
           width,
           height: page.viewportSize()!.height,
         });
