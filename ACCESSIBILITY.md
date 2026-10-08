@@ -159,8 +159,8 @@ Passing axe is not conformance.
 "it should still be possible to get 200% text enlargement in some way
 compared to the default 100% zoom".
 
-- **Headings:** page, reading, hero, section, post and card titles are fixed
-  sizes, so they reach 2x at 200% zoom at every width, in every browser and
+- **Headings:** page, reading, hero, section (h2 and h3), post and card
+  titles are fixed sizes, so they reach 2x at 200% zoom at every width, in every browser and
   with text-only zoom. `tests/text-resize.spec.ts` asserts it at 390, 1000,
   1280 and 1920px.
 - **Other text:** tokens with a `vw` or `svh` term grow less than the zoom

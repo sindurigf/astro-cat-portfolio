@@ -281,8 +281,8 @@ copyright and contents list are fixed, and `text-code` is `max(1rem, 0.92em)`,
 | `text-deck-cover`        | 33     | 80     | 0.94        | 900    | Talk cover title                 |
 | `text-reading-h1`        | 40     | 40     | 0.94        | 900    | Privacy, Accessibility title     |
 | `text-h2`                | 28     | 28     | 0.96        | 900    | Section and panel heading        |
-| `text-h3`                | 20     | 32     | 1.1         | 900    | Third-level heading, card title  |
-| `text-lead`              | 20     | 32     | 1.55        | 400    | Lead; card paragraph at h3 size  |
+| `text-h3`                | 22     | 22     | 1.1         | 900    | Third-level heading, card title  |
+| `text-lead`              | 20     | 32     | 1.55        | 400    | Lead; card paragraph             |
 | `text-post-title`        | 32     | 32     | 1.06        | 900    | Post title, in its own case      |
 | `text-post-h2`           | 28     | 28     | 1.02        | 900    | Post section; `.reading-layout`  |
 | `text-post-h3`           | 22     | 22     | 1.15        | 900    | Post subsection, last level      |
@@ -323,7 +323,9 @@ copyright and contents list are fixed, and `text-code` is `max(1rem, 0.92em)`,
 - Every size is a token. No breakpoint steps.
 - Nothing renders under 16px on a phone: `text-label` and `text-button` are
   16px to 40rem (`tests/text-size.spec.ts`).
-- Headings never skip levels; one `<h1>` per page.
+- Headings never skip levels; one `<h1>` per page. No heading is larger than
+  the level above it (`tests/headings.spec.ts`); a /brand example, shown at
+  another page's size, is exempt.
 - `text-hero-h1` is 36px so the homepage name stays two lines.
 - `text-reading-h1` is for the Privacy and Accessibility titles only.
 - The talk cover keeps the fluid `text-deck-cover`; the deck has its own
@@ -344,7 +346,7 @@ longest word fits there; `tests/reflow.spec.ts` holds them.
 - `text-h1` 48px: `CREDITS` fits 273px.
 - `text-reading-h1` 40px: `ACCES-SIBILITY` breaks at its soft hyphen.
 - `text-hero-h1` 36px: a ten-letter family name fits the name's 241px window.
-- `text-h2` 28px: `ARCHAEOLOGY` fits; `text-h3` floors at 20px.
+- `text-h2` 28px: `ARCHAEOLOGY` fits. `text-h3` 22px, 0.8 of it.
 - `text-post-title` 32px.
 - A longer word in a heading fails `reflow.spec.ts`'s heading-word fit on
   every built route. The fix is a soft hyphen in the source, not a smaller
