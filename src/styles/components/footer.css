@@ -55,6 +55,12 @@
     grid-template-columns: repeat(4, var(--size-sticker));
     gap: --spacing(6);
     padding: --spacing(2) --spacing(2) --spacing(4);
+
+    @variant stickers-wrap {
+      width: 100%;
+      grid-template-columns: repeat(auto-fill, var(--size-sticker));
+      justify-content: center;
+    }
   }
 
   .footer-stickers li:nth-child(n + 5) {
@@ -167,6 +173,7 @@
   .footer-tuft {
     display: block;
     width: var(--size-tuft);
+    max-width: 100%;
     height: auto;
     overflow: visible;
   }

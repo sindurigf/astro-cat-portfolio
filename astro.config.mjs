@@ -123,6 +123,14 @@ export default defineConfig({
   },
 
   vite: {
+    environments: {
+      /*
+       * @astrojs/cloudflare 14.3.3 sets a `process` shim banner for the server in
+       * astro:build:setup, and it leaks into every browser chunk (51 bytes each):
+       * https://github.com/withastro/astro/blob/%40astrojs/cloudflare%4014.3.3/packages/integrations/cloudflare/src/index.ts#L668
+       */
+      client: { build: { rolldownOptions: { output: { banner: '' } } } },
+    },
     plugins: [tailwindcss()],
     define: {
       __VIDEO_SIZES__: JSON.stringify(videoSizes),

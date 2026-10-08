@@ -30,32 +30,29 @@ test('CLOSE_ROW_ROUTES lists every built page with a close row', NODE, () => {
   expect(found).toEqual([...CLOSE_ROW_ROUTES].sort());
 });
 
-for (const colorScheme of ['dark', 'light'] as const) {
-  test.describe(`the close row's sticker in ${colorScheme} mode`, () => {
-    test.use({ colorScheme });
+/* One scheme: light-mode.css recolors `.sticker` and changes no size, border width or position. */
+test.describe("the close row's sticker", () => {
+  for (const route of CLOSE_ROW_ROUTES) {
+    test(`${route} keeps its sticker off the text`, async ({ page }) => {
+      for (const width of STICKER_WIDTHS) {
+        await page.setViewportSize({ width, height: 900 });
+        await gotoSettled(page, route);
+        const gap = await page.evaluate(() => {
+          const sticker = document.querySelector('[data-close-row]');
+          const link = sticker?.parentElement?.querySelector('a');
+          if (!sticker || !link) return null;
+          return (
+            link.getBoundingClientRect().top -
+            sticker.getBoundingClientRect().bottom
+          );
+        });
 
-    for (const route of CLOSE_ROW_ROUTES) {
-      test(`${route} keeps its sticker off the text`, async ({ page }) => {
-        for (const width of STICKER_WIDTHS) {
-          await page.setViewportSize({ width, height: 900 });
-          await gotoSettled(page, route);
-          const gap = await page.evaluate(() => {
-            const sticker = document.querySelector('[data-close-row]');
-            const link = sticker?.parentElement?.querySelector('a');
-            if (!sticker || !link) return null;
-            return (
-              link.getBoundingClientRect().top -
-              sticker.getBoundingClientRect().bottom
-            );
-          });
-
-          expect(gap, `${route} has no close row sticker`).not.toBeNull();
-          expect(
-            gap!,
-            `the sticker on ${route} at ${width}px runs ${(-gap!).toFixed(1)}px into the text`,
-          ).toBeGreaterThanOrEqual(0);
-        }
-      });
-    }
-  });
-}
+        expect(gap, `${route} has no close row sticker`).not.toBeNull();
+        expect(
+          gap!,
+          `the sticker on ${route} at ${width}px runs ${(-gap!).toFixed(1)}px into the text`,
+        ).toBeGreaterThanOrEqual(0);
+      }
+    });
+  }
+});

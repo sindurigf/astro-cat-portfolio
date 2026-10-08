@@ -1,15 +1,19 @@
 import { expect, test } from './test';
 import { gotoSettled } from './settle';
 import { builtHtml, PUBLISHED_POST_ROUTES } from './routes';
-import { NODE } from './tags';
+import { ENGINE_INVARIANT, NODE } from './tags';
 
-test('the 404 offers a way to report the broken link', async ({ page }) => {
-  await gotoSettled(page, '/404');
-  const report = page.locator('main a[href="/contact/"]', {
-    hasText: /broken link/i,
-  });
-  await expect(report).toHaveCount(1);
-});
+test(
+  'the 404 offers a way to report the broken link',
+  ENGINE_INVARIANT,
+  async ({ page }) => {
+    await gotoSettled(page, '/404');
+    const report = page.locator('main a[href="/contact/"]', {
+      hasText: /broken link/i,
+    });
+    await expect(report).toHaveCount(1);
+  },
+);
 
 /** Each `<tag>` element's inner HTML, nested ones included. */
 const elements = (html: string, tag: string): string[] => {

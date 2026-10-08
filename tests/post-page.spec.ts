@@ -9,6 +9,7 @@ import {
 import { PHOTOGRAPHERS } from '../src/lib/credits';
 import { gotoSettled } from './settle';
 import { MIN_TARGET, SUBPIXEL_TOLERANCE } from './wcag';
+import { ENGINE_INVARIANT } from './tags';
 
 /**
  * A post as a reading page, docs/STYLEGUIDE.md "Posts". Below `xl` the contents
@@ -47,7 +48,7 @@ const charactersPerLine = (page: Page) =>
   }, LONG_PARAGRAPH);
 
 for (const route of POST_ROUTES) {
-  test(`${route} is one article`, async ({ page }) => {
+  test(`${route} is one article`, ENGINE_INVARIANT, async ({ page }) => {
     await gotoSettled(page, route);
     const found = await page.evaluate(() => ({
       articles: document.querySelectorAll('main article').length,
