@@ -722,9 +722,9 @@ const catState = async (page: Page, id: (typeof CATS)[number]) => {
 
 /** Frames a loaded runner draws late, beyond the 5 s bound for lying down. */
 const SLEEP_MARGIN_MS = 1000;
-/** A cat counts as settled once its drawing has not changed for this long. */
 /* Longer than MAX_FRAMES_PER_STEP frames at 60fps, so the next frame covers the most a frame can. */
 const STALL_MS = 150;
+/** A cat counts as settled once its drawing has not changed for this long. */
 const QUIET_MS = 500;
 /* Frames as well as time: a starved runner can draw no frame for QUIET_MS while the cat is still mid-move. */
 const QUIET_FRAMES = 10;
@@ -1590,7 +1590,7 @@ test.describe('About cats', () => {
             resolve(records);
           }, Number(windowMs));
         }),
-      [`cat-spot-pepper`, STALL_MS, MUTATION_WINDOW_MS] as const,
+      ['cat-spot-pepper', STALL_MS, MUTATION_WINDOW_MS] as const,
     );
     expect(
       redraws,
