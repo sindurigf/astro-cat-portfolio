@@ -31,8 +31,10 @@ page. Tested for WCAG 2.2 AA in Chromium, Firefox and WebKit.
    page files.
    `/brand` shows your design system and links to your `repository`; it is
    optional. To drop it, delete `src/pages/brand.astro`,
-   `src/components/brand/` and `tests/brand.spec.ts`, the Brand link in
-   `src/components/Footer.astro`, and every `'/brand'` under `tests/`.
+   `src/components/brand/`, `src/lib/brand.ts` and `tests/brand.spec.ts`, the
+   Brand link in `src/components/Footer.astro`, the Brand entry in
+   `src/pages/credits.astro`, and every `/brand` under `tests/`
+   (`grep -rn "/brand['/]" tests` lists them).
 5. Run the gate in [AGENTS.md](AGENTS.md#done-means): build, typecheck,
    check and every test suite. CI runs the same on every pull request and
    needs no secrets.

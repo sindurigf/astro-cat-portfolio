@@ -266,7 +266,7 @@ The switch and what it scopes: [ARCHITECTURE.md](../ARCHITECTURE.md#light-mode).
   they do not change with the mode.
 - The label on a gold fill is `gold-text`, never `background` (white in
   light).
-- RIDET and `.sticker` are black blocks.
+- The homepage's second sticker and `.sticker` are black blocks.
 - `tests/light-mode.spec.ts` scans every route in light at WCAG 2.2 AA.
 
 ## Type scale
@@ -627,7 +627,7 @@ The grid rule in `scripts/check-tokens.mjs` enforces the grid;
 | Page                   | Order (type)                                                   |
 | ---------------------- | -------------------------------------------------------------- |
 | Home                   | Hero, Surface, Listing, Listing, Close                         |
-| About                  | Hero, Open, Open, Open, Open, Open, Close                      |
+| About                  | Hero, Open, Open, Open, Open, Open, Open, Close                |
 | Career                 | Hero, Panel, Open (with the solid block), Open, Surface, Close |
 | Contact                | Hero, Open, Surface                                            |
 | Contact sent           | Hero, Panel, Close                                             |
@@ -954,16 +954,16 @@ Enforced by `tests/footer.spec.ts`.
 - `nav` "Social": one sticker link per profile plus Email, each an
   `aria-hidden` icon and a visually hidden name
 - the copyright, then "Cat Drawings and Text Made with AI", an underlined
-  `subtle` link to `AI_DISCLOSURE.md` with a 24px box (EU AI Act Art. 50)
+  `subtle` link to `AI_DISCLOSURE.md` with a 44px-tall box (EU AI Act Art. 50)
 - the `aria-hidden` tuft
 
 ### Footer layout
 
-| Width       | Layout                                                                                                                                           |
-| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
-| below 48rem | one centered column in source order; the stickers a 4-column grid, the last three offset by `--spacing(8)`; copyright and AI label over the tuft |
-| from 48rem  | three columns, name and stickers, Site, About this site, `column-gap` `--spacing(8)`; copyright and AI label, then the tuft, in one row          |
-| from 64rem  | inset `--spacing(8)` either side; stickers `--size-sticker-lg`                                                                                   |
+| Width       | Layout                                                                                                                                             |
+| ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| below 48rem | one centered column in source order; the stickers a 4-column grid, the fifth onward offset by `--spacing(8)`; copyright and AI label over the tuft |
+| from 48rem  | three columns, name and stickers, Site, About this site, `column-gap` `--spacing(8)`; copyright and AI label, then the tuft, in one row            |
+| from 64rem  | inset `--spacing(8)` either side; stickers `--size-sticker-lg`                                                                                     |
 
 ### Footer spacing
 
@@ -1016,8 +1016,8 @@ Enforced by `tests/nav-current.spec.ts`, `tests/mobile-menu.spec.ts`,
 
 - Sticky, 96px (`--spacing-header`). `html` keeps focus and anchors
   `--spacing-header` plus `--spacing(4)` below the top.
-- Under 30rem of viewport height (`short`: a landscape phone, any window 960px
-  tall or less at 200% zoom) it scrolls away and the scroll padding drops to
+- Under 30rem of viewport height (`short`: a landscape phone, any window under
+  960px tall at 200% zoom) it scrolls away and the scroll padding drops to
   `--spacing(4)`.
 - Offset with `scroll-padding-top` on `html`, never `scroll-margin-top` on
   elements: WebKit ignores the latter for focused inputs.
