@@ -999,10 +999,15 @@ export const MOVES = {
       step(
         300,
         'leap',
-        { fN: [25, -36], fF: [21, -30], fl: 1.5, hx: -4, ta: 185, tc: 0 },
+        { fN: [28, -36], fF: [24, -28], fl: 1.5, hx: -15, ta: 185, tc: 0 },
         'out',
       ),
-      step(300, 'leap', { fN: [18, -8], fF: [15, -6], ta: 185, tc: 0 }, 'in'),
+      step(
+        300,
+        'leap',
+        { fN: [24, -8], fF: [20, -4], hx: -8, ta: 185, tc: 0 },
+        'in',
+      ),
       step(200, 'crouch', { sq: 0.84 }, 'out'),
       step(900, 'crouch', { fN: [32, 16], hr: 6 }),
       step(600, 'sit'),
