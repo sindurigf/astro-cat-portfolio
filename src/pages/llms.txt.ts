@@ -48,7 +48,7 @@ const ROUTE_NOTES: { path: string; label: string; note: string }[] = [
   {
     path: BLOG_PATH,
     label: 'Blog',
-    note: 'The blog index, newest first; every published post is listed.',
+    note: 'The blog index, newest first.',
   },
   { path: CONTACT_PATH, label: 'Contact', note: 'How to get in touch.' },
 ];
