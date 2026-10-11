@@ -2,6 +2,7 @@ import { expect, test, type Page } from './test';
 import { gotoSettled } from './settle';
 import { REFLOW_VIEWPORT } from './wcag';
 import { CTA, NAV_LINKS } from '../src/lib/nav';
+import { CAREER_PATH } from '../src/lib/paths';
 
 /** Every destination the open menu must offer: the nav, then the call to action. */
 const MENU_HREFS = [...NAV_LINKS.map((link) => link.href), CTA.href];
@@ -172,12 +173,12 @@ test.describe('mobile menu when its content overflows', () => {
 });
 
 /*
- * Past 48rem the menu button is hidden, so focus cannot return to it on close.
- * It goes to the header nav's first link instead of the document. Also run
- * without `checkVisibility`, which Safari lacks before 17.4, inside the CSS target.
+ * Past `md` the menu's root is `display: none`, so a menu left open there would
+ * be an unseen modal over an inert page (SC 2.1.1). Also run without
+ * `checkVisibility`, which Safari lacks before 17.4, inside the CSS target.
  */
 for (const variant of ['', ' without checkVisibility']) {
-  test(`closing the menu after widening past 48rem keeps focus in the header nav${variant}`, async ({
+  test(`widening past the menu's breakpoint closes it and hands the page back${variant}`, async ({
     page,
   }) => {
     if (variant) {
@@ -188,12 +189,34 @@ for (const variant of ['', ' without checkVisibility']) {
     await page.setViewportSize({ width: 390, height: 800 });
     await gotoSettled(page, '/about');
     await page.getByRole('button', { name: /menu/i }).click();
-    await expect(page.getByRole('dialog')).toBeVisible();
+    const panel = page.locator('#mobile-menu-panel');
+    await expect(panel).toBeVisible();
 
     await page.setViewportSize({ width: 1024, height: 800 });
-    await page.keyboard.press('Escape');
+
+    await expect
+      .poll(() => panel.evaluate((dialog: HTMLDialogElement) => dialog.open), {
+        message: 'the menu is still open where it is not drawn',
+      })
+      .toBe(false);
 
     const first = page.locator('header nav[aria-label="Primary"] a').first();
-    await expect(first).toBeFocused();
+    await expect(first, 'focus is not on the first Primary link').toBeFocused();
+    await expect(first, 'the focused link is not drawn').toBeVisible();
+
+    await page.mouse.move(512, 400);
+    await page.mouse.wheel(0, 400);
+    await expect
+      .poll(() => page.evaluate(() => window.scrollY), {
+        message: 'the page does not scroll after the menu closed',
+      })
+      .toBeGreaterThan(0);
+
+    await page
+      .locator(`header nav[aria-label="Primary"] a[href="${CAREER_PATH}"]`)
+      .click();
+    await expect(page, 'a Primary link did not take the click').toHaveURL(
+      new RegExp(`${CAREER_PATH}$`),
+    );
   });
 }

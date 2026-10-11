@@ -490,10 +490,11 @@ Heard: `________________________`
 
 #### 6.12.5 Focus return when the menu's breakpoint disappears
 
-Setup: Firefox at 320px on `/`. Open the menu, widen past 768px, press Escape.
+Setup: Firefox at 320px on `/`. Open the menu, widen past 768px.
 
 - [ ] Focus is on a header nav link. → SC 2.4.3
 - [ ] `Orca+Return` describes that link, not the document. → SC 2.4.3
+- [ ] The menu closed by itself and the page scrolls. → SC 2.1.1
 - [ ] `Alt+Shift+M`: one navigation "Primary", no dialog. → SC 1.3.1
 
 Heard: `________________________`
