@@ -8,6 +8,9 @@ repository to Workers Builds, or run `npx wrangler deploy` yourself.
 
 1. Fill in [`src/site.config.ts`](../src/site.config.ts): name, URL, person,
    profiles, and the analytics, Bing verification and contact switches.
+   While `site.url` is on an example host, the build warns and
+   `npm run check:live` exits 2, even with a target passed: every canonical
+   would name another domain.
 2. Replace the placeholders in `wrangler.jsonc`:
    - `name`: the Worker's name, which must match the dashboard's.
    - `routes`: your domain, as a custom domain.
