@@ -501,14 +501,10 @@ onBeforeUnmount(() => {
           aria-hidden="true"
           focusable="false"
         >
-          <circle class="cat-nap-solid" cx="6" cy="10" r="2" />
-          <circle class="cat-nap-solid" cx="10" cy="6" r="2" />
-          <circle class="cat-nap-solid" cx="14" cy="6" r="2" />
-          <circle class="cat-nap-solid" cx="18" cy="10" r="2" />
           <path
-            class="cat-nap-solid"
-            d="M12 11c3 0 5.5 3.3 5.5 6 0 2-1.7 3-3.2 2.5-1-.3-1.5-.8-2.3-.8s-1.3.5-2.3.8C8.2 20 6.5 19 6.5 17c0-2.7 2.5-6 5.5-6z"
+            d="M2.5 12c2.6-4.4 5.8-6.6 9.5-6.6s6.9 2.2 9.5 6.6c-2.6 4.4-5.8 6.6-9.5 6.6s-6.9-2.2-9.5-6.6z"
           />
+          <circle class="cat-nap-solid" cx="12" cy="12" r="3" />
         </svg>
         <svg
           v-else
