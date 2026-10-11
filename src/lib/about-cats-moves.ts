@@ -417,6 +417,8 @@ const arc = (from: number, to: number, height: number): Mod =>
   });
 /** Degrees a leaping body pitches per px of arc height: nose up as it takes off, level at the top, nose down to land. */
 const LEAP_PITCH_PER_PX = 0.35;
+/** The share of the leap, at its end, over which the body comes level: nose down at touchdown, the elbows would dip under the ground. */
+const LEAP_LEVELS_OUT = 0.15;
 /** px the front paws reach down and forward for the landing, and the hind paws push back at take-off. */
 const LANDING_REACH = 12;
 const PUSH_OFF = 8;
@@ -425,7 +427,11 @@ const leap = (from: number, to: number, height: number): Mod => {
   const rise = arc(from, to, height);
   return between(from, to, (p, s, k) => {
     rise.apply(p, s, k);
-    p.ba += LEAP_PITCH_PER_PX * height * Math.cos(Math.PI * k);
+    p.ba +=
+      LEAP_PITCH_PER_PX *
+      height *
+      Math.cos(Math.PI * k) *
+      Math.min(1, (1 - k) / LEAP_LEVELS_OUT);
     const land = LANDING_REACH * Math.max(0, 2 * k - 1);
     const push = PUSH_OFF * Math.max(0, 1 - 3 * k);
     for (const paw of PAWS) {
