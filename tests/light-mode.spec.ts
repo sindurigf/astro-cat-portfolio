@@ -260,6 +260,27 @@ test.describe('the switch', () => {
     await context.close();
   });
 
+  test('a page restored from the back-forward cache takes the stored choice', async ({
+    page,
+  }) => {
+    await gotoSettled(page, '/about');
+    const toggle = page.getByRole('button', { name: SWITCH_NAME });
+    await expect(toggle).toHaveAttribute('aria-pressed', 'false');
+
+    /* As if another page changed the choice while this one sat in the cache. */
+    await page.evaluate(() => {
+      localStorage.setItem('theme', 'light');
+      window.dispatchEvent(
+        new PageTransitionEvent('pageshow', { persisted: true }),
+      );
+    });
+    await expect(
+      toggle,
+      'the restored page kept the theme it was cached with.',
+    ).toHaveAttribute('aria-pressed', 'true');
+    expect(await mainIsLight(page)).toBe(true);
+  });
+
   test('the keyboard reaches the tile, and Space presses it', async ({
     page,
   }) => {
