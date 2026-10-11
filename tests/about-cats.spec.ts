@@ -1342,6 +1342,43 @@ test.describe('About cats', () => {
   }
 
   for (const colorScheme of ['dark', 'light'] as const) {
+    test(`a focused trick row under the pointer keeps a ring at 3:1 on its hover fill in ${colorScheme} mode (SC 2.4.7, 1.4.11)`, async ({
+      browser,
+    }) => {
+      const context = await browser.newContext({ colorScheme });
+      const page = await context.newPage();
+      await gotoSettled(page, ROUTE);
+      const id = 'pepper';
+      await showCat(page, id);
+      await page.keyboard.press('Shift');
+      await tricksButton(page, id).focus();
+      await page.keyboard.press('Enter');
+      const row = tricksList(page, id).getByRole('button').first();
+      await expect(row).toBeFocused();
+      await row.hover();
+      const ring = (await page.evaluate(`(() => {
+        ${PAGE_HELPERS}
+        const row = document.querySelector('.cat-tricks:popover-open .cat-trick');
+        const style = getComputedStyle(row);
+        const outline = parse(style.outlineColor);
+        const fill = parse(style.backgroundColor);
+        return {
+          hovered: row.matches(':hover:focus-visible'),
+          ratio: outline && fill ? ratio(outline, fill) : 0,
+        };
+      })()`)) as { hovered: boolean; ratio: number };
+      expect(ring.hovered, 'the row is not both hovered and focused').toBe(
+        true,
+      );
+      expect(
+        ring.ratio,
+        'the focus ring is under 3:1 on the hover fill',
+      ).toBeGreaterThanOrEqual(NON_TEXT);
+      await context.close();
+    });
+  }
+
+  for (const colorScheme of ['dark', 'light'] as const) {
     test(`the sleep control keeps 3:1 when hovered and focused in ${colorScheme} mode (SC 1.4.11)`, async ({
       browser,
     }) => {
