@@ -417,6 +417,8 @@ const arc = (from: number, to: number, height: number): Mod =>
   });
 /** Degrees a leaping body pitches per px of arc height: nose up as it takes off, level at the top, nose down to land. */
 const LEAP_PITCH_PER_PX = 0.35;
+/** The share of the leap, at its end, over which the body comes level: nose down at touchdown, the elbows would dip under the ground. */
+const LEAP_LEVELS_OUT = 0.15;
 /** px the front paws reach down and forward for the landing, and the hind paws push back at take-off. */
 const LANDING_REACH = 12;
 const PUSH_OFF = 8;
@@ -425,7 +427,11 @@ const leap = (from: number, to: number, height: number): Mod => {
   const rise = arc(from, to, height);
   return between(from, to, (p, s, k) => {
     rise.apply(p, s, k);
-    p.ba += LEAP_PITCH_PER_PX * height * Math.cos(Math.PI * k);
+    p.ba +=
+      LEAP_PITCH_PER_PX *
+      height *
+      Math.cos(Math.PI * k) *
+      Math.min(1, (1 - k) / LEAP_LEVELS_OUT);
     const land = LANDING_REACH * Math.max(0, 2 * k - 1);
     const push = PUSH_OFF * Math.max(0, 1 - 3 * k);
     for (const paw of PAWS) {
@@ -993,10 +999,15 @@ export const MOVES = {
       step(
         300,
         'leap',
-        { fN: [25, -36], fF: [21, -30], fl: 1.5, hx: -4, ta: 185, tc: 0 },
+        { fN: [28, -36], fF: [24, -28], fl: 1.5, hx: -15, ta: 185, tc: 0 },
         'out',
       ),
-      step(300, 'leap', { fN: [18, -8], fF: [15, -6], ta: 185, tc: 0 }, 'in'),
+      step(
+        300,
+        'leap',
+        { fN: [24, -8], fF: [20, -4], hx: -8, ta: 185, tc: 0 },
+        'in',
+      ),
       step(200, 'crouch', { sq: 0.84 }, 'out'),
       step(900, 'crouch', { fN: [32, 16], hr: 6 }),
       step(600, 'sit'),
