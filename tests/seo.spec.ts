@@ -1,6 +1,8 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { SOCIAL_PROFILES } from '../src/lib/profiles';
+import { BING_SITE_VERIFICATION, bingVerificationFor } from '../src/lib/site';
+import { SITE_CONFIG, validateSiteConfig } from '../src/site.config';
 import { expect, test } from './test';
 import { configuredSite, pngSize } from './source';
 import {
@@ -18,6 +20,9 @@ import { NODE } from './tags';
 import { metaContent } from './html';
 
 const SITE_ORIGIN = configuredSite();
+
+const BING_META = 'msvalidate.01';
+const SAMPLE_BING_CODE = '0123456789ABCDEF0123456789ABCDEF';
 
 // Called inside tests, never at module scope: collection precedes the build.
 const builtHtml = (): { route: string; html: string }[] =>
@@ -534,6 +539,60 @@ test.describe('profile verification', NODE, () => {
       missing,
       'a profile link lacks rel="me", so Mastodon cannot verify the site.',
     ).toEqual([]);
+  });
+
+  test('the Bing Webmaster Tools tag is on the homepage only, and only when a code is set', () => {
+    const carrying = builtHtml()
+      .filter(({ html }) => metaContent(html, BING_META) !== null)
+      .map(({ route, html }) => `${route} ${metaContent(html, BING_META)}`);
+    expect(
+      carrying,
+      `${BING_META} does not match bingSiteVerification in src/site.config.ts.`,
+    ).toEqual(
+      BING_SITE_VERIFICATION === null ? [] : [`/ ${BING_SITE_VERIFICATION}`],
+    );
+  });
+
+  test('a Bing verification code reaches the homepage and no other route', () => {
+    const routes = builtHtml().map(({ route }) => route);
+    expect(
+      routes.filter(
+        (route) => bingVerificationFor(route, SAMPLE_BING_CODE) !== null,
+      ),
+      'a set code does not reach the homepage alone.',
+    ).toEqual(['/']);
+    expect(
+      bingVerificationFor('/', SAMPLE_BING_CODE),
+      'the homepage does not carry the code as set.',
+    ).toBe(SAMPLE_BING_CODE);
+    expect(
+      routes.filter((route) => bingVerificationFor(route, null) !== null),
+      'a route carries a code though none is set.',
+    ).toEqual([]);
+  });
+
+  test('bingSiteVerification must be null or 32 hexadecimal characters', () => {
+    for (const bingSiteVerification of [
+      '',
+      SAMPLE_BING_CODE.slice(1),
+      `${SAMPLE_BING_CODE}0`,
+      SAMPLE_BING_CODE.replace('0', 'G'),
+      ` ${SAMPLE_BING_CODE}`,
+    ]) {
+      expect(
+        () => validateSiteConfig({ ...SITE_CONFIG, bingSiteVerification }),
+        `bingSiteVerification "${bingSiteVerification}" passed validation.`,
+      ).toThrow(/bingSiteVerification must be null or the 32 hexadecimal/);
+    }
+    for (const bingSiteVerification of [
+      null,
+      SAMPLE_BING_CODE,
+      SAMPLE_BING_CODE.toLowerCase(),
+    ]) {
+      expect(() =>
+        validateSiteConfig({ ...SITE_CONFIG, bingSiteVerification }),
+      ).not.toThrow();
+    }
   });
 });
 

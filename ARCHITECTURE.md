@@ -53,6 +53,7 @@ validated on import, so a bad value fails the build and the tests.
 | `profiles`                   | Footer tiles and JSON-LD `sameAs`; each label needs an icon                                  |
 | `journeyPost`                | The close row of `/about`, `/career`, `/contact/sent`; must name a published post, or `null` |
 | `analytics`                  | `null` loads no tracker; an Umami website id turns it on ([Umami](docs/DEPLOYMENT.md#umami)) |
+| `bingSiteVerification`       | `null` adds no tag; a [Bing](docs/DEPLOYMENT.md#bing-webmaster-tools) code adds one to `/`   |
 | `contact.form`               | `cloudflare-d1` (the form) or `none` (email only)                                            |
 | `contact.notificationSender` | Must equal `allowed_sender_addresses` in `wrangler.jsonc`                                    |
 | `accessibility.responseDays` | The reply aim on `/accessibility`, in whole days                                             |

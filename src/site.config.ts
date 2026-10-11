@@ -57,6 +57,8 @@ export interface SiteConfig {
   profiles: ReadonlyArray<{ label: ProfileLabel; href: string }>;
   /** Umami Cloud; null loads no tracker. */
   analytics: { umamiWebsiteId: string } | null;
+  /** Bing Webmaster Tools' msvalidate.01 code; null adds no tag. */
+  bingSiteVerification: string | null;
   /**
    * Slug of the published post /about, /career and /contact/sent end on, or
    * null to end them on their next page only. The build fails on any other slug.
@@ -107,6 +109,7 @@ const config: SiteConfig = {
     { label: 'Mastodon', href: 'https://mastodon.example/@robin-ohara' },
   ],
   analytics: null,
+  bingSiteVerification: null,
   journeyPost: 'sample-post',
   contact: {
     form: 'cloudflare-d1',
@@ -121,6 +124,7 @@ const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 /* A file name in src/content/blog/, as the glob loader turns it into an id. */
 const SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+const BING_CODE = /^[0-9A-F]{32}$/i;
 const EARLIEST_YEAR = 1991;
 const TAGLINE_MAX_LINES = 2;
 /* What fits the sharing image at its text size. */
@@ -157,6 +161,7 @@ export const validateSiteConfig = (value: SiteConfig): SiteConfig => {
     person,
     profiles,
     analytics,
+    bingSiteVerification,
     journeyPost,
     contact,
     accessibility,
@@ -220,6 +225,13 @@ export const validateSiteConfig = (value: SiteConfig): SiteConfig => {
 
   if (analytics !== null && !UUID.test(analytics.umamiWebsiteId)) {
     invalid('analytics.umamiWebsiteId', 'must be the UUID Umami shows.');
+  }
+
+  if (bingSiteVerification !== null && !BING_CODE.test(bingSiteVerification)) {
+    invalid(
+      'bingSiteVerification',
+      'must be null or the 32 hexadecimal characters Bing shows.',
+    );
   }
 
   if (journeyPost !== null && !SLUG.test(journeyPost)) {

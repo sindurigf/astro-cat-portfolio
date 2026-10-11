@@ -49,6 +49,14 @@ export const JOURNEY_POST = SITE_CONFIG.journeyPost;
 export const ACCESSIBILITY_RESPONSE_DAYS =
   SITE_CONFIG.accessibility.responseDays;
 
+export const BING_SITE_VERIFICATION = SITE_CONFIG.bingSiteVerification;
+
+/** The msvalidate.01 code `pathname` carries: Bing reads it on the homepage only. */
+export const bingVerificationFor = (
+  pathname: string,
+  code: string | null,
+): string | null => (pathname === '/' ? code : null);
+
 /** `why` names what needs absolute URLs; the build fails with it. */
 export const requireSite = (site: URL | undefined, why: string): URL => {
   if (!site) throw new Error(`Set \`site.url\` in src/site.config.ts: ${why}`);

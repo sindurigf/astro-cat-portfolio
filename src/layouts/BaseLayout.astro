@@ -15,7 +15,13 @@ import { DEFAULT_OG_IMAGE, type OgImage } from '../lib/og-image';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import { SITE_FEED_PATH, SITEMAP_PATH } from '../lib/paths';
-import { requireSite, SITE_NAME, SITE_SHORT_NAME } from '../lib/site';
+import {
+  BING_SITE_VERIFICATION,
+  bingVerificationFor,
+  requireSite,
+  SITE_NAME,
+  SITE_SHORT_NAME,
+} from '../lib/site';
 import { BUILD_ENV } from '../lib/build-env';
 
 interface Props {
@@ -61,6 +67,10 @@ const site = requireSite(
 const canonical = new URL(Astro.url.pathname, site);
 /* Only the production host is counted; localhost and previews send nothing. */
 const analyticsDomain = site.hostname;
+const bingVerification = bingVerificationFor(
+  Astro.url.pathname,
+  BING_SITE_VERIFICATION,
+);
 const ogImageUrl = new URL(ogImage.src, site);
 const personImage =
   profile &&
@@ -130,6 +140,9 @@ const articleData = article && {
     <meta name="description" content={description} />
     {!noCanonical && <link rel="canonical" href={canonical} />}
     {noindex && <meta name="robots" content="noindex, follow" />}
+    {bingVerification !== null && (
+      <meta name="msvalidate.01" content={bingVerification} />
+    )}
 
     {/* tests/sitemap.spec.ts checks this, robots.txt and the build agree. */}
     {!BUILD_ENV.noindex && (
