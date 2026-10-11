@@ -1313,7 +1313,8 @@ test.describe('About cats', () => {
           `${NAMES[id]}'s sleep control height`,
         ).toBeGreaterThanOrEqual(MIN_TARGET - SUBPIXEL_TOLERANCE);
       }
-      const ratios = await page.evaluate(`(() => {
+      const ratios = (): Promise<{ icon: number; edge: number }[]> =>
+        page.evaluate(`(() => {
         ${PAGE_HELPERS}
         return [...document.querySelectorAll('.cat-nap')].map((button) => {
           const style = getComputedStyle(button);
@@ -1327,16 +1328,31 @@ test.describe('About cats', () => {
           };
         });
       })()`);
-      for (const value of ratios as { icon: number; edge: number }[]) {
-        expect(
-          value.icon,
-          'the sleep icon is under 3:1',
-        ).toBeGreaterThanOrEqual(NON_TEXT);
-        expect(
-          value.edge,
-          'the sleep control edge is under 3:1',
-        ).toBeGreaterThanOrEqual(NON_TEXT);
+      const expectContrast = async (state: string): Promise<void> => {
+        for (const value of await ratios()) {
+          expect(
+            value.icon,
+            `the sleep control's icon is under 3:1 with the cats ${state}`,
+          ).toBeGreaterThanOrEqual(NON_TEXT);
+          expect(
+            value.edge,
+            `the sleep control's edge is under 3:1 with the cats ${state}`,
+          ).toBeGreaterThanOrEqual(NON_TEXT);
+        }
+      };
+      await expectContrast('awake');
+      for (const id of CATS) {
+        await napControl(page, id).click();
+        await expectMood(
+          page,
+          id,
+          'asleep',
+          `${NAMES[id]} did not fall asleep`,
+        );
       }
+      /* Off the last control, so its rest state is measured, not its hover. */
+      await page.mouse.move(BACKDROP_POINT.x, BACKDROP_POINT.y);
+      await expectContrast('asleep');
       await context.close();
     });
   }
