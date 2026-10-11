@@ -147,11 +147,9 @@ const closeTricks = (): void =>
     .querySelectorAll<HTMLElement>('.cat-tricks:popover-open')
     .forEach((list) => list.hidePopover());
 
-/** Where each open list's paw stood when it opened. */
-const pawsAtOpen = new Map<
-  CatId,
-  { paw: Element; top: number; left: number }
->();
+/** The open list's paw and where it stood when the list opened. */
+let openPaw: Element | undefined;
+let openPawTop = 0;
 
 /*
  * A viewport-fixed list would stay behind a scrolled page; its own scrolling
@@ -159,12 +157,7 @@ const pawsAtOpen = new Map<
  * brought a just-focused paw into view, reported a frame after the list opened.
  */
 const closeTricksScrolledAway = (): void => {
-  for (const { paw, top, left } of pawsAtOpen.values()) {
-    const now = paw.getBoundingClientRect();
-    if (now.top === top && now.left === left) continue;
-    closeTricks();
-    return;
-  }
+  if (openPaw?.getBoundingClientRect().top !== openPawTop) closeTricks();
 };
 
 const onTricksToggle = (id: CatId, event: Event): void => {
@@ -172,11 +165,11 @@ const onTricksToggle = (id: CatId, event: Event): void => {
   const spot = document.getElementById(`cat-spot-${id}`);
   const paw = spot?.querySelector('.cat-tricks-button');
   paw?.setAttribute('aria-expanded', String(open));
-  if (open && paw) {
-    const { top, left } = paw.getBoundingClientRect();
-    pawsAtOpen.set(id, { paw, top, left });
-  } else pawsAtOpen.delete(id);
-  const method = pawsAtOpen.size ? 'addEventListener' : 'removeEventListener';
+  /* Another list opening reports here before this one closing. */
+  if (open) openPaw = paw ?? undefined;
+  else if (openPaw === paw) openPaw = undefined;
+  openPawTop = openPaw?.getBoundingClientRect().top ?? 0;
+  const method = openPaw ? 'addEventListener' : 'removeEventListener';
   window[method]('scroll', closeTricksScrolledAway);
   const list = document.getElementById(`cat-tricks-${id}`);
   if (!open || !colony || !spot || !paw || !list) return;
@@ -204,7 +197,6 @@ const onTricksToggle = (id: CatId, event: Event): void => {
     '--tricks-right',
     `${document.documentElement.clientWidth - right}px`,
   );
-  list.style.setProperty('--tricks-width', `${right - TRICKS_MARGIN}px`);
   list.style.setProperty('--tricks-top', `${top}px`);
   list.style.setProperty(
     '--tricks-max',
@@ -216,14 +208,10 @@ const onTricksToggle = (id: CatId, event: Event): void => {
  * An open list would cover the control focus moved on to (SC 2.4.12). After
  * the move: hidePopover() on a list that still holds focus sends it back.
  */
-const onTricksFocusOut = (id: CatId): void => {
+const onTricksFocusOut = (): void => {
   setTimeout(() => {
-    const list = document.getElementById(`cat-tricks-${id}`);
-    const focused = document.activeElement;
-    if (!list?.matches(':popover-open')) return;
-    if (!focused || focused === document.body || list.contains(focused)) return;
-    if (focused.matches(`[popovertarget="${list.id}"]`)) return;
-    list.hidePopover();
+    if (!document.activeElement?.matches('.cat-trick, .cat-tricks-button'))
+      closeTricks();
   });
 };
 
@@ -578,7 +566,7 @@ onBeforeUnmount(() => {
           class="cat-tricks-button"
           aria-expanded="false"
           v-bind="{ popovertarget: `cat-tricks-${cat.id}` }"
-          @focusout="onTricksFocusOut(cat.id)"
+          @focusout="onTricksFocusOut"
         >
           <svg
             class="cat-trick-icon"
@@ -600,7 +588,7 @@ onBeforeUnmount(() => {
           tabindex="-1"
           class="cat-tricks"
           @beforetoggle="onTricksToggle(cat.id, $event)"
-          @focusout="onTricksFocusOut(cat.id)"
+          @focusout="onTricksFocusOut"
         >
           <ul v-if="tricks" class="cat-trick-list">
             <li
