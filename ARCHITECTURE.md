@@ -61,8 +61,9 @@ validated on import, so a bad value fails the build and the tests.
 | `accessibility.responseDays` | The reply aim on `/accessibility`, in whole days                                             |
 
 - Libraries re-export these as constants (`src/lib/site.ts`, `profiles.ts`,
-  `contact.ts`, `analytics-site.ts`, `site-language.ts`, `og-image.ts`,
-  `contact-notification.ts`); code imports those, not the config.
+  `contact.ts`, `analytics-site.ts`, `site-language.ts`); `og-image.ts` and
+  `contact-notification.ts` read the config directly. Other code imports
+  those, not the config.
 - The browser bundle never imports the config: the click tracker reads
   `analytics.ts`, which does not.
 - Tests read the same constants, and the ones for analytics, the contact form,

@@ -638,6 +638,7 @@ The grid rule in `scripts/check-tokens.mjs` enforces the grid;
 | Post                   | Article header, Reading (contents box from 1280px), Tags nav   |
 | 404                    | Hero (starfield) only                                          |
 
+- About's last Open, Sources, is there only while the sample persona is set.
 - Contact ends on its gold surface, not a closing row: the band is its call to
   action.
 - The blog listing has no section heading: each card's title is its h2.
