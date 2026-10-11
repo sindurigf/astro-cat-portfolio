@@ -12,11 +12,13 @@ const D = Math.PI / 180;
 const EDGE = 5;
 const SHADOW = 3;
 const LEG_W = 7.5;
+/** Half a front leg's width at the shoulder, elbow, wrist and paw. */
+const FRONT_R = [LEG_W / 2, 3.2, 2.5, 2.25];
+/** Half a hind leg's width at the hip, knee, heel, paw and toes: a thigh that tapers to the knee, a thin shank and foot. */
+const HIND_R = [7.2, 4.8, 2.9, 2.5, 2.3];
 const TAIL_W = 7;
 const TAIL_SEGS = 8;
 const TAIL_SEG = 4.2;
-const UPPER = 9.5;
-const LOWER = 9.5;
 const BODY_LEN = 30;
 const HEAD_RX = 13;
 const HEAD_RY = 11.5;
@@ -51,6 +53,8 @@ const STRIPES = [0.3, 0.5, 0.7];
 const STRING_TOP = -136;
 /** The scratching post's height in px, cap aside; with it, it stays under the band. */
 export const POST_HEIGHT = 92;
+/** Where each turn of rope starts on the post's left edge, top to bottom, in px. */
+const ROPE_TURNS = [-86, -78, -70, -62, -54, -46, -38, -30, -22, -14];
 /** A small and a larger "z", drawn from the lower left of the small one. */
 const ZZ = 'M0 0h4l-4 5h4M6 -9h6l-6 7h6';
 const ZZ_HEIGHT = 14;
@@ -71,43 +75,47 @@ const f = (n: number): string => n.toFixed(2);
 export const clamp = (v: number, lo: number, hi: number): number =>
   Math.max(lo, Math.min(hi, v));
 
+type Attrs = Record<string, string | number>;
+
+const set = (node: Element, name: string, value: string | number): void => {
+  node.setAttribute(name, String(value));
+};
+const show = (node: Element, shown: boolean): void => {
+  set(node, 'visibility', shown ? 'visible' : 'hidden');
+};
+const translate = (x: number, y: number): string =>
+  `translate(${f(x)} ${f(y)})`;
+
 const el = <K extends keyof SVGElementTagNameMap>(
   tag: K,
-  attrs: Record<string, string | number>,
+  attrs: Attrs,
   parent: Element,
 ): SVGElementTagNameMap[K] => {
   const node = document.createElementNS(NS, tag);
-  for (const [k, v] of Object.entries(attrs)) node.setAttribute(k, String(v));
+  for (const [k, v] of Object.entries(attrs)) set(node, k, v);
   parent.append(node);
   return node;
 };
 
-/** Two-bone inverse kinematics; `sign` picks which way the joint bends. */
-const ik = (
-  a: Point,
-  t: Point,
-  sign: number,
-  scale: number,
-): [Point, Point] => {
-  const upper = UPPER * scale;
-  const lower = LOWER * scale;
+/** A round-capped stroke in one of the cat's line colors. */
+const line = (part: string, width: number): Attrs => ({
+  class: `cat-line-${part}`,
+  'stroke-width': width,
+  'stroke-linecap': 'round',
+});
+
+/** Inverse kinematics for two bones of one length; `sign` picks which way the joint bends. */
+const ik = (a: Point, t: Point, sign: number, bone: number): [Point, Point] => {
   const dx = t.x - a.x;
   const dy = t.y - a.y;
   const d = Math.hypot(dx, dy) || 0.001;
-  const reach = clamp(d, Math.abs(upper - lower) + 0.5, upper + lower - 0.01);
+  const reach = clamp(d, 0.5, 2 * bone - 0.01);
   const ux = dx / d;
   const uy = dy / d;
-  const bend =
-    Math.acos(
-      clamp(
-        (upper * upper + reach * reach - lower * lower) / (2 * upper * reach),
-        -1,
-        1,
-      ),
-    ) * sign;
+  const bend = Math.acos(reach / (2 * bone)) * sign;
   const joint = pt(
-    a.x + upper * (ux * Math.cos(bend) - uy * Math.sin(bend)),
-    a.y + upper * (ux * Math.sin(bend) + uy * Math.cos(bend)),
+    a.x + bone * (ux * Math.cos(bend) - uy * Math.sin(bend)),
+    a.y + bone * (ux * Math.sin(bend) + uy * Math.cos(bend)),
   );
   return [joint, pt(a.x + ux * reach, a.y + uy * reach)];
 };
@@ -147,7 +155,6 @@ export interface CatRig {
   flip: SVGGElement;
   layers: Layer[];
   bodyClip: SVGPathElement;
-  marks: SVGGElement;
   /** Pepper's tabby stripes and Mochi's patch; none for Biscuit. */
   stripes: SVGPathElement[];
   patch: SVGEllipseElement | null;
@@ -192,37 +199,36 @@ export const createCatRig = (svg: SVGSVGElement, id: CatId): CatRig => {
   const layer = (tone: 'shadow' | 'edge' | 'fill', extra: number): Layer => {
     const group = el(
       'g',
-      tone === 'shadow'
-        ? { class: 'cat-shadow', transform: `translate(${SHADOW} ${SHADOW})` }
-        : { class: tone === 'edge' ? 'cat-edge' : 'cat-fill' },
+      {
+        class: `cat-${tone}`,
+        ...(tone === 'shadow' && {
+          transform: `translate(${SHADOW} ${SHADOW})`,
+        }),
+      },
       flip,
     );
-    const stroke = (width: number, part: string): SVGPathElement =>
-      el(
-        'path',
-        {
-          class: `cat-line-${part}`,
-          'stroke-width': width + extra,
-          'stroke-linecap': 'round',
-          'stroke-linejoin': 'round',
-        },
-        group,
-      );
-    const solid = (part: string): Record<string, string | number> => ({
+    const solid = (part: string): Attrs => ({
       class: `cat-solid-${part}`,
       'stroke-width': extra,
       'stroke-linejoin': 'round',
     });
     const farLegs: [SVGPathElement, SVGPathElement] = [
-      stroke(LEG_W, 'far'),
-      stroke(LEG_W, 'far'),
+      el('path', solid('far'), group),
+      el('path', solid('far'), group),
     ];
-    const tail = stroke(TAIL_W, id === 'mochi' ? 'patch' : 'fur');
+    const tail = el(
+      'path',
+      {
+        ...line(id === 'mochi' ? 'patch' : 'fur', TAIL_W + extra),
+        'stroke-linejoin': 'round',
+      },
+      group,
+    );
     const body = el('path', solid('fur'), group);
     const haunch = el('ellipse', solid('fur'), group);
     const legs: [SVGPathElement, SVGPathElement] = [
-      stroke(LEG_W, 'fur'),
-      stroke(LEG_W, 'fur'),
+      el('path', solid('fur'), group),
+      el('path', solid('fur'), group),
     ];
     const head = el('g', {}, group);
     const ears = el('path', { d: EARS, ...solid('fur') }, head);
@@ -238,17 +244,7 @@ export const createCatRig = (svg: SVGSVGElement, id: CatId): CatRig => {
   /* Made once and moved each frame; building them per frame was most of a draw. */
   const stripes =
     id === 'pepper'
-      ? STRIPES.map(() =>
-          el(
-            'path',
-            {
-              class: 'cat-line-mark',
-              'stroke-width': 2.4,
-              'stroke-linecap': 'round',
-            },
-            marks,
-          ),
-        )
+      ? STRIPES.map(() => el('path', line('mark', 2.4), marks))
       : [];
   const patch =
     id === 'mochi'
@@ -269,12 +265,7 @@ export const createCatRig = (svg: SVGSVGElement, id: CatId): CatRig => {
   if (id === 'pepper') {
     el(
       'path',
-      {
-        d: 'M-4 -10l1.5 -4M0 -11v-4',
-        class: 'cat-line-mark',
-        'stroke-width': 2.2,
-        'stroke-linecap': 'round',
-      },
+      { d: 'M-4 -10l1.5 -4M0 -11v-4', ...line('mark', 2.2) },
       headMarks,
     );
   }
@@ -301,12 +292,7 @@ export const createCatRig = (svg: SVGSVGElement, id: CatId): CatRig => {
   }
   const eyesShut = el(
     'path',
-    {
-      d: 'M-3 -1q2 1.8 4 0M5 -1.5q2 1.8 4 0',
-      class: 'cat-line-lid',
-      'stroke-width': 1.1,
-      'stroke-linecap': 'round',
-    },
+    { d: 'M-3 -1q2 1.8 4 0M5 -1.5q2 1.8 4 0', ...line('lid', 1.1) },
     top.head,
   );
   const mouth = el(
@@ -314,24 +300,13 @@ export const createCatRig = (svg: SVGSVGElement, id: CatId): CatRig => {
     { cx: 9, cy: 5, rx: 2.3, ry: 0, class: 'cat-solid-mouth' },
     top.head,
   );
-  el(
-    'path',
-    {
-      d: WHISKERS,
-      class: 'cat-line-whisker',
-      'stroke-width': DETAIL,
-      'stroke-linecap': 'round',
-    },
-    top.head,
-  );
+  el('path', { d: WHISKERS, ...line('whisker', DETAIL) }, top.head);
   /* Outside the flip, so the letter never reads backwards. */
   const zz = el(
     'path',
     {
       d: ZZ,
-      class: 'cat-line-z',
-      'stroke-width': 1.6,
-      'stroke-linecap': 'round',
+      ...line('z', 1.6),
       'stroke-linejoin': 'round',
       visibility: 'hidden',
     },
@@ -350,7 +325,6 @@ export const createCatRig = (svg: SVGSVGElement, id: CatId): CatRig => {
     flip,
     layers,
     bodyClip,
-    marks,
     stripes,
     patch,
     tailMarks,
@@ -466,14 +440,119 @@ const zzAt = (p: Pose, head: Point): Point =>
 
 type Paw = 'fN' | 'fF' | 'hN' | 'hF';
 
-/** Each leg's hip or shoulder, knee and paw, as drawn: a paw its leg cannot reach stops short. */
-const legBones = (p: Pose): Record<Paw, [Point, Point, Point]> => {
+/*
+ * Cats stand on their toes: below the elbow and knee each leg has a wrist or
+ * hock, the hind one high and pointing back. Lengths in px before the leg
+ * scale, angles in degrees from the ground, forward positive.
+ */
+const LEG = 19;
+const WRIST = 2.5;
+const HOCK = 7.5;
+const FRONT_BONE = (LEG - WRIST) / 2;
+/** Thigh and shank: together longer than the hip stands high, so a standing leg bends. */
+const HIND_BONE = 8.2;
+const HIND_TOES = 2.4;
+/** The paw height by which the toes hang in line with the foot. */
+const TOES_HANG_AT = 5;
+const HOCK_STAND = 62;
+const HOCK_FLAT = 14;
+/** A hind foot lies flat with the paw this near the hip, as a share of LEG, and stands upright this much farther out. */
+const HOCK_FLAT_AT = 0.45;
+const HOCK_RISE = 0.5;
+/*
+ * The wrist angle by paw height: a stepping paw flicks back sole up, and from
+ * WRIST_HANG_FROM px a paw raised to swat comes to hang curled from the wrist.
+ * Degrees, and degrees per px of lift.
+ */
+const WRIST_STAND = 80;
+const WRIST_FLICK = 130;
+const WRIST_HANG = 100;
+const WRIST_FLICK_RATE = 10;
+const WRIST_HANG_FROM = 9;
+const WRIST_HANG_RATE = 30 / 7;
+/** How far a lifted hind paw hangs more upright under the hock, per px of lift. */
+const HOCK_FOLD = 7;
+const HOCK_FOLD_MAX = 40;
+
+/** How far towards flat a folding hind foot has come when its heel is under the hip, as a share. */
+const HEEL_UNDER_AT = 2 / 3;
+
+/** A chain of tapered segments with round joints, as one filled path. */
+const limb = (pts: Point[], r: number[]): string => {
+  let d = '';
+  pts.forEach((q, i) => {
+    const half = `a${r[i]} ${r[i]} 0 1 0 `;
+    d += `M${f(q.x - r[i])} ${f(q.y)}${half}${f(2 * r[i])} 0${half}${f(-2 * r[i])} 0Z`;
+    if (i === 0) return;
+    const a = pts[i - 1];
+    const len = Math.hypot(q.x - a.x, q.y - a.y) || 1;
+    const nx = (a.y - q.y) / len;
+    const ny = (q.x - a.x) / len;
+    const side = (c: Point, w: number): string =>
+      `${f(c.x + nx * w)} ${f(c.y + ny * w)}`;
+    d += `M${side(a, r[i - 1])}L${side(q, r[i])}L${side(q, -r[i])}L${side(a, -r[i - 1])}Z`;
+  });
+  return d;
+};
+
+const wristAngle = (lift: number): number =>
+  Math.min(
+    WRIST_STAND + WRIST_FLICK_RATE * lift,
+    WRIST_FLICK,
+    Math.max(
+      WRIST_HANG,
+      WRIST_FLICK - WRIST_HANG_RATE * (lift - WRIST_HANG_FROM),
+    ),
+  );
+
+/** Each leg's hip or shoulder, knee or elbow, hock or wrist, and paw, as drawn; a hind leg's toes follow. */
+const legBones = (p: Pose): Record<Paw, Point[]> => {
   const { center, length, half, at } = skeleton(p);
   const front = at(length - 3, -half * 0.3);
   const hind = at(3, -half * 0.3);
-  const bone = (from: Point, k: Paw, sign: number): [Point, Point, Point] => {
-    const target = pt(center.x + p[k][0], center.y + p[k][1]);
-    return [from, ...ik(from, target, sign, k[0] === 'f' ? p.fl : p.hl)];
+  const bone = (from: Point, k: Paw, sign: number): Point[] => {
+    const isFront = k[0] === 'f';
+    const scale = isFront ? p.fl : p.hl;
+    const paw = pt(center.x + p[k][0], center.y + p[k][1]);
+    const lift = Math.max(0, -paw.y);
+    const room = Math.hypot(paw.x - from.x, paw.y - from.y) / (LEG * scale);
+    /* Up from the paw to the wrist or hock: angle from the ground, measured backwards. */
+    const angle = isFront
+      ? wristAngle(lift)
+      : HOCK_FLAT +
+        (HOCK_STAND - HOCK_FLAT) *
+          clamp((room - HOCK_FLAT_AT) / HOCK_RISE, 0, 1) +
+        Math.min(HOCK_FOLD_MAX, lift * HOCK_FOLD);
+    const seg = (isFront ? WRIST : HOCK) * scale;
+    const cos = Math.cos(angle * D);
+    const sin = Math.sin(angle * D);
+    /* A folded hind leg rests on the whole foot: it slides forward so the heel, not the toes, comes under the hip. */
+    if (!isFront)
+      paw.x +=
+        seg *
+        cos *
+        clamp(
+          (HOCK_STAND - angle) / ((HOCK_STAND - HOCK_FLAT) * HEEL_UNDER_AT),
+          0,
+          1,
+        );
+    const lower = pt(paw.x - seg * cos, paw.y - seg * sin);
+    const [joint, reached] = ik(
+      from,
+      lower,
+      sign,
+      (isFront ? FRONT_BONE : HIND_BONE) * scale,
+    );
+    /* A paw its leg cannot reach stops short with it. */
+    const end = pt(paw.x + reached.x - lower.x, paw.y + reached.y - lower.y);
+    const bones = [from, joint, reached, end];
+    if (isFront) return bones;
+    /* Toes lie forward on the ground, and hang in line with the foot once it lifts. */
+    const hang = clamp(-end.y / TOES_HANG_AT, 0, 1);
+    const tx = 1 - hang + hang * cos;
+    const ty = hang * sin;
+    const reach = HIND_TOES / (Math.hypot(tx, ty) || 1);
+    return [...bones, pt(end.x + tx * reach, end.y + ty * reach)];
   };
   return {
     fN: bone(front, 'fN', 1),
@@ -513,7 +592,7 @@ const outline = (p: Pose): Point[] => {
     headPoint(pt(HEAD_RX, 0)),
     headPoint(pt(-HEAD_RX, 0)),
     ...ears.map(headPoint),
-    ...Object.values(legBones(p)).map(([, , end]) => end),
+    ...Object.values(legBones(p)).map((bones) => bones[3]),
   ];
   let q = at(-4, 0);
   for (const angle of tailTargets(p, 0)) {
@@ -562,13 +641,11 @@ export const renderCat = (
     at(-2, -half * 0.95),
     at(-6.5, -half * 0.3),
   ]);
-  rig.bodyClip.setAttribute('d', body);
+  set(rig.bodyClip, 'd', body);
 
   const bones = legBones(p);
-  const leg = (k: Paw): string => {
-    const [from, joint, end] = bones[k];
-    return `M${f(from.x)} ${f(from.y)}L${f(joint.x)} ${f(joint.y)}L${f(end.x)} ${f(end.y)}`;
-  };
+  const leg = (k: Paw): string =>
+    limb(bones[k], k[0] === 'f' ? FRONT_R : HIND_R);
   const legs = { fN: leg('fN'), fF: leg('fF'), hN: leg('hN'), hF: leg('hF') };
 
   const targets = tailTargets(p, now / 1000);
@@ -596,56 +673,58 @@ export const renderCat = (
   );
   const haunchR = Math.max(0.01, p.haunch);
 
+  const earTurn = `rotate(${f(-30 * p.ears)} 0 -8)`;
+
   for (const layer of rig.layers) {
-    layer.body.setAttribute('d', body);
-    layer.farLegs[0].setAttribute('d', legs.fF);
-    layer.farLegs[1].setAttribute('d', legs.hF);
-    layer.legs[0].setAttribute('d', legs.hN);
-    layer.legs[1].setAttribute('d', legs.fN);
-    layer.tail.setAttribute('d', tail);
-    layer.haunch.setAttribute('cx', f(haunch.x));
-    layer.haunch.setAttribute('cy', f(haunch.y));
-    layer.haunch.setAttribute('rx', f(haunchR));
-    layer.haunch.setAttribute('ry', f(haunchR * 1.05));
-    layer.head.setAttribute(
+    set(layer.body, 'd', body);
+    set(layer.farLegs[0], 'd', legs.fF);
+    set(layer.farLegs[1], 'd', legs.hF);
+    set(layer.legs[0], 'd', legs.hN);
+    set(layer.legs[1], 'd', legs.fN);
+    set(layer.tail, 'd', tail);
+    set(layer.haunch, 'cx', f(haunch.x));
+    set(layer.haunch, 'cy', f(haunch.y));
+    set(layer.haunch, 'rx', f(haunchR));
+    set(layer.haunch, 'ry', f(haunchR * 1.05));
+    set(
+      layer.head,
       'transform',
-      `translate(${f(head.x)} ${f(head.y)}) rotate(${f(p.hr)})`,
+      `${translate(head.x, head.y)} rotate(${f(p.hr)})`,
     );
-    layer.ears.setAttribute('transform', `rotate(${f(-30 * p.ears)} 0 -8)`);
+    set(layer.ears, 'transform', earTurn);
   }
-  rig.tailMarks.setAttribute('d', tail);
-  rig.earPatch?.setAttribute('transform', `rotate(${f(-30 * p.ears)} 0 -8)`);
+  set(rig.tailMarks, 'd', tail);
+  if (rig.earPatch) set(rig.earPatch, 'transform', earTurn);
 
   rig.stripes.forEach((stripe, i) => {
     const k = STRIPES[i];
     const a = at(length * k, -half - 2);
     const z = at(length * k - 1, -half + 8);
-    stripe.setAttribute('d', `M${f(a.x)} ${f(a.y)}L${f(z.x)} ${f(z.y)}`);
+    set(stripe, 'd', `M${f(a.x)} ${f(a.y)}L${f(z.x)} ${f(z.y)}`);
   });
   if (rig.patch) {
     const o = at(length * 0.35, -half * 0.35);
-    rig.patch.setAttribute('cx', f(o.x));
-    rig.patch.setAttribute('cy', f(o.y));
+    set(rig.patch, 'cx', f(o.x));
+    set(rig.patch, 'cy', f(o.y));
   }
 
   const open = p.eyes > 0.5;
-  rig.eyesOpen.setAttribute('visibility', open ? 'visible' : 'hidden');
-  rig.eyesShut.setAttribute('visibility', open ? 'hidden' : 'visible');
-  rig.mouth.setAttribute('ry', f(3 * p.mouth));
+  show(rig.eyesOpen, open);
+  show(rig.eyesShut, !open);
+  set(rig.mouth, 'ry', f(3 * p.mouth));
+  show(rig.zz, p.zz > 0);
   if (p.zz > 0) {
     const z = zzAt(p, head);
-    rig.zz.setAttribute('transform', `translate(${f(z.x)} ${f(z.y)})`);
-    rig.zz.setAttribute('opacity', f(Math.min(1, 2 * p.zz)));
-    rig.zz.setAttribute('visibility', 'visible');
-  } else {
-    rig.zz.setAttribute('visibility', 'hidden');
+    set(rig.zz, 'transform', translate(z.x, z.y));
+    set(rig.zz, 'opacity', f(Math.min(1, 2 * p.zz)));
   }
 
   const height = highestPoint(p);
-  rig.hit.setAttribute('y', f(-height));
-  rig.hit.setAttribute('height', f(height));
-  rig.root.setAttribute('transform', `translate(${f(x)} ${f(groundY)})`);
-  rig.flip.setAttribute(
+  set(rig.hit, 'y', f(-height));
+  set(rig.hit, 'height', f(height));
+  set(rig.root, 'transform', translate(x, groundY));
+  set(
+    rig.flip,
     'transform',
     `scale(${f(p.face)} 1) rotate(${f(p.rot)} 0 ${f(center.y)})`,
   );
@@ -670,13 +749,13 @@ export const createProp = (
   const remove = (): void => {
     node.remove();
   };
-  const edge = {
-    class: 'cat-prop-solid',
+  const solid = (part: string): Attrs => ({
+    class: `cat-prop-solid cat-prop-${part}`,
     'stroke-width': 1.8,
     'stroke-linejoin': 'round',
-  };
+  });
   if (kind === 'toy') {
-    const line = el(
+    const string = el(
       'path',
       { class: 'cat-prop-string', 'stroke-width': 1.2 },
       node,
@@ -692,49 +771,41 @@ export const createProp = (
       },
       pom,
     );
-    el(
-      'circle',
-      { r: 4.2, ...edge, class: 'cat-prop-solid cat-prop-toy' },
-      pom,
-    );
+    el('circle', { r: 4.2, ...solid('toy') }, pom);
     return {
       node,
       remove,
       draw: (s) => {
         const px = s.x + (s.y - STRING_TOP) * Math.sin(s.r * D);
         const py = STRING_TOP + (s.y - STRING_TOP) * Math.cos(s.r * D);
-        line.setAttribute('d', `M${f(s.x)} ${STRING_TOP}L${f(px)} ${f(py)}`);
-        pom.setAttribute('transform', `translate(${f(px)} ${f(py)})`);
-        node.setAttribute('opacity', f(s.o));
+        set(string, 'd', `M${f(s.x)} ${STRING_TOP}L${f(px)} ${f(py)}`);
+        set(pom, 'transform', translate(px, py));
+        set(node, 'opacity', f(s.o));
       },
     };
   }
   if (kind === 'fly') {
-    const wings = [
+    const wings = [-2.2, 2.2].map((cx) =>
       el(
         'ellipse',
-        { cx: -2.2, cy: -2.5, rx: 3, ry: 1.4, class: 'cat-prop-wing' },
+        { cx, cy: -2.5, rx: 3, ry: 1.4, class: 'cat-prop-wing' },
         node,
       ),
-      el(
-        'ellipse',
-        { cx: 2.2, cy: -2.5, rx: 3, ry: 1.4, class: 'cat-prop-wing' },
-        node,
-      ),
-    ];
+    );
     el('ellipse', { rx: 2.2, ry: 1.6, class: 'cat-prop-body' }, node);
     return {
       node,
       remove,
       draw: (s, now) => {
-        node.setAttribute('transform', `translate(${f(s.x)} ${f(s.y)})`);
-        node.setAttribute('opacity', f(s.o));
-        wings.forEach((w, i) =>
-          w.setAttribute(
+        set(node, 'transform', translate(s.x, s.y));
+        set(node, 'opacity', f(s.o));
+        wings.forEach((w, i) => {
+          set(
+            w,
             'ry',
             f(0.4 + 1.3 * Math.abs(Math.sin(now / WING_BEAT_MS + i))),
-          ),
-        );
+          );
+        });
       },
     };
   }
@@ -748,15 +819,7 @@ export const createProp = (
       },
       node,
     );
-    el(
-      'path',
-      {
-        d: 'M-5.5 -12h11l-1 12h-9z',
-        ...edge,
-        class: 'cat-prop-solid cat-prop-cup',
-      },
-      node,
-    );
+    el('path', { d: 'M-5.5 -12h11l-1 12h-9z', ...solid('cup') }, node);
   } else if (kind === 'post') {
     el(
       'rect',
@@ -765,15 +828,14 @@ export const createProp = (
         y: -POST_HEIGHT,
         width: 10,
         height: POST_HEIGHT,
-        ...edge,
-        class: 'cat-prop-solid cat-prop-card',
+        ...solid('card'),
       },
       node,
     );
     el(
       'path',
       {
-        d: 'M-5 -86l10 3M-5 -78l10 3M-5 -70l10 3M-5 -62l10 3M-5 -54l10 3M-5 -46l10 3M-5 -38l10 3M-5 -30l10 3M-5 -22l10 3M-5 -14l10 3',
+        d: ROPE_TURNS.map((y) => `M-5 ${y}l10 3`).join(''),
         class: 'cat-prop-rope',
         'stroke-width': 1.3,
       },
@@ -786,8 +848,7 @@ export const createProp = (
         y: -POST_HEIGHT - 4,
         width: 20,
         height: 5,
-        ...edge,
-        class: 'cat-prop-solid cat-prop-card',
+        ...solid('card'),
       },
       node,
     );
@@ -797,7 +858,7 @@ export const createProp = (
       { d: 'M4 4q9 5 16 3', class: 'cat-prop-yarn-end', 'stroke-width': 1.5 },
       node,
     );
-    el('circle', { r: 6, ...edge, class: 'cat-prop-solid cat-prop-toy' }, node);
+    el('circle', { r: 6, ...solid('toy') }, node);
     el(
       'path',
       {
@@ -812,11 +873,8 @@ export const createProp = (
     node,
     remove,
     draw: (s) => {
-      node.setAttribute(
-        'transform',
-        `translate(${f(s.x)} ${f(s.y)}) rotate(${f(s.r)})`,
-      );
-      node.setAttribute('opacity', f(s.o));
+      set(node, 'transform', `${translate(s.x, s.y)} rotate(${f(s.r)})`);
+      set(node, 'opacity', f(s.o));
     },
   };
 };
