@@ -574,6 +574,7 @@ onBeforeUnmount(() => {
         <div
           :id="`cat-tricks-${cat.id}`"
           popover
+          tabindex="-1"
           class="cat-tricks"
           @beforetoggle="onTricksToggle(cat.id, $event)"
         >

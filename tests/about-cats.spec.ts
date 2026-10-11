@@ -1478,6 +1478,25 @@ test.describe('About cats', () => {
     await expect(tricksList(page, id)).toHaveCount(0);
   });
 
+  test('Shift+Tab from the first trick goes to the paw, not to the unnamed scrolling list', async ({
+    page,
+  }) => {
+    await gotoSettled(page, ROUTE);
+    const id = 'pepper';
+    await showCat(page, id);
+    await page.keyboard.press('Shift');
+    await tricksButton(page, id).focus();
+    await page.keyboard.press('Enter');
+    await expect(
+      tricksList(page, id).getByRole('button').first(),
+    ).toBeFocused();
+    await page.keyboard.press('Shift+Tab');
+    await expect(
+      tricksButton(page, id),
+      'a stop with no role or name sits between the first trick and the paw',
+    ).toBeFocused();
+  });
+
   test('a picked trick plays, and a sleeping cat gets up for it', async ({
     page,
   }) => {
