@@ -1043,9 +1043,9 @@ Enforced by `tests/nav-current.spec.ts`, `tests/mobile-menu.spec.ts`,
 - A native `<dialog>` opened with `showModal()`: traps focus, closes on
   Escape, returns focus to the menu button. The button has `aria-expanded`,
   `aria-controls` and the fixed name "Menu". Background scroll is locked.
-- Widening past 48rem while open leaves it open; it still closes with Escape
-  or Close. Focus returns to the first Primary nav link, since the menu button
-  is hidden at that width.
+- Widening past 48rem while open closes it: its root is `display: none`
+  there, and an open modal nobody can see leaves the page inert. Focus goes to
+  the first Primary nav link, since the menu button is hidden at that width.
 
 ## Motion
 

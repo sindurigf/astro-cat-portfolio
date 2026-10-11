@@ -59,7 +59,7 @@ const setUpMenu = (root: HTMLElement): void => {
     trigger.setAttribute('aria-expanded', 'false');
     lockScroll(false);
     /*
-     * Widened past 48rem while open, the trigger is hidden: focus the nav.
+     * Closed by widening past `md`, the trigger is hidden: focus the nav.
      * Not checkVisibility(): Safari lacks it before 17.4, inside the CSS target.
      */
     if (trigger.getClientRects().length === 0) {
@@ -68,6 +68,14 @@ const setUpMenu = (root: HTMLElement): void => {
         ?.focus();
     }
   });
+
+  /*
+   * Past `md` the root is `display: none`: an open modal there is unseen and
+   * leaves the page inert.
+   */
+  new ResizeObserver(() => {
+    if (panel.open && root.getClientRects().length === 0) close();
+  }).observe(root);
 
   trigger.addEventListener('click', open);
   panel.addEventListener('focusin', (event) => keepInView(panel, event));
