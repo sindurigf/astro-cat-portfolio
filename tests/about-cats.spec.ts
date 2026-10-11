@@ -1296,7 +1296,7 @@ test.describe('About cats', () => {
   });
 
   for (const colorScheme of ['dark', 'light'] as const) {
-    test(`the sleep control is a 24px target whose icon and edge reach 3:1 in ${colorScheme} mode (SC 2.5.8, 1.4.11)`, async ({
+    test(`the sleep control is a 44px target whose icon and edge reach 3:1 in ${colorScheme} mode (SC 2.5.5, 1.4.11)`, async ({
       browser,
     }) => {
       const context = await browser.newContext({ colorScheme });
@@ -2073,7 +2073,7 @@ test.describe('About cats', () => {
     await context.close();
   });
 
-  test('a drawn cat is at least 24 by 24px (SC 2.5.8)', async ({ page }) => {
+  test('a drawn cat is at least 44 by 44px (SC 2.5.5)', async ({ page }) => {
     await gotoSettled(page, ROUTE);
     for (const id of CATS) {
       const box = await page
