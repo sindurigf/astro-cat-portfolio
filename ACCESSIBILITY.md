@@ -130,8 +130,8 @@ view (development server only, never published), and forks.
   below the header and never duplicates the primary nav.
 - **Current page.** `aria-current` in all three navigations, plus a shape
   change, never color alone.
-- **Help.** The Get in Touch link is in the header on every page, and in
-  the menu below 48rem (SC 3.2.6).
+- **Help.** Every page has the Get in Touch link: in the header from 48rem,
+  in the menu below it (SC 3.2.6).
 - **Headings and titles.** One `h1`, no skipped level, nothing under 19px
   outside a dialog.
   Every `<title>` is distinct, and every one but the homepage's names the

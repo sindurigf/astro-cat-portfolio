@@ -74,10 +74,11 @@ Widely Available). Set once as `CSS_TARGET` in `astro.config.mjs` and passed to
 - Tailwind 4 sets the floor: it emits `@property`, `color-mix()` and cascade
   layers, which Safari 15 cannot render.
 - Pinned, not left to the bundler default, which moves between releases.
-- Three features in use need a newer browser (`@mdn/browser-compat-data`
-  8.1.5): `popover`, for the About cats' trick list (Chrome 114, Firefox 125,
-  Safari 17); `@media (scripting: none)`, without which the no-JavaScript nav
-  is not shown (Chrome 120, Safari 17); and `:has()`, without which
+- Three features in use need a newer browser (versions from
+  `@mdn/browser-compat-data` 8.1.5, an external source, not a dependency):
+  `popover`, for the About cats' trick list (Chrome 114, Firefox 125, Safari
+  17); `@media (scripting: none)`, without which the no-JavaScript nav is not
+  shown (Chrome 120, Safari 17); and `:has()`, without which
   `.card:has(.card-link)` does not match (Firefox 121).
 - No `browserslist` key: neither Tailwind 4 nor Vite reads it.
 - `tests/css-target.spec.ts` asserts the list and the prefixes it implies
