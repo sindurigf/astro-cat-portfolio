@@ -333,6 +333,22 @@ test.describe('the talk slideshow', () => {
     await expect(visible(page)).toHaveId('slide-1');
   });
 
+  test('a slide reached by its address leaves no earlier slide in the status (SC 4.1.3)', async ({
+    page,
+  }) => {
+    await open(page);
+    await next(page).focus();
+    await page.keyboard.press('Enter');
+    const status = page.locator('[data-deck-status]');
+    await expect(status, 'Next did not say where it went').not.toHaveText('');
+    await page.evaluate(() => (location.hash = '#slide-5'));
+    await expect(visible(page)).toHaveId('slide-5');
+    await expect(
+      status,
+      'the status still names the slide Next reached',
+    ).toHaveText('');
+  });
+
   test('a link to one slide opens on it', async ({ page }) => {
     await open(page, '#slide-11');
     await expect(visible(page)).toHaveId('slide-11');
