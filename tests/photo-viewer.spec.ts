@@ -656,8 +656,11 @@ for (const viewport of SHORT_VIEWER_SIZES) {
         );
       }
 
+      await expect(viewer.locator(VIEWER_CONTROLS[0])).toBeVisible();
       for (const control of VIEWER_CONTROLS) {
         const button = viewer.locator(control);
+        // A group of one photo shows no Previous or Next.
+        if (await button.isHidden()) continue;
         await button.scrollIntoViewIfNeeded();
         const reached = await button.evaluate((element) => {
           const box = element.getBoundingClientRect();
