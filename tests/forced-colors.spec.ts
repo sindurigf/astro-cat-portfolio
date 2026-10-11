@@ -2,7 +2,8 @@ import { expect, test, type Page } from './test';
 import { gotoSettled } from './settle';
 import { SAMPLED_ROUTES } from './routes';
 import { GLOBAL_CSS, cssColorToken } from './source';
-import { REFLOW_VIEWPORT } from './wcag';
+import { DESKTOP_VIEWPORT, REFLOW_VIEWPORT } from './wcag';
+import { PAGE_HELPERS } from './contrast';
 import { tabWalk } from './tab-walk';
 
 /**
@@ -195,6 +196,54 @@ test('every engine that can force colors still does, and webkit still cannot', a
   ).not.toEqual(authoredText());
 });
 
+/**
+ * What still paints in forced colors and could say "current": the ground the
+ * link ends up on, its border and its underline. Shadows are dropped there.
+ */
+const paintedMark = (page: Page, selector: string): Promise<string> =>
+  page.evaluate(`(() => {
+    ${PAGE_HELPERS}
+    const link = [...document.querySelectorAll(${JSON.stringify(selector)})]
+      .find((candidate) => candidate.getClientRects().length > 0);
+    if (!link) throw new Error('no visible link matches ' + ${JSON.stringify(selector)});
+    const style = getComputedStyle(link);
+    const ground = effectiveBackground(link);
+    return [
+      ground ? JSON.stringify(ground) : 'unresolved ground',
+      style.borderTopStyle, style.borderTopWidth, style.borderTopColor,
+      style.textDecorationLine, style.textDecorationThickness,
+    ].join(' ');
+  })()`) as Promise<string>;
+
+/* Each pair is one control as the current page and as any other. */
+const CURRENT_MARKS = [
+  {
+    name: 'the header nav',
+    viewport: DESKTOP_VIEWPORT,
+    current: ['/about', 'header nav[aria-label="Primary"] a[aria-current]'],
+    rest: ['/about', 'header nav[aria-label="Primary"] a:not([aria-current])'],
+  },
+  {
+    name: 'the header call to action',
+    viewport: DESKTOP_VIEWPORT,
+    current: ['/contact', 'header .nav-cta[aria-current]'],
+    rest: ['/about', 'header .nav-cta:not([aria-current])'],
+  },
+  {
+    name: 'the mobile menu',
+    viewport: REFLOW_VIEWPORT,
+    menu: true,
+    current: ['/about', 'dialog nav li a[aria-current]'],
+    rest: ['/about', 'dialog nav li a:not([aria-current])'],
+  },
+  {
+    name: 'the blog filter',
+    viewport: DESKTOP_VIEWPORT,
+    current: ['/blog', 'a.chip[aria-current]'],
+    rest: ['/blog', 'a.chip:not([aria-current])'],
+  },
+] as const;
+
 test.describe('forced colors', () => {
   // WebKit matches (forced-colors: active) yet paints `--color-text`: it ships the
   // media query only (https://bugs.webkit.org/show_bug.cgi?id=225281). Skipped by
@@ -325,4 +374,26 @@ test.describe('forced colors', () => {
         listUnbounded(unbounded),
     ).toEqual([]);
   });
+
+  for (const { name, viewport, current, rest, ...options } of CURRENT_MARKS) {
+    test(`${name} marks the current page with more than a dropped fill or shadow`, async ({
+      page,
+    }) => {
+      await page.setViewportSize(viewport);
+      const markOf = async ([route, selector]: readonly [string, string]) => {
+        await gotoSettled(page, route);
+        await forceColors(page, route);
+        if ('menu' in options) {
+          await page.getByRole('button', { name: /menu/i }).click();
+          await expect(page.getByRole('dialog')).toBeVisible();
+        }
+        return paintedMark(page, selector);
+      };
+
+      expect(
+        await markOf(current),
+        `${name}: the current link paints like any other in forced colors.`,
+      ).not.toBe(await markOf(rest));
+    });
+  }
 });

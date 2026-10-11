@@ -1035,6 +1035,8 @@ Enforced by `tests/nav-current.spec.ts`, `tests/mobile-menu.spec.ts`,
 - `ariaCurrent` in `src/lib/nav.ts` decides the value.
 - Inactive items keep a `border-transparent` 4px edge so nothing reflows.
 - A current chip is the same flat `bg-text` block, no shadow.
+- Forced colors drop the fill, shadow and marker, so a current nav link, call
+  to action and chip take a 4px underline there (`tests/forced-colors.spec.ts`).
 
 ### The menu
 
