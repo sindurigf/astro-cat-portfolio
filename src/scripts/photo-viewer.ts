@@ -6,6 +6,9 @@ const STRIP_STEP = 0.8;
 /** `scrollWidth` is rounded, so a strip that fits can measure 1px over. */
 const SCROLL_ROUNDING_PX = 1;
 
+/* Ends the strip's aria-label in PhotoStrip.astro and brand/Photos.astro. */
+const SCROLLS_SUFFIX = ', scrolls sideways';
+
 /* Cached photos decode faster, so they are not announced as loading. */
 const LOADING_DELAY_MS = 200;
 
@@ -131,6 +134,16 @@ const setUpViewer = (viewer: HTMLDialogElement): void => {
   viewer.addEventListener('close', () => links[index]?.focus());
 };
 
+/* A strip that fits has nothing to scroll: it leaves the tab order and its name stops saying it scrolls. */
+const reflectFit = (strip: HTMLElement): boolean => {
+  const scrolls = strip.scrollWidth - strip.clientWidth > SCROLL_ROUNDING_PX;
+  strip.ariaLabel =
+    (strip.ariaLabel ?? '').replace(SCROLLS_SUFFIX, '') +
+    (scrolls ? SCROLLS_SUFFIX : '');
+  strip.tabIndex = scrolls ? 0 : -1;
+  return scrolls;
+};
+
 const setUpStrips = (): void => {
   /*
    * A photo keyboard-focused part outside the strip is aligned to its start, a
@@ -158,13 +171,19 @@ const setUpStrips = (): void => {
     );
     if (!strip) continue;
     const direction = Number(button.dataset.stripScroll);
-    const overflows = (): boolean =>
-      strip.scrollWidth - strip.clientWidth > SCROLL_ROUNDING_PX;
+    /* Scroll snap holds the last photo at the snap line, which can be short of the last pixels. */
+    const lastSnapped = (): boolean =>
+      (strip.lastElementChild?.getBoundingClientRect().left ?? Infinity) <=
+      strip.getBoundingClientRect().left +
+        strip.clientLeft +
+        parseFloat(getComputedStyle(strip).scrollPaddingInlineStart) +
+        SCROLL_ROUNDING_PX;
     const atEdge = (): boolean =>
       direction < 0
         ? strip.scrollLeft <= 0
         : strip.scrollLeft >=
-          strip.scrollWidth - strip.clientWidth - SCROLL_ROUNDING_PX;
+            strip.scrollWidth - strip.clientWidth - SCROLL_ROUNDING_PX ||
+          lastSnapped();
     const update = (): void => {
       const disabled = String(atEdge());
       if (button.getAttribute('aria-disabled') !== disabled) {
@@ -173,7 +192,7 @@ const setUpStrips = (): void => {
     };
     /* A strip that fits has nothing to scroll, so its arrows leave the tab order. */
     const fit = (): void => {
-      const hide = !overflows();
+      const hide = !reflectFit(strip);
       if (hide && document.activeElement === button) strip.focus();
       button.hidden = hide;
       update();
