@@ -47,7 +47,8 @@ export default defineConfig({
   ],
 
   webServer: {
-    command: `npm run build && npm run preview -- --port ${PORT} --ignore-lock`,
+    /* The build writes env.demo out flat, so the preview must not ask wrangler for it again. */
+    command: `npm run build && env -u CLOUDFLARE_ENV npm run preview -- --port ${PORT} --ignore-lock`,
     url: BASE_URL,
     /* ASTRO_PREVIEW_BACKGROUND: playwright.worker.config.ts. */
     env: { ...DEMO_ENV, ASTRO_PREVIEW_BACKGROUND: '1' },
