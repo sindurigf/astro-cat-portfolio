@@ -11,10 +11,18 @@
     @apply bg-background;
   }
 
+  /*
+   * On a short window the 1fr row would shrink the photo to nothing, so the
+   * photo takes the width and the dialog scrolls (SC 1.4.10).
+   */
   .photo-viewer-frame {
-    @apply mx-auto grid h-full max-w-page gap-4;
+    @apply mx-auto grid h-full max-w-page gap-4 short:h-auto short:min-h-full;
 
     grid-template-rows: auto minmax(0, 1fr) auto;
+
+    @variant short {
+      grid-template-rows: auto auto auto;
+    }
   }
 
   /*
@@ -32,7 +40,7 @@
   }
 
   .photo-viewer-figure img {
-    @apply h-auto max-h-full w-auto max-w-full object-contain;
+    @apply h-auto max-h-full w-auto max-w-full object-contain short:max-h-none;
   }
 
   /*
