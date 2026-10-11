@@ -1461,6 +1461,23 @@ test.describe('About cats', () => {
     ).toEqual([]);
   });
 
+  test('a browser without popovers gets no paw that opens nothing, and keeps the sleep control', async ({
+    page,
+  }) => {
+    await page.addInitScript(() => {
+      Reflect.deleteProperty(HTMLElement.prototype, 'showPopover');
+    });
+    await gotoSettled(page, ROUTE);
+    const id = 'pepper';
+    await showCat(page, id);
+    await expect(napControl(page, id)).toBeVisible();
+    await expect(
+      tricksButton(page, id),
+      'the paw is offered where its list cannot open',
+    ).toHaveCount(0);
+    await expect(tricksList(page, id)).toHaveCount(0);
+  });
+
   test('a picked trick plays, and a sleeping cat gets up for it', async ({
     page,
   }) => {

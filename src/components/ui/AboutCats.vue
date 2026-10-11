@@ -101,6 +101,9 @@ const toggleNap = (id: CatId): void => {
   start();
 };
 
+/* Without popovers the paw would be a control that opens nothing. */
+const hasPopovers = (): boolean => 'showPopover' in HTMLElement.prototype;
+
 /** The trick list's distance from its band and from the viewport's edges. */
 const TRICKS_MARGIN = 16;
 /** A list placed lower than this would be too short to use; it moves up instead. */
@@ -522,7 +525,7 @@ onBeforeUnmount(() => {
         </svg>
         <span class="sr-only">{{ napLabel(cat) }}</span>
       </button>
-      <template v-if="!reducedMotion">
+      <template v-if="!reducedMotion && hasPopovers()">
         <button
           type="button"
           class="cat-tricks-button"
