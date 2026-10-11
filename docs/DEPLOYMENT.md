@@ -32,6 +32,10 @@ npm run build && npx wrangler deploy --dry-run
 
 - Custom domains belong in `wrangler.jsonc`: a deploy replaces the Worker's
   routes, removing dashboard-only domains.
+- Published PDFs are kept out of search: `/*.pdf` in `public/_headers` sends
+  `X-Robots-Tag: noindex`, so the page that links a PDF is the search result.
+  To have them indexed, delete that rule and the two tests that assert it
+  (`tests/headers-rules.spec.ts`, `tests/served-types.spec.ts`).
 - Preview deployments run on workers.dev, outside the zone, so zone features
   (e.g. JavaScript Detections) only show on production.
 - `preview_urls` is set in `wrangler.jsonc`; a dashboard toggle is reset by the

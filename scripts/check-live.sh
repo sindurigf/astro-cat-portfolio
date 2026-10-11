@@ -31,7 +31,8 @@ BLOG_DIR=src/content/blog
 PUBLIC_DIR=public
 # Only the Markdown copy of a post matches this public/_headers rule.
 POST_MARKDOWN_PATTERN='/blog/*.md'
-# Only a published PDF matches this one; a site may ship none.
+# Only a published PDF matches this one; a site may ship none. The paths are
+# word-split in the loop, so a PDF's file name must hold no space.
 PDF_PATTERN='/*.pdf'
 PDFS=$(cd "$PUBLIC_DIR" && find . -name '*.pdf' | sed 's|^\.||')
 UNKNOWN_PATH=/check-live-no-such-page/
