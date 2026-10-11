@@ -349,6 +349,29 @@ test.describe('the talk slideshow', () => {
     ).toHaveText('');
   });
 
+  test('a part opener says its hidden number in its heading (SC 1.3.1)', async ({
+    page,
+  }) => {
+    await open(page);
+    const openers = await page.$$eval('.slide-opener', (slides) =>
+      slides.map((slide) => ({
+        id: slide.id,
+        number: slide
+          .querySelector('.slide-number[aria-hidden="true"]')
+          ?.textContent?.trim(),
+        heading: slide.querySelector('h2')?.textContent ?? '',
+      })),
+    );
+    expect(openers.length, 'the deck has no part opener').toBeGreaterThan(0);
+    for (const { id, number, heading } of openers) {
+      expect(number, `${id} shows no part number`).toBeTruthy();
+      expect(
+        heading,
+        `${id} shows part ${number} only to sighted readers`,
+      ).toContain(`Part ${number}:`);
+    }
+  });
+
   test('a link to one slide opens on it', async ({ page }) => {
     await open(page, '#slide-11');
     await expect(visible(page)).toHaveId('slide-11');
