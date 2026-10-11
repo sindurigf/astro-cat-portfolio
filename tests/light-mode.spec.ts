@@ -5,6 +5,7 @@ import { NON_TEXT, PAGE_HELPERS } from './contrast';
 import { gotoSettled } from './settle';
 import { ROUTES, SAMPLED_ROUTES } from './routes';
 import { AXE_TIMEOUT_MS, FOCUSABLE_SELECTOR, REFLOW_VIEWPORT } from './wcag';
+import { THEME_STORAGE_KEY } from '../src/lib/theme';
 
 const SWITCH_NAME = 'Light mode';
 /** More than the header's stops before the switch, so a missing switch fails. */
@@ -249,7 +250,10 @@ test.describe('the switch', () => {
 
   test('a stored choice beats the device', async ({ browser }) => {
     const context = await browser.newContext({ colorScheme: 'light' });
-    await context.addInitScript(() => localStorage.setItem('theme', 'dark'));
+    await context.addInitScript(
+      (key) => localStorage.setItem(key, 'dark'),
+      THEME_STORAGE_KEY,
+    );
     const page = await context.newPage();
 
     await gotoSettled(page, '/about');
@@ -268,12 +272,12 @@ test.describe('the switch', () => {
     await expect(toggle).toHaveAttribute('aria-pressed', 'false');
 
     /* As if another page changed the choice while this one sat in the cache. */
-    await page.evaluate(() => {
-      localStorage.setItem('theme', 'light');
+    await page.evaluate((key) => {
+      localStorage.setItem(key, 'light');
       window.dispatchEvent(
         new PageTransitionEvent('pageshow', { persisted: true }),
       );
-    });
+    }, THEME_STORAGE_KEY);
     await expect(
       toggle,
       'the restored page kept the theme it was cached with.',
