@@ -7,7 +7,7 @@ repository to Workers Builds, or run `npx wrangler deploy` yourself.
 ## Before the first deploy
 
 1. Fill in [`src/site.config.ts`](../src/site.config.ts): name, URL, person,
-   profiles, and the analytics and contact switches.
+   profiles, and the analytics, Bing verification and contact switches.
 2. Replace the placeholders in `wrangler.jsonc`:
    - `name`: the Worker's name, which must match the dashboard's.
    - `routes`: your domain, as a custom domain.
@@ -192,6 +192,19 @@ Off by default. To turn it on:
   data sent or `data-*` settings; copy `tmp/umami-upstream.js` over
   `public/vendor/umami.js`; update `UMAMI_VENDORED_ON` and, if what is sent
   changed, `/privacy`; run the suite.
+
+## Bing Webmaster Tools
+
+Off by default. To verify the site:
+
+1. Add the site in Bing Webmaster Tools and choose the HTML meta tag method.
+2. Set `bingSiteVerification` in `src/site.config.ts` to the tag's `content`
+   value, 32 hexadecimal characters.
+3. Deploy, then select Verify in Bing Webmaster Tools.
+
+- The homepage alone carries `<meta name="msvalidate.01">`. Removing the code
+  unverifies the site.
+- The tag loads nothing from Microsoft, so `/privacy` has nothing to add.
 
 ## Cloudflare settings
 
