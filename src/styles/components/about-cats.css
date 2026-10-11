@@ -124,6 +124,7 @@
     inset: auto;
     right: var(--tricks-right);
     top: var(--tricks-top);
+    max-width: var(--tricks-width);
     max-height: var(--tricks-max);
     overscroll-behavior: contain;
   }

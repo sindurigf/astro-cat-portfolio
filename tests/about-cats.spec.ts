@@ -1,5 +1,6 @@
 import { expect, test, type Page } from './test';
 import { gotoSettled, setViewportSettled } from './settle';
+import { settleFocusScroll } from './tab-walk';
 import {
   MIN_TARGET,
   SUBPIXEL_TOLERANCE,
@@ -113,6 +114,10 @@ const napControl = (page: Page, id: (typeof CATS)[number]) =>
 
 /** The top-left corner of the viewport, outside the centered card. */
 const BACKDROP_POINT = { x: 4, y: 4 };
+
+/** AboutCats.vue's TRICKS_MARGIN and about-cats.css's `w-60`. */
+const TRICKS_MARGIN = 16;
+const TRICKS_WIDTH = 240;
 
 const tricksButton = (page: Page, id: (typeof CATS)[number]) =>
   page.locator(`#cat-spot-${id} .cat-tricks-button`);
@@ -1495,6 +1500,48 @@ test.describe('About cats', () => {
       tricksButton(page, id),
       'a stop with no role or name sits between the first trick and the paw',
     ).toBeFocused();
+  });
+
+  test("with room below, the list opens under the band with its edge on the paw's", async ({
+    page,
+  }) => {
+    await gotoSettled(page, ROUTE);
+    const id = 'pepper';
+    await showCat(page, id);
+    const paw = tricksButton(page, id);
+    await paw.evaluate((button: HTMLElement) => {
+      const band = button.closest('.cat-spot')!.getBoundingClientRect();
+      window.scrollBy({ top: band.top - 120, behavior: 'instant' });
+    });
+    /* The list closes on a scroll: let this one be reported first. */
+    await settleFocusScroll(page);
+    await paw.evaluate((button: HTMLElement) =>
+      button.focus({ preventScroll: true }),
+    );
+    await page.keyboard.press('Enter');
+    const list = tricksList(page, id);
+    await expect(list).toBeVisible();
+    const boxes = await list.evaluate((node) => {
+      const box = node.getBoundingClientRect();
+      const spot = node.closest('.cat-spot')!;
+      return {
+        list: { top: box.top, right: box.right, width: box.width },
+        band: spot.getBoundingClientRect().bottom,
+        paw: spot.querySelector('.cat-tricks-button')!.getBoundingClientRect()
+          .right,
+      };
+    });
+    expect(
+      Math.abs(boxes.list.top - (boxes.band + TRICKS_MARGIN)),
+      'the list is not 16px under its band',
+    ).toBeLessThanOrEqual(SUBPIXEL_TOLERANCE);
+    expect(
+      Math.abs(boxes.list.right - boxes.paw),
+      "the list's right edge left the paw's",
+    ).toBeLessThanOrEqual(SUBPIXEL_TOLERANCE);
+    expect(boxes.list.width, 'the list is narrower than its 15rem').toBe(
+      TRICKS_WIDTH,
+    );
   });
 
   test('a picked trick plays, and a sleeping cat gets up for it', async ({

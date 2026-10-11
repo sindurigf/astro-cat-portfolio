@@ -193,16 +193,38 @@ const onTricksToggle = (id: CatId, event: Event): void => {
     TRICKS_MARGIN,
     window.innerHeight - TRICKS_MIN_HEIGHT - TRICKS_MARGIN,
   );
+  const pawBox = paw.getBoundingClientRect();
+  /* Moved up onto its paw and sleep control, it would cover them focused (SC 2.4.12): it goes beside them. */
+  const right =
+    top < pawBox.bottom + TRICKS_MARGIN
+      ? pawBox.left - TRICKS_MARGIN
+      : pawBox.right;
   /* CSSOM custom properties: the CSP refuses style attributes, not these. */
   list.style.setProperty(
     '--tricks-right',
-    `${document.documentElement.clientWidth - paw.getBoundingClientRect().right}px`,
+    `${document.documentElement.clientWidth - right}px`,
   );
+  list.style.setProperty('--tricks-width', `${right - TRICKS_MARGIN}px`);
   list.style.setProperty('--tricks-top', `${top}px`);
   list.style.setProperty(
     '--tricks-max',
     `${window.innerHeight - top - TRICKS_MARGIN}px`,
   );
+};
+
+/*
+ * An open list would cover the control focus moved on to (SC 2.4.12). After
+ * the move: hidePopover() on a list that still holds focus sends it back.
+ */
+const onTricksFocusOut = (id: CatId): void => {
+  setTimeout(() => {
+    const list = document.getElementById(`cat-tricks-${id}`);
+    const focused = document.activeElement;
+    if (!list?.matches(':popover-open')) return;
+    if (!focused || focused === document.body || list.contains(focused)) return;
+    if (focused.matches(`[popovertarget="${list.id}"]`)) return;
+    list.hidePopover();
+  });
 };
 
 const pickTrick = (id: CatId, name: PlayMove | 'random'): void => {
@@ -556,6 +578,7 @@ onBeforeUnmount(() => {
           class="cat-tricks-button"
           aria-expanded="false"
           v-bind="{ popovertarget: `cat-tricks-${cat.id}` }"
+          @focusout="onTricksFocusOut(cat.id)"
         >
           <svg
             class="cat-trick-icon"
@@ -577,6 +600,7 @@ onBeforeUnmount(() => {
           tabindex="-1"
           class="cat-tricks"
           @beforetoggle="onTricksToggle(cat.id, $event)"
+          @focusout="onTricksFocusOut(cat.id)"
         >
           <ul v-if="tricks" class="cat-trick-list">
             <li
