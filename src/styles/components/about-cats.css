@@ -218,8 +218,8 @@
     stroke: var(--cat-fur);
   }
 
-  .cat-fill .cat-line-far {
-    stroke: var(--cat-far);
+  .cat-fill .cat-solid-far {
+    fill: var(--cat-far);
   }
 
   .cat-fill .cat-line-patch {
