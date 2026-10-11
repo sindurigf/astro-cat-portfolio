@@ -111,7 +111,8 @@ const TRICKS_MIN_HEIGHT = 176;
 
 /* Names and icons are data, fetched after load, so /about's script carries none of them. */
 const tricks = shallowRef<TricksData | null>(null);
-const tricksNote = ref('Loading tricks.');
+const LOADING_NOTE = 'Loading tricks.';
+const tricksNote = ref(LOADING_NOTE);
 
 /* A list that finished loading while its popover was open and focus had not left the paw: `autofocus` only runs on open. */
 const focusFirstTrickIfOnPaw = (): void => {
@@ -123,6 +124,7 @@ const focusFirstTrickIfOnPaw = (): void => {
 
 const loadTricks = (): void => {
   if (tricks.value) return;
+  tricksNote.value = LOADING_NOTE;
   fetch(tricksUrl)
     .then((response) =>
       response.ok ? response.json() : Promise.reject(response.status),

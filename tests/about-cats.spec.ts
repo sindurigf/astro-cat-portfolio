@@ -1559,6 +1559,39 @@ test.describe('About cats', () => {
     }
   });
 
+  test('a retry after a failed load says it is loading, not that it failed', async ({
+    page,
+  }) => {
+    const id = 'pepper';
+    const TRICKS_JSON = '**/about-cats-tricks*.json';
+    await page.route(TRICKS_JSON, (route) =>
+      route.fulfill({ status: 404, body: 'Not found' }),
+    );
+    await gotoSettled(page, ROUTE);
+    await showCat(page, id);
+    await tricksButton(page, id).click();
+    const note = tricksList(page, id).getByRole('status');
+    await expect(note).toContainText('The tricks did not load');
+    await page.keyboard.press('Escape');
+    await page.unroute(TRICKS_JSON);
+
+    let release!: () => void;
+    const held = new Promise<void>((resolve) => (release = resolve));
+    await page.route(TRICKS_JSON, async (route) => {
+      await held;
+      await route.fulfill({ json: tricksData });
+    });
+    await tricksButton(page, id).click();
+    await expect(
+      note,
+      'the retry still shows the last failure while it loads',
+    ).toHaveText('Loading tricks.');
+    release();
+    await expect(
+      tricksList(page, id).getByRole('button', { name: 'Random' }),
+    ).toBeVisible();
+  });
+
   test('on a phone a trick that needs room still plays and one that cannot fit is not offered', async ({
     page,
   }) => {
