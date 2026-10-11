@@ -1466,21 +1466,40 @@ test.describe('About cats', () => {
     ).toEqual([]);
   });
 
-  test('a browser without popovers gets no paw that opens nothing, and keeps the sleep control', async ({
+  /* No test engine lacks popovers, so the rule is read, not rendered. */
+  test('where popovers are missing a style rule hides the paw and its list, and here both are offered', async ({
     page,
   }) => {
-    await page.addInitScript(() => {
-      Reflect.deleteProperty(HTMLElement.prototype, 'showPopover');
-    });
     await gotoSettled(page, ROUTE);
     const id = 'pepper';
     await showCat(page, id);
-    await expect(napControl(page, id)).toBeVisible();
-    await expect(
-      tricksButton(page, id),
-      'the paw is offered where its list cannot open',
-    ).toHaveCount(0);
-    await expect(tricksList(page, id)).toHaveCount(0);
+    await expect(tricksButton(page, id)).toBeVisible();
+    const hidden = await page.evaluate(() => {
+      const found: string[] = [];
+      const walk = (rules: CSSRuleList): void => {
+        for (const rule of rules) {
+          if (
+            rule instanceof CSSSupportsRule &&
+            rule.conditionText.replace(/\s/g, '') ===
+              'notselector(:popover-open)'
+          )
+            for (const inner of rule.cssRules)
+              if (
+                inner instanceof CSSStyleRule &&
+                inner.style.display === 'none'
+              )
+                found.push(inner.selectorText);
+          if ('cssRules' in rule) walk(rule.cssRules as CSSRuleList);
+        }
+      };
+      for (const sheet of document.styleSheets) walk(sheet.cssRules);
+      return found.join(', ');
+    });
+    for (const selector of ['.cat-tricks-button', '.cat-tricks'])
+      expect(
+        hidden.split(', '),
+        `${selector} is not hidden where popovers are missing`,
+      ).toContain(selector);
   });
 
   test('Shift+Tab from the first trick goes to the paw, not to the unnamed scrolling list', async ({

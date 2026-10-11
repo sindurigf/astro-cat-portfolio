@@ -101,9 +101,6 @@ const toggleNap = (id: CatId): void => {
   start();
 };
 
-/* Without popovers the paw would be a control that opens nothing. */
-const hasPopovers = (): boolean => 'showPopover' in HTMLElement.prototype;
-
 /** The trick list's distance from its band and from the viewport's edges. */
 const TRICKS_MARGIN = 16;
 /** A list placed lower than this would be too short to use; it moves up instead. */
@@ -148,7 +145,7 @@ const closeTricks = (): void =>
     .forEach((list) => list.hidePopover());
 
 /** The open list's paw and where it stood when the list opened. */
-let openPaw: Element | undefined;
+let openPaw: Element | null | undefined;
 let openPawTop = 0;
 
 /*
@@ -166,8 +163,8 @@ const onTricksToggle = (id: CatId, event: Event): void => {
   const paw = spot?.querySelector('.cat-tricks-button');
   paw?.setAttribute('aria-expanded', String(open));
   /* Another list opening reports here before this one closing. */
-  if (open) openPaw = paw ?? undefined;
-  else if (openPaw === paw) openPaw = undefined;
+  if (open) openPaw = paw;
+  else if (openPaw === paw) openPaw = null;
   openPawTop = openPaw?.getBoundingClientRect().top ?? 0;
   const method = openPaw ? 'addEventListener' : 'removeEventListener';
   window[method]('scroll', closeTricksScrolledAway);
@@ -560,7 +557,7 @@ onBeforeUnmount(() => {
         </svg>
         <span class="sr-only">{{ napLabel(cat) }}</span>
       </button>
-      <template v-if="!reducedMotion && hasPopovers()">
+      <template v-if="!reducedMotion">
         <button
           type="button"
           class="cat-tricks-button"
