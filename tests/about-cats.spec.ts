@@ -1592,6 +1592,41 @@ test.describe('About cats', () => {
     ).toBeVisible();
   });
 
+  test('a paw focused and pressed in one step while off screen keeps its list open, and a page scroll closes it', async ({
+    page,
+  }) => {
+    await gotoSettled(page, ROUTE);
+    const id = 'biscuit';
+    await showCat(page, id);
+    await page.evaluate(() => window.scrollTo(0, 0));
+    const paw = tricksButton(page, id);
+    await expect(
+      paw,
+      'the paw is on screen before the step',
+    ).not.toBeInViewport();
+    /* One task, as a screen reader's or voice control's activation is. */
+    await paw.evaluate((button: HTMLElement) => {
+      button.focus();
+      button.click();
+    });
+    const list = tricksList(page, id);
+    await expect(list.getByRole('button').first()).toBeFocused();
+    await page.evaluate(
+      () =>
+        new Promise((resolve) =>
+          requestAnimationFrame(() => requestAnimationFrame(resolve)),
+        ),
+    );
+    await expect(
+      list,
+      'the scroll that brought the paw into view closed its list',
+    ).toBeVisible();
+
+    await page.mouse.move(8, 8);
+    await page.mouse.wheel(0, 120);
+    await expect(list, 'a scrolled page left the list open').toBeHidden();
+  });
+
   test('on a phone a trick that needs room still plays and one that cannot fit is not offered', async ({
     page,
   }) => {

@@ -147,14 +147,37 @@ const closeTricks = (): void =>
     .querySelectorAll<HTMLElement>('.cat-tricks:popover-open')
     .forEach((list) => list.hidePopover());
 
+/** Where each open list's paw stood when it opened. */
+const pawsAtOpen = new Map<
+  CatId,
+  { paw: Element; top: number; left: number }
+>();
+
+/*
+ * A viewport-fixed list would stay behind a scrolled page; its own scrolling
+ * does not bubble here. A scroll that leaves the paw in place is the one that
+ * brought a just-focused paw into view, reported a frame after the list opened.
+ */
+const closeTricksScrolledAway = (): void => {
+  for (const { paw, top, left } of pawsAtOpen.values()) {
+    const now = paw.getBoundingClientRect();
+    if (now.top === top && now.left === left) continue;
+    closeTricks();
+    return;
+  }
+};
+
 const onTricksToggle = (id: CatId, event: Event): void => {
   const open = (event as ToggleEvent).newState === 'open';
-  const method = open ? 'addEventListener' : 'removeEventListener';
-  /* A viewport-fixed list would stay behind a scrolled page; its own scrolling does not bubble here. */
-  window[method]('scroll', closeTricks);
   const spot = document.getElementById(`cat-spot-${id}`);
   const paw = spot?.querySelector('.cat-tricks-button');
   paw?.setAttribute('aria-expanded', String(open));
+  if (open && paw) {
+    const { top, left } = paw.getBoundingClientRect();
+    pawsAtOpen.set(id, { paw, top, left });
+  } else pawsAtOpen.delete(id);
+  const method = pawsAtOpen.size ? 'addEventListener' : 'removeEventListener';
+  window[method]('scroll', closeTricksScrolledAway);
   const list = document.getElementById(`cat-tricks-${id}`);
   if (!open || !colony || !spot || !paw || !list) return;
   loadTricks();
