@@ -529,7 +529,12 @@ onBeforeUnmount(() => {
           aria-expanded="false"
           v-bind="{ popovertarget: `cat-tricks-${cat.id}` }"
         >
-          <svg class="cat-trick-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <svg
+            class="cat-trick-icon"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+            focusable="false"
+          >
             <ellipse cx="12" cy="16" rx="5" ry="4" />
             <circle cx="5" cy="10" r="2" />
             <circle cx="9.5" cy="5.5" r="2" />
@@ -559,6 +564,7 @@ onBeforeUnmount(() => {
                   class="cat-trick-icon"
                   viewBox="0 0 24 24"
                   aria-hidden="true"
+                  focusable="false"
                 >
                   <path
                     v-for="(shape, i) in tricks.icons[tricks.tricks[name].icon]"

@@ -1434,6 +1434,33 @@ test.describe('About cats', () => {
     ).toHaveAttribute('aria-expanded', 'false');
   });
 
+  test("every icon in a cat's controls and open trick list is hidden from assistive technology and unfocusable", async ({
+    page,
+  }) => {
+    await gotoSettled(page, ROUTE);
+    const id = 'pepper';
+    await showCat(page, id);
+    await tricksButton(page, id).click();
+    await expect(
+      tricksList(page, id).getByRole('button').first(),
+    ).toBeVisible();
+    const exposed = await page
+      .locator(`#cat-spot-${id} svg`)
+      .evaluateAll((icons) =>
+        icons
+          .filter(
+            (icon) =>
+              icon.getAttribute('aria-hidden') !== 'true' ||
+              icon.getAttribute('focusable') !== 'false',
+          )
+          .map((icon) => icon.getAttribute('class')),
+      );
+    expect(
+      exposed,
+      'a decorative icon lacks aria-hidden="true" or focusable="false"',
+    ).toEqual([]);
+  });
+
   test('a picked trick plays, and a sleeping cat gets up for it', async ({
     page,
   }) => {
