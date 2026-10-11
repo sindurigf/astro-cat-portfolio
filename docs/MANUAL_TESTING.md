@@ -517,6 +517,8 @@ drawings are `aria-hidden`.
 - [ ] Tab reaches the paw "Choose a trick for Pepper" after the sleep control;
       Enter opens a list, Random first, and Escape closes it with focus back on
       the paw. → SC 2.4.3, 4.1.2
+- [ ] With the list open near the window's end, Shift+Tab reaches the paw,
+      uncovered, and the list closes once focus is past the paw. → SC 2.4.12
 - [ ] Choosing "Chase the Fly" plays it; choosing a trick for a sleeping cat
       wakes it first. → SC 2.2.2
 - [ ] The drawings announce nothing. → SC 1.1.1

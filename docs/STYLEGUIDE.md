@@ -1074,6 +1074,10 @@ Enforced by `tests/nav-current.spec.ts`, `tests/mobile-menu.spec.ts`,
   stays within its script budget). A pick plays once, wakes a sleeping cat
   first, and trots the cat to room if the move needs it; the cat then plays on
   at random. The list leaves out moves that cannot fit the band's width.
+- The list opens under the band, its right edge on the paw's. With no room
+  below it opens beside the paw and Zz, never over them, and it closes when
+  focus leaves it and its paw (SC 2.4.12). The paw shows only where the
+  browser has popovers.
 - A cat naps after `NAP_AFTER_MS` of on-screen play (`src/lib/about-cats.ts`).
   Lying down, and the breaths and "z" after it, end within 5 s, then the cat is
   still.
