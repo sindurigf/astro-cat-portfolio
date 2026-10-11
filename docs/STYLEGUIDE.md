@@ -619,8 +619,9 @@ The grid rule in `scripts/check-tokens.mjs` enforces the grid;
   break anywhere and the header name is visually hidden. `stickers-wrap:`
   (under 17.5rem) wraps the footer stickers. Nothing changes from 305px up.
 - **Short windows:** `short:` (under 30rem of height) makes the header static,
-  and in the photo viewer the photo takes the viewer's width while the dialog
-  scrolls. From 30rem up the photo fits the window whole.
+  and in the photo viewer the photo takes the viewer's width, up to the
+  window's height or 20rem if that is more, while the dialog scrolls. From
+  30rem up the photo fits the window whole.
 
 ### Page compositions
 
