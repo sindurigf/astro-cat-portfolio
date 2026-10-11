@@ -41,6 +41,13 @@
     min-height: var(--spacing-target);
   }
 
+  /* The current page takes the text-link underline: a mark that is not color (SC 1.4.1). */
+  :is(.footer-pages, .footer-policies) a[aria-current] {
+    text-decoration: underline;
+    text-decoration-thickness: var(--underline-thin);
+    text-underline-offset: var(--underline-offset);
+  }
+
   .footer-social {
     margin-top: --spacing(8);
   }

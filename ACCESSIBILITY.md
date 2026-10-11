@@ -126,9 +126,9 @@ view (development server only, never published), and forks.
   400% zoom ([STYLEGUIDE The menu](docs/STYLEGUIDE.md#the-menu)).
 - **No JavaScript.** A fallback navigation replaces the mobile menu, sits
   below the header and never duplicates the primary nav.
-- **Current page.** `aria-current` in every navigation. The header, menu and
-  no-JavaScript navigations add a shape change, never color alone; the footer
-  links are marked for assistive technology only.
+- **Current page.** `aria-current` in every navigation, plus a shape change,
+  never color alone: a filled block in the header, menu and no-JavaScript
+  navigations, an underline in the footer.
 - **Headings and titles.** One `h1`, no skipped level, nothing under 19px.
   Every `<title>` is distinct, and every one but the homepage's names the
   page before the site.
