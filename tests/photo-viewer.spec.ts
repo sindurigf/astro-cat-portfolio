@@ -572,3 +572,107 @@ for (const viewport of VIEWER_SIZES) {
     expect(problems, 'photos the viewer crops').toEqual([]);
   });
 }
+
+/** 1280x1024 at 400% zoom, and a phone on its side (SC 1.4.10). */
+const SHORT_VIEWER_SIZES = [
+  { width: 320, height: 256 },
+  { width: 667, height: 375 },
+] as const;
+
+const VIEWER_CONTROLS = [
+  '[data-viewer-close]',
+  '[data-viewer-step="-1"]',
+  '[data-viewer-step="1"]',
+] as const;
+
+for (const viewport of SHORT_VIEWER_SIZES) {
+  test(`at ${viewport.width}x${viewport.height} the viewer draws every photo no smaller than its thumbnail, with its buttons in reach`, async ({
+    page,
+  }) => {
+    await page.setViewportSize(viewport);
+    await gotoSettled(page, ROUTE);
+    const links = page.locator('a[data-photo]');
+    const total = await links.count();
+    expect(total, 'no photos to open on /about').toBeGreaterThan(0);
+
+    const problems: string[] = [];
+    for (let i = 0; i < total; i += 1) {
+      const link = links.nth(i);
+      const href = (await link.getAttribute('href')) ?? '';
+      await link.scrollIntoViewIfNeeded();
+      const thumbnail = await link.locator('img').boundingBox();
+      await link.focus();
+      await page.keyboard.press('Enter');
+      const viewer = page.locator('#photo-viewer');
+      await expect(viewer).toBeVisible();
+      await page.waitForFunction((want) => {
+        const img = document.querySelector<HTMLImageElement>(
+          '.photo-viewer-figure img',
+        );
+        return (
+          !!img &&
+          img.complete &&
+          img.naturalWidth > 0 &&
+          img.src.endsWith(want)
+        );
+      }, href);
+
+      const found = await page.evaluate(() => {
+        const dialog = document.querySelector('#photo-viewer')!;
+        const figure = dialog.querySelector('.photo-viewer-figure')!;
+        const img = figure.querySelector('img')!;
+        const drawn = img.getBoundingClientRect();
+        return {
+          width: drawn.width,
+          height: drawn.height,
+          room: Math.min(figure.clientWidth, img.naturalWidth),
+          shape: img.naturalWidth / img.naturalHeight,
+          sideways: dialog.scrollWidth - dialog.clientWidth,
+        };
+      });
+      const size = `${Math.round(found.width)}x${Math.round(found.height)}`;
+      if (found.width < found.room - ROUNDING_PX) {
+        problems.push(
+          `${href}: drawn ${size}, narrower than the ${Math.round(found.room)}px it has`,
+        );
+      }
+      if (
+        thumbnail &&
+        found.width * found.height <
+          thumbnail.width * thumbnail.height - ROUNDING_PX
+      ) {
+        problems.push(
+          `${href}: drawn ${size}, smaller than its ${Math.round(thumbnail.width)}x${Math.round(thumbnail.height)} thumbnail`,
+        );
+      }
+      if (
+        Math.abs(found.width / found.height / found.shape - 1) > SHAPE_TOLERANCE
+      ) {
+        problems.push(`${href}: drawn at a different shape from the file`);
+      }
+      if (found.sideways > ROUNDING_PX) {
+        problems.push(
+          `${href}: the viewer scrolls sideways by ${found.sideways}px`,
+        );
+      }
+
+      for (const control of VIEWER_CONTROLS) {
+        const button = viewer.locator(control);
+        await button.scrollIntoViewIfNeeded();
+        const reached = await button.evaluate((element) => {
+          const box = element.getBoundingClientRect();
+          const top = document.elementFromPoint(
+            box.left + box.width / 2,
+            box.top + box.height / 2,
+          );
+          return top === element || element.contains(top);
+        });
+        if (!reached) problems.push(`${href}: ${control} cannot be reached`);
+      }
+
+      await page.keyboard.press('Escape');
+      await expect(viewer).toBeHidden();
+    }
+    expect(problems, 'photos the short viewer shrinks').toEqual([]);
+  });
+}
