@@ -25,11 +25,6 @@ const SERVED_AS_IS = new Map([
       'rendered on demand.',
   ],
   [
-    'photos/tabby-duvet.jpg',
-    'BaseLayout.astro imports it for the Person image; the bundle of ' +
-      '/contact/send/, rendered on demand, carries the import and names no image.',
-  ],
-  [
     'logo-cat.svg',
     'CatMark.astro imports it with `?url`: a vector file, cached once for every page.',
   ],

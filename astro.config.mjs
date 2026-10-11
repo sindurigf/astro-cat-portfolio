@@ -130,11 +130,14 @@ export default defineConfig({
        * https://github.com/withastro/astro/blob/%40astrojs/cloudflare%4014.3.3/packages/integrations/cloudflare/src/index.ts#L668
        */
       client: { build: { rolldownOptions: { output: { banner: '' } } } },
+      /* The on-demand bundle; src/lib/person-image.ts reads it. */
+      ssr: { define: { __PRERENDERED__: 'false' } },
     },
     plugins: [tailwindcss()],
     define: {
       __VIDEO_SIZES__: JSON.stringify(videoSizes),
       __THEME_COLOR__: JSON.stringify(themeColor),
+      __PRERENDERED__: 'true',
       /* src/lib/build-env.ts reads these; the Worker has no `process`. */
       ...Object.fromEntries(
         BUILD_ENV_NAMES.map((name) => [
