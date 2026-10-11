@@ -618,6 +618,9 @@ The grid rule in `scripts/check-tokens.mjs` enforces the grid;
 - **Below 305px:** `below-reflow:` (under 19rem) is for 500% zoom only: words
   break anywhere and the header name is visually hidden. `stickers-wrap:`
   (under 17.5rem) wraps the footer stickers. Nothing changes from 305px up.
+- **Short windows:** `short:` (under 30rem of height) makes the header static,
+  and in the photo viewer the photo takes the viewer's width while the dialog
+  scrolls. From 30rem up the photo fits the window whole.
 
 ### Page compositions
 
