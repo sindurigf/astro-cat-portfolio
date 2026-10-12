@@ -725,11 +725,6 @@ evidence.
   platform's (`html_handling` in `wrangler.jsonc`). Every internal link,
   canonical, sitemap and feed URL ends in `/`, so only a typed or outside link
   meets it; the alternative is one `_redirects` line per route.
-- **Compress the HTML:** `no-transform` keeps JavaScript Detections off pages
-  at that cost ([Rules and caching](#rules-and-caching)).
-- **Stop a missing `/_astro/*` file being cached as a 404 for a year:**
-  `_headers` matches a path, not a status, so the rule that makes hashed files
-  `immutable` covers the 404 too.
 - **AccessLint engine hits, each checked against the live DOM:**
   `color-contrast` on the homepage name is read against a gold ancestor the
   text does not sit on; `landmark-unique` counts the no-JavaScript nav, which
