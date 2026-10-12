@@ -721,6 +721,15 @@ evidence.
   site name, and the hero roundel is decoration, so `alt=""` is right
   ([H67](https://www.w3.org/WAI/WCAG22/Techniques/html/H67)). Text there would
   be announced twice.
+- **Answer the unslashed URL with a 301, not a 307:** the status is the
+  platform's (`html_handling` in `wrangler.jsonc`). Every internal link,
+  canonical, sitemap and feed URL ends in `/`, so only a typed or outside link
+  meets it; the alternative is one `_redirects` line per route.
+- **AccessLint engine hits, each checked against the live DOM:**
+  `color-contrast` on the homepage name is read against a gold ancestor the
+  text does not sit on; `landmark-unique` counts the no-JavaScript nav, which
+  is `display: none` with scripts on; `focus-order` flags the photo strips,
+  which are focusable so a keyboard can scroll them.
 
 ## Content notes
 
