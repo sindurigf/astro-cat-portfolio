@@ -1,5 +1,7 @@
 # astro-cat-portfolio
 
+<!-- TODO(fork): rewrite this file for your site. -->
+
 A personal website template: Astro, Vue islands, Tailwind CSS and TypeScript on
 Cloudflare Workers. Neo-brutalist, dark by default with a light mode, a blog
 with feeds, a talk slideshow, a contact form, and animated cats on the About
@@ -17,11 +19,33 @@ page. Tested for WCAG 2.2 AA in Chromium, Firefox and WebKit.
    npm run dev
    ```
 
-3. Edit [`src/site.config.ts`](src/site.config.ts): site name and URL, your
+3. List what is yours to change:
+
+   ```sh
+   npm run check:fork
+   ```
+
+   It prints every `TODO(fork)` comment as `file:line` and the count left
+   (`git grep -n "TODO(fork):"` finds the same lines). Work through each one
+   and delete the comment once it is resolved; steps 4 and 5 cover most of
+   them. `npm run check:fork -- --strict` fails while any is left. These
+   cannot hold a comment, so check them by hand:
+   - `package.json`: `name`.
+   - `LICENSE`: keep the notice and add your own copyright line.
+     `LICENSE-photos`: yours once the photos are.
+   - `src/assets/photos/`, `src/assets/blog/` and
+     `public/images/og-default.png`: the sample photos and sharing image.
+   - `public/favicon.*` and the app icons:
+     [Replace the logo](docs/DEVELOPMENT.md#replace-the-logo).
+   - `src/content/talks/sample-talk/slides.md` and
+     `public/talks/sample-talk.pdf`: the sample talk and its PDF, which
+     `npm run publish:talk` prints from the slides.
+
+4. Edit [`src/site.config.ts`](src/site.config.ts): site name and URL, your
    name, job title, email and profiles, the post your pages point to for the
    longer story (`journeyPost`), and the analytics, Bing verification and
    contact switches. The build fails on an invalid value.
-4. Replace the sample persona: her copy on every page, the sample posts and
+5. Replace the sample persona: her copy on every page, the sample posts and
    talk, and the photos. Set `SAMPLE_PERSONA` in `src/lib/persona.ts` to
    `null`, which removes her notice from `/credits` and the homepage. Update
    [SECURITY.md](SECURITY.md), [ACCESSIBILITY.md](ACCESSIBILITY.md) and
@@ -33,10 +57,10 @@ page. Tested for WCAG 2.2 AA in Chromium, Firefox and WebKit.
    optional. To drop it, delete `src/pages/brand.astro`,
    `src/components/brand/` and `tests/brand.spec.ts`, the Brand link in
    `src/components/Footer.astro`, and every `'/brand'` under `tests/`.
-5. Run the gate in [AGENTS.md](AGENTS.md#done-means): build, typecheck,
+6. Run the gate in [AGENTS.md](AGENTS.md#done-means): build, typecheck,
    check and every test suite. CI runs the same on every pull request and
    needs no secrets.
-6. Deploy to Cloudflare:
+7. Deploy to Cloudflare:
    [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md#before-the-first-deploy).
    - The contact form answers 503 until its D1 database is created and
      migrated ([D1](docs/DEPLOYMENT.md#d1)).

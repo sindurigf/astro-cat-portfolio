@@ -60,6 +60,7 @@ What happens without the `CONTACT_NOTIFY_TO` secret:
 | `npm run check:classes`       | Every class in the built HTML has a CSS rule                                                                                                       |
 | `npm run check:untransformed` | No built file is byte-identical to a source image                                                                                                  |
 | `npm run check:exif`          | No EXIF or XMP metadata in images under `src/assets` and `public`                                                                                  |
+| `npm run check:fork`          | Every `TODO(fork)` marker left, as `file:line` with the count; fails on any other TODO comment; `--strict` fails while one is left                 |
 | `npm run check:leaks`         | No names or ids from the project this template came from; `--pdf <file>` checks one PDF                                                            |
 | `npm run test:a11y`           | Playwright suite in Chromium and Firefox; CI adds WebKit                                                                                           |
 | `npm run test:webkit`         | The same suite in WebKit, in Playwright's Docker image                                                                                             |
@@ -209,8 +210,11 @@ docs/               Development, deployment, style guide, manual testing
 | `src/content/blog/sample-post.md`, `src/content/talks/sample-talk/slides.md`          | The sample post and talk                                         |
 | `src/lib/persona.ts`, `src/lib/credits.ts`                                            | The sample persona's notice; the `/credits` entries              |
 | `src/pages/contact.astro`, `src/pages/privacy.astro`, `src/pages/accessibility.astro` | Mostly config values; check the wording against your site        |
+| `src/lib/categories.ts`, `src/lib/og-image.ts`, `src/pages/credits.astro`             | Category teasers; the sharing image's alt text; the credit lists |
+| `wrangler.jsonc`, `SECURITY.md`, `AI_DISCLOSURE.md`                                   | Worker, domain and database names; your contacts; your AI record |
 | `src/assets/photos/`, `src/assets/blog/`                                              | Sample photos, credited in [LICENSE-photos](../LICENSE-photos)   |
 
+- `npm run check:fork` lists the `TODO(fork)` comment at each of these.
 - Replacing the photos: update `LICENSE-photos`, or remove it and its row in
   the [README license table](../README.md#license).
 
