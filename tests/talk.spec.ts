@@ -34,12 +34,16 @@ const setting = (yaml: string | undefined, key: string): string | undefined => {
   return match?.[1].trim().replace(/^'(.*)'$/, '$1');
 };
 
-/** The cover is an h1; every other slide an h2 with its label. */
+/** The cover is an h1; every other slide an h2 with its label, a part opener's with its part number. */
 const expectedSlides = (source: string, file: string): Slide[] => {
   let part = '';
   return splitDeck(source, file).map((slide) => {
     part = setting(slide.frontmatter, 'part') ?? part;
-    const label = setting(slide.frontmatter, 'label');
+    const opensPart = setting(slide.frontmatter, 'layout') === 'section';
+    const partNumber = opensPart ? /\bPart (\d+)\b/.exec(part)?.[1] : undefined;
+    const label =
+      setting(slide.frontmatter, 'label') ??
+      (partNumber && `Part ${partNumber}`);
     return {
       id: `slide-${slide.number}`,
       level: slide.number === 1 ? 1 : 2,
