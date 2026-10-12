@@ -2,6 +2,7 @@ import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { expect, test } from './test';
 import { gotoSettled } from './settle';
+import { LAYOUT_SHIFT, layoutShiftOf } from './layout-shift';
 import { DIST_DIR, ROUTES } from './routes';
 import { NODE } from './tags';
 import { metricsOf } from '../scripts/font-fallback-metrics.mjs';
@@ -17,8 +18,9 @@ const LINE_BOX_TOLERANCE = 0.0002;
 /* A phone on a slow connection: where a late font is likeliest and lines are shortest. */
 const PHONE = { width: 412, height: 823 };
 /*
- * Measured maximum is 0.0112 (/accessibility). Without the fallback faces
- * nine routes exceed this, up to 0.163. Wider viewports are not tested.
+ * A budget, not a property: measured maximum 0.0112 (/accessibility), nine
+ * routes over it without the fallback faces, up to 0.163. A failure can mean a
+ * new heading wraps differently in the two fonts: re-measure and move it.
  */
 const LATE_FONT_SHIFT_CEILING = 0.02;
 
@@ -122,25 +124,6 @@ test.describe('the fallback faces shown until Lexend arrives', NODE, () => {
   });
 });
 
-const LAYOUT_SHIFT = `
-  window.__lateFontShift = 0;
-  window.__lateFontSources = [];
-  window.__lateFontHandle = (entries) => {
-    for (const entry of entries) {
-      if (entry.hadRecentInput) continue;
-      window.__lateFontShift += entry.value;
-      for (const source of entry.sources ?? []) {
-        const el = source.node && (source.node.nodeType === 1 ? source.node : source.node.parentElement);
-        window.__lateFontSources.push(
-          entry.value.toFixed(4) + ' ' + (el ? el.tagName.toLowerCase() + '.' + [...el.classList].slice(0, 3).join('.') : '(removed)'),
-        );
-      }
-    }
-  };
-  window.__lateFontObserver = new PerformanceObserver((list) => window.__lateFontHandle(list.getEntries()));
-  window.__lateFontObserver.observe({ type: 'layout-shift', buffered: true });
-`;
-
 test.describe('a font that arrives late', () => {
   test.skip(
     ({ browserName }) => browserName !== 'chromium',
@@ -177,27 +160,18 @@ test.describe('a font that arrives late', () => {
           ),
       );
 
-      const { shift, sources, paintedFirst } = await page.evaluate(() => {
-        const w = window as unknown as {
-          __lateFontShift: number;
-          __lateFontSources: string[];
-          __lateFontObserver: PerformanceObserver;
-          __lateFontHandle: (entries: PerformanceEntryList) => void;
-        };
-        w.__lateFontHandle(w.__lateFontObserver.takeRecords());
+      const { shift, sources } = await layoutShiftOf(page);
+      const paintedFirst = await page.evaluate(() => {
         const paint = performance.getEntriesByName('first-contentful-paint')[0];
         const font = performance
           .getEntriesByType('resource')
           .find((entry) => entry.name.endsWith('.woff2')) as
           PerformanceResourceTiming | undefined;
-        return {
-          shift: w.__lateFontShift,
-          sources: w.__lateFontSources,
-          paintedFirst:
-            paint !== undefined &&
-            font !== undefined &&
-            paint.startTime < font.responseEnd,
-        };
+        return (
+          paint !== undefined &&
+          font !== undefined &&
+          paint.startTime < font.responseEnd
+        );
       });
       expect(
         paintedFirst,
@@ -205,7 +179,7 @@ test.describe('a font that arrives late', () => {
       ).toBe(true);
       expect(
         shift,
-        `${route} shifted by ${shift.toFixed(4)} when the font swapped in (value, element):\n${sources.join('\n')}`,
+        `${route} shifted by ${shift.toFixed(4)} when the font swapped in (value, element, x,y,w,h before -> after):\n${sources.join('\n')}`,
       ).toBeLessThanOrEqual(LATE_FONT_SHIFT_CEILING);
     });
   }
