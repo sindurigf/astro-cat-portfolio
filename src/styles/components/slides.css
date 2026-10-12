@@ -26,8 +26,63 @@
     container-type: size;
   }
 
-  .deck:not(.presenter):fullscreen .deck-bar {
+  /*
+   * Full screen keeps small controls for pointer and touch: arrows and the
+   * count at the foot, over the margin and the slide's own foot padding, and a
+   * way out in the card's top right corner. No slide puts content under either.
+   * Not centered by a transform: that would hold the way out inside the bar.
+   */
+  :fullscreen:not(.presenter) .deck-bar {
+    @apply fixed inset-x-0 bottom-2 z-10 mx-auto flex min-h-0 w-fit gap-2;
+  }
+
+  /*
+   * Inside the card's border by `--focus-gap`: the `max()` is the letterbox
+   * beside the 16:9 stage, the rest `.deck:fullscreen`'s padding and the border.
+   * `button`, to outrank the pressed button's `relative`, which would drop it
+   * back into the bar mid-click.
+   */
+  :fullscreen:not(.presenter) button.deck-exit {
+    @apply fixed;
+    top: calc(max(0px, 50cqh - 100cqw * 9 / 32) + --spacing(9));
+    right: calc(max(0px, 50cqw - 100cqh * 8 / 9) + --spacing(15));
+  }
+
+  /* Gone, not only unseen: in full screen no control is named Full Screen. */
+  :fullscreen:not(.presenter) :is(.deck-part, [data-deck-fullscreen]) {
     @apply hidden;
+  }
+
+  :fullscreen:not(.presenter) .deck-label {
+    @apply sr-only;
+  }
+
+  .deck-arrow,
+  .deck-exit {
+    @apply hidden;
+  }
+
+  :fullscreen:not(.presenter) .deck-arrow {
+    @apply block text-h3;
+  }
+
+  :fullscreen:not(.presenter) .deck-bar button:not([data-deck-fullscreen]) {
+    @apply grid size-target place-items-center p-0;
+  }
+
+  :fullscreen:not(.presenter) .deck-count {
+    @apply ml-0 grid h-target place-items-center border-4 border-border
+      bg-surface px-3;
+  }
+
+  /*
+   * Hidden with the cursor once the pointer rests, never while the pointer is
+   * on it or a control in it has keyboard focus. Unseen, not removed: Tab still
+   * reaches it. No transition, so nothing moves (SC 2.3.3).
+   */
+  :fullscreen:not(.presenter)[data-deck-idle]
+    .deck-bar:not(:hover, :has(:focus-visible)) {
+    @apply pointer-events-none opacity-0;
   }
 
   .deck:not(.presenter):fullscreen .deck-stage {
