@@ -8,7 +8,7 @@ The owner and both reporting rows in section 1 are the template maintainer's
 own details, so the template's statement reaches a real person. In a fork,
 replace the project, owner and reporting rows with yours and review the rest
 before you publish: until you do, your visitors' barrier reports go to her.
-The build warns, and `npm run check:live` exits 2, while a real `site.url`
+The build fails, and `npm run check:live` exits 2, while a real `site.url`
 still publishes her rows.
 
 The statement is voluntary for a personal site and follows the

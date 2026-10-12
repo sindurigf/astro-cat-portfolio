@@ -11,8 +11,9 @@ repository to Workers Builds, or run `npx wrangler deploy` yourself.
    While `site.url` is on an example host, the build warns and
    `npm run check:live` exits 2, even with a target passed: every canonical
    would name another domain.
-   On a real `site.url` both do the same while `ACCESSIBILITY.md` section 1
-   still names the template's maintainer in its owner or reporting rows.
+   On a real `site.url` the build fails and the live check exits 2 while
+   `ACCESSIBILITY.md` section 1 still names the template's maintainer in its
+   owner or reporting rows.
 2. Replace the placeholders in `wrangler.jsonc`:
    - `name`: the Worker's name, which must match the dashboard's.
    - `routes`: your domain, as a custom domain.
