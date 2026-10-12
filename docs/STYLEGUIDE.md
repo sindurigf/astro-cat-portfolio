@@ -1066,7 +1066,7 @@ Enforced by `tests/nav-current.spec.ts`, `tests/mobile-menu.spec.ts`,
   leaps move them on), and sit still under reduced motion. Each cat's button
   ("Meet Pepper") opens its card and changes nothing else.
 - Each cat's SC 2.2.2 control sits in its band's corner: Zz ("Put Pepper to
-  sleep") while it plays, a paw ("Wake Pepper") while it sleeps.
+  sleep") while it plays, an eye ("Wake Pepper") while it sleeps.
   Hidden under reduced motion, where nothing moves.
 - A paw button under Zz ("Choose a trick for Pepper") opens that cat's tricks:
   Random first, then its own moves, each an icon and a name
