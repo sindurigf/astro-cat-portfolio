@@ -519,7 +519,8 @@ in `public/`.
 - `Link`: `llms.txt` as `describedby`, the sitemap, and the feed as
   `alternate` (RFC 8288). `sitemap` is not a registered relation;
   specification.website's discovery checklist names it.
-- `X-Robots-Tag: noindex` on `/blog/*.md`, a copy of each page. To close the
+- `X-Robots-Tag: noindex` on `/blog/*.md`, a copy of each page, and on
+  `/*.pdf` (the talk slides), whose pages are the search results. To close the
   whole site, use this header rather than `Disallow`: a crawler barred from a
   page never sees its noindex and can still list the URL.
 - No `Cross-Origin-Embedder-Policy`: nothing uses `SharedArrayBuffer`, and it

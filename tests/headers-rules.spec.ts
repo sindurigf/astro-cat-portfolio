@@ -20,6 +20,21 @@ const ASSET_PATTERN = '/_astro/*';
 /** `/_astro/*` detaches `/*`'s value first; public/_headers says why. */
 const JOINED_ON_PURPOSE = new Set(['cache-control']);
 
+/** Set by `/blog/*.md` and `/*.pdf`, which no path matches both; the noindex tests pin the exact value. */
+const SET_ON_SEPARATE_PATHS = new Set(['x-robots-tag']);
+
+const NOINDEX = 'noindex';
+
+/** A robots.txt path rule as a matcher: a prefix, with `*` for any run and a closing `$` for the end. */
+const robotsPattern = (rule: string): RegExp => {
+  const anchored = rule.endsWith('$');
+  const body = (anchored ? rule.slice(0, -1) : rule)
+    .split('*')
+    .map((part) => part.replace(/[.+?^${}()|[\]\\]/g, '\\$&'))
+    .join('.*');
+  return new RegExp(`^${body}${anchored ? '$' : ''}`);
+};
+
 /** Blocks Cloudflare JavaScript Detections injection, and compression. */
 const NO_TRANSFORM = 'no-transform';
 
@@ -203,6 +218,7 @@ test.describe('security headers as declared and served', NODE, () => {
     for (const rule of rules) {
       for (const name of rule.headers.keys()) {
         if (JOINED_ON_PURPOSE.has(name)) continue;
+        if (SET_ON_SEPARATE_PATHS.has(name)) continue;
         seen.set(name, [...(seen.get(name) ?? []), rule.pattern]);
       }
     }
@@ -283,8 +299,44 @@ test.describe('security headers as declared and served', NODE, () => {
           headersFor(rules, path).get('x-robots-tag'),
           `${path} is indexable.`,
         )
-        .toBe('noindex');
+        .toBe(NOINDEX);
     }
+  });
+
+  test('every PDF is kept out of search, keeps the site-wide headers and stays crawlable', () => {
+    const pdfs = builtFiles(DIST_DIR)
+      .filter((file) => file.endsWith('.pdf'))
+      .map(servedPath);
+    test.skip(pdfs.length === 0, 'the build has no PDF');
+
+    const page = headersFor(rules, '/');
+    for (const path of pdfs) {
+      const served = headersFor(rules, path);
+      expect
+        .soft(served.get('x-robots-tag'), `${path} is indexable.`)
+        .toBe(NOINDEX);
+      expect
+        .soft(served.get('link'), `${path} lost the site-wide Link header.`)
+        .toBe(page.get('link'));
+    }
+
+    /* A crawler barred by robots.txt never fetches the file, so never reads its noindex. */
+    const everyCrawler = readFileSync(join(DIST_DIR, 'robots.txt'), 'utf8')
+      .split(/\n\s*\n/)
+      .find((group) => /^User-agent: \*$/m.test(group));
+    expect(
+      everyCrawler,
+      'robots.txt has no group for every crawler',
+    ).toBeDefined();
+    const disallowed = [
+      ...(everyCrawler ?? '').matchAll(/^Disallow:\s*(\S+)/gm),
+    ]
+      .map(([, rule]) => rule ?? '')
+      .map(robotsPattern);
+    expect(
+      pdfs.filter((path) => disallowed.some((rule) => rule.test(path))),
+      'robots.txt disallows a PDF for every crawler, so its noindex is never read.',
+    ).toEqual([]);
   });
 
   test('the asset rule caches immutably, and nothing else does', () => {
