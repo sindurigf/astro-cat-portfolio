@@ -1,6 +1,7 @@
 import { expect, test, type Page } from './test';
 import { gotoSettled } from './settle';
 import { ROUTES } from './routes';
+import { ANALYTICS_ON } from '../src/lib/analytics-site';
 
 /*
  * Only measures that are machine-independent: load time depends on the runner,
@@ -14,6 +15,12 @@ const ROUTE_SCRIPT_BUDGETS: Readonly<Record<string, number>> = {
   '/brand': 7_400,
 };
 const PAGE_SCRIPT_BUDGET = 14_000;
+/* On every route once `analytics` is set: /vendor/umami.js and the click tracker. */
+const ANALYTICS_SCRIPT_BUDGET = 6_400;
+
+const scriptBudget = (route: string): number =>
+  (ROUTE_SCRIPT_BUDGETS[route] ?? PAGE_SCRIPT_BUDGET) +
+  (ANALYTICS_ON ? ANALYTICS_SCRIPT_BUDGET : 0);
 
 const scriptsFetched = async (
   page: Page,
@@ -73,7 +80,7 @@ test.describe('page weight and stability', () => {
     test(`${route} stays within its script budget`, async ({ page }) => {
       const scripts = await scriptsFetched(page, route);
       const total = scripts.reduce((sum, script) => sum + script.bytes, 0);
-      const budget = ROUTE_SCRIPT_BUDGETS[route] ?? PAGE_SCRIPT_BUDGET;
+      const budget = scriptBudget(route);
 
       expect(
         total,
