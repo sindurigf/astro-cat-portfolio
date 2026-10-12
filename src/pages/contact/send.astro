@@ -5,7 +5,12 @@ import PageHero from '../../components/PageHero.astro';
 import { env } from 'cloudflare:workers';
 import { rateLimitKey } from '../../lib/rate-limit-key';
 import { readCappedForm } from '../../lib/request-body';
-import { FORM_MEDIA_TYPE, MAX_BODY_BYTES } from '../../lib/contact-form';
+import { CONTACT_EMAIL, CONTACT_MAILTO } from '../../lib/contact';
+import {
+  FORM_MEDIA_TYPE,
+  MAX_BODY_BYTES,
+  MESSAGES,
+} from '../../lib/contact-form';
 import {
   handleSubmission,
   type SubmissionKind,
@@ -44,24 +49,21 @@ if (body.kind === 'unsupported' || body.kind === 'unreadable') {
   return Astro.redirect(CONTACT_PATH, 303);
 }
 
-/* Plain text, not the page: the body was never read, so there is nothing to refill. */
-if (body.kind === 'too-large') {
-  return new Response('Your message is too long to accept.\n', {
-    status: 413,
-    headers: Astro.response.headers,
-  });
-}
+/* The body was never read, so this page has no form to refill. */
+const TOO_LONG_STATUS = 413;
+const TOO_LONG_HEADING = 'Message Too Long';
 
-const form = body.form;
+const outcome =
+  body.kind === 'too-large'
+    ? null
+    : await handleSubmission(
+        body.form,
+        env,
+        Date.now(),
+        await rateLimitKey(Astro.request),
+      );
 
-const outcome = await handleSubmission(
-  form,
-  env,
-  Date.now(),
-  await rateLimitKey(Astro.request),
-);
-
-if (outcome.kind === 'sent') {
+if (outcome?.kind === 'sent') {
   return Astro.redirect(CONTACT_SENT_PATH, 303);
 }
 
@@ -70,7 +72,7 @@ const STATUS: Record<Exclude<SubmissionKind, 'sent'>, number> = {
   limited: 429,
   failed: 503,
 };
-Astro.response.status = STATUS[outcome.kind];
+Astro.response.status = outcome ? STATUS[outcome.kind] : TOO_LONG_STATUS;
 
 /* Names the cause; the error summary below says the message was not sent. */
 const HEADING: Record<Exclude<SubmissionKind, 'sent'>, string> = {
@@ -78,7 +80,7 @@ const HEADING: Record<Exclude<SubmissionKind, 'sent'>, string> = {
   limited: 'Too Many Messages',
   failed: 'Message Not Saved',
 };
-const heading = HEADING[outcome.kind];
+const heading = outcome ? HEADING[outcome.kind] : TOO_LONG_HEADING;
 ---
 
 <BaseLayout
@@ -88,24 +90,40 @@ const heading = HEADING[outcome.kind];
 >
   <PageHero title={heading} titleSize="h2">
     <p class="standfirst">
-      Nothing has been sent yet. What you wrote is still here.
+      {outcome
+        ? 'Nothing has been sent yet. What you wrote is still here.'
+        : 'Nothing has been sent. Your message is longer than this form accepts.'}
     </p>
   </PageHero>
 
   <section class="band py-section">
     <div class="mx-auto max-w-page">
-      <div class="card max-w-3xl">
-        <ContactForm
-          errors={outcome.errors}
-          values={outcome.values}
-          summaryHeading="h2"
-          notSent={
-            outcome.kind === 'limited' || outcome.kind === 'failed'
-              ? outcome.kind
-              : undefined
-          }
-        />
-      </div>
+      {outcome ? (
+        <div class="card max-w-3xl">
+          <ContactForm
+            errors={outcome.errors}
+            values={outcome.values}
+            summaryHeading="h2"
+            notSent={
+              outcome.kind === 'limited' || outcome.kind === 'failed'
+                ? outcome.kind
+                : undefined
+            }
+          />
+        </div>
+      ) : (
+        <div class="card">
+          <p class="max-w-measure text-body text-text text-pretty">
+            {MESSAGES.bodyLong} Write to{' '}
+            <a href={CONTACT_MAILTO}>{CONTACT_EMAIL}</a>.
+          </p>
+          <p class="actions mt-head">
+            <a href={CONTACT_PATH} class="btn-primary">
+              Back to the Contact Form
+            </a>
+          </p>
+        </div>
+      )}
     </div>
   </section>
 </BaseLayout>
