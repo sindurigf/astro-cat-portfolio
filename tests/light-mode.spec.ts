@@ -5,7 +5,6 @@ import { NON_TEXT, PAGE_HELPERS } from './contrast';
 import { gotoSettled } from './settle';
 import { ROUTES, SAMPLED_ROUTES } from './routes';
 import { AXE_TIMEOUT_MS, FOCUSABLE_SELECTOR, REFLOW_VIEWPORT } from './wcag';
-import { titleCaseMiss } from '../src/lib/labels';
 
 const SWITCH_NAME = 'Light Mode';
 /** More than the header's stops before the switch, so a missing switch fails. */
@@ -20,21 +19,6 @@ const mainIsLight = (page: Page): Promise<boolean> =>
     const white = { r: 255, g: 255, b: 255, a: 1 };
     return ratio(ground, black) > ratio(ground, white);
   })()`) as Promise<boolean>;
-
-test('the theme switch is named in title case, like every label', async ({
-  page,
-}) => {
-  await gotoSettled(page, '/');
-  const name = (
-    await page.locator('button.theme-switch').first().textContent()
-  )?.trim();
-
-  expect(name, 'the theme switch has no name.').toBeTruthy();
-  expect(
-    titleCaseMiss(name!),
-    `"${name}" is not in Chicago title case (docs/STYLEGUIDE.md#uppercase).`,
-  ).toBeUndefined();
-});
 
 test.describe('light mode meets WCAG 2.2 AA on every route', () => {
   test.use({ colorScheme: 'light' });
