@@ -20,8 +20,8 @@
 
 /*
  * Until Lexend arrives (`font-display: swap`): a local face sized to its mean
- * advance and line box, in Lexend's unicode-range so other characters reach the
- * system font. An absent family is skipped. scripts/font-fallback-metrics.mjs.
+ * advance and line box (scripts/font-fallback-metrics.mjs). Lexend's
+ * unicode-range: a character in it that Lexend lacks takes this face.
  */
 @font-face {
   font-family: 'Lexend Fallback Arial';

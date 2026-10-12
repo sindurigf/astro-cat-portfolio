@@ -320,7 +320,9 @@ copyright and contents list are fixed, and `text-code` is `max(1rem, 0.92em)`,
   `Lexend Fallback` family: a local Arial or Roboto face with `size-adjust`
   and the ascent, descent and line-gap overrides set to Lexend's mean advance
   and line box, so the swap reflows less. Each face keeps Lexend's
-  `unicode-range`, so nothing changes once Lexend has loaded.
+  `unicode-range`, so nothing changes for the characters Lexend has. A
+  character in the range that Lexend lacks (a prime, a per mille sign) takes
+  the fallback face: one wider glyph on the same line box.
   `scripts/font-fallback-metrics.mjs` prints the numbers;
   `tests/font-fallback.spec.ts` holds the faces to Lexend's metrics and a late
   font's shift on a phone to its ceiling. Wider viewports are not tested.
