@@ -1,12 +1,16 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { expect, test } from './test';
-import { DIST_DIR } from './routes';
+import { builtHtml, DIST_DIR } from './routes';
 import { configuredSite } from './source';
 import { NODE } from './tags';
 import { DAY_MS } from '../src/lib/time';
-import { CONTACT_EMAIL, CONTACT_EMAIL_RESOLVES } from '../src/lib/contact';
-import { GET } from '../src/pages/.well-known/[file]';
+import {
+  CONTACT_EMAIL,
+  SECURITY_CONTACT,
+  securityContactFor,
+} from '../src/lib/contact';
+import { securityTxt as securityTxtFor } from '../src/pages/.well-known/[file]';
 
 /**
  * /.well-known/security.txt, per https://www.rfc-editor.org/rfc/rfc9116.
@@ -28,13 +32,13 @@ const lessThanAYearAfter = (now: Date, expires: Date): boolean => {
   return expires.getTime() < yearLater.getTime();
 };
 
-/** What the endpoint writes. Not read from dist/: no file is built while `person.email` is a placeholder. */
-const securityTxt = async (): Promise<string> => {
-  const response = await GET({
-    site: new URL(configuredSite()),
-  } as Parameters<typeof GET>[0]);
-  return response.text();
-};
+/* Stands in while the build has no contact, so the fields are still checked. */
+const SAMPLE_CONTACT = 'mailto:security@notexample.com';
+const CONTACT = SECURITY_CONTACT ?? SAMPLE_CONTACT;
+
+/** What the endpoint writes. Not read from dist/: no file is built without a contact. */
+const securityTxt = (): string =>
+  securityTxtFor(new URL(configuredSite()), CONTACT);
 
 const contactEmail = (): string => CONTACT_EMAIL;
 
@@ -45,21 +49,53 @@ const field = (source: string, name: string): string | null => {
 };
 
 test.describe('security.txt', NODE, () => {
-  test('is published exactly when the contact address can receive mail', async () => {
+  test('is published exactly when there is a contact that works', () => {
+    const published = SECURITY_CONTACT !== null;
+
     expect(
       existsSync(SECURITY_TXT),
-      CONTACT_EMAIL_RESOLVES
+      published
         ? `${SECURITY_TXT} was not built by src/pages/.well-known/[file].ts.`
-        : `${SECURITY_TXT} publishes ${CONTACT_EMAIL}, a placeholder no mail reaches (RFC 9116 section 2.5.3).`,
-    ).toBe(CONTACT_EMAIL_RESOLVES);
+        : `${SECURITY_TXT} is built with no contact: ${CONTACT_EMAIL} is a placeholder no mail reaches (RFC 9116 section 2.5.3).`,
+    ).toBe(published);
 
-    if (CONTACT_EMAIL_RESOLVES) {
-      expect(readFileSync(SECURITY_TXT, 'utf8')).toBe(await securityTxt());
+    if (published) {
+      expect(readFileSync(SECURITY_TXT, 'utf8')).toBe(securityTxt());
     }
   });
 
-  test('declares the two fields RFC 9116 requires', async () => {
-    const source = await securityTxt();
+  test('offers SECURITY_CONTACT when set, else a real person.email, else nothing', () => {
+    expect(
+      securityContactFor(
+        'https://notexample.com/security',
+        'jane@notexample.com',
+      ),
+    ).toBe('https://notexample.com/security');
+    expect(securityContactFor(null, 'jane@notexample.com')).toBe(
+      'mailto:jane@notexample.com',
+    );
+    expect(securityContactFor(null, 'hello@example.com')).toBeNull();
+    expect(
+      securityContactFor('mailto:security@notexample.com', 'hello@example.com'),
+    ).toBe('mailto:security@notexample.com');
+  });
+
+  test('no built page or llms.txt points at a file that is not there', () => {
+    test.skip(SECURITY_CONTACT !== null, 'security.txt is published');
+
+    const mentions = [...builtHtml()]
+      .filter(([, html]) => html.includes('security.txt'))
+      .map(([route]) => route);
+    expect(mentions, 'page(s) naming a security.txt that is not built').toEqual(
+      [],
+    );
+    expect(readFileSync(join(DIST_DIR, 'llms.txt'), 'utf8')).not.toContain(
+      'security.txt',
+    );
+  });
+
+  test('declares the two fields RFC 9116 requires', () => {
+    const source = securityTxt();
 
     expect(
       field(source, 'Contact'),
@@ -72,15 +108,8 @@ test.describe('security.txt', NODE, () => {
     ).not.toBeNull();
   });
 
-  test('the contact is the address the site publishes', async () => {
-    const declared = field(await securityTxt(), 'Contact');
-    const email = contactEmail();
-
-    // RFC 9116 wants a `mailto:` URI, not a bare address.
-    expect(
-      declared,
-      `security.txt offers ${declared}, the site publishes ${email}.`,
-    ).toBe(`mailto:${email}`);
+  test('the contact is the one configured', () => {
+    expect(field(securityTxt(), 'Contact')).toBe(CONTACT);
   });
 
   test('SECURITY.md names the site contact address', () => {
@@ -95,8 +124,8 @@ test.describe('security.txt', NODE, () => {
     ).toContain(email);
   });
 
-  test('the published commitment has not lapsed', async () => {
-    const declared = field(await securityTxt(), 'Expires')!;
+  test('the published commitment has not lapsed', () => {
+    const declared = field(securityTxt(), 'Expires')!;
     const expires = new Date(declared);
 
     expect(
@@ -114,8 +143,8 @@ test.describe('security.txt', NODE, () => {
     ).toBeGreaterThan(EXPIRY_WARNING_DAYS);
   });
 
-  test('the commitment is less than a year out, as RFC 9116 recommends', async () => {
-    const declared = field(await securityTxt(), 'Expires')!;
+  test('the commitment is less than a year out, as RFC 9116 recommends', () => {
+    const declared = field(securityTxt(), 'Expires')!;
 
     expect(
       lessThanAYearAfter(new Date(), new Date(declared)),
@@ -134,8 +163,8 @@ test.describe('security.txt', NODE, () => {
     );
   });
 
-  test('the canonical URL is absolute and ours', async () => {
-    const declared = field(await securityTxt(), 'Canonical');
+  test('the canonical URL is absolute and ours', () => {
+    const declared = field(securityTxt(), 'Canonical');
     expect(declared, 'security.txt declares no Canonical').not.toBeNull();
 
     const site = configuredSite();

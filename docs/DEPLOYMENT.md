@@ -62,13 +62,14 @@ A second Worker built from the same source, kept out of search:
 `env.demo` in `wrangler.jsonc`. Its hostname is not in the repository; the
 deploy command's `--domain` attaches it, on every deploy.
 
-| Build variable   | Effect                                                                       |
-| ---------------- | ---------------------------------------------------------------------------- |
-| `CLOUDFLARE_ENV` | `demo`: the build writes `env.demo` into its deploy config                   |
-| `SITE_URL`       | https origin; replaces `site.url` in canonicals, feeds, OG                   |
-| `CONTACT_FORM`   | `none` or `cloudflare-d1`; replaces `contact.form`                           |
-| `NOINDEX`        | `1`: `X-Robots-Tag: noindex` on every response, no sitemap                   |
-| `REPOSITORY_URL` | https repository URL; replaces `site.repository` in every link to the source |
+| Build variable     | Effect                                                                       |
+| ------------------ | ---------------------------------------------------------------------------- |
+| `CLOUDFLARE_ENV`   | `demo`: the build writes `env.demo` into its deploy config                   |
+| `SITE_URL`         | https origin; replaces `site.url` in canonicals, feeds, OG                   |
+| `CONTACT_FORM`     | `none` or `cloudflare-d1`; replaces `contact.form`                           |
+| `NOINDEX`          | `1`: `X-Robots-Tag: noindex` on every response, no sitemap                   |
+| `REPOSITORY_URL`   | https repository URL; replaces `site.repository` in every link to the source |
+| `SECURITY_CONTACT` | `mailto:` or `https:` URI; the `Contact` in `/.well-known/security.txt`      |
 
 Unset, each leaves `src/site.config.ts` as it is; any other value fails the
 build.
@@ -81,7 +82,8 @@ build.
 
 ```sh
 CLOUDFLARE_ENV=demo SITE_URL=https://demo.example.com CONTACT_FORM=none NOINDEX=1 \
-  REPOSITORY_URL=https://github.com/owner/site npm run build && npx wrangler deploy --env demo --dry-run
+  REPOSITORY_URL=https://github.com/owner/site SECURITY_CONTACT=mailto:you@your-domain \
+  npm run build && npx wrangler deploy --env demo --dry-run
 ```
 
 - `CLOUDFLARE_ENV` is read at build time. Without it, `--env demo` deploys the
@@ -90,6 +92,10 @@ CLOUDFLARE_ENV=demo SITE_URL=https://demo.example.com CONTACT_FORM=none NOINDEX=
 - `env.demo` has no D1, email or rate limit bindings, so it needs
   `CONTACT_FORM=none`. Wrangler warns that the bindings are not inherited:
   intended.
+- `SECURITY_CONTACT` takes the place of `person.email` in `security.txt`
+  only. Without it, and while `person.email` is on an example host, no
+  `security.txt` is built. Its value stays in the build variables, not in the
+  repository.
 - `NOINDEX` keeps `robots.txt` open: a crawler it blocks never reads the
   noindex header, and Google then indexes the bare URL.
 - `NOINDEX` also drops the `/sitemap.xml` redirect from `_redirects`, so it
