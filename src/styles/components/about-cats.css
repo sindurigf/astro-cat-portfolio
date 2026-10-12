@@ -141,6 +141,11 @@
     &:hover {
       @apply bg-gold text-gold-text;
     }
+
+    /* The cyan ring is 1.01:1 on the gold hover fill. */
+    &:hover:focus-visible {
+      outline-color: var(--color-gold-text);
+    }
   }
 
   /* No popovers: the paw would open nothing and the list would always show. */
