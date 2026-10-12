@@ -110,6 +110,8 @@ const articleData = article && {
       Sets data-theme and the `js` class before first paint. In <head>, not
       beside the switch: an inline script in the header lets it paint half-built.
       Blocked storage throws; the empty catch falls back to the system theme.
+      A page restored from the back-forward cache takes the stored choice again:
+      another page may have changed it.
       The timer marks a deck whose script never started, so slides.css shows it whole.
     */}
     <script
@@ -125,16 +127,22 @@ const articleData = article && {
           .querySelector('[data-deck]:not([data-deck-ready])')
           ?.setAttribute('data-deck-failed', '');
       }, deckTimeout);
-      let saved = null;
-      try {
-        saved = localStorage.getItem(key);
-      } catch {}
-      document.documentElement.dataset.theme =
-        saved === 'light' ||
-        (saved !== 'dark' &&
-          matchMedia('(prefers-color-scheme: light)').matches)
-          ? 'light'
-          : 'dark';
+      const applyTheme = () => {
+        let saved = null;
+        try {
+          saved = localStorage.getItem(key);
+        } catch {}
+        document.documentElement.dataset.theme =
+          saved === 'light' ||
+          (saved !== 'dark' &&
+            matchMedia('(prefers-color-scheme: light)').matches)
+            ? 'light'
+            : 'dark';
+      };
+      applyTheme();
+      addEventListener('pageshow', (event) => {
+        if (event.persisted) applyTheme();
+      });
     </script>
     <title>{documentTitle}</title>
     <meta name="description" content={description} />

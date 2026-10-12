@@ -5,25 +5,10 @@ type Theme = 'light' | 'dark';
 
 const root = document.documentElement;
 
-const currentTheme = (): Theme =>
-  root.dataset.theme === 'light' ? 'light' : 'dark';
+const isLight = (): boolean => root.dataset.theme === 'light';
 
 const reflect = (button: HTMLButtonElement): void => {
-  button.setAttribute('aria-pressed', String(currentTheme() === 'light'));
-};
-
-/* The same rule as BaseLayout.astro's head script: a stored choice, else the system theme. */
-const storedTheme = (): Theme => {
-  let saved: string | null = null;
-  try {
-    saved = localStorage.getItem(THEME_STORAGE_KEY);
-  } catch {
-    /* Storage is unavailable; the system theme decides. */
-  }
-  return saved === 'light' ||
-    (saved !== 'dark' && matchMedia('(prefers-color-scheme: light)').matches)
-    ? 'light'
-    : 'dark';
+  button.setAttribute('aria-pressed', String(isLight()));
 };
 
 const remember = (theme: Theme): void => {
@@ -40,7 +25,7 @@ const buttons = [
 ];
 
 const toggle = (): void => {
-  const next: Theme = currentTheme() === 'light' ? 'dark' : 'light';
+  const next: Theme = isLight() ? 'dark' : 'light';
   root.dataset.theme = next;
   buttons.forEach(reflect);
   remember(next);
@@ -51,9 +36,5 @@ for (const button of buttons) {
   button.addEventListener('click', toggle);
 }
 
-/* A page restored from the back-forward cache kept the theme it left with; another page may have changed the choice. */
-window.addEventListener('pageshow', (event) => {
-  if (!event.persisted) return;
-  root.dataset.theme = storedTheme();
-  buttons.forEach(reflect);
-});
+/* BaseLayout.astro's listener, added first, has re-applied the stored theme by now. */
+addEventListener('pageshow', () => buttons.forEach(reflect));
