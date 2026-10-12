@@ -20,6 +20,7 @@ import { presenter } from './src/presenter/integration.mjs';
 import { SITE_CONFIG } from './src/site.config.ts';
 import { BUILD_ENV, BUILD_ENV_NAMES } from './src/lib/build-env.ts';
 import { noindex } from './scripts/noindex.mjs';
+import { placeholderSite } from './scripts/placeholder-site.mjs';
 import {
   isAdvertised,
   lastmodFor,
@@ -88,6 +89,7 @@ export default defineConfig({
    * carry the slash instead: tests/seo.spec.ts.
    */
   integrations: [
+    placeholderSite(SITE_CONFIG.site.url),
     recordFingerprint(),
     licenses(),
     presenter(),

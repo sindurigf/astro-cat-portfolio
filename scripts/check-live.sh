@@ -19,6 +19,7 @@
 #
 # Usage: sh scripts/check-live.sh [origin]   (default: src/site.config.ts `site.url`)
 # Exit:  0 production matches, 1 it does not, 2 the check could not run.
+#        `site.url` on an RFC 2606 example host is 2: nothing deployed matches it.
 
 set -eu
 
@@ -58,6 +59,11 @@ case "$SITE" in
   https://?*) ;;
   *) die "no https \`site.url\` found in $CONFIG" ;;
 esac
+
+# A placeholder origin is someone else's site: nothing deployed can match it.
+PLACEHOLDER=$(node --input-type=module -e "const { placeholderSiteNotice } = await import('./src/lib/example-host.ts'); console.log(placeholderSiteNotice(process.argv[1]) ?? '')" "$SITE") ||
+  die "src/lib/example-host.ts did not load"
+[ -z "$PLACEHOLDER" ] || die "$PLACEHOLDER"
 
 TARGET=${1:-$SITE}
 TARGET=${TARGET%/}
