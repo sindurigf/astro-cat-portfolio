@@ -12,7 +12,6 @@ import { delimiter, join } from 'node:path';
 import { expect, test } from './test';
 import { NODE } from './tags';
 import { placeholderSiteNotice } from '../src/lib/example-host';
-import { statementRow } from '../src/lib/statement-rows';
 import { placeholderSite } from '../scripts/placeholder-site.mjs';
 
 /* SEO: a site deployed with the shipped `site.url` is canonical to another domain on every page. */
@@ -34,11 +33,6 @@ const warningsFor = (siteUrl: string): string[] => {
   return warnings;
 };
 
-const STATEMENT_REPOSITORY = statementRow(
-  readFileSync('ACCESSIBILITY.md', 'utf8'),
-  'Public reporting',
-).replace(/\/issues$/, '');
-
 /** Runs the live check with a `curl` that records each call and reaches nothing. */
 const runLiveCheck = (
   siteUrl: string,
@@ -55,8 +49,6 @@ const runLiveCheck = (
         ...process.env,
         PATH: `${bin}${delimiter}${process.env['PATH'] ?? ''}`,
         SITE_URL: siteUrl,
-        /* The statement's own repository, so tests/statement-guard.spec.ts's rule stays out of the way. */
-        REPOSITORY_URL: STATEMENT_REPOSITORY,
         CHECK_LIVE_SKIP_D1: '1',
       },
     });
@@ -106,8 +98,11 @@ test.describe('a placeholder site.url', NODE, () => {
     const { stderr, requests } = runLiveCheck('https://notexample.com');
 
     expect(stderr).not.toContain('placeholder');
-    expect(requests, 'the check never reached its first request.').toContain(
-      'https://notexample.com',
-    );
+    /* Past this guard: at its first request, or at the next guard (tests/statement-guard.spec.ts). */
+    expect(
+      requests.includes('https://notexample.com') ||
+        stderr.includes('ACCESSIBILITY.md'),
+      'the check stopped before its first request.',
+    ).toBe(true);
   });
 });

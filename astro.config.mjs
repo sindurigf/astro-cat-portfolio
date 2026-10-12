@@ -19,7 +19,7 @@ import { licenses } from './scripts/licenses.mjs';
 import { presenter } from './src/presenter/integration.mjs';
 import { SITE_CONFIG } from './src/site.config.ts';
 import { BUILD_ENV, BUILD_ENV_NAMES } from './src/lib/build-env.ts';
-import { staleStatementWarning } from './scripts/stale-statement.mjs';
+import { staleStatementGuard } from './scripts/stale-statement.mjs';
 import { noindex } from './scripts/noindex.mjs';
 import { placeholderSite } from './scripts/placeholder-site.mjs';
 import {
@@ -94,7 +94,7 @@ export default defineConfig({
     recordFingerprint(),
     licenses(),
     presenter(),
-    staleStatementWarning(SITE_CONFIG.site.url, SITE_CONFIG.site.repository),
+    staleStatementGuard(SITE_CONFIG.site.url, SITE_CONFIG.site.repository),
     /* Every component uses <script setup>. */
     vue({ features: { optionsAPI: false } }),
     /*
