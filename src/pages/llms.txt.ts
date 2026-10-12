@@ -2,7 +2,11 @@ import type { APIRoute } from 'astro';
 import { requireSite } from '../lib/site';
 import { getCollection } from 'astro:content';
 import { sortByNewest, type BlogPost } from '../lib/blog';
-import { CONTACT_EMAIL, CONTACT_FORM_ON } from '../lib/contact';
+import {
+  CONTACT_EMAIL,
+  CONTACT_EMAIL_RESOLVES,
+  CONTACT_FORM_ON,
+} from '../lib/contact';
 import {
   ABOUT_PATH,
   BLOG_PATH,
@@ -69,7 +73,9 @@ const noteLines = (
   `- Contact: ${CONTACT_EMAIL}`,
   ...(BUILD_ENV.noindex ? [] : [`- Full URL list: ${absolute(SITEMAP_PATH)}`]),
   `- RSS feed: ${absolute(SITE_FEED_PATH)}`,
-  `- Security contact: ${absolute('/.well-known/security.txt')}`,
+  ...(CONTACT_EMAIL_RESOLVES
+    ? [`- Security contact: ${absolute('/.well-known/security.txt')}`]
+    : []),
   ...(posts.some((post) => post.data.placeholder)
     ? [
         `- Posts marked ${PLACEHOLDER_MARK} are unfinished drafts whose title, ` +
