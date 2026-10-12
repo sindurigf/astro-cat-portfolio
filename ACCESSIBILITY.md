@@ -24,7 +24,9 @@ The statement is voluntary for a personal site and follows the
 `src/lib/accessibility-facts.ts` reads the Target standard, Conformance status,
 Last reviewed and both reporting rows into `/accessibility` at build time and
 throws if a row is missing. `tests/accessibility-page.spec.ts` asserts the
-status is still "Target only. No claim that the site meets it."
+status is still "Target only. No claim that the site meets it." While the
+Public reporting URL or the repository is on an example host, the page leaves
+out its link.
 
 ## 2. Commitment
 
