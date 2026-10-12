@@ -104,8 +104,9 @@ view (development server only, never published), and forks.
   than its box, and no text or control sits past either edge. Below 320px
   (1000px and 1280px windows at 500% zoom), every line of text stays on
   screen and no route scrolls sideways at 200px or 256px (SC 1.4.8). On a
-  short window (320x256, 667x375) the photo viewer draws each photo no smaller
-  than its thumbnail and scrolls to its buttons (`tests/photo-viewer.spec.ts`).
+  short window (320x256, 667x375, 683x384) the photo viewer draws each photo
+  no smaller than its thumbnail, whole in a window of 20rem or taller, and
+  scrolls to its buttons (`tests/photo-viewer.spec.ts`).
 - **Text resize.** Headings reach 2x at 200% zoom; other text reaches 2x by
   page zoom in Chromium and Firefox ([Text resize](#text-resize-sc-144)).
 - **Target size.** A 44px square centered on every target outside a sentence
