@@ -981,7 +981,8 @@ No rule or divider joins the footer to the page.
 
 - Links are `.label`: Site in `text` (14.42), About this site in `subtle`
   (8.62), cyan on hover (11.20). Each row is 44px tall (`--spacing-target`).
-  No current-page state.
+- The current page has `aria-current` and the 2px text-link underline; hover
+  changes color only, so the two never look alike.
 - Stickers: `--size-sticker` 48px (`--size-sticker-lg` 56px from 64rem),
   `--border-width-sticker` 4px `border` edge, 3deg tilt, 4px pink shadow with
   `lift-control`. They straighten on hover and focus.
@@ -1035,6 +1036,8 @@ Enforced by `tests/nav-current.spec.ts`, `tests/mobile-menu.spec.ts`,
 - `ariaCurrent` in `src/lib/nav.ts` decides the value.
 - Inactive items keep a `border-transparent` 4px edge so nothing reflows.
 - A current chip is the same flat `bg-text` block, no shadow.
+- Forced colors drop the fill, shadow and marker, so a current nav link, call
+  to action and chip take a 4px underline there (`tests/forced-colors.spec.ts`).
 
 ### The menu
 

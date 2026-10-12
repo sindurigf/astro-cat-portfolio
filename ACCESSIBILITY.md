@@ -126,8 +126,9 @@ view (development server only, never published), and forks.
   400% zoom ([STYLEGUIDE The menu](docs/STYLEGUIDE.md#the-menu)).
 - **No JavaScript.** A fallback navigation replaces the mobile menu, sits
   below the header and never duplicates the primary nav.
-- **Current page.** `aria-current` in all three navigations, plus a shape
-  change, never color alone.
+- **Current page.** `aria-current` in every navigation, plus a shape change,
+  never color alone: a filled block in the header, menu and no-JavaScript
+  navigations, an underline in the footer.
 - **Headings and titles.** One `h1`, no skipped level, nothing under 19px.
   Every `<title>` is distinct, and every one but the homepage's names the
   page before the site.
@@ -238,7 +239,7 @@ merge.
 | `tests/focus-obscured.spec.ts`      | 2.4.12                                             | Every stop in the open cat card, photo viewer and menu, and each About cat control, wholly uncovered                                                                                                                                                                                                 |
 | `tests/sticky-header.spec.ts`       | 2.4.11                                             | Header static under 30rem; no focused control under it                                                                                                                                                                                                                                               |
 | `tests/states.spec.ts`              | 1.4.1, 1.4.11                                      | Hover drawn; current page is a shape; chip rings clear neighbors                                                                                                                                                                                                                                     |
-| `tests/nav-current.spec.ts`         | 1.3.1, 4.1.2                                       | `aria-current` in all three navs                                                                                                                                                                                                                                                                     |
+| `tests/nav-current.spec.ts`         | 1.3.1, 4.1.2                                       | `aria-current` in every nav                                                                                                                                                                                                                                                                          |
 | `tests/link-purpose.spec.ts`        | 2.4.9                                              | One link name, one destination, on every route; hidden text keeps the visible words first                                                                                                                                                                                                            |
 | `tests/unusual-words.spec.ts`       | 3.1.3                                              | Each listed term a `<dfn>` at first use, defined in its sentence; every `<dfn>` listed; replaced jargon stays out; `/404` links its idioms                                                                                                                                                           |
 | `tests/abbreviations.spec.ts`       | 3.1.4, 1.4.13                                      | First use of each listed abbreviation described by its expansion, which opens without JavaScript; focus and tap show it, Escape and a second tap hide it, the pointer can cross onto it, it opens with no gap to cross and inside 320px; no unlisted abbreviation on functional pages; no "min read" |
