@@ -54,8 +54,8 @@ npm run build && npx wrangler deploy --dry-run
   repository variable `CHECK_LIVE` to `1`.
 - After a change to the hero or to what a page loads, run Lighthouse (mobile)
   on the home page and the changed page. `tests/performance.spec.ts` covers
-  script bytes and layout shift; load time depends on the runner, so CI does
-  not test it.
+  script and CSS bytes and layout shift; load time depends on the runner, so CI
+  does not test it.
 
 ## Run a demo
 

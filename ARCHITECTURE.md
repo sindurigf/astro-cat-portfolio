@@ -655,9 +655,9 @@ evidence.
   cannot stop a flood spread over many addresses, but the worst case is a
   temporary 503 when D1's writes run out; nothing stored is lost or exposed.
 - **Run Lighthouse in CI:** timing scores vary on shared runners.
-  `tests/performance.spec.ts` gates script bytes and layout shift, the image
-  and head specs gate formats, priority and font preload; Lighthouse runs by
-  hand after a deploy ([DEPLOYMENT.md](docs/DEPLOYMENT.md)).
+  `tests/performance.spec.ts` gates script and CSS bytes and layout shift, the
+  image and head specs gate formats, priority and font preload; Lighthouse runs
+  by hand after a deploy ([DEPLOYMENT.md](docs/DEPLOYMENT.md)).
 - **Add ESLint, or `checkJs` for the `.mjs` scripts:** the strictest tsconfig,
   `astro check` at hint level, `vue-tsc`, Prettier and the `check:*` scripts
   cover what a linter would. `checkJs` reports untyped code (implicit `any`,

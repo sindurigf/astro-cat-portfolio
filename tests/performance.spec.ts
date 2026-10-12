@@ -1,6 +1,9 @@
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { expect, test, type Page } from './test';
 import { gotoSettled } from './settle';
-import { ROUTES } from './routes';
+import { builtHtml, DIST_DIR, ROUTES } from './routes';
+import { NODE } from './tags';
 
 /*
  * Only measures that are machine-independent: load time depends on the runner,
@@ -14,6 +17,22 @@ const ROUTE_SCRIPT_BUDGETS: Readonly<Record<string, number>> = {
   '/brand': 7_400,
 };
 const PAGE_SCRIPT_BUDGET = 14_000;
+
+/* Decoded bytes of the stylesheets a page links plus its inline `<style>`. Every route links the one sheet. */
+const PAGE_STYLE_BUDGET = 104_000;
+
+const STYLESHEET_HREF = /<link\b[^>]*\brel="stylesheet"[^>]*\bhref="([^"]+)"/g;
+const INLINE_STYLE = /<style\b[^>]*>([\s\S]*?)<\/style>/g;
+
+const styleBytes = (html: string): number => {
+  const linked = [...html.matchAll(STYLESHEET_HREF)].map(
+    ([, href]) => readFileSync(join(DIST_DIR, href ?? '')).length,
+  );
+  const inline = [...html.matchAll(INLINE_STYLE)].map(([, css]) =>
+    Buffer.byteLength(css ?? ''),
+  );
+  return [...linked, ...inline].reduce((sum, bytes) => sum + bytes, 0);
+};
 
 const scriptsFetched = async (
   page: Page,
@@ -62,6 +81,26 @@ const LAYOUT_SHIFT = `
   window.__shiftObserver = new PerformanceObserver((list) => window.__handleShifts(list.getEntries()));
   window.__shiftObserver.observe({ type: 'layout-shift', buffered: true });
 `;
+
+test.describe('style weight', NODE, () => {
+  test('no page ships more CSS than its budget', () => {
+    const pages = [...builtHtml()].map(([route, html]) => ({
+      route,
+      bytes: styleBytes(html),
+    }));
+    expect(pages.length, 'no built page was measured').toBeGreaterThan(0);
+    expect(
+      pages.every((page) => page.bytes > 0),
+      'a page links no stylesheet the build wrote, so its CSS went unmeasured.',
+    ).toBe(true);
+    expect(
+      pages
+        .filter((page) => page.bytes > PAGE_STYLE_BUDGET)
+        .map((page) => `${page.route} ${page.bytes}`),
+      `these pages ship more than ${PAGE_STYLE_BUDGET} bytes of CSS.`,
+    ).toEqual([]);
+  });
+});
 
 test.describe('page weight and stability', () => {
   test.skip(
