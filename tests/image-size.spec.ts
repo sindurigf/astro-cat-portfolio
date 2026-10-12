@@ -16,6 +16,7 @@ const OVERSIZE_LIMIT = 1.5;
 const ROUNDING_PX = 1;
 
 /** Routes that draw no `<img>`, each with why; any other route must draw one, so the check cannot pass on nothing. */
+// TODO(fork): your deck's route, or remove the entry once your deck draws an image.
 const NO_IMAGE_ROUTES: Readonly<Record<string, string>> = {
   '/talks/sample-talk':
     'the sample deck is text slides; the logo is a vector image, which the size check skips',

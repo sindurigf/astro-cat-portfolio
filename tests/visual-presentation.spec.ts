@@ -19,6 +19,7 @@ const NEW_LINE_SHARE = 0.5;
 const WIDTHS = [390, 1280, 1920] as const;
 const VIEWPORT_HEIGHT = 900;
 /* Routes with no block of two sentences and no paragraph pair, and why. */
+// TODO(fork): your deck's route, here and in EXEMPT_FROM below.
 const NOTHING_TO_MEASURE: Readonly<Record<string, string>> = {
   '/talks/sample-talk':
     'one slide of headings, one-sentence bullets or a lone one-sentence paragraph',
