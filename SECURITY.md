@@ -1,5 +1,7 @@
 # Security
 
+<!-- TODO(fork): turn on private vulnerability reporting and check the email address below. -->
+
 Replace the two contacts below with your own before publishing.
 
 Report a vulnerability privately, not in a public issue:

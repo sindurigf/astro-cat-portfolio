@@ -1,5 +1,7 @@
 # AI disclosure
 
+<!-- TODO(fork): rewrite this record for your site: the tools, the text and the art. -->
+
 How AI tooling was used to build this template, and how to keep the record
 current once the site is yours.
 

@@ -28,6 +28,7 @@ interface Category {
   readonly teaser: string;
 }
 
+// TODO(fork): your own teaser for each category.
 export const CATEGORIES = {
   skincare: {
     accent: ACCENTS.ink,

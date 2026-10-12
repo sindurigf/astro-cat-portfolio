@@ -82,25 +82,34 @@ export interface SiteConfig {
 
 const config: SiteConfig = {
   site: {
+    // TODO(fork): your site's name and its short form.
     name: 'example.com',
     shortName: 'example',
+    // TODO(fork): your site's origin; the build warns and check:live stops while it is an example host.
     url: 'https://example.com',
     locale: 'en-US',
+    // TODO(fork): the year your site first went live.
     firstPublished: 2026,
+    // TODO(fork): your one or two tagline lines.
     tagline: [
       'Archaeologist of the Straw Hats',
       'Reading the stones history forgot',
     ],
+    // TODO(fork): your repository's URL.
     repository: 'https://github.example/robin-ohara/example-site',
+    // TODO(fork): your motto and its language tag.
     motto: { text: 'Lege Saxa', lang: 'la' },
   },
   person: {
+    // TODO(fork): your name, job title and email address.
     givenName: 'Robin',
     familyName: 'Ohara',
     jobTitle: 'Archaeologist',
     email: 'hello@example.com',
+    // TODO(fork): the file name of your CV in public/, or keep null.
     cv: null,
   },
+  // TODO(fork): your profiles; each label needs an icon in src/assets/social-icons.svg.
   profiles: [
     { label: 'GitHub', href: 'https://github.example/robin-ohara' },
     { label: 'LinkedIn', href: 'https://linkedin.example/in/robin-ohara' },
@@ -108,14 +117,19 @@ const config: SiteConfig = {
     { label: 'Bluesky', href: 'https://bluesky.example/profile/robin-ohara' },
     { label: 'Mastodon', href: 'https://mastodon.example/@robin-ohara' },
   ],
+  // TODO(fork): your Umami website id, or keep null for no tracker.
   analytics: null,
+  // TODO(fork): your Bing Webmaster Tools code, or keep null.
   bingSiteVerification: null,
+  // TODO(fork): the slug of your own post, or null.
   journeyPost: 'sample-post',
   contact: {
     form: 'cloudflare-d1',
+    // TODO(fork): your sender address, the same as allowed_sender_addresses in wrangler.jsonc.
     notificationSender: 'contact-form@example.com',
   },
   accessibility: {
+    // TODO(fork): the number of days you answer a barrier report within.
     responseDays: 7,
   },
 };

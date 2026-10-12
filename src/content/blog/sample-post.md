@@ -1,4 +1,5 @@
 ---
+# TODO(fork): replace this sample post, its cover and its alt text with your own.
 title: 'Field Notes: What Ohara Taught Me'
 date: 2026-09-13
 category: 'professional-journey'

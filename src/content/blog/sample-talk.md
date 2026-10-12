@@ -1,4 +1,5 @@
 ---
+# TODO(fork): replace this sample post with your own.
 title: 'Reading the Stones: What Old Records Teach Open Projects'
 date: 2026-07-10
 category: 'open-source'
