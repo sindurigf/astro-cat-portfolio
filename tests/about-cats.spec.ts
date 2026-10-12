@@ -813,36 +813,80 @@ const drawnIn = (
     [`cat-spot-${id}`, windowMs] as const,
   );
 
-/** Animation frames in which one cat's drawing changed over a window. */
-const framesDrawnIn = (page: Page, id: (typeof CATS)[number], ms: number) =>
-  page.evaluate(
-    ([spotId, windowMs]) =>
-      new Promise<number>((resolve) => {
-        const drawing = document
-          .getElementById(String(spotId))
-          ?.querySelector('.cat-svg');
-        const observer = new MutationObserver(() => {});
-        if (drawing)
-          observer.observe(drawing, {
-            attributes: true,
-            childList: true,
-            subtree: true,
-          });
-        let frames = 0;
-        const request = window.requestAnimationFrame.bind(window);
-        window.requestAnimationFrame = (callback) =>
-          request((now) => {
-            callback(now);
-            if (observer.takeRecords().length > 0) frames += 1;
-          });
-        setTimeout(() => {
-          observer.disconnect();
-          window.requestAnimationFrame = request;
-          resolve(frames);
-        }, Number(windowMs));
+/* Page time the clock jumps on pausing; `pauseAt` refuses a time already past. */
+const PAUSE_LEAD_MS = 1000;
+/**
+ * Stops the page's clock (installed before the page loads), so time passes only in
+ * `page.clock.runFor`: a frame every 16 ms of page time, whatever the machine's speed.
+ */
+const pauseClock = async (page: Page) =>
+  page.clock.pauseAt((await page.evaluate(() => Date.now())) + PAUSE_LEAD_MS);
+
+/** Changes to one cat's drawing over `ms` of page time on a paused clock. */
+const drawnOver = async (
+  page: Page,
+  id: (typeof CATS)[number],
+  ms = MUTATION_WINDOW_MS,
+) => {
+  const watch = await page.evaluateHandle((spotId) => {
+    const drawing = document.getElementById(spotId)?.querySelector('.cat-svg');
+    if (!drawing) throw new Error(`#${spotId} has no .cat-svg to watch.`);
+    const seen = {
+      count: 0,
+      observer: new MutationObserver((records) => {
+        seen.count += records.length;
       }),
-    [`cat-spot-${id}`, ms] as const,
-  );
+    };
+    seen.observer.observe(drawing, {
+      attributes: true,
+      childList: true,
+      subtree: true,
+    });
+    return seen;
+  }, `cat-spot-${id}`);
+  await page.clock.runFor(ms);
+  return watch.evaluate((seen) => {
+    seen.observer.disconnect();
+    return seen.count + seen.observer.takeRecords().length;
+  });
+};
+
+/** Animation frames in which one cat's drawing changed over `ms` of page time on a paused clock. */
+const framesDrawnOver = async (
+  page: Page,
+  id: (typeof CATS)[number],
+  ms: number,
+) => {
+  const watch = await page.evaluateHandle((spotId) => {
+    const drawing = document.getElementById(spotId)?.querySelector('.cat-svg');
+    if (!drawing) throw new Error(`#${spotId} has no .cat-svg to watch.`);
+    const observer = new MutationObserver(() => {});
+    observer.observe(drawing, {
+      attributes: true,
+      childList: true,
+      subtree: true,
+    });
+    const request = window.requestAnimationFrame.bind(window);
+    const seen = {
+      frames: 0,
+      stop: () => {
+        observer.disconnect();
+        window.requestAnimationFrame = request;
+      },
+    };
+    window.requestAnimationFrame = (callback) =>
+      request((now) => {
+        callback(now);
+        if (observer.takeRecords().length > 0) seen.frames += 1;
+      });
+    return seen;
+  }, `cat-spot-${id}`);
+  await page.clock.runFor(ms);
+  return watch.evaluate((seen) => {
+    seen.stop();
+    return seen.frames;
+  });
+};
 
 /** A resting cat is drawn at most this often, in frames a second: the quick idle rate, well below the animation frame rate. */
 const IDLE_MAX_FPS = 25;
@@ -1912,37 +1956,30 @@ test.describe('About cats', () => {
   test('a held cat, a sleeping cat and every cat under reduced motion are not redrawn (SC 2.2.2, 2.3.3)', async ({
     browser,
   }) => {
-    /* Up to about 25 s of waits by design (pointer idle, two settles, three windows), before page loads. */
-    test.slow();
     const context = await browser.newContext({ viewport: PEPPER_AND_MOCHI });
     const page = await context.newPage();
+    /* Running 14 s of page time is work for the browser, on top of two page loads. */
+    test.slow();
+    /* The 5 s are page time, run on the page's clock: a starved browser draws too few frames to judge them by the wall clock. */
+    await page.clock.install();
     await gotoSettled(page, ROUTE);
     await pointAt(page, 'pepper');
-    /* A held cat relaxes its head once the pointer has been idle for POINTER_IDLE_MS; settling before that is not the end. */
-    await page.waitForTimeout(POINTER_IDLE_MS);
-    /* The relax starts on the colony's next frame, not on a timer: let two frames run so it has begun before quiet is measured. */
-    /* If the loop is parked on its wake timer (other cats resting), that frame can come later; the quiet window covers it. */
-    await page.evaluate(
-      () =>
-        new Promise((resolve) =>
-          requestAnimationFrame(() => requestAnimationFrame(resolve)),
-        ),
-    );
+    await pauseClock(page);
+    /* A held cat relaxes its head once the pointer has been idle for POINTER_IDLE_MS. */
+    await page.clock.runFor(POINTER_IDLE_MS + SC_2_2_2_MS);
     expect(
-      await settles(page, 'pepper', SC_2_2_2_MS),
-      'a held cat was still moving 5 s after the pointer went idle',
-    ).toBe(true);
-    expect(
-      await drawnIn(page, 'pepper'),
-      'a held cat that has settled was redrawn',
+      await drawnOver(page, 'pepper'),
+      'a held cat was still redrawn 5 s after the pointer went idle',
     ).toBe(0);
+    await page.clock.resume();
     await napControl(page, 'mochi').click();
     await expectMood(page, 'mochi', 'asleep', 'Mochi did not fall asleep');
+    await pauseClock(page);
+    await page.clock.runFor(SC_2_2_2_MS);
     expect(
-      await settles(page, 'mochi', SC_2_2_2_MS + SLEEP_MARGIN_MS),
-      'a sleeping cat was still moving 5 s after lying down (SC 2.2.2)',
-    ).toBe(true);
-    expect(await drawnIn(page, 'mochi'), 'a sleeping cat was redrawn').toBe(0);
+      await drawnOver(page, 'mochi'),
+      'a sleeping cat was still redrawn 5 s after lying down (SC 2.2.2)',
+    ).toBe(0);
     await context.close();
 
     const still = await browser.newContext({
@@ -1971,18 +2008,24 @@ test.describe('About cats', () => {
       Math.random = () => 0.99;
     });
     const page = await context.newPage();
+    /* The window is page time, run on the page's clock: a starved browser draws too few frames in a wall-clock one. */
+    await page.clock.install();
     await gotoSettled(page, ROUTE);
     const id = 'biscuit';
     await showCat(page, id);
     await tricksButton(page, id).click();
-    await tricksList(page, id)
-      .getByRole('button', { name: tricksData.tricks.look.label })
-      .click();
+    const look = tricksList(page, id).getByRole('button', {
+      name: tricksData.tricks.look.label,
+    });
+    await expect(look).toBeVisible();
+    await pauseClock(page);
+    /* Dispatched, not clicked: a click waits on animation frames, and the paused clock runs none. */
+    await look.dispatchEvent('click');
     /* Look Around, a turn to face its way first, then a pause: the window sits inside the pause. */
     const AFTER_LOOK_MS = duration(MOVES.look()) + 2200;
-    await page.waitForTimeout(AFTER_LOOK_MS);
+    await page.clock.runFor(AFTER_LOOK_MS);
     const WINDOW_MS = 1200;
-    const frames = await framesDrawnIn(page, id, WINDOW_MS);
+    const frames = await framesDrawnOver(page, id, WINDOW_MS);
     expect(
       frames,
       'a resting cat was never drawn, so it was not idling',
