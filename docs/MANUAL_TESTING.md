@@ -322,14 +322,14 @@ Heard: `________________________`
 Setup: Firefox, 1280px, `/about`, JavaScript on. Re-derive the counts from the
 build after any change to `/about`.
 
-- [ ] `Alt+Shift+M` lists 13 landmarks: banner, navigation "Primary", main,
-      navigation "On this page", five regions (one per `SECTIONS` entry in
-      `src/pages/about.astro`),
+- [ ] `Alt+Shift+M` lists 14 landmarks: banner, navigation "Primary", main,
+      navigation "On this page", six regions (one per `SECTIONS` entry in
+      `src/pages/about.astro`, plus Sources while the sample persona is set),
       contentinfo, navigation "Site", "About this site", "Social". None
       unnamed or duplicated. Judge whether the list is useful or crowded. → SC 1.3.1
 - [ ] `M` from the top steps through them in that order. → SC 1.3.1
-- [ ] `Alt+Shift+H` lists six headings: `h1` "About Me", then one `h2` per
-      spread. The "On this page" nav lists all five spreads. → SC 1.3.1, 2.4.6
+- [ ] `Alt+Shift+H` lists seven headings: `h1` "About Me", then one `h2` per
+      spread. The "On this page" nav lists all six spreads. → SC 1.3.1, 2.4.6
 - [ ] `G` skips the header logo mark; the home link is `site.name`. → SC 1.1.1
 - [ ] `G` finds no footer mascot. → SC 1.1.1
 - [ ] `K` to About: announced as the current page. → SC 4.1.2
@@ -370,7 +370,7 @@ Setup: Firefox, 1280px, `/blog/sample-talk` (25 headings:
       Every `h3` has an `h2` above it. → SC 1.3.1, 2.4.6
 - [ ] `H` from the top walks the same headings, each with its level. → SC 1.3.1
 - [ ] `Alt+Shift+M` lists ten landmarks: banner, navigation "Primary", main,
-      navigation "Breadcrumb", "In this post", "Tags", contentinfo, "Site",
+      navigation "Breadcrumb", "In This Post", "Tags", contentinfo, "Site",
       "About this site", "Social". No `article` or inner `header`. → SC 1.3.1
 - [ ] From main, `Down` reads breadcrumb, `h1`, teaser, date, body. → SC 1.3.2
 - [ ] The breadcrumb is Home, Blog, Open Source. In `Alt+Shift+K`, judge
@@ -448,13 +448,13 @@ described by its expansion (`src/components/Abbr.astro`).
 - [ ] Escape: the box closes and focus stays on the button. → SC 1.4.13
 - [ ] On a phone, tap "IPv6": the box opens; tap again: it closes. → SC 3.1.4
 
-#### 6.12.2 The "In this post" disclosure
+#### 6.12.2 The "In This Post" disclosure
 
 Setup: `/blog/sample-talk` at 1280px (open), then below 1280px
 (closed). `<nav aria-labelledby>` around `<details>`; the `+`/`−` marker is
 `aria-hidden`.
 
-- [ ] The landmark is named "In this post". → SC 1.3.1
+- [ ] The landmark is named "In This Post". → SC 1.3.1
 - [ ] The summary announces a state (collapsed or expanded). → SC 4.1.2
 - [ ] No "plus", "minus" or stray character in the name. → SC 4.1.2
 - [ ] Enter: state flips; an ordered list of 12 items. → SC 1.3.1
@@ -607,7 +607,7 @@ header or nav layout change.
 - [ ] Header nav links are 40.8px tall and equal height, current or not; each
       `.hit-target` area is 44px tall.
 - [ ] Mobile menu button and theme switch 48x48, 44x44 below 21rem (336px).
-- [ ] Footer profile tiles 56x56, 48x48 on a phone; footer page links 44px
+- [ ] Footer profile tiles 56x56 from 64rem, 48x48 below; footer page links 44px
       rows.
 - [ ] Breadcrumb links above a post `h1` keep a 44px pointer area, and wrapped
       rows do not overlap it.

@@ -28,7 +28,7 @@ AI-drawn art, all by Claude:
 - The sharing image, `public/images/og-default.png`, drawn by
   `scripts/make-og.mjs` with the logo cat.
 
-Every page's footer says "Cat drawings and text made with AI" and links this
+Every page's footer says "Cat Drawings and Text Made with AI" and links this
 file (`tests/ai-label.spec.ts` checks every route). The art is also listed
 under Made with AI at the end of `/credits/`.
 

@@ -19,7 +19,7 @@
 Delete this section if the PR touches no markup or CSS.
 
 - [ ] New interactive elements are native, with a visible focus indicator.
-- [ ] New targets are at least 24x24 CSS px (SC 2.5.8).
+- [ ] New targets outside a sentence are at least 44x44 CSS px (SC 2.5.5).
 - [ ] New colors are tokens from `src/styles/global.css`.
 
 ## Content
