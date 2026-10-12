@@ -20,6 +20,8 @@
 # Usage: sh scripts/check-live.sh [origin]   (default: src/site.config.ts `site.url`)
 # Exit:  0 production matches, 1 it does not, 2 the check could not run.
 #        `site.url` on an RFC 2606 example host is 2: nothing deployed matches it.
+#        A real `site.url` whose ACCESSIBILITY.md still names the template's
+#        maintainer is 2: its barrier reports would go to her.
 
 set -eu
 
@@ -64,6 +66,11 @@ esac
 PLACEHOLDER=$(node --input-type=module -e "const { placeholderSiteNotice } = await import('./src/lib/example-host.ts'); console.log(placeholderSiteNotice(process.argv[1]) ?? '')" "$SITE") ||
   die "src/lib/example-host.ts did not load"
 [ -z "$PLACEHOLDER" ] || die "$PLACEHOLDER"
+
+# A real site that still publishes the template maintainer's reporting routes.
+STALE_STATEMENT=$(node --input-type=module -e "const { SITE_CONFIG } = await import('./$CONFIG'); const { staleStatement } = await import('./scripts/stale-statement.mjs'); console.log(staleStatement(SITE_CONFIG.site.url, SITE_CONFIG.site.repository) ?? '')") ||
+  die "scripts/stale-statement.mjs did not load"
+[ -z "$STALE_STATEMENT" ] || die "$STALE_STATEMENT"
 
 TARGET=${1:-$SITE}
 TARGET=${TARGET%/}

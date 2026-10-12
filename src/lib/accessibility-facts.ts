@@ -1,4 +1,5 @@
 import source from '../../ACCESSIBILITY.md?raw';
+import { statementRow } from './statement-rows';
 
 /*
  * The volatile facts on /accessibility, read from the ACCESSIBILITY.md §1
@@ -6,25 +7,7 @@ import source from '../../ACCESSIBILITY.md?raw';
  * statement nobody checked.
  */
 
-/** One `| Field | Value |` row, without bold markers or autolink brackets. */
-const tableValue = (field: string): string => {
-  const escaped = field.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const match = new RegExp(`^\\|\\s*${escaped}\\s*\\|([^|]+)\\|`, 'm').exec(
-    source,
-  );
-
-  if (!match) {
-    throw new Error(
-      `ACCESSIBILITY.md has no "${field}" row in its section 1 table; ` +
-        'restore it or update src/lib/accessibility-facts.ts.',
-    );
-  }
-
-  return match[1]
-    .trim()
-    .replace(/\*\*/g, '')
-    .replace(/^<(.*)>$/, '$1');
-};
+const tableValue = (field: string): string => statementRow(source, field);
 
 export const accessibilityFacts = {
   targetStandard: tableValue('Target standard'),
