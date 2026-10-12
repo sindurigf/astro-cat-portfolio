@@ -128,3 +128,78 @@ for (const [label, viewport] of Object.entries(VIEWPORTS) as [
     });
   });
 }
+
+/** Leaves the trick list no room under its band, so it is placed over the band. */
+const PAW_ABOVE_VIEWPORT_END = 110;
+
+for (const [label, viewport] of Object.entries(VIEWPORTS) as [
+  Width,
+  (typeof VIEWPORTS)[Width],
+][]) {
+  test.describe(`an About cat's open trick list, ${label} (SC 2.4.12)`, () => {
+    test.use({ viewport });
+
+    const openWithNoRoomBelow = async (page: Page, index: number) => {
+      const paw = page.locator('.cat-tricks-button').nth(index);
+      await paw.evaluate((button: HTMLElement, gap) => {
+        window.scrollBy({
+          top: button.getBoundingClientRect().bottom - (innerHeight - gap),
+          behavior: 'instant',
+        });
+      }, PAW_ABOVE_VIEWPORT_END);
+      /* The list closes on a scroll: let this one be reported first. */
+      await settleFocusScroll(page);
+      await paw.evaluate((button: HTMLElement) =>
+        button.focus({ preventScroll: true }),
+      );
+      await page.keyboard.press('Enter');
+      await expect(
+        page.locator('.cat-tricks:popover-open .cat-trick').first(),
+      ).toBeFocused();
+    };
+
+    test('no stop reached from the open list is covered by it, in either direction', async ({
+      page,
+    }) => {
+      await gotoSettled(page, '/about');
+      const paws = page.locator('.cat-tricks-button');
+      const count = await paws.count();
+      expect(count, '/about shows no trick list to open').toBeGreaterThan(0);
+      const open = page.locator('.cat-tricks:popover-open');
+
+      const stops = [];
+      for (let i = 0; i < count; i += 1) {
+        await page.keyboard.press('Shift');
+        await openWithNoRoomBelow(page, i);
+        await page.keyboard.press('Shift+Tab');
+        await expect(paws.nth(i)).toBeFocused();
+        stops.push(await readObscured(page));
+        for (const control of ['.cat-nap', '.cat-button']) {
+          await page.keyboard.press('Shift+Tab');
+          await expect(page.locator(control).nth(i)).toBeFocused();
+          await expect(
+            open,
+            `the list stayed open with focus on ${control}`,
+          ).toHaveCount(0);
+          await settleFocusScroll(page);
+          stops.push(await readObscured(page));
+        }
+
+        await openWithNoRoomBelow(page, i);
+        const rows = await open.locator('.cat-trick').count();
+        for (let row = 0; row < rows; row += 1)
+          await page.keyboard.press('Tab');
+        await expect(
+          open,
+          'the list stayed open after Tab left its last trick',
+        ).toHaveCount(0);
+        await settleFocusScroll(page);
+        stops.push(await readObscured(page));
+      }
+      expect(
+        obscuredReport(stops),
+        `a control focused from an open trick list is partly covered at ${label} width`,
+      ).toEqual([]);
+    });
+  });
+}
