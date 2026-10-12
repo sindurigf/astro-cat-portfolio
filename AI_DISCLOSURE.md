@@ -16,7 +16,7 @@ current once the site is yours.
 
 AI-drawn art, all by Claude:
 
-- The animated About cats and their trick icons (`src/lib/about-cats-tricks.json`).
+- The animated About cats, their sleep, wake and trick-list icons (`src/components/ui/AboutCats.vue`) and their trick icons (`src/lib/about-cats-tricks.json`).
 - The poneglyph and its lighting script in the homepage field
   (`src/lib/hero-field-poneglyph.ts`).
 - The logo cat, a calico head shaped like the logo tile (`src/lib/brand-mark.ts`),
