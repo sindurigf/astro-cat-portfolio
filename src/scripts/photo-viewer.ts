@@ -172,11 +172,12 @@ const setUpStrips = (): void => {
     if (!strip) continue;
     const direction = Number(button.dataset.stripScroll);
     /* Scroll snap holds the last photo at the snap line, which can be short of the last pixels. */
+    let snapPadding = 0;
     const lastSnapped = (): boolean =>
       (strip.lastElementChild?.getBoundingClientRect().left ?? Infinity) <=
       strip.getBoundingClientRect().left +
         strip.clientLeft +
-        parseFloat(getComputedStyle(strip).scrollPaddingInlineStart) +
+        snapPadding +
         SCROLL_ROUNDING_PX;
     const atEdge = (): boolean =>
       direction < 0
@@ -193,6 +194,9 @@ const setUpStrips = (): void => {
     /* A strip that fits has nothing to scroll, so its arrows leave the tab order. */
     const fit = (): void => {
       const hide = !reflectFit(strip);
+      /* `auto` parses to NaN: the snap line is then the strip's own edge. */
+      snapPadding =
+        parseFloat(getComputedStyle(strip).scrollPaddingInlineStart) || 0;
       if (hide && document.activeElement === button) strip.focus();
       button.hidden = hide;
       update();
