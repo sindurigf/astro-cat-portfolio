@@ -207,7 +207,7 @@ const onTricksToggle = (id: CatId, event: Event): void => {
  */
 const onTricksFocusOut = (): void => {
   setTimeout(() => {
-    if (!document.activeElement?.matches('.cat-trick, .cat-tricks-button'))
+    if (!document.activeElement?.closest('.cat-tricks, .cat-tricks-button'))
       closeTricks();
   });
 };

@@ -1563,6 +1563,40 @@ test.describe('About cats', () => {
     );
   });
 
+  test("a click on the list's own edge or its loading note leaves it open", async ({
+    page,
+  }) => {
+    const id = 'pepper';
+    let release!: () => void;
+    const held = new Promise<void>((resolve) => (release = resolve));
+    await page.route('**/about-cats-tricks*.json', async (route) => {
+      await held;
+      await route.fulfill({ json: tricksData });
+    });
+    await gotoSettled(page, ROUTE);
+    await showCat(page, id);
+    await tricksButton(page, id).click();
+    const list = tricksList(page, id);
+    /* Past the timer that closes a list focus has left. */
+    const settled = () =>
+      page.evaluate(() => new Promise((done) => setTimeout(done, 50)));
+
+    await list.getByRole('status').click();
+    await settled();
+    await expect(
+      list,
+      'a click on the loading note closed the list',
+    ).toBeVisible();
+
+    release();
+    await expect(list.getByRole('button').first()).toBeVisible();
+    /* `position` counts from the padding box, where the first trick is. */
+    const box = (await list.boundingBox())!;
+    await page.mouse.click(box.x + 1, box.y + 1);
+    await settled();
+    await expect(list, "a click on the list's border closed it").toBeVisible();
+  });
+
   test('a picked trick plays, and a sleeping cat gets up for it', async ({
     page,
   }) => {
