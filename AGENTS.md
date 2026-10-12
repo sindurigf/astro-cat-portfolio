@@ -127,7 +127,8 @@ Rules:
 - No banners, no numbered essays in docblocks, no TODO comments.
 - One exception: a fork marker, a one-line comment written exactly
   `TODO(fork): what to change`, where whoever forks the template must change
-  or decide something. `npm run check:fork` fails on any other TODO comment.
+  or decide something. `npm run check:fork` fails on any other TODO comment
+  in code and config.
 - Tests: the test name says what is asserted. Assertion messages state the
   failure in one sentence.
 

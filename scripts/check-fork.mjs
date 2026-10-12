@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 /*
  * Lists every fork marker in tracked files as file:line, with the count, and
- * fails on a TODO comment in any other form (AGENTS.md "Comments").
+ * fails on a TODO comment in any other form in code and config (AGENTS.md
+ * "Comments"). Markdown and a post's body may say TODO.
  *
  *   node scripts/check-fork.mjs [--strict]   (--strict fails while a marker remains)
  */
@@ -29,6 +30,26 @@ const FORK_MARKER = new RegExp(
 
 const BINARY = /\.(?:png|jpe?g|webp|ico|pdf|woff2?|webm|mp4|gif|avif)$/i;
 const SKIPPED = new Set(['package-lock.json']);
+const MARKDOWN = /\.mdx?$/;
+const CONTENT_DIR = 'src/content/';
+
+/* A post's body is the writer's: a code sample or a heading there may say TODO. */
+const frontmatter = (text) => /^---\n[\s\S]*?\n---\n/.exec(text)?.[0] ?? '';
+
+/**
+ * The TODO comments of one file. Content files are read in their frontmatter
+ * only; Markdown counts markers and holds no other form to account.
+ */
+export const todoCommentsIn = (file, text) => {
+  const scanned = file.startsWith(CONTENT_DIR) ? frontmatter(text) : text;
+  const proseOnly = MARKDOWN.test(file);
+  return scanned.split('\n').flatMap((line, index) => {
+    if (!TODO_COMMENT.test(line)) return [];
+    const malformed = !FORK_MARKER.test(line);
+    if (malformed && proseOnly) return [];
+    return [{ file, line: index + 1, text: line.trim(), malformed }];
+  });
+};
 
 const trackedTextFiles = () =>
   execFileSync('git', ['ls-files', '-z'], { encoding: 'utf8' })
@@ -38,20 +59,7 @@ const trackedTextFiles = () =>
 /** Every TODO comment in tracked text files: fork markers, and anything else as `malformed`. */
 export const todoComments = () =>
   trackedTextFiles().flatMap((file) =>
-    readFileSync(file, 'utf8')
-      .split('\n')
-      .flatMap((text, index) =>
-        TODO_COMMENT.test(text)
-          ? [
-              {
-                file,
-                line: index + 1,
-                text: text.trim(),
-                malformed: !FORK_MARKER.test(text),
-              },
-            ]
-          : [],
-      ),
+    todoCommentsIn(file, readFileSync(file, 'utf8')),
   );
 
 const main = () => {
