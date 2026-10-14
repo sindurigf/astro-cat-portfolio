@@ -109,7 +109,8 @@ const FOCUS_PROBE = `
 const FOCUS_RING = `
     /*
      * SC 1.4.11: the ring sits in the offset gap, so it is measured against the
-     * ground behind the control, not its fill (gold on gold is 1.00:1).
+     * ground behind the control, not its fill (gold on gold is 1.00:1), nor an
+     * ancestor it overhangs, such as the hero pause control above the window.
      */
     const ringContrast = (el, style) => {
       let ringRatio = null;
@@ -117,6 +118,7 @@ const FOCUS_RING = `
       const offset = parseFloat(style.outlineOffset) || 0;
       const ground = compositeBackground(
         offset > 0 ? el.parentElement || el : el,
+        el.getBoundingClientRect(),
       );
       const ring = parse(style.outlineColor);
       if (ground && ring) {

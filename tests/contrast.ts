@@ -48,21 +48,22 @@ export const PAGE_HELPERS = `
     a: 1,
   });
 
+  const paintsUnder = (node, box) => {
+    const host = node.getBoundingClientRect();
+    const edge = getComputedStyle(node);
+    const left = host.left + parseFloat(edge.borderLeftWidth);
+    const right = host.right - parseFloat(edge.borderRightWidth);
+    const top = host.top + parseFloat(edge.borderTopWidth);
+    const bottom = host.bottom - parseFloat(edge.borderBottomWidth);
+    return box.right > left && box.left < right && box.bottom > top && box.top < bottom;
+  };
+
   // Nearest opaque background, or null for an image, gradient or translucent layer.
   // Skips an ancestor whose padding box the element misses: an overhanging
   // positioned child is not on its fill.
   const effectiveBackground = (element) => {
     const box = element instanceof Element ? element.getBoundingClientRect() : null;
-    const paintedInside = (node) => {
-      if (!box || node === element) return true;
-      const host = node.getBoundingClientRect();
-      const edge = getComputedStyle(node);
-      const left = host.left + parseFloat(edge.borderLeftWidth);
-      const right = host.right - parseFloat(edge.borderRightWidth);
-      const top = host.top + parseFloat(edge.borderTopWidth);
-      const bottom = host.bottom - parseFloat(edge.borderBottomWidth);
-      return box.right > left && box.left < right && box.bottom > top && box.top < bottom;
-    };
+    const paintedInside = (node) => !box || node === element || paintsUnder(node, box);
     for (let node = element; node instanceof Element; node = node.parentElement) {
       const style = getComputedStyle(node);
       if (style.backgroundImage !== 'none') return null;
@@ -77,9 +78,11 @@ export const PAGE_HELPERS = `
   };
 
   // Composites translucent backgrounds onto the first opaque one. Null for images.
-  const compositeBackground = (element) => {
+  // With \`box\`, skips an ancestor whose padding box misses it, as effectiveBackground does.
+  const compositeBackground = (element, box = null) => {
     const layers = [];
     for (let node = element; node instanceof Element; node = node.parentElement) {
+      if (box && !paintsUnder(node, box)) continue;
       const style = getComputedStyle(node);
       if (style.backgroundImage !== 'none') return null;
       const color = parse(style.backgroundColor);
