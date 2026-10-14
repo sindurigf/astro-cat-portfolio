@@ -5,7 +5,8 @@ import { DIST_DIR } from './routes';
 import { configuredSite } from './source';
 import { NODE } from './tags';
 import { DAY_MS } from '../src/lib/time';
-import { CONTACT_EMAIL } from '../src/lib/contact';
+import { CONTACT_EMAIL, CONTACT_EMAIL_RESOLVES } from '../src/lib/contact';
+import { GET } from '../src/pages/.well-known/[file]';
 
 /**
  * /.well-known/security.txt, per https://www.rfc-editor.org/rfc/rfc9116.
@@ -27,13 +28,12 @@ const lessThanAYearAfter = (now: Date, expires: Date): boolean => {
   return expires.getTime() < yearLater.getTime();
 };
 
-const securityTxt = (): string => {
-  expect(
-    existsSync(SECURITY_TXT),
-    `${SECURITY_TXT} was not built by src/pages/.well-known/security.txt.ts.`,
-  ).toBe(true);
-
-  return readFileSync(SECURITY_TXT, 'utf8');
+/** What the endpoint writes. Not read from dist/: no file is built while `person.email` is a placeholder. */
+const securityTxt = async (): Promise<string> => {
+  const response = await GET({
+    site: new URL(configuredSite()),
+  } as Parameters<typeof GET>[0]);
+  return response.text();
 };
 
 const contactEmail = (): string => CONTACT_EMAIL;
@@ -45,8 +45,21 @@ const field = (source: string, name: string): string | null => {
 };
 
 test.describe('security.txt', NODE, () => {
-  test('declares the two fields RFC 9116 requires', () => {
-    const source = securityTxt();
+  test('is published exactly when the contact address can receive mail', async () => {
+    expect(
+      existsSync(SECURITY_TXT),
+      CONTACT_EMAIL_RESOLVES
+        ? `${SECURITY_TXT} was not built by src/pages/.well-known/[file].ts.`
+        : `${SECURITY_TXT} publishes ${CONTACT_EMAIL}, a placeholder no mail reaches (RFC 9116 section 2.5.3).`,
+    ).toBe(CONTACT_EMAIL_RESOLVES);
+
+    if (CONTACT_EMAIL_RESOLVES) {
+      expect(readFileSync(SECURITY_TXT, 'utf8')).toBe(await securityTxt());
+    }
+  });
+
+  test('declares the two fields RFC 9116 requires', async () => {
+    const source = await securityTxt();
 
     expect(
       field(source, 'Contact'),
@@ -59,8 +72,8 @@ test.describe('security.txt', NODE, () => {
     ).not.toBeNull();
   });
 
-  test('the contact is the address the site publishes', () => {
-    const declared = field(securityTxt(), 'Contact');
+  test('the contact is the address the site publishes', async () => {
+    const declared = field(await securityTxt(), 'Contact');
     const email = contactEmail();
 
     // RFC 9116 wants a `mailto:` URI, not a bare address.
@@ -82,8 +95,8 @@ test.describe('security.txt', NODE, () => {
     ).toContain(email);
   });
 
-  test('the published commitment has not lapsed', () => {
-    const declared = field(securityTxt(), 'Expires')!;
+  test('the published commitment has not lapsed', async () => {
+    const declared = field(await securityTxt(), 'Expires')!;
     const expires = new Date(declared);
 
     expect(
@@ -101,8 +114,8 @@ test.describe('security.txt', NODE, () => {
     ).toBeGreaterThan(EXPIRY_WARNING_DAYS);
   });
 
-  test('the commitment is less than a year out, as RFC 9116 recommends', () => {
-    const declared = field(securityTxt(), 'Expires')!;
+  test('the commitment is less than a year out, as RFC 9116 recommends', async () => {
+    const declared = field(await securityTxt(), 'Expires')!;
 
     expect(
       lessThanAYearAfter(new Date(), new Date(declared)),
@@ -121,8 +134,8 @@ test.describe('security.txt', NODE, () => {
     );
   });
 
-  test('the canonical URL is absolute and ours', () => {
-    const declared = field(securityTxt(), 'Canonical');
+  test('the canonical URL is absolute and ours', async () => {
+    const declared = field(await securityTxt(), 'Canonical');
     expect(declared, 'security.txt declares no Canonical').not.toBeNull();
 
     const site = configuredSite();

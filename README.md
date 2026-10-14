@@ -26,6 +26,9 @@ page. Tested for WCAG 2.2 AA in Chromium, Firefox and WebKit.
    `null`, which removes her notice from `/credits` and the homepage. Update
    [SECURITY.md](SECURITY.md), [ACCESSIBILITY.md](ACCESSIBILITY.md) and
    [AI_DISCLOSURE.md](AI_DISCLOSURE.md) to describe your site.
+   ACCESSIBILITY.md section 1 names the template's maintainer as owner and
+   reporting contact; replace those three rows, or your visitors' barrier
+   reports go to her. A build for a real `site.url` fails until you do.
    Replace the logo and icons with [Replace the logo](docs/DEVELOPMENT.md#replace-the-logo);
    [Where the copy lives](docs/DEVELOPMENT.md#where-the-copy-lives) lists the
    page files.
