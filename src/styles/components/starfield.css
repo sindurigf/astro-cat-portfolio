@@ -3,6 +3,8 @@
  * tiles whose sizes repeat in turn down the layer list. Still, so SC 2.2.2 does
  * not apply. `.star-clear` paints the slab's ground behind the text.
  */
+@reference '../global.css';
+
 @layer components {
   .plain-slab-stars {
     position: absolute;

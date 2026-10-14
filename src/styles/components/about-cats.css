@@ -1,3 +1,5 @@
+@reference '../global.css';
+
 @layer components {
   /*
    * The About cats (AboutCats.vue). A perch reserves a cat's band above its

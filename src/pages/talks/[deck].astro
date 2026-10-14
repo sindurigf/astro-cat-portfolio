@@ -5,6 +5,7 @@ import type { GetStaticPaths, InferGetStaticPropsType } from 'astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import TalkSlide from '../../components/TalkSlide.astro';
 import DeckBar from '../../components/DeckBar.astro';
+import '../../styles/components/slides.css';
 import { talkDecks } from '../../lib/talk-deck';
 import { getSortedPosts } from '../../lib/blog';
 import { postHref } from '../../lib/paths';

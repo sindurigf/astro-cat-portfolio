@@ -1,3 +1,5 @@
+@reference '../global.css';
+
 @layer components {
   /*
    * Talk slideshow, src/pages/talks/[deck].astro. Every slide shows without
