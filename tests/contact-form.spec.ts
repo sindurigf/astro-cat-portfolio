@@ -5,6 +5,7 @@ import {
   validateSubmission,
   type FieldName,
 } from '../src/lib/contact-form';
+import { builtHtml } from './routes';
 import { NODE } from './tags';
 
 const form = (fields: Partial<Record<FieldName, string>>): FormData => {
@@ -131,3 +132,18 @@ test('counts an emoji as one character', NODE, () => {
     'body',
   ]);
 });
+
+test(
+  'no contact field cuts input at a maxlength, so the server can name each limit',
+  NODE,
+  () => {
+    const page = builtHtml().get('/contact') ?? '';
+    expect(page, 'the built /contact page has no contact form').toContain(
+      'data-contact-form',
+    );
+    expect(
+      page.match(/<(?:input|textarea)\b[^>]*\bmaxlength\b[^>]*>/g) ?? [],
+      'a field with maxlength drops pasted text past its limit without saying so (SC 3.3.1).',
+    ).toEqual([]);
+  },
+);

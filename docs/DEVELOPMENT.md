@@ -255,7 +255,6 @@ slideshow cannot render, naming file, slide and line (`src/lib/slides.ts`).
 - A slide's last HTML comment is its speaker note, never published
   ([presenter view](../ARCHITECTURE.md#talks)). Any other comment fails the
   build.
-- Add a new deck's route to `TALK_ROUTES` in `tests/routes.ts`.
 
 ### Publishing the PDF
 

@@ -140,6 +140,10 @@ export const useHeroField = (): HeroFieldState => {
 
   const onReducedMotion = (reduced: boolean): void => {
     if (!reduced) return;
+    /* The pause control goes on the next render; focus on it moves to <main> rather than being dropped (SC 2.4.3). */
+    if (host.value?.querySelector('.hero-motion-toggle:focus')) {
+      host.value.closest<HTMLElement>('main')?.focus();
+    }
     elapsed = STILL_SECONDS;
     relayout();
   };

@@ -19,6 +19,7 @@
 #
 # Usage: sh scripts/check-live.sh [origin]   (default: src/site.config.ts `site.url`)
 # Exit:  0 production matches, 1 it does not, 2 the check could not run.
+#        `site.url` on an RFC 2606 example host is 2: nothing deployed matches it.
 
 set -eu
 
@@ -28,8 +29,13 @@ CONFIG=src/site.config.ts
 HEADERS_FILE=public/_headers
 
 BLOG_DIR=src/content/blog
+PUBLIC_DIR=public
 # Only the Markdown copy of a post matches this public/_headers rule.
 POST_MARKDOWN_PATTERN='/blog/*.md'
+# Only a published PDF matches this one; a site may ship none. The paths are
+# word-split in the loop, so a PDF's file name must hold no space.
+PDF_PATTERN='/*.pdf'
+PDFS=$(cd "$PUBLIC_DIR" && find . -name '*.pdf' | sed 's|^\.||')
 UNKNOWN_PATH=/check-live-no-such-page/
 TIMEOUT_SECONDS=20
 
@@ -58,6 +64,11 @@ case "$SITE" in
   https://?*) ;;
   *) die "no https \`site.url\` found in $CONFIG" ;;
 esac
+
+# A placeholder origin is someone else's site: nothing deployed can match it.
+PLACEHOLDER=$(node --input-type=module -e "const { placeholderSiteNotice } = await import('./src/lib/example-host.ts'); console.log(placeholderSiteNotice(process.argv[1]) ?? '')" "$SITE") ||
+  die "src/lib/example-host.ts did not load"
+[ -z "$PLACEHOLDER" ] || die "$PLACEHOLDER"
 
 TARGET=${1:-$SITE}
 TARGET=${TARGET%/}
@@ -450,11 +461,15 @@ fi
 # checks the local side.
 check_response /speculationrules.json 200
 
-# Rule 7 for the favicons and feeds, and rule 1 for the Markdown copy's noindex.
+# Rule 7 for the favicons and feeds, and rule 1 for the noindex on the
+# Markdown copy and every published PDF.
 check_response /favicon.ico 200
 check_response /favicon.svg 200
 check_response /rss.xml 200
 [ -z "$POST_PATH" ] || check_response "${POST_PATH%/}.md" 200
+for pdf in $PDFS; do
+  check_response "$pdf" 200
+done
 
 check_response "$UNKNOWN_PATH" 404
 
@@ -504,6 +519,8 @@ while IFS= read -r pattern; do
   if [ -z "$covered" ] && [ -z "$POST_PATH" ] &&
     [ "$pattern" = "$POST_MARKDOWN_PATTERN" ]; then
     printf 'skip  %s\n' "$pattern: $NO_POST"
+  elif [ -z "$covered" ] && [ -z "$PDFS" ] && [ "$pattern" = "$PDF_PATTERN" ]; then
+    printf 'skip  %s\n' "$pattern: no PDF in $PUBLIC_DIR"
   elif [ -z "$covered" ]; then
     fail "$pattern" "no request in this script matches this rule in $HEADERS_FILE, so its headers are never compared; add one"
   fi

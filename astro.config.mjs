@@ -20,6 +20,7 @@ import { presenter } from './src/presenter/integration.mjs';
 import { SITE_CONFIG } from './src/site.config.ts';
 import { BUILD_ENV, BUILD_ENV_NAMES } from './src/lib/build-env.ts';
 import { noindex } from './scripts/noindex.mjs';
+import { placeholderSite } from './scripts/placeholder-site.mjs';
 import {
   isAdvertised,
   lastmodFor,
@@ -88,6 +89,7 @@ export default defineConfig({
    * carry the slash instead: tests/seo.spec.ts.
    */
   integrations: [
+    placeholderSite(SITE_CONFIG.site.url),
     recordFingerprint(),
     licenses(),
     presenter(),
@@ -130,11 +132,14 @@ export default defineConfig({
        * https://github.com/withastro/astro/blob/%40astrojs/cloudflare%4014.3.3/packages/integrations/cloudflare/src/index.ts#L668
        */
       client: { build: { rolldownOptions: { output: { banner: '' } } } },
+      /* The on-demand bundle; src/lib/person-image.ts reads it. */
+      ssr: { define: { __PRERENDERED__: 'false' } },
     },
     plugins: [tailwindcss()],
     define: {
       __VIDEO_SIZES__: JSON.stringify(videoSizes),
       __THEME_COLOR__: JSON.stringify(themeColor),
+      __PRERENDERED__: 'true',
       /* src/lib/build-env.ts reads these; the Worker has no `process`. */
       ...Object.fromEntries(
         BUILD_ENV_NAMES.map((name) => [

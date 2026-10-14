@@ -5,6 +5,7 @@ import { NON_TEXT, PAGE_HELPERS } from './contrast';
 import { gotoSettled } from './settle';
 import { ROUTES, SAMPLED_ROUTES } from './routes';
 import { AXE_TIMEOUT_MS, FOCUSABLE_SELECTOR, REFLOW_VIEWPORT } from './wcag';
+import { THEME_STORAGE_KEY } from '../src/lib/theme';
 
 const SWITCH_NAME = 'Light Mode';
 /** More than the header's stops before the switch, so a missing switch fails. */
@@ -249,7 +250,10 @@ test.describe('the switch', () => {
 
   test('a stored choice beats the device', async ({ browser }) => {
     const context = await browser.newContext({ colorScheme: 'light' });
-    await context.addInitScript(() => localStorage.setItem('theme', 'dark'));
+    await context.addInitScript(
+      (key) => localStorage.setItem(key, 'dark'),
+      THEME_STORAGE_KEY,
+    );
     const page = await context.newPage();
 
     await gotoSettled(page, '/about');
@@ -258,6 +262,27 @@ test.describe('the switch', () => {
     ).toHaveAttribute('aria-pressed', 'false');
     expect(await mainIsLight(page)).toBe(false);
     await context.close();
+  });
+
+  test('a page restored from the back-forward cache takes the stored choice', async ({
+    page,
+  }) => {
+    await gotoSettled(page, '/about');
+    const toggle = page.getByRole('button', { name: SWITCH_NAME });
+    await expect(toggle).toHaveAttribute('aria-pressed', 'false');
+
+    /* As if another page changed the choice while this one sat in the cache. */
+    await page.evaluate((key) => {
+      localStorage.setItem(key, 'light');
+      window.dispatchEvent(
+        new PageTransitionEvent('pageshow', { persisted: true }),
+      );
+    }, THEME_STORAGE_KEY);
+    await expect(
+      toggle,
+      'the restored page kept the theme it was cached with.',
+    ).toHaveAttribute('aria-pressed', 'true');
+    expect(await mainIsLight(page)).toBe(true);
   });
 
   test('the keyboard reaches the tile, and Space presses it', async ({
