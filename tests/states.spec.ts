@@ -101,6 +101,69 @@ for (const scheme of ['dark', 'light'] as const) {
   });
 }
 
+/** What marks a link without color: its underline, outline and edge. */
+const shapeOf = (link: Locator): Promise<string> =>
+  link.evaluate((el) => {
+    const s = getComputedStyle(el);
+    return [
+      s.textDecorationLine,
+      s.outlineStyle,
+      s.borderBottomStyle,
+      s.fontWeight,
+    ].join(' ');
+  });
+
+const FOOTER_CURRENT = [
+  ['/privacy', 'About this site'],
+  ['/about', 'Site'],
+] as const;
+
+for (const scheme of ['dark', 'light'] as const) {
+  test.describe(`the footer's current page, ${scheme}`, () => {
+    test.use({ colorScheme: scheme });
+    for (const [route, name] of FOOTER_CURRENT) {
+      test(`${route} is marked in "${name}" by more than color, and hover and focus do not copy the mark (SC 1.4.1)`, async ({
+        page,
+      }) => {
+        await page.setViewportSize(DESKTOP_VIEWPORT);
+        await gotoSettled(page, route);
+        const nav = page
+          .getByRole('contentinfo')
+          .getByRole('navigation', { name, exact: true });
+        const current = nav.locator('a[aria-current="page"]');
+        await expect(current, `no current link in "${name}"`).toHaveCount(1);
+        const rest = nav.locator('a:not([aria-current])').first();
+        const currentShape = await shapeOf(current);
+        const restShape = await shapeOf(rest);
+        expect(
+          currentShape,
+          'the current link has the shape of any other',
+        ).not.toBe(restShape);
+
+        await rest.hover();
+        expect(
+          await shapeOf(rest),
+          'a hovered link takes the current mark',
+        ).not.toBe(currentShape);
+
+        await current.focus();
+        await page.keyboard.press('Tab');
+        const focused = nav.locator('a:focus');
+        await expect(
+          focused,
+          'Tab left the navigation or landed on the current link',
+        ).not.toHaveAttribute('aria-current');
+        const focusedShape = await shapeOf(focused);
+        expect(focusedShape, 'focus draws nothing').not.toBe(restShape);
+        expect(
+          focusedShape,
+          'a focused link looks like the current one',
+        ).not.toBe(currentShape);
+      });
+    }
+  });
+}
+
 // The dialog stays dark in light mode, so one scheme covers it.
 test('hover is drawn and readable on a mobile menu link', async ({ page }) => {
   await page.setViewportSize(PHONE_VIEWPORT);

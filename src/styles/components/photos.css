@@ -40,7 +40,12 @@
   }
 
   .photo-viewer-figure img {
-    @apply h-auto max-h-full w-auto max-w-full object-contain short:max-h-none;
+    @apply h-auto max-h-full w-auto max-w-full object-contain;
+
+    /* Whole in the window, but never under a strip thumbnail (PhotoTile.astro NATURAL_HEIGHT). */
+    @variant short {
+      max-height: max(100svh, --spacing(80));
+    }
   }
 
   /*

@@ -6,6 +6,7 @@ import { waitForHydration } from './settle';
 import { collectViolations } from './policy-server';
 import { REFLOW_VIEWPORT } from './wcag';
 import { ASSET_CACHE_CONTROL, usePolicyServer } from './headers-fixture';
+import { LD_JSON } from './html';
 
 /** Browser behavior under the served headers; tests/headers-rules.spec.ts checks the rules. */
 
@@ -18,7 +19,11 @@ const ASSET_TIMEOUT_MS = 10_000;
  * candidate; transitive imports are left out.
  */
 const declaredAssets = (): string[][] => {
-  const html = readFileSync(join(DIST_DIR, 'index.html'), 'utf8');
+  /* Without the JSON-LD block: it names the Person's image, which no browser fetches. */
+  const html = readFileSync(join(DIST_DIR, 'index.html'), 'utf8').replace(
+    LD_JSON,
+    '',
+  );
   const paths = (text: string): string[] => [
     ...new Set(
       [...text.matchAll(/\/_astro\/[A-Za-z0-9._-]+/g)].map((m) => m[0]),

@@ -108,7 +108,8 @@ const TRICKS_MIN_HEIGHT = 176;
 
 /* Names and icons are data, fetched after load, so /about's script carries none of them. */
 const tricks = shallowRef<TricksData | null>(null);
-const tricksNote = ref('Loading tricks.');
+const LOADING_NOTE = 'Loading tricks.';
+const tricksNote = ref(LOADING_NOTE);
 
 /* A list that finished loading while its popover was open and focus had not left the paw: `autofocus` only runs on open. */
 const focusFirstTrickIfOnPaw = (): void => {
@@ -120,6 +121,7 @@ const focusFirstTrickIfOnPaw = (): void => {
 
 const loadTricks = (): void => {
   if (tricks.value) return;
+  tricksNote.value = LOADING_NOTE;
   fetch(tricksUrl)
     .then((response) =>
       response.ok ? response.json() : Promise.reject(response.status),
@@ -142,14 +144,30 @@ const closeTricks = (): void =>
     .querySelectorAll<HTMLElement>('.cat-tricks:popover-open')
     .forEach((list) => list.hidePopover());
 
+/** The open list's paw and where it stood when the list opened. */
+let openPaw: Element | null | undefined;
+let openPawTop = 0;
+
+/*
+ * A viewport-fixed list would stay behind a scrolled page; its own scrolling
+ * does not bubble here. A scroll that leaves the paw in place is the one that
+ * brought a just-focused paw into view, reported a frame after the list opened.
+ */
+const closeTricksScrolledAway = (): void => {
+  if (openPaw?.getBoundingClientRect().top !== openPawTop) closeTricks();
+};
+
 const onTricksToggle = (id: CatId, event: Event): void => {
   const open = (event as ToggleEvent).newState === 'open';
-  const method = open ? 'addEventListener' : 'removeEventListener';
-  /* A viewport-fixed list would stay behind a scrolled page; its own scrolling does not bubble here. */
-  window[method]('scroll', closeTricks);
   const spot = document.getElementById(`cat-spot-${id}`);
   const paw = spot?.querySelector('.cat-tricks-button');
   paw?.setAttribute('aria-expanded', String(open));
+  /* Another list opening reports here before this one closing. */
+  if (open) openPaw = paw;
+  else if (openPaw === paw) openPaw = null;
+  openPawTop = openPaw?.getBoundingClientRect().top ?? 0;
+  const method = openPaw ? 'addEventListener' : 'removeEventListener';
+  window[method]('scroll', closeTricksScrolledAway);
   const list = document.getElementById(`cat-tricks-${id}`);
   if (!open || !colony || !spot || !paw || !list) return;
   loadTricks();
@@ -165,16 +183,33 @@ const onTricksToggle = (id: CatId, event: Event): void => {
     TRICKS_MARGIN,
     window.innerHeight - TRICKS_MIN_HEIGHT - TRICKS_MARGIN,
   );
+  const pawBox = paw.getBoundingClientRect();
+  /* Moved up onto its paw and sleep control, it would cover them focused (SC 2.4.12): it goes beside them. */
+  const right =
+    top < pawBox.bottom + TRICKS_MARGIN
+      ? pawBox.left - TRICKS_MARGIN
+      : pawBox.right;
   /* CSSOM custom properties: the CSP refuses style attributes, not these. */
   list.style.setProperty(
     '--tricks-right',
-    `${document.documentElement.clientWidth - paw.getBoundingClientRect().right}px`,
+    `${document.documentElement.clientWidth - right}px`,
   );
   list.style.setProperty('--tricks-top', `${top}px`);
   list.style.setProperty(
     '--tricks-max',
     `${window.innerHeight - top - TRICKS_MARGIN}px`,
   );
+};
+
+/*
+ * An open list would cover the control focus moved on to (SC 2.4.12). After
+ * the move: hidePopover() on a list that still holds focus sends it back.
+ */
+const onTricksFocusOut = (): void => {
+  setTimeout(() => {
+    if (!document.activeElement?.closest('.cat-tricks, .cat-tricks-button'))
+      closeTricks();
+  });
 };
 
 const pickTrick = (id: CatId, name: PlayMove | 'random'): void => {
@@ -501,14 +536,10 @@ onBeforeUnmount(() => {
           aria-hidden="true"
           focusable="false"
         >
-          <circle class="cat-nap-solid" cx="6" cy="10" r="2" />
-          <circle class="cat-nap-solid" cx="10" cy="6" r="2" />
-          <circle class="cat-nap-solid" cx="14" cy="6" r="2" />
-          <circle class="cat-nap-solid" cx="18" cy="10" r="2" />
           <path
-            class="cat-nap-solid"
-            d="M12 11c3 0 5.5 3.3 5.5 6 0 2-1.7 3-3.2 2.5-1-.3-1.5-.8-2.3-.8s-1.3.5-2.3.8C8.2 20 6.5 19 6.5 17c0-2.7 2.5-6 5.5-6z"
+            d="M2.5 12c2.6-4.4 5.8-6.6 9.5-6.6s6.9 2.2 9.5 6.6c-2.6 4.4-5.8 6.6-9.5 6.6s-6.9-2.2-9.5-6.6z"
           />
+          <circle class="cat-nap-solid" cx="12" cy="12" r="3" />
         </svg>
         <svg
           v-else
@@ -528,8 +559,14 @@ onBeforeUnmount(() => {
           class="cat-tricks-button"
           aria-expanded="false"
           v-bind="{ popovertarget: `cat-tricks-${cat.id}` }"
+          @focusout="onTricksFocusOut"
         >
-          <svg class="cat-trick-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <svg
+            class="cat-trick-icon"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+            focusable="false"
+          >
             <ellipse cx="12" cy="16" rx="5" ry="4" />
             <circle cx="5" cy="10" r="2" />
             <circle cx="9.5" cy="5.5" r="2" />
@@ -541,8 +578,10 @@ onBeforeUnmount(() => {
         <div
           :id="`cat-tricks-${cat.id}`"
           popover
+          tabindex="-1"
           class="cat-tricks"
           @beforetoggle="onTricksToggle(cat.id, $event)"
+          @focusout="onTricksFocusOut"
         >
           <ul v-if="tricks" class="cat-trick-list">
             <li
@@ -559,6 +598,7 @@ onBeforeUnmount(() => {
                   class="cat-trick-icon"
                   viewBox="0 0 24 24"
                   aria-hidden="true"
+                  focusable="false"
                 >
                   <path
                     v-for="(shape, i) in tricks.icons[tricks.tricks[name].icon]"

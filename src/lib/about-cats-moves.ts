@@ -84,22 +84,20 @@ const LOAF = derive(BASE, {
 });
 
 const POSES = {
-  /* Up tall on the hind legs after something overhead, the paws held out clear of the head. */
-  tall: derive(BASE, {
-    ba: 84,
-    by: 31,
-    haunch: 6,
-    fN: [27, -22],
-    fF: [20, -8],
-    hN: [0, 31],
-    hF: [3, 31],
-    hl: 1.6,
-    fl: 1.5,
-    hx: -1,
-    hy: -14,
-    hr: -24,
-    ta: 150,
-    tc: -6,
+  /* Sat back low on the haunches, leaning in, to reach for something overhead: a cat rears with its hind feet flat, not standing tall. */
+  low: derive(BASE, {
+    ba: 56,
+    by: 23,
+    haunch: 13,
+    fN: [13, -8],
+    fF: [10, -4],
+    hN: [5, 23],
+    hF: [8, 23],
+    hx: -2,
+    hy: -13,
+    hr: -15,
+    ta: 188,
+    tc: 3,
   }),
   stand: BASE,
   sit: SIT,
@@ -536,15 +534,15 @@ const FLY_ESCAPES = 8600;
 /** Reared up where the second pounce lands, both paws swipe at the fly overhead. */
 const FLY_SWIPE = step(
   160,
-  'rear',
-  { x: 108, fN: [26, -24], fF: [23, -19] },
+  'low',
+  { x: 108, fN: [28, -28], fF: [25, -23] },
   'out',
 );
 /** A swat starts with the paw raised high, curled at the wrist, and comes down onto its target. */
 const WINDUP_MS = 180;
 /** Raised ahead of the face, the head drawn back: a gap keeps the paw a shape of its own on a black coat. */
 const SWAT_RAISED: Pair = [36, -17];
-const REAR_RAISED: Pair = [31, -20];
+const REAR_RAISED: Pair = [33, -24];
 const SWAT_MS = 160;
 /** A sitting swat `leadMs` after the last, the head tipped back `hr` degrees and the paw landing at height `y`. */
 const sitSwat = (leadMs: number, hr: number, y: number): Step[] => [
@@ -555,14 +553,14 @@ const sitSwat = (leadMs: number, hr: number, y: number): Step[] => [
 /** Reared up, both paws swipe down. */
 const REAR_UP: Partial<Pose> = { fl: 1.5 };
 const rearSwat = (leadMs: number): Step[] => [
-  step(leadMs - WINDUP_MS, 'rear', REAR_UP),
+  step(leadMs - WINDUP_MS, 'low', REAR_UP),
   step(
     WINDUP_MS,
-    'rear',
-    { ...REAR_UP, hx: -6, fN: REAR_RAISED, fF: [16, -10] },
+    'low',
+    { ...REAR_UP, hx: -11, fN: REAR_RAISED, fF: [18, -14] },
     'out',
   ),
-  step(SWAT_MS, 'rear', { ...REAR_UP, fN: [32, -3], fF: [28, 0] }, 'in'),
+  step(SWAT_MS, 'low', { ...REAR_UP, fN: [34, -7], fF: [30, -4] }, 'in'),
 ];
 /** ms at which each swat hits the feather toy. */
 const TOY_HITS = [860, 1520, 2680, 3100, 3760];
@@ -617,36 +615,34 @@ const YARN_BAT_2 = YARN_POUNCE_LANDED + BAT_HIT_MS;
 /** The ball hugged on the back, between the hind paws, from the cat's place. */
 const YARN_HUG = 9;
 const YARN_HUG_Y = -34;
-/** The wand's feather hangs high on the cat tree, just out of a sitting cat's reach. */
-const WAND_HIGH = -92;
-const WAND_AHEAD = 22;
-const WAND_LEAP_HEIGHT = 32;
-/** Up on its toes at full stretch, a paw reaches the feather and pushes it on. */
-const WAND_BY = 42;
-const WAND_STRETCH: Partial<Pose> = {
-  ba: 88,
-  by: WAND_BY,
-  hN: [0, WAND_BY],
-  hF: [3, WAND_BY],
-  fl: 1.82,
-  hx: -5,
-  hr: -30,
+/** The wand's feather hangs on the cat tree just out of a sitting cat's reach, clear of its face. */
+const WAND_HIGH = -62;
+const WAND_AHEAD = 32;
+const WAND_LEAP_HEIGHT = 22;
+/** Sat back on its haunches, a paw reaches up from the chest to the feather and pushes it on. */
+const WAND_REACH: Partial<Pose> = {
+  hx: -3,
+  hy: -12,
+  hr: -26,
+  fN: [22, -6],
+  fF: [17, 2],
+  fl: 1.7,
 };
-const WAND_HIT: Pair = [18, -30];
+const WAND_HIT: Pair = [32, -28];
 const wandSwat = (paw: 'fN' | 'fF', backMs: number): Step[] => [
-  step(WINDUP_MS, 'tall', { ...WAND_STRETCH, [paw]: WAND_HIT }, 'out'),
+  step(WINDUP_MS, 'low', { ...WAND_REACH, [paw]: WAND_HIT }, 'out'),
   step(
     BAT_PUSH_MS,
-    'tall',
-    { ...WAND_STRETCH, [paw]: [WAND_HIT[0] + BAT_PUSH, WAND_HIT[1]] },
+    'low',
+    { ...WAND_REACH, [paw]: [WAND_HIT[0] + BAT_PUSH, WAND_HIT[1]] },
     'linear',
   ),
-  step(backMs - BAT_PUSH_MS, 'tall'),
+  step(backMs - BAT_PUSH_MS, 'low', WAND_REACH),
 ];
 /** Caught at the top of the leap, the feather comes down ahead of the face and is pinned under a paw. */
 const WAND_PULL: readonly (readonly [number, number, number])[] = [
   [2880, WAND_AHEAD, WAND_HIGH],
-  [3100, 52, -50],
+  [3100, 52, WAND_HIGH + 30],
   [3380, 40, -5],
 ];
 
@@ -755,7 +751,7 @@ export const MOVES = {
     ],
     mods: [],
   }),
-  /* Bats at the feather toy on its string: swats, a rear, a double swipe, and a last swat. */
+  /* Bats at the feather toy on its string: swats, sat back for a double swipe, and a last swat. */
   toy: (): Move => {
     const steps = [
       ...sitSwat(700, -18, -3),
@@ -852,9 +848,9 @@ export const MOVES = {
       step(350, 'air', { x: 100 }, 'linear'),
       step(150, 'crouch', { x: 108, sq: 0.84 }, 'out'),
       step(600, 'sit', { x: 108, hr: -22 }),
-      step(400, 'rear', { x: 108 }),
+      step(400, 'low', { x: 108 }),
       FLY_SWIPE,
-      step(260, 'rear', { x: 108 }),
+      step(260, 'low', { x: 108 }),
       FLY_SWIPE,
       step(300, 'crouch', { x: 108 }),
       step(120, 'crouch', { x: 108, sq: 0.88 }, 'in'),
@@ -986,11 +982,11 @@ export const MOVES = {
       };
     },
   }),
-  /* Biscuit and the wand on the cat tree, from his photo: up tall, swats, and one big leap that brings it down. */
+  /* Biscuit and the wand on the cat tree, from his photo: sat back reaching up, swats, and one leap that brings it down. */
   wand: (): Move => ({
     steps: [
       step(700, 'sit', { hr: -26 }),
-      step(500, 'tall'),
+      step(500, 'low', WAND_REACH),
       ...wandSwat('fN', 260),
       ...wandSwat('fF', 300),
       step(300, 'crouch', { hr: -20 }),
@@ -999,7 +995,7 @@ export const MOVES = {
       step(
         300,
         'leap',
-        { fN: [28, -36], fF: [24, -28], fl: 1.5, hx: -15, ta: 185, tc: 0 },
+        { fN: [33, -20], fF: [28, -13], fl: 1.5, hx: -15, ta: 185, tc: 0 },
         'out',
       ),
       step(
