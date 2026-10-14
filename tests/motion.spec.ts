@@ -442,6 +442,23 @@ test.describe('the hero field on /', () => {
       page.getByRole('button', { name: /the hero animation/i }),
     ).toHaveCount(0);
   });
+
+  test('reduced motion coming on while the pause control has focus keeps focus in the page (SC 2.4.3)', async ({
+    page,
+  }) => {
+    await gotoSettled(page, HERO_ROUTE);
+    const control = page.getByRole('button', { name: /the hero animation/i });
+    await control.focus();
+    await expect(control).toBeFocused();
+
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+
+    await expect(control).toHaveCount(0);
+    await expect(
+      page.locator('main'),
+      'the control left and took focus with it, back to the top of the document',
+    ).toBeFocused();
+  });
 });
 
 /**

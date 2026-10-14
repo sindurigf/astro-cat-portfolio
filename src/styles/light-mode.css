@@ -69,7 +69,7 @@
     border-bottom-color: var(--color-text);
   }
 
-  /* RIDET and `.sticker` are black blocks in light mode. */
+  /* The homepage's second sticker and `.sticker` are black blocks in light mode. */
   :root[data-theme='light'] main .hero-sticker:not(.bg-gold),
   :root[data-theme='light'] main .sticker {
     @apply border-text bg-text text-background;

@@ -266,7 +266,7 @@ The switch and what it scopes: [ARCHITECTURE.md](../ARCHITECTURE.md#light-mode).
   they do not change with the mode.
 - The label on a gold fill is `gold-text`, never `background` (white in
   light).
-- RIDET and `.sticker` are black blocks.
+- The homepage's second sticker and `.sticker` are black blocks.
 - `tests/light-mode.spec.ts` scans every route in light at WCAG 2.2 AA.
 
 ## Type scale
@@ -619,15 +619,16 @@ The grid rule in `scripts/check-tokens.mjs` enforces the grid;
   break anywhere and the header name is visually hidden. `stickers-wrap:`
   (under 17.5rem) wraps the footer stickers. Nothing changes from 305px up.
 - **Short windows:** `short:` (under 30rem of height) makes the header static,
-  and in the photo viewer the photo takes the viewer's width while the dialog
-  scrolls. From 30rem up the photo fits the window whole.
+  and in the photo viewer the photo takes the viewer's width, up to the
+  window's height or 20rem if that is more, while the dialog scrolls. From
+  30rem up the photo fits the window whole.
 
 ### Page compositions
 
 | Page                   | Order (type)                                                   |
 | ---------------------- | -------------------------------------------------------------- |
 | Home                   | Hero, Surface, Listing, Listing, Close                         |
-| About                  | Hero, Open, Open, Open, Open, Open, Close                      |
+| About                  | Hero, Open, Open, Open, Open, Open, Open, Close                |
 | Career                 | Hero, Panel, Open (with the solid block), Open, Surface, Close |
 | Contact                | Hero, Open, Surface                                            |
 | Contact sent           | Hero, Panel, Close                                             |
@@ -638,6 +639,7 @@ The grid rule in `scripts/check-tokens.mjs` enforces the grid;
 | Post                   | Article header, Reading (contents box from 1280px), Tags nav   |
 | 404                    | Hero (starfield) only                                          |
 
+- About's last Open, Sources, is there only while the sample persona is set.
 - Contact ends on its gold surface, not a closing row: the band is its call to
   action.
 - The blog listing has no section heading: each card's title is its h2.
@@ -909,18 +911,19 @@ A heading, a sentence, one way on. Enforced by `tests/empty-states.spec.ts`,
 `tests/contact.spec.ts` (Worker), `tests/contact-sending.spec.ts` and
 `tests/failed-images.spec.ts`.
 
-| State                   | Where                                   | Heading                                                                             | Sentence                                                   | Action                                 | Announced by                       |
-| ----------------------- | --------------------------------------- | ----------------------------------------------------------------------------------- | ---------------------------------------------------------- | -------------------------------------- | ---------------------------------- |
-| Not found               | `/404`                                  | `h1` "These are not the droids…"                                                    | the page does not exist, and a link to report a broken one | homepage (primary), blog (secondary)   | the page load                      |
-| Empty category or tag   | not built: pages exist only with a post |                                                                                     |                                                            |                                        |                                    |
-| Empty blog              | `/blog` with no posts                   | `h2` "No Posts Yet"                                                                 | "Nothing has been published here yet."                     | "Go to the Homepage"                   | the page load                      |
-| Invalid form            | `/contact/send`, 422                    | `h2` "There Is One Problem with This Form" or "There Are N Problems with This Form" | one linked entry per field                                 | each entry moves to its field          | focus on the summary on arrival    |
-| Rate-limited or unsaved | `/contact/send`, 429 or 503             | `h2` "Your Message Was Not Sent"                                                    | the reason, and the email address as the way round it      | the form, still holding what was typed | focus on the summary on arrival    |
-| Offline                 | `/contact`, on submit                   | none: the form stays                                                                | "You are offline, so your message has not been sent…"      | the form, unchanged                    | the form's `role="status"` region  |
-| Sending                 | `/contact`, while the post is in flight | none                                                                                | "Sending your message." and the button reads "Sending"     | a second submit is blocked             | the form's `role="status"` region  |
-| Failed photo            | any `.aspect-frame`                     | none                                                                                | its alt text on the frame                                  | none                                   | not announced: the alt is its name |
-| Loading a photo         | the photo viewer, past 200ms            | none: the previous photo stays                                                      | "Loading photo 4 of 12" in the count                       | the previous photo and its caption     | the viewer's count region          |
-| Photo that never loads  | the photo viewer, on a failed decode    | none                                                                                | "This photo could not be loaded." on the frame             | the caption still describes it         | the viewer's count region          |
+| State                   | Where                                   | Heading                                                                             | Sentence                                                         | Action                                 | Announced by                       |
+| ----------------------- | --------------------------------------- | ----------------------------------------------------------------------------------- | ---------------------------------------------------------------- | -------------------------------------- | ---------------------------------- |
+| Not found               | `/404`                                  | `h1` "These are not the droids…"                                                    | the page does not exist, and a link to report a broken one       | homepage (primary), blog (secondary)   | the page load                      |
+| Empty category or tag   | not built: pages exist only with a post |                                                                                     |                                                                  |                                        |                                    |
+| Empty blog              | `/blog` with no posts                   | `h2` "No Posts Yet"                                                                 | "Nothing has been published here yet."                           | "Go to the Homepage"                   | the page load                      |
+| Invalid form            | `/contact/send`, 422                    | `h2` "There Is One Problem with This Form" or "There Are N Problems with This Form" | one linked entry per field                                       | each entry moves to its field          | focus on the summary on arrival    |
+| Rate-limited or unsaved | `/contact/send`, 429 or 503             | `h2` "Your Message Was Not Sent"                                                    | the reason, and the email address as the way round it            | the form, still holding what was typed | focus on the summary on arrival    |
+| Message over the cap    | `/contact/send`, 413                    | `h1` "Message Too Long"                                                             | nothing was sent, the 5000 character limit and the email address | "Back to the Contact Form"             | the page load                      |
+| Offline                 | `/contact`, on submit                   | none: the form stays                                                                | "You are offline, so your message has not been sent…"            | the form, unchanged                    | the form's `role="status"` region  |
+| Sending                 | `/contact`, while the post is in flight | none                                                                                | "Sending your message." and the button reads "Sending"           | a second submit is blocked             | the form's `role="status"` region  |
+| Failed photo            | any `.aspect-frame`                     | none                                                                                | its alt text on the frame                                        | none                                   | not announced: the alt is its name |
+| Loading a photo         | the photo viewer, past 200ms            | none: the previous photo stays                                                      | "Loading photo 4 of 12" in the count                             | the previous photo and its caption     | the viewer's count region          |
+| Photo that never loads  | the photo viewer, on a failed decode    | none                                                                                | "This photo could not be loaded." on the frame                   | the caption still describes it         | the viewer's count region          |
 
 - `.error-summary`: 8px `pink` edge on `surface`, `tabindex="-1"` and
   `autofocus`, no `role="alert"` (focus already announces it; some screen
@@ -954,16 +957,16 @@ Enforced by `tests/footer.spec.ts`.
 - `nav` "Social": one sticker link per profile plus Email, each an
   `aria-hidden` icon and a visually hidden name
 - the copyright, then "Cat Drawings and Text Made with AI", an underlined
-  `subtle` link to `AI_DISCLOSURE.md` with a 24px box (EU AI Act Art. 50)
+  `subtle` link to `AI_DISCLOSURE.md` with a 44px-tall box (EU AI Act Art. 50)
 - the `aria-hidden` tuft
 
 ### Footer layout
 
-| Width       | Layout                                                                                                                                           |
-| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
-| below 48rem | one centered column in source order; the stickers a 4-column grid, the last three offset by `--spacing(8)`; copyright and AI label over the tuft |
-| from 48rem  | three columns, name and stickers, Site, About this site, `column-gap` `--spacing(8)`; copyright and AI label, then the tuft, in one row          |
-| from 64rem  | inset `--spacing(8)` either side; stickers `--size-sticker-lg`                                                                                   |
+| Width       | Layout                                                                                                                                             |
+| ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| below 48rem | one centered column in source order; the stickers a 4-column grid, the fifth onward offset by `--spacing(8)`; copyright and AI label over the tuft |
+| from 48rem  | three columns, name and stickers, Site, About this site, `column-gap` `--spacing(8)`; copyright and AI label, then the tuft, in one row            |
+| from 64rem  | inset `--spacing(8)` either side; stickers `--size-sticker-lg`                                                                                     |
 
 ### Footer spacing
 
@@ -981,7 +984,8 @@ No rule or divider joins the footer to the page.
 
 - Links are `.label`: Site in `text` (14.42), About this site in `subtle`
   (8.62), cyan on hover (11.20). Each row is 44px tall (`--spacing-target`).
-  No current-page state.
+- The current page has `aria-current` and the 2px text-link underline; hover
+  changes color only, so the two never look alike.
 - Stickers: `--size-sticker` 48px (`--size-sticker-lg` 56px from 64rem),
   `--border-width-sticker` 4px `border` edge, 3deg tilt, 4px pink shadow with
   `lift-control`. They straighten on hover and focus.
@@ -1016,8 +1020,8 @@ Enforced by `tests/nav-current.spec.ts`, `tests/mobile-menu.spec.ts`,
 
 - Sticky, 96px (`--spacing-header`). `html` keeps focus and anchors
   `--spacing-header` plus `--spacing(4)` below the top.
-- Under 30rem of viewport height (`short`: a landscape phone, any window 960px
-  tall or less at 200% zoom) it scrolls away and the scroll padding drops to
+- Under 30rem of viewport height (`short`: a landscape phone, any window under
+  960px tall at 200% zoom) it scrolls away and the scroll padding drops to
   `--spacing(4)`.
 - Offset with `scroll-padding-top` on `html`, never `scroll-margin-top` on
   elements: WebKit ignores the latter for focused inputs.
@@ -1035,6 +1039,8 @@ Enforced by `tests/nav-current.spec.ts`, `tests/mobile-menu.spec.ts`,
 - `ariaCurrent` in `src/lib/nav.ts` decides the value.
 - Inactive items keep a `border-transparent` 4px edge so nothing reflows.
 - A current chip is the same flat `bg-text` block, no shadow.
+- Forced colors drop the fill, shadow and marker, so a current nav link, call
+  to action and chip take a 4px underline there (`tests/forced-colors.spec.ts`).
 
 ### The menu
 
@@ -1066,7 +1072,7 @@ Enforced by `tests/nav-current.spec.ts`, `tests/mobile-menu.spec.ts`,
   leaps move them on), and sit still under reduced motion. Each cat's button
   ("Meet Pepper") opens its card and changes nothing else.
 - Each cat's SC 2.2.2 control sits in its band's corner: Zz ("Put Pepper to
-  sleep") while it plays, a paw ("Wake Pepper") while it sleeps.
+  sleep") while it plays, an eye ("Wake Pepper") while it sleeps.
   Hidden under reduced motion, where nothing moves.
 - A paw button under Zz ("Choose a trick for Pepper") opens that cat's tricks:
   Random first, then its own moves, each an icon and a name
@@ -1074,6 +1080,10 @@ Enforced by `tests/nav-current.spec.ts`, `tests/mobile-menu.spec.ts`,
   stays within its script budget). A pick plays once, wakes a sleeping cat
   first, and trots the cat to room if the move needs it; the cat then plays on
   at random. The list leaves out moves that cannot fit the band's width.
+- The list opens under the band, its right edge on the paw's. With no room
+  below it opens beside the paw and Zz, never over them, and it closes when
+  focus leaves it and its paw (SC 2.4.12). The paw shows only where the
+  browser has popovers.
 - A cat naps after `NAP_AFTER_MS` of on-screen play (`src/lib/about-cats.ts`).
   Lying down, and the breaths and "z" after it, end within 5 s, then the cat is
   still.

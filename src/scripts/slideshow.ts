@@ -106,6 +106,8 @@ const wire = (deck: HTMLElement): void => {
     const target = slides[index];
     const focusWasInside = slides[current].contains(document.activeElement);
     current = index;
+    /* go() sets it again; any other turn must not leave the last slide's name behind (SC 4.1.3). */
+    status.textContent = '';
 
     slides.forEach((slide) => {
       slide.toggleAttribute('data-current', slide === target);
