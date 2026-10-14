@@ -16,7 +16,7 @@ current once the site is yours.
 
 AI-drawn art, all by Claude:
 
-- The animated About cats and their trick icons (`src/lib/about-cats-tricks.json`).
+- The animated About cats, their sleep, wake and trick-list icons (`src/components/ui/AboutCats.vue`) and their trick icons (`src/lib/about-cats-tricks.json`).
 - The poneglyph and its lighting script in the homepage field
   (`src/lib/hero-field-poneglyph.ts`).
 - The logo cat, a calico head shaped like the logo tile (`src/lib/brand-mark.ts`),
@@ -28,7 +28,7 @@ AI-drawn art, all by Claude:
 - The sharing image, `public/images/og-default.png`, drawn by
   `scripts/make-og.mjs` with the logo cat.
 
-Every page's footer says "Cat drawings and text made with AI" and links this
+Every page's footer says "Cat Drawings and Text Made with AI" and links this
 file (`tests/ai-label.spec.ts` checks every route). The art is also listed
 under Made with AI at the end of `/credits/`.
 

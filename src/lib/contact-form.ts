@@ -71,7 +71,7 @@ const readField = (form: FormData, key: string): string => {
 const characters = (value: string): number => [...value].length;
 
 /* Each is read alone by a screen reader after the error summary. */
-const MESSAGES = {
+export const MESSAGES = {
   nameMissing: 'Enter a name. Anything you want to be called is fine.',
   nameLong: `Use ${LIMITS.nameMax} characters or fewer for the name.`,
   emailMissing: 'Enter an email address so there is a way to reply.',

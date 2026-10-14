@@ -115,6 +115,18 @@ test.describe('JSON-LD structured data', NODE, () => {
     ).toBe(true);
   });
 
+  test('the Person has the same image on every page', () => {
+    const pages = builtHtml();
+    const imageOn = (route: string): unknown =>
+      nodeOfType(graphOf(pages.get(route)!, route), 'Person')!.image;
+    const portrait = imageOn('/about');
+    expect(portrait, "/about/'s Person has no image.").toBeTruthy();
+    expect(
+      ROUTES.filter((route) => imageOn(route) !== portrait),
+      "page(s) whose Person lacks /about/'s image",
+    ).toEqual([]);
+  });
+
   test('the published name is the name the homepage shows', () => {
     const pages = builtHtml();
     const person = nodeOfType(graphOf(pages.get('/')!, '/'), 'Person')!;

@@ -573,10 +573,11 @@ for (const viewport of VIEWER_SIZES) {
   });
 }
 
-/** 1280x1024 at 400% zoom, and a phone on its side (SC 1.4.10). */
+/** 1280x1024 at 400% zoom, a phone on its side and 1366x768 at 200% zoom (SC 1.4.10). */
 const SHORT_VIEWER_SIZES = [
   { width: 320, height: 256 },
   { width: 667, height: 375 },
+  { width: 683, height: 384 },
 ] as const;
 
 const VIEWER_CONTROLS = [
@@ -584,6 +585,9 @@ const VIEWER_CONTROLS = [
   '[data-viewer-step="-1"]',
   '[data-viewer-step="1"]',
 ] as const;
+
+/** A strip thumbnail's height, PhotoTile.astro NATURAL_HEIGHT; a shorter window's photo may be this tall. */
+const STRIP_THUMBNAIL_HEIGHT = 320;
 
 for (const viewport of SHORT_VIEWER_SIZES) {
   test(`at ${viewport.width}x${viewport.height} the viewer draws every photo no smaller than its thumbnail, with its buttons in reach`, async ({
@@ -596,6 +600,7 @@ for (const viewport of SHORT_VIEWER_SIZES) {
     expect(total, 'no photos to open on /about').toBeGreaterThan(0);
 
     const problems: string[] = [];
+    let portraits = 0;
     for (let i = 0; i < total; i += 1) {
       const link = links.nth(i);
       const href = (await link.getAttribute('href')) ?? '';
@@ -617,7 +622,7 @@ for (const viewport of SHORT_VIEWER_SIZES) {
         );
       }, href);
 
-      const found = await page.evaluate(() => {
+      const found = await page.evaluate((tallest) => {
         const dialog = document.querySelector('#photo-viewer')!;
         const figure = dialog.querySelector('.photo-viewer-figure')!;
         const img = figure.querySelector('img')!;
@@ -625,15 +630,28 @@ for (const viewport of SHORT_VIEWER_SIZES) {
         return {
           width: drawn.width,
           height: drawn.height,
-          room: Math.min(figure.clientWidth, img.naturalWidth),
+          figure: figure.clientWidth,
+          natural: img.naturalWidth,
+          cap: Math.max(innerHeight, tallest),
           shape: img.naturalWidth / img.naturalHeight,
           sideways: dialog.scrollWidth - dialog.clientWidth,
         };
-      });
+      }, STRIP_THUMBNAIL_HEIGHT);
+      if (found.shape < 1) portraits += 1;
       const size = `${Math.round(found.width)}x${Math.round(found.height)}`;
-      if (found.width < found.room - ROUNDING_PX) {
+      const room = Math.min(
+        found.figure,
+        found.natural,
+        found.cap * found.shape,
+      );
+      if (found.width < room - ROUNDING_PX) {
         problems.push(
-          `${href}: drawn ${size}, narrower than the ${Math.round(found.room)}px it has`,
+          `${href}: drawn ${size}, narrower than the ${Math.round(room)}px it has`,
+        );
+      }
+      if (found.height > found.cap + ROUNDING_PX) {
+        problems.push(
+          `${href}: drawn ${size}, taller than the ${found.cap}px it may be`,
         );
       }
       if (
@@ -676,6 +694,7 @@ for (const viewport of SHORT_VIEWER_SIZES) {
       await page.keyboard.press('Escape');
       await expect(viewer).toBeHidden();
     }
-    expect(problems, 'photos the short viewer shrinks').toEqual([]);
+    expect(portraits, 'no portrait photo on /about').toBeGreaterThan(0);
+    expect(problems, 'photos the short viewer draws wrong').toEqual([]);
   });
 }

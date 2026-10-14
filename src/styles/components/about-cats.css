@@ -124,6 +124,7 @@
     inset: auto;
     right: var(--tricks-right);
     top: var(--tricks-top);
+    max-width: calc(100% - var(--tricks-right) - --spacing(4));
     max-height: var(--tricks-max);
     overscroll-behavior: contain;
   }
@@ -139,6 +140,19 @@
 
     &:hover {
       @apply bg-gold text-gold-text;
+    }
+
+    /* The cyan ring is 1.01:1 on the gold hover fill. */
+    &:hover:focus-visible {
+      outline-color: var(--color-gold-text);
+    }
+  }
+
+  /* No popovers: the paw would open nothing and the list would always show. */
+  @supports not selector(:popover-open) {
+    .cat-tricks-button,
+    .cat-tricks {
+      @apply hidden;
     }
   }
 
