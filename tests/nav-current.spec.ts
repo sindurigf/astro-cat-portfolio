@@ -8,7 +8,13 @@ import {
 } from '../src/lib/nav';
 import { NON_TEXT, PAGE_HELPERS } from './contrast';
 import { BLOG_PATH, indexPageHref } from '../src/lib/paths';
-import { CATEGORY_ROUTES, NO_POST, POST_ROUTES, ROUTES } from './routes';
+import {
+  CATEGORY_ROUTES,
+  NO_POST,
+  POST_ROUTES,
+  ROUTES,
+  builtHtml,
+} from './routes';
 import { gotoSettled } from './settle';
 import { DESKTOP_VIEWPORT, NARROW_WIDTH } from './wcag';
 import { ENGINE_INVARIANT, NODE } from './tags';
@@ -137,6 +143,37 @@ test.describe('the current page, as the navigation reports it', () => {
           `${path} is being marked as ${href}.`,
         ).toBe(false);
       }
+    },
+  );
+
+  test(
+    'both footer navigations mark the current page and nothing else',
+    NODE,
+    () => {
+      const pages = builtHtml();
+      const wrong: string[] = [];
+      let marked = 0;
+      for (const route of ROUTES) {
+        const path = route === HOME_HREF ? route : `${route}/`;
+        for (const name of ['Site', 'About this site']) {
+          const nav = new RegExp(
+            `<nav aria-label="${name}"[^>]*>(.*?)</nav>`,
+            's',
+          ).exec(pages.get(route) ?? '')?.[1];
+          expect(nav, `${route} has no "${name}" navigation`).toBeTruthy();
+          for (const [link, href] of nav!.matchAll(
+            /<a href="([^"]+)"[^>]*>/g,
+          )) {
+            const said = /aria-current="([^"]+)"/.exec(link)?.[1];
+            if (said) marked += 1;
+            if (said !== ariaCurrent(path, href!)) {
+              wrong.push(`${route} "${name}" ${href}: ${said ?? 'unmarked'}`);
+            }
+          }
+        }
+      }
+      expect(marked, 'no footer link is marked anywhere').toBeGreaterThan(0);
+      expect(wrong, 'footer link(s) marked wrongly').toEqual([]);
     },
   );
 

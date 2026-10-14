@@ -168,4 +168,16 @@
     --lift: 0px;
     box-shadow: var(--inset-shadow-cta-current);
   }
+
+  /*
+   * Forced colors drop the fill, shadow and marker that say "current", so an
+   * underline says it (tests/forced-colors.spec.ts).
+   */
+  @media (forced-colors: active) {
+    :is(nav a, a.chip, .nav-cta)[aria-current] {
+      text-decoration: underline;
+      text-decoration-thickness: var(--underline-thick);
+      text-underline-offset: var(--underline-offset);
+    }
+  }
 }

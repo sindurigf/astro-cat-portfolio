@@ -12,6 +12,8 @@ import {
   NOTIFICATION_SENDER,
   notificationFor,
 } from '../src/lib/contact-notification';
+import { CONTACT_EMAIL } from '../src/lib/contact';
+import { CONTACT_PATH } from '../src/lib/paths';
 import { retentionCutoff } from '../src/lib/contact-retention';
 import { RESEND_AFTER_MS } from '../src/lib/contact-resend';
 import { NOTIFY_TO } from '../playwright.worker.config';
@@ -709,6 +711,29 @@ test.describe('the contact endpoint', () => {
       413,
     );
     expectSiteHeaders(response, 'too-large response');
+
+    /* SC 3.3.3: the refusal names the limit and the way round it, as a page of this site. */
+    const html = await response.text();
+    expect(
+      response.headers()['content-type'],
+      'the refusal is not an HTML page.',
+    ).toContain('text/html');
+    expect(html, 'the refusal has no heading.').toMatch(
+      /<h1\b[^>]*>[^<]*Message Too Long/,
+    );
+    expect(html, 'the refusal does not name the limit.').toContain(
+      String(LIMITS.bodyMax),
+    );
+    expect(html, 'the refusal does not offer the email address.').toContain(
+      `href="mailto:${CONTACT_EMAIL}"`,
+    );
+    expect(html, 'the refusal has no link back to the form.').toContain(
+      `href="${CONTACT_PATH}"`,
+    );
+    expect(
+      html,
+      'the refusal shows a form, though nothing was read to refill it.',
+    ).not.toContain('data-contact-form');
   });
 
   /* Chunked is why the cap cannot be a `Content-Length` check. */

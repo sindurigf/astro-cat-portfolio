@@ -8,6 +8,9 @@ repository to Workers Builds, or run `npx wrangler deploy` yourself.
 
 1. Fill in [`src/site.config.ts`](../src/site.config.ts): name, URL, person,
    profiles, and the analytics, Bing verification and contact switches.
+   While `site.url` is on an example host, the build warns and
+   `npm run check:live` exits 2, even with a target passed: every canonical
+   would name another domain.
 2. Replace the placeholders in `wrangler.jsonc`:
    - `name`: the Worker's name, which must match the dashboard's.
    - `routes`: your domain, as a custom domain.
@@ -32,6 +35,10 @@ npm run build && npx wrangler deploy --dry-run
 
 - Custom domains belong in `wrangler.jsonc`: a deploy replaces the Worker's
   routes, removing dashboard-only domains.
+- Published PDFs are kept out of search: `/*.pdf` in `public/_headers` sends
+  `X-Robots-Tag: noindex`, so the page that links a PDF is the search result.
+  To have them indexed, delete that rule and the two tests that assert it
+  (`tests/headers-rules.spec.ts`, `tests/served-types.spec.ts`).
 - Preview deployments run on workers.dev, outside the zone, so zone features
   (e.g. JavaScript Detections) only show on production.
 - `preview_urls` is set in `wrangler.jsonc`; a dashboard toggle is reset by the
@@ -47,8 +54,8 @@ npm run build && npx wrangler deploy --dry-run
   repository variable `CHECK_LIVE` to `1`.
 - After a change to the hero or to what a page loads, run Lighthouse (mobile)
   on the home page and the changed page. `tests/performance.spec.ts` covers
-  script bytes and layout shift; load time depends on the runner, so CI does
-  not test it.
+  script and CSS bytes and layout shift; load time depends on the runner, so CI
+  does not test it.
 
 ## Run a demo
 
