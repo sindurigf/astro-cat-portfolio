@@ -31,6 +31,14 @@ conventions for this template. Design rules and values are in
   `components/*.css` by area with `reduced-motion.css` among them,
   `utilities.css`, `light-mode.css`. Reordering the imports reorders the
   cascade.
+- Page-only partials are not in that list: `slides.css` (the talk page and the
+  presenter), `about-cats.css` (`/about`) and `starfield.css` (`/404`) are
+  imported by the page that uses them, so each builds as its own sheet, linked
+  after the shared one. Each opens with `@reference '../global.css'` so
+  `@apply` and the tokens resolve; Tailwind then writes token values as `var()`
+  fallbacks and repeats its `@property` block in that sheet.
+  `tests/head.spec.ts` holds the link order, which sets the layer order, and
+  `check:classes` fails a page that uses a class from a sheet it does not link.
 - `@astrojs/tailwind` peers at `astro ^3 || ^4 || ^5` and cannot be used.
 - `overrides.sharp` in `package.json` lifts miniflare's exact `sharp@0.35.4`
   pin to 0.35.5, the fix for GHSA-wq5f-xc86-pv6w. Drop it once miniflare
