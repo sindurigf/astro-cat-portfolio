@@ -36,6 +36,11 @@
 /blog/*.md
   X-Robots-Tag: noindex
 
+# The page that links a PDF is the search result; crawlers must still fetch
+# the file to read this, so robots.txt does not disallow it.
+/*.pdf
+  X-Robots-Tag: noindex
+
 # Chromium ignores the file under any other type.
 /speculationrules.json
   Content-Type: application/speculationrules+json
