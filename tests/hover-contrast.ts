@@ -1,13 +1,6 @@
 import type { Page } from './test';
-import {
-  AA_TEXT,
-  AAA_TEXT,
-  LARGE_TEXT_BOLD_PX,
-  LARGE_TEXT_PX,
-  PAGE_HELPERS,
-} from './contrast';
+import { AAA_TEXT, PAGE_HELPERS } from './contrast';
 
-const BOLD_WEIGHT = 700;
 /* Each kind of control behaves alike, so a few of each cover a route in reasonable time. */
 const SAMPLES_PER_KIND = 3;
 const CONTROLS = 'a[href], button, summary';
@@ -38,7 +31,7 @@ export const sampled = (id: string): string => `[data-hover-sample="${id}"]`;
 
 /**
  * SC 1.4.6 under the pointer: each sampled control in `scope` is hovered and
- * every text node in it measured, 7:1 or 4.5:1 when large.
+ * every text node in it measured at 7:1, large text included, as /accessibility claims.
  */
 export const hoveredTextBelowAaa = async (
   page: Page,
@@ -60,11 +53,9 @@ export const hoveredTextBelowAaa = async (
         const text = [...node.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim());
         if (!text || !node.checkVisibility() || node.closest('.sr-only')) continue;
         const cs = getComputedStyle(node);
-        const size = parseFloat(cs.fontSize);
-        const large = size >= ${LARGE_TEXT_PX} || (size >= ${LARGE_TEXT_BOLD_PX} && Number(cs.fontWeight) >= ${BOLD_WEIGHT});
         const ground = effectiveBackground(node);
         const r = ratio(over(parse(cs.color), ground), ground);
-        const need = large ? ${AA_TEXT} : ${AAA_TEXT};
+        const need = ${AAA_TEXT};
         if (r < need) out.push(node.tagName.toLowerCase() + '.' + [...node.classList].slice(0, 3).join('.') + ' "' + node.textContent.trim().slice(0, 30) + '" ' + r.toFixed(2) + ' < ' + need);
       }
       return out;

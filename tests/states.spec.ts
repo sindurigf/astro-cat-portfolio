@@ -108,7 +108,7 @@ test.describe('dark mode reaches AAA contrast under the pointer (SC 1.4.6)', () 
   test.use({ colorScheme: 'dark' });
 
   for (const route of ROUTES) {
-    test(`${route}: hovered text is at least 7:1, or 4.5:1 when large`, async ({
+    test(`${route}: hovered text is at least 7:1, large text included`, async ({
       page,
     }) => {
       await gotoSettled(page, route);
