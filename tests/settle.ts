@@ -1,4 +1,4 @@
-import { expect, type Page, type Response } from '@playwright/test';
+import { expect, test, type Page, type Response } from '@playwright/test';
 
 /**
  * Not `networkidle`: it says nothing about hydration or fonts. The Firefox
@@ -103,6 +103,8 @@ export const gotoSettled = async (
   await waitForHydration(page);
   await page.evaluate(() => document.fonts.ready);
   if (webFont && !(await usesWebFont(page))) {
+    /* Shows in the report how often a page misses the font. */
+    test.info().annotations.push({ type: 'font-reload', description: route });
     response = await page.reload({ waitUntil: 'load' });
     await waitForHydration(page);
     await page.evaluate(() => document.fonts.ready);

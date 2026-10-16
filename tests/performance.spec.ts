@@ -57,7 +57,8 @@ const scriptsFetched = async (
       })),
     );
   });
-  await gotoSettled(page, route);
+  /* One cold load: a reload would count every script twice. */
+  await gotoSettled(page, route, { webFont: false });
   return Promise.all(pending);
 };
 
@@ -103,7 +104,8 @@ test.describe('page weight and stability', () => {
     /* Zero, not Lighthouse's 0.1: every route measures 0. */
     test(`${route} does not shift while it loads`, async ({ page }) => {
       await page.addInitScript(LAYOUT_SHIFT);
-      await gotoSettled(page, route);
+      /* The cold load is the one measured, not a warm reload. */
+      await gotoSettled(page, route, { webFont: false });
       /* Chromium measures a shift between painted frames; headless can settle before its first paint. */
       await page.waitForFunction(
         () => performance.getEntriesByName('first-contentful-paint').length > 0,

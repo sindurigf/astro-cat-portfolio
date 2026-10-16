@@ -319,8 +319,9 @@ copyright and contents list are fixed, and `text-code` is `max(1rem, 0.92em)`,
   before it arrives keeps a `Lexend Fallback` family for its lifetime, so no
   line moves after first paint; the next page has Lexend from cache. The
   fallback is a local Arial or Roboto face with `size-adjust` and the ascent,
-  descent and line-gap overrides set to Lexend's mean advance and line box. Each face keeps Lexend's
-  `unicode-range`, so nothing changes for the characters Lexend has. A
+  descent and line-gap overrides set to Lexend's mean advance and line box.
+  Each face keeps Lexend's `unicode-range`, so nothing changes for the
+  characters Lexend has. A
   character in the range that Lexend lacks (a prime, a per mille sign) takes
   the fallback face: one wider glyph on the same line box.
   `scripts/font-fallback-metrics.mjs` prints the numbers;
