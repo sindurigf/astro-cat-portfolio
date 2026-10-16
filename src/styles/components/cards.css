@@ -5,7 +5,7 @@
    * text spacing.
    */
   .card {
-    @apply min-w-0 border-4 border-border bg-surface p-card-tight
+    @apply min-w-0 edge border-border bg-surface p-card-tight
       shadow-hard-pink-4 sm:p-card;
   }
 

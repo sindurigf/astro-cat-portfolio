@@ -15,7 +15,7 @@
 
   /* 4px edge, like every object on the site. */
   .field-control {
-    @apply mt-3 block w-full border-4 border-border bg-surface px-4 py-3
+    @apply mt-3 block w-full edge border-border bg-surface px-4 py-3
       font-sans text-body text-text;
   }
 
@@ -44,7 +44,7 @@
 
   /* Takes focus on render. */
   .error-summary {
-    @apply mt-8 border-4 border-pink bg-surface p-6;
+    @apply mt-8 edge border-pink bg-surface p-6;
   }
 
   .error-summary a {

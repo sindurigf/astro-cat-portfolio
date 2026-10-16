@@ -189,6 +189,22 @@
   --lift: var(--lift-object);
 }
 
+@utility edge {
+  border-width: var(--edge);
+}
+
+@utility edge-t {
+  border-top-width: var(--edge);
+}
+
+@utility edge-b {
+  border-bottom-width: var(--edge);
+}
+
+@utility edge-l {
+  border-left-width: var(--edge);
+}
+
 @utility lift-mark {
   --lift: var(--lift-mark);
 }

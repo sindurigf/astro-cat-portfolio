@@ -87,7 +87,7 @@
    * `mt-6` matches `.prose p`.
    */
   .prose blockquote {
-    @apply mt-6 border-l-4 border-gold pl-6;
+    @apply mt-6 edge-l border-gold pl-6;
   }
 
   /*
@@ -103,7 +103,9 @@
   }
 
   .prose hr {
-    @apply mt-16 border-0 border-t-4 border-border;
+    @apply mt-16 border-0 border-border;
+
+    border-top-width: var(--edge);
   }
 
   /* Built by src/plugins/post-figure.mjs. Caption is the credit, `subtle`. */

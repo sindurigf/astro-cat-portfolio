@@ -391,6 +391,8 @@
    */
   /* One throw for card shadows and the raised brick's lift (utilities.css). */
   --hard-throw: 4px;
+  /* Card, panel, field, header and rule edges (`edge` utilities); controls, chips and photos keep `border-4`. */
+  --edge: 4px;
   --shadow-hard-pink-4: var(--hard-throw) var(--hard-throw) 0 var(--color-pink);
   --shadow-hard-mark-4: 4px 4px 0 var(--color-mark);
   --shadow-hard-mark-8: 8px 8px 0 var(--color-mark);
@@ -491,7 +493,7 @@
   --hero-column-pad-block: clamp(32px, 5vw, 72px) clamp(32px, 5vw, 80px);
   --hero-column-pad-inline: clamp(20px, 3.5vw, 64px);
 
-  --hero-column-edge: 4px;
+  --hero-column-edge: var(--edge);
   --hero-rule: var(--hero-column-edge);
   /*
    * At least the given name's leading under its letters (0.0831em, 7px at 84px), or

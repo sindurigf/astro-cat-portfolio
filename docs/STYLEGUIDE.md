@@ -450,10 +450,11 @@ with a comment beside it.
 
 ## Borders, shadows and radius
 
-- Border widths 0 or 4: cards, panels, form fields, gold areas, the header's
-  bottom edge, the `/accessibility` fact-strip rules, a prose `hr`, photos,
-  chips, buttons, stickers, code blocks. The roundel keeps an 8px edge, a
-  logo mark. No rule between sections.
+- `--edge` (4px) is the width of every card, panel, form field, gold area, the
+  header's bottom edge, the `/accessibility` fact-strip rules, a prose `hr` and
+  blockquote: the `edge`, `edge-t`, `edge-b` and `edge-l` utilities. Photos,
+  chips, buttons, stickers and code blocks keep `border-4`. The roundel keeps
+  an 8px edge, a logo mark. No rule between sections.
 - The default border color is `border`, set in the base layer (Tailwind 4
   defaults to `currentColor`); `gold-border` inside `.surface-gold`.
 - Shadows are hard offsets, no blur. Gold casts none (gold on gold is 1.00).

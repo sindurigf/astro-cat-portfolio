@@ -69,10 +69,10 @@
    * stacked. Padding on the rule side keeps the first cell on the column edge.
    */
   .fact-strip > * + * {
-    @apply mt-6 border-t-4 border-border pt-6;
+    @apply mt-6 edge-t border-border pt-6;
 
     @media (width >= 64rem) {
-      @apply mt-0 border-t-0 border-l-4 pl-6 pt-0;
+      @apply mt-0 border-t-0 edge-l pl-6 pt-0;
     }
   }
 
@@ -227,7 +227,7 @@
      * The utility, not `var(--shadow-hard-pink-4)`: the token resolves on
      * :root, where light mode's <main> colors do not reach.
      */
-    @apply border-4 shadow-hard-pink-4;
+    @apply edge shadow-hard-pink-4;
   }
 
   /*
