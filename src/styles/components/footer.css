@@ -85,7 +85,7 @@
     place-items: center;
     width: var(--size-sticker);
     height: var(--size-sticker);
-    border: var(--border-width-sticker) solid var(--color-border);
+    border: var(--border-width-sticker) solid var(--color-fill-edge);
     --lift: var(--lift-control);
     rotate: var(--tilt, 0deg);
   }

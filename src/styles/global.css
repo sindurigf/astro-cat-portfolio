@@ -115,9 +115,16 @@
 @custom-variant stickers-wrap (@media (width < 17.5rem));
 
 @theme static {
-  --color-background: #131313;
+  --color-background: #0b0b0b;
   --color-surface: #1a1a1a;
-  --color-border: #dcc9cf;
+  --color-border: #ffc000;
+  /* Cards draw no edge in dark mode: the pink shadow and the grid set them apart. */
+  --color-card-edge: transparent;
+  /*
+   * The edge of a gold or light fill: the fill delimits it on the page, so the
+   * edge needs to read on gold only (11.32).
+   */
+  --color-fill-edge: #131313;
   --color-text: #e5e2e1;
   --color-subtle: #9bb4c6;
   --color-gold: #ffc000;
@@ -130,9 +137,8 @@
   --color-pink: #ff007a;
   --color-pink-text: #ff79b6;
   /*
-   * the logo marks and the dark gold-slab button's shadow. Same hexes as
-   * `pink` and `border`, kept apart because light mode turns those two ink and
-   * these stay.
+   * The logo marks and the dark gold-slab button's shadow. Same hex as `pink`,
+   * kept apart because light mode turns `pink` ink and this stays.
    */
   --color-mark: #ff007a;
   --color-tile-edge: #5a87a8;
@@ -174,17 +180,11 @@
    * The gold surface: an inverted set, since only near-blacks read on gold.
    * Build one with .surface-gold; ratios in docs/STYLEGUIDE.md.
    */
-  /*
-   * Same hex as --color-background, a different job: do not retone it with the
-   * background.
-   */
+  /* The ink on gold; not tied to `background`, which retones on its own. */
   --color-gold-text: #131313;
   --color-gold-muted: #3a3020;
-  /*
-   * Not #131313, which is gold-text and would paint every border the color of
-   * body copy.
-   */
-  --color-gold-border: #22394d;
+  /* Same hex as gold-text: on gold, text and edges are one ink. */
+  --color-gold-border: #131313;
   /*
    * Fails on gold: label and inner focus ring of .btn-gold-primary's dark fill
    * only. Body copy is `text`, since pure white halates on dark.
@@ -387,10 +387,19 @@
   /*
    * Hard offset shadows, one job per color: pink is depth and pressables, cyan
    * is hover and focus. Gold casts none: gold on gold shows nothing, and pink is
-   * visible on gold and on #131313.
+   * visible on gold and on the page.
    */
   /* One throw for object shadows and the raised brick's lift (utilities.css); controls keep 4px. */
   --hard-throw: 8px;
+  /*
+   * A card's graph paper: the page shows through as 1px lines, so text over a
+   * line keeps its `background` ratio. Light mode sets it to `none`.
+   */
+  --card-grid:
+    linear-gradient(var(--color-background) 1px, transparent 1px),
+    linear-gradient(90deg, var(--color-background) 1px, transparent 1px);
+  --card-grid-size: 16px;
+  --card-grid-offset: -1px;
   /* Card, panel, field, header and rule edges (`edge` utilities); controls, chips, photos and stickers keep `border-4`. */
   --edge: 6px;
   --shadow-hard-pink-4: 4px 4px 0 var(--color-pink);

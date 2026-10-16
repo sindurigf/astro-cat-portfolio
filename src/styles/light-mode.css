@@ -14,6 +14,8 @@
     --color-pink: var(--color-light-ink);
     --color-pink-text: var(--color-light-pink-text);
     --color-gold-border: var(--color-light-ink);
+    --color-card-edge: var(--color-light-ink);
+    --card-grid: none;
     --color-gold-bud: var(--color-light-ink);
     --color-hero-ground: var(--color-light-ground);
     --color-hero-glow: var(--color-gold);

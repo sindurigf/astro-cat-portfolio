@@ -5,12 +5,43 @@
    * text spacing.
    */
   .card {
-    @apply min-w-0 edge border-border bg-surface p-card-tight
+    @apply min-w-0 edge border-card-edge bg-surface p-card-tight
       shadow-hard-pink-object sm:p-card;
   }
 
   /*
-   * Solid card: a light third surface where only `background` passes (14.42),
+   * Cards and plain slabs: the `card-edge`, none in dark mode, and graph paper.
+   * The paper is a layer under the content, so the card's measured ground stays
+   * `surface`: its lines are `background`, where every text token passes too.
+   */
+  :is(.card, .card-block > *, .plain-slab, .post-contents):not(
+    .card-solid,
+    .surface-gold,
+    .surface-gold *
+  ) {
+    position: relative;
+    isolation: isolate;
+    border-color: var(--color-card-edge);
+
+    &::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      background-image: var(--card-grid);
+      background-size: var(--card-grid-size) var(--card-grid-size);
+      background-position: var(--card-grid-offset) var(--card-grid-offset);
+      pointer-events: none;
+
+      /* Decoration: forced colors and print drop it. */
+      @media (forced-colors: active), print {
+        display: none;
+      }
+    }
+  }
+
+  /*
+   * Solid card: a light third surface where only `background` passes (15.28),
    * so everything inside is `background`. Holds text, never a form. In a
    * `.card-block` the raised-brick rule gives it an edge.
    */
@@ -142,7 +173,7 @@
   }
 
   .post-contents ol {
-    @apply edge border-t-0 border-border;
+    @apply edge border-t-0 border-card-edge;
   }
 
   .post-contents li + li {
@@ -155,7 +186,7 @@
    */
   .post-contents-summary {
     @apply flex min-h-target cursor-pointer list-none items-center
-      justify-between gap-4 edge border-border px-card-tight py-4
+      justify-between gap-4 edge border-card-edge px-card-tight py-4
       text-label font-black uppercase tracking-label text-text;
 
     &::-webkit-details-marker {

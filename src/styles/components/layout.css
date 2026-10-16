@@ -185,8 +185,8 @@
 
   /*
    * Hero plus the section under it, one gold area. Two rings, since no color
-   * clears SC 1.4.11 on both sides: gold-border inside, border outside. Top
-   * margin is the name's overhang.
+   * clears SC 1.4.11 on both sides: gold-border inside, `border` outside for
+   * the page. Top margin is the name's overhang.
    */
   .v-column {
     position: relative;
