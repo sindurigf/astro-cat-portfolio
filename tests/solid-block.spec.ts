@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { expect, test } from './test';
 import { gotoSettled } from './settle';
-import { AA_TEXT, NON_TEXT, PAGE_HELPERS } from './contrast';
+import { AAA_TEXT, NON_TEXT, PAGE_HELPERS } from './contrast';
 import {
   builtPages,
   DIST_DIR,
@@ -86,129 +86,141 @@ test('no :visited rule exists anywhere in the built CSS', NODE, () => {
   ).toEqual([]);
 });
 
-for (const route of ROUTES) {
-  if (!(route in SOLID_ROUTES)) continue;
+for (const colorScheme of ['dark', 'light'] as const) {
+  test.describe(`${colorScheme} mode`, () => {
+    test.use({ colorScheme });
 
-  test(`${route} has text of at least ${AA_TEXT}:1 in its solid block (SC 1.4.3)`, async ({
-    page,
-  }) => {
-    await gotoSettled(page, route);
+    for (const route of ROUTES) {
+      if (!(route in SOLID_ROUTES)) continue;
 
-    const found = (await page.evaluate(`(() => {
-      ${PAGE_HELPERS}
-      const block = document.querySelector('.card-solid');
-      if (!block) return { blocks: 0 };
-      /*
-       * Each element against what is actually behind it: the badge paints its own
-       * dark fill, and measuring it against the block fails a pairing no one sees.
-       */
-      const groundOf = (el) => {
-        for (let node = el; node; node = node.parentElement) {
-          const c = parse(getComputedStyle(node).backgroundColor);
-          if (c && c.a === 1) return c;
-        }
-        return parse(getComputedStyle(document.body).backgroundColor);
-      };
-      const problems = [];
-      for (const el of block.querySelectorAll('*')) {
-        const text = [...el.childNodes].some(
-          (n) => n.nodeType === Node.TEXT_NODE && (n.textContent ?? '').trim() !== '',
-        );
-        if (!text) continue;
-        const cs = getComputedStyle(el);
-        const ground = groundOf(el);
-        const fg = over(parse(cs.color), ground);
-        const r = ratio(fg, ground);
-        if (r < ${AA_TEXT}) {
-          problems.push(el.tagName.toLowerCase() + ' "' +
-            (el.textContent ?? '').replace(/\\s+/g, ' ').trim().slice(0, 24) +
-            '" at ' + r.toFixed(2));
-        }
-      }
-      return { blocks: 1, problems };
-    })()`)) as { blocks: number; problems?: string[] };
+      test(`${route} has text of at least ${AAA_TEXT}:1 in its solid block (SC 1.4.6)`, async ({
+        page,
+      }) => {
+        await gotoSettled(page, route);
 
-    expect(found.blocks, `${route} has no .card-solid to measure`).toBe(1);
-    expect(
-      found.problems ?? [],
-      `${route} has text in its solid block under ${AA_TEXT}:1`,
-    ).toEqual([]);
-  });
-
-  test(`${route} walks every link in its solid block through hover and focus`, async ({
-    page,
-  }) => {
-    await gotoSettled(page, route);
-
-    const links = page.locator('.card-solid a');
-    await expect(
-      links,
-      `${route} is listed with ${SOLID_ROUTES[route]} links in its solid block`,
-    ).toHaveCount(SOLID_ROUTES[route]);
-
-    const count = await links.count();
-    for (let i = 0; i < count; i += 1) {
-      const link = links.nth(i);
-
-      const read = (index: number) =>
-        page.evaluate(`(() => {
+        const found = (await page.evaluate(`(() => {
           ${PAGE_HELPERS}
-          const el = document.querySelectorAll('.card-solid a')[${index}];
-          const block = el.closest('.card-solid');
-          const cs = getComputedStyle(el);
-          const ground = effectiveBackground(block);
-          const width = parseFloat(cs.outlineWidth) || 0;
-          const offset = parseFloat(cs.outlineOffset) || 0;
-          const a = el.getBoundingClientRect();
-          const b = block.getBoundingClientRect();
-          const reach = width + offset;
-          return {
-            text: ratio(over(parse(cs.color), ground), ground),
-            ring: ratio(over(parse(cs.outlineColor), ground), ground),
-            offset,
-            reach,
-            state: [cs.color, cs.textDecorationLine, getComputedStyle(block).boxShadow].join(' | '),
-            outside:
-              a.left - reach < b.left ||
-              a.top - reach < b.top ||
-              a.right + reach > b.right ||
-              a.bottom + reach > b.bottom,
+          const block = document.querySelector('.card-solid');
+          if (!block) return { blocks: 0 };
+          /*
+           * Each element against what is actually behind it: the badge paints its own
+           * dark fill, and measuring it against the block fails a pairing no one sees.
+           */
+          const groundOf = (el) => {
+            for (let node = el; node; node = node.parentElement) {
+              const c = parse(getComputedStyle(node).backgroundColor);
+              if (c && c.a === 1) return c;
+            }
+            return parse(getComputedStyle(document.body).backgroundColor);
           };
-        })()`) as Promise<{
-          text: number;
-          ring: number;
-          offset: number;
-          reach: number;
-          state: string;
-          outside: boolean;
-        }>;
+          const problems = [];
+          for (const el of block.querySelectorAll('*')) {
+            const text = [...el.childNodes].some(
+              (n) => n.nodeType === Node.TEXT_NODE && (n.textContent ?? '').trim() !== '',
+            );
+            if (!text) continue;
+            const cs = getComputedStyle(el);
+            const ground = groundOf(el);
+            const fg = over(parse(cs.color), ground);
+            const r = ratio(fg, ground);
+            if (r < ${AAA_TEXT}) {
+              problems.push(el.tagName.toLowerCase() + ' "' +
+                (el.textContent ?? '').replace(/\\s+/g, ' ').trim().slice(0, 24) +
+                '" at ' + r.toFixed(2));
+            }
+          }
+          return { blocks: 1, problems };
+        })()`)) as { blocks: number; problems?: string[] };
 
-      const rest = await read(i);
-      expect(rest.text, 'the link at rest').toBeGreaterThanOrEqual(AA_TEXT);
+        expect(found.blocks, `${route} has no .card-solid to measure`).toBe(1);
+        expect(
+          found.problems ?? [],
+          `${route} has text in its solid block under ${AAA_TEXT}:1`,
+        ).toEqual([]);
+      });
 
-      await link.hover();
-      const hovered = await read(i);
-      expect(
-        hovered.text,
-        'the link on hover is under 4.5:1 against the block.',
-      ).toBeGreaterThanOrEqual(AA_TEXT);
-      expect(
-        hovered.state,
-        'hovering the link changes nothing (SC 1.4.1).',
-      ).not.toBe(rest.state);
+      test(`${route} walks every link in its solid block through hover and focus`, async ({
+        page,
+      }) => {
+        await gotoSettled(page, route);
 
-      await page.mouse.move(0, 0);
-      await link.focus();
-      const focused = await read(i);
-      expect(
-        focused.ring,
-        'the focus ring is under 3:1 against the block.',
-      ).toBeGreaterThanOrEqual(NON_TEXT);
-      expect(focused.offset, 'the focus ring offset').toBeGreaterThan(0);
-      expect(
-        focused.outside,
-        `the focus ring reaches ${focused.reach}px past the link and leaves the block, where it matches the page ground.`,
-      ).toBe(false);
+        const links = page.locator('.card-solid a');
+        await expect(
+          links,
+          `${route} is listed with ${SOLID_ROUTES[route]} links in its solid block`,
+        ).toHaveCount(SOLID_ROUTES[route]);
+
+        const count = await links.count();
+        for (let i = 0; i < count; i += 1) {
+          const link = links.nth(i);
+
+          const read = (index: number) =>
+            page.evaluate(`(() => {
+              ${PAGE_HELPERS}
+              const el = document.querySelectorAll('.card-solid a')[${index}];
+              const block = el.closest('.card-solid');
+              const cs = getComputedStyle(el);
+              const ground = effectiveBackground(block);
+              const width = parseFloat(cs.outlineWidth) || 0;
+              const offset = parseFloat(cs.outlineOffset) || 0;
+              const a = el.getBoundingClientRect();
+              const b = block.getBoundingClientRect();
+              const reach = width + offset;
+              return {
+                text: ratio(over(parse(cs.color), ground), ground),
+                ring: ratio(over(parse(cs.outlineColor), ground), ground),
+                offset,
+                reach,
+                state: [cs.color, cs.textDecorationLine, getComputedStyle(block).boxShadow].join(' | '),
+                outside:
+                  a.left - reach < b.left ||
+                  a.top - reach < b.top ||
+                  a.right + reach > b.right ||
+                  a.bottom + reach > b.bottom,
+              };
+            })()`) as Promise<{
+              text: number;
+              ring: number;
+              offset: number;
+              reach: number;
+              state: string;
+              outside: boolean;
+            }>;
+
+          const rest = await read(i);
+          expect(rest.text, 'the link at rest').toBeGreaterThanOrEqual(
+            AAA_TEXT,
+          );
+
+          await link.hover();
+          const hovered = await read(i);
+          expect(
+            hovered.text,
+            `the link on hover is under ${AAA_TEXT}:1 against the block.`,
+          ).toBeGreaterThanOrEqual(AAA_TEXT);
+          expect(
+            hovered.state,
+            'hovering the link changes nothing (SC 1.4.1).',
+          ).not.toBe(rest.state);
+
+          await page.mouse.move(0, 0);
+          await link.focus();
+          const focused = await read(i);
+          expect(
+            focused.text,
+            `the focused link is under ${AAA_TEXT}:1`,
+          ).toBeGreaterThanOrEqual(AAA_TEXT);
+          expect(
+            focused.ring,
+            'the focus ring is under 3:1 against the block.',
+          ).toBeGreaterThanOrEqual(NON_TEXT);
+          expect(focused.offset, 'the focus ring offset').toBeGreaterThan(0);
+          expect(
+            focused.outside,
+            `the focus ring reaches ${focused.reach}px past the link and leaves the block, where it matches the page ground.`,
+          ).toBe(false);
+        }
+      });
     }
   });
 }

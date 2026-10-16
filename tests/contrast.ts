@@ -4,6 +4,8 @@ import { cssColorToken } from './source';
 export const AA_TEXT = 4.5;
 export const AA_LARGE = 3;
 export const NON_TEXT = 3;
+/** SC 1.4.6, which /accessibility claims for all text, large text included. */
+export const AAA_TEXT = 7;
 
 /** Large text under SC 1.4.3, in CSS pixels at a 16px root. */
 export const LARGE_TEXT_PX = 24;

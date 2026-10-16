@@ -1,7 +1,7 @@
 import { expect, test, type Page } from './test';
 import { timedScan } from './axe';
 import { expectIncompleteDecided } from './incomplete';
-import { NON_TEXT, PAGE_HELPERS } from './contrast';
+import { AAA_TEXT, NON_TEXT, PAGE_HELPERS } from './contrast';
 import { gotoSettled } from './settle';
 import { ROUTES, SAMPLED_ROUTES } from './routes';
 import { AXE_TIMEOUT_MS, FOCUSABLE_SELECTOR, REFLOW_VIEWPORT } from './wcag';
@@ -118,7 +118,6 @@ test.describe('light mode keeps every control edge visible', () => {
 const LARGE_TEXT_PX = 24;
 const LARGE_BOLD_TEXT_PX = 18.66;
 const BOLD_WEIGHT = 700;
-const AAA_TEXT = 7;
 const AAA_LARGE_TEXT = 4.5;
 const RING_MIN = 3;
 /* Past this gap the ring meets the page, not the control, so its fill no longer sets the contrast. */

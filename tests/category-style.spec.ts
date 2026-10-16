@@ -1,12 +1,11 @@
 import { expect, test } from './test';
 import { gotoSettled } from './settle';
-import { PAGE_HELPERS } from './contrast';
+import { AAA_TEXT, PAGE_HELPERS } from './contrast';
 import { NODE } from './tags';
 import { CATEGORIES } from '../src/lib/categories';
 
 /* WCAG 2.2 SC 1.4.6: every category tile glyph and label is text at 7:1, in both modes. */
 
-const AAA_TEXT = 7;
 const TILES_SECTION = 'What I Write About';
 
 /** Contrast of each matched element's text against what it is painted on. */
