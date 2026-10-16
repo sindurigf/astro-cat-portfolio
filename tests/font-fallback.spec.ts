@@ -1,7 +1,7 @@
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { expect, test } from './test';
-import { gotoSettled, usesWebFont } from './settle';
+import { fontsSettled, gotoSettled, usesWebFont } from './settle';
 import { LAYOUT_SHIFT, layoutShiftOf } from './layout-shift';
 import { DIST_DIR, ROUTES } from './routes';
 import { NODE } from './tags';
@@ -129,6 +129,15 @@ test('a first visit paints in Lexend: the preload arrives before first paint', a
     await usesWebFont(page),
     'the home page painted in the fallback face; check the font preload in BaseLayout.astro.',
   ).toBe(true);
+});
+
+test('settling the fonts fails when Lexend does not load', async ({ page }) => {
+  await page.route('**/*.woff2', (request) => request.abort());
+  await page.goto('/', { waitUntil: 'load' });
+  await expect(
+    fontsSettled(page),
+    'a page whose Lexend failed counted as settled.',
+  ).rejects.toThrow(/failed to load/);
 });
 
 test.describe('a font that arrives after first paint', () => {

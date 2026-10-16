@@ -90,16 +90,29 @@ export const usesWebFont = (page: Page): Promise<boolean> =>
     return width("'Lexend Variable', monospace") !== width('monospace');
   });
 
+/** The downloaded face; the fallbacks are local. */
+const WEB_FONT_FAMILY = 'Lexend Variable';
+
 /**
  * Every font face has finished loading. Not `document.fonts.ready` alone: Firefox
  * can leave the set `loading` with no face loading until the page next scrolls.
+ * Assumes each face is preloaded or in use at load: an all-unloaded set passes.
  */
-export const fontsSettled = (page: Page): Promise<unknown> =>
-  page.waitForFunction(
+export const fontsSettled = async (page: Page): Promise<void> => {
+  await page.waitForFunction(
     () =>
       document.fonts.status === 'loaded' ||
       ![...document.fonts].some((face) => face.status === 'loading'),
   );
+  const failed = await page.evaluate(
+    (family) =>
+      [...document.fonts].some(
+        (face) => face.family === family && face.status === 'error',
+      ),
+    WEB_FONT_FAMILY,
+  );
+  expect(failed, `${WEB_FONT_FAMILY} failed to load.`).toBe(false);
+};
 
 /**
  * Also waits for the fonts to settle: a heading in the fallback face measures
