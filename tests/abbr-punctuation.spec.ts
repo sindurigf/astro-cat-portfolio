@@ -71,3 +71,46 @@ test.describe('an abbreviation and its punctuation never part at a line break', 
     });
   }
 });
+
+/*
+ * A browser without popovers: the script unwraps the button and the expansion
+ * reads inline inside the nowrap unit, so `.abbr-tip` must wrap (SC 1.4.10).
+ */
+const withoutPopovers = (): void => {
+  Reflect.deleteProperty(HTMLElement.prototype, 'showPopover');
+  document.addEventListener('DOMContentLoaded', () => {
+    for (const tip of document.querySelectorAll('[popover]')) {
+      tip.removeAttribute('popover');
+    }
+  });
+};
+
+test.describe('without popovers the inline expansion wraps at 320px (SC 1.4.10)', () => {
+  test.use({ viewport: REFLOW_VIEWPORT });
+
+  for (const route of routesWithAbbr()) {
+    test(route, async ({ page }) => {
+      await page.addInitScript(withoutPopovers);
+      await gotoSettled(page, route);
+      const layout = await page.evaluate(() => ({
+        pageOverflow:
+          document.documentElement.scrollWidth -
+          document.documentElement.clientWidth,
+        unwrapped: document.querySelectorAll('[data-abbr] button').length,
+        tooWide: [...document.querySelectorAll<HTMLElement>('.abbr-tip')]
+          .filter((tip) => {
+            const block = tip.closest('p, li, dd, h2, h3');
+            const limit = block?.getBoundingClientRect().right ?? Infinity;
+            return [...tip.getClientRects()].some((r) => r.right > limit + 1);
+          })
+          .map((tip) => tip.textContent?.trim()),
+      }));
+      expect(layout.unwrapped, 'the script should unwrap every button').toBe(0);
+      expect(layout.tooWide, 'an expansion runs past its line').toEqual([]);
+      expect(
+        layout.pageOverflow,
+        'the page scrolls sideways',
+      ).toBeLessThanOrEqual(0);
+    });
+  }
+});
