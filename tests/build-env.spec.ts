@@ -19,6 +19,7 @@ test.describe('readBuildEnv', NODE, () => {
       contactForm: null,
       noindex: false,
       repositoryUrl: null,
+      securityContact: null,
     };
 
     expect(readBuildEnv({})).toEqual(defaults);
@@ -28,6 +29,7 @@ test.describe('readBuildEnv', NODE, () => {
         CONTACT_FORM: '',
         NOINDEX: '',
         REPOSITORY_URL: '',
+        SECURITY_CONTACT: '',
       }),
     ).toEqual(defaults);
   });
@@ -39,12 +41,14 @@ test.describe('readBuildEnv', NODE, () => {
         CONTACT_FORM: 'none',
         NOINDEX: '1',
         REPOSITORY_URL: 'https://github.com/demo-owner/demo-site',
+        SECURITY_CONTACT: 'mailto:security@notexample.com',
       }),
     ).toEqual({
       siteUrl: 'https://demo.example.com',
       contactForm: 'none',
       noindex: true,
       repositoryUrl: 'https://github.com/demo-owner/demo-site',
+      securityContact: 'mailto:security@notexample.com',
     });
   });
 
@@ -62,6 +66,15 @@ test.describe('readBuildEnv', NODE, () => {
     ['REPOSITORY_URL', 'https://github.com/demo-owner/demo-site/'],
     ['REPOSITORY_URL', 'https://github.com/demo-owner/demo-site?tab=readme'],
     ['REPOSITORY_URL', 'https://github.com'],
+    ['SECURITY_CONTACT', 'security@notexample.com'],
+    ['SECURITY_CONTACT', 'mailto:nobody'],
+    ['SECURITY_CONTACT', 'http://notexample.com/security'],
+    ['SECURITY_CONTACT', 'tel:+1-201-555-0123'],
+    ['SECURITY_CONTACT', 'mailto:security@example.com'],
+    ['SECURITY_CONTACT', 'https://security.example/report'],
+    ['SECURITY_CONTACT', 'mailto:security@EXAMPLE.COM'],
+    ['SECURITY_CONTACT', 'https://example.com./security'],
+    ['SECURITY_CONTACT', 'mailto:security@example.com..'],
   ] as const) {
     test(`rejects ${name}=${value}`, () => {
       expect(() => readBuildEnv({ [name]: value })).toThrow(
@@ -69,6 +82,13 @@ test.describe('readBuildEnv', NODE, () => {
       );
     });
   }
+
+  test('SECURITY_CONTACT takes an https page as well as a mailto', () => {
+    expect(
+      readBuildEnv({ SECURITY_CONTACT: 'https://notexample.com/security' })
+        .securityContact,
+    ).toBe('https://notexample.com/security');
+  });
 });
 
 test.describe('noindexHeaders', NODE, () => {

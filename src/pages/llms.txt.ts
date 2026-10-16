@@ -4,8 +4,8 @@ import { getCollection } from 'astro:content';
 import { sortByNewest, type BlogPost } from '../lib/blog';
 import {
   CONTACT_EMAIL,
-  CONTACT_EMAIL_RESOLVES,
   CONTACT_FORM_ON,
+  SECURITY_CONTACT,
 } from '../lib/contact';
 import {
   ABOUT_PATH,
@@ -73,7 +73,7 @@ const noteLines = (
   `- Contact: ${CONTACT_EMAIL}`,
   ...(BUILD_ENV.noindex ? [] : [`- Full URL list: ${absolute(SITEMAP_PATH)}`]),
   `- RSS feed: ${absolute(SITE_FEED_PATH)}`,
-  ...(CONTACT_EMAIL_RESOLVES
+  ...(SECURITY_CONTACT !== null
     ? [`- Security contact: ${absolute('/.well-known/security.txt')}`]
     : []),
   ...(posts.some((post) => post.data.placeholder)
