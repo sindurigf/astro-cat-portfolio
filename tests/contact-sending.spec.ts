@@ -134,6 +134,124 @@ test('offline, the form keeps the message and says it was not sent', async ({
   await context.setOffline(false);
 });
 
+/** The most Firefox moves the page by itself after Enter in a field. */
+const SETTLE_TOLERANCE_PX = 2;
+
+/*
+ * SC 3.3.1, 4.1.3: offline, the status under the button is often below the fold.
+ * Focus stays in the field, so the page scrolls to the status only when the
+ * control stays in view below the sticky header. Name to the status never
+ * fits; Send, right above it, always does. Enter in the Message adds a line.
+ */
+for (const viewport of [{ width: 1280, height: 720 }, PHONE_VIEWPORT]) {
+  for (const { label, fits } of [
+    { label: 'Name', fits: false },
+    { label: 'Send Message', fits: true },
+  ]) {
+    test(`offline at ${viewport.width}x${viewport.height}, Enter in ${label} keeps the field in view${fits ? ' and brings the status into view' : ''}`, async ({
+      page,
+      context,
+    }) => {
+      await page.route('**/contact/send/', (route) =>
+        route.fulfill({ status: 204 }),
+      );
+      await page.setViewportSize(viewport);
+      await gotoSettled(page, '/contact/');
+      await page.getByLabel('Name').fill('Ada Lovelace');
+      await page.getByLabel('Email').fill('ada@example.com');
+      await page
+        .getByLabel('Message')
+        .fill('A message typed while the connection dropped.');
+
+      const field =
+        label === 'Name'
+          ? page.getByLabel(label)
+          : page.getByRole('button', { name: label });
+      const status = page
+        .locator('form[data-contact-form]')
+        .getByRole('status');
+      await field.focus();
+      await field.evaluate((element) => {
+        element.scrollIntoView({ block: 'end' });
+        /* Send sits just above the status: nudge until the status is past the fold. */
+        const below = document.querySelector('[data-contact-status]')!;
+        const past = below.getBoundingClientRect().top - window.innerHeight;
+        if (past <= 0) window.scrollBy(0, past - 1);
+      });
+      expect(
+        await status.evaluate(
+          (element) => element.getBoundingClientRect().top > window.innerHeight,
+        ),
+        'the setup did not put the status below the fold',
+      ).toBe(true);
+      const scrolledBefore = await page.evaluate(() => window.scrollY);
+      await context.setOffline(true);
+      await page.keyboard.press('Enter');
+      await expect(status).toHaveText(/offline/i);
+
+      const placed = await field.evaluate((element) => {
+        const box = element.getBoundingClientRect();
+        const header = document
+          .querySelector('header')!
+          .getBoundingClientRect();
+        return {
+          belowHeader: box.top >= header.bottom,
+          onScreen: box.bottom <= window.innerHeight,
+        };
+      });
+      expect(placed.belowHeader, 'the field went under the sticky header').toBe(
+        true,
+      );
+      expect(placed.onScreen, 'the field went below the fold').toBe(true);
+      await expect(
+        field,
+        'the offline notice moved focus off the field',
+      ).toBeFocused();
+
+      if (fits) {
+        await expect(status, 'the status stayed out of view').toBeInViewport();
+      } else {
+        await expect(
+          status,
+          'the page scrolled to the status without room for the field',
+        ).not.toBeInViewport();
+        /* Firefox can settle the page by a pixel on its own (CI run 38897901325); a partial scroll moves far more. */
+        expect(
+          Math.abs(
+            (await page.evaluate(() => window.scrollY)) - scrolledBefore,
+          ),
+          'the page moved without room to show the status',
+        ).toBeLessThanOrEqual(SETTLE_TOLERANCE_PX);
+      }
+      await context.setOffline(false);
+    });
+  }
+}
+
+test('offline, the status clears once the browser is back online', async ({
+  page,
+  context,
+}) => {
+  await page.route('**/contact/send/', (route) =>
+    route.fulfill({ status: 204 }),
+  );
+  await gotoSettled(page, '/contact/');
+  await page.getByLabel('Name').fill('Ada Lovelace');
+  await page.getByLabel('Email').fill('ada@example.com');
+  await page
+    .getByLabel('Message')
+    .fill('A message typed while the connection dropped.');
+  const status = page.locator('form[data-contact-form]').getByRole('status');
+
+  await context.setOffline(true);
+  await page.getByLabel('Name').press('Enter');
+  await expect(status).toHaveText(/offline/i);
+  await context.setOffline(false);
+  await expect(status, 'the offline notice outlived the connection').toHaveText(
+    '',
+  );
+});
+
 test('the message field states its limits and keeps pasted text past them', async ({
   page,
 }) => {
