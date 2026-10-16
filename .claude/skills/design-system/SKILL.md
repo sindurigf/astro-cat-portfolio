@@ -17,7 +17,8 @@ before changing anything it covers.
 - `cyan` at rest. It is hover and focus only.
 - A gold ground without `.surface-gold`, or `.btn-primary`/`.btn-secondary`
   on gold.
-- `border` on a gold or light fill: it takes `fill-edge`. An edge on a dark
+- `border` on a gold or light fill: it takes `fill-edge`. `fill-edge` on a
+  dark fill. An edge on a dark
   card: cards use `card-edge`.
 - A removed outline, `outline-none`, `:focus` styles or `outline-offset: 0`.
 - A shadow on a focusable element without its lift.

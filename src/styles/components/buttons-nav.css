@@ -59,16 +59,17 @@
     }
   }
 
+  /* The fill is the page's, so the dashed `border` is the boundary. */
   :is(.btn-primary, .btn-secondary)[aria-disabled='true'] {
-    @apply cursor-not-allowed border-dashed bg-background text-subtle
-      shadow-none;
+    @apply cursor-not-allowed border-dashed border-border bg-background
+      text-subtle shadow-none;
   }
 
   /*
    * Sending is working, not unavailable: held pressed and gold, not dashed.
    */
   form[data-sending='true'] .btn-primary[aria-disabled='true'] {
-    @apply cursor-progress border-solid bg-gold text-gold-text;
+    @apply cursor-progress border-solid border-fill-edge bg-gold text-gold-text;
   }
 
   @media (prefers-reduced-motion: no-preference) {

@@ -23,7 +23,7 @@
    * Tilt comes from markup.
    */
   .sticker {
-    @apply inline-block border-4 border-fill-edge bg-surface px-4 py-2 text-label
+    @apply inline-block border-4 border-border bg-surface px-4 py-2 text-label
       font-black uppercase tracking-label text-pink-text shadow-hard-mark-4;
   }
 
@@ -32,7 +32,7 @@
   }
 
   .chip-sticker {
-    @apply border-fill-edge text-pink-text;
+    @apply text-pink-text;
   }
 
   a.chip {

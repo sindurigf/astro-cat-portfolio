@@ -95,7 +95,7 @@ blur, uppercase headings, tilted marks.
 | `surface`    | `#1A1A1A` | Cards, inputs                                                  |
 | `border`     | `#FFC000` | Every boundary on the page: the gold edge                      |
 | `card-edge`  | none      | Card and plain slab edge; `#131313` in light mode              |
-| `fill-edge`  | `#131313` | Edge of a gold or light fill: buttons, chips, stickers         |
+| `fill-edge`  | `#131313` | Edge of a gold or light fill: buttons, roundel                 |
 | `text`       | `#E5E2E1` | Words                                                          |
 | `subtle`     | `#9BB4C6` | Captions, meta, helper text                                    |
 | `gold`       | `#FFC000` | The accent, only where the style guide allows                  |
@@ -124,7 +124,10 @@ The gold-ground set is in [Gold surface](#gold-surface), light values in
   or fill. Do not merge them. Utilities: `bg-pink`, `border-pink`,
   `text-pink-text`.
 - A gold or light fill takes the `fill-edge`, never `border`: the fill is
-  what meets the page.
+  what meets the page. A dark fill (a `.sticker`, a chip, a disabled button)
+  keeps `border`: an ink edge would vanish on it.
+- `tests/edge-contrast.spec.ts`: on every route, both modes, 390 and 1280px,
+  a drawn edge reaches 3:1 on its ground unless its fill does.
 - `border` is the SC 1.4.11 floor and `subtle` is set by contrast:
   re-measure before changing either.
 - "Where you are" is a shape, not a color: see [Navigation](#states).
@@ -547,8 +550,9 @@ file per area.
 - Pressed: buttons, `.nav-cta`, `.btn-gold-primary`, linked chips and footer
   stickers drop their shadow and move 4px into it; the logo tile 8px. No move
   under reduced motion. `tests/press.spec.ts` presses each.
-- Unavailable: `aria-disabled="true"`, never `disabled`. Dashed border,
-  `bg-background`, `subtle` label, no shadow; still focusable.
+- Unavailable: `aria-disabled="true"`, never `disabled`. Dashed `border`
+  (the dash says unavailable, the gold keeps the shape), `bg-background`,
+  `subtle` label, no shadow; still focusable.
 - Sending: the contact submit is `aria-disabled` in a `data-sending` form but
   drawn pressed and gold, not unavailable (`src/scripts/contact-sending.ts`).
 - Current: [Navigation states](#states).
@@ -771,7 +775,8 @@ roundel.**
 - About and every post with a `cover` have a photo, so no roundel.
 - The homepage is not a PageHero and has no roundel on its window.
 - `variant="hero"`: a gold disc of `--spacing-roundel` with a `gold-text` ring
-  (4px, 8px from `lg`), `mark` 8px shadow, 3deg tilt.
+  (4px, 8px from `lg`), `mark` 8px shadow, 3deg tilt. The page variant's 8px
+  ring is `fill-edge`, so it holds on a gold band.
 - Its center sits `--spacing(1)` above the slab's bottom edge; its right side
   on the column's text edge (`.hero-roundel`).
 - On a plain tier it straddles the dark slab's bottom edge too, and is never
@@ -1036,7 +1041,7 @@ No rule or divider joins the footer to the page.
 - The current page has `aria-current` and the 2px text-link underline; hover
   changes color only, so the two never look alike.
 - Stickers: `--size-sticker` 48px (`--size-sticker-lg` 56px from 64rem),
-  `--border-width-sticker` 4px `border` edge, 3deg tilt, 4px pink shadow with
+  `--border-width-sticker` 4px `fill-edge` edge, 3deg tilt, 4px pink shadow with
   `lift-control`. They straighten on hover and focus.
 - One colorway, the `.badge` inversion: `text` fill, `background` glyph
   (15.28). Not cycled by `nth-child`.
