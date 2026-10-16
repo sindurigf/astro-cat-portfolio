@@ -45,8 +45,10 @@ export interface SiteConfig {
     /**
      * The footer's name line and the first section of /about. About 11
      * characters fit the footer on a phone; `lang` is its BCP 47 language.
+     * `meaning` is its translation, which /about gives after the language's
+     * name ("Latin for …"); null for a motto in the site's own language.
      */
-    motto: { text: string; lang: string };
+    motto: { text: string; lang: string; meaning: string | null };
   };
   person: {
     /** The homepage `<h1>` sets each name on its own line. */
@@ -102,8 +104,8 @@ const config: SiteConfig = {
     ],
     // TODO(fork): The address of your repository.
     repository: 'https://github.example/robin-ohara/example-site',
-    // TODO(fork): Your motto, and the language it is written in.
-    motto: { text: 'Lege Saxa', lang: 'la' },
+    // TODO(fork): Your motto, its language, and what it means (null if it is in the site language).
+    motto: { text: 'Lege Saxa', lang: 'la', meaning: 'read the stones' },
   },
   person: {
     // TODO(fork): Your name, job title and email address.
@@ -169,6 +171,23 @@ const httpsUrl = (path: string, value: string): URL => {
   return url;
 };
 
+const languageTag = (path: string, value: string) => {
+  try {
+    if (Intl.getCanonicalLocales(value)[0] !== value) {
+      invalid(path, `is not in canonical BCP 47 form: ${value}`);
+    }
+  } catch (error) {
+    if (error instanceof RangeError) {
+      invalid(path, `is not a BCP 47 tag: ${value}`);
+    }
+    throw error;
+  }
+};
+
+/** A language's name in English; an unknown tag comes back as itself. */
+export const languageName = (tag: string): string =>
+  new Intl.DisplayNames(['en'], { type: 'language' }).of(tag) ?? tag;
+
 const email = (path: string, value: string) => {
   if (!EMAIL_ADDRESS.test(value))
     invalid(path, `is not an email address: ${value}`);
@@ -192,16 +211,7 @@ export const validateSiteConfig = (value: SiteConfig): SiteConfig => {
   if (origin.href !== `${origin.origin}/` || site.url.endsWith('/')) {
     invalid('site.url', 'must be an origin with no path or trailing slash.');
   }
-  try {
-    if (Intl.getCanonicalLocales(site.locale)[0] !== site.locale) {
-      invalid('site.locale', `is not in canonical BCP 47 form: ${site.locale}`);
-    }
-  } catch (error) {
-    if (error instanceof RangeError) {
-      invalid('site.locale', `is not a BCP 47 tag: ${site.locale}`);
-    }
-    throw error;
-  }
+  languageTag('site.locale', site.locale);
   httpsUrl('site.repository', site.repository);
   if (site.tagline.length < 1 || site.tagline.length > TAGLINE_MAX_LINES) {
     invalid('site.tagline', `must be one or two lines.`);
@@ -223,7 +233,24 @@ export const validateSiteConfig = (value: SiteConfig): SiteConfig => {
   }
 
   text('site.motto.text', site.motto.text);
-  text('site.motto.lang', site.motto.lang);
+  languageTag('site.motto.lang', site.motto.lang);
+  if (languageName(site.motto.lang) === site.motto.lang) {
+    invalid(
+      'site.motto.lang',
+      `names no language this runtime knows: ${site.motto.lang}`,
+    );
+  }
+  if (site.motto.meaning !== null) {
+    text('site.motto.meaning', site.motto.meaning);
+    /* "English for …" on an English site says nothing. */
+    const primary = (tag: string) => new Intl.Locale(tag).language;
+    if (primary(site.motto.lang) === primary(site.locale)) {
+      invalid(
+        'site.motto.meaning',
+        `must be null: the motto is in the site's own language (${site.motto.lang}).`,
+      );
+    }
+  }
   text('person.givenName', person.givenName);
   text('person.familyName', person.familyName);
   text('person.jobTitle', person.jobTitle);

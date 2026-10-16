@@ -1,4 +1,4 @@
-import { SITE_CONFIG } from '../site.config';
+import { languageName, SITE_CONFIG } from '../site.config';
 import { isExampleHost } from './example-host';
 
 export const SITE_NAME = SITE_CONFIG.site.name;
@@ -12,6 +12,9 @@ export const FIRST_PUBLISHED = SITE_CONFIG.site.firstPublished;
 export const REPOSITORY_URL = SITE_CONFIG.site.repository;
 
 export const MOTTO = SITE_CONFIG.site.motto;
+
+/** The motto's language, named in English: "Latin" for `la`. */
+export const MOTTO_LANGUAGE = languageName(MOTTO.lang);
 
 const GITHUB_HOST = 'github.com';
 

@@ -50,23 +50,23 @@ conventions for this template. Design rules and values are in
 `src/site.config.ts` holds everything that names the site or its owner. It is
 validated on import, so a bad value fails the build and the tests.
 
-| Key                          | Used by                                                                                      |
-| ---------------------------- | -------------------------------------------------------------------------------------------- |
-| `site.name`, `shortName`     | Titles, header wordmark, feeds, manifest, footer copyright                                   |
-| `site.url`                   | `site` in `astro.config.mjs`: canonicals, sitemap, feeds, JSON-LD                            |
-| `site.locale`                | `<html lang>`, `og:locale`, JSON-LD `inLanguage`, the feed `<language>`                      |
-| `site.tagline`               | The default share image and its alt text                                                     |
-| `site.motto`                 | Homepage stickers, the footer name and `/about`, marked with its `lang`                      |
-| `site.firstPublished`        | The footer copyright year                                                                    |
-| `site.repository`            | `/accessibility`'s link to the full statement                                                |
-| `person.*`                   | Homepage `<h1>` (one name per line), JSON-LD `Person`, contact address, CV                   |
-| `profiles`                   | Footer tiles and JSON-LD `sameAs`; each label needs an icon                                  |
-| `journeyPost`                | The close row of `/about`, `/career`, `/contact/sent`; must name a published post, or `null` |
-| `analytics`                  | `null` loads no tracker; an Umami website id turns it on ([Umami](docs/DEPLOYMENT.md#umami)) |
-| `bingSiteVerification`       | `null` adds no tag; a [Bing](docs/DEPLOYMENT.md#bing-webmaster-tools) code adds one to `/`   |
-| `contact.form`               | `cloudflare-d1` (the form) or `none` (email only)                                            |
-| `contact.notificationSender` | Must equal `allowed_sender_addresses` in `wrangler.jsonc`                                    |
-| `accessibility.responseDays` | The reply aim on `/accessibility`, in whole days                                             |
+| Key                          | Used by                                                                                                                               |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| `site.name`, `shortName`     | Titles, header wordmark, feeds, manifest, footer copyright                                                                            |
+| `site.url`                   | `site` in `astro.config.mjs`: canonicals, sitemap, feeds, JSON-LD                                                                     |
+| `site.locale`                | `<html lang>`, `og:locale`, JSON-LD `inLanguage`, the feed `<language>`                                                               |
+| `site.tagline`               | The default share image and its alt text                                                                                              |
+| `site.motto`                 | Homepage stickers, the footer name and `/about`, marked with its `lang`; `meaning` gives `/about`'s "Latin for …" line, null omits it |
+| `site.firstPublished`        | The footer copyright year                                                                                                             |
+| `site.repository`            | `/accessibility`'s link to the full statement                                                                                         |
+| `person.*`                   | Homepage `<h1>` (one name per line), JSON-LD `Person`, contact address, CV                                                            |
+| `profiles`                   | Footer tiles and JSON-LD `sameAs`; each label needs an icon                                                                           |
+| `journeyPost`                | The close row of `/about`, `/career`, `/contact/sent`; must name a published post, or `null`                                          |
+| `analytics`                  | `null` loads no tracker; an Umami website id turns it on ([Umami](docs/DEPLOYMENT.md#umami))                                          |
+| `bingSiteVerification`       | `null` adds no tag; a [Bing](docs/DEPLOYMENT.md#bing-webmaster-tools) code adds one to `/`                                            |
+| `contact.form`               | `cloudflare-d1` (the form) or `none` (email only)                                                                                     |
+| `contact.notificationSender` | Must equal `allowed_sender_addresses` in `wrangler.jsonc`                                                                             |
+| `accessibility.responseDays` | The reply aim on `/accessibility`, in whole days                                                                                      |
 
 - Libraries re-export these as constants (`src/lib/site.ts`, `profiles.ts`,
   `contact.ts`, `analytics-site.ts`, `site-language.ts`); `og-image.ts` and
