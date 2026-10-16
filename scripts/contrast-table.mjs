@@ -42,7 +42,6 @@ const PAIRS = [
   ['background', 'gold', 'text', 'Label on a gold fill'],
   ['background', 'cyan', 'text', 'Label on a hovered button'],
   ['background', 'text', 'text', 'Badge; the current page block'],
-  ['background', 'pink', 'text', 'Glyph on the pink category tile'],
   ['gold-text', 'gold', 'text', 'Text on the gold surface'],
   ['gold-muted', 'gold', 'text', 'Secondary text on gold'],
   ['gold-link', 'gold', 'text', 'Links on gold'],

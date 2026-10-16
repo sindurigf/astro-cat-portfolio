@@ -18,7 +18,7 @@ import {
 import { WIDTHS } from '../lib/image-densities';
 import { PERSONA_NOTICE_ID, SAMPLE_PERSONA } from '../lib/persona';
 import { MOTTO } from '../lib/site';
-import { CATEGORIES } from '../lib/categories';
+import { CATEGORIES, CATEGORY_TILE } from '../lib/categories';
 import { BLOG_PATH, categoryHref } from '../lib/paths';
 import {
   JOB_TITLE,
@@ -209,7 +209,7 @@ const STATS = [
               aria-hidden="true"
               class:list={[
                 'flex size-16 -rotate-3 items-center justify-center border-4 border-border text-section-number font-black leading-none',
-                card.accent.tile,
+                CATEGORY_TILE,
               ]}
             >
               {card.glyph}
