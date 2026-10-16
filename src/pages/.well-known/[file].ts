@@ -1,28 +1,31 @@
-import type { APIRoute } from 'astro';
+import type { APIRoute, GetStaticPaths } from 'astro';
 import { requireSite } from '../../lib/site';
-import { CONTACT_FORM_ON, CONTACT_MAILTO } from '../../lib/contact';
+import { CONTACT_FORM_ON, SECURITY_CONTACT } from '../../lib/contact';
 import { RETENTION_DAYS } from '../../lib/contact-form';
 
 /*
- * RFC 9116. Generated so `Canonical:` derives from `site` in astro.config.mjs.
+ * /.well-known/security.txt, RFC 9116. Generated so `Canonical:` derives from
+ * `site` in astro.config.mjs.
  */
 
+export const SECURITY_TXT = 'security.txt';
+
+/* No file without a contact that works (RFC 9116): src/lib/contact.ts. */
+export const getStaticPaths: GetStaticPaths = () =>
+  SECURITY_CONTACT === null ? [] : [{ params: { file: SECURITY_TXT } }];
+
 /*
- * A literal, not `now + 1 year`: it asserts a human still reads CONTACT_EMAIL.
+ * A literal, not `now + 1 year`: it asserts a human still reads the contact.
  * RFC 9116 section 2.5.5: at most a year out. tests/security-txt.spec.ts fails
  * as it nears. Move it only after confirming the inbox is read.
  */
 const EXPIRES = '2027-09-09T00:00:00.000Z';
 
-export const GET: APIRoute = ({ site: configuredSite }) => {
-  const site = requireSite(
-    configuredSite,
-    'security.txt needs an absolute Canonical URL (RFC 9116).',
-  );
+/** The file for `site`, offering `contact`. */
+export const securityTxt = (site: URL, contact: string): string => {
+  const canonical = new URL(`.well-known/${SECURITY_TXT}`, site).href;
 
-  const canonical = new URL('.well-known/security.txt', site).href;
-
-  const body = [
+  return [
     `# ${site.origin} -- see RFC 9116.`,
     '#',
     '# A personal site with no accounts. Every page is prerendered and served',
@@ -50,14 +53,25 @@ export const GET: APIRoute = ({ site: configuredSite }) => {
           '# documents.',
         ]),
     '',
-    `Contact: ${CONTACT_MAILTO}`,
+    `Contact: ${contact}`,
     `Expires: ${EXPIRES}`,
     'Preferred-Languages: en',
     `Canonical: ${canonical}`,
     '',
   ].join('\n');
+};
 
-  return new Response(body, {
+export const GET: APIRoute = ({ site: configuredSite }) => {
+  const site = requireSite(
+    configuredSite,
+    'security.txt needs an absolute Canonical URL (RFC 9116).',
+  );
+  /* getStaticPaths builds no path without one. */
+  if (SECURITY_CONTACT === null) {
+    throw new Error('security.txt was requested with no contact to publish.');
+  }
+
+  return new Response(securityTxt(site, SECURITY_CONTACT), {
     headers: { 'Content-Type': 'text/plain; charset=utf-8' },
   });
 };

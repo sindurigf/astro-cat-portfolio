@@ -7,11 +7,11 @@ import { THEME_STORAGE_KEY } from '../lib/theme';
 /* The woff2 global.css's @font-face names; `?url` gives Vite's hashed path to preload. */
 import lexendLatin from '@fontsource-variable/lexend/files/lexend-latin-wght-normal.woff2?url';
 import { structuredDataScript, type ArticleMeta } from '../lib/structured-data';
-import { getImage } from 'astro:assets';
 import type { Trail } from '../lib/breadcrumbs';
 import { UMAMI_HOST_URL, UMAMI_SCRIPT_PATH } from '../lib/analytics';
 import { ANALYTICS_ON, UMAMI_WEBSITE_ID } from '../lib/analytics-site';
 import { DEFAULT_OG_IMAGE, type OgImage } from '../lib/og-image';
+import { personImageUrl } from '../lib/person-image';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import { SITE_FEED_PATH, SITEMAP_PATH } from '../lib/paths';
@@ -38,11 +38,9 @@ interface Props {
   trail?: Trail;
   markdownSource?: string;
   feed?: { title: string; href: string };
-  /* /about/ only: the page is the Person's profile, the portrait their image. */
-  profile?: { portrait: ImageMetadata };
+  /* /about/ only: the page is the Person's profile. */
+  profile?: boolean;
 }
-
-const PERSON_IMAGE_WIDTH = 640;
 
 const {
   title,
@@ -72,12 +70,7 @@ const bingVerification = bingVerificationFor(
   BING_SITE_VERIFICATION,
 );
 const ogImageUrl = new URL(ogImage.src, site);
-const personImage =
-  profile &&
-  new URL(
-    (await getImage({ src: profile.portrait, width: PERSON_IMAGE_WIDTH })).src,
-    site,
-  );
+const personImage = await personImageUrl(site);
 const articleData = article && {
   ...article,
   description,
@@ -110,6 +103,8 @@ const articleData = article && {
       Sets data-theme and the `js` class before first paint. In <head>, not
       beside the switch: an inline script in the header lets it paint half-built.
       Blocked storage throws; the empty catch falls back to the system theme.
+      A page restored from the back-forward cache takes the stored choice again:
+      another page may have changed it.
       The timer marks a deck whose script never started, so slides.css shows it whole.
     */}
     <script
@@ -125,16 +120,22 @@ const articleData = article && {
           .querySelector('[data-deck]:not([data-deck-ready])')
           ?.setAttribute('data-deck-failed', '');
       }, deckTimeout);
-      let saved = null;
-      try {
-        saved = localStorage.getItem(key);
-      } catch {}
-      document.documentElement.dataset.theme =
-        saved === 'light' ||
-        (saved !== 'dark' &&
-          matchMedia('(prefers-color-scheme: light)').matches)
-          ? 'light'
-          : 'dark';
+      const applyTheme = () => {
+        let saved = null;
+        try {
+          saved = localStorage.getItem(key);
+        } catch {}
+        document.documentElement.dataset.theme =
+          saved === 'light' ||
+          (saved !== 'dark' &&
+            matchMedia('(prefers-color-scheme: light)').matches)
+            ? 'light'
+            : 'dark';
+      };
+      applyTheme();
+      addEventListener('pageshow', (event) => {
+        if (event.persisted) applyTheme();
+      });
     </script>
     <title>{documentTitle}</title>
     <meta name="description" content={description} />
@@ -208,6 +209,7 @@ const articleData = article && {
       is:inline
       set:html={structuredDataScript({
         site,
+        siteName: SITE_NAME,
         personImage,
         article: articleData,
         breadcrumbs: trail && { page: canonical, trail },

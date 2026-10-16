@@ -47,6 +47,8 @@ validated on import, so a bad value fails the build and the tests.
 | `site.name`, `shortName`     | Titles, header wordmark, feeds, manifest, footer copyright                                   |
 | `site.url`                   | `site` in `astro.config.mjs`: canonicals, sitemap, feeds, JSON-LD                            |
 | `site.locale`                | `<html lang>`, `og:locale`, JSON-LD `inLanguage`, the feed `<language>`                      |
+| `site.tagline`               | The default share image and its alt text                                                     |
+| `site.motto`                 | Homepage stickers, the footer name and `/about`, marked with its `lang`                      |
 | `site.firstPublished`        | The footer copyright year                                                                    |
 | `site.repository`            | `/accessibility`'s link to the full statement                                                |
 | `person.*`                   | Homepage `<h1>` (one name per line), JSON-LD `Person`, contact address, CV                   |
@@ -59,7 +61,9 @@ validated on import, so a bad value fails the build and the tests.
 | `accessibility.responseDays` | The reply aim on `/accessibility`, in whole days                                             |
 
 - Libraries re-export these as constants (`src/lib/site.ts`, `profiles.ts`,
-  `contact.ts`, `analytics-site.ts`); code imports those, not the config.
+  `contact.ts`, `analytics-site.ts`, `site-language.ts`); `og-image.ts` and
+  `contact-notification.ts` read the config directly. Other code imports
+  those, not the config.
 - The browser bundle never imports the config: the click tracker reads
   `analytics.ts`, which does not.
 - Tests read the same constants, and the ones for analytics, the contact form,
@@ -74,6 +78,12 @@ Widely Available). Set once as `CSS_TARGET` in `astro.config.mjs` and passed to
 - Tailwind 4 sets the floor: it emits `@property`, `color-mix()` and cascade
   layers, which Safari 15 cannot render.
 - Pinned, not left to the bundler default, which moves between releases.
+- Three features in use need a newer browser (versions from
+  `@mdn/browser-compat-data` 8.1.5, an external source, not a dependency):
+  `popover`, for the About cats' trick list (Chrome 114, Firefox 125, Safari
+  17); `@media (scripting: none)`, without which the no-JavaScript nav is not
+  shown (Chrome 120, Safari 17); and `:has()`, without which
+  `.card:has(.card-link)` does not match (Firefox 121).
 - No `browserslist` key: neither Tailwind 4 nor Vite reads it.
 - `tests/css-target.spec.ts` asserts the list and the prefixes it implies
   (e.g. `-webkit-hyphens`) in the built CSS. No engine in the suite runs at the
@@ -113,7 +123,7 @@ Dark is the default. Colors and rules:
   `about-cats.css` maps them to tokens, so the cats follow the theme in CSS.
 - `playwright.config.ts` sets `colorScheme: 'dark'`; specs that measure light
   set `colorScheme: 'light'` themselves (`light-mode.spec.ts`, `focus.spec.ts`,
-  the talk scan in `a11y.spec.ts`).
+  `states.spec.ts`, `about-cats.spec.ts`, the talk scan in `a11y.spec.ts`).
 
 ### Token enforcement
 
@@ -180,6 +190,7 @@ Headings, alt text, focus rings and axe are checked on the rendered page by
 | `coverAlt`       | string            | with `cover` |         |
 | `coverCardAlt`   | string            | no           |         |
 | `coverCredit`    | string            | no           |         |
+| `personaSources` | boolean           | no           | `false` |
 
 - Categories: `skincare`, `travel`, `personal-thoughts`,
   `professional-journey`, `open-source`. Rename them in `BLOG_CATEGORIES` and
@@ -267,13 +278,13 @@ presenter view and a PDF. Authoring rules:
   visitors above, with a strict schema
   ([what fails the build](docs/DEVELOPMENT.md#writing-a-talk)).
 - **Slideshow.** Every slide is a `.card` in `<section id="slide-N">`, all in
-  the HTML. `src/scripts/slideshow.ts` adds controls, keys and a polite live
-  region. Hidden slides use `data-current`, not `hidden`: Tailwind's
-  `[hidden]` `!important` would stop print showing them. Focus stays on a bar
-  control as a slide turns (APG carousel), scrolled back into view when a
-  taller slide pushes it off screen. Below `lg` a media query stacks every
-  slide and hides the controls, the script ignores slide keys, and a card
-  links the talk PDF with its size.
+  the HTML. `DeckBar.astro` holds the controls and a polite live region;
+  `src/scripts/slideshow.ts` wires them and the keys. Hidden slides use
+  `data-current`, not `hidden`: Tailwind's `[hidden]` `!important` would stop
+  print showing them. Focus stays on a bar control as a slide turns (APG
+  carousel), scrolled back into view when a taller slide pushes it off screen.
+  Below `lg` a media query stacks every slide and hides the controls, the
+  script ignores slide keys, and a card links the talk PDF with its size.
   `tests/slideshow.spec.ts`, which also checks every slide fits 1280x720.
 - **Presenter view.** `src/presenter/integration.mjs`, `astro dev` only, synced
   over `BroadcastChannel`. Notes load via `import.meta.glob` (no `node:fs` in
@@ -286,8 +297,6 @@ presenter view and a PDF. Authoring rules:
   SHA-256 of the deck; `tests/talk-pdf.spec.ts` fails on drift.
 - **Images.** `scripts/check-untransformed.mjs` covers deck images, symlinked
   site images included ([where images go](docs/DEVELOPMENT.md#writing-a-talk)).
-  Images left out of the deck: [ACCESSIBILITY.md](ACCESSIBILITY.md#7-known-gaps)
-  gap 6.
 
 ## Conventions
 
@@ -348,7 +357,7 @@ in `wrangler.jsonc`).
 
 ## Assets
 
-- **The suffix names the artwork color.** `-dark` is `#111111` artwork (goes
+- **The suffix names the artwork color.** `-dark` is `#131313` artwork (goes
   on gold or light); `-white` is `#FFFFFF` artwork (goes on dark). The wrong
   pairing renders invisible.
 - `src/assets/`: rendered artwork, through `astro:assets`, WebP, hashed into
@@ -357,11 +366,11 @@ in `wrangler.jsonc`).
 - `artwork/`: source artwork the build never reads (the badge, the
   `favicon.ico` frames). Nothing in it ships.
 
-| Path                           | Artwork   | Goes on              | Used by                        |
-| ------------------------------ | --------- | -------------------- | ------------------------------ |
-| `src/assets/mark-dark.png`     | `#131313` | Gold, light surfaces | `Roundel.astro`                |
-| `artwork/badge-white.png`      | `#FFFFFF` | Dark surfaces        | Nothing; source artwork        |
-| `public/images/og-default.png` | Composite | n/a                  | `BaseLayout.astro`, every page |
+| Path                           | Artwork   | Goes on              | Used by                                        |
+| ------------------------------ | --------- | -------------------- | ---------------------------------------------- |
+| `src/assets/mark-dark.png`     | `#131313` | Gold, light surfaces | `Roundel.astro`                                |
+| `artwork/badge-white.png`      | `#FFFFFF` | Dark surfaces        | Nothing; source artwork                        |
+| `public/images/og-default.png` | Composite | n/a                  | `BaseLayout.astro`, every page without a cover |
 
 | Artwork             | on `#131313` | on `#1A1A1A` | on `#FFFFFF` | on `#FFC000` |
 | ------------------- | ------------ | ------------ | ------------ | ------------ |
@@ -387,10 +396,10 @@ in `wrangler.jsonc`).
   `sizes`.
 - A `.vue` component cannot reach `astro:assets`: call `getImage()` in Astro
   and pass the result as a prop.
-- Footer links: seven sticker tiles with Simple Icons (CC0) paths, one
-  `<symbol>` per link label in `src/assets/social-icons.svg`. The footer mascot
-  is an inline `aria-hidden` SVG colored from `components/footer.css`. The
-  footer runs no JavaScript.
+- Footer links: one sticker tile per profile plus Email (six as shipped), with
+  Simple Icons (CC0) paths, one `<symbol>` per link label in
+  `src/assets/social-icons.svg`. The footer mascot is an inline `aria-hidden`
+  SVG colored from `components/footer.css`. The footer runs no JavaScript.
 
 ### Photos and video
 
@@ -403,7 +412,7 @@ in `wrangler.jsonc`).
   more than 1.5x oversize, or `sizes` over 1.1x.
 - Exception: the `/about` cat card photo has two drawn widths, so
   `about.astro` gives it its own widths and `sizes` (`CAT_PHOTO_WIDTHS`).
-- `/about` photo boxes match their file's ratio (hence CSS-column masonry). No
+- `/about` photo boxes match their file's ratio. No
   text over photos.
 - Markdown images: `post-figure.mjs` sets `layout: 'full-width'` so
   `image.breakpoints` (`MARKDOWN_WIDTHS`) applies. An image alone in a post
@@ -433,8 +442,8 @@ in `wrangler.jsonc`).
     without `Content-Length`). A re-encoded video needs a rebuild.
   - Slices go through `FixedLengthStream` so the `206` has a length.
   - Ranged responses keep the `_headers` rules.
-  - `tests/video-range.spec.ts` runs under the Worker config; its end-to-end
-    tests skip while no video exists.
+  - `tests/video-range.spec.ts` runs under the Worker config, against a
+    fixture the config copies into `public/videos/` for that build.
   - Not dead code ([rejected](#rejected-findings)).
 
 ### The favicon set
@@ -519,7 +528,8 @@ in `public/`.
 - `Link`: `llms.txt` as `describedby`, the sitemap, and the feed as
   `alternate` (RFC 8288). `sitemap` is not a registered relation;
   specification.website's discovery checklist names it.
-- `X-Robots-Tag: noindex` on `/blog/*.md`, a copy of each page. To close the
+- `X-Robots-Tag: noindex` on `/blog/*.md`, a copy of each page, and on
+  `/*.pdf` (the talk slides), whose pages are the search results. To close the
   whole site, use this header rather than `Disallow`: a crawler barred from a
   page never sees its noindex and can still list the URL.
 - No `Cross-Origin-Embedder-Policy`: nothing uses `SharedArrayBuffer`, and it
@@ -607,8 +617,8 @@ evidence.
   header instead of replacing it. `frame-ancestors` is ignored in `<meta>`, and
   the header also covers PDFs, `llms.txt`, the sitemap and videos.
 - **Set `package.json` `"license"` to `"MIT"`:** the code is MIT and the
-  content is all rights reserved, so one SPDX identifier would mislabel the
-  content. `SEE LICENSE IN README.md` is npm's form for that case.
+  photographs are CC BY 4.0, so one SPDX identifier would mislabel the
+  photographs. `SEE LICENSE IN README.md` is npm's form for that case.
 - **Hide the honeypot with CSS instead of `hidden`:** if the
   stylesheet fails, a person sees the field and loses their message.
 - **Make `/contact`'s "Or Find Me Here" and "Write to Me About" `h2`:** they
@@ -651,9 +661,9 @@ evidence.
   cannot stop a flood spread over many addresses, but the worst case is a
   temporary 503 when D1's writes run out; nothing stored is lost or exposed.
 - **Run Lighthouse in CI:** timing scores vary on shared runners.
-  `tests/performance.spec.ts` gates script bytes and layout shift, the image
-  and head specs gate formats, priority and font preload; Lighthouse runs by
-  hand after a deploy ([DEPLOYMENT.md](docs/DEPLOYMENT.md)).
+  `tests/performance.spec.ts` gates script and CSS bytes and layout shift, the
+  image and head specs gate formats, priority and font preload; Lighthouse runs
+  by hand after a deploy ([DEPLOYMENT.md](docs/DEPLOYMENT.md)).
 - **Add ESLint, or `checkJs` for the `.mjs` scripts:** the strictest tsconfig,
   `astro check` at hint level, `vue-tsc`, Prettier and the `check:*` scripts
   cover what a linter would. `checkJs` reports untyped code (implicit `any`,
@@ -707,6 +717,10 @@ evidence.
   path falls back:** apt reuses a cached file of the right size, so a corrupt
   `.deb` would fail in dpkg again. After a failed `dpkg -i` the fallback only
   fetches what failed.
+- **Open fewer photos in `tests/photo-viewer.spec.ts`'s short-viewer test:**
+  at full clock it uses a fraction of its timeout. One photo per size,
+  thumbnail and group saves seconds and drops coverage; its near-timeouts came
+  from a throttled CPU.
 - **Drop `tests/header-fit.spec.ts`'s sideways-scroll check as a reflow
   duplicate:** it is the only sideways check at 336px (`--breakpoint-xs`), and
   it reads one number from the page state the test already measures.
@@ -721,6 +735,19 @@ evidence.
   site name, and the hero roundel is decoration, so `alt=""` is right
   ([H67](https://www.w3.org/WAI/WCAG22/Techniques/html/H67)). Text there would
   be announced twice.
+- **Answer the unslashed URL with a 301, not a 307:** the status is the
+  platform's (`html_handling` in `wrangler.jsonc`). Every internal link,
+  canonical, sitemap and feed URL ends in `/`, so only a typed or outside link
+  meets it; the alternative is one `_redirects` line per route.
+- **AccessLint engine hits, each checked against the live DOM:**
+  `color-contrast` on the homepage name is read against a gold ancestor the
+  text does not sit on; `landmark-unique` counts the no-JavaScript nav, which
+  is `display: none` with scripts on; `focus-order` flags the photo strips,
+  which are focusable so a keyboard can scroll them.
+- **Move the full-screen slide bar inside the card:** on a 16:9 screen the
+  foot row crosses the bottom of the focused slide's ring while both show.
+  The row shows only while the pointer moves or one of its buttons has focus,
+  and inside the card it would sit over slide content at some widths.
 
 ## Content notes
 

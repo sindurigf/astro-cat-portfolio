@@ -70,6 +70,7 @@ const wire = (deck: HTMLElement): void => {
   const count = required<HTMLElement>(bar, '[data-deck-count]');
   const part = required<HTMLElement>(bar, '[data-deck-part]');
   const fullscreen = required<HTMLButtonElement>(bar, '[data-deck-fullscreen]');
+  const exit = required<HTMLButtonElement>(bar, '[data-deck-exit]');
   const status = required<HTMLElement>(deck, '[data-deck-status]');
   const notes = [...deck.querySelectorAll<HTMLElement>('[data-for-slide]')];
   const upcoming = deck.querySelector<HTMLElement>('[data-deck-upcoming]');
@@ -106,6 +107,8 @@ const wire = (deck: HTMLElement): void => {
     const target = slides[index];
     const focusWasInside = slides[current].contains(document.activeElement);
     current = index;
+    /* go() sets it again; any other turn must not leave the last slide's name behind (SC 4.1.3). */
+    status.textContent = '';
 
     slides.forEach((slide) => {
       slide.toggleAttribute('data-current', slide === target);
@@ -259,6 +262,8 @@ const wire = (deck: HTMLElement): void => {
     }, CURSOR_IDLE_MS);
   };
   deck.addEventListener('pointermove', wake);
+  /* A tap moves no pointer; it shows the bar and turns no slide. */
+  deck.addEventListener('pointerdown', wake);
 
   /* iPhone has no Fullscreen API outside video, so the button stays hidden. */
   if (document.fullscreenEnabled) {
@@ -271,7 +276,8 @@ const wire = (deck: HTMLElement): void => {
         status.textContent = 'Full screen is not available here.';
       });
     });
-    /* The audience deck hides its bar in full screen, so focus goes to the slide and back to the button. */
+    exit.addEventListener('click', () => fullscreen.click());
+    /* The audience deck's bar changes shape in full screen, so focus goes to the slide and back to the button. */
     let wasFullScreen = false;
     document.addEventListener('fullscreenchange', () => {
       const entered = inFullScreen();

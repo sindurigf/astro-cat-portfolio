@@ -2,7 +2,9 @@
 /*
  * Wired by src/scripts/slideshow.ts, which unhides it. Before the slides in
  * source order so keyboard and screen reader reach it first; `order-last`
- * draws it below.
+ * draws it below. The audience deck in full screen draws it as arrows and the
+ * count at the foot and Exit Full Screen in the card's top right (slides.css);
+ * the names stay the same. Exit comes first, so Tab follows the screen downward.
  */
 interface Props {
   total: number;
@@ -12,11 +14,23 @@ const { total } = Astro.props;
 ---
 
 <nav class="deck-bar" aria-label="Slides" data-deck-bar>
+  <button type="button" class="btn-secondary deck-exit" data-deck-exit>
+    <span class="deck-arrow" aria-hidden="true">
+      ✕
+    </span>
+    <span class="deck-label">Exit Full Screen</span>
+  </button>
   <button type="button" class="btn-secondary" data-deck-previous>
-    Previous
+    <span class="deck-arrow" aria-hidden="true">
+      ←
+    </span>
+    <span class="deck-label">Previous</span>
   </button>
   <button type="button" class="btn-primary" data-deck-next>
-    Next
+    <span class="deck-arrow" aria-hidden="true">
+      →
+    </span>
+    <span class="deck-label">Next</span>
   </button>
   <span class="deck-part" data-deck-part></span>
   <span class="deck-count" data-deck-count>

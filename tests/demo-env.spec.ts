@@ -120,3 +120,26 @@ test('REPOSITORY_URL: both /brand calls to action point at it', async ({
     ).toEqual(new Set([href]));
   }
 });
+
+test(
+  'SECURITY_CONTACT: security.txt offers it, with an expiry still ahead',
+  NODE,
+  async ({ request }) => {
+    const response = await request.get('/.well-known/security.txt');
+    expect(response.status(), 'the demo publishes no security.txt.').toBe(200);
+
+    const body = await response.text();
+    expect(/^Contact:\s*(.+)$/m.exec(body)?.[1]).toBe(
+      DEMO_ENV.SECURITY_CONTACT,
+    );
+
+    const expires = new Date(/^Expires:\s*(.+)$/m.exec(body)?.[1] ?? '');
+    expect(
+      expires.getTime(),
+      'Expires is missing, unreadable or past.',
+    ).toBeGreaterThan(Date.now());
+    expect(/^Canonical:\s*(.+)$/m.exec(body)?.[1]).toBe(
+      `${DEMO_ENV.SITE_URL}/.well-known/security.txt`,
+    );
+  },
+);

@@ -115,6 +115,18 @@ test.describe('JSON-LD structured data', NODE, () => {
     ).toBe(true);
   });
 
+  test('the Person has the same image on every page', () => {
+    const pages = builtHtml();
+    const imageOn = (route: string): unknown =>
+      nodeOfType(graphOf(pages.get(route)!, route), 'Person')!.image;
+    const portrait = imageOn('/about');
+    expect(portrait, "/about/'s Person has no image.").toBeTruthy();
+    expect(
+      ROUTES.filter((route) => imageOn(route) !== portrait),
+      "page(s) whose Person lacks /about/'s image",
+    ).toEqual([]);
+  });
+
   test('the published name is the name the homepage shows', () => {
     const pages = builtHtml();
     const person = nodeOfType(graphOf(pages.get('/')!, '/'), 'Person')!;
@@ -203,6 +215,39 @@ test.describe('JSON-LD structured data', NODE, () => {
       ).toEqual({ '@id': person['@id'] });
     }
   });
+
+  test('every route gives the site the name its og:site_name gives', () => {
+    for (const [route, html] of builtHtml()) {
+      const website = nodeOfType(graphOf(html, route), 'WebSite')!;
+
+      expect
+        .soft(website.name, `${route} names the site twice, differently.`)
+        .toBe(metaContent(html, 'og:site_name'));
+    }
+  });
+});
+
+test.describe('the WebSite name', NODE, () => {
+  const websiteFor = (siteName: string): Node => {
+    const { '@graph': graph } = JSON.parse(
+      structuredDataScript({ site: new URL('https://janedoe.dev'), siteName }),
+    ) as { '@graph': Node[] };
+    return nodeOfType(graph, 'WebSite')!;
+  };
+
+  test('is the configured site name, with the host as another name', () => {
+    const website = websiteFor('Jane Doe Writes');
+
+    expect(website.name).toBe('Jane Doe Writes');
+    expect(website.alternateName).toContain('janedoe.dev');
+  });
+
+  test('is not repeated as another name when the site is named for its host', () => {
+    const website = websiteFor('janedoe.dev');
+
+    expect(website.name).toBe('janedoe.dev');
+    expect(website.alternateName).not.toContain('janedoe.dev');
+  });
 });
 
 test.describe('a title cannot end the data block', NODE, () => {
@@ -211,6 +256,7 @@ test.describe('a title cannot end the data block', NODE, () => {
   const written = (title: string): string =>
     `<script type="application/ld+json">${structuredDataScript({
       site: new URL('https://example.com'),
+      siteName: 'example.com',
       article: {
         headline: title,
         datePublished: '2026-09-22',

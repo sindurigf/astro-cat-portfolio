@@ -26,13 +26,23 @@ page. Tested for WCAG 2.2 AA in Chromium, Firefox and WebKit.
    `null`, which removes her notice from `/credits` and the homepage. Update
    [SECURITY.md](SECURITY.md), [ACCESSIBILITY.md](ACCESSIBILITY.md) and
    [AI_DISCLOSURE.md](AI_DISCLOSURE.md) to describe your site.
+   ACCESSIBILITY.md section 1 names the template's maintainer as owner and
+   reporting contact; replace those three rows, or your visitors' barrier
+   reports go to her. A build for a real `site.url` fails until you do.
    Replace the logo and icons with [Replace the logo](docs/DEVELOPMENT.md#replace-the-logo);
    [Where the copy lives](docs/DEVELOPMENT.md#where-the-copy-lives) lists the
    page files.
    `/brand` shows your design system and links to your `repository`; it is
-   optional. To drop it, delete `src/pages/brand.astro`,
-   `src/components/brand/` and `tests/brand.spec.ts`, the Brand link in
-   `src/components/Footer.astro`, and every `'/brand'` under `tests/`.
+   optional. To drop it:
+   - Delete `src/pages/brand.astro`, `src/components/brand/` and
+     `tests/brand.spec.ts`. Keep `src/lib/brand.ts`: `scripts/check-tokens.mjs`
+     names it.
+   - Remove the Brand link in `src/components/Footer.astro`.
+   - Point the logo entry of `MADE_WITH_AI` in `src/pages/credits.astro` at
+     another page, and the same `href` in `tests/credits-ai.spec.ts`.
+   - Remove every `/brand` entry under `tests/` (`grep -rn "'/brand" tests`
+     lists them), the `/brand` test in `tests/demo-env.spec.ts` and its
+     `templateUseUrl` import.
 5. Run the gate in [AGENTS.md](AGENTS.md#done-means): build, typecheck,
    check and every test suite. CI runs the same on every pull request and
    needs no secrets.

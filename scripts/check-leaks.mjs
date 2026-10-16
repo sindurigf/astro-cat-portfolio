@@ -50,6 +50,26 @@ const EXEMPT_LINE = join(
 );
 const EXEMPT_LINE_FILE = 'src/pages/credits.astro';
 
+/*
+ * The template maintainer's own contacts, so a report about the template
+ * reaches her: these exact values, in these files only. Longest first.
+ */
+const MAINTAINER_EMAIL = join('lol', '@sin', 'duri.lol');
+const MAINTAINER_VALUES = {
+  'ACCESSIBILITY.md': [
+    join('https://github.com/sin', 'durigf/astro-cat-portfolio/issues'),
+    join('Sin', 'duri Guntu', 'palli'),
+    MAINTAINER_EMAIL,
+  ],
+  'SECURITY.md': [MAINTAINER_EMAIL],
+};
+
+const withoutMaintainerValues = (path, line) =>
+  (MAINTAINER_VALUES[path] ?? []).reduce(
+    (rest, value) => rest.replaceAll(value, ''),
+    line,
+  );
+
 const leaks = (text) =>
   CASE_INSENSITIVE.test(text) || CASE_SENSITIVE.test(text);
 
@@ -152,7 +172,8 @@ for (const path of tracked) {
     .split('\n')
     .forEach((line, index) => {
       if (path === EXEMPT_LINE_FILE && line === EXEMPT_LINE) return;
-      if (leaks(line)) hits.push(`${path}:${index + 1}: ${line.trim()}`);
+      if (leaks(withoutMaintainerValues(path, line)))
+        hits.push(`${path}:${index + 1}: ${line.trim()}`);
     });
 }
 

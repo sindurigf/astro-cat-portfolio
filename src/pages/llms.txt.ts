@@ -2,7 +2,11 @@ import type { APIRoute } from 'astro';
 import { requireSite } from '../lib/site';
 import { getCollection } from 'astro:content';
 import { sortByNewest, type BlogPost } from '../lib/blog';
-import { CONTACT_EMAIL, CONTACT_FORM_ON } from '../lib/contact';
+import {
+  CONTACT_EMAIL,
+  CONTACT_FORM_ON,
+  SECURITY_CONTACT,
+} from '../lib/contact';
 import {
   ABOUT_PATH,
   BLOG_PATH,
@@ -13,7 +17,7 @@ import {
   SITE_FEED_PATH,
   SITEMAP_PATH,
 } from '../lib/paths';
-import { PERSON_NAME } from '../lib/profiles';
+import { CV_PATH, PERSON_NAME } from '../lib/profiles';
 import { ANALYTICS_ON } from '../lib/analytics-site';
 import { talkDecks } from '../lib/talk-deck';
 import { BUILD_ENV } from '../lib/build-env';
@@ -42,13 +46,13 @@ const ROUTE_NOTES: { path: string; label: string; note: string }[] = [
     path: CAREER_PATH,
     label: 'Career',
     note:
-      'Work history, education, skills and open source work, with the CV ' +
-      'linked as a PDF.',
+      'Work history, education, skills and open source work' +
+      (CV_PATH === null ? '.' : ', with the CV linked as a PDF.'),
   },
   {
     path: BLOG_PATH,
     label: 'Blog',
-    note: 'The blog index, newest first; every published post is listed.',
+    note: 'The blog index, newest first.',
   },
   { path: CONTACT_PATH, label: 'Contact', note: 'How to get in touch.' },
 ];
@@ -69,7 +73,9 @@ const noteLines = (
   `- Contact: ${CONTACT_EMAIL}`,
   ...(BUILD_ENV.noindex ? [] : [`- Full URL list: ${absolute(SITEMAP_PATH)}`]),
   `- RSS feed: ${absolute(SITE_FEED_PATH)}`,
-  `- Security contact: ${absolute('/.well-known/security.txt')}`,
+  ...(SECURITY_CONTACT !== null
+    ? [`- Security contact: ${absolute('/.well-known/security.txt')}`]
+    : []),
   ...(posts.some((post) => post.data.placeholder)
     ? [
         `- Posts marked ${PLACEHOLDER_MARK} are unfinished drafts whose title, ` +

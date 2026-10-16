@@ -1,4 +1,5 @@
 import { SITE_CONFIG } from '../site.config';
+import { isExampleHost } from './example-host';
 
 export const SITE_NAME = SITE_CONFIG.site.name;
 
@@ -13,19 +14,6 @@ export const REPOSITORY_URL = SITE_CONFIG.site.repository;
 export const MOTTO = SITE_CONFIG.site.motto;
 
 const GITHUB_HOST = 'github.com';
-
-/* RFC 2606: example.com, .net and .org, and the .example TLD, never resolve to a real repository. */
-const EXAMPLE_DOMAINS = [
-  'example.com',
-  'example.net',
-  'example.org',
-  'example',
-];
-
-const isExampleHost = (host: string): boolean =>
-  EXAMPLE_DOMAINS.some(
-    (domain) => host === domain || host.endsWith(`.${domain}`),
-  );
 
 /** The repository to link to, or null while it is still a placeholder on an example domain. */
 export const sourceUrl = (repository: string): string | null =>

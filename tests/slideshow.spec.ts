@@ -3,7 +3,13 @@ import { join } from 'node:path';
 import { expect, test, type Browser, type Page } from './test';
 import { gotoSettled } from './settle';
 import { deckOf, NO_TALK, TALK_ROUTES, TALKS_DIR } from './routes';
-import { NARROW_WIDTH, REFLOW_VIEWPORT, TEXT_SPACING_OVERRIDE } from './wcag';
+import {
+  MIN_TARGET,
+  NARROW_WIDTH,
+  REFLOW_VIEWPORT,
+  SUBPIXEL_TOLERANCE,
+  TEXT_SPACING_OVERRIDE,
+} from './wcag';
 import { AA_TEXT, NON_TEXT, PAGE_HELPERS } from './contrast';
 import { DECK_READY_TIMEOUT_MS } from '../src/lib/deck-ready';
 import { DECK_FILE, splitDeck } from '../src/lib/slides';
@@ -81,6 +87,16 @@ const enterFullScreen = async (page: Page) => {
     'entering full screen did not move focus to the slide',
   ).toBeFocused();
 };
+
+const exitFullScreen = (page: Page) =>
+  page.getByRole('button', { name: 'Exit Full Screen' });
+
+/** Whether the full-screen bar is drawn: it rests at opacity 0, still in the tab order. */
+const barShown = (page: Page) =>
+  slideControls(page).evaluate((bar) => getComputedStyle(bar).opacity !== '0');
+
+/** Longer than the script's idle wait before it hides the pointer and the bar. */
+const PAST_IDLE_MS = 5_000;
 
 /* PROJECTOR at 200% zoom, in CSS px, as failed-images.spec.ts models it. */
 const ZOOMED_PROJECTOR = { width: 640, height: 360 };
@@ -333,6 +349,45 @@ test.describe('the talk slideshow', () => {
     await expect(visible(page)).toHaveId('slide-1');
   });
 
+  test('a slide reached by its address leaves no earlier slide in the status (SC 4.1.3)', async ({
+    page,
+  }) => {
+    await open(page);
+    await next(page).focus();
+    await page.keyboard.press('Enter');
+    const status = page.locator('[data-deck-status]');
+    await expect(status, 'Next did not say where it went').not.toHaveText('');
+    await page.evaluate(() => (location.hash = '#slide-5'));
+    await expect(visible(page)).toHaveId('slide-5');
+    await expect(
+      status,
+      'the status still names the slide Next reached',
+    ).toHaveText('');
+  });
+
+  test('a part opener says its hidden number in its heading (SC 1.3.1)', async ({
+    page,
+  }) => {
+    await open(page);
+    const openers = await page.$$eval('.slide-opener', (slides) =>
+      slides.map((slide) => ({
+        id: slide.id,
+        number: slide
+          .querySelector('.slide-number[aria-hidden="true"]')
+          ?.textContent?.trim(),
+        heading: slide.querySelector('h2')?.textContent ?? '',
+      })),
+    );
+    expect(openers.length, 'the deck has no part opener').toBeGreaterThan(0);
+    for (const { id, number, heading } of openers) {
+      expect(number, `${id} shows no part number`).toBeTruthy();
+      expect(
+        heading,
+        `${id} shows part ${number} only to sighted readers`,
+      ).toContain(`Part ${number}:`);
+    }
+  });
+
   test('a link to one slide opens on it', async ({ page }) => {
     await open(page, '#slide-11');
     await expect(visible(page)).toHaveId('slide-11');
@@ -380,13 +435,12 @@ test.describe('the talk slideshow in full screen', () => {
     await page.setViewportSize(PROJECTOR);
   });
 
-  test('shows the deck alone, one 16:9 slide, no controls, focus on its heading', async ({
+  test('shows the deck alone, one 16:9 slide, focus on its heading', async ({
     page,
   }) => {
     await open(page);
     await enterFullScreen(page);
     await expect(visible(page)).toHaveCount(1);
-    await expect(slideControls(page)).toBeHidden();
     await expect(title(page)).toBeFocused();
     await expect(fullScreenButton(page)).toHaveAttribute(
       'aria-pressed',
@@ -398,6 +452,204 @@ test.describe('the talk slideshow in full screen', () => {
     });
     expect(ratio, 'the slide is not 16:9').toBeCloseTo(16 / 9, 1);
   });
+
+  test('a pointer turns the slides in full screen: Previous, Next, the count and Exit Full Screen, and no control named Full Screen (SC 2.1.1, 2.5.6)', async ({
+    page,
+  }) => {
+    await open(page);
+    await enterFullScreen(page);
+    await page.mouse.move(100, 100);
+    await expect(
+      page.getByRole('button', { name: 'Full Screen', exact: true }),
+      'full screen still offers a control named Full Screen',
+    ).toHaveCount(0);
+    await expect(previous(page)).toHaveAttribute('aria-disabled', 'true');
+    await next(page).click();
+    await expect(visible(page), 'a click on Next turned no slide').toHaveId(
+      'slide-2',
+    );
+    await expect(slideControls(page)).toContainText(/2 \/ \d+/);
+    await previous(page).click();
+    await expect(visible(page), 'a click on Previous went nowhere').toHaveId(
+      'slide-1',
+    );
+    await exitFullScreen(page).click();
+    await page.waitForFunction(() => document.fullscreenElement === null);
+    await expect(fullScreenButton(page)).toBeFocused();
+    await expect(exitFullScreen(page)).toHaveCount(0);
+  });
+
+  test('the full-screen bar rests with the pointer, comes back on a move or a tap without turning the slide, and never animates (SC 2.3.3)', async ({
+    page,
+  }) => {
+    await open(page);
+    await page.clock.install();
+    await enterFullScreen(page);
+    await page.mouse.move(100, 100);
+    await expect
+      .poll(() => barShown(page), 'a move did not show it')
+      .toBe(true);
+    await page.clock.runFor(PAST_IDLE_MS);
+    await expect
+      .poll(() => barShown(page), 'the bar stays over a still slide')
+      .toBe(false);
+    await page.mouse.down();
+    await page.mouse.up();
+    await expect.poll(() => barShown(page), 'a tap did not show it').toBe(true);
+    await expect(visible(page), 'the tap turned the slide').toHaveId('slide-1');
+    const moves = await slideControls(page).evaluate((bar) => {
+      const style = getComputedStyle(bar);
+      return [style.transitionDuration, style.animationName];
+    });
+    expect(moves, 'the bar fades or slides').toEqual(['0s', 'none']);
+  });
+
+  test('Tab reaches the full-screen controls, Exit first, and they stay while one has keyboard focus (SC 2.1.1, 2.4.3, 2.4.7)', async ({
+    page,
+  }) => {
+    await open(page);
+    await page.clock.install();
+    await enterFullScreen(page);
+    await page.mouse.move(100, 100);
+    await page.clock.runFor(PAST_IDLE_MS);
+    await expect.poll(() => barShown(page)).toBe(false);
+    await page.keyboard.press('Shift+Tab');
+    await expect(
+      next(page),
+      'Shift+Tab from the slide did not reach the controls',
+    ).toBeFocused();
+    await expect
+      .poll(() => barShown(page), 'the focused control is not drawn')
+      .toBe(true);
+    await page.clock.runFor(PAST_IDLE_MS);
+    expect(
+      await barShown(page),
+      'the controls hid under a focused control',
+    ).toBe(true);
+    await page.keyboard.press('Shift+Tab');
+    await page.keyboard.press('Shift+Tab');
+    await expect(
+      exitFullScreen(page),
+      'Exit Full Screen, drawn at the top, is not the first stop',
+    ).toBeFocused();
+    await page.clock.runFor(PAST_IDLE_MS);
+    expect(
+      await barShown(page),
+      'the controls hid under a focused Exit Full Screen',
+    ).toBe(true);
+  });
+
+  for (const screen of [PROJECTOR, FOUR_BY_THREE]) {
+    test(`on a ${screen.width}x${screen.height} screen the full-screen controls are 44px targets, Exit inside the card's top right, and no slide's content or focus ring runs under them`, async ({
+      page,
+      browserName,
+    }) => {
+      skipUnsizedFullScreen(browserName);
+      await page.setViewportSize(screen);
+      await open(page);
+      await enterFullScreen(page);
+      await page.keyboard.press('ArrowRight');
+      await page.keyboard.press('ArrowLeft');
+      await page.mouse.move(100, 100);
+      const controls = await slideControls(page).getByRole('button').all();
+      for (const control of controls) {
+        const box = await control.boundingBox();
+        expect(
+          Math.min(box?.width ?? 0, box?.height ?? 0),
+          'a full-screen control is under 44px',
+        ).toBeGreaterThanOrEqual(MIN_TARGET - SUBPIXEL_TOLERANCE);
+      }
+      const exit = await exitFullScreen(page).boundingBox();
+      const card = await visible(page).boundingBox();
+      const border = await visible(page).evaluate((slide) =>
+        parseFloat(getComputedStyle(slide).borderTopWidth),
+      );
+      expect(
+        exit !== null &&
+          card !== null &&
+          exit.x > card.x + card.width / 2 &&
+          exit.y + exit.height < card.y + card.height / 2 &&
+          exit.x + exit.width < card.x + card.width - border &&
+          exit.y > card.y + border,
+        "Exit Full Screen is not inside the card's border, in its top right",
+      ).toBe(true);
+      const under: string[] = [];
+      for (const id of await ids(page)) {
+        await expect(visible(page)).toHaveId(id);
+        const covered = await page.evaluate(() => {
+          const boxes = [
+            ...document.querySelectorAll(
+              '[data-deck-bar] button, [data-deck-count]',
+            ),
+          ]
+            .map((control) => control.getBoundingClientRect())
+            .filter((box) => box.width > 0);
+          const slide = document.querySelector('.slide[data-current]');
+          if (!slide) return true;
+          const card = slide.getBoundingClientRect();
+          const style = getComputedStyle(slide);
+          const reach =
+            parseFloat(style.outlineOffset) + parseFloat(style.outlineWidth);
+          const exit = document
+            .querySelector('[data-deck-exit]')
+            ?.getBoundingClientRect();
+          const within =
+            exit !== undefined &&
+            exit.left >= card.left &&
+            exit.right <= card.right &&
+            exit.top >= card.top &&
+            exit.bottom <= card.bottom;
+          if (style.outlineStyle !== 'solid' || reach < 0 || !within)
+            return true;
+          const content = [...slide.children].map((child) =>
+            child.getBoundingClientRect(),
+          );
+          return content.some((text) =>
+            boxes.some(
+              (box) =>
+                text.left < box.right &&
+                box.left < text.right &&
+                text.top < box.bottom &&
+                box.top < text.bottom,
+            ),
+          );
+        });
+        if (covered) under.push(id);
+        await page.keyboard.press('ArrowRight');
+      }
+      expect(
+        under,
+        'slides whose content or focus ring runs under a control',
+      ).toEqual([]);
+    });
+  }
+
+  for (const theme of ['dark', 'light'] as const) {
+    test(`in ${theme} mode Exit Full Screen has an edge at least 3:1 against the ground it sits on (SC 1.4.11)`, async ({
+      browser,
+    }) => {
+      const context = await browser.newContext({
+        colorScheme: theme,
+        viewport: PROJECTOR,
+      });
+      const page = await context.newPage();
+      await open(page);
+      await enterFullScreen(page);
+      await page.mouse.move(100, 100);
+      const edge = await page.evaluate(`(() => {
+        ${PAGE_HELPERS}
+        const button = document.querySelector('[data-deck-exit]');
+        const border = parse(getComputedStyle(button).borderTopColor);
+        const ground = effectiveBackground(document.querySelector('.slide[data-current]'));
+        return border && ground ? ratio(border, ground) : 0;
+      })()`);
+      expect(
+        edge,
+        'the edge of Exit Full Screen is under 3:1',
+      ).toBeGreaterThanOrEqual(NON_TEXT);
+      await context.close();
+    });
+  }
 
   test('leaving full screen shows the controls and returns focus to Full Screen', async ({
     page,
@@ -868,7 +1120,12 @@ test.describe('the talk below lg: the PDF and every slide as text', () => {
       await page.setViewportSize({ width, height: STACKED_HEIGHT });
       await open(page);
       await expect(slideControls(page)).toBeHidden();
-      for (const name of ['Previous', 'Next', 'Full Screen']) {
+      for (const name of [
+        'Previous',
+        'Next',
+        'Full Screen',
+        'Exit Full Screen',
+      ]) {
         await expect(page.getByRole('button', { name })).toHaveCount(0);
       }
       let inBar = 0;
