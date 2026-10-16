@@ -76,7 +76,12 @@ it is done.
      ([contact options](docs/DEPLOYMENT.md#contact-options)).
    - Analytics and Bing: `analytics` and `bingSiteVerification` in the
      config, or leave them `null`.
-   - Security contact: [SECURITY.md](SECURITY.md).
+   - Security contact: the two contacts in [SECURITY.md](SECURITY.md), and
+     the one your site publishes in `/.well-known/security.txt`. That comes
+     from the `SECURITY_CONTACT` build variable, written as a `mailto:` or
+     `https:` address (`mailto:you@your-domain`, not `you@your-domain`), or
+     else from `person.email` once it is off an example host
+     ([build variables](docs/DEPLOYMENT.md#run-a-demo)).
    - Accessibility contact: the owner and both reporting rows in
      [ACCESSIBILITY.md](ACCESSIBILITY.md) section 1. A build for a real
      address fails while they are still the template maintainer's.
