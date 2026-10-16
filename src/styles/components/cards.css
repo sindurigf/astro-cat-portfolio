@@ -5,8 +5,8 @@
    * text spacing.
    */
   .card {
-    @apply min-w-0 border-8 border-border bg-surface p-card-tight
-      shadow-hard-pink-8 sm:p-card;
+    @apply min-w-0 border-4 border-border bg-surface p-card-tight
+      shadow-hard-pink-4 sm:p-card;
   }
 
   /*
@@ -138,7 +138,7 @@
    * (tests/forced-colors.spec.ts).
    */
   .post-contents {
-    @apply self-start bg-surface shadow-hard-pink-8;
+    @apply self-start bg-surface shadow-hard-pink-4;
   }
 
   .post-contents ol {
@@ -217,7 +217,7 @@
    * utilities.
    */
   .card:has(.card-link):hover {
-    @apply shadow-hard-cyan-8;
+    @apply shadow-hard-cyan-4;
   }
 
   .card:has(.card-link):hover .card-link {

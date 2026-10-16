@@ -29,7 +29,7 @@
   /*
    * The next section keeps its usual distance from the photo, not the slab.
    * On a landscape `lg` window the slab fills it less the overhang, so the
-   * photo's shadow lands on the fold: its 8px lift cancels the slab's border.
+   * photo's shadow lands on the fold: its 4px lift cancels the slab's border.
    */
   .page-hero-photo,
   .post-slab-photo {
@@ -69,10 +69,10 @@
    * stacked. Padding on the rule side keeps the first cell on the column edge.
    */
   .fact-strip > * + * {
-    @apply mt-6 border-t-8 border-border pt-6;
+    @apply mt-6 border-t-4 border-border pt-6;
 
     @media (width >= 64rem) {
-      @apply mt-0 border-t-0 border-l-8 pl-6 pt-0;
+      @apply mt-0 border-t-0 border-l-4 pl-6 pt-0;
     }
   }
 
@@ -150,7 +150,7 @@
   }
 
   /*
-   * On a `.gold-column`: right side on the text's right edge, center on the 8px
+   * On a `.gold-column`: right side on the text's right edge, center on the
    * border's outer edge.
    */
   .gold-column .hero-roundel {
@@ -211,7 +211,7 @@
   /*
    * Every whole-section gold area: starts at the rail, ends
    * --hero-column-screen-clear from the screen edge or at the rail, whichever
-   * is further out. Drawn like a card: 8px `border`, 8px pink shadow.
+   * is further out. Drawn like a card: 4px `border`, 4px pink shadow.
    */
   .gold-column {
     --hero-column-rail: max(0px, calc((100% - var(--container-page)) / 2));
@@ -224,10 +224,10 @@
     border-color: var(--color-border);
 
     /*
-     * The utility, not `var(--shadow-hard-pink-8)`: the token resolves on
+     * The utility, not `var(--shadow-hard-pink-4)`: the token resolves on
      * :root, where light mode's <main> colors do not reach.
      */
-    @apply border-8 shadow-hard-pink-8;
+    @apply border-4 shadow-hard-pink-4;
   }
 
   /*

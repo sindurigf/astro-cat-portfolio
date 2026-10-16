@@ -117,7 +117,7 @@
 @theme static {
   --color-background: #131313;
   --color-surface: #1a1a1a;
-  --color-border: #5a87a8;
+  --color-border: #c2c2c2;
   --color-text: #e5e2e1;
   --color-subtle: #9bb4c6;
   --color-gold: #ffc000;
@@ -390,15 +390,14 @@
    * visible on gold and on #131313.
    */
   --shadow-hard-pink-4: 4px 4px 0 var(--color-pink);
-  --shadow-hard-pink-8: 8px 8px 0 var(--color-pink);
   --shadow-hard-mark-4: 4px 4px 0 var(--color-mark);
   --shadow-hard-mark-8: 8px 8px 0 var(--color-mark);
   /* The same offsets on the eared logo, whose shadow follows its ears. */
   --drop-shadow-hard-mark-8: 8px 8px 0 var(--color-mark);
   --drop-shadow-hard-mark-12: 12px 12px 0 var(--color-mark);
-  --shadow-hard-cyan-8: 8px 8px 0 var(--color-cyan);
+  --shadow-hard-cyan-4: 4px 4px 0 var(--color-cyan);
   /* A card on gold: `gold-border` passes SC 1.4.11 there, pink does not. */
-  --shadow-hard-gold-border-8: 8px 8px 0 var(--color-gold-border);
+  --shadow-hard-gold-border-4: 4px 4px 0 var(--color-gold-border);
 
   /*
    * Inner half of .btn-gold-primary's two-tone focus ring, visible against the
@@ -412,7 +411,7 @@
    */
   --inset-shadow-cta-current: inset 0 0 0 4px var(--color-background);
 
-  /* The second 4px of a failing field's 8px edge, inside the border. */
+  /* A failing field's 4px pink edge doubled by a 4px ring inside it. */
   --inset-shadow-invalid: inset 0 0 0 4px var(--color-pink);
 
   /*
@@ -458,7 +457,9 @@
   --focus-width: 4px;
   --focus-gap: 4px;
   --lift-control: 4px;
-  --lift-object: 8px;
+  --lift-object: 4px;
+  /* The logo keeps its 8px shadow, so its ring clears 8px. */
+  --lift-mark: 8px;
 
   --underline-offset: 0.2em;
   --underline-thin: 2px;
@@ -480,15 +481,15 @@
   --hero-inset: clamp(8px, 3vw, 56px);
 
   /*
-   * 48px from the screen edge to the extrusion tip, plus the 8px of
-   * --shadow-hard-pink-8.
+   * 48px from the screen edge to the extrusion tip, plus the 4px of
+   * --shadow-hard-pink-4.
    */
-  --hero-column-screen-clear: 56px;
+  --hero-column-screen-clear: 52px;
 
   --hero-column-pad-block: clamp(32px, 5vw, 72px) clamp(32px, 5vw, 80px);
   --hero-column-pad-inline: clamp(20px, 3.5vw, 64px);
 
-  --hero-column-edge: 8px;
+  --hero-column-edge: 4px;
   --hero-rule: var(--hero-column-edge);
   /*
    * At least the given name's leading under its letters (0.0831em, 7px at 84px), or
@@ -540,7 +541,7 @@
   --spacing-card: 40px;
   /*
    * Vertical rhythm, one token per job, fluid up to 1200px. Grid gap stays at
-   * least 28px so an 8px card shadow never reads as touching.
+   * least 28px so a card shadow never reads as touching.
    */
   --spacing-section: clamp(56px, 8vw, 96px);
 

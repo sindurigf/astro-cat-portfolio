@@ -188,3 +188,7 @@
 @utility lift-object {
   --lift: var(--lift-object);
 }
+
+@utility lift-mark {
+  --lift: var(--lift-mark);
+}

@@ -166,7 +166,7 @@
   }
 
   /*
-   * `--deck-chrome`: deck padding, gap, control row and 8px shadow. Padding is
+   * `--deck-chrome`: deck padding, gap, control row and card shadow. Padding is
    * a share of the card's width (`.deck-stage` is the container), never below
    * the card's own padding.
    */

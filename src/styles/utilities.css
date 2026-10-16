@@ -31,7 +31,7 @@
   .card-block {
     gap: 0;
 
-    @apply shadow-hard-pink-8;
+    @apply shadow-hard-pink-4;
   }
 
   .card-block .card {
@@ -48,12 +48,12 @@
     translate: calc(--spacing(2) * -1) calc(--spacing(2) * -1);
     border-color: var(--color-border);
 
-    @apply shadow-hard-pink-8;
+    @apply shadow-hard-pink-4;
   }
 
   /* Restores the card hover this layer's flattening removes. */
   .card-block .card:has(.card-link):hover {
-    @apply shadow-hard-cyan-8;
+    @apply shadow-hard-cyan-4;
   }
 
   /*

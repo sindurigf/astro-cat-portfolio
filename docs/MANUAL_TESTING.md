@@ -119,7 +119,7 @@ Setup: `gsettings set org.gnome.desktop.interface enable-animations false`.
 
 ## 5. Focus indicator visibility
 
-The ring is 4px cyan at a 4px offset plus the element's shadow (4px or 8px);
+The ring is 4px cyan at a 4px offset plus the element's shadow (4px, or 8px for the logo tile);
 `#131313` on gold. Look, do not measure.
 
 - [ ] On `#131313`: header links, footer. → SC 1.4.11, 2.4.7
@@ -128,7 +128,8 @@ The ring is 4px cyan at a 4px offset plus the element's shadow (4px or 8px);
       tilt, and never touches the next chip. → SC 1.4.11, 2.4.7
 - [ ] Current nav item and current chip: the ring reads as separate from the
       block. → SC 1.4.11, 2.4.7
-- [ ] Logo and contact cards (8px shadow, ring 12px out): the ring still reads
+- [ ] Logo (8px shadow, ring 12px out) and contact cards (4px shadow, ring
+      8px out): the ring still reads
       as belonging to the control. → SC 1.4.11, 2.4.7
 - [ ] Gold skip link and "Get in Touch": the ring is on the dark ground, never
       on gold. → SC 1.4.11

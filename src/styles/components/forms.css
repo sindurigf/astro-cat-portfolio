@@ -13,9 +13,9 @@
     @apply font-normal normal-case tracking-normal text-subtle;
   }
 
-  /* 8px edge, like every object on the site. */
+  /* 4px edge, like every object on the site. */
   .field-control {
-    @apply mt-3 block w-full border-8 border-border bg-surface px-4 py-3
+    @apply mt-3 block w-full border-4 border-border bg-surface px-4 py-3
       font-sans text-body text-text;
   }
 
@@ -26,7 +26,7 @@
 
   /*
    * Invalid by shape, not only color (SC 1.4.1: pink and `border` look alike
-   * in luminance): a 4px inset ring inside the 8px edge.
+   * in luminance): a 4px inset ring inside the 4px edge.
    */
   .field-control[aria-invalid='true'] {
     @apply border-pink inset-shadow-invalid;
@@ -44,7 +44,7 @@
 
   /* Takes focus on render. */
   .error-summary {
-    @apply mt-8 border-8 border-pink bg-surface p-6;
+    @apply mt-8 border-4 border-pink bg-surface p-6;
   }
 
   .error-summary a {
