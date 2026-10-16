@@ -203,10 +203,9 @@ Headings, alt text, focus rings and axe are checked on the rendered page by
 - Categories: `skincare`, `travel`, `personal-thoughts`,
   `professional-journey`, `open-source`. Rename them in `BLOG_CATEGORIES` and
   `CATEGORIES` together. Import `BLOG_CATEGORIES`.
-- Accent, glyph and teaser per category: `CATEGORIES` in
-  `src/lib/categories.ts`, read by every surface. Gold: `open-source`,
-  `professional-journey`. Text: `skincare`, `travel`. Pink:
-  `personal-thoughts`. Never cyan. `tests/blog.spec.ts` compares surfaces.
+- Glyph and teaser per category: `CATEGORIES` in `src/lib/categories.ts`.
+  Every category is gold: `CATEGORY_LABEL` and `CATEGORY_TILE` there;
+  `tests/category-style.spec.ts` holds them to 7:1.
 - Tags are kebab-case URL segments (`/blog/tag/<tag>/`). Proper-noun labels in
   `TAG_LABELS`. Tag `<h1>` is `text-h2`, since a tag cannot take a soft hyphen.
 - A category page is built only once it has a published post. Tag listings
