@@ -77,7 +77,8 @@ const readRepositoryUrl = (value: string): string => {
   return value;
 };
 
-const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+/** A configured address: no space, `@`, `/`, `:`, `<` or `>` in either part, so a URL or a markup fragment is not taken for one. */
+export const EMAIL_ADDRESS = /^[^\s@/:<>]+@[^\s@/:<>]+\.[^\s@/:<>]+$/;
 
 /* RFC 9116 section 2.5.3: a URI, and https for a web one. */
 const readSecurityContact = (value: string): string => {
@@ -85,10 +86,16 @@ const readSecurityContact = (value: string): string => {
   try {
     url = new URL(value);
   } catch {
-    return invalid('SECURITY_CONTACT', value, 'is not a URI.');
+    return invalid(
+      'SECURITY_CONTACT',
+      value,
+      EMAIL_ADDRESS.test(value)
+        ? `is an email address; write it as mailto:${value}.`
+        : 'is not a URI; use a mailto: or https: URI.',
+    );
   }
   if (url.protocol === 'mailto:') {
-    if (!EMAIL.test(url.pathname)) {
+    if (!EMAIL_ADDRESS.test(url.pathname)) {
       invalid('SECURITY_CONTACT', value, 'names no email address.');
     }
   } else if (url.protocol !== 'https:') {

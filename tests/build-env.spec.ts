@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { expect, test } from './test';
 import { readBuildEnv } from '../src/lib/build-env';
+import { SITE_CONFIG, validateSiteConfig } from '../src/site.config';
 import { noindexHeaders } from '../src/lib/noindex-headers';
 import { noindexRedirects } from '../src/lib/noindex-redirects';
 import { NODE } from './tags';
@@ -82,6 +83,39 @@ test.describe('readBuildEnv', NODE, () => {
       );
     });
   }
+
+  test('a bare SECURITY_CONTACT address is told to become a mailto: URI', () => {
+    expect(() =>
+      readBuildEnv({ SECURITY_CONTACT: 'security@notexample.com' }),
+    ).toThrow('write it as mailto:security@notexample.com.');
+    expect(() => readBuildEnv({ SECURITY_CONTACT: 'not a contact' })).toThrow(
+      'use a mailto: or https: URI.',
+    );
+  });
+
+  test('a URL or markup fragment is not taken for an email address', () => {
+    for (const value of ['http//a@b.c', '<a>@b.c', 'user@host.com:8080']) {
+      expect(() => readBuildEnv({ SECURITY_CONTACT: value }), value).toThrow(
+        'is not a URI',
+      );
+    }
+    expect(() =>
+      readBuildEnv({ SECURITY_CONTACT: 'mailto:foo@bar.baz/path' }),
+    ).toThrow('names no email address.');
+  });
+
+  test('person.email refuses the same fragments', () => {
+    for (const email of ['me@host.com/path', 'me@host.com:8080']) {
+      expect(
+        () =>
+          validateSiteConfig({
+            ...SITE_CONFIG,
+            person: { ...SITE_CONFIG.person, email },
+          }),
+        email,
+      ).toThrow('person.email is not an email address');
+    }
+  });
 
   test('SECURITY_CONTACT takes an https page as well as a mailto', () => {
     expect(

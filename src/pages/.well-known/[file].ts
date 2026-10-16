@@ -21,8 +21,50 @@ export const getStaticPaths: GetStaticPaths = () =>
  */
 const EXPIRES = '2027-09-09T00:00:00.000Z';
 
-/** The file for `site`, offering `contact`. */
-export const securityTxt = (site: URL, contact: string): string => {
+/* One entry per Worker route, its lines unpunctuated: the list ends with a full stop whichever routes ship. */
+const workerRoutes = (formOn: boolean): string[][] => [
+  ...(formOn
+    ? [
+        [
+          '/contact/send/, which stores the name, email address and message a',
+          'visitor submits in a Cloudflare D1 database and emails a copy to the',
+          'owner',
+        ],
+      ]
+    : []),
+  [
+    '/videos/*, a dormant route kept for serving video in byte ranges.',
+    'No video is published, so every request there gets the 404 page',
+  ],
+  [
+    '/_image, which returns an image from /_astro/ for the contact error',
+    'pages and refuses remote and non-image sources',
+  ],
+  ...(formOn
+    ? [
+        [
+          `a daily job that deletes stored messages once they are ${RETENTION_DAYS} days old`,
+          'and resends notifications that failed',
+        ],
+      ]
+    : []),
+];
+
+const routeLines = (routes: string[][]): string[] =>
+  routes.flatMap((lines, index) =>
+    lines.map((line, at) => {
+      const mark =
+        at < lines.length - 1 ? '' : index < routes.length - 1 ? ';' : '.';
+      return `#   ${line}${mark}`;
+    }),
+  );
+
+/** The file for `site`, offering `contact`; `formOn` is whether the contact endpoint ships. */
+export const securityTxt = (
+  site: URL,
+  contact: string,
+  formOn: boolean = CONTACT_FORM_ON,
+): string => {
   const canonical = new URL(`.well-known/${SECURITY_TXT}`, site).href;
 
   return [
@@ -30,21 +72,9 @@ export const securityTxt = (site: URL, contact: string): string => {
     '#',
     '# A personal site with no accounts. Every page is prerendered and served',
     '# as a static asset by a Cloudflare Worker. The Worker runs code for:',
-    ...(CONTACT_FORM_ON
+    ...routeLines(workerRoutes(formOn)),
+    ...(formOn
       ? [
-          '#   /contact/send/, which stores the name, email address and message a',
-          '#   visitor submits in a Cloudflare D1 database and emails a copy to the',
-          '#   owner;',
-        ]
-      : []),
-    '#   /videos/*, a dormant route kept for serving video in byte ranges.',
-    '#   No video is published, so every request there gets the 404 page;',
-    '#   /_image, which returns an image from /_astro/ for the contact error',
-    '#   pages and refuses remote and non-image sources;',
-    ...(CONTACT_FORM_ON
-      ? [
-          `#   a daily job that deletes stored messages once they are ${RETENTION_DAYS} days old`,
-          '#   and resends notifications that failed.',
           '# The surface worth testing is the contact endpoint, the response headers',
           '# and the published documents.',
         ]
