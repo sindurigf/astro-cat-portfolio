@@ -29,6 +29,11 @@ const MAX_NAME_LENGTH = 40;
 /** The name shrinks from this size until it fits the gold panel. */
 const NAME_SIZE = { max: 92, min: 48, step: 2 };
 const TEXT_WIDTH = 680;
+const STRIP_LEFT = 820;
+/* The mark, shadow included, sits whole and centered on the strip: link previews crop the edges. */
+const MARK_BOX = 300;
+const MARK_LEFT = STRIP_LEFT + (WIDTH - STRIP_LEFT - MARK_BOX) / 2;
+const MARK_TOP = (HEIGHT - MARK_BOX) / 2;
 
 const TOKENS = {
   gold: cssColorToken('--color-gold'),
@@ -58,12 +63,12 @@ const page = () => {
 @font-face{font-family:'Lexend Variable';src:url(data:font/woff2;base64,${font}) format('woff2');font-weight:100 900}
 html,body{margin:0}
 .og{position:relative;width:${WIDTH}px;height:${HEIGHT}px;overflow:hidden;background:${TOKENS.gold};font-family:'Lexend Variable';color:${TOKENS.goldText}}
-.strip{position:absolute;inset:0 0 0 820px;background:${TOKENS.background}}
+.strip{position:absolute;inset:0 0 0 ${STRIP_LEFT}px;background:${TOKENS.background}}
 .text{position:absolute;left:80px;top:0;bottom:62px;width:${TEXT_WIDTH}px;display:flex;flex-direction:column}
 .name{margin-top:150px;font-weight:900;line-height:.94;text-transform:uppercase;letter-spacing:.01em;white-space:nowrap}
 .tag{margin-top:40px;font-weight:400;font-size:30px;line-height:1.35}
 .domain{margin-top:auto;font-weight:900;font-size:24px;letter-spacing:.12em;text-transform:uppercase}
-.mark{position:absolute;left:806px;top:140px;width:400px;height:400px;transform:rotate(5deg)}
+.mark{position:absolute;left:${MARK_LEFT}px;top:${MARK_TOP}px;width:${MARK_BOX}px;height:${MARK_BOX}px;transform:rotate(5deg)}
 </style></head><body><div class="og">
 <div class="strip"></div>
 ${mark}
