@@ -1,6 +1,15 @@
 @layer components {
   /* src/components/Abbr.astro. */
 
+  /* Keeps the `after` punctuation on the abbreviation's line; the tip wraps. */
+  .abbr-unit {
+    white-space: nowrap;
+  }
+
+  .abbr-tip {
+    white-space: normal;
+  }
+
   /* Dotted, so it does not read as a link; no color change, which gold forbids. */
   .abbr-trigger {
     @apply border-0 bg-transparent p-0 text-inherit;

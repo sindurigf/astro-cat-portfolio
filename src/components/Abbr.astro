@@ -7,13 +7,15 @@
 interface Props {
   short: string;
   long: string;
+  /** Punctuation right after it: a line may break after a button, never inside `.abbr-unit`. */
+  after?: string;
 }
 
-const { short, long } = Astro.props;
+const { short, long, after = '' } = Astro.props;
 const id = `abbr-${short.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
 ---
 
-<span data-abbr>
+<span data-abbr class="abbr-unit">
   <button
     type="button"
     class="abbr-trigger"
@@ -25,6 +27,7 @@ const id = `abbr-${short.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
   <span class="abbr-tip" id={id} popover role="tooltip">
     {long}
   </span>
+  {after}
 </span>
 
 <script>
