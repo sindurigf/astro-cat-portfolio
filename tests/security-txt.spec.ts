@@ -97,6 +97,31 @@ test.describe('security.txt', NODE, () => {
     );
   });
 
+  for (const formOn of [true, false]) {
+    test(`the Worker routes end in a full stop, with semicolons between, contact form ${formOn ? 'on' : 'off'}`, () => {
+      const text = securityTxtFor(new URL(configuredSite()), CONTACT, formOn);
+      const list = text
+        .slice(text.indexOf('runs code for:\n') + 'runs code for:\n'.length)
+        .split('\n')
+        .filter((line) => line.startsWith('#   '));
+      /* A route starts with its path, or is the daily job. */
+      const routes = list.filter((line) => /^# {3}(\/|a daily job)/.test(line));
+
+      expect(routes.length, 'no Worker route is listed').toBeGreaterThan(0);
+      expect(list.at(-1), 'the last route does not end the sentence').toMatch(
+        /\.$/,
+      );
+      expect(
+        list.filter((line) => line.endsWith(';')).length,
+        'every route but the last should end with a semicolon.',
+      ).toBe(routes.length - 1);
+      expect(
+        text.includes('/contact/send/'),
+        'the contact endpoint is listed exactly when it ships',
+      ).toBe(formOn);
+    });
+  }
+
   test('declares the two fields RFC 9116 requires', () => {
     const source = securityTxt();
 
