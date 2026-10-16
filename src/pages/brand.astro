@@ -94,6 +94,8 @@ const SWATCH: Record<string, string | null> = {
   mark: 'border-4 border-border shadow-hard-mark-8',
   'tile-edge': 'border-4 border-tile-edge',
   'fill-edge': 'bg-gold border-4 border-fill-edge',
+  /* Dark mode only: it shows on every card's edge under Cards. */
+  'paper-edge': null,
 };
 const GLYPH = /^text-/;
 for (const { token } of colors) {

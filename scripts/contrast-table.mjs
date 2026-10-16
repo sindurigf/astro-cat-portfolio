@@ -36,6 +36,8 @@ const PAIRS = [
   ['cyan', 'background', 'text', 'Hover text; the focus ring (needs 3)'],
   ['cyan', 'surface', 'text', 'Hover text and focus ring in cards'],
   ['border', 'background', 'non-text', 'Every boundary on the page'],
+  ['paper-edge', 'background', 'non-text', 'Graph paper ring on the page'],
+  ['paper-edge', 'surface', 'non-text', 'Graph paper ring on its card'],
   ['border', 'surface', 'non-text', 'Input and chip edges on a card'],
   ['pink', 'background', 'non-text', 'Error edge; action shadow'],
   ['pink', 'surface', 'non-text', 'Error edge on the form card'],

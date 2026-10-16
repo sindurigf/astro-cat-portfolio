@@ -121,6 +121,11 @@
   /* Cards draw no edge in dark mode: the pink shadow and the grid set them apart. */
   --color-card-edge: transparent;
   /*
+   * Rose pearl: the graph paper's 1px outer line, 12.46 on `background` and
+   * 11.02 on `surface` (SC 1.4.11). Light mode keeps the ink edge instead.
+   */
+  --color-paper-edge: #dcc9cf;
+  /*
    * The edge of a gold or light fill: the fill delimits it on the page, so the
    * edge needs to read on gold only (11.32).
    */
@@ -398,6 +403,15 @@
   --card-grid:
     linear-gradient(var(--color-background) 1px, transparent 1px),
     linear-gradient(90deg, var(--color-background) 1px, transparent 1px);
+  /*
+   * The graph paper's ring, zero blur: a 2px page-colored gap, a 2px
+   * `paper-edge` ring (12.46 on `background`), and the 8px throw grown by the
+   * ring so it still shows whole. On `::after`; `--paper-throw` turns it cyan.
+   */
+  --ring:
+    0 0 0 2px var(--color-background), 0 0 0 4px var(--color-paper-edge),
+    var(--hard-throw) var(--hard-throw) 0 4px
+      var(--paper-throw, var(--color-pink));
   --card-grid-size: 16px;
   --card-grid-offset: -1px;
   /* Card, panel, field, header and rule edges (`edge` utilities); controls, chips, photos and stickers keep `border-4`. */

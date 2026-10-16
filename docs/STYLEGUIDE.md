@@ -89,33 +89,37 @@ blur, uppercase headings, tilted marks.
 
 ## Color tokens
 
-| Token        | Hex       | Job                                                            |
-| ------------ | --------- | -------------------------------------------------------------- |
-| `background` | `#0B0B0B` | Page ground; header, footer, bands; a card's grid lines        |
-| `surface`    | `#1A1A1A` | Cards, inputs                                                  |
-| `border`     | `#FFC000` | Every boundary on the page: the gold edge                      |
-| `card-edge`  | none      | Card and plain slab edge; `#131313` in light mode              |
-| `fill-edge`  | `#131313` | Edge of a gold or light fill: buttons, roundel                 |
-| `text`       | `#E5E2E1` | Words                                                          |
-| `subtle`     | `#9BB4C6` | Captions, meta, helper text                                    |
-| `gold`       | `#FFC000` | The accent, only where the style guide allows                  |
-| `cyan`       | `#00DCFD` | Hover and focus only                                           |
-| `pink`       | `#FF007A` | Depth and error; never text                                    |
-| `pink-text`  | `#FF79B6` | Every pink glyph; never non-text                               |
-| `mark`       | `#FF007A` | Logo marks; same in both modes                                 |
-| `tile-edge`  | `#5A87A8` | Logo tile copies' edge; both modes                             |
-| `cat-*`      | 14 fills  | About cat drawings and props; decoration, never a boundary     |
-| `hero-*`     | 6 values  | Homepage canvas ground, veil, floor and glyph glow; decoration |
+| Token        | Hex          | Job                                                            |
+| ------------ | ------------ | -------------------------------------------------------------- |
+| `background` | `#0B0B0B`    | Page ground; header, footer, bands; a card's grid lines        |
+| `surface`    | `#1A1A1A`    | Cards, inputs                                                  |
+| `border`     | `#FFC000`    | Every boundary on the page: the gold edge                      |
+| \1           | `paper-edge` | `#DCC9CF`                                                      | Rose pearl: the graph paper's 2px ring | \n  | `fill-edge` | `#131313` | Edge of a gold or light fill: buttons, roundel |
+| `text`       | `#E5E2E1`    | Words                                                          |
+| `subtle`     | `#9BB4C6`    | Captions, meta, helper text                                    |
+| `gold`       | `#FFC000`    | The accent, only where the style guide allows                  |
+| `cyan`       | `#00DCFD`    | Hover and focus only                                           |
+| `pink`       | `#FF007A`    | Depth and error; never text                                    |
+| `pink-text`  | `#FF79B6`    | Every pink glyph; never non-text                               |
+| `mark`       | `#FF007A`    | Logo marks; same in both modes                                 |
+| `tile-edge`  | `#5A87A8`    | Logo tile copies' edge; both modes                             |
+| `cat-*`      | 14 fills     | About cat drawings and props; decoration, never a boundary     |
+| `hero-*`     | 6 values     | Homepage canvas ground, veil, floor and glyph glow; decoration |
 
 The gold-ground set is in [Gold surface](#gold-surface), light values in
 [Light mode](#light-mode).
 
 - Two dark grounds: `background` (page, header, footer, bands) and `surface`
   (cards, inputs). Measure every foreground against both.
-- Dark cards draw no edge: the pink shadow and a 16px graph paper of
+- Dark cards draw no 6px edge: the pink shadow and a 16px graph paper of
   `background` lines over `surface` (`--card-grid`) set them apart. Text over
-  a line keeps its `background` ratio. Forced colors and print drop the paper;
-  light mode has none.
+  a line keeps its `background` ratio. A hard ring sets the edge (`--ring`, zero blur): a 2px page-colored gap,
+  a 2px rose pearl `paper-edge` ring and the throw grown to match, on the
+  paper's `::after`, never an outline, so the cyan focus ring stays
+  distinct. Forced colors drop the shadows and the 6px border turns
+  CanvasText; print drops the paper and ring. Light mode has neither.
+  `tests/edge-contrast.spec.ts` holds the edge at 3:1 against the page and the
+  card.
 - `text` for words, `subtle` for captions and meta. Links are `text`, cyan on
   hover; in running text underlined at 2px, 4px on hover.
 - `cyan` never at rest: a cyan label, fill or shadow reads as a control under
@@ -168,6 +172,8 @@ Every approved pairing, measured from the live tokens. Text needs 4.5 (SC
 | `cyan` #00DCFD            | `background` #0B0B0B  | text       | Hover text; the focus ring (needs 3)             | 4.5   | 11.86 | pass       |
 | `cyan` #00DCFD            | `surface` #1A1A1A     | text       | Hover text and focus ring in cards               | 4.5   | 10.49 | pass       |
 | `border` #FFC000          | `background` #0B0B0B  | non-text   | Every boundary on the page                       | 3.0   | 11.99 | pass       |
+| `paper-edge` #DCC9CF      | `background` #0B0B0B  | non-text   | Graph paper ring on the page                     | 3.0   | 12.46 | pass       |
+| `paper-edge` #DCC9CF      | `surface` #1A1A1A     | non-text   | Graph paper ring on its card                     | 3.0   | 11.02 | pass       |
 | `border` #FFC000          | `surface` #1A1A1A     | non-text   | Input and chip edges on a card                   | 3.0   | 10.60 | pass       |
 | `pink` #FF007A            | `background` #0B0B0B  | non-text   | Error edge; action shadow                        | 3.0   | 5.19  | pass       |
 | `pink` #FF007A            | `surface` #1A1A1A     | non-text   | Error edge on the form card                      | 3.0   | 4.59  | pass       |
@@ -485,7 +491,7 @@ with a comment beside it.
 - The default border color is `border`, set in the base layer (Tailwind 4
   defaults to `currentColor`); `gold-border` inside `.surface-gold`.
 - Each ground has one edge role. Dark page: `border` (gold). Dark card:
-  `card-edge` (none) with graph paper. Inside gold: `gold-border` (ink). A
+  `card-edge` (none) with graph paper and the `paper-edge` ring. Inside gold: `gold-border` (ink). A
   gold or light fill: `fill-edge` (ink). Light mode: ink everywhere.
   `tests/edges.spec.ts` asserts each in both modes.
 - Shadows are hard offsets, no blur. Gold casts none (gold on gold is 1.00).
