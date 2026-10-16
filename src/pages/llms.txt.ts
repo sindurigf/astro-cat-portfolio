@@ -17,7 +17,7 @@ import {
   SITE_FEED_PATH,
   SITEMAP_PATH,
 } from '../lib/paths';
-import { PERSON_NAME } from '../lib/profiles';
+import { CV_PATH, PERSON_NAME } from '../lib/profiles';
 import { ANALYTICS_ON } from '../lib/analytics-site';
 import { talkDecks } from '../lib/talk-deck';
 import { BUILD_ENV } from '../lib/build-env';
@@ -46,8 +46,8 @@ const ROUTE_NOTES: { path: string; label: string; note: string }[] = [
     path: CAREER_PATH,
     label: 'Career',
     note:
-      'Work history, education, skills and open source work, with the CV ' +
-      'linked as a PDF.',
+      'Work history, education, skills and open source work' +
+      (CV_PATH === null ? '.' : ', with the CV linked as a PDF.'),
   },
   {
     path: BLOG_PATH,

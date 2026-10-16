@@ -798,6 +798,16 @@ text-gold-muted` under the standfirst. Color
 None. Gold buttons press 4px into their shadow at 0ms like every control. The
 roundel's tilt is static.
 
+### The hero pause control
+
+- Beside the first name at every size (`.hero-motion-toggle`): right edge on
+  the window's, `--spacing(4)` above its top rule. The window can be too low to
+  hold it clear of the name.
+- It sits on the page, not the gold, so its focus ring is the page's `cyan`.
+- A first name long enough to reach it would sit under it:
+  `tests/hero-fit.spec.ts` measures the letters against its box.
+- It is the first stop in `<main>` at every size.
+
 ## Posts
 
 Enforced by `tests/post-page.spec.ts`.

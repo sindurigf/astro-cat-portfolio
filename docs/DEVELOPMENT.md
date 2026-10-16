@@ -209,6 +209,7 @@ docs/               Development, deployment, style guide, manual testing
 | `src/pages/index.astro`, `src/pages/about.astro`, `src/pages/career.astro`            | The persona's text; names and links come from the config         |
 | `src/content/blog/sample-post.md`, `src/content/talks/sample-talk/slides.md`          | The sample post and talk                                         |
 | `src/lib/persona.ts`, `src/lib/credits.ts`                                            | The sample persona's notice; the `/credits` entries              |
+| `src/lib/categories.ts`                                                               | Each category's teaser, also its page's meta description         |
 | `src/pages/contact.astro`, `src/pages/privacy.astro`, `src/pages/accessibility.astro` | Mostly config values; check the wording against your site        |
 | `src/lib/categories.ts`, `src/lib/og-image.ts`, `src/pages/credits.astro`             | Category teasers; the sharing image's alt text; the credit lists |
 | `wrangler.jsonc`, `SECURITY.md`, `AI_DISCLOSURE.md`                                   | Worker, domain and database names; your contacts; your AI record |
