@@ -4,6 +4,8 @@
  * describes. docs/DEPLOYMENT.md#run-a-demo.
  */
 
+import { isExampleHost } from './example-host.ts';
+
 export const CONTACT_FORMS = ['cloudflare-d1', 'none'] as const;
 
 export type ContactForm = (typeof CONTACT_FORMS)[number];
@@ -13,6 +15,8 @@ export interface BuildEnv {
   contactForm: ContactForm | null;
   noindex: boolean;
   repositoryUrl: string | null;
+  /** The `Contact` of /.well-known/security.txt, a `mailto:` or `https:` URI. */
+  securityContact: string | null;
 }
 
 /** The variables read, each inlined into the bundles by astro.config.mjs. */
@@ -21,6 +25,7 @@ export const BUILD_ENV_NAMES = [
   'CONTACT_FORM',
   'NOINDEX',
   'REPOSITORY_URL',
+  'SECURITY_CONTACT',
 ] as const;
 
 type RawBuildEnv = Partial<
@@ -72,6 +77,37 @@ const readRepositoryUrl = (value: string): string => {
   return value;
 };
 
+const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+/* RFC 9116 section 2.5.3: a URI, and https for a web one. */
+const readSecurityContact = (value: string): string => {
+  let url: URL;
+  try {
+    url = new URL(value);
+  } catch {
+    return invalid('SECURITY_CONTACT', value, 'is not a URI.');
+  }
+  if (url.protocol === 'mailto:') {
+    if (!EMAIL.test(url.pathname)) {
+      invalid('SECURITY_CONTACT', value, 'names no email address.');
+    }
+  } else if (url.protocol !== 'https:') {
+    invalid('SECURITY_CONTACT', value, 'must be a mailto: or https: URI.');
+  }
+  const host =
+    url.protocol === 'mailto:'
+      ? url.pathname.slice(url.pathname.lastIndexOf('@') + 1)
+      : url.hostname;
+  if (isExampleHost(host)) {
+    invalid(
+      'SECURITY_CONTACT',
+      value,
+      'is on an example host, where nothing arrives.',
+    );
+  }
+  return value;
+};
+
 const readContactForm = (value: string): ContactForm =>
   CONTACT_FORMS.find((form) => form === value) ??
   invalid('CONTACT_FORM', value, `is not one of ${CONTACT_FORMS.join(', ')}.`);
@@ -88,6 +124,9 @@ export const readBuildEnv = (raw: RawBuildEnv): BuildEnv => ({
   repositoryUrl: unset(raw.REPOSITORY_URL)
     ? null
     : readRepositoryUrl(raw.REPOSITORY_URL),
+  securityContact: unset(raw.SECURITY_CONTACT)
+    ? null
+    : readSecurityContact(raw.SECURITY_CONTACT),
 });
 
 /* Spelled out, not `process.env`: astro.config.mjs replaces each name in the Worker bundle, which has no `process`. */
@@ -96,4 +135,5 @@ export const BUILD_ENV = readBuildEnv({
   CONTACT_FORM: process.env.CONTACT_FORM,
   NOINDEX: process.env.NOINDEX,
   REPOSITORY_URL: process.env.REPOSITORY_URL,
+  SECURITY_CONTACT: process.env.SECURITY_CONTACT,
 });

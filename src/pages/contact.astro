@@ -3,7 +3,12 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import ContactForm from '../components/ContactForm.astro';
 import PageHero from '../components/PageHero.astro';
 import Section from '../components/Section.astro';
-import { CONTACT_EMAIL, CONTACT_FORM_ON, CONTACT_MAILTO } from '../lib/contact';
+import {
+  CONTACT_EMAIL,
+  CONTACT_FORM_ON,
+  CONTACT_MAILTO,
+  contactDescription,
+} from '../lib/contact';
 import { PERSON_NAME, SOCIAL_PROFILES } from '../lib/profiles';
 
 /*
@@ -51,7 +56,13 @@ const REASONS = [
 
 <BaseLayout
   title="Contact"
-  description={`Write to ${PERSON_NAME} by email or on LinkedIn or GitHub${CONTACT_FORM_ON ? ', or with the contact form' : ''}.`}
+  description={contactDescription(
+    PERSON_NAME,
+    CONTACT_METHODS.filter((method) => method.href !== CONTACT_MAILTO).map(
+      (method) => method.label,
+    ),
+    CONTACT_FORM_ON,
+  )}
 >
   <PageHero title="Get in Touch">
     <p class="standfirst">

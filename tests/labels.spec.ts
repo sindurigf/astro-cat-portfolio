@@ -1,5 +1,6 @@
 import { expect, test } from './test';
 import { categoryLabel, titleCaseMiss } from '../src/lib/labels';
+import { builtHtml } from './routes';
 import { NODE } from './tags';
 
 const EXPECTED: ReadonlyArray<readonly [slug: string, label: string]> = [
@@ -63,5 +64,21 @@ test.describe('titleCaseMiss', NODE, () => {
     test(`rejects "${text}" at "${word}"`, () => {
       expect(titleCaseMiss(text, exempt)).toBe(word);
     });
+  }
+});
+
+/* scripts/check-title-case.mjs reads headings and titles, not a button's hidden name. */
+test('the theme switch is named in title case on every page', NODE, () => {
+  const SWITCH_NAME =
+    /<button\b[^>]*class="theme-switch"[^>]*>\s*<span class="sr-only">([^<]*)<\/span>/;
+
+  for (const [route, html] of builtHtml()) {
+    const name = SWITCH_NAME.exec(html)?.[1]?.trim();
+
+    expect(name, `${route} has no named theme switch.`).toBeTruthy();
+    expect(
+      titleCaseMiss(name!),
+      `${route}: "${name}" is not in Chicago title case (docs/STYLEGUIDE.md#uppercase).`,
+    ).toBeUndefined();
   }
 });

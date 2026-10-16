@@ -798,6 +798,16 @@ text-gold-muted` under the standfirst. Color
 None. Gold buttons press 4px into their shadow at 0ms like every control. The
 roundel's tilt is static.
 
+### The hero pause control
+
+- Beside the first name at every size (`.hero-motion-toggle`): right edge on
+  the window's, `--spacing(4)` above its top rule. The window can be too low to
+  hold it clear of the name.
+- It sits on the page, not the gold, so its focus ring is the page's `cyan`.
+- A first name long enough to reach it would sit under it:
+  `tests/hero-fit.spec.ts` measures the letters against its box.
+- It is the first stop in `<main>` at every size.
+
 ## Posts
 
 Enforced by `tests/post-page.spec.ts`.
@@ -1084,6 +1094,16 @@ Enforced by `tests/nav-current.spec.ts`, `tests/mobile-menu.spec.ts`,
   below it opens beside the paw and Zz, never over them, and it closes when
   focus leaves it and its paw (SC 2.4.12). The paw shows only where the
   browser has popovers.
+- A talk in full screen (`src/components/DeckBar.astro`,
+  `src/styles/components/slides.css`) shows one slide, arrows named Previous
+  and Next with the count at the foot, and ✕ named Exit Full Screen in the
+  card's top right corner. No control there is named Full Screen. They show on
+  a pointer move or a tap, hide with the pointer once it rests, and stay while
+  the pointer is on one or one has keyboard focus. No transition. The foot row
+  sits over the margin under the slide and the slide's foot padding, ✕ inside
+  the card's border by `--focus-gap`, in its corner padding: clear of slide
+  content on 16:9 and 4:3 screens. Exit is first in the DOM, so Tab goes from
+  the top down.
 - A cat naps after `NAP_AFTER_MS` of on-screen play (`src/lib/about-cats.ts`).
   Lying down, and the breaths and "z" after it, end within 5 s, then the cat is
   still.

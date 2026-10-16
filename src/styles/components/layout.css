@@ -287,22 +287,19 @@
   }
 
   /*
-   * The SC 2.2.2 pause control, bottom-right of the window at every width.
-   * `pointer-events-auto` because `.hero-field` disables them.
+   * The SC 2.2.2 pause control, beside the first name above the window, which
+   * can be too low to hold it clear of the name. `z-40`: above the name's line
+   * box, empty there. `pointer-events-auto`: `.hero-field` disables them.
    */
   .hero-motion-toggle {
-    @apply pointer-events-auto right-4 bottom-4 z-30 sm:right-6 sm:bottom-6;
+    @apply pointer-events-auto top-auto right-0 z-40;
+
+    bottom: calc(100% + --spacing(4));
   }
 
-  @media (width >= 40rem) {
-    .hero-motion-toggle {
-      top: auto;
-      bottom: --spacing(6);
-      bottom: max(
-        --spacing(6),
-        calc(100% + var(--spacing-header) - 100svh + --spacing(6))
-      );
-    }
+  /* It sits on the page, not the gold: the page's ring, which `.surface-gold` would darken to 1:1. */
+  .surface-gold .hero-motion-toggle:focus-visible {
+    outline-color: var(--color-cyan);
   }
 
   /*
