@@ -1,8 +1,8 @@
 import { expect, test, type Page } from './test';
 import { gotoSettled } from './settle';
-import { CONTENTS_POST_ROUTE, ROUTES } from './routes';
+import { CONTENTS_POST_ROUTE, ROUTES, TALK_ROUTES } from './routes';
 import { NON_TEXT, PAGE_HELPERS } from './contrast';
-import { DESKTOP_VIEWPORT, PHONE_VIEWPORT } from './wcag';
+import { DESKTOP_VIEWPORT, NARROW_WIDTH, PHONE_VIEWPORT } from './wcag';
 
 /*
  * A drawn edge must read against the ground it sits on (SC 1.4.11), unless
@@ -70,7 +70,7 @@ const SURFACES_PER_ROUTE = 3;
 
 /* The brightest rendered pixel in a strip across the left edge, against the page. */
 const edgeContrast = async (page: Page, index: number): Promise<number> => {
-  const surface = page.locator(PAPER).nth(index);
+  const surface = page.locator(PAPER).filter({ visible: true }).nth(index);
   await surface.scrollIntoViewIfNeeded();
   const box = (await surface.boundingBox())!;
   const ground = (await surface.evaluate(
@@ -109,29 +109,39 @@ const edgeContrast = async (page: Page, index: number): Promise<number> => {
   )) as number;
 };
 
-for (const colorScheme of ['dark', 'light'] as const) {
-  test.describe(`graph-paper edges read in ${colorScheme} mode`, () => {
-    test.use({ colorScheme, viewport: DESKTOP_VIEWPORT });
+const RING_VIEWPORTS = [
+  DESKTOP_VIEWPORT,
+  { width: NARROW_WIDTH, height: DESKTOP_VIEWPORT.height },
+];
 
-    for (const route of ['/', '/blog/']) {
-      test(`${route}: the rendered edge reaches ${NON_TEXT}:1 against the page`, async ({
-        page,
-      }) => {
-        await gotoSettled(page, route);
-        const count = Math.min(
-          await page.locator(PAPER).count(),
-          SURFACES_PER_ROUTE,
-        );
-        expect(count, `${route} has no graph-paper surface`).toBeGreaterThan(0);
-        for (let index = 0; index < count; index += 1) {
-          expect(
-            await edgeContrast(page, index),
-            `surface ${index} on ${route}: its edge is under ${NON_TEXT}:1 against the page`,
-          ).toBeGreaterThanOrEqual(NON_TEXT);
-        }
-      });
-    }
-  });
+for (const colorScheme of ['dark', 'light'] as const) {
+  for (const viewport of RING_VIEWPORTS) {
+    test.describe(`graph-paper edges read in ${colorScheme} mode at ${viewport.width}px`, () => {
+      test.use({ colorScheme, viewport });
+
+      /* The talk deck sits in the slide track; /about's cards sit in bands. */
+      for (const route of ['/', '/blog/', '/about/', TALK_ROUTES[0]]) {
+        test(`${route}: the rendered edge reaches ${NON_TEXT}:1 against the page`, async ({
+          page,
+        }) => {
+          await gotoSettled(page, route);
+          const count = Math.min(
+            await page.locator(PAPER).filter({ visible: true }).count(),
+            SURFACES_PER_ROUTE,
+          );
+          expect(count, `${route} has no graph-paper surface`).toBeGreaterThan(
+            0,
+          );
+          for (let index = 0; index < count; index += 1) {
+            expect(
+              await edgeContrast(page, index),
+              `surface ${index} on ${route}: its edge is under ${NON_TEXT}:1 against the page`,
+            ).toBeGreaterThanOrEqual(NON_TEXT);
+          }
+        });
+      }
+    });
+  }
 }
 
 test.describe('graph-paper edges in forced colors', () => {
