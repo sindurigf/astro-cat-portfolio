@@ -19,10 +19,9 @@ const DEFINED: readonly { route: string; term: string; definition: string }[] =
     },
     {
       route: '/accessibility',
-      term: 'reflow',
-      definition: 'without scrolling sideways',
+      term: 'engines',
+      definition: 'behind Chrome, Firefox and Safari',
     },
-    { route: '/accessibility', term: 'engines', definition: 'draw pages' },
     {
       route: '/accessibility',
       term: 'axe',
