@@ -5,11 +5,10 @@ type Theme = 'light' | 'dark';
 
 const root = document.documentElement;
 
-const currentTheme = (): Theme =>
-  root.dataset.theme === 'light' ? 'light' : 'dark';
+const isLight = (): boolean => root.dataset.theme === 'light';
 
 const reflect = (button: HTMLButtonElement): void => {
-  button.setAttribute('aria-pressed', String(currentTheme() === 'light'));
+  button.setAttribute('aria-pressed', String(isLight()));
 };
 
 const remember = (theme: Theme): void => {
@@ -26,7 +25,7 @@ const buttons = [
 ];
 
 const toggle = (): void => {
-  const next: Theme = currentTheme() === 'light' ? 'dark' : 'light';
+  const next: Theme = isLight() ? 'dark' : 'light';
   root.dataset.theme = next;
   buttons.forEach(reflect);
   remember(next);
@@ -36,3 +35,6 @@ for (const button of buttons) {
   reflect(button);
   button.addEventListener('click', toggle);
 }
+
+/* BaseLayout.astro's listener, added first, has re-applied the stored theme by now. */
+addEventListener('pageshow', () => buttons.forEach(reflect));

@@ -210,6 +210,7 @@ docs/               Development, deployment, style guide, manual testing
 | `src/lib/persona.ts`, `src/lib/credits.ts`                                            | The sample persona's notice; the `/credits` entries              |
 | `src/pages/contact.astro`, `src/pages/privacy.astro`, `src/pages/accessibility.astro` | Mostly config values; check the wording against your site        |
 | `src/assets/photos/`, `src/assets/blog/`                                              | Sample photos, credited in [LICENSE-photos](../LICENSE-photos)   |
+| `ACCESSIBILITY.md` section 1                                                          | The owner and reporting rows `/accessibility` publishes          |
 
 - Replacing the photos: update `LICENSE-photos`, or remove it and its row in
   the [README license table](../README.md#license).
