@@ -23,7 +23,7 @@ export const SAMPLE_PERSONA: Persona | null = {
   tribute: `${PERSON_NAME} is a fan tribute to Nico Robin from One Piece by Eiichiro Oda.`,
   rights:
     'One Piece and its characters belong to Eiichiro Oda, Shueisha and Toei Animation. This site is not affiliated with or endorsed by them.',
-  /* Chapters checked against each wiki page's chapter citations. The stories end where she joins the crew, in chapter 218. */
+  /* Chapters checked against each wiki page's chapter citations. */
   sources: [
     {
       story:
@@ -101,11 +101,117 @@ export const SAMPLE_PERSONA: Persona | null = {
       },
     },
     {
-      story: 'Asking to join the Straw Hat Pirates after Arabasta',
+      story:
+        'The Poneglyph in the Tomb of the Kings, and keeping its weapon from Crocodile',
+      chapters: 'chapters 202 and 218',
+      wiki: {
+        name: 'The Tomb of the Kings on the One Piece Wiki',
+        href: 'https://onepiece.fandom.com/wiki/Tomb_of_the_Kings',
+      },
+    },
+    {
+      story:
+        'Asking to join the Straw Hat Pirates after Arabasta, and naming my specialty',
       chapters: 'chapter 218',
       wiki: {
         name: 'Chapter 218 on the One Piece Wiki',
         href: 'https://onepiece.fandom.com/wiki/Chapter_218',
+      },
+    },
+    {
+      story: 'Skypiea, on a sea of clouds ten thousand meters up',
+      chapters: 'chapter 239',
+      wiki: {
+        name: 'The White Sea on the One Piece Wiki',
+        href: 'https://onepiece.fandom.com/wiki/White_Sea',
+      },
+    },
+    {
+      story: "Shandora, and reading its age on the city's tombstone",
+      chapters: 'chapter 261',
+      wiki: {
+        name: 'Shandora on the One Piece Wiki',
+        href: 'https://onepiece.fandom.com/wiki/Shandora',
+      },
+    },
+    {
+      story: 'Stopping a man from smashing the ruins of Shandora',
+      chapters: 'chapter 265',
+      wiki: {
+        name: 'Chapter 265 on the One Piece Wiki',
+        href: 'https://onepiece.fandom.com/wiki/Chapter_265',
+      },
+    },
+    {
+      story: "The Poneglyph on the golden bell, and Gol D. Roger's message",
+      chapters: 'chapter 301',
+      wiki: {
+        name: 'Chapter 301 on the One Piece Wiki',
+        href: 'https://onepiece.fandom.com/wiki/Chapter_301',
+      },
+    },
+    {
+      story: 'Leaving the crew to keep them safe',
+      chapters: 'chapter 359',
+      wiki: {
+        name: "Nico Robin's relationships on the One Piece Wiki",
+        href: 'https://onepiece.fandom.com/wiki/Nico_Robin/Personality_and_Relationships',
+      },
+    },
+    {
+      story: 'Enies Lobby, the burned flag, and saying I wanted to live',
+      chapters: 'chapter 398',
+      wiki: {
+        name: 'Enies Lobby on the One Piece Wiki',
+        href: 'https://onepiece.fandom.com/wiki/Enies_Lobby',
+      },
+    },
+    {
+      story: 'Going ashore on Thriller Bark, and its three-headed guard dog',
+      chapters: 'chapters 444 and 446',
+      wiki: {
+        name: 'Chapter 446 on the One Piece Wiki',
+        href: 'https://onepiece.fandom.com/wiki/Chapter_446',
+      },
+    },
+    {
+      story: 'Refusing to dock',
+      chapters: 'chapter 472',
+      wiki: {
+        name: 'Chapter 472 on the One Piece Wiki',
+        href: 'https://onepiece.fandom.com/wiki/Chapter_472',
+      },
+    },
+    {
+      story: 'Tequila Wolf, and the Revolutionary Army freeing its workers',
+      chapters: 'chapter 524 and the cover story of chapter 546',
+      wiki: {
+        name: 'Tequila Wolf on the One Piece Wiki',
+        href: 'https://onepiece.fandom.com/wiki/Tequila_Wolf',
+      },
+    },
+    {
+      story: 'Choosing my captain over the Revolutionary Army',
+      chapters: 'chapter 593',
+      wiki: {
+        name: 'Chapter 593 on the One Piece Wiki',
+        href: 'https://onepiece.fandom.com/wiki/Chapter_593',
+      },
+    },
+    {
+      story: 'Sketching a kraken on the way to Fish-Man Island',
+      chapters: 'chapters 604–605',
+      wiki: {
+        name: "Nico Robin's later history on the One Piece Wiki",
+        href: 'https://onepiece.fandom.com/wiki/Nico_Robin/History/During_and_After_the_Timeskip',
+      },
+    },
+    {
+      story: 'Autumn on a spring island, and things that go with coffee',
+      chapters: 'SBS in volumes 38 and 45',
+      wiki: {
+        name: 'Nico Robin trivia on the One Piece Wiki',
+        href: 'https://onepiece.fandom.com/wiki/Nico_Robin/Misc.',
       },
     },
   ],

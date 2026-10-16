@@ -61,13 +61,22 @@ test.describe('the sample persona sources', () => {
     );
   });
 
-  test('every source cites at least one chapter', NODE, () => {
+  test('every source cites at least one chapter or SBS', NODE, () => {
     for (const { story, chapters } of sources) {
-      expect(chapters, `${story} cites no chapter`).toMatch(/\bchapters? \d+/);
+      expect(chapters, `${story} cites no chapter or SBS`).toMatch(
+        /\bchapters? \d+|\bSBS\b/,
+      );
     }
   });
 
-  for (const route of ['/about', '/blog/sample-post', '/blog/sample-talk']) {
+  for (const route of [
+    '/about',
+    '/blog/sample-post',
+    '/blog/sample-talk',
+    '/blog/sun-protection-at-ten-thousand-meters',
+    '/blog/how-i-get-to-know-a-new-island',
+    '/blog/learning-to-ask-for-what-i-want',
+  ]) {
     test(`${route} lists every source under Sources`, async ({ page }) => {
       await gotoSettled(page, route);
       await expect(page.locator(`#${PERSONA_SOURCES_ID}`)).toHaveCount(1);

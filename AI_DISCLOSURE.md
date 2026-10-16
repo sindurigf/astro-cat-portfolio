@@ -13,7 +13,7 @@ current once the site is yours.
 | Tool      | Claude Code                                                                               |
 | Code      | Components, scripts, design tokens, tests and docs, written with Claude Code and reviewed |
 | Microcopy | Functional microcopy (labels, errors, alt text, empty states) and the policy pages        |
-| Editorial | The sample persona's text: every page, both posts, the talk and its slides                |
+| Editorial | The sample persona's text: every page, every post, the talk and its slides                |
 | Art       | Drawn by Claude as SVG and canvas code, rendered in Chromium; see below                   |
 
 AI-drawn art, all by Claude:
