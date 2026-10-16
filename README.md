@@ -132,12 +132,12 @@ does not cover it.
 - Delete `src/components/ui/AboutCats.vue`, every `src/lib/about-cats*`
   file, `src/styles/components/about-cats.css`, `tests/about-cats.spec.ts`
   and the three `src/assets/photos/cat-card-*.jpg` photos.
-- `src/styles/global.css`: remove the `about-cats.css` import. Keep the
-  `--color-cat-` colors: the logo cat uses them.
-- `src/pages/about.astro`: remove the `AboutCats`, `CatInfo` and cat photo
-  imports, the cat list and the code under it that loads their photos,
-  `getImage` from the `astro:assets` import, the three `cat-spot` elements, and
-  the `<AboutCats>` element at the end. Change each `cat-perch` wrapper to a
+- `src/styles/global.css`: keep the `--color-cat-` colors: the logo cat
+  uses them.
+- `src/pages/about.astro`: remove the `about-cats.css`, `AboutCats`, `CatInfo`
+  and cat photo imports, the cat list and the code under it that loads their
+  photos, `getImage` from the `astro:assets` import, the three `cat-spot`
+  elements, and the `<AboutCats>` element at the end. Change each `cat-perch` wrapper to a
   plain `<div>`, keeping `mt-head` on the first.
 - `src/styles/light-mode.css`: remove `.cat-tricks-button` from the list of
   gold text turned to ink.
