@@ -464,6 +464,8 @@
   --lift-object: 4px;
   /* The logo keeps its 8px shadow, so its ring clears 8px. */
   --lift-mark: 8px;
+  /* Layout lands on fractions of a pixel, scrolling on whole ones. */
+  --scroll-rounding: 1px;
 
   --underline-offset: 0.2em;
   --underline-thin: 2px;

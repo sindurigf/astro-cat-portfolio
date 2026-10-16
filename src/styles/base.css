@@ -17,9 +17,11 @@
      * revealing a focused <input>'s caret.
      */
     scroll-padding-top: calc(var(--spacing-header) + --spacing(4));
-    /* SC 2.4.7: room for the ring when a focused control scrolls to the bottom edge. */
+    /* SC 2.4.7: room for the widest ring when a focused control scrolls to the bottom edge. */
     scroll-padding-bottom: calc(
-      var(--focus-width) + var(--focus-gap) + var(--lift-object)
+      var(--focus-width) + var(--focus-gap) +
+        max(var(--lift-control), var(--lift-object), var(--lift-mark)) +
+        var(--scroll-rounding)
     );
 
     @variant short {

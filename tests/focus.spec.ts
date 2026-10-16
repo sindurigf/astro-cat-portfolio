@@ -527,6 +527,44 @@ for (const colorScheme of SCHEMES) {
   });
 }
 
+/** Whole-pixel scrolling can leave a fractional box this much lower than the padding allows. */
+const SCROLL_ROUNDING_PX = 1;
+
+/* SC 2.4.7: a control scrolled to the bottom edge shows its whole ring. */
+for (const route of SAMPLED_ROUTES) {
+  test(`${route} leaves bottom scroll padding for the widest focus ring`, async ({
+    page,
+  }) => {
+    await gotoSettled(page, route);
+    const count = await page.locator(FOCUSABLE_SELECTOR).count();
+    let widest = 0;
+    for (let i = 0; i < count; i += 1) {
+      const control = page.locator(FOCUSABLE_SELECTOR).nth(i);
+      if (!(await control.isVisible())) continue;
+      await control.focus();
+      widest = Math.max(
+        widest,
+        await control.evaluate((el) => {
+          const s = getComputedStyle(el);
+          return s.outlineStyle === 'none'
+            ? 0
+            : parseFloat(s.outlineWidth) + parseFloat(s.outlineOffset);
+        }),
+      );
+    }
+    const padding = await page.evaluate(() =>
+      parseFloat(
+        getComputedStyle(document.documentElement).scrollPaddingBottom,
+      ),
+    );
+    expect(widest, `${route} drew no focus ring to measure`).toBeGreaterThan(0);
+    expect(
+      padding,
+      `${route} scroll-padding-bottom is short of its widest ring plus rounding`,
+    ).toBeGreaterThanOrEqual(widest + SCROLL_ROUNDING_PX);
+  });
+}
+
 /* SC 2.4.1: the skip link moves focus, not only the scroll position. */
 test.describe('skip link', () => {
   for (const route of SAMPLED_ROUTES) {
