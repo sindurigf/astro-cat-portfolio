@@ -135,13 +135,21 @@ does not cover it.
   their photos, `getImage` from the `astro:assets` import, the three
   `cat-spot` elements, and the `<AboutCats>` element at the end. Change each
   `cat-perch` wrapper to a plain `<div>`, keeping `mt-head` on the first.
-- Tests: the cat card test in `tests/failed-images.spec.ts`, the part of the
-  analytics test in `tests/analytics.spec.ts` that opens a cat card, and the
-  About cats entry in `tests/credits-ai.spec.ts`.
+- `src/styles/light-mode.css`: remove `.cat-tricks-button` from the list of
+  gold text turned to ink.
+- Tests:
+  - `tests/focus-obscured.spec.ts`: the cat card entry in the list of open
+    dialogs, and the two groups of About cat tests with their loop.
+  - `tests/target-size.spec.ts`: the cat card entry in its list of open
+    dialogs.
+  - `tests/failed-images.spec.ts`: the cat card test.
+  - `tests/analytics.spec.ts`: the lines that open a cat card.
+  - `tests/credits-ai.spec.ts`: the About cats entry.
 - `/credits` and `AI_DISCLOSURE.md`: remove the About cats entry. The
   contact page's topic about the cats goes too.
-- Typecheck names an import left behind; the About, analytics and
-  failed-images tests fail on a cat still named.
+- If one is missed: typecheck names an import or variable left behind, and
+  the focus, target size, analytics and failed-images tests fail on a cat
+  they cannot find.
 
 ### Drop /brand
 
