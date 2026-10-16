@@ -1,5 +1,5 @@
 import { expect, test, type Page } from './test';
-import { gotoSettled } from './settle';
+import { fontsSettled, gotoSettled } from './settle';
 import { ROUTES, TALK_ROUTES } from './routes';
 import {
   FOCUSABLE_SELECTOR,
@@ -172,7 +172,7 @@ const expectNoHorizontalOverflow = async (
   }
 
   // Headings are the thing at risk, so measure only once the webfont is ready.
-  await page.evaluate(() => document.fonts.ready);
+  await fontsSettled(page);
 
   const { scrollWidth, clientWidth } = await page.evaluate(() => ({
     scrollWidth: document.documentElement.scrollWidth,
@@ -329,7 +329,7 @@ test.describe('button labels reflow at 305px (SC 1.4.10)', () => {
       page,
     }) => {
       await gotoSettled(page, '/404');
-      await page.evaluate(() => document.fonts.ready);
+      await fontsSettled(page);
       const fit = await page.evaluate(
         ({ selector, label }) => {
           const el = document.querySelector<HTMLElement>(`main ${selector}`);
