@@ -1,4 +1,3 @@
-import { execFileSync } from 'node:child_process';
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { expect, test, type Page } from './test';
@@ -25,6 +24,8 @@ import { CONTACT_FORM_ON } from '../src/lib/contact';
 const FORM_OFF = 'contact.form is none in src/site.config.ts';
 import { DAY_MS } from '../src/lib/time';
 import { wranglerConfig } from './source';
+import { getPlatformProxy } from 'wrangler';
+import type { D1Database } from '../src/lib/contact-env';
 import { timedScan } from './axe';
 import { obscuredReport, readObscured } from './obscured';
 import { settleFocusScroll, tabWalk } from './tab-walk';
@@ -63,38 +64,21 @@ const emailWith = (token: string): string | undefined =>
   capturedEmailTexts().find((text) => text.includes(token));
 
 /*
- * The preview's D1 object locks the file for milliseconds as it closes, 10 s
- * after its last request, and workerd sets no busy timeout. Each retry starts
- * a new wrangler process, which takes longer than the lock is held.
+ * One wrangler platform proxy per worker, on the persisted state the preview
+ * server uses: `wrangler d1 execute` would start a whole CLI process per query.
  */
-const LOCAL_D1_ATTEMPTS = 3;
+let platform:
+  ReturnType<typeof getPlatformProxy<{ MESSAGES_DB: D1Database }>> | undefined;
 
-const isBusy = (error: unknown): boolean =>
-  String((error as { stderr?: unknown }).stderr).includes('SQLITE_BUSY');
-
-const localD1 = (sql: string, attempt = 1): string => {
-  try {
-    return execFileSync(
-      'npx',
-      [
-        'wrangler',
-        'd1',
-        'execute',
-        'MESSAGES_DB',
-        '--local',
-        '--json',
-        '--command',
-        sql,
-      ],
-      { encoding: 'utf8' },
-    );
-  } catch (error) {
-    if (attempt < LOCAL_D1_ATTEMPTS && isBusy(error)) {
-      return localD1(sql, attempt + 1);
-    }
-    throw error;
-  }
+const localD1 = async (sql: string): Promise<string> => {
+  platform ??= getPlatformProxy<{ MESSAGES_DB: D1Database }>();
+  const { results } = await (await platform).env.MESSAGES_DB.prepare(sql).all();
+  return JSON.stringify([{ results }]);
 };
+
+test.afterAll(async () => {
+  await (await platform)?.dispose();
+});
 
 interface WranglerConfig {
   send_email?: { name: string; allowed_sender_addresses?: string[] }[];
@@ -276,9 +260,11 @@ test.describe('the contact endpoint', () => {
   test.skip(!CONTACT_FORM_ON, FORM_OFF);
 
   /* A killed 503 test strands the table its `finally` would have restored. */
-  test.beforeAll(() => {
-    const stranded = localD1(
-      `SELECT name FROM sqlite_master WHERE type = 'table' AND name = '${MESSAGES_ASIDE}'`,
+  test.beforeAll(async () => {
+    const stranded = (
+      await localD1(
+        `SELECT name FROM sqlite_master WHERE type = 'table' AND name = '${MESSAGES_ASIDE}'`,
+      )
     ).includes(`"${MESSAGES_ASIDE}"`);
     if (stranded) {
       throw new Error(
@@ -288,7 +274,7 @@ test.describe('the contact endpoint', () => {
       );
     }
     /* A run stores about twenty messages; kept, they trip HOURLY_NOTIFY_LIMIT on a rerun within the hour. */
-    localD1('DELETE FROM messages');
+    await localD1('DELETE FROM messages');
   });
 
   test('a GET is sent back to the form', async ({ request, baseURL }) => {
@@ -327,7 +313,7 @@ test.describe('the contact endpoint', () => {
       expect(response.headers()['location']).toBeUndefined();
       expectSiteHeaders(response, 'cross-origin refusal');
       expect(
-        localD1(`SELECT id FROM messages WHERE body = '${marker}'`),
+        await localD1(`SELECT id FROM messages WHERE body = '${marker}'`),
         'a refused post was stored',
       ).not.toContain('"id"');
     });
@@ -525,7 +511,7 @@ test.describe('the contact endpoint', () => {
       message: `Storage failure check ${crypto.randomUUID()}`,
     };
 
-    localD1(`ALTER TABLE messages RENAME TO ${MESSAGES_ASIDE}`);
+    await localD1(`ALTER TABLE messages RENAME TO ${MESSAGES_ASIDE}`);
     try {
       const response = await request.post(ENDPOINT, {
         form: typed,
@@ -545,7 +531,7 @@ test.describe('the contact endpoint', () => {
       expectNotSentSummary(html);
       expectTitledAndHeaded(html, 'Message Not Saved');
     } finally {
-      localD1(`ALTER TABLE ${MESSAGES_ASIDE} RENAME TO messages`);
+      await localD1(`ALTER TABLE ${MESSAGES_ASIDE} RENAME TO messages`);
     }
   });
 
@@ -572,7 +558,7 @@ test.describe('the contact endpoint', () => {
       `From: ${validFields().name} <${validFields().email}>`,
     );
 
-    const unmarked = localD1(
+    const unmarked = await localD1(
       `SELECT id FROM messages WHERE body = 'Notification check ${token}' ` +
         'AND notified_at IS NULL',
     );
@@ -588,7 +574,7 @@ test.describe('the contact endpoint', () => {
   }) => {
     const token = crypto.randomUUID();
     const id = `unsent-${token}`;
-    localD1(
+    await localD1(
       'INSERT INTO messages (id, name, email, body, created_at) VALUES ' +
         `('${id}', 'Unsent', 'unsent@example.com', 'Resend check ${token}', ` +
         `${Date.now() - 2 * RESEND_AFTER_MS})`,
@@ -851,7 +837,7 @@ test.describe('the contact endpoint', () => {
     const now = Date.now();
     const expired = `expired-${crypto.randomUUID()}`;
     const current = `current-${crypto.randomUUID()}`;
-    localD1(
+    await localD1(
       'INSERT INTO messages (id, name, email, body, created_at) VALUES ' +
         `('${expired}', 'Old', 'old@example.com', 'expired', ${retentionCutoff(now) - DAY_MS}), ` +
         `('${current}', 'New', 'new@example.com', 'current', ${retentionCutoff(now) + DAY_MS})`,
@@ -871,7 +857,7 @@ test.describe('the contact endpoint', () => {
       })
       .not.toContain(expired);
     expect(
-      remaining(),
+      await remaining(),
       'the sweep deleted a message still inside the retention period.',
     ).toContain(current);
   });
@@ -1040,7 +1026,7 @@ test.describe('the contact error pages in a browser', () => {
   });
 
   test('the storage-failure page', async ({ page }) => {
-    localD1(`ALTER TABLE messages RENAME TO ${MESSAGES_ASIDE}`);
+    await localD1(`ALTER TABLE messages RENAME TO ${MESSAGES_ASIDE}`);
     try {
       await submit(page, validFields());
       await expect(
@@ -1052,7 +1038,7 @@ test.describe('the contact error pages in a browser', () => {
       await expectHelpBesideFields(page, 'storage-failure');
       await expectFocusUncovered(page, 'storage-failure');
     } finally {
-      localD1(`ALTER TABLE ${MESSAGES_ASIDE} RENAME TO messages`);
+      await localD1(`ALTER TABLE ${MESSAGES_ASIDE} RENAME TO messages`);
     }
   });
 });
