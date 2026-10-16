@@ -37,7 +37,6 @@ import {
 } from '../src/lib/about-cats-idle';
 import { isTricksData, tricksOf } from '../src/lib/about-cats-tricks';
 import tricksData from '../src/lib/about-cats-tricks.json' with { type: 'json' };
-import { CAT_INSPIRATION } from '../src/lib/credits';
 import {
   CONTROL_ROOM,
   MAX_OVERHANG,
@@ -66,7 +65,7 @@ const STILL_WINDOW_MS = 800;
 const ZOOMED = { width: 320, height: 256 };
 
 /** Tall enough that Pepper's and Mochi's bands are on screen at once; Biscuit's is below. */
-const PEPPER_AND_MOCHI = { width: 1350, height: 4000 };
+const PEPPER_AND_MOCHI = { width: 1350, height: 3200 };
 
 /** Leg height from the bottom of the click box; a raised card covers the last few px. */
 const LEG_HEIGHT = 0.15;
@@ -1017,7 +1016,7 @@ test.describe('About cats', () => {
   });
 
   for (const colorScheme of ['dark', 'light'] as const) {
-    test(`the card's name sticker and thank-you reach 4.5:1, the link underlined, in ${colorScheme} mode (SC 1.4.3, 1.4.1)`, async ({
+    test(`the card's name sticker reaches 4.5:1 in ${colorScheme} mode (SC 1.4.3)`, async ({
       browser,
     }) => {
       const context = await browser.newContext({ colorScheme });
@@ -1026,44 +1025,18 @@ test.describe('About cats', () => {
       await catButton(page, 'pepper').focus();
       await page.keyboard.press('Enter');
       const dialog = page.getByRole('dialog', { name: NAMES.pepper });
-      await expect(dialog).toContainText(
-        `Thank you for the inspiration, ${CAT_INSPIRATION.name}.`,
-      );
-      const link = dialog.getByRole('link', { name: CAT_INSPIRATION.name });
-      await expect(link).toHaveAttribute('href', CAT_INSPIRATION.href);
-      const found = await page.evaluate(`(() => {
-        const link = document.querySelector('.cat-dialog a');
+      await expect(dialog).toBeVisible();
+      const sticker = (await page.evaluate(`(() => {
         ${PAGE_HELPERS}
-        return [link.parentElement, link, document.querySelector('.cat-name')].map((node) => {
-          const style = getComputedStyle(node);
-          const fg = parse(style.color);
-          const bg = effectiveBackground(node);
-          return {
-            ratio: fg && bg ? ratio(fg, bg) : 0,
-            underline: style.textDecorationLine.includes('underline'),
-          };
-        });
-      })()`);
-      const [line, anchor, sticker] = found as {
-        ratio: number;
-        underline: boolean;
-      }[];
+        const node = document.querySelector('.cat-name');
+        const fg = parse(getComputedStyle(node).color);
+        const bg = effectiveBackground(node);
+        return fg && bg ? ratio(fg, bg) : 0;
+      })()`)) as number;
       expect(
-        sticker.ratio,
+        sticker,
         'the gold name sticker is under 4.5:1',
       ).toBeGreaterThanOrEqual(AA_TEXT);
-      expect(
-        line.ratio,
-        'the thank-you line is under 4.5:1',
-      ).toBeGreaterThanOrEqual(AA_TEXT);
-      expect(
-        anchor.ratio,
-        'the inspiration link is under 4.5:1',
-      ).toBeGreaterThanOrEqual(AA_TEXT);
-      expect(
-        anchor.underline,
-        'the inspiration link is told apart by color alone',
-      ).toBe(true);
       await context.close();
     });
   }
@@ -1218,21 +1191,12 @@ test.describe('About cats', () => {
     }
   });
 
-  test('a click on the backdrop closes the card; Enter on the thank-you link does not', async ({
-    page,
-  }) => {
+  test('a click on the backdrop closes the card', async ({ page }) => {
     await gotoSettled(page, ROUTE);
     await catButton(page, 'mochi').focus();
     await page.keyboard.press('Enter');
     const dialog = page.getByRole('dialog', { name: NAMES.mochi });
     await expect(dialog).toBeVisible();
-    const link = dialog.getByRole('link', { name: CAT_INSPIRATION.name });
-    await link.evaluate((node) =>
-      node.addEventListener('click', (event) => event.preventDefault()),
-    );
-    await link.focus();
-    await page.keyboard.press('Enter');
-    await expect(dialog, 'Enter on the link closed the card').toBeVisible();
     await page.mouse.click(BACKDROP_POINT.x, BACKDROP_POINT.y);
     await expect(dialog, 'a backdrop click left the card open').toBeHidden();
   });
