@@ -18,9 +18,9 @@ const LINE_BOX_TOLERANCE = 0.0002;
 /* A phone on a slow connection: where a late font is likeliest and lines are shortest. */
 const PHONE = { width: 412, height: 823 };
 /*
- * A budget, not a property: measured maximum 0.0184 (/credits), nine routes
- * over it without the fallback faces, up to 0.163. Routes near it sit on a wrap
- * boundary under whole-pixel glyph advances, not a mis-sized fallback.
+ * A budget: measured maximum 0.0184 (/credits), 0.163 without the fallbacks.
+ * Near it, whole-pixel glyph advances put a line on a wrap boundary; the fit is
+ * right. A failure is usually a new wrap: read the shift sources first.
  */
 const LATE_FONT_SHIFT_CEILING = 0.02;
 
