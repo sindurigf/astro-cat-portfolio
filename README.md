@@ -158,7 +158,7 @@ does not cover it.
   (motion), the 1.4.8, 2.3.3 and 2.4.12 rows, the target size, focus ring,
   motion and forced colors lines in section 4, and the
   `tests/focus-obscured.spec.ts` and `tests/about-cats.spec.ts` rows in the
-  test table. `git grep -n -i cat ACCESSIBILITY.md` lists them.
+  test table. `git grep -n -i -w -e cat -e cats ACCESSIBILITY.md` lists them.
 - If one is missed: typecheck names an import or variable left behind, and
   the focus, target size, analytics and failed-images tests fail on a cat
   they cannot find.
