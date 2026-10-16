@@ -30,7 +30,7 @@ the theme with your own person, words and pictures. The animated cats on
 ## Make it yours
 
 Work through the list in order. Most places in the code you need to change
-carries a `TODO(fork):` comment saying what to do; delete the comment once
+carry a `TODO(fork):` comment saying what to do; delete the comment once
 it is done.
 
 1. **You**
