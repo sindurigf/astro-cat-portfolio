@@ -1,4 +1,4 @@
-import { expect, test, type Page } from './test';
+import { expect, test, type Browser, type Page } from './test';
 import { gotoSettled, setViewportSettled } from './settle';
 import { settleFocusScroll } from './tab-walk';
 import {
@@ -64,8 +64,60 @@ const STILL_WINDOW_MS = 800;
 /** 1280x1024 at 400%: the SC 1.4.10 reflow case, short as well as narrow. */
 const ZOOMED = { width: 320, height: 256 };
 
-/** Tall enough that Pepper's and Mochi's bands are on screen at once; Biscuit's is below. */
-const PEPPER_AND_MOCHI = { width: 1350, height: 3200 };
+/** Wide enough for the desktop layout; tall enough to measure every band at once. */
+const TWO_CAT_WIDTH = 1350;
+const PROBE_HEIGHT = 6000;
+
+/** Band edges in document px, with the page scrolled to the top. */
+const bandEdges = (page: Page) =>
+  page.evaluate(
+    ([second, third]) => {
+      const edge = (id: string) =>
+        document.getElementById(`cat-spot-${id}`)!.getBoundingClientRect();
+      return {
+        secondBottom: edge(second).bottom + scrollY,
+        thirdTop: edge(third).top + scrollY,
+      };
+    },
+    ['mochi', 'biscuit'] as const,
+  );
+
+const twoCatWindows = new Map<
+  string,
+  Promise<{ width: number; height: number }>
+>();
+
+/** A window that ends between the second cat's band and the third's, measured per engine. */
+const twoCatWindow = (browser: Browser) => {
+  const engine = browser.browserType().name();
+  const known = twoCatWindows.get(engine);
+  if (known) return known;
+  const measured = (async () => {
+    const context = await browser.newContext({
+      viewport: { width: TWO_CAT_WIDTH, height: PROBE_HEIGHT },
+    });
+    try {
+      const page = await context.newPage();
+      await gotoSettled(page, ROUTE);
+      const probe = await bandEdges(page);
+      const size = {
+        width: TWO_CAT_WIDTH,
+        height: Math.round((probe.secondBottom + probe.thirdTop) / 2),
+      };
+      await setViewportSettled(page, size);
+      const edges = await bandEdges(page);
+      expect(
+        edges.secondBottom <= size.height && edges.thirdTop > size.height,
+        `the third cat's band is on screen at ${size.height}px, so the two-cat tests no longer isolate it`,
+      ).toBe(true);
+      return size;
+    } finally {
+      await context.close();
+    }
+  })();
+  twoCatWindows.set(engine, measured);
+  return measured;
+};
 
 /** Leg height from the bottom of the click box; a raised card covers the last few px. */
 const LEG_HEIGHT = 0.15;
@@ -1136,7 +1188,9 @@ test.describe('About cats', () => {
   test('a sleeping cat is not redrawn while another cat plays on screen', async ({
     browser,
   }) => {
-    const context = await browser.newContext({ viewport: PEPPER_AND_MOCHI });
+    const context = await browser.newContext({
+      viewport: await twoCatWindow(browser),
+    });
     const page = await context.newPage();
     await gotoSettled(page, ROUTE);
     await napControl(page, 'pepper').click();
@@ -1843,7 +1897,9 @@ test.describe('About cats', () => {
   test('a held cat relaxes its head once the pointer goes idle, even with every other cat on screen asleep', async ({
     browser,
   }) => {
-    const context = await browser.newContext({ viewport: PEPPER_AND_MOCHI });
+    const context = await browser.newContext({
+      viewport: await twoCatWindow(browser),
+    });
     const page = await context.newPage();
     await expectHeldHeadRelaxes(page);
     await context.close();
@@ -1852,7 +1908,9 @@ test.describe('About cats', () => {
   test('a held cat relaxes its head when the frame after the loop wakes covers almost no time', async ({
     browser,
   }) => {
-    const context = await browser.newContext({ viewport: PEPPER_AND_MOCHI });
+    const context = await browser.newContext({
+      viewport: await twoCatWindow(browser),
+    });
     const page = await context.newPage();
     await page.addInitScript((leadMs) => {
       const request = window.requestAnimationFrame.bind(window);
@@ -1868,7 +1926,9 @@ test.describe('About cats', () => {
   test('a held cat that has settled is not redrawn after a slow frame', async ({
     browser,
   }) => {
-    const context = await browser.newContext({ viewport: PEPPER_AND_MOCHI });
+    const context = await browser.newContext({
+      viewport: await twoCatWindow(browser),
+    });
     const page = await context.newPage();
     await gotoSettled(page, ROUTE);
     /* Mochi playing keeps the loop running, so a frame follows the stall. */
@@ -1921,7 +1981,9 @@ test.describe('About cats', () => {
   test('a held cat, a sleeping cat and every cat under reduced motion are not redrawn (SC 2.2.2, 2.3.3)', async ({
     browser,
   }) => {
-    const context = await browser.newContext({ viewport: PEPPER_AND_MOCHI });
+    const context = await browser.newContext({
+      viewport: await twoCatWindow(browser),
+    });
     const page = await context.newPage();
     /* Running 14 s of page time is work for the browser, on top of two page loads. */
     test.slow();
@@ -1949,7 +2011,7 @@ test.describe('About cats', () => {
 
     const still = await browser.newContext({
       reducedMotion: 'reduce',
-      viewport: PEPPER_AND_MOCHI,
+      viewport: await twoCatWindow(browser),
     });
     const quiet = await still.newPage();
     await gotoSettled(quiet, ROUTE);
@@ -2105,7 +2167,9 @@ test.describe('About cats', () => {
   test('a cat whose card stays open past its nap time does not keep the loop running', async ({
     browser,
   }) => {
-    const context = await browser.newContext({ viewport: PEPPER_AND_MOCHI });
+    const context = await browser.newContext({
+      viewport: await twoCatWindow(browser),
+    });
     const page = await context.newPage();
     await page.clock.install();
     await gotoSettled(page, ROUTE);
@@ -2154,7 +2218,9 @@ test.describe('About cats', () => {
   test('a cat pausing between moves runs no empty animation frames', async ({
     browser,
   }) => {
-    const context = await browser.newContext({ viewport: PEPPER_AND_MOCHI });
+    const context = await browser.newContext({
+      viewport: await twoCatWindow(browser),
+    });
     const page = await context.newPage();
     await gotoSettled(page, ROUTE);
     for (const id of ['pepper', 'mochi'] as const) {
