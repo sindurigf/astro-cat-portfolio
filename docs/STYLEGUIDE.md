@@ -882,7 +882,7 @@ Enforced by `tests/post-page.spec.ts`.
 | Code block  | `.prose pre`: mono, `border-4 border-border` on `surface`, `p-4`, scrolls sideways, a named tab stop                                                    |
 | Lists       | `mt-6 pl-6`, items `mt-3`, gold markers; a link-only item is 44px tall                                                                                  |
 | Blockquote  | `mt-6`, `border-l-8 border-gold`, `pl-6`, its text at weight 900                                                                                        |
-| Table       | `mt-6`, `border-4`, fixed layout, cells `px-4 py-3`, headers on `surface`                                                                               |
+| Table       | `mt-6`, `border-4`, fixed layout, cells `px-4 py-3`, headers on `surface`; Markdown headers get `scope="col"`, a table with row headers is HTML         |
 | Figure      | `mt-8`, wider than the text ([Measure](#measure)), an `.aspect-frame` sized by the file with a 4px `border` ring; caption `mt-4 text-label text-subtle` |
 | `hr`        | `mt-16`, an 8px `border` rule                                                                                                                           |
 
