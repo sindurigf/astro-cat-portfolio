@@ -42,7 +42,7 @@ blur, uppercase headings, tilted marks.
 | 3   | the logo marks: the roundel, the homepage sticker; the logo cat is Hela's coat, not gold                        | 9 routes, `/`                          |
 | 4   | Card labels, `.label text-gold`; a form's field labels are `text`                                               | `/about`, `/accessibility`, `/contact` |
 | 4a  | A talk slide's label, bold words, part number and lead-in term before a colon; its text links, still underlined | `/talks/<deck>/`                       |
-| 5   | Category: the blog label and the homepage glyph tiles                                                           | 3 routes                               |
+| 5   | Category: the blog label and the homepage glyph tiles, ink-edged on gold                                        | 3 routes                               |
 | 6   | Display words: the homepage family name                                                                         | `/`                                    |
 | 7   | List markers in `.bullet-list`                                                                                  | wherever a bulleted list is            |
 | 8   | The `gold` swatch and the dark-mode contrast samples on gold on `/brand`; fills, hex in both modes              | `/brand`                               |
