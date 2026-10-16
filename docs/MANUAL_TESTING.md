@@ -98,7 +98,7 @@ Resizing is not zooming, so this stays manual even though
 - [ ] The mobile menu button replaces the desktop nav and the menu is fully
       operable. → SC 1.4.10
 - [ ] Nothing overlaps or is cut off. → SC 1.4.10
-- [ ] Tab through: the 120px sticky header never covers the focused element. → SC 2.4.11
+- [ ] Tab through: the 96px sticky header never covers the focused element. → SC 2.4.11
 - [ ] Repeat on `/blog/sample-talk`. → SC 1.4.10, 2.4.11
 - [ ] Repeat at 200% and 250%. → SC 1.4.10
 - [ ] Repeat at 400% in a window 1024px tall (256px CSS): the header does not
@@ -566,7 +566,7 @@ Setup: Firefox, Settings → General → Zoom → "Zoom text only", Ctrl+`+` to 
 
 - [ ] No text clipped, truncated or hidden.
 - [ ] Header and footer labels fit their boxes, the current-page box included.
-- [ ] Nothing spills out of the 120px header.
+- [ ] Nothing spills out of the 96px header.
 - [ ] The mobile menu, if shown, works.
 - [ ] Repeat on `/blog/sample-talk`.
 

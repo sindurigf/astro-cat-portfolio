@@ -832,7 +832,7 @@ text-gold-muted` under the standfirst. Color
 ### Header relation
 
 - The header is a slab on the page column, styled as a card: `surface`, the
-  card edge and graph paper, the 8px pink shadow, 16px below the top. No line
+  card edge and graph paper, the 8px pink shadow, 12px below the top. No line
   under it.
 - The logo tile and the slab share the gold ground and dark type; the tile
   keeps its `mark` shadow.
@@ -1079,7 +1079,7 @@ Enforced by `tests/nav-current.spec.ts`, `tests/mobile-menu.spec.ts`,
 
 ### By height
 
-- Sticky, 120px (`--spacing-header`): the 88px slab and 16px above and below. `html` keeps focus and anchors
+- Sticky, 96px (`--spacing-header`): the 72px slab and 12px above and below. `html` keeps focus and anchors
   `--spacing-header` plus `--spacing(4)` below the top.
 - Under 30rem of viewport height (`short`: a landscape phone, any window under
   960px tall at 200% zoom) it scrolls away and the scroll padding drops to

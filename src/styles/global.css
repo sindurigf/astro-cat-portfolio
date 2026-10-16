@@ -457,11 +457,11 @@
    */
   --container-slide-card: 13rem;
   /*
-   * The 88px header slab and 16px above and below it. Fixed px so it
+   * The 72px header slab and 12px above and below it. Fixed px so it
    * stays small at 400% zoom; html's scroll-padding-top derives from it (SC
    * 2.4.11).
    */
-  --spacing-header: 120px;
+  --spacing-header: 96px;
   /* The slideshow's control row: a ~59px button plus its 4px shadow. */
   --spacing-deck-bar: 4.5rem;
 
