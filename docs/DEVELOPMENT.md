@@ -213,6 +213,7 @@ docs/               Development, deployment, style guide, manual testing
 | `src/lib/categories.ts`, `src/lib/og-image.ts`, `src/pages/credits.astro`             | Category teasers; the sharing image's alt text; the credit lists |
 | `wrangler.jsonc`, `SECURITY.md`, `AI_DISCLOSURE.md`                                   | Worker, domain and database names; your contacts; your AI record |
 | `src/assets/photos/`, `src/assets/blog/`                                              | Sample photos, credited in [LICENSE-photos](../LICENSE-photos)   |
+| `ACCESSIBILITY.md` section 1                                                          | The owner and reporting rows `/accessibility` publishes          |
 
 - `npm run check:fork` lists the `TODO(fork)` comment at each of these.
 - Replacing the photos: update `LICENSE-photos`, or remove it and its row in

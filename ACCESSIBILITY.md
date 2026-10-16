@@ -2,8 +2,14 @@
 
 The accessibility statement this template ships with: what it aims for, what
 is tested, what is not, and how to report a barrier. The public summary is the
-site's `/accessibility` page, built from this file. Replace the project,
-owner and reporting rows with your own, and review the rest before you publish.
+site's `/accessibility` page, built from this file.
+
+The owner and both reporting rows in section 1 are the template maintainer's
+own details, so the template's statement reaches a real person. In a fork,
+replace the project, owner and reporting rows with yours and review the rest
+before you publish: until you do, your visitors' barrier reports go to her.
+The build fails, and `npm run check:live` exits 2, while a real `site.url`
+still publishes her rows.
 
 The statement is voluntary for a personal site and follows the
 [W3C model for accessibility statements](https://www.w3.org/WAI/planning/statements/).
@@ -16,9 +22,9 @@ The statement is voluntary for a personal site and follows the
 | ------------------- | ---------------------------------------------------------- |
 | Project             | astro-cat-portfolio                                        |
 | Project type        | Static personal website (Astro, two Vue islands, Tailwind) |
-| Accessibility owner | Robin Ohara                                                |
-| Public reporting    | <https://github.example/robin-ohara/example-site/issues>   |
-| Private reporting   | <hello@example.com>                                        |
+| Accessibility owner | Sinduri Guntupalli                                         |
+| Public reporting    | <https://github.com/sindurigf/astro-cat-portfolio/issues>  |
+| Private reporting   | <lol@sinduri.lol>                                          |
 | Target standard     | WCAG 2.2 Level AA, with AAA text contrast                  |
 | Conformance status  | **Target only. No claim that the site meets it.**          |
 | Last reviewed       | 2026-10-02                                                 |

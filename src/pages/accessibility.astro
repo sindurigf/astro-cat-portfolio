@@ -193,8 +193,11 @@ const AUTOMATED = [
 
         <ul class="actions mt-head">
           <li>
-            <a href={CONTACT_MAILTO} class="btn-secondary">
-              Email {CONTACT_EMAIL}
+            <a
+              href={`mailto:${accessibilityFacts.privateReporting}`}
+              class="btn-secondary"
+            >
+              Email {accessibilityFacts.privateReporting}
             </a>
           </li>
           <li>

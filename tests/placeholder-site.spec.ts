@@ -98,8 +98,11 @@ test.describe('a placeholder site.url', NODE, () => {
     const { stderr, requests } = runLiveCheck('https://notexample.com');
 
     expect(stderr).not.toContain('placeholder');
-    expect(requests, 'the check never reached its first request.').toContain(
-      'https://notexample.com',
-    );
+    /* Past this guard: at its first request, or at the next guard (tests/statement-guard.spec.ts). */
+    expect(
+      requests.includes('https://notexample.com') ||
+        stderr.includes('ACCESSIBILITY.md'),
+      'the check stopped before its first request.',
+    ).toBe(true);
   });
 });
