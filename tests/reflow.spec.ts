@@ -171,7 +171,7 @@ const expectNoHorizontalOverflow = async (
     await page.addStyleTag({ content: TEXT_SPACING_OVERRIDE });
   }
 
-  // Headings are the thing at risk, so measure only after the webfont swaps in.
+  // Headings are the thing at risk, so measure only once the webfont is ready.
   await page.evaluate(() => document.fonts.ready);
 
   const { scrollWidth, clientWidth } = await page.evaluate(() => ({

@@ -8,7 +8,7 @@
    */
   font-family: 'Lexend Variable';
   font-style: normal;
-  font-display: swap;
+  font-display: optional;
   font-weight: 100 900;
   src: url('@fontsource-variable/lexend/files/lexend-latin-wght-normal.woff2')
     format('woff2-variations');
@@ -19,9 +19,9 @@
 }
 
 /*
- * Until Lexend arrives (`font-display: swap`): a local face sized to its mean
- * advance and line box (scripts/font-fallback-metrics.mjs). Lexend's
- * unicode-range: a character in it that Lexend lacks takes this face.
+ * A page that paints before Lexend arrives keeps this face (`font-display:
+ * optional`, so nothing moves): sized to Lexend's mean advance and line box
+ * (scripts/font-fallback-metrics.mjs). Also takes a character Lexend lacks.
  */
 @font-face {
   font-family: 'Lexend Fallback Arial';
