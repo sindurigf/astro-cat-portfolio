@@ -43,7 +43,9 @@ it is done.
    - Home, About, Career and Contact: `src/pages/index.astro`,
      `about.astro`, `career.astro`, `contact.astro`. Names and links come
      from the config; the text is Robin's.
-   - Tagline and motto: `src/site.config.ts`.
+   - Tagline and motto: `src/site.config.ts`. The motto's `meaning` is the
+     translation `/about` gives after its language ("Latin for …"); `null`
+     for a motto in the site's own language.
    - Category descriptions: `src/lib/categories.ts`.
    - Posts: replace the two in `src/content/blog/`
      ([writing a post](docs/DEVELOPMENT.md#writing-a-post)).

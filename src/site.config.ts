@@ -240,8 +240,17 @@ export const validateSiteConfig = (value: SiteConfig): SiteConfig => {
       `names no language this runtime knows: ${site.motto.lang}`,
     );
   }
-  if (site.motto.meaning !== null)
+  if (site.motto.meaning !== null) {
     text('site.motto.meaning', site.motto.meaning);
+    /* "English for …" on an English site says nothing. */
+    const primary = (tag: string) => new Intl.Locale(tag).language;
+    if (primary(site.motto.lang) === primary(site.locale)) {
+      invalid(
+        'site.motto.meaning',
+        `must be null: the motto is in the site's own language (${site.motto.lang}).`,
+      );
+    }
+  }
   text('person.givenName', person.givenName);
   text('person.familyName', person.familyName);
   text('person.jobTitle', person.jobTitle);

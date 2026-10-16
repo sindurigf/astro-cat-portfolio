@@ -96,6 +96,27 @@ test.describe('the motto declares a real language', NODE, () => {
     expect(() => withMottoLang('la')).not.toThrow();
   });
 
+  test('a motto in the site language takes no meaning, since "English for …" says nothing', () => {
+    const motto = (lang: string, meaning: string | null) =>
+      validateSiteConfig({
+        ...SITE_CONFIG,
+        site: {
+          ...SITE_CONFIG.site,
+          locale: 'en-US',
+          motto: { text: 'Read the Stones', lang, meaning },
+        },
+      });
+
+    expect(() => motto('en', 'read the stones')).toThrow(
+      'site.motto.meaning must be null',
+    );
+    expect(() => motto('en-GB', 'read the stones')).toThrow(
+      'site.motto.meaning must be null',
+    );
+    expect(() => motto('en', null)).not.toThrow();
+    expect(() => motto('la', 'read the stones')).not.toThrow();
+  });
+
   test('/about names the motto language and meaning from the config', () => {
     const about = builtHtml().get('/about')!;
     const { meaning } = SITE_CONFIG.site.motto;
