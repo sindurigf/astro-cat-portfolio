@@ -28,10 +28,10 @@ const HEIGHT = 630;
 const MAX_NAME_LENGTH = 40;
 /** The name shrinks from this size until it fits the gold panel. */
 const NAME_SIZE = { max: 92, min: 48, step: 2 };
-const TEXT_WIDTH = 680;
-const STRIP_LEFT = 820;
+const TEXT_WIDTH = 590;
+const STRIP_LEFT = 700;
 /* The mark, shadow included, sits whole and centered on the strip: link previews crop the edges. */
-const MARK_BOX = 300;
+const MARK_BOX = 392;
 const MARK_LEFT = STRIP_LEFT + (WIDTH - STRIP_LEFT - MARK_BOX) / 2;
 const MARK_TOP = (HEIGHT - MARK_BOX) / 2;
 
