@@ -315,16 +315,17 @@ copyright and contents list are fixed, and `text-code` is `max(1rem, 0.92em)`,
   `'Lexend Variable'`. Only the latin subset is declared, in the `@font-face`
   at the top of `global.css`: importing the package CSS ships all three
   subsets. Never the Google Fonts CDN.
-- Until Lexend arrives (`font-display: swap`) the text shows in a
-  `Lexend Fallback` family: a local Arial or Roboto face with `size-adjust`
-  and the ascent, descent and line-gap overrides set to Lexend's mean advance
-  and line box, so the swap reflows less. Each face keeps Lexend's
+- `font-display: optional`: Lexend is preloaded, and a page that paints
+  before it arrives keeps a `Lexend Fallback` family for its lifetime, so no
+  line moves after first paint; the next page has Lexend from cache. The
+  fallback is a local Arial or Roboto face with `size-adjust` and the ascent,
+  descent and line-gap overrides set to Lexend's mean advance and line box. Each face keeps Lexend's
   `unicode-range`, so nothing changes for the characters Lexend has. A
   character in the range that Lexend lacks (a prime, a per mille sign) takes
   the fallback face: one wider glyph on the same line box.
   `scripts/font-fallback-metrics.mjs` prints the numbers;
-  `tests/font-fallback.spec.ts` holds the faces to Lexend's metrics and a late
-  font's shift on a phone to its ceiling. Wider viewports are not tested.
+  `tests/font-fallback.spec.ts` holds the faces to Lexend's metrics and
+  checks that a font arriving after first paint is not swapped in.
 - `--font-mono` is the platform monospace stack, nothing downloaded.
 - A paragraph of more than one sentence (SC 1.4.8): line height 1.5 or more
   (`--leading-paragraph` at display size) and at most 80 characters a line

@@ -71,14 +71,46 @@ export const waitForHydration = async (page: Page): Promise<void> => {
   }
 };
 
-/** Also waits for `document.fonts.ready`: a heading in the fallback face measures wrong. */
+/**
+ * Whether text set in Lexend renders in it: under `font-display: optional` a
+ * page that painted before the font arrived keeps the fallback, and a probe in
+ * Lexend then measures the same as the bare generic family.
+ */
+export const usesWebFont = (page: Page): Promise<boolean> =>
+  page.evaluate(() => {
+    const width = (family: string) => {
+      const probe = document.createElement('span');
+      probe.textContent = 'mmmmmmmmmmlli';
+      probe.style.cssText = `position:absolute;visibility:hidden;white-space:nowrap;font:400 32px ${family}`;
+      document.body.append(probe);
+      const measured = probe.getBoundingClientRect().width;
+      probe.remove();
+      return measured;
+    };
+    return width("'Lexend Variable', monospace") !== width('monospace');
+  });
+
+/**
+ * Also waits for `document.fonts.ready`: a heading in the fallback face measures
+ * wrong. A page that missed Lexend's window reloads once, with the font cached.
+ */
 export const gotoSettled = async (
   page: Page,
   route: string,
+  { webFont = true }: { webFont?: boolean } = {},
 ): Promise<Response | null> => {
-  const response = await page.goto(route, { waitUntil: 'load' });
+  let response = await page.goto(route, { waitUntil: 'load' });
   await waitForHydration(page);
   await page.evaluate(() => document.fonts.ready);
+  if (webFont && !(await usesWebFont(page))) {
+    response = await page.reload({ waitUntil: 'load' });
+    await waitForHydration(page);
+    await page.evaluate(() => document.fonts.ready);
+    expect(
+      await usesWebFont(page),
+      `${route} renders in the fallback face even with Lexend cached.`,
+    ).toBe(true);
+  }
   return response;
 };
 
