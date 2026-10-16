@@ -50,9 +50,15 @@ const titleOf = (slide: HTMLElement): string =>
 const usableTop = (): number =>
   parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) || 0;
 
+/* The focus ring counts: a control whose box fits but whose ring does not is off screen (SC 2.4.7). */
 const offScreen = (element: HTMLElement): boolean => {
   const box = element.getBoundingClientRect();
-  return box.top < 0 || box.bottom > window.innerHeight;
+  const style = getComputedStyle(element);
+  const ring =
+    style.outlineStyle === 'none'
+      ? 0
+      : parseFloat(style.outlineWidth) + parseFloat(style.outlineOffset);
+  return box.top - ring < 0 || box.bottom + ring > window.innerHeight;
 };
 
 const setUnavailable = (button: HTMLButtonElement, unavailable: boolean) => {
