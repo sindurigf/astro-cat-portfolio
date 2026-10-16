@@ -1,3 +1,5 @@
+@reference '../global.css';
+
 @layer components {
   /*
    * Talk slideshow, src/pages/talks/[deck].astro. Every slide shows without
@@ -481,14 +483,8 @@
     @apply mt-4 text-display font-black;
   }
 
-  /* One slide per 16:9 page; nothing else prints. */
+  /* One slide per 16:9 page; print.css keeps everything outside main off paper. */
   @media print {
-    @page {
-      margin: 0;
-    }
-
-    body > :not(main),
-    .skip-link,
     .deck-bar {
       display: none !important;
     }

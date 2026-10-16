@@ -121,3 +121,25 @@ test.describe('the document head declares the color scheme', NODE, () => {
     });
   });
 });
+
+const STYLESHEET_HREF = /<link\b[^>]*\brel="stylesheet"[^>]*\bhref="([^"]+)"/g;
+
+/* Cascade layers take their order from first appearance, and only the shared sheet opens them all. */
+test.describe('the stylesheets a page links', NODE, () => {
+  test('the shared sheet comes before a page’s own', () => {
+    const pages = [...builtHtml()].map(([route, html]) => ({
+      route,
+      sheets: [...html.matchAll(STYLESHEET_HREF)].map(([, href]) => href),
+    }));
+    const shared = pages[0]?.sheets.find((sheet) =>
+      pages.every((page) => page.sheets.includes(sheet)),
+    );
+    expect(shared, 'no stylesheet is linked by every page.').toBeDefined();
+    expect(
+      pages
+        .filter((page) => page.sheets[0] !== shared)
+        .map((page) => page.route),
+      'these pages link another stylesheet before the shared one, which reorders its layers.',
+    ).toEqual([]);
+  });
+});

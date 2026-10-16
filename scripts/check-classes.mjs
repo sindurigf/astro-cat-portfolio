@@ -1,6 +1,7 @@
 /*
- * Fails if a class in the built HTML has no CSS rule: Tailwind v4 silently
- * generates nothing for a missing theme token. Reads selectors only.
+ * Fails if a class in a built page has no CSS rule in the stylesheets that
+ * page links: Tailwind v4 silently generates nothing for a missing theme token,
+ * and a page-only sheet is not linked elsewhere. Reads selectors only.
  */
 import { fileURLToPath } from 'node:url';
 import { existsSync } from 'node:fs';
@@ -55,6 +56,7 @@ const selectorClasses = (css) => {
 
 const CLASS_ATTRIBUTE = /\sclass\s*=\s*(?:"([^"]*)"|'([^']*)')/g;
 const INLINE_STYLE = /<style\b[^>]*>([\s\S]*?)<\/style>/g;
+const STYLESHEET_HREF = /<link\b[^>]*\brel="stylesheet"[^>]*\bhref="([^"]+)"/g;
 
 const decodeEntities = (value) =>
   value
@@ -80,33 +82,42 @@ const main = async () => {
     process.exit(1);
   }
 
-  const defined = new Set();
+  const sheetClasses = new Map();
   for (const file of stylesheets) {
-    for (const name of selectorClasses(await readFile(file, 'utf8'))) {
-      defined.add(name);
-    }
+    sheetClasses.set(file, selectorClasses(await readFile(file, 'utf8')));
   }
 
   const used = new Map();
+  const undefinedOn = new Map();
   for (const file of pages) {
     const html = await readFile(file, 'utf8');
+    const defined = new Set();
+    for (const [, href] of html.matchAll(STYLESHEET_HREF)) {
+      for (const name of sheetClasses.get(join(DIST, href)) ?? []) {
+        defined.add(name);
+      }
+    }
     for (const [, css] of html.matchAll(INLINE_STYLE)) {
       for (const name of selectorClasses(css)) defined.add(name);
     }
     for (const [, double, single] of html.matchAll(CLASS_ATTRIBUTE)) {
       for (const token of decodeEntities(double ?? single).split(/\s+/)) {
         if (token === '') continue;
+        const page = relative(ROOT, file);
         if (!used.has(token)) used.set(token, new Set());
-        used.get(token).add(relative(ROOT, file));
+        used.get(token).add(page);
+        if (defined.has(token)) continue;
+        if (!undefinedOn.has(token)) undefinedOn.set(token, new Set());
+        undefinedOn.get(token).add(page);
       }
     }
   }
 
-  const missing = [...used.keys()]
-    .filter((token) => !defined.has(token) && !HOOKS.has(token))
+  const missing = [...undefinedOn.keys()]
+    .filter((token) => !HOOKS.has(token))
     .sort();
   const staleHooks = [...HOOKS.keys()].filter(
-    (hook) => !used.has(hook) || defined.has(hook),
+    (hook) => !used.has(hook) || !undefinedOn.has(hook),
   );
 
   for (const hook of staleHooks) {
@@ -134,10 +145,10 @@ const main = async () => {
   const escapeRegExp = (text) => text.replace(/[.*+?^${}()|[\]\\/]/g, '\\$&');
 
   console.error(
-    `Classes: ${missing.length} class(es) in the built HTML generate no CSS.`,
+    `Classes: ${missing.length} class(es) have no CSS in the stylesheets their page links.`,
   );
   for (const token of missing) {
-    const pagesUsing = [...used.get(token)].sort();
+    const pagesUsing = [...undefinedOn.get(token)].sort();
     const bounded = new RegExp(
       `(^|[\\s"'\`])${escapeRegExp(token)}(?=[\\s"'\`]|$)`,
       'm',

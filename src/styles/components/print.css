@@ -1,0 +1,13 @@
+/* Every page prints its main content only, edge to edge; slides.css adds a slide per page. */
+@layer components {
+  @media print {
+    @page {
+      margin: 0;
+    }
+
+    body > :not(main),
+    .skip-link {
+      display: none !important;
+    }
+  }
+}
