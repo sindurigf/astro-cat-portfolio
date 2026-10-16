@@ -119,8 +119,8 @@
 
   /* AboutCats.vue places it under the band. */
   .cat-tricks {
-    @apply pointer-events-auto m-0 w-60 overflow-y-auto border-4 border-border
-      bg-surface p-0 text-text shadow-hard-pink-4;
+    @apply pointer-events-auto m-0 w-60 overflow-y-auto edge border-border
+      bg-surface p-0 text-text shadow-hard-pink-object;
 
     position: fixed;
     inset: auto;
@@ -132,7 +132,7 @@
   }
 
   .cat-trick {
-    @apply flex min-h-target w-full items-center gap-3 border-0 border-b-4
+    @apply flex min-h-target w-full items-center gap-3 border-0 edge-b
       border-border bg-transparent px-3 text-left text-label text-text;
 
     /* Inside the list: an outer ring would be clipped by its scrolling. */
@@ -324,7 +324,7 @@
   }
 
   .cat-card {
-    @apply border-4 border-border bg-surface p-4 shadow-hard-pink-4;
+    @apply edge border-border bg-surface p-4 shadow-hard-pink-object;
   }
 
   /* The site button, small: still a 44px target (SC 2.5.5). */

@@ -157,8 +157,8 @@ const STATS = [
             {STATS.map((stat, index) => (
               <li
                 class:list={[
-                  'flex min-w-0 flex-col items-center border-4 p-card-tight text-center',
-                  index > 0 && 'border-t-0 sm:border-t-4 sm:border-l-0',
+                  'flex min-w-0 flex-col items-center edge p-card-tight text-center',
+                  index > 0 && 'border-t-0 sm:edge-t sm:border-l-0',
                 ]}
               >
                 <span class="text-display font-black">{stat.value}</span>
@@ -208,7 +208,7 @@ const STATS = [
             <span
               aria-hidden="true"
               class:list={[
-                'flex size-16 -rotate-3 items-center justify-center border-4 border-border text-section-number font-black leading-none',
+                'flex size-16 -rotate-3 items-center justify-center edge border-border text-section-number font-black leading-none',
                 CATEGORY_TILE,
               ]}
             >

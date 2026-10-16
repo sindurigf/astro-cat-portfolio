@@ -224,10 +224,10 @@
     border-color: var(--color-border);
 
     /*
-     * The utility, not `var(--shadow-hard-pink-4)`: the token resolves on
+     * The utility, not `var(--shadow-hard-pink-object)`: the token resolves on
      * :root, where light mode's <main> colors do not reach.
      */
-    @apply edge shadow-hard-pink-4;
+    @apply edge shadow-hard-pink-object;
   }
 
   /*

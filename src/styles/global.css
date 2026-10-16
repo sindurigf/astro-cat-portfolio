@@ -117,7 +117,7 @@
 @theme static {
   --color-background: #131313;
   --color-surface: #1a1a1a;
-  --color-border: #c2c2c2;
+  --color-border: #dcc9cf;
   --color-text: #e5e2e1;
   --color-subtle: #9bb4c6;
   --color-gold: #ffc000;
@@ -389,17 +389,20 @@
    * is hover and focus. Gold casts none: gold on gold shows nothing, and pink is
    * visible on gold and on #131313.
    */
-  /* One throw for card shadows and the raised brick's lift (utilities.css). */
-  --hard-throw: 4px;
-  /* Card, panel, field, header and rule edges (`edge` utilities); controls, chips and photos keep `border-4`. */
-  --edge: 4px;
-  --shadow-hard-pink-4: var(--hard-throw) var(--hard-throw) 0 var(--color-pink);
+  /* One throw for object shadows and the raised brick's lift (utilities.css); controls keep 4px. */
+  --hard-throw: 8px;
+  /* Card, panel, field, header and rule edges (`edge` utilities); controls, chips, photos and stickers keep `border-4`. */
+  --edge: 6px;
+  --shadow-hard-pink-4: 4px 4px 0 var(--color-pink);
+  --shadow-hard-pink-object: var(--hard-throw) var(--hard-throw) 0
+    var(--color-pink);
   --shadow-hard-mark-4: 4px 4px 0 var(--color-mark);
   --shadow-hard-mark-8: 8px 8px 0 var(--color-mark);
   /* The same offsets on the eared logo, whose shadow follows its ears. */
   --drop-shadow-hard-mark-8: 8px 8px 0 var(--color-mark);
   --drop-shadow-hard-mark-12: 12px 12px 0 var(--color-mark);
-  --shadow-hard-cyan-4: var(--hard-throw) var(--hard-throw) 0 var(--color-cyan);
+  --shadow-hard-cyan-object: var(--hard-throw) var(--hard-throw) 0
+    var(--color-cyan);
   /* A card on gold: `gold-border` passes SC 1.4.11 there, pink does not. */
   --shadow-hard-gold-border-4: 4px 4px 0 var(--color-gold-border);
 
@@ -461,7 +464,7 @@
   --focus-width: 4px;
   --focus-gap: 4px;
   --lift-control: 4px;
-  --lift-object: 4px;
+  --lift-object: var(--hard-throw);
   /* The logo keeps its 8px shadow, so its ring clears 8px. */
   --lift-mark: 8px;
   /* Layout lands on fractions of a pixel, scrolling on whole ones. */
@@ -487,10 +490,9 @@
   --hero-inset: clamp(8px, 3vw, 56px);
 
   /*
-   * 48px from the screen edge to the extrusion tip, plus the 4px of
-   * --shadow-hard-pink-4.
+   * 48px from the screen edge to the extrusion tip, plus the column's shadow.
    */
-  --hero-column-screen-clear: 52px;
+  --hero-column-screen-clear: calc(48px + var(--hard-throw));
 
   --hero-column-pad-block: clamp(32px, 5vw, 72px) clamp(32px, 5vw, 80px);
   --hero-column-pad-inline: clamp(20px, 3.5vw, 64px);

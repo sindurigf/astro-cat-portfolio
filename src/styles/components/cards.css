@@ -6,7 +6,7 @@
    */
   .card {
     @apply min-w-0 edge border-border bg-surface p-card-tight
-      shadow-hard-pink-4 sm:p-card;
+      shadow-hard-pink-object sm:p-card;
   }
 
   /*
@@ -138,15 +138,15 @@
    * (tests/forced-colors.spec.ts).
    */
   .post-contents {
-    @apply self-start bg-surface shadow-hard-pink-4;
+    @apply self-start bg-surface shadow-hard-pink-object;
   }
 
   .post-contents ol {
-    @apply border-4 border-t-0 border-border;
+    @apply edge border-t-0 border-border;
   }
 
   .post-contents li + li {
-    @apply border-t-4 border-border;
+    @apply edge-t border-border;
   }
 
   /*
@@ -155,7 +155,7 @@
    */
   .post-contents-summary {
     @apply flex min-h-target cursor-pointer list-none items-center
-      justify-between gap-4 border-4 border-border px-card-tight py-4
+      justify-between gap-4 edge border-border px-card-tight py-4
       text-label font-black uppercase tracking-label text-text;
 
     &::-webkit-details-marker {
@@ -217,7 +217,7 @@
    * utilities.
    */
   .card:has(.card-link):hover {
-    @apply shadow-hard-cyan-4;
+    @apply shadow-hard-cyan-object;
   }
 
   .card:has(.card-link):hover .card-link {

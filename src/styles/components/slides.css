@@ -346,7 +346,7 @@
 
   /* Cards in a row share one height (`items-stretch` above). */
   .slide-card {
-    @apply border-4 border-border bg-background px-6 py-6 shadow-hard-pink-4;
+    @apply edge border-border bg-background px-6 py-6 shadow-hard-pink-object;
   }
 
   .slide-body .slide-card li + li {

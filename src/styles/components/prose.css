@@ -176,7 +176,7 @@
    * uppercased.
    */
   .prose table {
-    @apply mt-6 w-full border-4 border-border text-body text-text;
+    @apply mt-6 w-full edge border-border text-body text-text;
     border-collapse: collapse;
     table-layout: fixed;
     hyphens: auto;
@@ -187,7 +187,7 @@
    * cross into the next cell under text spacing at 320px.
    */
   .prose :is(th, td) {
-    @apply border-4 border-border px-4 py-3 text-left align-top wrap-anywhere;
+    @apply edge border-border px-4 py-3 text-left align-top wrap-anywhere;
   }
 
   /*
