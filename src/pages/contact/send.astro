@@ -114,8 +114,10 @@ const heading = outcome ? HEADING[outcome.kind] : TOO_LONG_HEADING;
       ) : (
         <div class="card">
           <p class="max-w-measure text-body text-text text-pretty">
-            {MESSAGES.bodyLong} Write to{' '}
-            <a href={CONTACT_MAILTO}>{CONTACT_EMAIL}</a>.
+            {MESSAGES.bodyLong}
+          </p>
+          <p class="mt-4 text-body text-text">
+            <a href={CONTACT_MAILTO}>{CONTACT_EMAIL}</a>
           </p>
           <p class="actions mt-head">
             <a href={CONTACT_PATH} class="btn-primary">
