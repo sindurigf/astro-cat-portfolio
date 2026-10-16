@@ -83,6 +83,15 @@ test.describe('readBuildEnv', NODE, () => {
     });
   }
 
+  test('a bare SECURITY_CONTACT address is told to become a mailto: URI', () => {
+    expect(() =>
+      readBuildEnv({ SECURITY_CONTACT: 'security@notexample.com' }),
+    ).toThrow('write it as mailto:security@notexample.com.');
+    expect(() => readBuildEnv({ SECURITY_CONTACT: 'not a contact' })).toThrow(
+      'use a mailto: or https: URI.',
+    );
+  });
+
   test('SECURITY_CONTACT takes an https page as well as a mailto', () => {
     expect(
       readBuildEnv({ SECURITY_CONTACT: 'https://notexample.com/security' })

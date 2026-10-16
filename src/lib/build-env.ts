@@ -85,7 +85,13 @@ const readSecurityContact = (value: string): string => {
   try {
     url = new URL(value);
   } catch {
-    return invalid('SECURITY_CONTACT', value, 'is not a URI.');
+    return invalid(
+      'SECURITY_CONTACT',
+      value,
+      EMAIL.test(value)
+        ? `is an email address; write it as mailto:${value}.`
+        : 'is not a URI; use a mailto: or https: URI.',
+    );
   }
   if (url.protocol === 'mailto:') {
     if (!EMAIL.test(url.pathname)) {
