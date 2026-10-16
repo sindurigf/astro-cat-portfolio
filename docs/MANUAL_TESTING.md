@@ -436,6 +436,11 @@ form, submit, then wait several seconds without touching anything.
 - [ ] Silence is the failure: record it, and what had focus. → SC 4.1.3
 - [ ] Online, submit; offline, submit again: the replaced text is announced. → SC 4.1.3
 - [ ] The typed message is still in the textarea. → SC 3.3.1
+- [ ] Enter on Send: the status scrolls into view and focus stays on Send.
+      → SC 3.3.1
+- [ ] Enter in the Name field, with the status below the fold: the page does
+      not move, focus stays, and the status is announced. → SC 3.3.1, 4.1.3
+- [ ] Untick Offline: the status clears. → SC 4.1.3
 
 #### 6.12.1a An abbreviation's expansion
 
