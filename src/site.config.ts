@@ -5,7 +5,12 @@
  * import, so a bad value fails the build and the tests, not a visitor.
  */
 
-import { BUILD_ENV, CONTACT_FORMS, type ContactForm } from './lib/build-env.ts';
+import {
+  BUILD_ENV,
+  CONTACT_FORMS,
+  EMAIL_ADDRESS,
+  type ContactForm,
+} from './lib/build-env.ts';
 
 /** Labels with an icon in src/assets/social-icons.svg. */
 export const PROFILE_LABELS = [
@@ -120,7 +125,6 @@ const config: SiteConfig = {
   },
 };
 
-const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 /* A file name in src/content/blog/, as the glob loader turns it into an id. */
 const SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
@@ -152,7 +156,8 @@ const httpsUrl = (path: string, value: string): URL => {
 };
 
 const email = (path: string, value: string) => {
-  if (!EMAIL.test(value)) invalid(path, `is not an email address: ${value}`);
+  if (!EMAIL_ADDRESS.test(value))
+    invalid(path, `is not an email address: ${value}`);
 };
 
 export const validateSiteConfig = (value: SiteConfig): SiteConfig => {
