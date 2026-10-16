@@ -32,9 +32,22 @@ if [ "${IMAGE_NODE%%.*}" != "v${WANT_NODE%%.*}" ]; then
   exit 1
 fi
 
+# The machine is shared: cap the container's CPU time. Override with WEBKIT_CPUS.
+WEBKIT_CPUS=${WEBKIT_CPUS:-4}
+# Docker reads --cpus=0 as no cap, so a value needs a non-zero digit.
+case "$WEBKIT_CPUS" in
+'' | *[!0-9.]* | .* | *. | *.*.*) WEBKIT_CPUS_OK=no ;;
+*[1-9]*) WEBKIT_CPUS_OK=yes ;;
+*) WEBKIT_CPUS_OK=no ;;
+esac
+if [ "$WEBKIT_CPUS_OK" = no ]; then
+  echo "test:webkit: WEBKIT_CPUS must be a positive number, not '${WEBKIT_CPUS}'." >&2
+  exit 1
+fi
+
 GIT_COMMON_DIR=$(git rev-parse --path-format=absolute --git-common-dir)
 
-exec docker run --rm --ipc=host \
+exec docker run --rm --ipc=host --cpus="$WEBKIT_CPUS" \
   --user "$(id -u):$(id -g)" \
   -e HOME=/tmp \
   -e WEBKIT=1 \
