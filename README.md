@@ -113,7 +113,8 @@ The drawings are code; the cards show a photo.
   one-line role, photo and photo description. Put the photos in
   `src/assets/photos/` and import them at the top of the file.
 - Coat colors: the `--color-cat-` colors in `src/styles/global.css`. The
-  logo cat uses the second cat's colors, so changing them changes the logo.
+  logo cat and the homepage hero's glow (`--color-hero-glow`) use the second
+  cat's colors, so changing them changes both.
 - The cats' names in tests: the list of names at the top of
   `tests/about-cats.spec.ts`, and the first cat's name in
   `tests/failed-images.spec.ts` and `tests/analytics.spec.ts`. The About
@@ -152,6 +153,12 @@ does not cover it.
   - `tests/credits-ai.spec.ts`: the About cats entry.
 - `/credits` and `AI_DISCLOSURE.md`: remove the About cats entry. The
   contact page's topic about the cats goes too.
+- `ACCESSIBILITY.md`: remove every mention of the cats and the cat card, or
+  the statement claims tests that no longer exist. They are in section 2
+  (motion), the 1.4.8, 2.3.3 and 2.4.12 rows, the target size, focus ring,
+  motion and forced colors lines in section 4, and the
+  `tests/focus-obscured.spec.ts` and `tests/about-cats.spec.ts` rows in the
+  test table. `git grep -n -i cat ACCESSIBILITY.md` lists them.
 - If one is missed: typecheck names an import or variable left behind, and
   the focus, target size, analytics and failed-images tests fail on a cat
   they cannot find.
