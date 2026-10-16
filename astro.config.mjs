@@ -48,16 +48,10 @@ const posts = readPosts();
 const themeColor = cssColorToken('--color-background');
 
 /*
- * Baseline Widely Available as of Vite 8.2.2, pinned so it cannot move with
+ * The floor in ARCHITECTURE.md > Browser support, pinned so it cannot move with
  * Vite. Not `browserslist`: Tailwind 4 ignores it. tests/css-target.spec.ts.
  */
-const CSS_TARGET = [
-  'chrome111',
-  'edge111',
-  'firefox114',
-  'safari16.4',
-  'ios16.4',
-];
+const CSS_TARGET = ['chrome120', 'edge120', 'firefox128', 'safari17', 'ios17'];
 
 /* Clear of the test ports, which tests/ports.ts derives in 20000 to 29999. */
 const LOCAL_SERVER_PORT = 4340;
