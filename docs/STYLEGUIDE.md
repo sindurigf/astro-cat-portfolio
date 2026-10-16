@@ -157,7 +157,6 @@ Every approved pairing, measured from the live tokens. Text needs 4.5 (SC
 | `background` #131313      | `gold` #FFC000        | text       | Label on a gold fill                             | 4.5   | 11.32 | pass       |
 | `background` #131313      | `cyan` #00DCFD        | text       | Label on a hovered button                        | 4.5   | 11.20 | pass       |
 | `background` #131313      | `text` #E5E2E1        | text       | Badge; the current page block                    | 4.5   | 14.42 | pass       |
-| `background` #131313      | `pink` #FF007A        | text       | Glyph on the pink category tile                  | 4.5   | 4.90  | pass       |
 | `gold-text` #131313       | `gold` #FFC000        | text       | Text on the gold surface                         | 4.5   | 11.32 | pass       |
 | `gold-muted` #3A3020      | `gold` #FFC000        | text       | Secondary text on gold                           | 4.5   | 7.88  | pass       |
 | `gold-link` #1E0D16       | `gold` #FFC000        | text       | Links on gold                                    | 4.5   | 11.38 | pass       |
@@ -883,7 +882,7 @@ Enforced by `tests/post-page.spec.ts`.
 | Code block  | `.prose pre`: mono, `border-4 border-border` on `surface`, `p-4`, scrolls sideways, a named tab stop                                                    |
 | Lists       | `mt-6 pl-6`, items `mt-3`, gold markers; a link-only item is 44px tall                                                                                  |
 | Blockquote  | `mt-6`, `border-l-8 border-gold`, `pl-6`, its text at weight 900                                                                                        |
-| Table       | `mt-6`, `border-4`, fixed layout, cells `px-4 py-3`, headers on `surface`                                                                               |
+| Table       | `mt-6`, `border-4`, fixed layout, cells `px-4 py-3`, headers on `surface`; Markdown headers get `scope="col"`, a table with row headers is HTML         |
 | Figure      | `mt-8`, wider than the text ([Measure](#measure)), an `.aspect-frame` sized by the file with a 4px `border` ring; caption `mt-4 text-label text-subtle` |
 | `hr`        | `mt-16`, an 8px `border` rule                                                                                                                           |
 
