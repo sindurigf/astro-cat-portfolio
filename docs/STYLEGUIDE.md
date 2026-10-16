@@ -879,7 +879,7 @@ Enforced by `tests/post-page.spec.ts`.
 | `h2`        | `mt-16`, `text-post-h2` (28px); its text follows at the next `mt-6`                                                                                     |
 | `h3`        | `mt-12`, `text-post-h3` (22px). The last level                                                                                                          |
 | Inline code | `.prose code`: the mono stack at `--text-code`, on a `surface` fill with `px-1` and no border                                                           |
-| Code block  | `.prose pre`: mono, `border-4 border-border` on `surface`, `p-4`, scrolls sideways, a named tab stop                                                    |
+| Code block  | `.prose pre`: mono, `border-4 border-border` on `surface`, `p-4`, scrolls sideways, a named tab stop while it overflows                                 |
 | Lists       | `mt-6 pl-6`, items `mt-3`, gold markers; a link-only item is 44px tall                                                                                  |
 | Blockquote  | `mt-6`, `border-l-8 border-gold`, `pl-6`, its text at weight 900                                                                                        |
 | Table       | `mt-6`, `border-4`, fixed layout, cells `px-4 py-3`, headers on `surface`; Markdown headers get `scope="col"`, a table with row headers is HTML         |

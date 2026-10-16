@@ -136,3 +136,51 @@ test.describe('code in a post, as it renders', () => {
     });
   }
 });
+
+/* SC 2.4.3, 4.1.2: a stop with nothing to scroll is a dead tab, and "scrolls sideways" a false name. */
+test.describe('a code block is a tab stop only while it scrolls', () => {
+  const stateOf = (page: import('@playwright/test').Page) =>
+    page
+      .locator('.prose pre[role="group"]')
+      .first()
+      .evaluate((block) => ({
+        scrolls: block.scrollWidth - block.clientWidth > 1,
+        tabIndex: (block as HTMLElement).tabIndex,
+        name: block.getAttribute('aria-label') ?? '',
+      }));
+
+  test('/brand: the short block fits and leaves the tab order', async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await gotoSettled(page, '/brand');
+    await expect
+      .poll(
+        () => stateOf(page),
+        'a block that fits is still a tab stop, or named as scrolling',
+      )
+      .toMatchObject({ scrolls: false, tabIndex: -1, name: 'Code' });
+  });
+
+  test('/brand: narrowed until it overflows, the block becomes a tab stop named as scrolling, and leaves again when widened', async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: REFLOW_VIEWPORT.width, height: 900 });
+    await gotoSettled(page, '/brand');
+    await expect
+      .poll(
+        () => stateOf(page),
+        'the sample does not overflow at the reflow width',
+      )
+      .toMatchObject({
+        scrolls: true,
+        tabIndex: 0,
+        name: 'Code, scrolls sideways',
+      });
+
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await expect
+      .poll(() => stateOf(page), 'widened, the block kept its tab stop')
+      .toMatchObject({ scrolls: false, tabIndex: -1, name: 'Code' });
+  });
+});
