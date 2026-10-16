@@ -16,6 +16,8 @@ The statement is voluntary for a personal site and follows the
 
 ## 1. Project information
 
+<!-- TODO(fork): Replace the Project, Accessibility owner and both reporting rows with your own, and set Last reviewed once you have reviewed this file. -->
+
 | Field               | Value                                                      |
 | ------------------- | ---------------------------------------------------------- |
 | Project             | astro-cat-portfolio                                        |

@@ -142,6 +142,7 @@
    * The About cats, read by about-cats.css. Fills are decoration: the sticker
    * edge (`text`) carries SC 1.4.11, so none of these delimits a control.
    */
+  /* TODO(fork): Your cats' coat colors; the logo cat uses the second cat's. README "Your cats, or none". */
   --color-cat-pepper: #a57a4d;
   --color-cat-pepper-far: #7e5b39;
   --color-cat-pepper-stripe: #3b2716;

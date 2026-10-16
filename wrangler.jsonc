@@ -6,6 +6,7 @@
   "$schema": "./node_modules/wrangler/config-schema.json",
 
   // Must match the dashboard's Worker name, or Workers Builds refuses to deploy.
+  // TODO(fork): Your Worker's name in Cloudflare.
   "name": "example-site",
   "compatibility_date": "2026-09-11",
 
@@ -38,6 +39,7 @@
   "preview_urls": true,
 
   // A deploy replaces routes with this list, dropping dashboard-only domains.
+  // TODO(fork): Your domain.
   "routes": [{ "pattern": "example.com", "custom_domain": true }],
 
   // No `database_id`: deploy finds the database by `database_name`, or creates
@@ -45,6 +47,7 @@
   "d1_databases": [
     {
       "binding": "MESSAGES_DB",
+      // TODO(fork): Your database's name in Cloudflare D1.
       "database_name": "example-site",
     },
   ],
@@ -53,6 +56,7 @@
   "send_email": [
     {
       "name": "CONTACT_MAILER",
+      // TODO(fork): The address the contact form sends from, the same as in src/site.config.ts.
       "allowed_sender_addresses": ["contact-form@example.com"],
     },
   ],
@@ -61,6 +65,7 @@
   "ratelimits": [
     {
       "name": "CONTACT_RATE_LIMIT",
+      // TODO(fork): Your rate limit's namespace number from Cloudflare.
       "namespace_id": "1001",
       "simple": { "limit": 5, "period": 60 },
     },
@@ -92,6 +97,7 @@
   // CLOUDFLARE_ENV=demo.
   "env": {
     "demo": {
+      // TODO(fork): Your demo Worker's name, or remove the demo block.
       "name": "astro-cat-portfolio-demo",
       "routes": [],
       // Bindings are not inherited, so the demo has none: the build warns, by

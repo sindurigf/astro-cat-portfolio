@@ -28,6 +28,7 @@ interface Category {
   readonly teaser: string;
 }
 
+// TODO(fork): Write your own one-line description for each blog category.
 export const CATEGORIES = {
   skincare: {
     accent: ACCENTS.ink,

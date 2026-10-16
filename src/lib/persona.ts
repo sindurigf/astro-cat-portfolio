@@ -18,6 +18,7 @@ export interface Persona {
 }
 
 /** The shipped sample persona's notice; set to null when you replace the persona, and the notice goes with it. */
+// TODO(fork): Set this to null once Robin's text is replaced; it removes her fan-tribute notice.
 export const SAMPLE_PERSONA: Persona | null = {
   tribute: `${PERSON_NAME} is a fan tribute to Nico Robin from One Piece by Eiichiro Oda.`,
   rights:

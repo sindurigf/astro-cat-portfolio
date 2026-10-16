@@ -341,6 +341,7 @@ test.describe('the failed-photo script', () => {
     expect(hero, 'the eager hero photo failed early and was missed').toBe(true);
   });
 
+  // TODO(fork): Use your first cat's name in this test, or delete it with the cats.
   test('marks the About cat card photo, rendered after load', async ({
     browser,
   }) => {

@@ -27,15 +27,11 @@ import videoStill from '../assets/photos/tabby-parquet.jpg';
 import catCardTabby from '../assets/photos/cat-card-tabby.jpg';
 import catCardCalico from '../assets/photos/cat-card-calico.jpg';
 import catCardBlack from '../assets/photos/cat-card-black.jpg';
-import {
-  CAT_INSPIRATION,
-  photographerHref,
-  type Photographer,
-} from '../lib/credits';
+import { photographerHref, type Photographer } from '../lib/credits';
 import { WIDTHS } from '../lib/image-densities';
 import { photoSize } from '../lib/photo-size';
 import { closeRowLinks } from '../lib/blog';
-import { MOTTO, SITE_NAME } from '../lib/site';
+import { MOTTO } from '../lib/site';
 import { PERSON_NAME } from '../lib/profiles';
 
 /* Jump links repeat the headings verbatim. */
@@ -53,6 +49,7 @@ const SIZES = {
 
 const PHOTOGRAPHER: Photographer = 'License and Credit';
 
+// TODO(fork): Write your own section titles here, and your own text in the page below.
 const SECTIONS = [
   { id: 'motto', title: `Why ${MOTTO.text}` },
   { id: 'believe', title: 'What I Believe' },
@@ -72,6 +69,7 @@ const JUMP_LINKS = [
 const PHOTO = 'border-4 border-border';
 
 /* Uncaptioned; the alt text says what is in each. */
+// TODO(fork): Replace these photos with your own, each with a description of what it shows.
 const PLACES = [
   {
     src: stripPortrait,
@@ -91,6 +89,7 @@ const PLACES = [
   },
 ] as const;
 
+// TODO(fork): Replace Robin's three cats with your own (names, photos, photo descriptions), or remove the cats: README "Your cats, or none".
 const CATS = [
   {
     id: 'pepper',
@@ -234,11 +233,6 @@ const closeRow = await closeRowLinks({
         <p class="mt-4 max-w-measure text-body text-text text-pretty">
           It reminds me to start with what is carved, and only then tell the
           story.
-        </p>
-        <p class="mt-8">
-          <a href="/credits/#name" class="chip">
-            Where the Name {SITE_NAME} Comes From
-          </a>
         </p>
       </div>
     </div>
@@ -422,5 +416,5 @@ const closeRow = await closeRowLinks({
   <CloseRow {...closeRow} />
 
   <PhotoViewer />
-  <AboutCats client:load cats={catInfo} inspiration={CAT_INSPIRATION} />
+  <AboutCats client:load cats={catInfo} />
 </BaseLayout>
