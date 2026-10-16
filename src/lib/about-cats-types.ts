@@ -2,7 +2,7 @@
  * Types shared by the About cats' rig, moves and colony, here so the rig and
  * the moves need not import each other.
  */
-export type CatId = 'pepper' | 'mochi' | 'biscuit';
+export type CatId = 'minerva' | 'hela' | 'rudra';
 
 export type Pair = [number, number];
 

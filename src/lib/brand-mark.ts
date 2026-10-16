@@ -54,11 +54,11 @@ export const markMarkup = (
     : '';
   const ears = small
     ? ''
-    : `<path d="${EAR_LEFT}" fill="${paint('cat-cardboard')}"/><path d="${EAR_RIGHT}" fill="${paint('cat-mochi-far')}"/>`;
+    : `<path d="${EAR_LEFT}" fill="${paint('cat-cardboard')}"/><path d="${EAR_RIGHT}" fill="${paint('cat-hela-far')}"/>`;
   /* At tab size the black patch runs into the right eye. */
   const blackPatch = small
     ? ''
-    : `<path d="${PATCH_BLACK}" fill="${paint('cat-mochi-black')}"/>`;
+    : `<path d="${PATCH_BLACK}" fill="${paint('cat-hela-black')}"/>`;
   const face = small
     ? `<path d="${SMALL_EYES}" fill="none" stroke="${paint('gold-text')}" stroke-width="${SMALL_EYE_WIDTH}" stroke-linecap="round" stroke-linejoin="round"/>`
     : `<path d="${HAPPY_EYES}" fill="none" stroke="${paint('gold-text')}" stroke-width="${EYE_WIDTH}" stroke-linecap="round" stroke-linejoin="round"/>` +
@@ -67,8 +67,8 @@ export const markMarkup = (
   return (
     `<defs><clipPath id="${clip}"><path d="${MARK_HEAD}"/></clipPath></defs>` +
     rim +
-    `<path d="${MARK_HEAD}" fill="${paint('cat-mochi')}"/>` +
-    `<g clip-path="url(#${clip})"><path d="${PATCH_ORANGE}" fill="${paint('cat-mochi-orange')}"/>${blackPatch}</g>` +
+    `<path d="${MARK_HEAD}" fill="${paint('cat-hela')}"/>` +
+    `<g clip-path="url(#${clip})"><path d="${PATCH_ORANGE}" fill="${paint('cat-hela-orange')}"/>${blackPatch}</g>` +
     ears +
     face +
     `<path d="${MARK_HEAD}" fill="none" stroke="${paint('tile-edge')}" stroke-width="${MARK_EDGE}" stroke-linejoin="round"/>`

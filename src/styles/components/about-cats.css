@@ -176,32 +176,32 @@
     pointer-events: all;
   }
 
-  .cat-button[data-cat='pepper'] {
-    --cat-fur: var(--color-cat-pepper);
-    --cat-far: var(--color-cat-pepper-far);
-    --cat-mark: var(--color-cat-pepper-stripe);
-    --cat-patch: var(--color-cat-pepper);
-    --cat-eye: var(--color-cat-pepper-eye);
+  .cat-button[data-cat='minerva'] {
+    --cat-fur: var(--color-cat-minerva);
+    --cat-far: var(--color-cat-minerva-far);
+    --cat-mark: var(--color-cat-minerva-stripe);
+    --cat-patch: var(--color-cat-minerva);
+    --cat-eye: var(--color-cat-minerva-eye);
     --cat-lid: var(--color-gold-text);
   }
 
-  .cat-button[data-cat='mochi'] {
-    --cat-fur: var(--color-cat-mochi);
-    --cat-far: var(--color-cat-mochi-far);
-    --cat-mark: var(--color-cat-mochi-black);
-    --cat-patch: var(--color-cat-mochi-orange);
+  .cat-button[data-cat='hela'] {
+    --cat-fur: var(--color-cat-hela);
+    --cat-far: var(--color-cat-hela-far);
+    --cat-mark: var(--color-cat-hela-black);
+    --cat-patch: var(--color-cat-hela-orange);
     --cat-eye: var(--color-gold-text);
     --cat-lid: var(--color-gold-text);
   }
 
-  /* Closed eyes are light lines, since Biscuit's fur is near black. */
-  .cat-button[data-cat='biscuit'] {
-    --cat-fur: var(--color-cat-biscuit);
-    --cat-far: var(--color-cat-biscuit-far);
+  /* Closed eyes are light lines, since Rudra's fur is near black. */
+  .cat-button[data-cat='rudra'] {
+    --cat-fur: var(--color-cat-rudra);
+    --cat-far: var(--color-cat-rudra-far);
     --cat-mark: transparent;
-    --cat-patch: var(--color-cat-biscuit);
-    --cat-eye: var(--color-cat-biscuit-eye);
-    --cat-lid: var(--color-cat-mochi);
+    --cat-patch: var(--color-cat-rudra);
+    --cat-eye: var(--color-cat-rudra-eye);
+    --cat-lid: var(--color-cat-hela);
   }
 
   /* Shadow and edge follow the site's depth and ink, so light mode turns both ink. */

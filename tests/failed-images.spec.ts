@@ -353,11 +353,11 @@ test.describe('the failed-photo script', () => {
       (request) => request.abort(),
     );
     await gotoSettled(page, '/about');
-    await page.locator('#cat-spot-pepper .cat-button').focus();
+    await page.locator('#cat-spot-minerva .cat-button').focus();
     await page.keyboard.press('Enter');
 
     const frame = page
-      .getByRole('dialog', { name: 'Pepper' })
+      .getByRole('dialog', { name: 'Minerva' })
       .locator('.aspect-frame');
     await expect(
       frame,

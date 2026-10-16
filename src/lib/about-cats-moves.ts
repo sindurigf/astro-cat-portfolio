@@ -982,7 +982,7 @@ export const MOVES = {
       };
     },
   }),
-  /* Biscuit and the wand on the cat tree, from his photo: sat back reaching up, swats, and one leap that brings it down. */
+  /* Rudra and the wand on the cat tree, from his photo: sat back reaching up, swats, and one leap that brings it down. */
   wand: (): Move => ({
     steps: [
       step(700, 'sit', { hr: -26 }),
@@ -1158,12 +1158,12 @@ export const scaledExtent = (
 
 /*
  * Relative weights per cat, so each plays a little differently. Every cat can
- * play every shared move; Biscuit alone has the wand. Sleep and wake come from
+ * play every shared move; Rudra alone has the wand. Sleep and wake come from
  * the nap clock.
  */
 export const CAT_WEIGHTS: Record<CatId, Partial<Record<MoveName, number>>> = {
   /* The queen: the calmest, but she chases too. */
-  pepper: {
+  minerva: {
     look: 6,
     yarn: 5,
     fly: 5,
@@ -1176,7 +1176,7 @@ export const CAT_WEIGHTS: Record<CatId, Partial<Record<MoveName, number>>> = {
     pounce: 2,
   },
   /* The conspirator: stalks and knocks the cup off, and chases yarn. */
-  mochi: {
+  hela: {
     stalk: 9,
     knock: 9,
     yarn: 7,
@@ -1189,7 +1189,7 @@ export const CAT_WEIGHTS: Record<CatId, Partial<Record<MoveName, number>>> = {
     belly: 2,
   },
   /* The baby: chases everything, yarn and flies most. */
-  biscuit: {
+  rudra: {
     wand: 10,
     yarn: 11,
     fly: 10,

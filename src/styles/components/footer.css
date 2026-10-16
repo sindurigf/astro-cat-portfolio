@@ -199,7 +199,7 @@
   }
 
   .footer-tuft .mascot-paw-fill {
-    fill: var(--color-cat-mochi);
+    fill: var(--color-cat-hela);
     stroke: var(--color-tile-edge);
     /* Must match MARK_EDGE in src/lib/brand-mark.ts: the paws share the head's edge. */
     stroke-width: 4.67;

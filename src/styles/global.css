@@ -143,17 +143,17 @@
    * edge (`text`) carries SC 1.4.11, so none of these delimits a control.
    */
   /* TODO(fork): Your cats' coat colors; the logo cat uses the second cat's. README "Your cats, or none". */
-  --color-cat-pepper: #a57a4d;
-  --color-cat-pepper-far: #7e5b39;
-  --color-cat-pepper-stripe: #3b2716;
-  --color-cat-pepper-eye: #a4c94a;
-  --color-cat-mochi: #f4efe8;
-  --color-cat-mochi-far: #cfc6ba;
-  --color-cat-mochi-orange: #d38b45;
-  --color-cat-mochi-black: #262626;
-  --color-cat-biscuit: #211e1d;
-  --color-cat-biscuit-far: #3a3431;
-  --color-cat-biscuit-eye: #e0a52a;
+  --color-cat-minerva: #a57a4d;
+  --color-cat-minerva-far: #7e5b39;
+  --color-cat-minerva-stripe: #3b2716;
+  --color-cat-minerva-eye: #a4c94a;
+  --color-cat-hela: #f4efe8;
+  --color-cat-hela-far: #cfc6ba;
+  --color-cat-hela-orange: #d38b45;
+  --color-cat-hela-black: #262626;
+  --color-cat-rudra: #211e1d;
+  --color-cat-rudra-far: #3a3431;
+  --color-cat-rudra-eye: #e0a52a;
   --color-cat-mouth: #4a0f1c;
   --color-cat-cardboard: #b0773a;
   --color-cat-cardboard-line: #6b4520;
@@ -210,7 +210,7 @@
    * The glow inside a lit glyph on the poneglyph. Its full-ink rim carries the
    * contrast: 6.60:1 on the dark stone face, 16.43:1 on the light (SC 1.4.11).
    */
-  --color-hero-glow: var(--color-cat-mochi);
+  --color-hero-glow: var(--color-cat-hela);
 
   /*
    * The canvas's veil and floor, read by HeroField.vue. Ink, not border-blue,

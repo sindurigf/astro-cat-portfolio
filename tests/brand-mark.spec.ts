@@ -25,7 +25,7 @@ test.describe('the logo cat', NODE, () => {
   });
 
   test('its face holds 4.5:1 on each coat color it is drawn over', () => {
-    for (const coat of ['cat-mochi', 'cat-mochi-orange']) {
+    for (const coat of ['cat-hela', 'cat-hela-orange']) {
       expect(
         ratio(tokens['gold-text'], tokens[coat]),
         `the face ink is under 4.5:1 on --color-${coat}`,

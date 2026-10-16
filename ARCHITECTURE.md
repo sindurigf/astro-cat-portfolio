@@ -390,7 +390,7 @@ in `wrangler.jsonc`).
   cat on the dark strip. Rendered by `npm run og`
   ([DEVELOPMENT.md](docs/DEVELOPMENT.md#the-sharing-image)). A PNG in `public/`
   because scrapers need a stable URL and format.
-- `src/lib/brand-mark.ts`: the logo cat, an eared tile in Mochi's calico with
+- `src/lib/brand-mark.ts`: the logo cat, an eared tile in Hela's calico with
   happy eyes; the one source for the footer head, `npm run icons` (which writes
   `logo-cat.svg` for `CatMark.astro`) and `npm run og`.
 - `artwork/mark-dark.svg`: the one-color cat for the roundels, written by
