@@ -8,10 +8,13 @@ const EXAMPLE_DOMAINS = [
   'example',
 ];
 
-export const isExampleHost = (host: string): boolean =>
-  EXAMPLE_DOMAINS.some(
-    (domain) => host === domain || host.endsWith(`.${domain}`),
+/* DNS names are case-insensitive, and a trailing dot names the same host. */
+export const isExampleHost = (host: string): boolean => {
+  const name = host.toLowerCase().replace(/\.$/, '');
+  return EXAMPLE_DOMAINS.some(
+    (domain) => name === domain || name.endsWith(`.${domain}`),
   );
+};
 
 /** What a build and the live check say while `site.url` is the shipped placeholder; null once it is replaced. */
 export const placeholderSiteNotice = (siteUrl: string): string | null =>
