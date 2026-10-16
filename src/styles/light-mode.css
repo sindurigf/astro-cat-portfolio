@@ -16,8 +16,8 @@
     --color-gold-border: var(--color-light-ink);
     --color-card-edge: var(--color-light-ink);
     --color-paper-edge: transparent;
-    --ring: var(--hard-throw) var(--hard-throw) 0
-      var(--paper-throw, var(--color-pink));
+    --ring: var(--hard-throw) var(--hard-throw) 0 var(--color-pink);
+    --ring-hover: var(--hard-throw) var(--hard-throw) 0 var(--color-cyan);
     --card-grid: none;
     --color-gold-bud: var(--color-light-ink);
     --color-hero-ground: var(--color-light-ground);

@@ -157,7 +157,7 @@ test.describe('graph-paper edges in forced colors', () => {
           return {
             name: describe(element),
             paper: getComputedStyle(element, '::before').display,
-            band: getComputedStyle(element, '::after').boxShadow,
+            band: style.boxShadow,
             edge: element.matches('.post-contents') || (style.borderTopStyle !== 'none' && parseFloat(style.borderTopWidth) > 0 && !!border && border.a > 0),
           };
         });

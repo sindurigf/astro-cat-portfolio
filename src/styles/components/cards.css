@@ -13,7 +13,8 @@
    * Cards and plain slabs: the `card-edge`, none in dark mode, and graph paper.
    * The paper is a layer under the content, so the card's measured ground stays
    * `surface`: its lines are `background`, where every text token passes too.
-   * A hard ring on `::after` (`--ring`), never an outline, so focus stays cyan.
+   * A hard ring as box-shadow spreads (`--ring`), never an outline, so focus
+   * stays cyan; shadows add no scrollable overflow.
    */
   :is(.card, .plain-slab, .post-contents):not(
     .card-solid,
@@ -23,8 +24,7 @@
     position: relative;
     isolation: isolate;
     border-color: var(--color-card-edge);
-    /* `--ring` on `::after` carries the throw, so one layer paints it. */
-    box-shadow: none;
+    box-shadow: var(--ring);
 
     &::before {
       content: '';
@@ -41,32 +41,17 @@
         display: none;
       }
     }
-
-    /* On the border box: `--edge` out, or 0 where the box has no border. */
-    &::after {
-      content: '';
-      position: absolute;
-      inset: calc(-1 * var(--paper-edge-inset, var(--edge)));
-      z-index: -1;
-      box-shadow: var(--ring);
-      pointer-events: none;
-
-      @media print {
-        display: none;
-      }
-    }
   }
 
   .card:has(.card-link):hover {
     @apply shadow-hard-cyan-object;
   }
 
-  /* A ringed card's throw turns cyan on its `::after`, not on the card. */
+  /* A ringed card's throw turns cyan. */
   :is(.card, .plain-slab):not(.card-solid, .surface-gold, .surface-gold *):has(
       .card-link
     ):hover {
-    --paper-throw: var(--color-cyan);
-    box-shadow: none;
+    box-shadow: var(--ring-hover);
   }
 
   /*
@@ -199,7 +184,6 @@
    */
   .post-contents {
     @apply self-start bg-surface shadow-hard-pink-object;
-    --paper-edge-inset: 0px;
   }
 
   .post-contents ol {
