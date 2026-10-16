@@ -62,6 +62,18 @@ const links = (source: string): string[] =>
   [...source.matchAll(/\]\(([^)]+)\)/g)].map((match) => match[1]!);
 
 test.describe('llms.txt', NODE, () => {
+  test('says the CV is linked exactly when /career links one', () => {
+    const career = readFileSync(join(DIST_DIR, 'career', 'index.html'), 'utf8');
+    const linksCv = /<a\b[^>]*href="[^"]*\.pdf"/i.test(career);
+
+    expect(
+      /\bCV\b/.test(llmsTxt()),
+      linksCv
+        ? 'llms.txt does not mention the CV /career links.'
+        : 'llms.txt promises a CV /career does not link.',
+    ).toBe(linksCv);
+  });
+
   test('every link is absolute', () => {
     // Handed around as text, the file has no base URL to resolve a relative link against.
     const found = links(llmsTxt());

@@ -28,3 +28,16 @@ export const SECURITY_CONTACT = securityContactFor(
 
 /** False when `contact.form` is `none`: no form, no /contact/send/. */
 export const CONTACT_FORM_ON = SITE_CONFIG.contact.form !== 'none';
+
+const EITHER = new Intl.ListFormat('en', { type: 'disjunction' });
+
+/** /contact's meta description; `services` are the profiles its cards link, so the two cannot disagree. */
+export const contactDescription = (
+  name: string,
+  services: readonly string[],
+  formOn: boolean,
+): string =>
+  `Write to ${name} by email` +
+  (services.length > 0 ? ` or on ${EITHER.format(services)}` : '') +
+  (formOn ? ', or with the contact form' : '') +
+  '.';
