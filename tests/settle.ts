@@ -91,7 +91,18 @@ export const usesWebFont = (page: Page): Promise<boolean> =>
   });
 
 /**
- * Also waits for `document.fonts.ready`: a heading in the fallback face measures
+ * Every font face has finished loading. Not `document.fonts.ready` alone: Firefox
+ * can leave the set `loading` with no face loading until the page next scrolls.
+ */
+export const fontsSettled = (page: Page): Promise<unknown> =>
+  page.waitForFunction(
+    () =>
+      document.fonts.status === 'loaded' ||
+      ![...document.fonts].some((face) => face.status === 'loading'),
+  );
+
+/**
+ * Also waits for the fonts to settle: a heading in the fallback face measures
  * wrong. A page that missed Lexend's window reloads once, with the font cached.
  */
 export const gotoSettled = async (
@@ -101,13 +112,13 @@ export const gotoSettled = async (
 ): Promise<Response | null> => {
   let response = await page.goto(route, { waitUntil: 'load' });
   await waitForHydration(page);
-  await page.evaluate(() => document.fonts.ready);
+  await fontsSettled(page);
   if (webFont && !(await usesWebFont(page))) {
     /* Shows in the report how often a page misses the font. */
     test.info().annotations.push({ type: 'font-reload', description: route });
     response = await page.reload({ waitUntil: 'load' });
     await waitForHydration(page);
-    await page.evaluate(() => document.fonts.ready);
+    await fontsSettled(page);
     expect(
       await usesWebFont(page),
       `${route} renders in the fallback face even with Lexend cached.`,
