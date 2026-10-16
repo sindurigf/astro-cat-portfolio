@@ -1,0 +1,69 @@
+---
+/*
+ * /brand's side menu: every section, the page's own marked aria-current.
+ * Closed under `lg`, like a post's contents; open beside the content from it.
+ * Not sticky: a tall list hides its own links (cards.css .post-layout).
+ */
+import {
+  BRAND_GROUPS,
+  BRAND_PATH,
+  BRAND_SECTIONS,
+  brandHref,
+} from '../../lib/brand-sections';
+
+interface Props {
+  /* A section slug, or null on the overview. */
+  current: string | null;
+}
+
+const { current } = Astro.props;
+const linkTo = (href: string, own: boolean) => ({
+  href,
+  'aria-current': own ? ('page' as const) : undefined,
+});
+---
+
+<nav aria-label="Brand sections" class="brand-menu">
+  {(['narrow', 'wide'] as const).map((width) => {
+    const list = (
+      <ol class="brand-menu-list">
+        <li>
+          <a class="brand-menu-link" {...linkTo(BRAND_PATH, current === null)}>
+            Overview
+          </a>
+        </li>
+        {BRAND_GROUPS.map((group) => (
+          <li>
+            <span class="brand-menu-group">{group}</span>
+            <ol>
+              {BRAND_SECTIONS.filter((s) => s.group === group).map((s) => (
+                <li>
+                  <a
+                    class="brand-menu-link"
+                    {...linkTo(brandHref(s.slug), s.slug === current)}
+                  >
+                    {s.title}
+                  </a>
+                </li>
+              ))}
+            </ol>
+          </li>
+        ))}
+      </ol>
+    );
+    return width === 'narrow' ? (
+      <details class="brand-menu-box lg:hidden">
+        <summary class="post-contents-summary">
+          <span>All Sections</span>
+          <span class="post-contents-marker" aria-hidden="true" />
+        </summary>
+        {list}
+      </details>
+    ) : (
+      <div class="brand-menu-box hidden lg:block">
+        <div class="brand-menu-title">Sections</div>
+        {list}
+      </div>
+    );
+  })}
+</nav>

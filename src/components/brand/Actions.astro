@@ -1,13 +1,13 @@
 ---
 import ComponentRow from './ComponentRow.astro';
+import { brandHref } from '../../lib/brand-sections';
 
 const META = 'text-body text-subtle';
 ---
 
-<ul class="divide-y-4 divide-border">
+<ul class="brand-parts">
   <ComponentRow
     id="primary-button"
-    name="Primary Button"
     use="the one main action in a section."
     rule="One per section. At rest it casts a pink shadow; under the pointer it fills cyan; pressed, it sinks into its shadow."
   >
@@ -37,7 +37,6 @@ const META = 'text-body text-subtle';
 
   <ComponentRow
     id="secondary-button"
-    name="Secondary Button"
     use="an action beside the primary one."
     rule="Same shape and states as the primary, on the surface fill; never two primaries side by side."
   >
@@ -61,7 +60,6 @@ const META = 'text-body text-subtle';
 
   <ComponentRow
     id="gold-buttons"
-    name="Buttons on Gold"
     use="actions on a gold slab or a page's closing block."
     rule="Only the gold pair goes on gold: a dark primary with a light label, and an outlined secondary. The focus ring turns dark."
   >
@@ -70,7 +68,10 @@ const META = 'text-body text-subtle';
         <a href="#gold-buttons" class="btn-gold-primary">
           Primary on Gold
         </a>
-        <a href="#ground-gold" class="btn-gold-secondary">
+        <a
+          href={`${brandHref('grounds')}#ground-gold`}
+          class="btn-gold-secondary"
+        >
           Secondary on Gold
         </a>
       </p>
@@ -79,7 +80,6 @@ const META = 'text-body text-subtle';
 
   <ComponentRow
     id="text-links"
-    name="Links in Text"
     use="a link inside a sentence."
     rule="Underlined at rest, a thicker underline under the pointer. A visited link looks the same."
   >
@@ -91,7 +91,6 @@ const META = 'text-body text-subtle';
 
   <ComponentRow
     id="standalone-links"
-    name="Standalone Link"
     use="a link on its own line, outside a sentence."
     rule="The .link class keeps the underline; a 44px minimum height keeps it a large enough target."
   >

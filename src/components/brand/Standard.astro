@@ -1,0 +1,19 @@
+---
+import ComponentRow from './ComponentRow.astro';
+import { accessibilityFacts } from '../../lib/accessibility-facts';
+import { brandSection } from '../../lib/brand-sections';
+import { ACCESSIBILITY_MD_URL } from './links';
+---
+
+<ul class="brand-parts">
+  <ComponentRow id="standard" rule={brandSection('accessibility').rule}>
+    <p class="max-w-measure text-body text-text">
+      The floor for every page is {accessibilityFacts.targetStandard}. The site
+      is tested for it in three browser engines.
+    </p>
+    <p class="mt-6 max-w-measure text-body text-text">
+      <a href="/accessibility/">Accessibility Statement</a> and{' '}
+      <a href={ACCESSIBILITY_MD_URL}>ACCESSIBILITY.md</a>
+    </p>
+  </ComponentRow>
+</ul>
