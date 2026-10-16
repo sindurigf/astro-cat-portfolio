@@ -5,6 +5,7 @@ import {
   FORM_MEDIA_TYPE,
   LIMITS,
   MAX_BODY_BYTES,
+  MESSAGES,
   RETENTION_DAYS,
 } from '../src/lib/contact-form';
 import {
@@ -711,7 +712,10 @@ test.describe('the contact endpoint', () => {
       String(LIMITS.bodyMax),
     );
     expect(html, 'the refusal does not offer the email address.').toContain(
-      `href="mailto:${CONTACT_EMAIL}"`,
+      `href="mailto:${CONTACT_EMAIL}">${CONTACT_EMAIL}</a>`,
+    );
+    expect(html, 'the refusal adds words of its own to the message.').toContain(
+      `>${MESSAGES.bodyLong}</p>`,
     );
     expect(html, 'the refusal has no link back to the form.').toContain(
       `href="${CONTACT_PATH}"`,
