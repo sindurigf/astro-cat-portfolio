@@ -3,7 +3,7 @@ import { join } from 'node:path';
 import { expect, test } from './test';
 import { fontsSettled, gotoSettled, usesWebFont } from './settle';
 import { LAYOUT_SHIFT, layoutShiftOf } from './layout-shift';
-import { DIST_DIR, ROUTES } from './routes';
+import { DIST_DIR, BRAND_SAMPLED_ROUTES } from './routes';
 import { NODE } from './tags';
 import { metricsOf } from '../scripts/font-fallback-metrics.mjs';
 
@@ -147,7 +147,7 @@ test.describe('a font that arrives after first paint', () => {
   );
   test.use({ viewport: PHONE });
 
-  for (const route of ROUTES) {
+  for (const route of BRAND_SAMPLED_ROUTES) {
     test(`${route} keeps its fallback face and does not move on a phone`, async ({
       page,
     }) => {

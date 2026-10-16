@@ -1,7 +1,7 @@
 import { expect, test, type Page } from './test';
 import { gotoSettled } from './settle';
 import { AA_TEXT, NON_TEXT, PAGE_HELPERS } from './contrast';
-import { goldRoutesFromBuild, ROUTES } from './routes';
+import { goldRoutesFromBuild, BRAND_SAMPLED_ROUTES } from './routes';
 import { cssColorToken } from './source';
 import { NARROW_WIDTH } from './wcag';
 
@@ -139,7 +139,7 @@ type FilledGoldControl = {
 };
 
 test.describe('the gold surface exception', () => {
-  for (const route of ROUTES) {
+  for (const route of BRAND_SAMPLED_ROUTES) {
     test(`no text on a gold background is unreadable on ${route}`, async ({
       page,
     }) => {

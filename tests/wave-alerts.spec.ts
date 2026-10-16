@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { expect, test, type Page } from './test';
-import { ROUTES, builtPages } from './routes';
+import { builtPages, BRAND_SAMPLED_ROUTES } from './routes';
 import { gotoSettled } from './settle';
 import { NODE } from './tags';
 
@@ -98,7 +98,7 @@ test.describe('WAVE alerts: possible heading', () => {
     test.describe(`at ${width}px`, () => {
       test.use({ viewport: { width, height: VIEWPORT_HEIGHT } });
 
-      for (const route of ROUTES) {
+      for (const route of BRAND_SAMPLED_ROUTES) {
         test(`${route} has no paragraph WAVE reads as a heading`, async ({
           page,
         }) => {
@@ -127,7 +127,7 @@ test.describe('WAVE alerts: redundant link', () => {
   );
   test.use({ viewport: { width: LINK_WIDTH, height: VIEWPORT_HEIGHT } });
 
-  for (const route of ROUTES) {
+  for (const route of BRAND_SAMPLED_ROUTES) {
     test(`${route} has no adjacent links to the same URL`, async ({ page }) => {
       await gotoSettled(page, route);
 
