@@ -74,6 +74,7 @@ test.describe('readBuildEnv', NODE, () => {
     ['SECURITY_CONTACT', 'https://security.example/report'],
     ['SECURITY_CONTACT', 'mailto:security@EXAMPLE.COM'],
     ['SECURITY_CONTACT', 'https://example.com./security'],
+    ['SECURITY_CONTACT', 'mailto:security@example.com..'],
   ] as const) {
     test(`rejects ${name}=${value}`, () => {
       expect(() => readBuildEnv({ [name]: value })).toThrow(

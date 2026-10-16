@@ -8,9 +8,9 @@ const EXAMPLE_DOMAINS = [
   'example',
 ];
 
-/* DNS names are case-insensitive, and a trailing dot names the same host. */
+/* DNS names are case-insensitive, and trailing dots name the same host. */
 export const isExampleHost = (host: string): boolean => {
-  const name = host.toLowerCase().replace(/\.$/, '');
+  const name = host.toLowerCase().replace(/\.+$/, '');
   return EXAMPLE_DOMAINS.some(
     (domain) => name === domain || name.endsWith(`.${domain}`),
   );

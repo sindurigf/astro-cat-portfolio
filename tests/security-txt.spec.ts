@@ -77,6 +77,7 @@ test.describe('security.txt', NODE, () => {
     expect(securityContactFor(null, 'hello@example.com')).toBeNull();
     expect(securityContactFor(null, 'hello@EXAMPLE.com')).toBeNull();
     expect(securityContactFor(null, 'hello@example.com.')).toBeNull();
+    expect(securityContactFor(null, 'hello@example.com..')).toBeNull();
     expect(
       securityContactFor('mailto:security@notexample.com', 'hello@example.com'),
     ).toBe('mailto:security@notexample.com');
