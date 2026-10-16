@@ -195,6 +195,9 @@ Off by default. To turn it on:
 
 - A page view is one event; a click up to four (one per event data property).
 - `data-domains` stops local, test and preview traffic being counted.
+- The tracker and the click tracker add about 6.2 KB of script to every page.
+  `tests/performance.spec.ts` allows them `ANALYTICS_SCRIPT_BUDGET` on top of
+  each route's own budget, which does not change.
 - The tracker is vendored at `public/vendor/umami.js`, so `script-src` stays
   same-origin. `npm run check:umami` compares it with upstream; exit 0 means
   it matches, otherwise it writes `tmp/umami-upstream.js` and prints the diff.
