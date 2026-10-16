@@ -89,11 +89,13 @@ not the installed `@playwright/test` version; bump both together. It also
 refuses an image whose Node major differs from `.nvmrc`. An older minor is
 allowed, because Playwright's image ships the Node current at its release.
 That Node also stamps `dist/`, so run `npm run build` on the host before
-`npm run check` or `publish:talk`. Arguments pass through to `playwright test`:
+`npm run check` or `publish:talk`. The container gets 4 CPUs; set
+`WEBKIT_CPUS` for another cap. Arguments pass through to `playwright test`:
 
 ```sh
 npm run test:webkit
 npm run test:webkit -- tests/reflow.spec.ts
+WEBKIT_CPUS=8 npm run test:webkit
 ```
 
 ### Published PDFs

@@ -90,8 +90,41 @@ export const usesWebFont = (page: Page): Promise<boolean> =>
     return width("'Lexend Variable', monospace") !== width('monospace');
   });
 
+/** The downloaded face; the fallbacks are local. */
+const WEB_FONT_FAMILY = 'Lexend Variable';
+
 /**
- * Also waits for `document.fonts.ready`: a heading in the fallback face measures
+ * Every font face has finished loading. Not `document.fonts.ready` alone: Firefox
+ * can leave the set `loading` with no face loading until the page next scrolls.
+ * Assumes each face is preloaded or in use at load: an all-unloaded set passes.
+ */
+export const fontsSettled = async (
+  page: Page,
+  { webFont = true }: { webFont?: boolean } = {},
+): Promise<void> => {
+  await page.waitForFunction(
+    () =>
+      document.fonts.status === 'loaded' ||
+      ![...document.fonts].some((face) => face.status === 'loading'),
+  );
+  if (!webFont) return;
+  /* WebKit leaves an aborted face `unloaded`, not `error`; some engines quote the family. */
+  const faces = await page.evaluate(() =>
+    [...document.fonts].map((face) => ({
+      family: face.family.replace(/["']/g, ''),
+      status: face.status,
+    })),
+  );
+  expect(
+    faces.some(
+      ({ family, status }) => family === WEB_FONT_FAMILY && status === 'loaded',
+    ),
+    `${WEB_FONT_FAMILY} failed to load: ${faces.map(({ family, status }) => `${family}:${status}`).join(', ')}`,
+  ).toBe(true);
+};
+
+/**
+ * Also waits for the fonts to settle: a heading in the fallback face measures
  * wrong. A page that missed Lexend's window reloads once, with the font cached.
  */
 export const gotoSettled = async (
@@ -101,13 +134,13 @@ export const gotoSettled = async (
 ): Promise<Response | null> => {
   let response = await page.goto(route, { waitUntil: 'load' });
   await waitForHydration(page);
-  await page.evaluate(() => document.fonts.ready);
+  await fontsSettled(page, { webFont });
   if (webFont && !(await usesWebFont(page))) {
     /* Shows in the report how often a page misses the font. */
     test.info().annotations.push({ type: 'font-reload', description: route });
     response = await page.reload({ waitUntil: 'load' });
     await waitForHydration(page);
-    await page.evaluate(() => document.fonts.ready);
+    await fontsSettled(page);
     expect(
       await usesWebFont(page),
       `${route} renders in the fallback face even with Lexend cached.`,

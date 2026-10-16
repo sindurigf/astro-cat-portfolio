@@ -1,5 +1,5 @@
 import { test, expect, type Page } from './test';
-import { HYDRATION_TIMEOUT, waitForHydration } from './settle';
+import { HYDRATION_TIMEOUT, fontsSettled, waitForHydration } from './settle';
 import { TEXT_SPACING_OVERRIDE } from './wcag';
 import { NON_TEXT, PAGE_HELPERS } from './contrast';
 
@@ -29,7 +29,7 @@ const openHero = async (page: Page): Promise<void> => {
     timeout: HYDRATION_TIMEOUT,
   });
   await waitForHydration(page);
-  await page.evaluate(() => document.fonts.ready);
+  await fontsSettled(page);
 };
 
 const HERO_PARTS = `

@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { expect, test, type Page, type Response } from './test';
 import { DIST_DIR } from './routes';
-import { waitForHydration } from './settle';
+import { fontsSettled, waitForHydration } from './settle';
 import { collectViolations } from './policy-server';
 import { REFLOW_VIEWPORT } from './wcag';
 import { ASSET_CACHE_CONTROL, usePolicyServer } from './headers-fixture';
@@ -187,7 +187,7 @@ test.describe('security headers', () => {
 
     await page.goto(`${policy().origin}/`);
     await waitForHydration(page);
-    await page.evaluate(() => document.fonts.ready);
+    await fontsSettled(page);
 
     expect(violations, 'the browser refused something under the CSP').toEqual(
       [],
