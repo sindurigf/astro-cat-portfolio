@@ -251,7 +251,7 @@ set; hex values and ratios are in the generated [Contrast](#contrast) table:
 ### Buttons on gold
 
 - Never `.btn-primary` (a 1.00 fill on gold) or `.btn-secondary` (`border`
-  2.34, pink shadow 2.31).
+  1.00, pink shadow 2.31).
 - `.btn-gold-primary`: `gold-text` fill, `gold-btn-label` label, 4px
   `gold-text` border, `shadow-hard-mark-4`, the two-tone ring
   ([Focus](#focus)).
@@ -807,7 +807,7 @@ roundel.**
 
 - Pink never delimits anything on the slab: every control has its fill or a
   `gold-text` border.
-- The page's own colors fail here: `subtle` 1.31, `border` 2.34, the page
+- The page's own colors fail here: `subtle` 1.31, `border` 1.00, the page
   link color, `text`, 1.27.
 
 ### Calls to action
