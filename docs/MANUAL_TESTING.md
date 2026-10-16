@@ -720,8 +720,16 @@ page numbers or running headers read as content, decoration announced.
 - [ ] A link to one slide opens on it; a `#slide-N` link followed within the
       page moves focus to its heading. Focus inside a slide that turns moves
       to the new heading. → SC 2.4.3
-- [ ] Full Screen: one 16:9 slide, no controls, the pointer hides when still.
-      Every slide fits a projector screen without scrolling. → SC 1.4.10
+- [ ] Full Screen: one 16:9 slide. Every slide fits a projector screen
+      without scrolling. → SC 1.4.10
+- [ ] In full screen a pointer move or a tap shows arrows named Previous and
+      Next with the count at the foot, and ✕ named Exit Full Screen inside the
+      slide's top right corner; no control is named Full Screen. A tap that shows them turns
+      no slide. They hide with the pointer when still, never while the
+      pointer is on one or one has keyboard focus (Shift+Tab from the slide
+      reaches Next, then Previous, then Exit), and they do not fade or slide.
+      They cover no slide content. A click on ✕ leaves full screen.
+      → SC 2.1.1, 2.3.3, 2.4.7, 2.5.6
 - [ ] In full screen: Space, Enter, Right, Down and Page Down go on;
       Shift+Space, Left, Up and Page Up go back. Space and Page keys first
       scroll a slide taller than its frame. Focus is on the slide, with the
