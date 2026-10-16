@@ -27,7 +27,7 @@ The statement is voluntary for a personal site and follows the
 | Private reporting   | <lol@sinduri.lol>                                          |
 | Target standard     | WCAG 2.2 Level AA, with AAA text contrast                  |
 | Conformance status  | **Target only. No claim that the site meets it.**          |
-| Last reviewed       | 2026-10-02                                                 |
+| Last reviewed       | 2026-10-16                                                 |
 
 `src/lib/accessibility-facts.ts` reads the Target standard, Conformance status,
 Last reviewed and both reporting rows into `/accessibility` at build time and
@@ -61,7 +61,7 @@ out its link.
 | 2.4.9 Link Purpose (Link Only)       | Within a page, one link name leads to one place. Hidden text completes short names: "Community tag", "Robin on GitHub". Exception: link text in posts, listed in `tests/link-purpose.spec.ts`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | 2.4.12 Focus Not Obscured (Enhanced) | No focused control is even partly covered. On pages, none sits under the sticky header in either Tab direction (`tests/focus.spec.ts`); the About cats' sleep and trick controls sit beside their cat buttons, and the last cat's band ends at the raised card above it; inside the open cat card, photo viewer and menu, and from an open trick list, every stop is wholly uncovered (`tests/focus-obscured.spec.ts`). In full-screen slides the focused heading is never covered (`tests/slideshow.spec.ts`), but on a 16:9 screen the pointer bar, while shown, covers part of the bottom edge of the ring drawn around the slide.                                                                               |
 | 2.4.13 Focus Appearance              | One solid ring, `--focus-width` wide. At every page focus stop it covers at least a 2px perimeter of the control and reaches 3:1 against the ground it paints over.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
-| 2.5.5 Target Size (Enhanced)         | Every pointer target outside a sentence has a 44 by 44px area of its own, never shared: controls are drawn at `--spacing-target` (44px); header and breadcrumb links get a pointer area wider than their drawn box (`.hit-target`); footer links are 44px rows. `tests/target-size.spec.ts` hit-tests every target on every page and in every open dialog at 305px and 1280px.                                                                                                                                                                                                                                                                                                                                      |
+| 2.5.5 Target Size (Enhanced)         | Every pointer target outside a sentence has a 44 by 44px area of its own, never shared: controls are drawn at `--spacing-target` (44px); header and breadcrumb links get a pointer area wider than their drawn box (`.hit-target`); footer links are 44px rows. `tests/target-size.spec.ts` hit-tests every target at 305px and 1280px on every page, listings sampled, in the open cat card and photo viewer, and in the open menu at 305px. An open trick list is not hit-tested.                                                                                                                                                                                                                                 |
 | 2.5.6 Concurrent Input Mechanisms    | No input is turned off because another one was detected.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
 | 3.1.3 Unusual Words                  | On functional pages (statement, privacy, credits, brand), jargon is written in plain words, or defined in the sentence of its first use and marked with `<dfn>` (G112, H54). `/404` links its Star Wars lines to their explanation on `/credits` (G55). Posts, About, Career and the contact page's introduction are the site owner's copy and are not checked.                                                                                                                                                                                                                                                                                                                                                     |
 | 3.1.4 Abbreviations                  | On functional pages (statement, privacy, credits, brand), each abbreviation's first use is a `<button popovertarget>` around an `<abbr>`, described by its expansion (`aria-describedby`). A tap or Enter opens the expansion with no script, and Escape or a press elsewhere closes it; a script adds hover and focus and places it under the abbreviation. A browser without popovers reads the expansion inline in brackets, and the script removes the button there. Posts, About and Career are the site owner's copy and are not checked.                                                                                                                                                                     |
@@ -85,7 +85,7 @@ view (development server only, never published), and forks.
 
 | Environment      | Support                                                                                                                             |
 | ---------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
-| Browsers         | Baseline Widely Available ([ARCHITECTURE.md](ARCHITECTURE.md#browser-support))                                                      |
+| Browsers         | Chrome and Edge 120, Firefox 128, Safari and iOS Safari 17 ([ARCHITECTURE.md](ARCHITECTURE.md#browser-support))                     |
 | Engines tested   | Chromium and Firefox locally and in CI; WebKit in CI and through Docker (`npm run test:webkit`)                                     |
 | Color modes      | Dark by default. With JavaScript, light follows `prefers-color-scheme: light`, can be set with the header switch, and is remembered |
 | Forced colors    | Windows High Contrast (`forced-colors: active`)                                                                                     |
@@ -110,7 +110,8 @@ view (development server only, never published), and forks.
   puts out of scope.
 - **Reflow.** No route scrolls sideways at 305px (320px less a classic 15px
   scrollbar, the stricter case), with and without the SC 1.4.12 override, or at
-  640px, 1280px and 1920px. The content box matches the
+  640px, 768px, 1024px, 1280px and 1920px. Open dialogs and menus are outside
+  this sweep. The content box matches the
   [heading floors](docs/STYLEGUIDE.md#heading-floors), no heading word is wider
   than its box, and no text or control sits past either edge. Below 320px
   (1000px and 1280px windows at 500% zoom), every line of text stays on
@@ -130,7 +131,8 @@ view (development server only, never published), and forks.
   against the sticky header, with no part under it (SC 2.4.11, 2.4.12), and
   its ring measured against the ground it lands on (SC 1.4.11) and for area
   (SC 2.4.13). Inside the open cat card, photo viewer and menu, no stop is even
-  partly covered (SC 2.4.12).
+  partly covered (SC 2.4.12). The walk proves each stop is reached, not that
+  it works when pressed ([gap 8](#7-known-gaps)).
 - **Sticky header.** Below 30rem of viewport height the header scrolls away
   instead of covering the page.
 - **Focus ring.** One global ring, offset past the element's shadow, measured
@@ -157,7 +159,7 @@ view (development server only, never published), and forks.
   `/about` a sleep control (SC 2.2.2). Both are still under reduced motion;
   nothing else animates ([STYLEGUIDE Motion](docs/STYLEGUIDE.md#motion)).
 - **Forced colors.** Every non-link control keeps a painted border or opaque
-  background, except the last row of a cat's trick list; links are distinct
+  background, except the last row of a cat's trick list (set in the CSS; no test opens the list in forced colors); links are distinct
   from body text, every focus stop on `/` keeps an outline, and the menu
   button's bars take `ButtonText`.
 - **Contact form.** Labels with "(required)" in words, `autocomplete` on name
@@ -170,6 +172,12 @@ view (development server only, never published), and forks.
   `lg` (1024px) the talk page links it with its size and shows every slide as
   text that reflows, so the PDF is never the only way to read the talk on a
   narrow screen (SC 1.4.10).
+
+- **Font loading.** No WCAG criterion. Lexend is preloaded with
+  `font-display: optional`; a page that paints first keeps a fallback sized to
+  Lexend's average width and line box, so text never moves after first paint
+  (`tests/font-fallback.spec.ts`, `tests/performance.spec.ts`, Chromium).
+  Reflow, heading fit, line length and text resize are tested in Lexend only.
 
 Passing axe is not conformance.
 
@@ -232,7 +240,9 @@ inside, the focus ring included, is `background` (`tests/solid-block.spec.ts`,
 
 ### Light mode
 
-The header switch turns `<main>` light; the header and footer stay dark. Every
+With JavaScript, `<main>` turns light on `prefers-color-scheme: light` or the
+header switch, and the choice is remembered; without it the page stays dark and
+the switch is hidden. The header and footer stay dark. Every
 text color clears 7:1 on white:
 [Light mode](docs/STYLEGUIDE.md#light-mode).
 
@@ -255,6 +265,8 @@ merge.
 | `tests/focus.spec.ts`               | 2.4.7, 2.4.11, 2.4.12, 2.4.13, 1.4.11                            | Tab and Shift+Tab on every page at two widths, listings sampled; no stop under the header; ring contrast and area                                                                                                                                                                                    |
 | `tests/focus-obscured.spec.ts`      | 2.4.12                                                           | Every stop in the open cat card, photo viewer and menu, each About cat control, and every stop reached from an open trick list, wholly uncovered                                                                                                                                                     |
 | `tests/sticky-header.spec.ts`       | 2.4.11                                                           | Header static under 30rem; no focused control under it                                                                                                                                                                                                                                               |
+| `tests/edge-contrast.spec.ts`       | 1.4.11                                                           | Every drawn edge 3:1 against its ground unless its fill is, every route, dark and light, 390px and 1280px; at rest only                                                                                                                                                                              |
+| `tests/edges.spec.ts`               | 1.4.11                                                           | One edge role per ground on `/`; gold-fill edges against the fill; graph paper hidden in forced colors                                                                                                                                                                                               |
 | `tests/states.spec.ts`              | 1.4.1, 1.4.6, 1.4.11                                             | Hover drawn; dark-mode hovered text at 7:1 on every route; current page is a shape; chip rings clear neighbors                                                                                                                                                                                       |
 | `tests/nav-current.spec.ts`         | 1.3.1, 4.1.2                                                     | `aria-current` in every nav                                                                                                                                                                                                                                                                          |
 | `tests/link-purpose.spec.ts`        | 2.4.9                                                            | One link name, one destination, on every route; hidden text keeps the visible words first                                                                                                                                                                                                            |
@@ -306,6 +318,11 @@ Limits:
   reports `forced-colors: active` and paints the author palette anyway. The
   remaining test fails if that changes in any engine.
 - Headless WebKit is not Safari and says nothing about VoiceOver.
+- Some checks run in one engine: `tests/forced-colors.spec.ts` skips WebKit;
+  the contact server error pages, layout shift, `@engine-invariant` specs and
+  the WAVE alerts run in Chromium only; `tests/text-resize.spec.ts` records
+  WebKit without asserting. Specs tagged `@node` read the build with no
+  browser.
 - `tests/contact.spec.ts` needs the Worker and runs in Chromium only
   (`playwright.worker.config.ts`). Specs tagged `@node` read the build with no
   browser.
@@ -385,6 +402,11 @@ template ships with none of it run; record your own results. Not automated:
    Worked out from the size tokens, not measured by a spec:
    - Full-screen titles: 500% (1280x720, 1920x1080).
    - Full-screen text: 300% (1280x720), 400% (1920x1080).
+
+8. **Keyboard use is reached, not pressed.** `tests/focus.spec.ts` proves
+   every control is reached and its ring visible. Activation by Enter or Space
+   is tested only for the menu (`tests/mobile-menu.spec.ts`), the skip link,
+   the slides and the cat buttons.
 
 ## 8. Reporting a barrier
 

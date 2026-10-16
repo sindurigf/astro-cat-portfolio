@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { expect, test, type Page } from './test';
 import { FUNCTIONAL_ROUTES, firstUse, mainText } from './first-use';
-import { builtHtml, builtPages } from './routes';
+import { builtHtml, builtPages, TALK_ROUTES } from './routes';
 import { gotoSettled } from './settle';
 import { NODE } from './tags';
 
@@ -35,6 +35,45 @@ const FIRST_USES: readonly {
     route: '/accessibility',
     abbreviation: 'PDF',
     expansion: 'Portable Document Format',
+  },
+  {
+    route: '/accessibility',
+    abbreviation: 'SC',
+    expansion: 'success criterion',
+  },
+  {
+    route: '/accessibility',
+    abbreviation: 'HTML',
+    expansion: 'HyperText Markup Language',
+  },
+  {
+    route: '/accessibility',
+    abbreviation: 'CSS',
+    expansion: 'Cascading Style Sheets',
+  },
+  ...(TALK_ROUTES.length > 0
+    ? [
+        {
+          route: '/accessibility',
+          abbreviation: 'UA-1',
+          expansion: 'Universal Accessibility, part 1',
+        },
+      ]
+    : []),
+  {
+    route: '/accessibility',
+    abbreviation: 'NVDA',
+    expansion: 'NonVisual Desktop Access',
+  },
+  {
+    route: '/accessibility',
+    abbreviation: 'JAWS',
+    expansion: 'Job Access With Speech',
+  },
+  {
+    route: '/accessibility',
+    abbreviation: 'CI',
+    expansion: 'continuous integration',
   },
   { route: '/brand', abbreviation: 'CSS', expansion: 'Cascading Style Sheets' },
   {
