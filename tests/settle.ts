@@ -98,20 +98,29 @@ const WEB_FONT_FAMILY = 'Lexend Variable';
  * can leave the set `loading` with no face loading until the page next scrolls.
  * Assumes each face is preloaded or in use at load: an all-unloaded set passes.
  */
-export const fontsSettled = async (page: Page): Promise<void> => {
+export const fontsSettled = async (
+  page: Page,
+  { webFont = true }: { webFont?: boolean } = {},
+): Promise<void> => {
   await page.waitForFunction(
     () =>
       document.fonts.status === 'loaded' ||
       ![...document.fonts].some((face) => face.status === 'loading'),
   );
-  const failed = await page.evaluate(
-    (family) =>
-      [...document.fonts].some(
-        (face) => face.family === family && face.status === 'error',
-      ),
-    WEB_FONT_FAMILY,
+  if (!webFont) return;
+  /* WebKit leaves an aborted face `unloaded`, not `error`; some engines quote the family. */
+  const faces = await page.evaluate(() =>
+    [...document.fonts].map((face) => ({
+      family: face.family.replace(/["']/g, ''),
+      status: face.status,
+    })),
   );
-  expect(failed, `${WEB_FONT_FAMILY} failed to load.`).toBe(false);
+  expect(
+    faces.some(
+      ({ family, status }) => family === WEB_FONT_FAMILY && status === 'loaded',
+    ),
+    `${WEB_FONT_FAMILY} failed to load: ${faces.map(({ family, status }) => `${family}:${status}`).join(', ')}`,
+  ).toBe(true);
 };
 
 /**
@@ -125,7 +134,7 @@ export const gotoSettled = async (
 ): Promise<Response | null> => {
   let response = await page.goto(route, { waitUntil: 'load' });
   await waitForHydration(page);
-  await fontsSettled(page);
+  await fontsSettled(page, { webFont });
   if (webFont && !(await usesWebFont(page))) {
     /* Shows in the report how often a page misses the font. */
     test.info().annotations.push({ type: 'font-reload', description: route });
