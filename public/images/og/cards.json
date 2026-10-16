@@ -1,0 +1,187 @@
+{
+  "/about": {
+    "title": "About",
+    "photo": "/_astro/calico-cushion.CitSThD9_Z1gRF8r.webp",
+    "alt": "About, example.com, beside a photo: A calico cat asleep, curled against a gray cushion."
+  },
+  "/accessibility": {
+    "title": "Accessibility",
+    "photo": null,
+    "alt": "Accessibility, example.com, beside the example.com logo."
+  },
+  "/blog": {
+    "title": "Blog",
+    "photo": "/_astro/cover.Bfe_KnKq_Z2c40q7.webp",
+    "alt": "Blog, example.com, beside a photo: A tabby cat resting its chin on the edge of a cat bed, one paw stretched out."
+  },
+  "/blog/how-i-get-to-know-a-new-island": {
+    "title": "How I Get to Know a New Island",
+    "photo": null,
+    "alt": "How I Get to Know a New Island, example.com, beside the example.com logo."
+  },
+  "/blog/learning-to-ask-for-what-i-want": {
+    "title": "Learning to Ask for What I Want",
+    "photo": null,
+    "alt": "Learning to Ask for What I Want, example.com, beside the example.com logo."
+  },
+  "/blog/open-source": {
+    "title": "Open Source",
+    "photo": null,
+    "alt": "Open Source, example.com, beside the example.com logo."
+  },
+  "/blog/personal-thoughts": {
+    "title": "Personal Thoughts",
+    "photo": null,
+    "alt": "Personal Thoughts, example.com, beside the example.com logo."
+  },
+  "/blog/professional-journey": {
+    "title": "Professional Journey",
+    "photo": null,
+    "alt": "Professional Journey, example.com, beside the example.com logo."
+  },
+  "/blog/sample-post": {
+    "title": "What Ohara Taught Me",
+    "photo": "/_astro/cover.Bfe_KnKq_Z2c40q7.webp",
+    "alt": "What Ohara Taught Me, example.com, beside a photo: A tabby cat resting its chin on the edge of a cat bed, one paw stretched out."
+  },
+  "/blog/sample-talk": {
+    "title": "Reading the Stones",
+    "photo": null,
+    "alt": "Reading the Stones, example.com, beside the example.com logo."
+  },
+  "/blog/skincare": {
+    "title": "Skincare",
+    "photo": null,
+    "alt": "Skincare, example.com, beside the example.com logo."
+  },
+  "/blog/sun-protection-at-ten-thousand-meters": {
+    "title": "Sun Protection at Ten Thousand Meters",
+    "photo": null,
+    "alt": "Sun Protection at Ten Thousand Meters, example.com, beside the example.com logo."
+  },
+  "/blog/tag/archaeology": {
+    "title": "Posts Tagged Archaeology",
+    "photo": null,
+    "alt": "Posts Tagged Archaeology, example.com, beside the example.com logo."
+  },
+  "/blog/tag/archives": {
+    "title": "Posts Tagged Archives",
+    "photo": null,
+    "alt": "Posts Tagged Archives, example.com, beside the example.com logo."
+  },
+  "/blog/tag/career": {
+    "title": "Posts Tagged Career",
+    "photo": null,
+    "alt": "Posts Tagged Career, example.com, beside the example.com logo."
+  },
+  "/blog/tag/community": {
+    "title": "Posts Tagged Community",
+    "photo": null,
+    "alt": "Posts Tagged Community, example.com, beside the example.com logo."
+  },
+  "/blog/tag/crew": {
+    "title": "Posts Tagged Crew",
+    "photo": null,
+    "alt": "Posts Tagged Crew, example.com, beside the example.com logo."
+  },
+  "/blog/tag/enies-lobby": {
+    "title": "Posts Tagged Enies Lobby",
+    "photo": null,
+    "alt": "Posts Tagged Enies Lobby, example.com, beside the example.com logo."
+  },
+  "/blog/tag/history": {
+    "title": "Posts Tagged History",
+    "photo": null,
+    "alt": "Posts Tagged History, example.com, beside the example.com logo."
+  },
+  "/blog/tag/islands": {
+    "title": "Posts Tagged Islands",
+    "photo": null,
+    "alt": "Posts Tagged Islands, example.com, beside the example.com logo."
+  },
+  "/blog/tag/ohara": {
+    "title": "Posts Tagged Ohara",
+    "photo": null,
+    "alt": "Posts Tagged Ohara, example.com, beside the example.com logo."
+  },
+  "/blog/tag/open-knowledge": {
+    "title": "Posts Tagged Open Knowledge",
+    "photo": null,
+    "alt": "Posts Tagged Open Knowledge, example.com, beside the example.com logo."
+  },
+  "/blog/tag/poneglyphs": {
+    "title": "Posts Tagged Poneglyphs",
+    "photo": null,
+    "alt": "Posts Tagged Poneglyphs, example.com, beside the example.com logo."
+  },
+  "/blog/tag/reflection": {
+    "title": "Posts Tagged Reflection",
+    "photo": null,
+    "alt": "Posts Tagged Reflection, example.com, beside the example.com logo."
+  },
+  "/blog/tag/ruins": {
+    "title": "Posts Tagged Ruins",
+    "photo": null,
+    "alt": "Posts Tagged Ruins, example.com, beside the example.com logo."
+  },
+  "/blog/tag/sea-life": {
+    "title": "Posts Tagged Sea Life",
+    "photo": null,
+    "alt": "Posts Tagged Sea Life, example.com, beside the example.com logo."
+  },
+  "/blog/tag/skypiea": {
+    "title": "Posts Tagged Skypiea",
+    "photo": null,
+    "alt": "Posts Tagged Skypiea, example.com, beside the example.com logo."
+  },
+  "/blog/tag/sunscreen": {
+    "title": "Posts Tagged Sunscreen",
+    "photo": null,
+    "alt": "Posts Tagged Sunscreen, example.com, beside the example.com logo."
+  },
+  "/blog/tag/talks": {
+    "title": "Posts Tagged Talks",
+    "photo": null,
+    "alt": "Posts Tagged Talks, example.com, beside the example.com logo."
+  },
+  "/blog/travel": {
+    "title": "Travel",
+    "photo": null,
+    "alt": "Travel, example.com, beside the example.com logo."
+  },
+  "/brand": {
+    "title": "Brand",
+    "photo": "/_astro/tabby-round-bed.HmVwakxc_Z2oMU9l.webp",
+    "alt": "Brand, example.com, beside a photo: A tabby cat curled in a round cat bed beside an orange plush toy."
+  },
+  "/career": {
+    "title": "Career",
+    "photo": null,
+    "alt": "Career, example.com, beside the example.com logo."
+  },
+  "/contact": {
+    "title": "Contact",
+    "photo": null,
+    "alt": "Contact, example.com, beside the example.com logo."
+  },
+  "/contact/sent": {
+    "title": "Message Sent",
+    "photo": null,
+    "alt": "Message Sent, example.com, beside the example.com logo."
+  },
+  "/credits": {
+    "title": "Credits",
+    "photo": null,
+    "alt": "Credits, example.com, beside the example.com logo."
+  },
+  "/privacy": {
+    "title": "Privacy",
+    "photo": null,
+    "alt": "Privacy, example.com, beside the example.com logo."
+  },
+  "/talks/sample-talk": {
+    "title": "Reading the Stones, the Slides",
+    "photo": null,
+    "alt": "Reading the Stones, the Slides, example.com, beside the example.com logo."
+  }
+}

@@ -7,7 +7,6 @@ import { SITE_CONFIG, validateSiteConfig } from '../src/site.config';
 import { expect, test } from './test';
 import { configuredSite, pngSize } from './source';
 import {
-  frontmatterField,
   postFrontmatter,
   builtHtml as builtHtmlByRoute,
   DIST_DIR,
@@ -19,6 +18,14 @@ import {
 } from './routes';
 import { NODE } from './tags';
 import { metaContent } from './html';
+import {
+  OG_CARD_MANIFEST,
+  SITE_CARD_ROUTES,
+  cardPhoto,
+  decodeEntities,
+  ogCardPath,
+  type OgCardManifest,
+} from '../src/lib/og-cards';
 
 const SITE_ORIGIN = configuredSite();
 
@@ -147,29 +154,8 @@ const imageSize = (bytes: Buffer): string | null => {
   return null;
 };
 
-/** The site card every page without a post cover shares. */
+/** The site card: the homepage and the 404 share it. */
 const DEFAULT_OG_IMAGE_URL = `${SITE_ORIGIN}/images/og-default.png`;
-
-/** Each post's route and its frontmatter cover fields, if any. */
-const postCovers = (): {
-  route: string;
-  cover: string | null;
-  coverAlt: string | null;
-  coverCardAlt: string | null;
-}[] =>
-  postFileNames()
-    .filter((name) => name.endsWith('.md'))
-    .map((name) => {
-      const frontmatter = postFrontmatter(name);
-      const field = (key: string): string | null =>
-        frontmatterField(frontmatter, key) ?? null;
-      return {
-        route: `/blog/${name.replace(/\.md$/, '')}`,
-        cover: field('cover'),
-        coverAlt: field('coverAlt'),
-        coverCardAlt: field('coverCardAlt'),
-      };
-    });
 
 test.describe('link previews', NODE, () => {
   test('every page carries every link-preview tag', () => {
@@ -243,69 +229,41 @@ test.describe('link previews', NODE, () => {
     expect(wrong, 'og:image size mismatch(es)').toEqual([]);
   });
 
-  test('a post with a cover shares a card cut from that cover', () => {
-    const pages = builtHtmlByRoute();
-    const withCover = postCovers().filter(({ cover }) => cover !== null);
-    test.skip(
-      withCover.length === 0,
-      'no post in src/content/blog has a cover',
-    );
-
-    for (const { route, cover, coverAlt, coverCardAlt } of withCover) {
-      const html = pages.get(route) ?? '';
-      const url = metaContent(html, 'og:image') ?? '';
-      const coverName = cover!
-        .split('/')
-        .at(-1)!
-        .replace(/\.[a-z]+$/i, '');
-
-      expect(url, `${route} has a cover but shares the site card.`).not.toBe(
-        DEFAULT_OG_IMAGE_URL,
-      );
-      expect(
-        url,
-        `${route}'s og:image is not an absolute site URL generated from ${cover}.`,
-      ).toMatch(new RegExp(`^${SITE_ORIGIN}/_astro/${coverName}\\.`));
-
-      const actual = imageSize(
-        readFileSync(join(DIST_DIR, new URL(url).pathname)),
-      );
-      expect(
-        `${metaContent(html, 'og:image:width')}x${metaContent(html, 'og:image:height')}`,
-        `${route} declares a size that is not the size of ${url}.`,
-      ).toBe(actual);
-      // The card is cropped to 1.91:1 and can drop what coverAlt names.
-      expect(
-        metaContent(html, 'og:image:alt'),
-        `${route}'s card alt is not coverCardAlt, falling back to coverAlt.`,
-      ).toBe(coverCardAlt ?? coverAlt);
-    }
-
-    const feature = withCover.find(
-      ({ route }) => route === PUBLISHED_POST_ROUTES[0],
-    );
-    if (feature) {
-      expect(
-        pages.get('/blog') ?? '',
-        `the blog listing's feature card does not show ${feature.route}'s cover with coverAlt.`,
-      ).toContain(`alt="${feature.coverAlt}"`);
-    }
-  });
-
-  test('every page without a cover of its own shares the site card', () => {
-    const covered = new Set(
-      postCovers()
-        .filter(({ cover }) => cover !== null)
-        .map(({ route }) => route),
-    );
-
-    for (const [route, html] of builtHtmlByRoute()) {
-      if (covered.has(route)) continue;
-      expect(
-        metaContent(html, 'og:image'),
-        `${route} has no cover and should share the site card.`,
-      ).toBe(DEFAULT_OG_IMAGE_URL);
-    }
+  test('every page shares the card drawn from its current title and photo', () => {
+    const manifest = JSON.parse(
+      readFileSync(join('public', OG_CARD_MANIFEST), 'utf8'),
+    ) as OgCardManifest;
+    const stale = builtHtml().flatMap(({ route, html }) => {
+      const url = metaContent(html, 'og:image');
+      const hasCanonical = /<link[^>]+rel="canonical"/i.test(html);
+      if (!hasCanonical || SITE_CARD_ROUTES.includes(route)) {
+        return url === DEFAULT_OG_IMAGE_URL
+          ? []
+          : [`${route}: shares ${url}, not the site card`];
+      }
+      const card = manifest[route];
+      const photo = cardPhoto(route, html)?.src ?? null;
+      const title = decodeEntities(metaContent(html, 'og:title') ?? '');
+      const problems = [
+        !card && 'has no card',
+        card &&
+          card.title !== title &&
+          `card title "${card.title}" is not "${title}"`,
+        card &&
+          card.photo !== photo &&
+          `card photo ${card.photo} is not ${photo}`,
+        url !== `${SITE_ORIGIN}/${ogCardPath(route)}` && `shares ${url}`,
+        card &&
+          decodeEntities(metaContent(html, 'og:image:alt') ?? '') !==
+            card.alt &&
+          'og:image:alt is not the card alt',
+      ].filter(Boolean);
+      return problems.map((problem) => `${route}: ${problem}`);
+    });
+    expect(
+      stale,
+      'a card is missing or stale: run `npm run build && npm run og`, then commit public/images/og/.',
+    ).toEqual([]);
   });
 });
 

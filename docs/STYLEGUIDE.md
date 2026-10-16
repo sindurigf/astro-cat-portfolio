@@ -868,8 +868,8 @@ Enforced by `tests/post-page.spec.ts`.
   (`.aspect-sizer`): text in the left half, the photo in columns 8 to 12
   crossing the slab's bottom edge, no roundel. `tests/post-page.spec.ts`.
 - A cover is never cropped: the file keeps its full frame, and the hero and
-  the `/blog` feature card show it in its own ratio. Only `og:image` is cropped,
-  to the platforms' 1.91:1 (`src/lib/og-image.ts`).
+  the `/blog` feature card show it in its own ratio, and so does the post's
+  sharing card ([ARCHITECTURE](../ARCHITECTURE.md#assets)).
 - `coverCredit` puts "Photo: name" in the date line, `text-gold-muted`, linked
   when the name is in `PHOTOGRAPHERS`. Not under the cover: the photo hangs
   below the slab, off the gold ground.

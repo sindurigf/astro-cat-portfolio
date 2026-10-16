@@ -196,7 +196,6 @@ Headings, alt text, focus rings and axe are checked on the rendered page by
 | `seoDescription` | string            | no           |         |
 | `cover`          | image             | no           |         |
 | `coverAlt`       | string            | with `cover` |         |
-| `coverCardAlt`   | string            | no           |         |
 | `coverCredit`    | string            | no           |         |
 | `personaSources` | boolean           | no           | `false` |
 
@@ -215,10 +214,9 @@ Headings, alt text, focus rings and axe are checked on the rendered page by
 - Non-placeholder posts get `og:type` `article`,
   `article:published_time` and a `BlogPosting` JSON-LD node. Other pages are
   `website`.
-- `cover` is relative to the post, any ratio, never cropped except for `og:image`, and shown as the post's hero photo, on the
-  `/blog` feature card and as the `og:image`; the schema requires `coverAlt`
-  with it. `coverCardAlt` replaces `coverAlt` on
-  the 1.91:1 `og:image` crop when the crop drops something `coverAlt` names.
+- `cover` is relative to the post, any ratio, never cropped, and shown as the
+  post's hero photo, on the `/blog` feature card and on its sharing card; the
+  schema requires `coverAlt` with it.
 - `updated` sets `dateModified`; absent, it is omitted, not copied from `date`.
 - Pagination (`/blog/page/<n>`) builds only past `POSTS_PER_PAGE`, 9 unless
   the build's `POSTS_PER_PAGE` variable sets another positive whole number.
@@ -369,26 +367,36 @@ in `wrangler.jsonc`).
   pairing renders invisible.
 - `src/assets/`: rendered artwork, through `astro:assets`, WebP, hashed into
   `/_astro/`, cached immutably. Unimported files are not emitted.
-- `public/images/`: stable URLs for outside consumers (Open Graph PNGs).
+- `public/images/`: stable URLs for outside consumers (Open Graph images).
 - `artwork/`: source artwork the build never reads (the badge, the
   `favicon.ico` frames). Nothing in it ships.
 
-| Path                           | Artwork   | Goes on              | Used by                                        |
-| ------------------------------ | --------- | -------------------- | ---------------------------------------------- |
-| `src/assets/mark-dark.png`     | `#131313` | Gold, light surfaces | `Roundel.astro`                                |
-| `artwork/badge-white.png`      | `#FFFFFF` | Dark surfaces        | Nothing; source artwork                        |
-| `public/images/og-default.png` | Composite | n/a                  | `BaseLayout.astro`, every page without a cover |
+| Path                           | Artwork   | Goes on              | Used by                                      |
+| ------------------------------ | --------- | -------------------- | -------------------------------------------- |
+| `src/assets/mark-dark.png`     | `#131313` | Gold, light surfaces | `Roundel.astro`                              |
+| `artwork/badge-white.png`      | `#FFFFFF` | Dark surfaces        | Nothing; source artwork                      |
+| `public/images/og-default.png` | Composite | n/a                  | `BaseLayout.astro`, the homepage and the 404 |
+| `public/images/og/*.jpg`       | Composite | n/a                  | `BaseLayout.astro`, every other page         |
 
 | Artwork             | on `#0B0B0B` | on `#1A1A1A` | on `#FFFFFF` | on `#FFC000` |
 | ------------------- | ------------ | ------------ | ------------ | ------------ |
 | `-dark`, `#131313`  | 1.06         | 1.07         | **18.58**    | **11.32**    |
 | `-white`, `#FFFFFF` | **19.68**    | **17.40**    | 1.00         | 1.64         |
 
-- `og-default.png`: 1200x630, the sharing image for every page without a
-  cover: the name, `site.tagline` and `site.name` on the gold panel, the logo
+- `og-default.png`: 1200x630, the site card: the name, `site.tagline` and `site.name` on the gold panel, the logo
   cat whole and centered on the dark strip, clear of the cropped edges. Rendered by `npm run og`
-  ([DEVELOPMENT.md](docs/DEVELOPMENT.md#the-sharing-image)). A PNG in `public/`
+  ([DEVELOPMENT.md](docs/DEVELOPMENT.md#the-sharing-images)). A PNG in `public/`
   because scrapers need a stable URL and format.
+- `public/images/og/<route>.jpg`: every other page's card, drawn by the same
+  script from the built page: the person's name over the page title on gold,
+  and on the strip the first photo in `<main>`, whole, or the logo cat when
+  there is none. `OG_PHOTO_CHOICES` in `src/lib/og-cards.ts` holds per-route
+  exceptions, empty as shipped. `cards.json` records each card's title, photo
+  and alt; `tests/seo.spec.ts` fails when a page's title or first photo no
+  longer matches its card.
+- Rerun `npm run build && npm run og` after changing a token, a page title,
+  a page's first photo, the name or the tagline, and commit `public/images/`.
+  Not part of `npm run build`: the Cloudflare build has no Chromium.
 - `src/lib/brand-mark.ts`: the logo cat, an eared tile in Hela's calico with
   happy eyes; the one source for the footer head, `npm run icons` (which writes
   `logo-cat.svg` for `CatMark.astro`) and `npm run og`.
@@ -412,7 +420,7 @@ in `wrangler.jsonc`).
 
 - Photos: `src/assets/photos/` (pages) and `src/assets/blog/<slug>/` (posts).
   Masters are JPEG, metadata stripped, never cropped on display: tiles, pairs,
-  strips, figures and covers show the whole file; only `og:image` crops.
+  strips, figures, covers and sharing cards show the whole file.
 - Fixed-size photos pass `DENSITIES`; fluid ones pass `WIDTHS` and `sizes`
   from `src/lib/image-densities.ts`. `WIDTHS` steps at most 1.5x; `sizes` is
   the real drawn width. `tests/image-size.spec.ts` fails on stretching,
