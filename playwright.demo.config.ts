@@ -22,6 +22,7 @@ export const DEMO_ENV = {
   CONTACT_FORM: 'none',
   NOINDEX: '1',
   REPOSITORY_URL: 'https://github.com/demo-owner/demo-site',
+  SECURITY_CONTACT: 'mailto:security@notexample.com',
 } as const;
 
 const BASE_URL = `http://localhost:${PORT}`;

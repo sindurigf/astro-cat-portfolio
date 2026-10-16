@@ -717,6 +717,10 @@ evidence.
   path falls back:** apt reuses a cached file of the right size, so a corrupt
   `.deb` would fail in dpkg again. After a failed `dpkg -i` the fallback only
   fetches what failed.
+- **Open fewer photos in `tests/photo-viewer.spec.ts`'s short-viewer test:**
+  at full clock it uses a fraction of its timeout. One photo per size,
+  thumbnail and group saves seconds and drops coverage; its near-timeouts came
+  from a throttled CPU.
 - **Drop `tests/header-fit.spec.ts`'s sideways-scroll check as a reflow
   duplicate:** it is the only sideways check at 336px (`--breakpoint-xs`), and
   it reads one number from the page state the test already measures.
@@ -740,6 +744,10 @@ evidence.
   text does not sit on; `landmark-unique` counts the no-JavaScript nav, which
   is `display: none` with scripts on; `focus-order` flags the photo strips,
   which are focusable so a keyboard can scroll them.
+- **Move the full-screen slide bar inside the card:** on a 16:9 screen the
+  foot row crosses the bottom of the focused slide's ring while both show.
+  The row shows only while the pointer moves or one of its buttons has focus,
+  and inside the card it would sit over slide content at some widths.
 
 ## Content notes
 
