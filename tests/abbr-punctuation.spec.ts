@@ -14,10 +14,18 @@ const ABBR_THEN_PUNCTUATION =
 const CONTEXT_CHARS = 40;
 const BLOCK_WIDTHS = { min: 120, max: 320 };
 
-const routesWithAbbr = (): string[] =>
-  [...builtHtml()]
-    .filter(([, html]) => html.includes('abbr-unit'))
+/* Static, so `--list` works before a build; the first test keeps it complete. */
+const ABBR_ROUTES = ['/accessibility', '/brand', '/credits', '/privacy'];
+
+test('every page with an Abbr is in ABBR_ROUTES', NODE, () => {
+  const unlisted = [...builtHtml()]
+    .filter(
+      ([route, html]) =>
+        html.includes('abbr-unit') && !ABBR_ROUTES.includes(route),
+    )
     .map(([route]) => route);
+  expect(unlisted, 'add these routes to ABBR_ROUTES').toEqual([]);
+});
 
 test('no punctuation follows an Abbr outside its `after` prop', NODE, () => {
   const loose = [...builtHtml()].flatMap(([route, html]) =>
@@ -32,9 +40,13 @@ test('no punctuation follows an Abbr outside its `after` prop', NODE, () => {
 test.describe('an abbreviation and its punctuation never part at a line break', () => {
   test.use({ viewport: REFLOW_VIEWPORT });
 
-  for (const route of routesWithAbbr()) {
+  for (const route of ABBR_ROUTES) {
     test(route, async ({ page }) => {
       await gotoSettled(page, route);
+      expect(
+        await page.locator('.abbr-unit').count(),
+        `${route} has no Abbr`,
+      ).toBeGreaterThan(0);
       const split = await page.evaluate(
         (widths) =>
           [...document.querySelectorAll('.abbr-unit')].flatMap((unit) => {
@@ -88,7 +100,7 @@ const withoutPopovers = (): void => {
 test.describe('without popovers the inline expansion wraps at 320px (SC 1.4.10)', () => {
   test.use({ viewport: REFLOW_VIEWPORT });
 
-  for (const route of routesWithAbbr()) {
+  for (const route of ABBR_ROUTES) {
     test(route, async ({ page }) => {
       await page.addInitScript(withoutPopovers);
       await gotoSettled(page, route);
