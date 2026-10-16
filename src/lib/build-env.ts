@@ -4,6 +4,8 @@
  * describes. docs/DEPLOYMENT.md#run-a-demo.
  */
 
+import { isExampleHost } from './example-host.ts';
+
 export const CONTACT_FORMS = ['cloudflare-d1', 'none'] as const;
 
 export type ContactForm = (typeof CONTACT_FORMS)[number];
@@ -89,10 +91,19 @@ const readSecurityContact = (value: string): string => {
     if (!EMAIL.test(url.pathname)) {
       invalid('SECURITY_CONTACT', value, 'names no email address.');
     }
-    return value;
-  }
-  if (url.protocol !== 'https:') {
+  } else if (url.protocol !== 'https:') {
     invalid('SECURITY_CONTACT', value, 'must be a mailto: or https: URI.');
+  }
+  const host =
+    url.protocol === 'mailto:'
+      ? url.pathname.slice(url.pathname.lastIndexOf('@') + 1)
+      : url.hostname;
+  if (isExampleHost(host)) {
+    invalid(
+      'SECURITY_CONTACT',
+      value,
+      'is on an example host, where nothing arrives.',
+    );
   }
   return value;
 };
