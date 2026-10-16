@@ -16,7 +16,8 @@ import { ANALYTICS_ON } from '../src/lib/analytics-site';
 const ROUTE_SCRIPT_BUDGETS: Readonly<Record<string, number>> = {
   '/': 96_000,
   '/about': 120_000,
-  '/brand': 7_400,
+  /* 7,400 plus the code-block fit observer (src/scripts/code-block-fit.ts, 218 bytes). */
+  '/brand': 7_500,
 };
 const PAGE_SCRIPT_BUDGET = 14_000;
 /* On every route once `analytics` is set: /vendor/umami.js and the click tracker. */

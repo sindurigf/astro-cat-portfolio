@@ -1,4 +1,6 @@
 ---
+import CodeBlockFit from './CodeBlockFit.astro';
+import { hasCodeBlock } from '../lib/code-blocks';
 import { render, type CollectionEntry } from 'astro:content';
 
 /* The cover heading is h1 on the slideshow and h2 in the presenter view, which has its own h1. */
@@ -17,6 +19,7 @@ const isOpener = layout === 'section';
 const partNumber = isOpener ? /\bPart (\d+)\b/.exec(part)?.[1] : undefined;
 const Heading = isCover ? coverHeading : 'h2';
 const { Content } = await render(slide);
+const codeOnSlide = hasCodeBlock(slide.body ?? '');
 
 /*
  * <p> to <div>: short lines at standfirst size trip WAVE's "Possible heading"
@@ -61,6 +64,7 @@ const coverLines = isCover
   ) : (
     <div class="prose slide-body">
       <Content />
+      {codeOnSlide && <CodeBlockFit />}
     </div>
   )}
 </section>

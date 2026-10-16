@@ -1,7 +1,8 @@
 /*
  * Makes every fenced code block a tab stop (SC 2.1.1): `.prose pre` scrolls
- * sideways, and overflow depends on the viewport. `group`, not `region`: a
- * name needs a role, and `region` would add a landmark per block.
+ * sideways, and overflow depends on the viewport; src/scripts/code-block-fit.ts
+ * takes one that fits out of the tab order. `group`, not `region`: a name
+ * needs a role, and `region` would add a landmark per block.
  */
 
 const LABEL = 'Code, scrolls sideways';

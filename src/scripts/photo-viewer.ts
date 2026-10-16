@@ -1,13 +1,8 @@
 /* Progressive: photos are plain links and strips scroll natively. */
+import { reflectFit, SCROLL_ROUNDING_PX } from './scroll-fit';
 
 /** Share of the strip's width. */
 const STRIP_STEP = 0.8;
-
-/** `scrollWidth` is rounded, so a strip that fits can measure 1px over. */
-const SCROLL_ROUNDING_PX = 1;
-
-/* Ends the strip's aria-label in PhotoStrip.astro and brand/Photos.astro. */
-const SCROLLS_SUFFIX = ', scrolls sideways';
 
 /* Cached photos decode faster, so they are not announced as loading. */
 const LOADING_DELAY_MS = 200;
@@ -131,18 +126,6 @@ const setUpViewer = (viewer: HTMLDialogElement): void => {
 
   /* The dialog returns focus to the opener; after stepping, the photo shown is where the reader is. */
   viewer.addEventListener('close', () => links[index]?.focus());
-};
-
-/* A strip that fits has nothing to scroll: it leaves the tab order and its name stops saying it scrolls. */
-const reflectFit = (strip: HTMLElement): boolean => {
-  const scrolls = strip.scrollWidth - strip.clientWidth > SCROLL_ROUNDING_PX;
-  strip.setAttribute(
-    'aria-label',
-    (strip.getAttribute('aria-label') ?? '').replace(SCROLLS_SUFFIX, '') +
-      (scrolls ? SCROLLS_SUFFIX : ''),
-  );
-  strip.tabIndex = scrolls ? 0 : -1;
-  return scrolls;
 };
 
 const setUpStrips = (): void => {
