@@ -1,5 +1,6 @@
 ---
 // TODO(fork): Check each line of this page against your own site.
+import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Abbr from '../components/Abbr.astro';
 import PageHero from '../components/PageHero.astro';
@@ -27,33 +28,11 @@ const RESPONSE_TIME = `${ACCESSIBILITY_RESPONSE_DAYS} ${
 const W3C_STATEMENTS = 'https://www.w3.org/WAI/planning/statements/';
 
 const FULL_RECORD = REPOSITORY && `${REPOSITORY}/blob/main/ACCESSIBILITY.md`;
+const WAI = 'https://www.w3.org/WAI';
+const understanding = (slug: string): string =>
+  `${WAI}/WCAG22/Understanding/${slug}.html`;
 
-const COMMITMENT = [
-  'WCAG 2.2 AA is the minimum, with AAA text contrast (7:1) everywhere, including under the pointer.',
-  'Dark and light mode are both measured. Light mode follows your device, or the switch in the header.',
-  'Everything works with a keyboard, and the control you are on is never hidden under the header.',
-  'Both animations, the field on the homepage and the cats on the About page, can be paused, and stay still if your device asks for reduced motion.',
-];
-
-const SUPPORTED = [
-  'paragraphs at most 80 characters wide, with lines 1.5 apart and room between paragraphs',
-  'Windows High Contrast Mode',
-  'anything you click or tap at least 44 by 44 pixels, with no two overlapping',
-  'a distinct, descriptive title on every page',
-  ...(CONTACT_FORM_ON
-    ? [
-        'a contact form with written labels, a focused error summary, and your text kept if sending fails',
-      ]
-    : []),
-  'talk slides on screens narrower than 1024 pixels as plain text that reflows, with a copy to download',
-];
-
-/* Not counted: a total this page cannot recount would go stale. */
-const AUTOMATED = [
-  'color contrast measured against the color actually behind the text, including every result axe leaves undecided',
-  'target sizes, reflow, Windows High Contrast Mode, reduced motion, and navigation with JavaScript off',
-  'line length, line spacing and paragraph spacing on every page at three widths',
-];
+const HAS_TALK = (await getCollection('talks')).length > 0;
 ---
 
 <BaseLayout
@@ -63,14 +42,20 @@ const AUTOMATED = [
   {/* The title carries a U+00AD soft hyphen after "Acces": it only paints at a line break. */}
   <PageHero title="Acces­sibility" measure="reading" slab="none">
     <p class="standfirst">
-      This site aims to be usable with a keyboard, a <dfn>screen reader</dfn>
-      (software that reads the page aloud), at high zoom, and without
-      JavaScript. Where it is not, that is a bug worth reporting. It aims for
-      the <Abbr short="WCAG" long="Web Content Accessibility Guidelines" /> 2.2
-      at Level{' '}
-      <Abbr short="AA" long="the middle of WCAG's three levels" after="," /> and
-      at Level <Abbr short="AAA" long="the highest of WCAG's three levels" />
-      for text contrast.
+      Target: <Abbr short="WCAG" long="Web Content Accessibility Guidelines" />
+      2.2 Level <Abbr short="AA" long="the middle of WCAG's three levels" />,
+      every Level A and AA success criterion. Also{' '}
+      <Abbr short="SC" long="success criterion" /> 1.4.6 Contrast (Enhanced) for
+      text, and the{' '}
+      <Abbr short="AAA" long="the highest of WCAG's three levels" /> criteria
+      listed below where met. Status: target only. There is no claim that the
+      site meets it, because no full evaluation has been done and no{' '}
+      <dfn>screen reader</dfn>, software that reads the page aloud, has been
+      tested.
+    </p>
+    <p class="standfirst">
+      This site aims to work for you with a keyboard, at high zoom and without
+      JavaScript. If something does not work, please tell us.
     </p>
   </PageHero>
 
@@ -97,60 +82,490 @@ const AUTOMATED = [
         <div class="lg:col-span-3">
           <dt class="label text-gold">Scope</dt>
           <dd class="mt-4 text-text">
-            Every page on this site. Sites linked from the footer are not
-            covered.
+            This covers every page here and its{' '}
+            <Abbr short="PDF" long="Portable Document Format" /> files, not
+            other sites the footer links to.
           </dd>
         </div>
       </dl>
 
       <div class="mx-auto max-w-measure">
         <div class="prose mt-section">
+          <p>
+            Scope: every page the build produces, the contact form's server
+            error pages, and the published PDFs. Out of scope: third-party
+            sites, and the talk presenter view, which is development only.
+          </p>
+
           <h2>Commitment</h2>
 
-          <ul>
-            {COMMITMENT.map((item) => (
-              <li>{item}</li>
-            ))}
-          </ul>
+          <h3>Contrast</h3>
+          <p>
+            SC 1.4.3 Contrast (Minimum), AA: every page passes the color
+            contrast rule of <dfn>axe</dfn>, an automated accessibility checker,
+            in dark and light mode. Any text axe cannot decide is measured
+            against the solid ground behind it, at 4.5:1 (3:1 for large text).
+            SC 1.4.6 Contrast (Enhanced), AAA: every text color is chosen to
+            clear 7:1 on every ground it is used on. The lowest pair is 7.06:1.
+            Under the pointer, the text of sampled controls on every page is
+            measured at 7:1, large text included, in dark and light mode.
+          </p>
+          <p>
+            Text stands out strongly from its background, at the level
+            recommended for people with moderately low vision.
+          </p>
+          <p>
+            Learn more:{' '}
+            <a href={understanding('contrast-minimum')}>
+              Understanding 1.4.3 Contrast (Minimum)
+            </a>{' '}
+            and{' '}
+            <a href={understanding('contrast-enhanced')}>
+              Understanding 1.4.6 Contrast (Enhanced)
+            </a>
+            .
+          </p>
+
+          <h3>Color Modes</h3>
+          <p>
+            axe WCAG A and AA runs on every page in dark mode (the default) and
+            light mode, at 1280 and 320px. Light mode changes the main content
+            only; the header and footer stay dark. With JavaScript on, it
+            follows <code>prefers-color-scheme: light</code> or the header
+            switch, and the choice is remembered. With JavaScript off, the page
+            stays dark and the switch is hidden.
+          </p>
+          <p>
+            You can read the main content in dark or light colors. It follows
+            your device or the switch at the top.
+          </p>
+          <p>
+            Learn more:{' '}
+            <a href={understanding('visual-presentation')}>
+              Understanding 1.4.8 Visual Presentation
+            </a>
+            .
+          </p>
+
+          <h3>Keyboard</h3>
+          <p>
+            SC 2.1.1 Keyboard (A), 2.1.2 No Keyboard Trap (A), 2.4.3 Focus Order
+            (A), 2.4.7 Focus Visible (AA), 2.4.11 Focus Not Obscured (Minimum)
+            (AA) and 2.4.12 (Enhanced) (AAA). On every page, with category and
+            tag listings sampled, Tab and Shift+Tab at 305 and 1280px reach
+            every visible focusable element with no trap. Each stop shows a
+            ring, and no part of it sits under the sticky header. Every stop in
+            the open cat card, photo viewer and menu is wholly uncovered. A skip
+            link moves focus to the main content.
+          </p>
+          <p>
+            You can reach every link and button with the Tab key, and the page
+            header never hides where you are.
+          </p>
+          <p>
+            Learn more:{' '}
+            <a href={understanding('keyboard')}>Understanding 2.1.1 Keyboard</a>{' '}
+            and{' '}
+            <a href={understanding('focus-not-obscured-enhanced')}>
+              Understanding 2.4.12 Focus Not Obscured (Enhanced)
+            </a>
+            .
+          </p>
+
+          <h3>Motion</h3>
+          <p>
+            SC 2.2.2 Pause, Stop, Hide (A): the homepage field has one pause
+            control. Each of the three About cats has its own sleep control, and
+            a cat also naps after 30 seconds on screen. SC 2.3.3 Animation from
+            Interactions (AAA): under{' '}
+            <code>prefers-reduced-motion: reduce</code>, the field is drawn once
+            and held, and the cats sit still with no controls. A pressed button
+            does not move, and the photo strip scrolls without smooth scrolling.
+            Nothing else animates.
+          </p>
+          <p>
+            You can pause the moving pictures. If your device asks for less
+            motion, they stay still from the start.
+          </p>
+          <p>
+            Learn more:{' '}
+            <a href={understanding('pause-stop-hide')}>
+              Understanding 2.2.2 Pause, Stop, Hide
+            </a>{' '}
+            and{' '}
+            <a href={understanding('animation-from-interactions')}>
+              Understanding 2.3.3 Animation from Interactions
+            </a>
+            .
+          </p>
 
           <h2>What Works Today</h2>
 
-          <ul>
-            <li>navigation without JavaScript</li>
-            <li>
-              <dfn>reflow</dfn>: at 320px wide, which is 400% zoom on a 1280px
-              screen, the page fits without scrolling sideways, with or without
-              increased text spacing
-            </li>
-            {SUPPORTED.map((item) => (
-              <li>{item}</li>
-            ))}
-          </ul>
+          <h3>Navigation Without JavaScript</h3>
+          <p>
+            No WCAG criterion requires this. With scripting off, a fallback
+            navigation (<code>@media (scripting: none)</code>) replaces the
+            mobile menu. Every built page is checked for it in its{' '}
+            <Abbr short="HTML" long="HyperText Markup Language" />, and four
+            page layouts are checked in a browser at phone width. The talk
+            slides, abbreviations, photo viewer and cats have their own checks
+            with JavaScript off.
+          </p>
+          <p>With JavaScript turned off, you can still move between pages.</p>
+
+          <h3>Reflow and Text Spacing</h3>
+          <p>
+            SC 1.4.10 Reflow (AA): at 305px, which is 320{' '}
+            <Abbr short="CSS" long="Cascading Style Sheets" /> pixels less a
+            15px scrollbar, no page scrolls sideways. No heading word is wider
+            than its box, and no text or control sits past either edge. No
+            sideways scroll at 640, 768, 1024, 1280 and 1920px either. SC 1.4.12
+            Text Spacing (AA): with the criterion's own override (line height
+            1.5, letters 0.12em, words 0.16em, paragraphs 2em) at 305px, no page
+            scrolls sideways and table cells keep their text.
+          </p>
+          <p>
+            At 400% zoom you can read each page top to bottom without scrolling
+            sideways, even with wider text spacing.
+          </p>
+          <p>
+            Learn more:{' '}
+            <a href={understanding('reflow')}>Understanding 1.4.10 Reflow</a>{' '}
+            and{' '}
+            <a href={understanding('text-spacing')}>
+              Understanding 1.4.12 Text Spacing
+            </a>
+            .
+          </p>
+
+          <h3>Line Length and Spacing</h3>
+          <p>
+            SC 1.4.8 Visual Presentation (AAA), in part. On every page at 390,
+            1280 and 1920px, every visible paragraph or list item of two or more
+            sentences has at most 80 characters a line, a line height of at
+            least 1.5, and no justified text. A paragraph directly after another
+            starts at least 2.5 times the text size below the top of the
+            previous one's last line. Readers can choose colors through the
+            browser and the light or dark switch.
+          </p>
+          <p>
+            Paragraphs are kept narrow, with room between lines and between
+            paragraphs, so they are easier to follow.
+          </p>
+          <p>
+            Learn more:{' '}
+            <a href={understanding('visual-presentation')}>
+              Understanding 1.4.8 Visual Presentation
+            </a>
+            .
+          </p>
+
+          <h3>Windows High Contrast</h3>
+          <p>
+            Forced colors (<code>forced-colors: active</code>), emulated in
+            Chromium and Firefox. On every page, with listings sampled, every
+            control other than a link keeps a painted edge or an opaque fill,
+            and links differ from body text. Every focus stop on the homepage
+            keeps an outline, and the menu button's bars take{' '}
+            <code>ButtonText</code>. This supports SC 1.4.11 and 2.4.7 under
+            user colors; it is not a criterion of its own.
+          </p>
+          <p>
+            If you use a Windows contrast theme, buttons keep their outlines and
+            links stay different from other text.
+          </p>
+          <p>
+            Learn more:{' '}
+            <a href={understanding('non-text-contrast')}>
+              Understanding 1.4.11 Non-text Contrast
+            </a>
+            .
+          </p>
+
+          <h3>Target Size</h3>
+          <p>
+            SC 2.5.5 Target Size (Enhanced) (AAA), which also meets 2.5.8 (AA).
+            Every focusable element outside a sentence has a 44 by 44px square,
+            centered on it, that hits only that element, at 305 and 1280px. This
+            holds on every page with listings sampled, in the open cat card and
+            photo viewer, and in the open menu at 305px. Links inside a sentence
+            use the Inline exception and are the size of their text.
+          </p>
+          <p>
+            Buttons and menu links are at least 44 by 44 pixels and never
+            overlap. Links inside sentences are the size of their text.
+          </p>
+          <p>
+            Learn more:{' '}
+            <a href={understanding('target-size-enhanced')}>
+              Understanding 2.5.5 Target Size (Enhanced)
+            </a>{' '}
+            and{' '}
+            <a href={understanding('target-size-minimum')}>
+              Understanding 2.5.8 Target Size (Minimum)
+            </a>
+            .
+          </p>
+
+          <h3>Control Edges</h3>
+          <p>
+            SC 1.4.11 Non-text Contrast (AA). On every page, in dark and light
+            mode, at 390 and 1280px, every drawn edge reaches 3:1 against the
+            ground it sits on, unless the element's own opaque fill already
+            does. A gold fill's edge also reaches 3:1 against the fill. Dark
+            cards draw no edge, since a card is not a user interface component.
+            Their graph paper is decoration and is hidden in forced colors.
+            Every <dfn>focus ring</dfn>, the outline on the control you are on,
+            reaches 3:1 against the ground it paints over, on every page with
+            listings sampled.
+          </p>
+          <p>
+            Buttons and fields have outlines that stand out clearly from the
+            page around them.
+          </p>
+          <p>
+            Learn more:{' '}
+            <a href={understanding('non-text-contrast')}>
+              Understanding 1.4.11 Non-text Contrast
+            </a>
+            .
+          </p>
+
+          <h3>Page Titles</h3>
+          <p>
+            SC 2.4.2 Page Titled (A): every built page has its own title, and
+            every one except the homepage names the page before the site.
+          </p>
+          <p>
+            Each page has its own title, so you can tell tabs and bookmarks
+            apart.
+          </p>
+          <p>
+            Learn more:{' '}
+            <a href={understanding('page-titled')}>
+              Understanding 2.4.2 Page Titled
+            </a>
+            .
+          </p>
+
+          {CONTACT_FORM_ON && (
+            <>
+              <h3>Contact Form</h3>
+              <p>
+                SC 3.3.2 Labels or Instructions (A): each field has a visible
+                label with "(required)" in words. SC 1.3.5 Identify Input
+                Purpose (AA): <code>autocomplete</code> on name and email. SC
+                3.3.1 Error Identification (A): on a 422 or 503, the server
+                returns the form with a focused error summary linking to each
+                field, <code>aria-invalid</code> on the field, and each error
+                tied to its field. Typed text is kept. SC 4.1.3 Status Messages
+                (AA): a <code>role="status"</code> message while sending.
+              </p>
+              <p>
+                Every field has a written label. If sending fails, you see what
+                went wrong, and your text stays.
+              </p>
+              <p>
+                Learn more:{' '}
+                <a href={understanding('error-identification')}>
+                  Understanding 3.3.1 Error Identification
+                </a>{' '}
+                and{' '}
+                <a href={understanding('status-messages')}>
+                  Understanding 4.1.3 Status Messages
+                </a>
+                .
+              </p>
+            </>
+          )}
+
+          {HAS_TALK && (
+            <>
+              <h3>Talk Slides on Small Screens</h3>
+              <p>
+                SC 1.4.10 Reflow: below 1024px the talk page drops the slide
+                controls. It shows every slide once, in order, as text that
+                reflows, with and without the 1.4.12 override at 305px, and
+                links the PDF with its size. The PDF passes veraPDF's machine
+                checks for PDF/
+                <Abbr short="UA-1" long="Universal Accessibility, part 1" />.
+              </p>
+              <p>
+                On a phone or narrow window, the talk shows as text you can
+                scroll. You can also download it.
+              </p>
+              <p>
+                Learn more:{' '}
+                <a href={understanding('reflow')}>
+                  Understanding 1.4.10 Reflow
+                </a>{' '}
+                and{' '}
+                <a href={`${WAI}/WCAG22/Techniques/#pdf`}>
+                  PDF Techniques for WCAG 2.2
+                </a>
+                .
+              </p>
+            </>
+          )}
 
           <h2>Supported Browsers</h2>
 
+          <h3>Browser Versions</h3>
           <p>
-            Chrome and Edge 111, Firefox 114 and Safari 16.4 or later, on
-            desktop and mobile. Every change is tested in Chromium, Firefox and
-            WebKit, the <dfn>engines</dfn> those browsers use to draw pages. No
-            screen reader has been tested yet.
+            Chrome and Edge 120, Firefox 128 and Safari 17 or later, on desktop
+            and mobile. The site uses three features that need these versions.{' '}
+            <code>popover</code> is used for the cat trick lists and
+            abbreviations (Chrome 114, Firefox 125, Safari 17).{' '}
+            <code>@media (scripting: none)</code> shows the navigation when
+            JavaScript is off (Chrome 120, Safari 17). Tailwind 4 needs Firefox
+            128.
+          </p>
+          <p>
+            It works in Chrome, Edge, Firefox and Safari versions from mid-2024
+            onward, on computers and phones.
+          </p>
+          <p>
+            Learn more:{' '}
+            <a href={understanding('conformance')}>Understanding Conformance</a>
+            .
+          </p>
+
+          <h3>Engines Tested</h3>
+          <p>
+            Every pull request runs Playwright on the production build. Most
+            browser checks run in Chromium, Firefox and WebKit. Some run in one
+            engine: forced colors skip WebKit, and{' '}
+            {CONTACT_FORM_ON
+              ? 'the contact server errors and layout shift run'
+              : 'layout shift runs'}{' '}
+            in Chromium only. WebKit text resize is recorded, not asserted.
+            Checks of the built pages run with no browser.
+          </p>
+          <p>
+            Most checks run in the <dfn>engines</dfn> behind Chrome, Firefox and
+            Safari. A few run in only one.
           </p>
 
           <h2>Known Gaps</h2>
 
+          <h3>Screen Readers</h3>
           <p>
-            No screen reader has been used on this site yet, so how it sounds is
-            unknown, including how the uppercase headings and labels are read.{' '}
-            {CONTACT_FORM_ON &&
-              "Nobody has tested the contact form's error messages by hand."}{' '}
-            Some functional pages have been edited for shorter sentences, but no
-            reader has checked them for plain language. The gold sections have
-            only been measured by machine. The published{' '}
-            <Abbr short="PDF" long="Portable Document Format" /> files pass an
-            automated check but have not been read with a screen reader. Talk
-            slide titles fit the screen, so on some screens they reach double
-            size only at high zoom, up to 500% in Chrome and Firefox.
+            No <Abbr short="NVDA" long="NonVisual Desktop Access" />,{' '}
+            <Abbr short="JAWS" long="Job Access With Speech" />, VoiceOver,
+            TalkBack or Orca run. Unknown: how the uppercase headings and
+            labels, which are uppercased by CSS, are announced. Chromium exposes
+            the markup "About" in capital letters.
           </p>
+          <p>
+            Nobody has listened to this site with a screen reader yet, so parts
+            of it may sound wrong.
+          </p>
+          <p>
+            Learn more:{' '}
+            <a href={`${WAI}/people-use-web/`}>
+              How People with Disabilities Use the Web
+            </a>
+            .
+          </p>
+
+          <h3>Keyboard Use, Not Only Reach</h3>
+          <p>
+            The tab walk proves every control is reached and visible. Pressing
+            each control with Enter or Space is tested only for the menu, skip
+            link, slides and cat buttons.
+          </p>
+          <p>
+            Tests check that you can reach every control by keyboard, but not
+            yet that each one works when pressed.
+          </p>
+          <p>
+            Learn more:{' '}
+            <a href={understanding('keyboard')}>Understanding 2.1.1 Keyboard</a>
+            .
+          </p>
+
+          <h3>Plain Language</h3>
+          <p>
+            Functional pages keep sentences to 25 words or fewer. On those
+            pages, jargon is defined at first use (SC 3.1.3 Unusual Words, AAA),
+            and each abbreviation's expansion opens on tap or focus (SC 3.1.4
+            Abbreviations, AAA). Both apply to listed terms only. SC 3.1.5
+            Reading Level is not claimed, and no reader has checked the pages.
+          </p>
+          <p>
+            Some pages were rewritten in shorter sentences, but no reader has
+            checked them yet.
+          </p>
+          <p>
+            Learn more:{' '}
+            <a href={understanding('unusual-words')}>
+              Understanding 3.1.3 Unusual Words
+            </a>{' '}
+            and{' '}
+            <a href={understanding('reading-level')}>
+              Understanding 3.1.5 Reading Level
+            </a>
+            .
+          </p>
+
+          <h3>Gold Sections</h3>
+          <p>
+            The gold sections are measured at 1280px in dark mode. Every string
+            on gold reaches 4.5:1 or more, every control's fill or edge stands
+            apart from gold, and the <code>/contact</code> button's ring reaches
+            3:1 at 305px. Nobody has tabbed through, zoomed or looked at them.
+          </p>
+          <p>
+            The gold sections have been measured by software, but not yet
+            checked by a person.
+          </p>
+
+          {HAS_TALK && (
+            <>
+              <h3>PDF Files</h3>
+              <p>
+                The talk PDF passes veraPDF's machine-checkable PDF/UA-1 rules.
+                Reading order, the quality of alt text, and how viewers expose
+                the structure are unchecked.
+              </p>
+              <p>
+                The PDF files pass an automatic check, but nobody has read them
+                with a screen reader.
+              </p>
+              <p>
+                Learn more:{' '}
+                <a href={`${WAI}/WCAG22/Techniques/#pdf`}>
+                  PDF Techniques for WCAG 2.2
+                </a>
+                .
+              </p>
+            </>
+          )}
+
+          {HAS_TALK && (
+            <>
+              <h3>Talk Slide Titles at Zoom</h3>
+              <p>
+                SC 1.4.4 Resize Text (AA). Fixed-size headings reach 2x at 200%
+                zoom at 390, 1000, 1280 and 1920px in every engine. Text sized
+                by the screen width or height reaches 2x by page zoom up to 500%
+                in Chromium and Firefox. Talk slide titles follow the screen so
+                every word fits a 305px slide, so some reach 2x only between
+                250% and 500%. WebKit is checked to 300% and not asserted.
+              </p>
+              <p>
+                Most text doubles in size at 200% zoom. Some talk slide titles
+                need up to 500% zoom to double.
+              </p>
+              <p>
+                Learn more:{' '}
+                <a href={understanding('resize-text')}>
+                  Understanding 1.4.4 Resize Text
+                </a>
+                .
+              </p>
+            </>
+          )}
 
           <p>
             If any content here does not work for you, email{' '}
@@ -160,31 +575,95 @@ const AUTOMATED = [
 
           <h2>How It Is Tested</h2>
 
+          <h3>The Gate</h3>
           <p>
-            These run on every change, in Chromium, Firefox and WebKit, and a
-            failure stops the change from going live:
+            These run on every pull request. A pull request cannot merge until
+            the <code>Required checks</code> status passes. Cloudflare deploys{' '}
+            <code>main</code> without waiting for{' '}
+            <Abbr short="CI" long="continuous integration" />, so the gate is
+            the merge.
+          </p>
+          <p>
+            Automatic checks run on every change, and a change that fails them
+            cannot be added to the site.
+          </p>
+          <p>
+            Learn more:{' '}
+            <a href={`${WAI}/test-evaluate/`}>
+              Evaluating Web Accessibility Overview
+            </a>
+            .
           </p>
 
-          <ul>
-            <li>
-              <dfn>axe</dfn>, an automated accessibility checker, on every page,
-              for WCAG 2.2 A and AA in dark and light mode, including the rules
-              axe marks experimental, and for best practice in dark mode
-            </li>
-            <li>
-              the keyboard order, tabbed through in both directions on every
-              page type, with every <dfn>focus ring</dfn> (the outline on the
-              control you are on) measured where it lands
-            </li>
-            {AUTOMATED.map((item) => (
-              <li>{item}</li>
-            ))}
-          </ul>
-
+          <h3>Automated Checker</h3>
           <p>
-            Automated checks find a minority of accessibility problems. The
-            checks that need a person, with a screen reader, at real zoom and
-            with motion turned off, are written down and have not been done yet.
+            axe-core runs on every built page with the tags <code>wcag2a</code>,{' '}
+            <code>wcag2aa</code>, <code>wcag21a</code>, <code>wcag21aa</code>{' '}
+            and <code>wcag22aa</code>. No rule is disabled and no result is
+            excluded. In dark mode it scans at 1280 and 320px, with the menu,
+            photo viewer, contents and a talk slide open. In light mode it scans
+            at 1280 and 320px. Five experimental rules are on,{' '}
+            <code>best-practice</code> runs in dark mode, and no AAA rules run.
+          </p>
+          <p>
+            A free checking tool called axe scans every page in both color modes
+            for common problems.
+          </p>
+          <p>
+            Learn more:{' '}
+            <a href={`${WAI}/test-evaluate/tools/`}>Evaluation Tools</a>.
+          </p>
+
+          <h3>Keyboard Order and Focus Ring</h3>
+          <p>
+            SC 2.4.13 Focus Appearance (AAA) and 1.4.11. On every page, with
+            category and tag listings sampled to one per group showing the same
+            posts, at 305 and 1280px, every stop's 4px solid ring covers at
+            least a 2px perimeter. It reaches 3:1 against the ground it paints
+            over. The ring is offset past the control's shadow, at rest and
+            hovered.
+          </p>
+          <p>
+            When you use the Tab key, a thick outline shows where you are, and
+            it stands out from the background.
+          </p>
+          <p>
+            Learn more:{' '}
+            <a href={understanding('focus-appearance')}>
+              Understanding 2.4.13 Focus Appearance
+            </a>
+            .
+          </p>
+
+          <h3>Text the Checker Cannot Decide</h3>
+          <p>
+            Every node axe marks incomplete for <code>color-contrast</code> or{' '}
+            <code>label-content-name-mismatch</code> is decided. Contrast is
+            measured against the solid ground behind the element's center,
+            through its ancestors, at 4.5:1 (3:1 large). An image, a gradient or
+            a translucent layer fails the node.
+          </p>
+          <p>
+            Where the tool cannot tell whether text is readable, a second check
+            measures it.
+          </p>
+
+          <h3>Checks by a Person</h3>
+          <p>
+            Automated checks find only some problems. None of the written checks
+            that need a person has been done yet: screen reader, real zoom,
+            text-only zoom, reduced motion, plain language and reading order.
+          </p>
+          <p>
+            Software finds only some problems. None of the checks that need a
+            person has been done yet.
+          </p>
+          <p>
+            Learn more:{' '}
+            <a href={`${WAI}/test-evaluate/preliminary/`}>
+              Easy Checks: A First Review of Web Accessibility
+            </a>
+            .
           </p>
 
           <h2>Report a Barrier</h2>
@@ -220,16 +699,16 @@ const AUTOMATED = [
 
         {FULL_RECORD !== null && (
           <p class="mt-head text-body text-text text-pretty">
-            The full record, including every measured contrast ratio and every
-            known gap, is kept with the source:{' '}
+            The full record, including every measured contrast ratio, every
+            known gap and the test behind each claim, is kept with the source:{' '}
             <a href={FULL_RECORD}>ACCESSIBILITY.md</a>.
           </p>
         )}
 
         <p class="mt-head text-body text-text text-pretty">
-          This is a personal site, so this statement is voluntary. It follows
-          the <a href={W3C_STATEMENTS}>model for accessibility statements</a>{' '}
-          from the World Wide Web Consortium.
+          This statement is voluntary. It follows the{' '}
+          <a href={W3C_STATEMENTS}>model for accessibility statements</a> from
+          the World Wide Web Consortium.
         </p>
       </div>
     </div>

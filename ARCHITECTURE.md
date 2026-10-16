@@ -79,23 +79,23 @@ validated on import, so a bad value fails the build and the tests.
 
 ## Browser support
 
-Chrome 111, Edge 111, Firefox 114, Safari 16.4, iOS Safari 16.4 (Baseline
-Widely Available). Set once as `CSS_TARGET` in `astro.config.mjs` and passed to
-`vite.build.cssTarget`.
+Chrome 120, Edge 120, Firefox 128, Safari 17, iOS Safari 17 (the floor
+`/accessibility` states). Set once as `CSS_TARGET` in `astro.config.mjs` and
+passed to `vite.build.cssTarget`.
 
-- Tailwind 4 sets the floor: it emits `@property`, `color-mix()` and cascade
-  layers, which Safari 15 cannot render.
+- Firefox 128 is Tailwind 4's own floor
+  ([compatibility](https://tailwindcss.com/docs/compatibility)).
+- Chrome, Edge and Safari are set by two features in use (versions from
+  `@mdn/browser-compat-data`, an external source, not a dependency):
+  `popover`, for the About cats' trick list and every abbreviation (Chrome
+  114, Firefox 125, Safari 17), and `@media (scripting: none)`, without which
+  the no-JavaScript nav is not shown (Chrome 120, Safari 17). `:has()`
+  (Firefox 121) and ARIA reflection (Firefox 119) are inside the floor.
 - Pinned, not left to the bundler default, which moves between releases.
-- Three features in use need a newer browser (versions from
-  `@mdn/browser-compat-data` 8.1.5, an external source, not a dependency):
-  `popover`, for the About cats' trick list (Chrome 114, Firefox 125, Safari
-  17); `@media (scripting: none)`, without which the no-JavaScript nav is not
-  shown (Chrome 120, Safari 17); and `:has()`, without which
-  `.card:has(.card-link)` does not match (Firefox 121).
 - No `browserslist` key: neither Tailwind 4 nor Vite reads it.
 - `tests/css-target.spec.ts` asserts the list and the prefixes it implies
-  (e.g. `-webkit-hyphens`) in the built CSS. No engine in the suite runs at the
-  floor, so this is the only cover.
+  (`-webkit-text-decoration`) in the built CSS. No engine in the suite runs at
+  the floor, so this is the only cover.
 
 ## Design system
 

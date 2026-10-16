@@ -5,7 +5,7 @@ import { DIST_DIR } from './routes';
 import { NODE } from './tags';
 
 /**
- * The built CSS carries the prefixes `CSS_TARGET` (Safari 16.4) requires.
+ * The built CSS carries the prefixes `CSS_TARGET` (Safari 17) requires.
  * Playwright's WebKit needs none, so no browser test would notice.
  */
 const CSS_DIR = join(DIST_DIR, '_astro');
@@ -37,12 +37,10 @@ const statedBrowsers = (): string[] => {
 };
 
 /**
- * Only pairs where 16.4 predates the unprefixed version. Matched with the value:
- * `-webkit-hyphens:none` also appears in a Tailwind `@supports` probe.
+ * Only pairs where 17 predates the unprefixed version. Matched with the value,
+ * so a Tailwind `@supports` probe does not count.
  */
 const PAIRS = [
-  /* Unprefixed `hyphens` is Safari 17. Headings and `.prose table` use it. */
-  { bare: 'hyphens:auto', prefixed: '-webkit-hyphens:auto' },
   /* Unprefixed `text-decoration` shorthand with a style is Safari 18. */
   {
     bare: 'text-decoration:underline dotted',
