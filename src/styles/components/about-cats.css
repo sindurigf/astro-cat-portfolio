@@ -36,9 +36,9 @@
     right: calc(var(--spacing-target) + var(--focus-width) + var(--focus-gap));
   }
 
-  /* Ends at a raised brick's top edge, which lifts --spacing(2) (utilities.css), so the brick never covers it. */
+  /* Ends at a raised brick's top edge, which lifts --hard-throw (utilities.css), so the brick never covers it. */
   .cat-perch:has(.card-block .card-raised) .cat-button {
-    bottom: --spacing(2);
+    bottom: var(--hard-throw);
   }
 
   .cat-svg {

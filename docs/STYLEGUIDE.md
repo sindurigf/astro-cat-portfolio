@@ -458,15 +458,15 @@ with a comment beside it.
   defaults to `currentColor`); `gold-border` inside `.surface-gold`.
 - Shadows are hard offsets, no blur. Gold casts none (gold on gold is 1.00).
 
-| Utility                     | Casts it                                                                                                                                                                    |
-| --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `shadow-hard-pink-4`        | Cards, card groups, post contents, gold areas, the PageHero photo, `.btn-primary`, `.btn-secondary`, link chips, `.nav-cta`, the theme switch, footer stickers, slide cards |
-| `shadow-hard-cyan-4`        | A hovered linked card or contact card, in place of pink                                                                                                                     |
-| `shadow-hard-gold-border-4` | A card on gold                                                                                                                                                              |
-| `shadow-hard-mark-4`        | `.sticker`, `.btn-gold-primary`                                                                                                                                             |
-| `shadow-hard-mark-8`        | The roundel, the homepage stickers                                                                                                                                          |
-| `drop-shadow-hard-mark-8`   | The logo tile, following its ears                                                                                                                                           |
-| `drop-shadow-hard-mark-12`  | The logo tile's larger copy on `/about`                                                                                                                                     |
+| Utility                     | Casts it                                                                                                                                                       |
+| --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `shadow-hard-pink-4`        | Cards, post contents, gold areas, the PageHero photo, `.btn-primary`, `.btn-secondary`, link chips, `.nav-cta`, the theme switch, footer stickers, slide cards |
+| `shadow-hard-cyan-4`        | A hovered linked card or contact card, in place of pink                                                                                                        |
+| `shadow-hard-gold-border-4` | A card on gold                                                                                                                                                 |
+| `shadow-hard-mark-4`        | `.sticker`, `.btn-gold-primary`                                                                                                                                |
+| `shadow-hard-mark-8`        | The roundel, the homepage stickers                                                                                                                             |
+| `drop-shadow-hard-mark-8`   | The logo tile, following its ears                                                                                                                              |
+| `drop-shadow-hard-mark-12`  | The logo tile's larger copy on `/about`                                                                                                                        |
 
 - `mark` is `pink`'s hex but stays pink in light mode, where `pink` turns
   ink.
@@ -492,6 +492,7 @@ file per area.
 | `.card-title`                           | Every card heading, `text-h3` 900                                                                                                                                                        |
 | `.card-link`                            | Title link stretched over the card; inline-block, 44px min; card hover turns title and shadow cyan                                                                                       |
 | `.card-solid`                           | The subject card, a `text` fill; raised in a `.card-block`, or `.card-raised` in a dark group                                                                                            |
+| `.card-block`                           | Cards joined edge to edge, no gaps; each card casts its own shadow, and the subject card lifts by one throw (`--hard-throw`)                                                             |
 | `.lead`                                 | Paragraph under a section heading, `text-lead` 400, 24px under it                                                                                                                        |
 | `.standfirst`                           | Line beside PageHero's title, `text-standfirst` 400                                                                                                                                      |
 | `.bullet-list`                          | Bulleted list, gold markers                                                                                                                                                              |

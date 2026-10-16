@@ -25,35 +25,22 @@
   }
 
   /*
-   * Cards in a `.card-block` are one object: no gaps, one pink shadow. Opt-in,
-   * not `:has(.card)`: layout gaps elsewhere feed image `sizes`.
+   * Cards in a `.card-block` share edges, no gaps; each casts its own shadow.
+   * Opt-in, not `:has(.card)`: layout gaps elsewhere feed image `sizes`.
    */
   .card-block {
     gap: 0;
-
-    @apply shadow-hard-pink-4;
-  }
-
-  .card-block .card {
-    box-shadow: none;
   }
 
   /*
    * The raised brick: the group's subject block lifts by one shadow throw with
-   * its own `border` edge and pink shadow. `.card-solid` or `.card-raised`.
+   * its own `border` edge. `.card-solid` or `.card-raised`.
    */
   .card-block :is(.card-solid, .card-raised) {
     position: relative;
     z-index: 1;
-    translate: calc(--spacing(2) * -1) calc(--spacing(2) * -1);
+    translate: calc(var(--hard-throw) * -1) calc(var(--hard-throw) * -1);
     border-color: var(--color-border);
-
-    @apply shadow-hard-pink-4;
-  }
-
-  /* Restores the card hover this layer's flattening removes. */
-  .card-block .card:has(.card-link):hover {
-    @apply shadow-hard-cyan-4;
   }
 
   /*

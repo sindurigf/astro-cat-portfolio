@@ -12,7 +12,7 @@
   /*
    * Solid card: a light third surface where only `background` passes (14.42),
    * so everything inside is `background`. Holds text, never a form. In a
-   * `.card-block` the raised-brick rule gives it an edge and shadow.
+   * `.card-block` the raised-brick rule gives it an edge.
    */
   .card-solid {
     background-color: var(--color-text);
