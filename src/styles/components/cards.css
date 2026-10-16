@@ -23,6 +23,8 @@
     position: relative;
     isolation: isolate;
     border-color: var(--color-card-edge);
+    /* `--ring` on `::after` carries the throw, so one layer paints it. */
+    box-shadow: none;
 
     &::before {
       content: '';
@@ -56,7 +58,15 @@
   }
 
   .card:has(.card-link):hover {
+    @apply shadow-hard-cyan-object;
+  }
+
+  /* A ringed card's throw turns cyan on its `::after`, not on the card. */
+  :is(.card, .plain-slab):not(.card-solid, .surface-gold, .surface-gold *):has(
+      .card-link
+    ):hover {
     --paper-throw: var(--color-cyan);
+    box-shadow: none;
   }
 
   /*
@@ -267,9 +277,6 @@
    * crosses the next line. Inside a card block the hover is restored in @layer
    * utilities.
    */
-  .card:has(.card-link):hover {
-    @apply shadow-hard-cyan-object;
-  }
 
   .card:has(.card-link):hover .card-link {
     @apply text-cyan;

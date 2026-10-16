@@ -176,3 +176,50 @@ test.describe('graph-paper edges in forced colors', () => {
     });
   }
 });
+
+test.describe('the ring and the focus ring stay apart', () => {
+  test.use({ colorScheme: 'dark', viewport: DESKTOP_VIEWPORT });
+
+  test('a focused card link draws its cyan ring inside the card, clear of the edge ring', async ({
+    page,
+  }) => {
+    await gotoSettled(page, '/');
+    const link = page.locator(`${PAPER} .card-link`).first();
+    await link.focus();
+    const found = await link.evaluate((el) => {
+      const style = getComputedStyle(el);
+      const ring =
+        parseFloat(style.outlineOffset) + parseFloat(style.outlineWidth);
+      const box = el.getBoundingClientRect();
+      const card = el.closest('.card')!.getBoundingClientRect();
+      return {
+        outline: style.outlineStyle,
+        color: style.outlineColor,
+        clear: Math.min(
+          box.left - ring - card.left,
+          box.top - ring - card.top,
+          card.right - (box.right + ring),
+        ),
+      };
+    });
+    expect(found.outline, 'the focused card link draws no outline').toBe(
+      'solid',
+    );
+    expect(
+      found.clear,
+      'the focus ring reaches the card edge, where the edge ring sits',
+    ).toBeGreaterThan(0);
+  });
+
+  test('hover draws no focus ring on a card', async ({ page }) => {
+    await gotoSettled(page, '/');
+    const card = page.locator(`${PAPER}:has(.card-link)`).first();
+    await card.hover();
+    expect(
+      await card.evaluate(
+        (el) => getComputedStyle(el.querySelector('.card-link')!).outlineStyle,
+      ),
+      'a hovered, unfocused card link shows an outline like focus',
+    ).toBe('none');
+  });
+});
