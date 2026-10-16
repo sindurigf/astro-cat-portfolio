@@ -11,6 +11,7 @@ import { satteri } from '@astrojs/markdown-satteri';
 
 import { linkListItem } from './src/plugins/link-list-item.mjs';
 import { codeBlock } from './src/plugins/code-block.mjs';
+import { tableScope } from './src/plugins/table-scope.mjs';
 import { postFigure } from './src/plugins/post-figure.mjs';
 import { MARKDOWN_WIDTHS } from './src/lib/image-densities.ts';
 import { cssColorToken } from './src/lib/css-token.ts';
@@ -123,7 +124,9 @@ export default defineConfig({
      * need a syntax palette the design system does not have.
      */
     syntaxHighlight: false,
-    processor: satteri({ hastPlugins: [linkListItem, postFigure, codeBlock] }),
+    processor: satteri({
+      hastPlugins: [linkListItem, postFigure, codeBlock, tableScope],
+    }),
   },
 
   vite: {
