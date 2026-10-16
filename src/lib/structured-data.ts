@@ -72,6 +72,8 @@ const profilePage = (origin: string, page: URL): object => ({
 
 interface GraphOptions {
   site: URL;
+  /** The WebSite's name: the one `og:site_name` and every title carry. */
+  siteName: string;
   /** Built portrait, prerendered pages only; the on-demand route has none. */
   personImage?: URL | undefined;
   article?: ArticleData | undefined;
@@ -83,6 +85,7 @@ interface GraphOptions {
 /** One `@graph` so nodes link by `@id` instead of repeating. */
 const structuredData = ({
   site,
+  siteName,
   personImage,
   article,
   breadcrumbs,
@@ -109,8 +112,10 @@ const structuredData = ({
         '@type': 'WebSite',
         '@id': websiteId(origin),
         url: home,
-        name: site.host,
-        alternateName: PERSON_NAME,
+        name: siteName,
+        alternateName: [PERSON_NAME, site.host].filter(
+          (name) => name !== siteName,
+        ),
         author: { '@id': personId(origin) },
         publisher: { '@id': personId(origin) },
         inLanguage: SITE_LANGUAGE,
