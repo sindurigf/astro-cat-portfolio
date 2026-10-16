@@ -171,7 +171,7 @@
     @apply edge bg-surface px-4 shadow-hard-pink-object sm:px-6;
   }
 
-  /* Centers the logo tile on the slab's left edge: slab padding plus half the tile. */
+  /* Puts the logo tile across the slab's left edge: centered from sm, 12px over below it so it stays inside the 16px gutter. */
   .header-logo-edge {
     margin-left: calc(-1 * (--spacing(4) + --spacing(3)));
 
