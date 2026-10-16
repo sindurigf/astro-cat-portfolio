@@ -74,8 +74,12 @@
       font-mono text-code text-text;
   }
 
+  /*
+   * As wide as its text, so src/scripts/code-block-fit.ts sees text spacing
+   * widen it: spacing grows the text, not the <pre> box (SC 1.4.12).
+   */
   .prose pre code {
-    @apply bg-transparent p-0 text-code;
+    @apply block w-max min-w-full bg-transparent p-0 text-code;
   }
 
   /*
