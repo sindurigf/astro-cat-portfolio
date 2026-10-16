@@ -510,7 +510,7 @@ drawings are `aria-hidden`.
 - [ ] Each cat is a button named "Meet Pepper", "Meet Mochi" or "Meet Biscuit". → SC 4.1.2
 - [ ] Enter opens the card: focus is on Close, and the dialog is named after
       the cat. → SC 2.4.3, 4.1.2
-- [ ] Tab reaches Close and the thank-you link, never the page behind. → SC 2.1.2
+- [ ] Tab stays on Close, never the page behind. → SC 2.1.2
 - [ ] Escape closes the card and focus returns to the same cat. → SC 2.4.3
 - [ ] The sleep control reads "Put Pepper to sleep"; Enter stops the cat
       within 5 s and the control then reads "Wake Pepper". → SC 2.2.2, 4.1.2

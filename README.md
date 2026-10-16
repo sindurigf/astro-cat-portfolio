@@ -120,8 +120,6 @@ The drawings are code; the cards show a photo.
   `tests/failed-images.spec.ts` and `tests/analytics.spec.ts`. The About
   tests fail until these match the page.
 - The contact page's list of topics names the cats: `src/pages/contact.astro`.
-- The cards thank Riley Example for the idea, from `src/lib/credits.ts`.
-  Keep, change or drop that thanks there.
 - The drawings stay AI-made: keep their lines in `AI_DISCLOSURE.md` and on
   `/credits`.
 
@@ -136,11 +134,11 @@ does not cover it.
   and the three `src/assets/photos/cat-card-*.jpg` photos.
 - `src/styles/global.css`: remove the `about-cats.css` import. Keep the
   `--color-cat-` colors: the logo cat uses them.
-- `src/pages/about.astro`: remove the `AboutCats`, `CatInfo`, cat photo and
-  `CAT_INSPIRATION` imports, the cat list and the code under it that loads
-  their photos, `getImage` from the `astro:assets` import, the three
-  `cat-spot` elements, and the `<AboutCats>` element at the end. Change each
-  `cat-perch` wrapper to a plain `<div>`, keeping `mt-head` on the first.
+- `src/pages/about.astro`: remove the `AboutCats`, `CatInfo` and cat photo
+  imports, the cat list and the code under it that loads their photos,
+  `getImage` from the `astro:assets` import, the three `cat-spot` elements, and
+  the `<AboutCats>` element at the end. Change each `cat-perch` wrapper to a
+  plain `<div>`, keeping `mt-head` on the first.
 - `src/styles/light-mode.css`: remove `.cat-tricks-button` from the list of
   gold text turned to ink.
 - Tests:

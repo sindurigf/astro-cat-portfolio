@@ -72,4 +72,4 @@ Everything else is patience.
 
 ---
 
-Who took the photos, and their license, is on the [credits page](/credits/#photos), with everyone who helped make this site.
+Who took the photos, and their license, is on the [credits page](/credits/#photos).

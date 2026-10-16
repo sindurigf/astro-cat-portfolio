@@ -27,15 +27,11 @@ import videoStill from '../assets/photos/tabby-parquet.jpg';
 import catCardTabby from '../assets/photos/cat-card-tabby.jpg';
 import catCardCalico from '../assets/photos/cat-card-calico.jpg';
 import catCardBlack from '../assets/photos/cat-card-black.jpg';
-import {
-  CAT_INSPIRATION,
-  photographerHref,
-  type Photographer,
-} from '../lib/credits';
+import { photographerHref, type Photographer } from '../lib/credits';
 import { WIDTHS } from '../lib/image-densities';
 import { photoSize } from '../lib/photo-size';
 import { closeRowLinks } from '../lib/blog';
-import { MOTTO, SITE_NAME } from '../lib/site';
+import { MOTTO } from '../lib/site';
 import { PERSON_NAME } from '../lib/profiles';
 
 /* Jump links repeat the headings verbatim. */
@@ -238,11 +234,6 @@ const closeRow = await closeRowLinks({
           It reminds me to start with what is carved, and only then tell the
           story.
         </p>
-        <p class="mt-8">
-          <a href="/credits/#name" class="chip">
-            Where the Name {SITE_NAME} Comes From
-          </a>
-        </p>
       </div>
     </div>
   </Section>
@@ -425,5 +416,5 @@ const closeRow = await closeRowLinks({
   <CloseRow {...closeRow} />
 
   <PhotoViewer />
-  <AboutCats client:load cats={catInfo} inspiration={CAT_INSPIRATION} />
+  <AboutCats client:load cats={catInfo} />
 </BaseLayout>

@@ -36,7 +36,6 @@ import {
 
 const props = defineProps<{
   cats: CatInfo[];
-  inspiration: { name: string; href: string };
 }>();
 
 /* Where each cat starts on its card, 0 to 1, and which way it faces. */
@@ -649,11 +648,6 @@ onBeforeUnmount(() => {
           </h2>
         </div>
         <p class="mt-8 text-label text-text">{{ open.role }}</p>
-        <p class="mt-4 text-label text-subtle">
-          Thank you for the inspiration,
-          <a :href="inspiration.href">{{ inspiration.name }}</a
-          >.
-        </p>
       </div>
     </div>
   </dialog>
