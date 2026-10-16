@@ -32,22 +32,22 @@ const PHYS_STEP_MS = 1000 / 60;
 const PHYS_MAX_STEPS = 30;
 
 const EARS = 'M-11 -4L-12 -19.5L-2 -10.5ZM2 -10.5L10.5 -19.5L11 -4Z';
-/** Mochi's orange front ear, inset from the ear's edge. */
+/** Hela's orange front ear, inset from the ear's edge. */
 const FRONT_EAR_PATCH = 'M2.6 -11L10 -18.4L10.4 -5.2Z';
 const EYE_CENTERS: readonly (readonly [number, number])[] = [
   [-1, -1],
   [7, -1.5],
 ];
-/** Eye radius and pupil radius in px: Pepper's green eyes and Biscuit's big amber ones have pupils. */
+/** Eye radius and pupil radius in px: Minerva's green eyes and Rudra's big amber ones have pupils. */
 const EYES: Record<CatId, { r: number; pupil: number }> = {
-  pepper: { r: 2.1, pupil: 0.9 },
-  mochi: { r: 1.8, pupil: 0 },
-  biscuit: { r: 3, pupil: 1.3 },
+  minerva: { r: 2.1, pupil: 0.9 },
+  hela: { r: 1.8, pupil: 0 },
+  rudra: { r: 3, pupil: 1.3 },
 };
 /** The pupils sit a little forward in the eye, so the cat looks where it faces. */
 const PUPIL_AHEAD = 0.4;
 const WHISKERS = 'M11 3l9 -3M11 4.4l10 0.5M11 5.8l9 3.5';
-/** Where Pepper's back stripes cross the body, as fractions of its length. */
+/** Where Minerva's back stripes cross the body, as fractions of its length. */
 const STRIPES = [0.3, 0.5, 0.7];
 /** The feather's string hangs from just under the band's top: --spacing-cat-band (140px) must stay above it. */
 const STRING_TOP = -136;
@@ -155,7 +155,7 @@ export interface CatRig {
   flip: SVGGElement;
   layers: Layer[];
   bodyClip: SVGPathElement;
-  /** Pepper's tabby stripes and Mochi's patch; none for Biscuit. */
+  /** Minerva's tabby stripes and Hela's patch; none for Rudra. */
   stripes: SVGPathElement[];
   patch: SVGEllipseElement | null;
   tailMarks: SVGPathElement;
@@ -219,7 +219,7 @@ export const createCatRig = (svg: SVGSVGElement, id: CatId): CatRig => {
     const tail = el(
       'path',
       {
-        ...line(id === 'mochi' ? 'patch' : 'fur', TAIL_W + extra),
+        ...line(id === 'hela' ? 'patch' : 'fur', TAIL_W + extra),
         'stroke-linejoin': 'round',
       },
       group,
@@ -243,11 +243,11 @@ export const createCatRig = (svg: SVGSVGElement, id: CatId): CatRig => {
   top.group.insertBefore(marks, top.haunch);
   /* Made once and moved each frame; building them per frame was most of a draw. */
   const stripes =
-    id === 'pepper'
+    id === 'minerva'
       ? STRIPES.map(() => el('path', line('mark', 2.4), marks))
       : [];
   const patch =
-    id === 'mochi'
+    id === 'hela'
       ? el('ellipse', { rx: 9, ry: 6.5, class: 'cat-solid-patch' }, marks)
       : null;
   const tailMarks = el(
@@ -255,26 +255,26 @@ export const createCatRig = (svg: SVGSVGElement, id: CatId): CatRig => {
     {
       class: 'cat-line-mark',
       'stroke-width': TAIL_W,
-      'stroke-dasharray': id === 'mochi' ? '4 5' : '3 4',
+      'stroke-dasharray': id === 'hela' ? '4 5' : '3 4',
     },
     top.group,
   );
   top.group.insertBefore(tailMarks, top.body);
 
   const headMarks = el('g', { 'clip-path': `url(#${key}-h)` }, top.head);
-  if (id === 'pepper') {
+  if (id === 'minerva') {
     el(
       'path',
       { d: 'M-4 -10l1.5 -4M0 -11v-4', ...line('mark', 2.2) },
       headMarks,
     );
   }
-  if (id === 'mochi')
+  if (id === 'hela')
     el('circle', { cx: 6, cy: -8, r: 7, class: 'cat-solid-mark' }, headMarks);
 
-  /* Mochi's front ear is orange, as in her photos; it turns with the ears. */
+  /* Hela's front ear is orange, as in her photos; it turns with the ears. */
   const earPatch =
-    id === 'mochi'
+    id === 'hela'
       ? el('path', { d: FRONT_EAR_PATCH, class: 'cat-solid-patch' }, top.head)
       : null;
   if (earPatch) top.head.insertBefore(earPatch, top.ears.nextSibling);

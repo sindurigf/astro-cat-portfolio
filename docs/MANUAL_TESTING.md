@@ -507,14 +507,14 @@ drawings are `aria-hidden`.
 
 - [ ] Tab reaches each cat, then its sleep control; a focused cat holds
       still. → SC 2.4.3, 2.2.2
-- [ ] Each cat is a button named "Meet Pepper", "Meet Mochi" or "Meet Biscuit". → SC 4.1.2
+- [ ] Each cat is a button named "Meet Minerva", "Meet Hela" or "Meet Rudra". → SC 4.1.2
 - [ ] Enter opens the card: focus is on Close, and the dialog is named after
       the cat. → SC 2.4.3, 4.1.2
 - [ ] Tab stays on Close, never the page behind. → SC 2.1.2
 - [ ] Escape closes the card and focus returns to the same cat. → SC 2.4.3
-- [ ] The sleep control reads "Put Pepper to sleep"; Enter stops the cat
-      within 5 s and the control then reads "Wake Pepper". → SC 2.2.2, 4.1.2
-- [ ] Tab reaches the paw "Choose a trick for Pepper" after the sleep control;
+- [ ] The sleep control reads "Put Minerva to sleep"; Enter stops the cat
+      within 5 s and the control then reads "Wake Minerva". → SC 2.2.2, 4.1.2
+- [ ] Tab reaches the paw "Choose a trick for Minerva" after the sleep control;
       Enter opens a list, Random first, and Escape closes it with focus back on
       the paw. → SC 2.4.3, 4.1.2
 - [ ] With the list open near the window's end, Shift+Tab reaches the paw,

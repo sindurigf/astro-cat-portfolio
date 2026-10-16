@@ -415,11 +415,11 @@ test.describe('analytics', () => {
       await expect(photos.nth(1)).toBeFocused();
 
       // TODO(fork): Use your first cat's name below, or delete these lines up to the card's Close with the cats.
-      const cat = page.locator('#cat-spot-pepper .cat-button');
+      const cat = page.locator('#cat-spot-minerva .cat-button');
       await cat.focus();
       await expect(cat).toBeFocused();
       await page.keyboard.press('Enter');
-      const card = page.getByRole('dialog', { name: 'Pepper' });
+      const card = page.getByRole('dialog', { name: 'Minerva' });
       await expect(card).toBeVisible();
       await card.getByRole('button', { name: 'Close' }).click();
 

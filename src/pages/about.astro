@@ -93,25 +93,25 @@ const PLACES = [
 // TODO(fork): Replace Robin's three cats with your own (names, photos, photo descriptions), or remove the cats: README "Your cats, or none".
 const CATS = [
   {
-    id: 'pepper',
+    id: 'minerva',
     src: catCardTabby,
-    name: 'Pepper',
+    name: 'Minerva',
     role: 'Reads over my shoulder.',
-    alt: 'Pepper, a tabby cat, asleep with its face pressed into a blue blanket.',
+    alt: 'Minerva, a tabby cat, asleep with its face pressed into a blue blanket.',
   },
   {
-    id: 'mochi',
+    id: 'hela',
     src: catCardCalico,
-    name: 'Mochi',
+    name: 'Hela',
     role: 'Guards the map drawer.',
-    alt: 'Mochi, a calico cat, lying on a paisley pillow, mouth open.',
+    alt: 'Hela, a calico cat, lying on a paisley pillow, mouth open.',
   },
   {
-    id: 'biscuit',
+    id: 'rudra',
     src: catCardBlack,
-    name: 'Biscuit',
+    name: 'Rudra',
     role: 'Sleeps on the warmest book.',
-    alt: 'Biscuit, a black cat, lying on its back in a round cat bed, eyes wide.',
+    alt: 'Rudra, a black cat, lying on its back in a round cat bed, eyes wide.',
   },
 ] as const;
 
@@ -225,7 +225,7 @@ const closeRow = await closeRowLinks({
     </div>
 
     <div class="cat-perch mt-head">
-      <div class="cat-spot" id="cat-spot-pepper"></div>
+      <div class="cat-spot" id="cat-spot-minerva"></div>
       <div class="card">
         <p class="mb-paragraph max-w-2xl text-lead font-black text-text text-pretty">
           The scholars of Ohara read stones that most of the world cannot. I am
@@ -277,7 +277,7 @@ const closeRow = await closeRowLinks({
     lead="I was alone for twenty years. After Arabasta I asked the Straw Hat Pirates to let me join, and their captain said yes."
   >
     <div class="cat-perch">
-      <div class="cat-spot" id="cat-spot-mochi"></div>
+      <div class="cat-spot" id="cat-spot-hela"></div>
       <div class="card">
         <div class="photo-pair">
           <PhotoTile
@@ -308,7 +308,7 @@ const closeRow = await closeRowLinks({
   <Section id={SECTIONS[3].id} title={SECTIONS[3].title}>
     {/* A <dl>, so short bold values are not paragraphs WAVE reads as headings. */}
     <div class="cat-perch">
-      <div class="cat-spot" id="cat-spot-biscuit"></div>
+      <div class="cat-spot" id="cat-spot-rudra"></div>
       <div class="card-block flex flex-col lg:flex-row">
         <dl class="card min-w-0 divide-y-4 divide-border lg:flex-1">
           <div class="pb-6">
