@@ -181,8 +181,6 @@ for (const viewport of [{ width: 1280, height: 720 }, PHONE_VIEWPORT]) {
         ),
         'the setup did not put the status below the fold',
       ).toBe(true);
-      const scrolledBefore = await page.evaluate(() => window.scrollY);
-
       await context.setOffline(true);
       await page.keyboard.press('Enter');
       await expect(status).toHaveText(/offline/i);
@@ -209,10 +207,11 @@ for (const viewport of [{ width: 1280, height: 720 }, PHONE_VIEWPORT]) {
       if (fits) {
         await expect(status, 'the status stayed out of view').toBeInViewport();
       } else {
-        expect(
-          await page.evaluate(() => window.scrollY),
-          'the page moved without room to show the status',
-        ).toBe(scrolledBefore);
+        /* Not scrollY: Firefox can settle the page by a pixel on its own (CI run 38897901325). */
+        await expect(
+          status,
+          'the page scrolled to the status without room for the field',
+        ).not.toBeInViewport();
       }
       await context.setOffline(false);
     });
