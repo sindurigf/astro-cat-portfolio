@@ -43,7 +43,8 @@ const HAS_TALK = (await getCollection('talks')).length > 0;
   <PageHero title="Acces­sibility" measure="reading" slab="none">
     <p class="standfirst">
       Target: <Abbr short="WCAG" long="Web Content Accessibility Guidelines" />
-      2.2 Level <Abbr short="AA" long="the middle of WCAG's three levels" />,
+      2.2 Level{' '}
+      <Abbr short="AA" long="the middle of WCAG's three levels" after="," />
       every Level A and AA success criterion. Also{' '}
       <Abbr short="SC" long="success criterion" /> 1.4.6 Contrast (Enhanced) for
       text, and the{' '}
@@ -206,8 +207,8 @@ const HAS_TALK = (await getCollection('talks')).length > 0;
             No WCAG criterion requires this. With scripting off, a fallback
             navigation (<code>@media (scripting: none)</code>) replaces the
             mobile menu. Every built page is checked for it in its{' '}
-            <Abbr short="HTML" long="HyperText Markup Language" />, and four
-            page layouts are checked in a browser at phone width. The talk
+            <Abbr short="HTML" long="HyperText Markup Language" after="," /> and
+            four page layouts are checked in a browser at phone width. The talk
             slides, abbreviations, photo viewer and cats have their own checks
             with JavaScript off.
           </p>
@@ -388,7 +389,11 @@ const HAS_TALK = (await getCollection('talks')).length > 0;
                 reflows, with and without the 1.4.12 override at 305px, and
                 links the PDF with its size. The PDF passes veraPDF's machine
                 checks for PDF/
-                <Abbr short="UA-1" long="Universal Accessibility, part 1" />.
+                <Abbr
+                  short="UA-1"
+                  long="Universal Accessibility, part 1"
+                  after="."
+                />
               </p>
               <p>
                 On a phone or narrow window, the talk shows as text you can
@@ -450,11 +455,11 @@ const HAS_TALK = (await getCollection('talks')).length > 0;
 
           <h3>Screen Readers</h3>
           <p>
-            No <Abbr short="NVDA" long="NonVisual Desktop Access" />,{' '}
-            <Abbr short="JAWS" long="Job Access With Speech" />, VoiceOver,
-            TalkBack or Orca run. Unknown: how the uppercase headings and
-            labels, which are uppercased by CSS, are announced. Chromium exposes
-            the markup "About" in capital letters.
+            No <Abbr short="NVDA" long="NonVisual Desktop Access" after="," />{' '}
+            <Abbr short="JAWS" long="Job Access With Speech" after="," />{' '}
+            VoiceOver, TalkBack or Orca run. Unknown: how the uppercase headings
+            and labels, which are uppercased by CSS, are announced. Chromium
+            exposes the markup "About" in capital letters.
           </p>
           <p>
             Nobody has listened to this site with a screen reader yet, so parts
@@ -580,8 +585,8 @@ const HAS_TALK = (await getCollection('talks')).length > 0;
             These run on every pull request. A pull request cannot merge until
             the <code>Required checks</code> status passes. Cloudflare deploys{' '}
             <code>main</code> without waiting for{' '}
-            <Abbr short="CI" long="continuous integration" />, so the gate is
-            the merge.
+            <Abbr short="CI" long="continuous integration" after="," /> so the
+            gate is the merge.
           </p>
           <p>
             Automatic checks run on every change, and a change that fails them
