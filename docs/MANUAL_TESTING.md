@@ -98,7 +98,7 @@ Resizing is not zooming, so this stays manual even though
 - [ ] The mobile menu button replaces the desktop nav and the menu is fully
       operable. → SC 1.4.10
 - [ ] Nothing overlaps or is cut off. → SC 1.4.10
-- [ ] Tab through: the 96px sticky header never covers the focused element. → SC 2.4.11
+- [ ] Tab through: the 120px sticky header never covers the focused element. → SC 2.4.11
 - [ ] Repeat on `/blog/sample-talk`. → SC 1.4.10, 2.4.11
 - [ ] Repeat at 200% and 250%. → SC 1.4.10
 - [ ] Repeat at 400% in a window 1024px tall (256px CSS): the header does not
@@ -136,8 +136,8 @@ The ring is 4px cyan at a 4px offset plus the element's shadow (4px, or 8px for 
 - [ ] On a gold slab or band: the `#131313` ring is visible. → SC 1.4.11
 - [ ] No ring is clipped by a parent or hidden under the header. → SC 2.4.11
 - [ ] Focus is never shown by shadow alone. → SC 2.4.7
-- [ ] Light mode on `<main>`: the ring is `--color-light-focus` (`#00606b`) on
-      white; the header and footer keep the cyan ring on dark. See §5b. → SC 1.4.11, 2.4.7
+- [ ] Light mode on `<main>` and the header: the ring is `--color-light-focus`
+      (`#00606b`) on white; the footer keeps the cyan ring on dark. See §5b. → SC 1.4.11, 2.4.7
 
 ## 5a. Header height, roundel and hero edge
 
@@ -172,8 +172,8 @@ Zoom (forced colors off, 1280px, 200% then 400%):
 
 ## 5b. Light mode
 
-Setup: Chrome, 1280px, `/about`. The switch turns `<main>` light; the header
-and footer stay dark ([ACCESSIBILITY.md](../ACCESSIBILITY.md#light-mode),
+Setup: Chrome, 1280px, `/about`. The switch turns `<main>` and the header
+light; the footer stays dark ([ACCESSIBILITY.md](../ACCESSIBILITY.md#light-mode),
 [STYLEGUIDE.md](STYLEGUIDE.md#light-mode)). `tests/light-mode.spec.ts` covers
 axe, control edges, hover contrast and ring contrast; these checks are the
 rest.
@@ -566,7 +566,7 @@ Setup: Firefox, Settings → General → Zoom → "Zoom text only", Ctrl+`+` to 
 
 - [ ] No text clipped, truncated or hidden.
 - [ ] Header and footer labels fit their boxes, the current-page box included.
-- [ ] Nothing spills out of the 96px header.
+- [ ] Nothing spills out of the 120px header.
 - [ ] The mobile menu, if shown, works.
 - [ ] Repeat on `/blog/sample-talk`.
 
@@ -610,8 +610,7 @@ header or nav layout change.
 
 - [ ] At 320px, content sits 16px from both edges on `/about` and a blog
       route. → SC 1.4.10
-- [ ] Header nav links are 40.8px tall and equal height, current or not; each
-      `.hit-target` area is 44px tall.
+- [ ] Header nav stickers are 48px tall and equal height, current or not.
 - [ ] Mobile menu button and theme switch 48x48, 44x44 below 21rem (336px).
 - [ ] Footer profile tiles 56x56 from 64rem, 48x48 below; footer page links 44px
       rows.

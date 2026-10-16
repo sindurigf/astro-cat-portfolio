@@ -10,11 +10,12 @@
   }
 
   /*
-   * Cards and plain slabs: the `card-edge`, none in dark mode, and graph paper.
+   * Cards, plain slabs and the header slab: the `card-edge`, none in dark
+   * mode, and graph paper.
    * The paper is a layer under the content, so the card's measured ground stays
    * `surface`: its lines are `background`, where every text token passes too.
    */
-  :is(.card, .card-block > *, .plain-slab, .post-contents):not(
+  :is(.card, .card-block > *, .plain-slab, .post-contents, .header-slab):not(
     .card-solid,
     .surface-gold,
     .surface-gold *

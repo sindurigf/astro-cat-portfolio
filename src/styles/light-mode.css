@@ -1,10 +1,10 @@
 /*
- * Light mode: `data-theme="light"` on <html>. Only <main> changes; ink is
+ * Light mode: `data-theme="light"` on <html>. <main> and the header change; ink is
  * #131313, gold stays a fill. On white: text 18.58, subtle 9.53, pink-text
  * 7.06, cyan 7.28 (tests/light-mode.spec.ts). Utilities layer beats `.text-gold`.
  */
 @layer utilities {
-  :root[data-theme='light'] main {
+  :root[data-theme='light'] :is(main, header) {
     --color-background: var(--color-light-ground);
     --color-surface: var(--color-light-ground);
     --color-text: var(--color-light-ink);
@@ -84,7 +84,7 @@
   }
 
   /* A gold fill on white takes an ink edge, as buttons and tiles do. */
-  :root[data-theme='light'] main .theme-switch {
+  :root[data-theme='light'] :is(main, header) .theme-switch {
     @apply border-4 border-text;
   }
 }
