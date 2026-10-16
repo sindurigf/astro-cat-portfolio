@@ -50,6 +50,12 @@ for (const colorScheme of ['dark', 'light'] as const) {
       for (const route of ROUTES) {
         test(route, async ({ page }) => {
           await gotoSettled(page, route);
+          /* Open every fold in <main>, so the edges inside them are measured on their own ground. */
+          await page.evaluate(() => {
+            for (const fold of document.querySelectorAll('main details')) {
+              (fold as HTMLDetailsElement).open = true;
+            }
+          });
           expect(
             await lostEdges(page),
             `edges under ${NON_TEXT}:1 against their ground, on an element whose fill does not reach it either`,

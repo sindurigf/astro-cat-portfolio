@@ -151,11 +151,11 @@ test.describe('a code block is a tab stop only while it scrolls', () => {
         name: block.getAttribute('aria-label') ?? '',
       }));
 
-  test('/brand: the short block fits and leaves the tab order', async ({
+  test('/brand/text: the short block fits and leaves the tab order', async ({
     page,
   }) => {
     await page.setViewportSize({ width: 1280, height: 900 });
-    await gotoSettled(page, '/brand');
+    await gotoSettled(page, '/brand/text');
     await expect
       .poll(
         () => stateOf(page),
@@ -165,11 +165,11 @@ test.describe('a code block is a tab stop only while it scrolls', () => {
   });
 
   /* SC 1.4.12: letter and word spacing widen the text, not the block's box. */
-  test('/brand: text spacing that makes a fitting block overflow makes it a tab stop', async ({
+  test('/brand/text: text spacing that makes a fitting block overflow makes it a tab stop', async ({
     page,
   }) => {
     await page.setViewportSize({ width: 1280, height: 900 });
-    await gotoSettled(page, '/brand');
+    await gotoSettled(page, '/brand/text');
     const block = page.locator('.prose pre[role="group"]').first();
     /* Just wider than its text: the narrowest it can be and still fit. */
     await block.evaluate((element) => {
@@ -205,11 +205,11 @@ test.describe('a code block is a tab stop only while it scrolls', () => {
       });
   });
 
-  test('/brand: narrowed until it overflows, the block becomes a tab stop named as scrolling, and leaves again when widened', async ({
+  test('/brand/text: narrowed until it overflows, the block becomes a tab stop named as scrolling, and leaves again when widened', async ({
     page,
   }) => {
     await page.setViewportSize({ width: REFLOW_VIEWPORT.width, height: 900 });
-    await gotoSettled(page, '/brand');
+    await gotoSettled(page, '/brand/text');
     await expect
       .poll(
         () => stateOf(page),
