@@ -35,7 +35,7 @@ const ZOOM_LEVELS = {
 } as const;
 
 const TARGET_SCALE = 2;
-/* The hero h1 tokens reach exactly 2x at 500%; this absorbs sub-pixel rounding only. */
+/* A token can land on exactly 2x; this absorbs sub-pixel rounding only. */
 const ROUNDING_TOLERANCE = 0.01;
 
 /** Heading tokens held to the plain reading: 2x at 200% zoom at every width. */

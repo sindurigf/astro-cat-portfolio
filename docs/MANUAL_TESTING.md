@@ -600,7 +600,7 @@ Chromium, Firefox and WebKit run the automated suite (WebKit in CI, or
 - [ ] Safari on a Mac and an iPhone: the homepage hero moves smoothly and its
       pause control stops it. Headless WebKit has no GPU, so CI cannot judge
       this. → needs Apple hardware
-- [x] WebKit: covered by CI.
+- WebKit: covered by CI, not a check by hand.
 
 ## 9. Target size → SC 2.5.5
 
@@ -634,7 +634,8 @@ nobody listed.
 Not dependencies; nothing here gates CI.
 
 [keyboard-a11y-tester](https://github.com/ezufelt/keyboard-a11y-tester) (MIT,
-needs an LLM, so it cannot gate a build). One run on `/`:
+needs an LLM, so it cannot gate a build). One run on `/` of the site this
+template was made from, before the fork:
 
 | Finding                                     | Verdict                                                                                                                   |
 | ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
