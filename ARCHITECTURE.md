@@ -740,6 +740,10 @@ evidence.
   text does not sit on; `landmark-unique` counts the no-JavaScript nav, which
   is `display: none` with scripts on; `focus-order` flags the photo strips,
   which are focusable so a keyboard can scroll them.
+- **Move the full-screen slide bar inside the card:** on a 16:9 screen the
+  foot row crosses the bottom of the focused slide's ring while both show.
+  The row shows only while the pointer moves or one of its buttons has focus,
+  and inside the card it would sit over slide content at some widths.
 
 ## Content notes
 
