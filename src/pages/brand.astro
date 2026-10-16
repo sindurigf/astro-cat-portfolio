@@ -86,13 +86,14 @@ const SWATCH: Record<string, string | null> = {
   text: 'text-text',
   subtle: 'text-subtle',
   /* A fill: light mode turns gold text to ink, but keeps gold fills. */
-  gold: 'bg-gold border-4 border-border',
+  gold: 'bg-gold border-4 border-fill-edge',
   /* Never at rest: it shows in Controls under the pointer and the keyboard. */
   cyan: null,
   pink: 'border-4 border-border shadow-hard-pink-4',
   'pink-text': 'text-pink-text',
   mark: 'border-4 border-border shadow-hard-mark-8',
   'tile-edge': 'border-4 border-tile-edge',
+  'fill-edge': 'bg-gold border-4 border-fill-edge',
 };
 const GLYPH = /^text-/;
 for (const { token } of colors) {
@@ -333,7 +334,7 @@ const SWATCH_BOX = 'grid size-16 shrink-0 place-items-center';
   <Section
     id="shadows"
     title={section('shadows').title}
-    lead="Borders are 6px on cards and panels and 4px on controls and photos; the roundel keeps its 8px edge. Shadows are solid offset copies of the shape, with no blur. Corners are square."
+    lead="Borders are gold on the dark page and ink on gold fills and in light mode. They are 6px on panels and fields and 4px on controls and photos; the roundel keeps its 8px edge. Shadows are solid offset copies of the shape, with no blur. Corners are square."
   >
     <ul class:list={['card', ROWS]}>
       {shadows.map(({ utility, casts }) => (

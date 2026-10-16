@@ -49,7 +49,7 @@
   }
 
   /*
-   * A failed photo fades out and the message reads on `background` (14.42),
+   * A failed photo fades out and the message reads on `background` (15.28),
    * never over the photo. `loading` draws nothing: the previous photo stays
    * while the count says "Loading".
    */

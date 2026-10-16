@@ -13,7 +13,7 @@ import { NODE } from './tags';
 
 /**
  * `.card-solid` is a third surface: against `#E5E2E1` every foreground token but
- * `background` (14.42) fails, cyan at 1.29. axe measures labels, not rings, and
+ * `background` (15.28) fails, cyan at 1.29. axe measures labels, not rings, and
  * cyan looks visible on it because it differs in hue, not luminance.
  */
 

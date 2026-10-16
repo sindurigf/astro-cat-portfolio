@@ -87,7 +87,7 @@
    * `mt-6` matches `.prose p`.
    */
   .prose blockquote {
-    @apply mt-6 edge-l border-gold pl-6;
+    @apply mt-6 edge-l border-border pl-6;
   }
 
   /*

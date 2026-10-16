@@ -46,6 +46,12 @@ blur, uppercase headings, tilted marks.
 | 6   | Display words: the homepage family name                                                                         | `/`                                    |
 | 7   | List markers in `.bullet-list`                                                                                  | wherever a bulleted list is            |
 | 8   | The `gold` swatch and the dark-mode contrast samples on gold on `/brand`; fills, hex in both modes              | `/brand`                               |
+| 9   | Edges in dark mode: `border` on fields, controls, chips, rules and the outer edge of a gold area                | every route                            |
+
+- 9 is the edge because the only two colors are ink and gold: an ink edge
+  vanishes on the dark page and a light one adds a third color. Gold reads as
+  structure there (10.60 or more on both dark grounds), and inside gold every edge
+  is ink.
 
 - 4a's lead-in terms and links make a projected slide's key words readable at
   a glance; light mode turns them ink, like bold words.
@@ -75,19 +81,21 @@ blur, uppercase headings, tilted marks.
 | ----------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Heavy uppercase, tight tracking     | Uppercase on headings, labels and buttons only. Tracking -0.05em on h1 and h2, -0.02em on h3 and titles; labels +0.1em. A heading word over 12 characters takes a soft hyphen.                  |
 | Loud accents against 4.5:1          | `pink` `#FF007A` never sets text. `pink-text` `#FF79B6` carries every pink glyph ([Contrast](#contrast)).                                                                                       |
-| Hard shadow looks like a focus ring | The ring is cyan, which appears only on interaction, offset past the element's shadow by `--lift`, so it only touches ground (11.20).                                                           |
-| Error signaled by color             | `pink` against `border` is 2.40. An error is a shape change (a 4px pink inset ring inside the pink 6px edge), a ✕ mark and words.                                                               |
+| Hard shadow looks like a focus ring | The ring is cyan, which appears only on interaction, offset past the element's shadow by `--lift`, so it only touches ground (11.86).                                                           |
+| Error signaled by color             | `pink` against `border` is 2.31. An error is a shape change (a 4px pink inset ring inside the pink 6px edge), a ✕ mark and words.                                                               |
 | Tilt hurts reading                  | Tilt only marks (tile, roundel, stickers), at 3deg. Text and headings never rotate; a sticker's label of one to three words turns with it (close row eyebrow, post tags; `tests/tilt.spec.ts`). |
-| Grayed-out disabled fails SC 1.4.11 | Dashed edge, no shadow. Label stays 8.62; control stays focusable (`aria-disabled`).                                                                                                            |
+| Grayed-out disabled fails SC 1.4.11 | Dashed edge, no shadow. Label stays 9.13; control stays focusable (`aria-disabled`).                                                                                                            |
 | Density against 320px reflow        | Spacing tokens are fluid; every border is counted in the 288px content box before any heading floor changes.                                                                                    |
 
 ## Color tokens
 
 | Token        | Hex       | Job                                                            |
 | ------------ | --------- | -------------------------------------------------------------- |
-| `background` | `#131313` | Page ground; header, footer, bands                             |
+| `background` | `#0B0B0B` | Page ground; header, footer, bands; a card's grid lines        |
 | `surface`    | `#1A1A1A` | Cards, inputs                                                  |
-| `border`     | `#DCC9CF` | Every boundary                                                 |
+| `border`     | `#FFC000` | Every boundary on the page: the gold edge                      |
+| `card-edge`  | none      | Card and plain slab edge; `#131313` in light mode              |
+| `fill-edge`  | `#131313` | Edge of a gold or light fill: buttons, roundel                 |
 | `text`       | `#E5E2E1` | Words                                                          |
 | `subtle`     | `#9BB4C6` | Captions, meta, helper text                                    |
 | `gold`       | `#FFC000` | The accent, only where the style guide allows                  |
@@ -104,6 +112,10 @@ The gold-ground set is in [Gold surface](#gold-surface), light values in
 
 - Two dark grounds: `background` (page, header, footer, bands) and `surface`
   (cards, inputs). Measure every foreground against both.
+- Dark cards draw no edge: the pink shadow and a 16px graph paper of
+  `background` lines over `surface` (`--card-grid`) set them apart. Text over
+  a line keeps its `background` ratio. Forced colors and print drop the paper;
+  light mode has none.
 - `text` for words, `subtle` for captions and meta. Links are `text`, cyan on
   hover; in running text underlined at 2px, 4px on hover.
 - `cyan` never at rest: a cyan label, fill or shadow reads as a control under
@@ -111,6 +123,11 @@ The gold-ground set is in [Gold surface](#gold-surface), light values in
 - `pink` never sets text, at any size. `pink-text` never sets a border, shadow
   or fill. Do not merge them. Utilities: `bg-pink`, `border-pink`,
   `text-pink-text`.
+- A gold or light fill takes the `fill-edge`, never `border`: the fill is
+  what meets the page. A dark fill (a `.sticker`, a chip, a disabled button)
+  keeps `border`: an ink edge would vanish on it.
+- `tests/edge-contrast.spec.ts`: on every route, both modes, 390 and 1280px,
+  a drawn edge reaches 3:1 on its ground unless its fill does.
 - `border` is the SC 1.4.11 floor and `subtle` is set by contrast:
   re-measure before changing either.
 - "Where you are" is a shape, not a color: see [Navigation](#states).
@@ -119,7 +136,7 @@ The gold-ground set is in [Gold surface](#gold-surface), light values in
 ### Adding a color
 
 1. Add it as a token in `@theme`.
-2. Measure it on `#131313` and `#1A1A1A`, on `#FFC000` if it can appear on
+2. Measure it on `#0B0B0B` and `#1A1A1A`, on `#FFC000` if it can appear on
    gold, and its light value on `#ffffff`. A color with alpha is measured as
    it paints: composite it over each ground first, then take the ratio.
 3. Meet 4.5:1 for text (7:1 where achievable), 3:1 for large text, borders,
@@ -140,48 +157,51 @@ Every approved pairing, measured from the live tokens. Text needs 4.5 (SC
 
 | Foreground                | Background            | Job        | Used for                                         | Needs | Ratio | Result     |
 | ------------------------- | --------------------- | ---------- | ------------------------------------------------ | ----- | ----- | ---------- |
-| `text` #E5E2E1            | `background` #131313  | text       | Reading text, headings                           | 4.5   | 14.42 | pass       |
+| `text` #E5E2E1            | `background` #0B0B0B  | text       | Reading text, headings                           | 4.5   | 15.28 | pass       |
 | `text` #E5E2E1            | `surface` #1A1A1A     | text       | Text inside cards and inputs                     | 4.5   | 13.51 | pass       |
-| `subtle` #9BB4C6          | `background` #131313  | text       | Captions, meta, helper text                      | 4.5   | 8.62  | pass       |
+| `subtle` #9BB4C6          | `background` #0B0B0B  | text       | Captions, meta, helper text                      | 4.5   | 9.13  | pass       |
 | `subtle` #9BB4C6          | `surface` #1A1A1A     | text       | Helper and required text in cards                | 4.5   | 8.07  | pass       |
-| `gold` #FFC000            | `background` #131313  | text       | Card labels                                      | 4.5   | 11.32 | pass       |
+| `gold` #FFC000            | `background` #0B0B0B  | text       | Card labels                                      | 4.5   | 11.99 | pass       |
 | `gold` #FFC000            | `surface` #1A1A1A     | text       | Card labels                                      | 4.5   | 10.60 | pass       |
-| `pink-text` #FF79B6       | `background` #131313  | text       | Error text, pink glyphs                          | 4.5   | 7.66  | pass       |
+| `pink-text` #FF79B6       | `background` #0B0B0B  | text       | Error text, pink glyphs                          | 4.5   | 8.12  | pass       |
 | `pink-text` #FF79B6       | `surface` #1A1A1A     | text       | Error text in the form card                      | 4.5   | 7.18  | pass       |
-| `cyan` #00DCFD            | `background` #131313  | text       | Hover text; the focus ring (needs 3)             | 4.5   | 11.20 | pass       |
+| `cyan` #00DCFD            | `background` #0B0B0B  | text       | Hover text; the focus ring (needs 3)             | 4.5   | 11.86 | pass       |
 | `cyan` #00DCFD            | `surface` #1A1A1A     | text       | Hover text and focus ring in cards               | 4.5   | 10.49 | pass       |
-| `border` #DCC9CF          | `background` #131313  | non-text   | Every boundary                                   | 3.0   | 11.77 | pass       |
-| `border` #DCC9CF          | `surface` #1A1A1A     | non-text   | Input and chip edges on a card                   | 3.0   | 11.02 | pass       |
-| `pink` #FF007A            | `background` #131313  | non-text   | Error edge; action shadow                        | 3.0   | 4.90  | pass       |
+| `border` #FFC000          | `background` #0B0B0B  | non-text   | Every boundary on the page                       | 3.0   | 11.99 | pass       |
+| `border` #FFC000          | `surface` #1A1A1A     | non-text   | Input and chip edges on a card                   | 3.0   | 10.60 | pass       |
+| `pink` #FF007A            | `background` #0B0B0B  | non-text   | Error edge; action shadow                        | 3.0   | 5.19  | pass       |
 | `pink` #FF007A            | `surface` #1A1A1A     | non-text   | Error edge on the form card                      | 3.0   | 4.59  | pass       |
-| `background` #131313      | `gold` #FFC000        | text       | Label on a gold fill                             | 4.5   | 11.32 | pass       |
-| `background` #131313      | `cyan` #00DCFD        | text       | Label on a hovered button                        | 4.5   | 11.20 | pass       |
-| `background` #131313      | `text` #E5E2E1        | text       | Badge; the current page block                    | 4.5   | 14.42 | pass       |
+| `background` #0B0B0B      | `gold` #FFC000        | text       | Label on a gold fill                             | 4.5   | 11.99 | pass       |
+| `background` #0B0B0B      | `cyan` #00DCFD        | text       | Label on a hovered button                        | 4.5   | 11.86 | pass       |
+| `background` #0B0B0B      | `text` #E5E2E1        | text       | Badge; the current page block                    | 4.5   | 15.28 | pass       |
 | `gold-text` #131313       | `gold` #FFC000        | text       | Text on the gold surface                         | 4.5   | 11.32 | pass       |
 | `gold-muted` #3A3020      | `gold` #FFC000        | text       | Secondary text on gold                           | 4.5   | 7.88  | pass       |
 | `gold-link` #1E0D16       | `gold` #FFC000        | text       | Links on gold                                    | 4.5   | 11.38 | pass       |
 | `gold` #FFC000            | `gold-link` #1E0D16   | text       | A link filled under the pointer                  | 4.5   | 11.38 | pass       |
 | `gold-bud` #00363F        | `gold` #FFC000        | decoration | The canvas buds on gold                          | n/a   | 8.00  | decoration |
-| `gold-border` #22394D     | `gold` #FFC000        | non-text   | Boundaries on gold                               | 3.0   | 7.27  | pass       |
+| `gold-border` #131313     | `gold` #FFC000        | non-text   | Boundaries on gold                               | 3.0   | 11.32 | pass       |
+| `fill-edge` #131313       | `gold` #FFC000        | non-text   | Edge of a gold fill                              | 3.0   | 11.32 | pass       |
+| `fill-edge` #131313       | `text` #E5E2E1        | non-text   | Edge of a light fill                             | 3.0   | 14.42 | pass       |
+| `surface` #1A1A1A         | `background` #0B0B0B  | decoration | A card; shadow and grid set it apart             | n/a   | 1.13  | decoration |
 | `surface` #1A1A1A         | `gold` #FFC000        | non-text   | Chip fill on the hero slab                       | 3.0   | 10.60 | pass       |
 | `gold-btn-label` #FFFFFF  | `gold-text` #131313   | text       | Label on the dark button on gold                 | 4.5   | 18.58 | pass       |
-| `gold` #FFC000            | `background` #131313  | decoration | Object shadow                                    | n/a   | 11.32 | decoration |
-| `cyan` #00DCFD            | `background` #131313  | decoration | Hovered card shadow                              | n/a   | 11.20 | decoration |
-| `cat-minerva` #A57A4D     | `background` #131313  | decoration | About cat fill; the `text` edge is the boundary  | n/a   | 4.86  | decoration |
-| `cat-hela` #F4EFE8        | `background` #131313  | decoration | About cat fill; the `text` edge is the boundary  | n/a   | 16.24 | decoration |
-| `cat-rudra` #211E1D       | `background` #131313  | decoration | About cat fill; the `text` edge is the boundary  | n/a   | 1.12  | decoration |
+| `gold` #FFC000            | `background` #0B0B0B  | decoration | Object shadow                                    | n/a   | 11.99 | decoration |
+| `cyan` #00DCFD            | `background` #0B0B0B  | decoration | Hovered card shadow                              | n/a   | 11.86 | decoration |
+| `cat-minerva` #A57A4D     | `background` #0B0B0B  | decoration | About cat fill; the `text` edge is the boundary  | n/a   | 5.15  | decoration |
+| `cat-hela` #F4EFE8        | `background` #0B0B0B  | decoration | About cat fill; the `text` edge is the boundary  | n/a   | 17.21 | decoration |
+| `cat-rudra` #211E1D       | `background` #0B0B0B  | decoration | About cat fill; the `text` edge is the boundary  | n/a   | 1.19  | decoration |
 | `cat-minerva-eye` #A4C94A | `cat-minerva` #A57A4D | decoration | Minerva’s green eyes; the pupil carries the look | n/a   | 2.01  | decoration |
 | `text` #E5E2E1            | `surface` #1A1A1A     | non-text   | About cat sticker edge on a card                 | 3.0   | 13.51 | pass       |
 | `pink` #FF007A            | `gold` #FFC000        | decoration | Shadows on gold                                  | n/a   | 2.31  | decoration |
 | `text` #E5E2E1            | `gold` #FFC000        | never      | Dark-surface text is never used on gold          | n/a   | 1.27  | never used |
 | `subtle` #9BB4C6          | `gold` #FFC000        | never      | Dark-surface meta is never used on gold          | n/a   | 1.31  | never used |
 | `pink-text` #FF79B6       | `gold` #FFC000        | never      | Error text is never used on gold                 | n/a   | 1.48  | never used |
-| `border` #DCC9CF          | `gold` #FFC000        | never      | The dark-surface edge is never used on gold      | n/a   | 1.04  | never used |
+| `border` #FFC000          | `gold` #FFC000        | never      | A gold area’s outer edge, never inside gold      | n/a   | 1.00  | never used |
 | `gold-btn-label` #FFFFFF  | `gold` #FFC000        | never      | Only on the dark button fill                     | n/a   | 1.64  | never used |
 | `cyan` #00DCFD            | `pink` #FF007A        | apart      | A ring never touches a pink shadow               | n/a   | 2.29  | kept apart |
 | `cyan` #00DCFD            | `gold` #FFC000        | apart      | A ring never touches a gold shadow or fill       | n/a   | 1.01  | kept apart |
-| `cyan` #00DCFD            | `border` #DCC9CF      | apart      | A ring never touches a neighbor edge             | n/a   | 1.05  | kept apart |
-| `pink` #FF007A            | `border` #DCC9CF      | apart      | An error is a shape change, not a recolor        | n/a   | 2.40  | kept apart |
+| `cyan` #00DCFD            | `border` #FFC000      | apart      | A ring never touches a neighbor edge             | n/a   | 1.01  | kept apart |
+| `pink` #FF007A            | `border` #FFC000      | apart      | An error is a shape change, not a recolor        | n/a   | 2.31  | kept apart |
 | `text` #E5E2E1            | `subtle` #9BB4C6      | apart      | The two text colors never carry a state          | n/a   | 1.67  | kept apart |
 
 <!-- contrast-table:end -->
@@ -199,6 +219,7 @@ set; hex values and ratios are in the generated [Contrast](#contrast) table:
 | `gold-text`      | Body copy, headings, button borders, the focus ring     |
 | `gold-muted`     | Secondary copy                                          |
 | `gold-border`    | Structural rules, dividers, card edges and shadows      |
+| `fill-edge`      | Edge of a gold or light fill, on gold or off it         |
 | `gold-link`      | Links, underlined; the block on hover                   |
 | `gold-bud`       | The canvas buds on gold. Decoration                     |
 | `gold-btn-label` | Label and inner ring on `.btn-gold-primary`'s fill only |
@@ -206,7 +227,8 @@ set; hex values and ratios are in the generated [Contrast](#contrast) table:
 - Build gold with `.surface-gold`, never `bg-gold` by hand. It repaints text,
   `.lead`, `.panel-lead` and `.standfirst` (`gold-text`), links (`gold-link`,
   underlined), the focus ring (`gold-text`) and default borders
-  (`gold-border`). A card inside turns transparent with
+  (`gold-border`); the area's own outer edge keeps `border`, gold on gold,
+  since it meets the page. A card inside turns transparent with
   `shadow-hard-gold-border-4`; a linked chip keeps its dark fill with a
   `gold-text` edge.
 - A whole gold section (hero slab, gold band) is also a `.gold-column`.
@@ -250,6 +272,7 @@ The switch and what it scopes: [ARCHITECTURE.md](../ARCHITECTURE.md#light-mode).
 | ---------------------------------------------------- | --------- | ------------ |
 | `background`, `surface`, `hero-ground`               | `#ffffff` | ground       |
 | `text`, `border`, `pink`, `gold-border`, `gold-bud`  | `#131313` | 18.58        |
+| `card-edge`                                          | `#131313` | 18.58        |
 | gold as text, `.text-gold`                           | `#131313` | 18.58        |
 | `subtle`                                             | `#3f4650` | 9.53         |
 | `pink-text`                                          | `#b00054` | 7.06         |
@@ -260,6 +283,7 @@ The switch and what it scopes: [ARCHITECTURE.md](../ARCHITECTURE.md#light-mode).
   their `#FFC000` fill, always under `#131313` (11.32).
 - Gold text turns ink; a `.label.text-gold` and a slide label gain a gold
   square before the word.
+- Cards keep a `#131313` edge and no graph paper.
 - Logo marks use `mark`, `tile-edge`, the `cat-hela*` coat and
   `shadow-hard-mark-*` or `drop-shadow-hard-mark-*`, never `pink` or `border`:
   they do not change with the mode.
@@ -460,6 +484,10 @@ with a comment beside it.
   an 8px edge, a logo mark. No rule between sections.
 - The default border color is `border`, set in the base layer (Tailwind 4
   defaults to `currentColor`); `gold-border` inside `.surface-gold`.
+- Each ground has one edge role. Dark page: `border` (gold). Dark card:
+  `card-edge` (none) with graph paper. Inside gold: `gold-border` (ink). A
+  gold or light fill: `fill-edge` (ink). Light mode: ink everywhere.
+  `tests/edges.spec.ts` asserts each in both modes.
 - Shadows are hard offsets, no blur. Gold casts none (gold on gold is 1.00).
 
 | Utility                     | Casts it                                                                                                                     |
@@ -518,12 +546,13 @@ file per area.
 ### Control states
 
 - Hover: `.btn-primary`, `.btn-secondary` and `.nav-cta` fill cyan with a
-  `background` label (11.20).
+  `background` label (11.86).
 - Pressed: buttons, `.nav-cta`, `.btn-gold-primary`, linked chips and footer
   stickers drop their shadow and move 4px into it; the logo tile 8px. No move
   under reduced motion. `tests/press.spec.ts` presses each.
-- Unavailable: `aria-disabled="true"`, never `disabled`. Dashed border,
-  `bg-background`, `subtle` label, no shadow; still focusable.
+- Unavailable: `aria-disabled="true"`, never `disabled`. Dashed `border`
+  (the dash says unavailable, the gold keeps the shape), `bg-background`,
+  `subtle` label, no shadow; still focusable.
 - Sending: the contact submit is `aria-disabled` in a `data-sending` form but
   drawn pressed and gold, not unavailable (`src/scripts/contact-sending.ts`).
 - Current: [Navigation states](#states).
@@ -538,7 +567,7 @@ file per area.
   [ACCESSIBILITY.md §9](../ACCESSIBILITY.md#9-contributor-checklist).
 - Photos: a 4px `border` frame, no shadow or tilt, except the PageHero photo
   (4px pink shadow).
-- `.card-solid`: only `background` passes on its `text` fill (14.42), so
+- `.card-solid`: only `background` passes on its `text` fill (15.28), so
   everything inside is `background`, the focus ring included. Text only, never
   a form. Focusable content sits at least 8px inside.
   `tests/solid-block.spec.ts`.
@@ -594,15 +623,15 @@ The grid rule in `scripts/check-tokens.mjs` enforces the grid;
   keeps its own top: two `--spacing-section` across that join. `CloseRow` is
   `py-section`, not `pb-section`, for this reason.
 - The slab's edge separates the hero from the first section; no line under it.
-- The only ground change is gold (hero slab and gold surface), 11.32 against
+- The only ground change is gold (hero slab and gold surface), 11.99 against
   the page, never color alone.
-- Panels and the closing row are cards: 6px edge and 8px shadow.
+- Panels and the closing row are cards: `card-edge` and 8px shadow.
 - No rules or dividers between sections or before the footer.
 
 ### Section headers
 
 - `<section aria-labelledby="{id}-heading">` with `<h2 id="{id}-heading">`.
-- Heading: `text-h2`, 900, uppercase, `--tracking-heading`, `text` (14.42). No
+- Heading: `text-h2`, 900, uppercase, `--tracking-heading`, `text` (15.28). No
   eyebrow label; labels belong to cards.
 - Lead: `.lead`, `text-lead` (24px) at 400, 24px under the heading.
 - Content: `--spacing-head` under the heading or lead.
@@ -746,7 +775,8 @@ roundel.**
 - About and every post with a `cover` have a photo, so no roundel.
 - The homepage is not a PageHero and has no roundel on its window.
 - `variant="hero"`: a gold disc of `--spacing-roundel` with a `gold-text` ring
-  (4px, 8px from `lg`), `mark` 8px shadow, 3deg tilt.
+  (4px, 8px from `lg`), `mark` 8px shadow, 3deg tilt. The page variant's 8px
+  ring is `fill-edge`, so it holds on a gold band.
 - Its center sits `--spacing(1)` above the slab's bottom edge; its right side
   on the column's text edge (`.hero-roundel`).
 - On a plain tier it straddles the dark slab's bottom edge too, and is never
@@ -772,7 +802,7 @@ roundel.**
 | Focus ring                  | `gold-text` on gold             | 11.32 | 3          |
 | Photo border                | `gold-text` on gold             | 11.32 | decoration |
 | Roundel ring on the slab    | `gold-text` on gold             | 11.32 | decoration |
-| Roundel disc off the slab   | gold on `background`            | 11.32 | decoration |
+| Roundel disc off the slab   | gold on `background`            | 11.99 | decoration |
 | Photo and chip shadows      | pink on gold                    | 2.31  | decoration |
 
 - Pink never delimits anything on the slab: every control has its fill or a
@@ -1006,15 +1036,15 @@ No rule or divider joins the footer to the page.
 
 ### Links and stickers
 
-- Links are `.label`: Site in `text` (14.42), About this site in `subtle`
-  (8.62), cyan on hover (11.20). Each row is 44px tall (`--spacing-target`).
+- Links are `.label`: Site in `text` (15.28), About this site in `subtle`
+  (9.13), cyan on hover (11.86). Each row is 44px tall (`--spacing-target`).
 - The current page has `aria-current` and the 2px text-link underline; hover
   changes color only, so the two never look alike.
 - Stickers: `--size-sticker` 48px (`--size-sticker-lg` 56px from 64rem),
-  `--border-width-sticker` 4px `border` edge, 3deg tilt, 4px pink shadow with
+  `--border-width-sticker` 4px `fill-edge` edge, 3deg tilt, 4px pink shadow with
   `lift-control`. They straighten on hover and focus.
 - One colorway, the `.badge` inversion: `text` fill, `background` glyph
-  (14.42). Not cycled by `nth-child`.
+  (15.28). Not cycled by `nth-child`.
 - Sizes are `@theme` tokens: `--size-sticker`, `--size-sticker-lg`,
   `--size-sticker-icon` (22px), `--border-width-sticker`, `--size-tuft` (220px),
   `--size-tuft-md` (266px).
@@ -1056,7 +1086,7 @@ Enforced by `tests/nav-current.spec.ts`, `tests/mobile-menu.spec.ts`,
 
 | Item                                    | Current                                                                                                                                          | Hover                                      | Focus                                                      |
 | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------ | ---------------------------------------------------------- |
-| Nav link, menu link, no-JavaScript link | `aria-current`, `"page"` on the page and `"true"` inside its section, a flat `bg-text` block with a `border` edge, label in `background` (14.42) | cyan text (11.20), not on the current item | the 4px cyan ring at a 4px offset, on the current item too |
+| Nav link, menu link, no-JavaScript link | `aria-current`, `"page"` on the page and `"true"` inside its section, a flat `bg-text` block with a `border` edge, label in `background` (15.28) | cyan text (11.86), not on the current item | the 4px cyan ring at a 4px offset, on the current item too |
 | Call to action                          | `aria-current`, `"page"` or `"true"`, shadow dropped, a 4px inset ring, pressed in                                                               | cyan fill                                  | the ring, offset past its shadow unless current            |
 | Logo link                               | `aria-current="page"` on `/`, no visual state: the homepage hero says where you are                                                              | none                                       | the ring, offset past the tile's 8px shadow                |
 
@@ -1203,8 +1233,8 @@ size-full object-cover`). Never put `aspect-ratio` on the image: WebKit
   viewBox is the file's width and height. PhotoTile reads it from image
   metadata; post photos get it at build time in `src/plugins/post-figure.mjs`.
   An inline style is refused by the CSP.
-- The frame carries the border and shadow: `border` 4px on the page (11.77 on
-  `background`, 11.02 on `surface`), `gold-text` on the hero slab (11.32).
+- The frame carries the border and shadow: `border` 4px on the page (11.99 on
+  `background`, 10.60 on `surface`), `gold-text` on the hero slab (11.32).
 - `min-w-0`: WebKit gives a grid item with an aspect ratio a minimum width
   wider than its track.
 

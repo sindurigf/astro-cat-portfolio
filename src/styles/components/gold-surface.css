@@ -8,11 +8,15 @@
     @apply bg-gold text-gold-text;
   }
 
-  .surface-gold,
   .surface-gold *,
   .surface-gold ::before,
   .surface-gold ::after {
     border-color: var(--color-gold-border);
+  }
+
+  /* The outer edge meets the page, so it takes the page's `border`. */
+  .surface-gold:not(.surface-gold *) {
+    border-color: var(--color-border);
   }
 
   /*

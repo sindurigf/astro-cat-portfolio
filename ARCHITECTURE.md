@@ -379,10 +379,10 @@ in `wrangler.jsonc`).
 | `artwork/badge-white.png`      | `#FFFFFF` | Dark surfaces        | Nothing; source artwork                        |
 | `public/images/og-default.png` | Composite | n/a                  | `BaseLayout.astro`, every page without a cover |
 
-| Artwork             | on `#131313` | on `#1A1A1A` | on `#FFFFFF` | on `#FFC000` |
+| Artwork             | on `#0B0B0B` | on `#1A1A1A` | on `#FFFFFF` | on `#FFC000` |
 | ------------------- | ------------ | ------------ | ------------ | ------------ |
-| `-dark`, `#131313`  | 1.00         | 1.07         | **18.58**    | **11.32**    |
-| `-white`, `#FFFFFF` | **18.58**    | **17.40**    | 1.00         | 1.64         |
+| `-dark`, `#131313`  | 1.06         | 1.07         | **18.58**    | **11.32**    |
+| `-white`, `#FFFFFF` | **19.68**    | **17.40**    | 1.00         | 1.64         |
 
 - `og-default.png`: 1200x630, the sharing image for every page without a
   cover: the name, `site.tagline` and `site.name` on the gold panel, the logo

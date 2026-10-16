@@ -205,16 +205,18 @@ test.describe('/brand', () => {
             )!;
             const style = getComputedStyle(chip);
             const cls = chip.className;
-            /* Each swatch paints its color where its job puts it. */
-            const painted = /\bbg-/.test(cls)
-              ? hex(style.backgroundColor)
-              : /\bshadow-hard-/.test(cls)
-                ? hex(style.boxShadow)
-                : /\bborder-dashed\b/.test(cls)
-                  ? null
-                  : /\bborder-4\b/.test(cls)
+            /* Each swatch paints its color where its job puts it: the utility named for the token. */
+            const names = (prefix: string): boolean =>
+              cls.split(/\s+/).some((c) => c.startsWith(`${prefix}-${token}`));
+            const painted = /\bborder-dashed\b/.test(cls)
+              ? null
+              : names('bg')
+                ? hex(style.backgroundColor)
+                : names('shadow-hard')
+                  ? hex(style.boxShadow)
+                  : names('border')
                     ? hex(style.borderTopColor)
-                    : /\btext-/.test(cls)
+                    : names('text')
                       ? hex(style.color)
                       : null;
             return { token, want: mode === 'light' ? light : dark, painted };

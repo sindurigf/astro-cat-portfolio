@@ -28,7 +28,6 @@
   }
 
   .surface-gold .sticker {
-    border-color: var(--color-border);
     color: var(--color-pink-text);
   }
 
@@ -45,16 +44,16 @@
   }
 
   /*
-   * Current: a flat text-color block without shadow (14.42); the marker
+   * Current: a flat text-color block without shadow (15.28); the marker
    * inverts.
    */
   a.chip[aria-current] {
-    @apply bg-text text-background shadow-none;
+    @apply border-fill-edge bg-text text-background shadow-none;
 
     --lift: 0px;
   }
 
-  /* background on text: 14.42. */
+  /* background on text: 15.28. */
   .badge {
     @apply inline-flex items-center bg-text px-2 py-1 text-label font-black
       uppercase tracking-label text-background;
