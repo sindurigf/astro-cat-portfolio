@@ -428,14 +428,8 @@
     @apply mt-4 text-display font-black;
   }
 
-  /* One slide per 16:9 page; nothing else prints. */
+  /* One slide per 16:9 page; print.css keeps everything outside main off paper. */
   @media print {
-    @page {
-      margin: 0;
-    }
-
-    body > :not(main),
-    .skip-link,
     .deck-bar {
       display: none !important;
     }
