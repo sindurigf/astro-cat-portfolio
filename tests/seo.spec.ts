@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { contactDescription } from '../src/lib/contact';
 import { SOCIAL_PROFILES } from '../src/lib/profiles';
 import { BING_SITE_VERIFICATION, bingVerificationFor } from '../src/lib/site';
 import { SITE_CONFIG, validateSiteConfig } from '../src/site.config';
@@ -445,6 +446,36 @@ test.describe('search results', NODE, () => {
       .map(({ route, title }) => `${route} (${title.length})`);
 
     expect(long, `title(s) over ${MAX_TITLE} characters`).toEqual([]);
+  });
+});
+
+test.describe("/contact's description", NODE, () => {
+  test('names the services passed in, and the form only when it is on', () => {
+    expect(contactDescription('Jane Doe', ['Mastodon'], false)).toBe(
+      'Write to Jane Doe by email or on Mastodon.',
+    );
+    expect(contactDescription('Jane Doe', [], true)).toBe(
+      'Write to Jane Doe by email, or with the contact form.',
+    );
+  });
+
+  test('names every profile the page offers a card for', () => {
+    const html = builtHtmlByRoute().get('/contact')!;
+    const description = metaContent(html, 'description') ?? '';
+    const offered = SOCIAL_PROFILES.filter(({ href }) =>
+      new RegExp(`<a\\b[^>]*href="${href}"[^>]*class="[^"]*lift-object`).test(
+        html,
+      ),
+    ).map(({ label }) => label);
+
+    expect(offered.length, '/contact offers no profile card').toBeGreaterThan(
+      0,
+    );
+    for (const label of offered) {
+      expect(description, `the description leaves out ${label}`).toContain(
+        label,
+      );
+    }
   });
 });
 
