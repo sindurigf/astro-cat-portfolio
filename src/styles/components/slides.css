@@ -166,7 +166,7 @@
   }
 
   /*
-   * `--deck-chrome`: deck padding, gap, control row and 8px shadow. Padding is
+   * `--deck-chrome`: deck padding, gap, control row and card shadow. Padding is
    * a share of the card's width (`.deck-stage` is the container), never below
    * the card's own padding.
    */
@@ -346,7 +346,7 @@
 
   /* Cards in a row share one height (`items-stretch` above). */
   .slide-card {
-    @apply border-4 border-border bg-background px-6 py-6 shadow-hard-pink-4;
+    @apply edge border-border bg-background px-6 py-6 shadow-hard-pink-object;
   }
 
   .slide-body .slide-card li + li {

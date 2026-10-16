@@ -27,7 +27,7 @@
   .surface-gold .card {
     background-color: transparent;
 
-    @apply shadow-hard-gold-border-8;
+    @apply shadow-hard-gold-border-4;
   }
 
   .surface-gold a {

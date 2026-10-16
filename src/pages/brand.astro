@@ -80,19 +80,19 @@ const section = (id: (typeof SECTIONS)[number]['id']) =>
  */
 const SWATCH: Record<string, string | null> = {
   /* Framed in `text`: a ground's fill alone is lost against the card. */
-  background: 'bg-background border-8 border-text',
-  surface: 'bg-surface border-8 border-text',
-  border: 'border-8 border-border',
+  background: 'bg-background border-4 border-text',
+  surface: 'bg-surface border-4 border-text',
+  border: 'border-4 border-border',
   text: 'text-text',
   subtle: 'text-subtle',
   /* A fill: light mode turns gold text to ink, but keeps gold fills. */
   gold: 'bg-gold border-4 border-border',
   /* Never at rest: it shows in Controls under the pointer and the keyboard. */
   cyan: null,
-  pink: 'border-4 border-border shadow-hard-pink-8',
+  pink: 'border-4 border-border shadow-hard-pink-4',
   'pink-text': 'text-pink-text',
   mark: 'border-4 border-border shadow-hard-mark-8',
-  'tile-edge': 'border-8 border-tile-edge',
+  'tile-edge': 'border-4 border-tile-edge',
 };
 const GLYPH = /^text-/;
 for (const { token } of colors) {
@@ -126,9 +126,9 @@ const SPACING_CLASS: Record<string, string> = {
 /* Cyan is never at rest, so its shadow shows only on a hovered card. */
 const SHADOW_CLASS: Record<string, string | null> = {
   'shadow-hard-pink-4': 'shadow-hard-pink-4',
-  'shadow-hard-pink-8': 'shadow-hard-pink-8',
-  'shadow-hard-cyan-8': null,
-  'shadow-hard-gold-border-8': 'shadow-hard-gold-border-8',
+  'shadow-hard-pink-object': 'shadow-hard-pink-object',
+  'shadow-hard-cyan-object': null,
+  'shadow-hard-gold-border-4': 'shadow-hard-gold-border-4',
   'shadow-hard-mark-4': 'shadow-hard-mark-4',
   'shadow-hard-mark-8': 'shadow-hard-mark-8',
   'drop-shadow-hard-mark-8': 'drop-shadow-hard-mark-8',
@@ -333,7 +333,7 @@ const SWATCH_BOX = 'grid size-16 shrink-0 place-items-center';
   <Section
     id="shadows"
     title={section('shadows').title}
-    lead="Borders are 4 or 8px. Shadows are solid offset copies of the shape, with no blur. Corners are square."
+    lead="Borders are 6px on cards and panels and 4px on controls and photos; the roundel keeps its 8px edge. Shadows are solid offset copies of the shape, with no blur. Corners are square."
   >
     <ul class:list={['card', ROWS]}>
       {shadows.map(({ utility, casts }) => (

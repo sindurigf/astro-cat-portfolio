@@ -449,6 +449,122 @@ for (const colorScheme of SCHEMES) {
   }
 }
 
+/** How far the hard box and drop shadows of a control, or of anything inside it, reach past its box, in px. */
+const SHADOW_REACH = `
+  const shadowsOf = (value) =>
+    value
+      .split(/,(?![^(]*\\))/)
+      .filter((layer) => !layer.includes('inset'))
+      .map((layer) => layer.match(/(-?\\d+(?:\\.\\d+)?)px (-?\\d+(?:\\.\\d+)?)px 0px/))
+      .filter(Boolean)
+      .map((m) => [Number(m[1]), Number(m[2])]);
+  const shadowReach = (el) => {
+    const box = el.getBoundingClientRect();
+    let reach = 0;
+    for (const node of [el, ...el.querySelectorAll('*')]) {
+      const r = node.getBoundingClientRect();
+      const style = getComputedStyle(node);
+      const drops = [...style.filter.matchAll(/drop-shadow\\((?:[^()]|\\([^()]*\\))*\\)/g)].map((m) => m[0]);
+      for (const [dx, dy] of [...shadowsOf(style.boxShadow), ...drops.flatMap(shadowsOf)]) {
+        reach = Math.max(reach, r.right + dx - box.right, r.bottom + dy - box.bottom);
+      }
+    }
+    return reach;
+  };
+`;
+
+/* SC 1.4.11: cyan over a pink shadow is 2.29, so no ring may start inside the shadows of its own control. */
+for (const colorScheme of SCHEMES) {
+  test.describe(`ring clearance, ${colorScheme}`, () => {
+    test.use({ colorScheme, viewport: { width: 1280, height: 900 } });
+
+    for (const route of SAMPLED_ROUTES) {
+      test(`${route} clears every focused control's shadow, at rest and under the pointer`, async ({
+        page,
+      }) => {
+        await gotoSettled(page, route);
+        await page.keyboard.press('Tab');
+        const count = await page.locator(FOCUSABLE_SELECTOR).count();
+        const short: string[] = [];
+        for (let i = 0; i < count; i += 1) {
+          const control = page.locator(FOCUSABLE_SELECTOR).nth(i);
+          if (!(await control.isVisible())) continue;
+          for (const hover of [false, true]) {
+            if (hover)
+              await control
+                .hover({ force: true, trial: false })
+                .catch(() => undefined);
+            await control.focus();
+            const found = await control.evaluate(
+              new Function(
+                'el',
+                `${SHADOW_REACH}
+                const s = getComputedStyle(el);
+                return {
+                  name: (el.getAttribute('aria-label') || el.textContent || el.tagName).trim().slice(0, 40),
+                  offset: parseFloat(s.outlineOffset) || 0,
+                  shadow: shadowReach(el),
+                };`,
+              ) as (el: Element) => {
+                name: string;
+                offset: number;
+                shadow: number;
+              },
+            );
+            if (found.shadow > 0 && found.offset < found.shadow)
+              short.push(
+                `${found.name}${hover ? ' (hovered)' : ''}: ring offset ${found.offset}px, shadow reaches ${found.shadow.toFixed(1)}px past the box`,
+              );
+          }
+          await page.mouse.move(0, 0);
+        }
+        expect(
+          short,
+          `${route} has a ring that lands on its own shadow`,
+        ).toEqual([]);
+      });
+    }
+  });
+}
+
+/** Whole-pixel scrolling can leave a fractional box this much lower than the padding allows. */
+const SCROLL_ROUNDING_PX = 1;
+
+/* SC 2.4.7: a control scrolled to the bottom edge shows its whole ring. */
+for (const route of SAMPLED_ROUTES) {
+  test(`${route} leaves bottom scroll padding for the widest focus ring`, async ({
+    page,
+  }) => {
+    await gotoSettled(page, route);
+    const count = await page.locator(FOCUSABLE_SELECTOR).count();
+    let widest = 0;
+    for (let i = 0; i < count; i += 1) {
+      const control = page.locator(FOCUSABLE_SELECTOR).nth(i);
+      if (!(await control.isVisible())) continue;
+      await control.focus();
+      widest = Math.max(
+        widest,
+        await control.evaluate((el) => {
+          const s = getComputedStyle(el);
+          return s.outlineStyle === 'none'
+            ? 0
+            : parseFloat(s.outlineWidth) + parseFloat(s.outlineOffset);
+        }),
+      );
+    }
+    const padding = await page.evaluate(() =>
+      parseFloat(
+        getComputedStyle(document.documentElement).scrollPaddingBottom,
+      ),
+    );
+    expect(widest, `${route} drew no focus ring to measure`).toBeGreaterThan(0);
+    expect(
+      padding,
+      `${route} scroll-padding-bottom is short of its widest ring plus rounding`,
+    ).toBeGreaterThanOrEqual(widest + SCROLL_ROUNDING_PX);
+  });
+}
+
 /* SC 2.4.1: the skip link moves focus, not only the scroll position. */
 test.describe('skip link', () => {
   for (const route of SAMPLED_ROUTES) {

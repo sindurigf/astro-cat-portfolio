@@ -32,9 +32,9 @@ const SIZES =
  * tests/image-size.spec.ts fails when this and the CSS drift apart.
  */
 const SLIDE_SIZES =
-  '(min-width: 64rem) min(calc((min(100vw - 12rem, 71rem) - 33rem) * 5 / 12 + 12rem), 55vh, 28rem), ' +
-  '(min-width: 40rem) min(calc(100vw - 9rem), 55vh, 28rem), ' +
-  'min(calc(100vw - 6rem), 55vh, 28rem)';
+  '(min-width: 64rem) min(calc((min(100vw - 11.5rem, 71.5rem) - 33rem) * 5 / 12 + 12rem), 55vh, 28rem), ' +
+  '(min-width: 40rem) min(calc(100vw - 8.5rem), 55vh, 28rem), ' +
+  'min(calc(100vw - 5.5rem), 55vh, 28rem)';
 
 /* Must match where src/lib/talk-loader.ts reads the slides from. */
 const TALKS_PATH = '/src/content/talks/';

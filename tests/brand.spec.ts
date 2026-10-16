@@ -210,11 +210,13 @@ test.describe('/brand', () => {
               ? hex(style.backgroundColor)
               : /\bshadow-hard-/.test(cls)
                 ? hex(style.boxShadow)
-                : /\bborder-8\b/.test(cls)
-                  ? hex(style.borderTopColor)
-                  : /\btext-/.test(cls) && !/\bborder-dashed\b/.test(cls)
-                    ? hex(style.color)
-                    : null;
+                : /\bborder-dashed\b/.test(cls)
+                  ? null
+                  : /\bborder-4\b/.test(cls)
+                    ? hex(style.borderTopColor)
+                    : /\btext-/.test(cls)
+                      ? hex(style.color)
+                      : null;
             return { token, want: mode === 'light' ? light : dark, painted };
           });
         }, theme);
