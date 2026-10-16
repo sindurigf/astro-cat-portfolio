@@ -386,7 +386,7 @@ in `wrangler.jsonc`).
 
 - `og-default.png`: 1200x630, the sharing image for every page without a
   cover: the name, `site.tagline` and `site.name` on the gold panel, the logo
-  cat on the dark strip. Rendered by `npm run og`
+  cat whole and centered on the dark strip, clear of the cropped edges. Rendered by `npm run og`
   ([DEVELOPMENT.md](docs/DEVELOPMENT.md#the-sharing-image)). A PNG in `public/`
   because scrapers need a stable URL and format.
 - `src/lib/brand-mark.ts`: the logo cat, an eared tile in Hela's calico with
