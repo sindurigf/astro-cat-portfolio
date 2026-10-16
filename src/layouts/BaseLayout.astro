@@ -209,6 +209,7 @@ const articleData = article && {
       is:inline
       set:html={structuredDataScript({
         site,
+        siteName: SITE_NAME,
         personImage,
         article: articleData,
         breadcrumbs: trail && { page: canonical, trail },
