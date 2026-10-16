@@ -18,7 +18,7 @@ permissions:
 jobs:
   # Runs beside the shards, not before them, so both report together.
   checks:
-    name: Conventions, build, typecheck and format
+    name: Conventions, build, typecheck, format and contact endpoint
     runs-on: ubuntu-24.04
     timeout-minutes: 15
 
