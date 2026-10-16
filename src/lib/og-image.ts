@@ -20,7 +20,7 @@ export interface OgImage {
   alt: string;
 }
 
-// TODO(fork): describe your own sharing image in `alt` once public/images/og-default.png is replaced.
+// TODO(fork): Describe your own sharing image in `alt` once you have redrawn it with npm run og.
 export const DEFAULT_OG_IMAGE: OgImage = {
   src: '/images/og-default.png',
   width: CARD_WIDTH,

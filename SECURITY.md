@@ -6,7 +6,7 @@ Report a vulnerability privately, not in a public issue:
    vulnerability" on the Security tab.
 2. Email the template's maintainer at <lol@sinduri.lol>.
 
-<!-- TODO(fork): replace both contacts with your own, as the next paragraph says. -->
+<!-- TODO(fork): Replace both contacts with your own, as the next paragraph says. -->
 
 In a fork, replace both contacts with your own before publishing: turn on
 private vulnerability reporting under Settings > Code security, and name your

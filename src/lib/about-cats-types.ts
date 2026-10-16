@@ -2,7 +2,6 @@
  * Types shared by the About cats' rig, moves and colony, here so the rig and
  * the moves need not import each other.
  */
-// TODO(fork): your cats' ids; `git grep -n pepper` lists every file that names one.
 export type CatId = 'pepper' | 'mochi' | 'biscuit';
 
 export type Pair = [number, number];

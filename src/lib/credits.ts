@@ -6,7 +6,7 @@ export const PHOTO_CREDITS_PATH = '/credits/#photos';
  * text. Link each to the photographer's own site where there is one. No import:
  * src/plugins/post-figure.mjs loads this file in Node.
  */
-// TODO(fork): your photographers and their links.
+// TODO(fork): List the photographers of your photos, each with a link.
 export const PHOTOGRAPHERS = {
   'License and Credit': PHOTO_CREDITS_PATH,
 } as const satisfies Readonly<Record<string, string>>;
@@ -23,7 +23,7 @@ export const photographerHref = (name: Photographer): string => {
 export const PHOTO_CREDIT_PREFIX = 'Photo: ';
 
 /* Keyed by the name as written after "Screenshot: "; a placeholder to replace or empty. */
-// TODO(fork): your screenshot sources, or leave it empty.
+// TODO(fork): List where your screenshots come from, or leave this empty.
 export const SCREENSHOT_SOURCES = {
   'Example Project': 'https://example.org/',
 } as const satisfies Readonly<Record<string, string>>;
@@ -51,7 +51,7 @@ export interface LicensedPhoto {
 export const LICENSED_PHOTOS: Readonly<Record<string, LicensedPhoto>> = {};
 
 /** Where the site's name comes from, credited on /credits. */
-// TODO(fork): who your site's name comes from, and the thanks below.
+// TODO(fork): Say who or what your site's name comes from, and who you want to thank below.
 export const NAME_INSPIRATION = {
   name: 'Sam Example',
   href: 'https://example.net/',

@@ -16,7 +16,7 @@ The statement is voluntary for a personal site and follows the
 
 ## 1. Project information
 
-<!-- TODO(fork): replace the Project, Accessibility owner and both reporting rows; set Last reviewed after your own review. -->
+<!-- TODO(fork): Replace the Project, Accessibility owner and both reporting rows with your own, and set Last reviewed once you have reviewed this file. -->
 
 | Field               | Value                                                      |
 | ------------------- | ---------------------------------------------------------- |

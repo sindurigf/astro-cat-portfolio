@@ -40,7 +40,6 @@ const props = defineProps<{
 }>();
 
 /* Where each cat starts on its card, 0 to 1, and which way it faces. */
-// TODO(fork): one entry per cat id, as in src/lib/about-cats-types.ts.
 const PLACES: Record<CatId, { start: number; facing: 1 | -1 }> = {
   pepper: { start: 0.85, facing: -1 },
   mochi: { start: 0.8, facing: -1 },

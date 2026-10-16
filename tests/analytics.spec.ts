@@ -414,6 +414,7 @@ test.describe('analytics', () => {
       /* The viewer's close event, a task after Close, focuses the photo shown; a cat focused before it loses focus to it. */
       await expect(photos.nth(1)).toBeFocused();
 
+      // TODO(fork): Use your first cat's name below, or delete these lines up to the card's Close with the cats.
       const cat = page.locator('#cat-spot-pepper .cat-button');
       await cat.focus();
       await expect(cat).toBeFocused();

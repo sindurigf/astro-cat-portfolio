@@ -174,7 +174,6 @@
     pointer-events: all;
   }
 
-  /* TODO(fork): one rule per cat id, with its colors in src/styles/global.css. */
   .cat-button[data-cat='pepper'] {
     --cat-fur: var(--color-cat-pepper);
     --cat-far: var(--color-cat-pepper-far);

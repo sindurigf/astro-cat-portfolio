@@ -55,7 +55,7 @@ import {
  * never covering text. Their drawing and motion are decoration and not tested.
  */
 const ROUTE = '/about/';
-// TODO(fork): your cats' ids and names, as in src/pages/about.astro.
+// TODO(fork): Your cats' names in the list just below, the same as on the About page. README "Your cats, or none".
 const CATS = ['pepper', 'mochi', 'biscuit'] as const;
 const NAMES = { pepper: 'Pepper', mochi: 'Mochi', biscuit: 'Biscuit' } as const;
 
