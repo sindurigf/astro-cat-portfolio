@@ -82,25 +82,34 @@ export interface SiteConfig {
 
 const config: SiteConfig = {
   site: {
+    // TODO(fork): Your site's name, and a short form of it.
     name: 'example.com',
     shortName: 'example',
+    // TODO(fork): Your site's address; the build warns while it is still example.com.
     url: 'https://example.com',
     locale: 'en-US',
+    // TODO(fork): The year your site first went live.
     firstPublished: 2026,
+    // TODO(fork): Your tagline, one or two lines.
     tagline: [
       'Archaeologist of the Straw Hats',
       'Reading the stones history forgot',
     ],
+    // TODO(fork): The address of your repository.
     repository: 'https://github.example/robin-ohara/example-site',
+    // TODO(fork): Your motto, and the language it is written in.
     motto: { text: 'Lege Saxa', lang: 'la' },
   },
   person: {
+    // TODO(fork): Your name, job title and email address.
     givenName: 'Robin',
     familyName: 'Ohara',
     jobTitle: 'Archaeologist',
     email: 'hello@example.com',
+    // TODO(fork): The file name of your CV PDF in public/, or leave null for none.
     cv: null,
   },
+  // TODO(fork): Your profile links; each needs an icon in src/assets/social-icons.svg.
   profiles: [
     { label: 'GitHub', href: 'https://github.example/robin-ohara' },
     { label: 'LinkedIn', href: 'https://linkedin.example/in/robin-ohara' },
@@ -108,14 +117,19 @@ const config: SiteConfig = {
     { label: 'Bluesky', href: 'https://bluesky.example/profile/robin-ohara' },
     { label: 'Mastodon', href: 'https://mastodon.example/@robin-ohara' },
   ],
+  // TODO(fork): Your Umami website id, or leave null for no analytics.
   analytics: null,
+  // TODO(fork): Your Bing Webmaster Tools code, or leave null.
   bingSiteVerification: null,
+  // TODO(fork): The file name of the post your pages point to for your longer story, or null.
   journeyPost: 'sample-post',
   contact: {
     form: 'cloudflare-d1',
+    // TODO(fork): The address the contact form sends from, the same as in wrangler.jsonc.
     notificationSender: 'contact-form@example.com',
   },
   accessibility: {
+    // TODO(fork): How many days you take to answer a reported barrier.
     responseDays: 7,
   },
 };

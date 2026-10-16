@@ -3,16 +3,13 @@ import Abbr from '../components/Abbr.astro';
 import CloseRow from '../components/CloseRow.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PageHero from '../components/PageHero.astro';
-import { CONTACT_EMAIL, CONTACT_MAILTO } from '../lib/contact';
 import {
   LICENSED_PHOTOS,
-  NAME_INSPIRATION,
   PHOTO_CREDITS_PATH,
   PHOTOGRAPHERS,
   SCREENSHOT_SOURCES,
-  THANKS,
 } from '../lib/credits';
-import { MOTTO, REPOSITORY_URL, SITE_NAME } from '../lib/site';
+import { REPOSITORY_URL, SITE_NAME } from '../lib/site';
 import {
   PERSONA_NOTICE_ID,
   PERSONA_SOURCES_PATH,
@@ -25,6 +22,7 @@ import {
 const ORIGIN = { text: 'Based on sinduri-lol by Sinduri Guntupalli, MIT license.', href: 'https://github.com/sindurigf/sinduri-lol' } as const;
 
 /* Keep in step with package.json, wrangler.jsonc, src/assets/social-icons.svg and AI_DISCLOSURE.md. */
+// TODO(fork): Check every list on this page; keep the ORIGIN line, which credits this template.
 const BUILT_WITH = [
   { name: 'Astro', href: 'https://astro.build/' },
   { name: 'Vue', href: 'https://vuejs.org/' },
@@ -121,6 +119,7 @@ const GUIDES = [
 ] as const;
 
 /* Keep in step with AI_DISCLOSURE.md "AI-drawn art". */
+// TODO(fork): List what AI made on your site, the same as in AI_DISCLOSURE.md.
 const MADE_WITH_AI = [
   { name: 'The About cats and their control and trick icons', href: '/about/' },
   { name: 'The poneglyph in the homepage field', href: '/' },
@@ -148,14 +147,12 @@ const NAMED_ENTRY = 'min-w-0 bg-background p-card-tight';
 
 <BaseLayout
   title="Credits"
-  description={`Where the name ${SITE_NAME} comes from, who helped, who took the photos, and what the site was designed, built and tested with.`}
+  description={`Who took the photos on ${SITE_NAME}, and what the site was designed, built and tested with.`}
 >
   <PageHero title="Credits">
     {/* The notice takes the standfirst's place: a body-size paragraph above a standfirst cannot clear SC 1.4.8 spacing. */}
     {personaNotice(SAMPLE_PERSONA) === null ? (
-      <p class="standfirst">
-        The people and tools behind this site, and where its name comes from.
-      </p>
+      <p class="standfirst">The photos and tools behind this site.</p>
     ) : (
       <p id={PERSONA_NOTICE_ID} class="standfirst">
         {personaNotice(SAMPLE_PERSONA)}{' '}
@@ -166,25 +163,7 @@ const NAMED_ENTRY = 'min-w-0 bg-background p-card-tight';
 
   <section class="band py-section">
     <div class="mx-auto max-w-page">
-      <div id="name" class="card">
-        <h2 class={CARD_HEADING}>Where the Name Comes From</h2>
-        <p class="mt-6 mb-paragraph max-w-4xl text-lead font-normal text-text text-pretty">
-          The name of this site is borrowed, with thanks, from{' '}
-          <a href={NAME_INSPIRATION.href}>{NAME_INSPIRATION.site}</a>, the site
-          of {NAME_INSPIRATION.name}.
-        </p>
-        <p class="mt-6 max-w-measure text-body text-text text-pretty">
-          If you know a better story behind a name, write to me at{' '}
-          <a href={CONTACT_MAILTO}>{CONTACT_EMAIL}</a>. I collect them.
-        </p>
-        <p class="mt-8">
-          <a href="/about/#motto" class="chip">
-            Why <span lang={MOTTO.lang}>{MOTTO.text}</span>
-          </a>
-        </p>
-      </div>
-
-      <div id="not-found" class="card mt-grid">
+      <div id="not-found" class="card">
         <h2 class={CARD_HEADING}>The 404 Page</h2>
         <p class="mt-6 mb-paragraph max-w-4xl text-lead font-normal text-text text-pretty">
           The 404 page is a nod to <cite>Star Wars</cite> (1977), the film later
@@ -199,24 +178,6 @@ const NAMED_ENTRY = 'min-w-0 bg-background p-card-tight';
           mind trick: the stormtrooper repeats it and waves them through. Here
           it means the page you wanted is not here, so move along.
         </p>
-      </div>
-
-      <div class="card mt-grid">
-        <h2 class={CARD_HEADING}>Thank You</h2>
-        <dl class:list={[NAMED_LIST, 'md:grid-cols-2']}>
-          {THANKS.map((person) => (
-            <div class={NAMED_ENTRY}>
-              <dt class="text-body font-black">
-                <a href={person.href} class={LINK_ITEM}>
-                  {person.name}
-                </a>
-              </dt>
-              <dd class="mt-1 max-w-measure text-body text-text text-pretty">
-                {person.reason}
-              </dd>
-            </div>
-          ))}
-        </dl>
       </div>
 
       <div id="photos" class="card mt-grid">
