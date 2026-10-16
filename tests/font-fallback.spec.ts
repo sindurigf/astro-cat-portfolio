@@ -18,9 +18,9 @@ const LINE_BOX_TOLERANCE = 0.0002;
 /* A phone on a slow connection: where a late font is likeliest and lines are shortest. */
 const PHONE = { width: 412, height: 823 };
 /*
- * A budget, not a property: measured maximum 0.0112 (/accessibility), nine
- * routes over it without the fallback faces, up to 0.163. A failure can mean a
- * new heading wraps differently in the two fonts: re-measure and move it.
+ * A budget, not a property: measured maximum 0.0184 (/credits), nine routes
+ * over it without the fallback faces, up to 0.163. Routes near it sit on a wrap
+ * boundary under whole-pixel glyph advances, not a mis-sized fallback.
  */
 const LATE_FONT_SHIFT_CEILING = 0.02;
 
