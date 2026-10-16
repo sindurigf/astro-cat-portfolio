@@ -207,6 +207,10 @@ for (const colorScheme of ['dark', 'light'] as const) {
           await link.focus();
           const focused = await read(i);
           expect(
+            focused.text,
+            `the focused link is under ${AAA_TEXT}:1`,
+          ).toBeGreaterThanOrEqual(AAA_TEXT);
+          expect(
             focused.ring,
             'the focus ring is under 3:1 against the block.',
           ).toBeGreaterThanOrEqual(NON_TEXT);
