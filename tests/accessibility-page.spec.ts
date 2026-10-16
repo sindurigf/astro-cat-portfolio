@@ -4,7 +4,11 @@ import { builtPages, pagesNotLinking } from './routes';
 import { NODE } from './tags';
 import { formatPostDate } from '../src/lib/post-date';
 import { SITE_CONFIG, validateSiteConfig } from '../src/site.config';
-import { ACCESSIBILITY_RESPONSE_DAYS } from '../src/lib/site';
+import {
+  ACCESSIBILITY_RESPONSE_DAYS,
+  REPOSITORY_URL,
+  sourceUrl,
+} from '../src/lib/site';
 
 /**
  * /accessibility against ACCESSIBILITY.md. The page derives its facts at build
@@ -30,11 +34,15 @@ const tableValue = (field: string): string => {
     .replace(/^<(.*)>$/, '$1');
 };
 
-const pageText = (): string => {
+const pageHtml = (): string => {
   const page = builtPages().find((entry) => entry.route === PAGE);
   expect(page, `${PAGE} was not built`).toBeDefined();
 
-  const html = readFileSync(page!.file, 'utf8');
+  return readFileSync(page!.file, 'utf8');
+};
+
+const pageText = (): string => {
+  const html = pageHtml();
   return html
     .slice(html.indexOf('<body'))
     .replace(/<[^>]+>/g, ' ')
@@ -98,15 +106,26 @@ test.describe('the accessibility statement', NODE, () => {
       '/accessibility no longer tells anyone how to report a barrier.',
     ).toContain('report a barrier');
 
-    for (const route of ['Private reporting', 'Public reporting']) {
-      const value = tableValue(route);
+    expect(
+      pageHtml(),
+      '/accessibility does not offer the private reporting route.',
+    ).toContain(tableValue('Private reporting'));
+  });
+
+  test('it links the public reporting route and the record only where they resolve', () => {
+    const html = pageHtml();
+
+    for (const [what, url] of [
+      ['the public reporting route', tableValue('Public reporting')],
+      ['the full record', `${REPOSITORY_URL}/blob/main/${RECORD}`],
+    ] as const) {
+      const resolves = sourceUrl(url) !== null;
       expect(
-        readFileSync(
-          builtPages().find((entry) => entry.route === PAGE)!.file,
-          'utf8',
-        ),
-        `/accessibility does not offer the ${route.toLowerCase()} route (${value}).`,
-      ).toContain(value);
+        html.includes(`href="${url}"`),
+        resolves
+          ? `/accessibility does not link ${what} (${url}).`
+          : `/accessibility links ${what} at a placeholder that never resolves (${url}).`,
+      ).toBe(resolves);
     }
   });
 });

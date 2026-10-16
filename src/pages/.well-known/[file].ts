@@ -1,11 +1,22 @@
-import type { APIRoute } from 'astro';
+import type { APIRoute, GetStaticPaths } from 'astro';
 import { requireSite } from '../../lib/site';
-import { CONTACT_FORM_ON, CONTACT_MAILTO } from '../../lib/contact';
+import {
+  CONTACT_EMAIL_RESOLVES,
+  CONTACT_FORM_ON,
+  CONTACT_MAILTO,
+} from '../../lib/contact';
 import { RETENTION_DAYS } from '../../lib/contact-form';
 
 /*
- * RFC 9116. Generated so `Canonical:` derives from `site` in astro.config.mjs.
+ * /.well-known/security.txt, RFC 9116. Generated so `Canonical:` derives from
+ * `site` in astro.config.mjs.
  */
+
+export const SECURITY_TXT = 'security.txt';
+
+/* No file while `person.email` is a placeholder: RFC 9116 requires a Contact that works. */
+export const getStaticPaths: GetStaticPaths = () =>
+  CONTACT_EMAIL_RESOLVES ? [{ params: { file: SECURITY_TXT } }] : [];
 
 /*
  * A literal, not `now + 1 year`: it asserts a human still reads CONTACT_EMAIL.
@@ -20,7 +31,7 @@ export const GET: APIRoute = ({ site: configuredSite }) => {
     'security.txt needs an absolute Canonical URL (RFC 9116).',
   );
 
-  const canonical = new URL('.well-known/security.txt', site).href;
+  const canonical = new URL(`.well-known/${SECURITY_TXT}`, site).href;
 
   const body = [
     `# ${site.origin} -- see RFC 9116.`,

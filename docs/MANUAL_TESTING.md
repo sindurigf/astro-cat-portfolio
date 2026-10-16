@@ -56,7 +56,7 @@ Setup: Chrome, 1280px, `/`, focus in the address bar.
 - [ ] Enter on it: focus moves to main, which shows a cyan outline. → SC 2.4.1
 - [ ] Next Tab reaches the first control in the page (the hero pause control on `/`), not the header. → SC 2.4.1
 - [ ] Reload and Tab through: skip link, logo, About, Career, Blog, the
-      "Light mode" switch, Get in Touch, the page, footer Site (Home, About,
+      "Light Mode" switch, Get in Touch, the page, footer Site (Home, About,
       Career, Blog), About this site (in the order of `POLICY_LINKS` in
       `Footer.astro`), Social (GitHub, LinkedIn, Instagram, Bluesky, Mastodon,
       Email). Re-read `Footer.astro` when a footer link changes. → SC 2.4.3
@@ -177,7 +177,7 @@ and footer stay dark ([ACCESSIBILITY.md](../ACCESSIBILITY.md#light-mode),
 axe, control edges, hover contrast and ring contrast; these checks are the
 rest.
 
-- [ ] The switch is announced "Light mode", "toggle button", not pressed; after
+- [ ] The switch is announced "Light Mode", "toggle button", not pressed; after
       Enter or Space it is pressed. The name does not change. → SC 4.1.2
 - [ ] Reload and open `/career`: the choice holds. → SC 1.4.3
 - [ ] With the choice saved, hard reload on a throttled network: no dark frame
