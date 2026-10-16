@@ -134,6 +134,9 @@ test('offline, the form keeps the message and says it was not sent', async ({
   await context.setOffline(false);
 });
 
+/** The most Firefox moves the page by itself after Enter in a field. */
+const SETTLE_TOLERANCE_PX = 2;
+
 /*
  * SC 3.3.1, 4.1.3: offline, the status under the button is often below the fold.
  * Focus stays in the field, so the page scrolls to the status only when the
@@ -181,6 +184,7 @@ for (const viewport of [{ width: 1280, height: 720 }, PHONE_VIEWPORT]) {
         ),
         'the setup did not put the status below the fold',
       ).toBe(true);
+      const scrolledBefore = await page.evaluate(() => window.scrollY);
       await context.setOffline(true);
       await page.keyboard.press('Enter');
       await expect(status).toHaveText(/offline/i);
@@ -207,11 +211,17 @@ for (const viewport of [{ width: 1280, height: 720 }, PHONE_VIEWPORT]) {
       if (fits) {
         await expect(status, 'the status stayed out of view').toBeInViewport();
       } else {
-        /* Not scrollY: Firefox can settle the page by a pixel on its own (CI run 38897901325). */
         await expect(
           status,
           'the page scrolled to the status without room for the field',
         ).not.toBeInViewport();
+        /* Firefox can settle the page by a pixel on its own (CI run 38897901325); a partial scroll moves far more. */
+        expect(
+          Math.abs(
+            (await page.evaluate(() => window.scrollY)) - scrolledBefore,
+          ),
+          'the page moved without room to show the status',
+        ).toBeLessThanOrEqual(SETTLE_TOLERANCE_PX);
       }
       await context.setOffline(false);
     });
