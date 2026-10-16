@@ -1,4 +1,5 @@
 ---
+import CodeBlockFit from '../CodeBlockFit.astro';
 import ComponentRow from './ComponentRow.astro';
 
 const CODE_LABEL = 'Code, scrolls sideways';
@@ -50,6 +51,7 @@ const CODE_LABEL = 'Code, scrolls sideways';
         aria-label={CODE_LABEL}
       ><code>npm run build && npm run check</code></pre>
     </div>
+    <CodeBlockFit />
   </ComponentRow>
 
   <ComponentRow

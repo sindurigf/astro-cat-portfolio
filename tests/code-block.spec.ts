@@ -1,8 +1,10 @@
 import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { expect, test } from './test';
 import { gotoSettled } from './settle';
 import { codeBlock } from '../src/plugins/code-block.mjs';
-import { NO_POST, POST_ROUTES } from './routes';
+import { builtHtml, DIST_DIR, NO_POST, POST_ROUTES } from './routes';
+import { hasCodeBlock } from '../src/lib/code-blocks';
 import { REFLOW_VIEWPORT } from './wcag';
 import { NODE } from './tags';
 
@@ -162,6 +164,47 @@ test.describe('a code block is a tab stop only while it scrolls', () => {
       .toMatchObject({ scrolls: false, tabIndex: -1, name: 'Code' });
   });
 
+  /* SC 1.4.12: letter and word spacing widen the text, not the block's box. */
+  test('/brand: text spacing that makes a fitting block overflow makes it a tab stop', async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await gotoSettled(page, '/brand');
+    const block = page.locator('.prose pre[role="group"]').first();
+    /* Just wider than its text: the narrowest it can be and still fit. */
+    await block.evaluate((element) => {
+      const pre = element as HTMLElement;
+      const range = document.createRange();
+      /* The text node: a range over an element measures its box. */
+      range.selectNodeContents(pre.querySelector('code')!.firstChild!);
+      const style = getComputedStyle(pre);
+      const chrome =
+        pre.offsetWidth -
+        pre.clientWidth +
+        parseFloat(style.paddingLeft) +
+        parseFloat(style.paddingRight);
+      pre.style.maxWidth = `${Math.ceil(range.getBoundingClientRect().width + chrome) + 2}px`;
+    });
+    await expect
+      .poll(() => stateOf(page), 'the narrowed block should still fit')
+      .toMatchObject({ scrolls: false, tabIndex: -1 });
+
+    await page.addStyleTag({
+      content:
+        '* { letter-spacing: 0.12em !important; word-spacing: 0.16em !important; }',
+    });
+    await expect
+      .poll(
+        () => stateOf(page),
+        'spaced out, the block overflows but is no tab stop',
+      )
+      .toMatchObject({
+        scrolls: true,
+        tabIndex: 0,
+        name: 'Code, scrolls sideways',
+      });
+  });
+
   test('/brand: narrowed until it overflows, the block becomes a tab stop named as scrolling, and leaves again when widened', async ({
     page,
   }) => {
@@ -182,5 +225,55 @@ test.describe('a code block is a tab stop only while it scrolls', () => {
     await expect
       .poll(() => stateOf(page), 'widened, the block kept its tab stop')
       .toMatchObject({ scrolls: false, tabIndex: -1, name: 'Code' });
+  });
+});
+
+/* The selector src/scripts/code-block-fit.ts queries: its fingerprint in a built chunk. */
+const FIT_SELECTOR = 'pre[role=group]>code';
+
+/** Every script a page loads, its imports followed. */
+const scriptsOf = (html: string): string[] => {
+  const seen = new Map<string, string>();
+  const visit = (path: string): void => {
+    if (seen.has(path)) return;
+    const source = readFileSync(join(DIST_DIR, path), 'utf8');
+    seen.set(path, source);
+    for (const [, relative] of source.matchAll(
+      /(?:from|import)\s*"\.\/([^"]+\.js)"/g,
+    )) {
+      visit(`/_astro/${relative}`);
+    }
+  };
+  for (const [, src] of html.matchAll(
+    /<script\b[^>]*\bsrc="(\/_astro\/[^"]+)"/g,
+  )) {
+    visit(src!);
+  }
+  return [...seen.values()];
+};
+
+/* Performance: the fit script loads where a code block renders, and nowhere else. */
+test.describe('the code-block fit script', NODE, () => {
+  test('loads on every page with a code block and on no other', () => {
+    const wrong = [...builtHtml()]
+      .filter(([, html]) => {
+        const hasBlock = /<pre\b[^>]*\brole="group"/.test(html);
+        const loads = scriptsOf(html).some((source) =>
+          source.includes(FIT_SELECTOR),
+        );
+        return hasBlock !== loads;
+      })
+      .map(([route]) => route);
+
+    expect(wrong, 'page(s) whose code blocks and fit script disagree').toEqual(
+      [],
+    );
+  });
+
+  test('hasCodeBlock finds fenced and indented code, and passes plain prose', () => {
+    expect(hasCodeBlock('Text.\n\n```sh\nnpm run build\n```\n')).toBe(true);
+    expect(hasCodeBlock('Text.\n\n~~~\ncode\n~~~\n')).toBe(true);
+    expect(hasCodeBlock('Text.\n\n    indented code\n')).toBe(true);
+    expect(hasCodeBlock('A paragraph with `inline code` only.\n')).toBe(false);
   });
 });
