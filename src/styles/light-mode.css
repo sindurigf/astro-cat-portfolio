@@ -23,7 +23,7 @@
     --dark-hero-floor: var(--color-hero-floor);
   }
 
-  :root[data-theme='light'] :is(main, header),
+  :root[data-theme='light'] :is(main, header, footer),
   main .mode-light {
     --color-background: var(--color-light-ground);
     --color-surface: var(--color-light-ground);

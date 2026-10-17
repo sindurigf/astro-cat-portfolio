@@ -136,8 +136,8 @@ The ring is 4px cyan at a 4px offset plus the element's shadow (4px, or 8px for 
 - [ ] On a gold slab or band: the `#131313` ring is visible. → SC 1.4.11
 - [ ] No ring is clipped by a parent or hidden under the header. → SC 2.4.11
 - [ ] Focus is never shown by shadow alone. → SC 2.4.7
-- [ ] Light mode on `<main>` and the header: the ring is `--color-light-focus`
-      (`#00606b`) on white; the footer keeps the cyan ring on dark. See §5b. → SC 1.4.11, 2.4.7
+- [ ] Light mode on `<main>`, the header bar's page parts and the footer: the
+      ring is `--color-light-focus` (`#00606b`) on white. See §5b. → SC 1.4.11, 2.4.7
 
 ## 5a. Header height, roundel and hero edge
 
@@ -172,8 +172,8 @@ Zoom (forced colors off, 1280px, 200% then 400%):
 
 ## 5b. Light mode
 
-Setup: Chrome, 1280px, `/about`. The switch turns `<main>` and the header
-light; the footer stays dark ([ACCESSIBILITY.md](../ACCESSIBILITY.md#light-mode),
+Setup: Chrome, 1280px, `/about`. The switch turns `<main>`, the header and the
+footer light ([ACCESSIBILITY.md](../ACCESSIBILITY.md#light-mode),
 [STYLEGUIDE.md](STYLEGUIDE.md#light-mode)). `tests/light-mode.spec.ts` covers
 axe, control edges, hover contrast and ring contrast; these checks are the
 rest.

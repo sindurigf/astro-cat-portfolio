@@ -242,9 +242,9 @@ with a 4px ink edge. Inside, the color tokens are remapped, so text is ink at
 
 ### Light mode
 
-With JavaScript, `<main>` and the header turn light on `prefers-color-scheme:
-light` or the header switch, and the choice is remembered; without it the page
-stays dark and the switch is hidden. The footer stays dark. Every
+With JavaScript, `<main>`, the header and the footer turn light on
+`prefers-color-scheme: light` or the header switch, and the choice is
+remembered; without it the page stays dark and the switch is hidden. Every
 text color clears 7:1 on white:
 [Light mode](docs/STYLEGUIDE.md#light-mode).
 
