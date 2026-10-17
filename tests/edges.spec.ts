@@ -48,7 +48,10 @@ const readEdges = (page: Page): Promise<Edges> =>
       cardEdgeAlpha: edge ? edge.a : 1,
       cardEdgeRatio: edge && cardGround ? ratio(over(edge, cardGround), cardGround) : null,
       cardPaper: paper.backgroundImage,
-      cardPaperDisplay: paper.display,
+      cardPaperDisplay:
+        paper.display === 'none' || paper.backgroundImage === 'none'
+          ? 'none'
+          : paper.display,
       cardGround: ground ? cardStyle.backgroundColor : null,
       controlRatio: controlEdge && controlGround ? ratio(controlEdge, controlGround) : null,
       fillEdgeRatios,

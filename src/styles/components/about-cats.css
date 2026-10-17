@@ -3,7 +3,7 @@
 @layer components {
   /*
    * The About cats (AboutCats.vue). A perch reserves a cat's band above its
-   * card; the card sits on top so a cat can duck behind it. Colors are
+   * card; the card comes after the band, so a cat can duck behind it. Colors are
    * classes on the SVG parts because the CSP refuses `style` attributes.
    */
   /*
@@ -15,7 +15,7 @@
   }
 
   .cat-perch > :not(.cat-spot) {
-    @apply relative z-1;
+    @apply relative;
   }
 
   /* Never a scroll anchor: WebKit would scroll the page along with a moving cat. */

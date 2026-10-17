@@ -11,9 +11,9 @@
 
   /*
    * Cards, plain slabs and the header slab: the `card-edge`, none in dark
-   * mode, and graph paper.
-   * The paper is a layer under the content, so the card's measured ground stays
-   * `surface`: its lines are `background`, where every text token passes too.
+   * mode, graph paper, and a sheet of the same paper behind. Fill, paper and
+   * sheet paint at negative z in the page's stacking context, so a sheet runs
+   * under every neighbor, never over it; the paper's lines are `background`.
    */
   :is(.card, .card-block > *, .plain-slab, .post-contents, .header-slab):not(
     .card-solid,
@@ -21,18 +21,30 @@
     .surface-gold *
   ) {
     position: relative;
-    isolation: isolate;
     border-color: var(--color-card-edge);
+    background-color: transparent;
 
-    &::before {
+    &::before,
+    &::after {
       content: '';
       position: absolute;
       inset: 0;
-      z-index: -1;
       background-image: var(--card-grid);
       background-size: var(--card-grid-size) var(--card-grid-size);
       background-position: var(--card-grid-offset) var(--card-grid-offset);
       pointer-events: none;
+    }
+
+    &::before {
+      z-index: -1;
+      background-color: var(--color-surface);
+    }
+
+    /* One cell up and left, its lines on the card's; up-left overflow never scrolls. */
+    &::after {
+      z-index: -2;
+      translate: var(--card-sheet-offset) var(--card-sheet-offset);
+      background-color: var(--color-card-sheet);
 
       /* Decoration: forced colors and print drop it. */
       @media (forced-colors: active), print {
@@ -40,29 +52,9 @@
       }
     }
 
-    /*
-     * A second sheet of the same paper, one cell up and left, its lines on the
-     * card's. Masked off the card box; up-left overflow never scrolls.
-     */
-    &::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      z-index: -2;
-      translate: var(--card-sheet-offset) var(--card-sheet-offset);
-      background-color: var(--color-card-sheet);
-      background-image: var(--card-grid);
-      background-size: var(--card-grid-size) var(--card-grid-size);
-      background-position: var(--card-grid-offset) var(--card-grid-offset);
-      mask:
-        linear-gradient(var(--color-background) 0 0)
-          calc(var(--card-sheet-offset) * -1)
-          calc(var(--card-sheet-offset) * -1) / 100% 100% no-repeat exclude,
-        linear-gradient(var(--color-background) 0 0);
-      pointer-events: none;
-
-      @media (forced-colors: active), print {
-        display: none;
+    @media (forced-colors: active), print {
+      &::before {
+        background-image: none;
       }
     }
   }

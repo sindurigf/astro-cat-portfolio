@@ -60,6 +60,16 @@ export const PAGE_HELPERS = `
     return box.right > left && box.left < right && box.bottom > top && box.top < bottom;
   };
 
+  // A card's fill is its ::before layer (cards.css), so the card itself is transparent.
+  const fillOf = (node, style) => {
+    const own = parse(style.backgroundColor);
+    if (!own || own.a !== 0) return own;
+    const layer = getComputedStyle(node, '::before');
+    if (layer.content === 'none' || layer.position !== 'absolute') return own;
+    const fill = parse(layer.backgroundColor);
+    return fill && fill.a === 1 ? fill : own;
+  };
+
   // Nearest opaque background, or null for an image, gradient or translucent layer.
   // Skips an ancestor whose padding box the element misses: an overhanging
   // positioned child is not on its fill.
@@ -69,7 +79,7 @@ export const PAGE_HELPERS = `
     for (let node = element; node instanceof Element; node = node.parentElement) {
       const style = getComputedStyle(node);
       if (style.backgroundImage !== 'none') return null;
-      const color = parse(style.backgroundColor);
+      const color = fillOf(node, style);
       if (!color) return null;
       if (color.a === 0) continue;
       if (!paintedInside(node)) continue;
@@ -87,7 +97,7 @@ export const PAGE_HELPERS = `
       if (box && !paintsUnder(node, box)) continue;
       const style = getComputedStyle(node);
       if (style.backgroundImage !== 'none') return null;
-      const color = parse(style.backgroundColor);
+      const color = fillOf(node, style);
       if (!color) return null;
       if (color.a === 0) continue;
       if (color.a < 1) {
