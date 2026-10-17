@@ -127,7 +127,7 @@ The gold-ground set is in [Gold surface](#gold-surface), light values in
 - The Step: blocks in a `.card-block` share one wall, and every second one
   drops `--step-y` (48px from 1120px; sideways `--step-x` below 64rem). The
   post contents juts right and the contact submit, the /brand menu and talk
-  slides jut left by `--step-x` (24px); the footer opens with a gold beam.
+  slides jut left by `--step-x` (24px).
   Both are 0 below 640px. Juts are translates or margins that never widen
   the page.
 - `text` for words, `subtle` for captions and meta. Links are `text`, cyan on
@@ -1071,7 +1071,8 @@ No rule or divider joins the footer to the page.
 - The current page has `aria-current` and the 2px text-link underline; hover
   changes color only, so the two never look alike.
 - Stickers: `--size-sticker` 48px (`--size-sticker-lg` 56px from 64rem),
-  `--border-width-sticker` 4px `fill-edge` edge, 3deg tilt, 4px pink shadow with
+  a `--border-width-sticker` 4px transparent edge (drawn only in forced
+  colors), so the throw meets the fill; 3deg tilt, 4px pink shadow with
   `lift-control`. They straighten on hover and focus.
 - One colorway, the `.badge` inversion: `text` fill, `background` glyph
   (15.28). Not cycled by `nth-child`.

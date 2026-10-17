@@ -11,7 +11,9 @@ const ROUTE = '/';
 const PLAIN_CARD =
   'main .card:not(.card-solid):not(.surface-gold):not(.surface-gold *)';
 const PAGE_CONTROL = 'main a.btn-secondary';
-const GOLD_FILLS = ['.nav-cta', '.footer-sticker'];
+const GOLD_FILLS = ['.nav-cta'];
+/* A footer tile has no drawn edge: its fill meets the ground and its throw. */
+const FOOTER_TILE = 'footer .footer-sticker';
 
 interface Edges {
   cardEdgeAlpha: number;
@@ -20,6 +22,8 @@ interface Edges {
   cardPaper: string;
   controlRatio: number | null;
   fillEdgeRatios: Record<string, number | null>;
+  tileFillRatio: number | null;
+  tileEdgeAlpha: number;
 }
 
 const readEdges = (page: Page): Promise<Edges> =>
@@ -43,7 +47,13 @@ const readEdges = (page: Page): Promise<Edges> =>
       const rim = style && parse(style.borderTopColor);
       fillEdgeRatios[selector] = fill && rim ? ratio(rim, fill) : null;
     }
+    const tile = document.querySelector(${JSON.stringify(FOOTER_TILE)});
+    const tileStyle = tile && getComputedStyle(tile);
+    const tileFill = tileStyle && parse(tileStyle.backgroundColor);
+    const tileGround = tile && effectiveBackground(tile.parentElement);
     return {
+      tileFillRatio: tileFill && tileGround ? ratio(tileFill, tileGround) : null,
+      tileEdgeAlpha: tileStyle ? parse(tileStyle.borderTopColor).a : 1,
       cardEdgeAlpha: edge ? edge.a : 1,
       cardEdgeRatio: edge && cardGround ? ratio(over(edge, cardGround), cardGround) : null,
       cardFillRatio: fill && cardGround ? ratio(fill, cardGround) : null,
@@ -82,6 +92,14 @@ for (const colorScheme of ['dark', 'light'] as const) {
         `a control on the page should have an edge of at least ${NON_TEXT}:1`,
       ).toBeGreaterThanOrEqual(NON_TEXT);
       expectFillEdges(edges);
+      expect(
+        edges.tileFillRatio,
+        `a footer tile's fill should reach ${NON_TEXT}:1 against the footer`,
+      ).toBeGreaterThanOrEqual(NON_TEXT);
+      expect(
+        edges.tileEdgeAlpha,
+        'a footer tile should draw no edge, so its throw meets its fill',
+      ).toBe(0);
     });
   });
 }
