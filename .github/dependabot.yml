@@ -23,6 +23,9 @@ updates:
       # Node 24 types, matching .nvmrc.
       - dependency-name: '@types/node'
         update-types: ['version-update:semver-major']
+      # astro 7.4.0 ships untransformed images with build compile.
+      - dependency-name: astro
+        versions: ['7.4.x']
 
   - package-ecosystem: github-actions
     directory: /
