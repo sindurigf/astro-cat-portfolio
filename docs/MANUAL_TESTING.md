@@ -610,8 +610,8 @@ header or nav layout change.
 
 - [ ] At 320px, content sits 16px from both edges on `/about` and a blog
       route. → SC 1.4.10
-- [ ] Header nav stickers are 48px tall and equal height, current or not.
-- [ ] Mobile menu button and theme switch 48x48, 44x44 below 21rem (336px).
+- [ ] Header nav bricks are 44px tall and equal height, current or not.
+- [ ] Mobile menu button and theme switch 44x44.
 - [ ] Footer profile tiles 56x56 from 64rem, 48x48 below; footer page links 44px
       rows.
 - [ ] Breadcrumb links above a post `h1` keep a 44px pointer area, and wrapped

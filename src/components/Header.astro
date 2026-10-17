@@ -24,7 +24,7 @@ const current = (href: string) => ariaCurrent(currentPath, href);
 ---
 
 {/* Gutter on <header>, not the column, so its content box matches <main> and the footer. */}
-<header class="page-gutter sticky top-0 z-50 h-header py-3 bg-background short:static">
+<header class="site-header page-gutter sticky top-0 z-50 h-header py-3 bg-background short:static">
   {/* Grid from `lg`, not `md`: between 768 and 1023px the row barely fits and centering wastes slack. */}
   <div class="header-slab mx-auto flex h-full max-w-page items-center justify-between lg:grid lg:grid-cols-header">
     {/*
@@ -36,7 +36,7 @@ const current = (href: string) => ariaCurrent(currentPath, href);
       href={HOME_HREF}
       aria-label={SITE_NAME}
       aria-current={current(HOME_HREF)}
-      class="logo-link header-logo-edge lift-mark flex min-w-0 items-center gap-4 max-xs:gap-2 lg:justify-self-start"
+      class="logo-link header-logo-block flex min-w-0 items-center gap-4 max-xs:gap-2 lg:justify-self-start"
     >
       <span class="logo-tile flex shrink-0 rotate-3 drop-shadow-hard-mark-8">
         <CatMark body={48} class="size-14" eager />
@@ -46,15 +46,15 @@ const current = (href: string) => ariaCurrent(currentPath, href);
         breaks after the dot instead of pushing the row off screen.
       */}
       {/* prettier-ignore */}
-      <span class="label min-w-0 text-text max-xs:tracking-normal below-reflow:sr-only">{wordmarkHead}{wordmarkTail !== undefined && <Fragment><wbr />{wordmarkTail}</Fragment>}</span>
+      <span class="label min-w-0 text-gold-text max-xs:tracking-normal below-reflow:sr-only">{wordmarkHead}{wordmarkTail !== undefined && <Fragment><wbr />{wordmarkTail}</Fragment>}</span>
     </a>
 
-    {/* Stickers are 48px tall, past the 44px target (SC 2.5.5); styles in buttons-nav.css. */}
+    {/* Bricks are the 44px target (SC 2.5.5); styles in buttons-nav.css. */}
     <nav class="hidden md:block lg:justify-self-center" aria-label="Primary">
-      {/* The md-to-lg trims (gap, px) let the row fit; tests/header-fit.spec.ts fails if it overlaps or scrolls. */}
+      {/* The md-to-lg trim (px) lets the row fit; tests/header-fit.spec.ts fails if it overlaps or scrolls. */}
       <NavList
         links={HEADER_LINKS}
-        class="nav-stickers"
+        class="header-bricks"
         linkClass="nav-sticker"
         activeClass=""
         restClass=""
@@ -65,13 +65,13 @@ const current = (href: string) => ariaCurrent(currentPath, href);
       The CTA is outside the Primary nav so the nav stays centered; `ml-auto`
       inside the list would push the links off-center by half its width.
     */}
-    <div class="flex items-center gap-3 lg:justify-self-end lg:gap-4">
+    <div class="header-bricks lg:justify-self-end">
       <ThemeSwitch />
       <div class="hidden md:block">
         <a
           href={CTA.href}
           aria-current={current(CTA.href)}
-          class="nav-cta block whitespace-nowrap px-3 py-3 lg:px-6"
+          class="nav-cta flex h-target items-center whitespace-nowrap px-3 lg:px-6"
         >
           {CTA.label}
         </a>
@@ -84,16 +84,16 @@ const current = (href: string) => ariaCurrent(currentPath, href);
       <div class="mobile-menu md:hidden" data-mobile-menu>
         <button
           type="button"
-          class="group flex size-12 items-center justify-center border-4 border-border bg-surface max-xs:size-target"
+          class="group flex size-target items-center justify-center border-4 border-text bg-background"
           aria-expanded="false"
           aria-controls="mobile-menu-panel"
           aria-label="Menu"
           data-menu-trigger
         >
           <span aria-hidden="true" class="relative block h-4 w-6">
-            <span class="absolute left-0 top-0 block h-menu-bar w-6 bg-block-gold forced-colors:bg-button-text group-aria-expanded:top-menu-bar-mid group-aria-expanded:rotate-45" />
-            <span class="absolute left-0 top-menu-bar-mid block h-menu-bar w-6 bg-block-gold forced-colors:bg-button-text opacity-100 group-aria-expanded:opacity-0" />
-            <span class="absolute left-0 top-menu-bar-end block h-menu-bar w-6 bg-block-gold forced-colors:bg-button-text group-aria-expanded:top-menu-bar-mid group-aria-expanded:-rotate-45" />
+            <span class="absolute left-0 top-0 block h-menu-bar w-6 bg-text forced-colors:bg-button-text group-aria-expanded:top-menu-bar-mid group-aria-expanded:rotate-45" />
+            <span class="absolute left-0 top-menu-bar-mid block h-menu-bar w-6 bg-text forced-colors:bg-button-text opacity-100 group-aria-expanded:opacity-0" />
+            <span class="absolute left-0 top-menu-bar-end block h-menu-bar w-6 bg-text forced-colors:bg-button-text group-aria-expanded:top-menu-bar-mid group-aria-expanded:-rotate-45" />
           </span>
         </button>
 
@@ -108,7 +108,7 @@ const current = (href: string) => ariaCurrent(currentPath, href);
             <nav>
               <NavList
                 links={NAV_LINKS}
-                class="nav-stickers nav-stickers-column"
+                class="nav-stickers-column"
                 linkClass="nav-sticker nav-sticker-large"
                 activeClass=""
                 restClass=""

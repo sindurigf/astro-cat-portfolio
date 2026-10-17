@@ -82,3 +82,69 @@ for (const width of WIDTHS) {
     });
   });
 }
+
+/* Widths where the brick rows differ: the menu button alone, then nav and call to action. */
+const BRICK_WIDTHS = [336, 1280] as const;
+
+for (const width of BRICK_WIDTHS) {
+  test.describe(`the header bricks at ${width}px`, () => {
+    test.use({ viewport: { width, height: VIEWPORT_HEIGHT } });
+
+    test('keep the header at --spacing-header with room above and under each row', async ({
+      page,
+    }) => {
+      await gotoSettled(page, ROUTE);
+
+      const found = await page.evaluate(() => {
+        const header = document.querySelector('header.site-header');
+        const slab = header?.querySelector<HTMLElement>('.header-slab');
+        if (!header || !slab) return null;
+        const root = getComputedStyle(document.documentElement);
+        const slabStyle = getComputedStyle(slab);
+        const inner = slab.getBoundingClientRect();
+        const top = inner.top + parseFloat(slabStyle.borderTopWidth);
+        const bottom = inner.bottom - parseFloat(slabStyle.borderBottomWidth);
+        const rows = [...slab.querySelectorAll<HTMLElement>('.header-bricks')]
+          .filter((row) => row.checkVisibility())
+          .map((row) => {
+            const box = row.getBoundingClientRect();
+            const throwY = parseFloat(
+              getComputedStyle(row).boxShadow.split(' ').at(-3) ?? '0',
+            );
+            return {
+              above: box.top - top,
+              below: bottom - (box.bottom + throwY),
+              throwY,
+            };
+          });
+        return {
+          header: header.getBoundingClientRect().height,
+          token: parseFloat(root.getPropertyValue('--spacing-header')),
+          rows,
+        };
+      });
+
+      expect(found, 'the header has no slab').not.toBeNull();
+      expect(
+        found!.header,
+        'the header is not --spacing-header tall, so the bricks grew it',
+      ).toBe(found!.token);
+      expect(found!.rows.length, 'no brick row is visible').toBeGreaterThan(0);
+      for (const row of found!.rows) {
+        expect(row.throwY, 'a brick row casts no throw').toBeGreaterThan(0);
+        expect(
+          row.above,
+          'a brick row touches the top of the bar',
+        ).toBeGreaterThan(0);
+        expect(
+          row.below,
+          'a brick row throw touches the bottom of the bar',
+        ).toBeGreaterThan(0);
+        expect(
+          Math.abs(row.above - row.below),
+          'a brick row and its throw are not centered on the bar',
+        ).toBeLessThanOrEqual(1);
+      }
+    });
+  });
+}

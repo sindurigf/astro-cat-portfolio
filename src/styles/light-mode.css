@@ -12,6 +12,7 @@
     --dark-subtle: var(--color-subtle);
     --dark-border: var(--color-border);
     --dark-cyan: var(--color-cyan);
+    --dark-cyan-reverse: var(--color-cyan-reverse);
     --dark-pink: var(--color-pink);
     --dark-pink-text: var(--color-pink-text);
     --dark-gold-border: var(--color-gold-border);
@@ -31,6 +32,7 @@
     --color-subtle: var(--color-light-subtle);
     --color-border: var(--color-light-ink);
     --color-cyan: var(--color-light-focus);
+    --color-cyan-reverse: var(--dark-cyan);
     --color-pink: var(--color-light-ink);
     --color-pink-text: var(--color-light-pink-text);
     --color-gold-border: var(--color-light-ink);
@@ -52,6 +54,7 @@
     --color-subtle: var(--dark-subtle);
     --color-border: var(--dark-border);
     --color-cyan: var(--dark-cyan);
+    --color-cyan-reverse: var(--dark-cyan-reverse);
     --color-pink: var(--dark-pink);
     --color-pink-text: var(--dark-pink-text);
     --color-gold-border: var(--dark-gold-border);
@@ -119,11 +122,5 @@
   :is(:root[data-theme='light'] main, main .mode-light)
     .sticker:not(.mode-dark *) {
     @apply border-text bg-text text-background;
-  }
-
-  /* A gold fill on white takes an ink edge, as buttons and tiles do. */
-  :is(:root[data-theme='light'] :is(main, header), main .mode-light)
-    .theme-switch:not(.mode-dark *) {
-    @apply border-4 border-text;
   }
 }

@@ -25,12 +25,6 @@ const PRESSABLE: Pressable[] = [
     moves: 'main .btn-primary',
   },
   {
-    name: 'the call to action',
-    route: '/blog/',
-    control: 'header .nav-cta',
-    moves: 'header .nav-cta',
-  },
-  {
     name: 'a gold primary button',
     route: '/contact',
     control: 'main .surface-gold .btn-gold-primary',
