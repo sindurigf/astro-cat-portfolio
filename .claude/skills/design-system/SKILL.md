@@ -14,13 +14,15 @@ before changing anything it covers.
 - An arbitrary value: no raw hex, `text-[32px]` or `shadow-[8px_8px_0]`. Add a
   token to `@theme` instead ([Tokens only](../../../docs/STYLEGUIDE.md#tokens-only)).
 - `pink` as text, at any size. `pink-text` as a border, shadow or fill.
-- `cyan` at rest. It is hover and focus only.
+- `cyan` at rest. It is hover and focus only; inside a block, hover and focus
+  are `gold-link`.
 - A gold ground without `.surface-gold`, or `.btn-primary`/`.btn-secondary`
   on gold.
 - `border` on a gold or light fill: it takes `fill-edge`. `fill-edge` on a
-  dark fill. An edge on a dark
-  card: cards use `card-edge`.
-- A second `::after` on a card: it holds the sheet behind (`card-sheet`).
+  dark fill. A card's own edge or fill: cards are blocks (`block-gold`,
+  `block-light`, `block-ink`), set in `cards.css`.
+- `bg-gold` for a fill that may sit in a block: it remaps there; use
+  `bg-block-gold`.
 - A removed outline, `outline-none`, `:focus` styles or `outline-offset: 0`.
 - A shadow on a focusable element without its lift.
 - State signaled by color alone.

@@ -23,7 +23,7 @@ const TILES = `[...document.querySelectorAll('h2')]
   .closest('section')
   .querySelectorAll('li.card > span[aria-hidden="true"]')`;
 
-/* The category name is the label's first span: a solid card recolors that span, not the label. */
+/* The category name is the label's first span: a block recolors that span, not the label. */
 const LABELS = `document.querySelectorAll('article.card span.label:first-child > span:first-child')`;
 
 test(

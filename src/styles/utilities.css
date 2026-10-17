@@ -25,22 +25,28 @@
   }
 
   /*
-   * Cards in a `.card-block` share edges, no gaps; each casts its own shadow.
+   * The Step: blocks in a `.card-block` share one wall, and every second one
+   * drops `--step-y` (sideways `--step-x` below 64rem, where they stack). The
+   * block pads for the drop, so nothing below is covered. Each keeps its throw.
    * Opt-in, not `:has(.card)`: layout gaps elsewhere feed image `sizes`.
    */
   .card-block {
     gap: 0;
-  }
+    padding: 0 0 calc(var(--block-edge) + var(--step-y)) var(--block-edge);
 
-  /*
-   * The raised brick: the group's subject block lifts by one shadow throw with
-   * the `card-edge`. `.card-solid` or `.card-raised`.
-   */
-  .card-block :is(.card-solid, .card-raised) {
-    position: relative;
-    z-index: 1;
-    translate: calc(var(--hard-throw) * -1) calc(var(--hard-throw) * -1);
-    border-color: var(--color-card-edge);
+    & > * {
+      margin: 0 0 calc(var(--block-edge) * -1) calc(var(--block-edge) * -1);
+    }
+
+    & > :nth-child(even) {
+      position: relative;
+      z-index: 1;
+      translate: var(--step-x) 0;
+
+      @variant lg {
+        translate: 0 var(--step-y);
+      }
+    }
   }
 
   /*

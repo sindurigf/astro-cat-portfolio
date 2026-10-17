@@ -211,7 +211,7 @@
   /*
    * Every whole-section gold area: starts at the rail, ends
    * --hero-column-screen-clear from the screen edge or at the rail, whichever
-   * is further out. Drawn like a card: 4px `border`, 4px pink shadow.
+   * is further out. Drawn like a block: the 4px ink edge and the pink throw.
    */
   .gold-column {
     --hero-column-rail: max(0px, calc((100% - var(--container-page)) / 2));
@@ -221,13 +221,14 @@
         calc(var(--hero-column-screen-clear) - --spacing(6))
       );
     padding-inline: 0;
-    border-color: var(--color-border);
+    border-width: var(--block-edge);
+    border-color: var(--color-block-ink);
 
     /*
      * The utility, not `var(--shadow-hard-pink-object)`: the token resolves on
      * :root, where light mode's <main> colors do not reach.
      */
-    @apply edge shadow-hard-pink-object;
+    @apply shadow-hard-pink-object;
   }
 
   /*

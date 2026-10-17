@@ -118,16 +118,21 @@
   --color-background: #0b0b0b;
   --color-surface: #1a1a1a;
   --color-border: #ffc000;
-  /* Cards draw no edge in dark mode: the pink shadow and the grid set them apart. */
+  /* The header slab draws no edge in dark mode: its pink shadow sets it apart. */
   --color-card-edge: transparent;
   /*
    * The edge of a gold or light fill: the fill delimits it on the page, so the
    * edge needs to read on gold only (11.32).
    */
   --color-fill-edge: #131313;
-  /* The sheet behind a card, one step darker than `surface`; none in light mode. */
-  --color-card-sheet: var(--color-fill-edge);
   --color-text: #e5e2e1;
+  /*
+   * Blocks (cards.css): gold, or light every second card in a block, with an
+   * ink edge. Fixed values: inside a block the color tokens are remapped.
+   */
+  --color-block-gold: #ffc000;
+  --color-block-light: #e5e2e1;
+  --color-block-ink: #131313;
   --color-subtle: #9bb4c6;
   --color-gold: #ffc000;
   --color-cyan: #00dcfd;
@@ -391,19 +396,16 @@
    * is hover and focus. Gold casts none: gold on gold shows nothing, and pink is
    * visible on gold and on the page.
    */
-  /* One throw for object shadows and the raised brick's lift (utilities.css); controls keep 4px. */
+  /* One throw for object shadows; controls keep 4px. */
   --hard-throw: 8px;
+  /* A block's ink edge; blocks in a `.card-block` share it as one wall. */
+  --block-edge: 4px;
   /*
-   * A card's graph paper: the page shows through as 1px lines, so text over a
-   * line keeps its `background` ratio. Light mode sets it to `none`.
+   * The Step: sideways juts and the drop of every second joined block, both 0
+   * below 640px so nothing pushes a phone layout off the column.
    */
-  --card-grid:
-    linear-gradient(var(--color-background) 1px, transparent 1px),
-    linear-gradient(90deg, var(--color-background) 1px, transparent 1px);
-  --card-grid-size: 16px;
-  /* One cell up and left, so the sheet's lines meet the card's. */
-  --card-sheet-offset: calc(var(--card-grid-size) * -1);
-  --card-grid-offset: -1px;
+  --step-x: clamp(0px, calc((100vw - 640px) / 16), 24px);
+  --step-y: clamp(0px, calc((100vw - 640px) / 10), 48px);
   /* Card, panel, field, header and rule edges (`edge` utilities); controls, chips, photos and stickers keep `border-4`. */
   --edge: 6px;
   --shadow-hard-pink-4: 4px 4px 0 var(--color-pink);
@@ -510,7 +512,7 @@
   --hero-column-pad-block: clamp(32px, 5vw, 72px) clamp(32px, 5vw, 80px);
   --hero-column-pad-inline: clamp(20px, 3.5vw, 64px);
 
-  --hero-column-edge: var(--edge);
+  --hero-column-edge: var(--block-edge);
   --hero-rule: var(--hero-column-edge);
   /*
    * At least the given name's leading under its letters (0.0831em, 7px at 84px), or
