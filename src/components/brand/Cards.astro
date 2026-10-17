@@ -38,14 +38,14 @@ const { targetStandard, conformanceStatus } = accessibilityFacts;
   <ComponentRow
     id="card-block"
     use="cards that sit together as one joined group."
-    rule="Cards share one wall and alternate gold and light; on the page every second card drops a step. Each keeps its own shadow."
+    rule="Cards share one wall and alternate gold and light. The wall climbs to the right and casts one shadow along its outline."
   >
     <div class="card-block">
       <div class="card">
         <h3 class="card-title">First Card</h3>
         <p class="mt-4 text-body text-text">Joined to the next.</p>
       </div>
-      <div class="card">
+      <div class="card card-step-1">
         <h3 class="card-title">Second Card</h3>
         <p class="mt-4 text-body">A step down from the first.</p>
       </div>

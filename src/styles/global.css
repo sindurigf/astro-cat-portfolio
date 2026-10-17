@@ -403,8 +403,8 @@
   /* The header's joined bricks and its logo block. */
   --brick-throw: 6px;
   /*
-   * The Step: sideways juts and the drop of every second joined block, both 0
-   * below 640px so nothing pushes a phone layout off the column.
+   * The Step: sideways juts and a wall's Step Up, both 0 below 640px so
+   * nothing pushes a phone layout off the column.
    */
   --step-x: clamp(0px, calc((100vw - 640px) / 16), 24px);
   --step-y: clamp(0px, calc((100vw - 640px) / 10), 48px);

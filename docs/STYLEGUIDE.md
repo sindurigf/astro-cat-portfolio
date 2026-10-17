@@ -123,8 +123,12 @@ The gold-ground set is in [Gold surface](#gold-surface), light values in
   `text-gold` are ink (11.32 on gold, 14.42 on light), `subtle` is `gold-muted`
   (7.88) or `light-subtle` (7.40), and a badge inverts. Gold fills use
   `block-gold`, which never remaps. `tests/blocks.spec.ts`.
-- The Step: blocks in a `.card-block` share one wall, and every second one
-  drops `--step-y` (48px from 1120px; sideways `--step-x` below 64rem). The
+- Walls: blocks in a `.card-block` share 4px walls with no gap, and the wall
+  casts the one throw along its outline, so it shows on outer edges only.
+- The Step Up: the throw falls down and right, so a wall only climbs right.
+  Bricks in one row rise by `--step-y` (48px from 1120px; half for the second
+  of three or more); stacked rows bring their right edge in by `--step-x`, at
+  most twice. A drop would end the throw against a brick face. The
   post contents juts right and the contact submit, the /brand menu and talk
   slides jut left by `--step-x` (24px).
   Both are 0 below 640px. Juts are translates or margins that never widen
@@ -547,7 +551,7 @@ file per area.
 | `.card-title`                           | Every card heading, `text-h3` 900                                                                                                                                                                                                                                    |
 | `.card-link`                            | Title link stretched over the card; inline-block, 44px min; card hover turns title and shadow cyan                                                                                                                                                                   |
 | `.card-solid`                           | A light block outside a `.card-block`, where alternation does not reach it                                                                                                                                                                                           |
-| `.card-block`                           | The Step: blocks share one 4px wall, alternate gold and light, and every second one drops `--step-y`; each casts its own shadow                                                                                                                                      |
+| `.card-block`                           | A wall: blocks share 4px walls, alternate gold and light, and step up to the right (`card-rise-*`, `card-step-*` from `src/lib/wall.ts`); the wall casts the one throw                                                                                               |
 | `.lead`                                 | Paragraph under a section heading, `text-lead` 400, 24px under it                                                                                                                                                                                                    |
 | `.standfirst`                           | Line beside PageHero's title, `text-standfirst` 400                                                                                                                                                                                                                  |
 | `.bullet-list`                          | Bulleted list, gold markers                                                                                                                                                                                                                                          |

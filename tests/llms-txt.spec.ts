@@ -104,6 +104,23 @@ test.describe('llms.txt', NODE, () => {
     ).toEqual([]);
   });
 
+  test('every page in the sitemap outside the blog is listed', () => {
+    // Blog listings reorder the posts, which the next test covers.
+    const sitemap = readFileSync(join(DIST_DIR, 'sitemap-0.xml'), 'utf8');
+    const pages = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)]
+      .map((match) => new URL(match[1]!).pathname)
+      .filter((path) => !path.startsWith('/blog/'));
+    const listed = new Set(
+      links(llmsTxt()).map((link) => new URL(link).pathname),
+    );
+    const missing = pages.filter((path) => !listed.has(path));
+
+    expect(
+      missing,
+      `llms.txt does not list these pages: ${missing.join(', ')}`,
+    ).toEqual([]);
+  });
+
   test('every post is listed', () => {
     const listed = new Set(
       links(llmsTxt())
