@@ -14,9 +14,9 @@ const DOC = join(ROOT, 'docs/STYLEGUIDE.md');
 const START = '<!-- contrast-table:start -->';
 const END = '<!-- contrast-table:end -->';
 
-/* WCAG 2.2: SC 1.4.3 for text (3:1 when large), SC 1.4.11 for non-text. */
+/* WCAG 2.2: SC 1.4.6 for text, which /accessibility claims at every size; SC 1.4.11 for non-text. */
 const NEEDS = {
-  text: 4.5,
+  text: 7,
   'non-text': 3,
   decoration: null,
   apart: null,
