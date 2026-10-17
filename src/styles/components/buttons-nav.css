@@ -64,6 +64,13 @@
       position: relative;
       translate: var(--brick-throw) var(--brick-throw);
     }
+
+    .mobile-menu-dialog
+      :is(.nav-cta, .nav-sticker):not([aria-current]):active::after {
+      content: '';
+      position: absolute;
+      inset: calc(--spacing(2) * -1) 0 0 calc(--spacing(2) * -1);
+    }
   }
 
   /*
