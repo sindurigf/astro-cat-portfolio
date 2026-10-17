@@ -298,6 +298,8 @@ The switch and what it scopes: [ARCHITECTURE.md](../ARCHITECTURE.md#light-mode).
   square before the word.
 - Blocks stay gold or light in light mode, with the `#131313` edge (18.58 on white).
 - The header bar turns `#131313` with white lines.
+- The footer follows the mode like `<main>`: white in light mode, its words
+  7:1 or more and its tiles apart from it (`tests/footer.spec.ts`).
 - Logo marks use `mark`, `tile-edge`, the `cat-hela*` coat and
   `shadow-hard-mark-*` or `drop-shadow-hard-mark-*`, never `pink` or `border`:
   they do not change with the mode.
@@ -1128,7 +1130,12 @@ Enforced by `tests/nav-current.spec.ts`, `tests/mobile-menu.spec.ts`,
 ### By height
 
 - Sticky, 96px (`--spacing-header`): the 72px bar and 12px above and below;
-  `tests/header-fit.spec.ts` holds both. `html` keeps focus and anchors
+  `tests/header-fit.spec.ts` holds both.
+- Once the page scrolls past it, the header goes slim
+  (`src/scripts/header-compact.ts`): 72px (`--spacing-header-compact`), a 60px
+  bar, the logo block fitted to the bar, bricks still 44px with their throw. A
+  state, not an animation. Its flow box keeps 96px, so nothing below moves, and
+  the full header's scroll padding still clears it. Not under `short`. `html` keeps focus and anchors
   `--spacing-header`, `--spacing-logo-hang` and `--spacing(4)` below the top.
 - Under 30rem of viewport height (`short`: a landscape phone, any window under
   960px tall at 200% zoom) it scrolls away and the scroll padding drops to
