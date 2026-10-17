@@ -9,6 +9,7 @@ import {
 import { ariaCurrent } from '../lib/nav';
 import { BLOG_PATH, categoryHref, indexPageHref } from '../lib/paths';
 import BlogCard from './BlogCard.astro';
+import { packRows, wallClasses } from '../lib/wall';
 
 /*
  * The filter is links to built routes, not a Vue island: filtering is
@@ -45,6 +46,17 @@ const pageNumbers = Array.from({ length: totalPages }, (_, i) => i + 1);
 const GRID_COLUMNS = 2;
 const singleCellCards = featureFirst ? posts.length - 1 : posts.length;
 const lastFillsRow = singleCellCards % GRID_COLUMNS === 1;
+const spansRow = (index: number) =>
+  (featureFirst && index === 0) || (lastFillsRow && index === posts.length - 1);
+const wall = wallClasses(
+  {
+    lg: packRows(
+      posts.map((_, index) => (spansRow(index) ? GRID_COLUMNS : 1)),
+      GRID_COLUMNS,
+    ),
+  },
+  posts.length,
+);
 
 const withPosts = await getCategoriesWithPosts();
 const filterOptions = CATEGORY_FILTERS.filter(
@@ -106,7 +118,9 @@ const EMPTY_BLOG = {
     </p>
   </div>
 ) : (
-  <ul class="card-block mt-head grid gap-grid lg:grid-cols-2">
+  <ul
+    class:list={['card-block mt-head grid gap-grid lg:grid-cols-2', wall.wall]}
+  >
     {posts.map((post, index) => {
       const feature = featureFirst && index === 0;
       const fillsRow = !feature && lastFillsRow && index === posts.length - 1;
@@ -115,6 +129,7 @@ const EMPTY_BLOG = {
           class:list={[
             'flex min-w-0',
             (feature || fillsRow) && 'lg:col-span-2',
+            wall.bricks[index],
           ]}
         >
           <BlogCard
