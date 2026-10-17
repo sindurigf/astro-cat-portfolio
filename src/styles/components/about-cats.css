@@ -36,11 +36,6 @@
     right: calc(var(--spacing-target) + var(--focus-width) + var(--focus-gap));
   }
 
-  /* Ends at a raised brick's top edge, which lifts --hard-throw (utilities.css), so the brick never covers it. */
-  .cat-perch:has(.card-block .card-raised) .cat-button {
-    bottom: var(--hard-throw);
-  }
-
   .cat-svg {
     @apply block size-full overflow-visible;
   }
@@ -99,7 +94,7 @@
   }
 
   .cat-tricks-button:hover {
-    @apply bg-gold text-gold-text;
+    @apply bg-block-gold text-gold-text;
   }
 
   .cat-trick-icon {
@@ -141,7 +136,7 @@
     }
 
     &:hover {
-      @apply bg-gold text-gold-text;
+      @apply bg-block-gold text-gold-text;
     }
 
     /* The cyan ring is 1.01:1 on the gold hover fill. */
@@ -338,7 +333,7 @@
 
   /* The home hero's gold sticker (gold-text on gold), hung off the photo's edge. */
   .cat-name {
-    @apply absolute -bottom-4 -left-2 -rotate-3 border-4 border-fill-edge bg-gold
+    @apply absolute -bottom-4 -left-2 -rotate-3 border-4 border-fill-edge bg-block-gold
       px-3 py-1 text-label font-black uppercase tracking-label text-gold-text
       shadow-hard-mark-4;
   }

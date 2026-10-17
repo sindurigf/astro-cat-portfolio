@@ -9,62 +9,79 @@
       shadow-hard-pink-object sm:p-card;
   }
 
-  /*
-   * Cards, plain slabs and the header slab: the `card-edge`, none in dark
-   * mode, and graph paper.
-   * The paper is a layer under the content, so the card's measured ground stays
-   * `surface`: its lines are `background`, where every text token passes too.
-   */
-  :is(.card, .card-block > *, .plain-slab, .post-contents, .header-slab):not(
-    .card-solid,
-    .surface-gold,
-    .surface-gold *
-  ) {
+  /* The header slab: the `card-edge`, none in dark mode. */
+  .header-slab {
     position: relative;
-    isolation: isolate;
     border-color: var(--color-card-edge);
+  }
 
-    &::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      z-index: -1;
-      background-image: var(--card-grid);
-      background-size: var(--card-grid-size) var(--card-grid-size);
-      background-position: var(--card-grid-offset) var(--card-grid-offset);
-      pointer-events: none;
+  /*
+   * Blocks: every card, the plain hero slab and the post contents, gold with
+   * an ink edge. The color tokens are remapped inside, so `text-text` and
+   * `text-gold` read on the fill (ink 11.32, muted 7.88) and what fills with
+   * `text` on `background`, a badge, inverts to ink. Gold fills use the fixed
+   * `block-gold`, so they stay gold.
+   */
+  :is(.card, .plain-slab, .post-contents):not(.surface-gold, .surface-gold *) {
+    --color-background: var(--color-block-gold);
+    --color-surface: var(--color-block-gold);
+    --color-text: var(--color-block-ink);
+    --color-gold: var(--color-block-ink);
+    --color-subtle: var(--color-gold-muted);
+    --color-pink-text: var(--color-gold-link);
+    --color-border: var(--color-block-ink);
+    --color-card-edge: var(--color-block-ink);
 
-      /* Decoration: forced colors and print drop it. */
-      @media (forced-colors: active), print {
-        display: none;
-      }
-    }
+    position: relative;
+    border-width: var(--block-edge);
+    border-color: var(--color-block-ink);
+    background-color: var(--color-block-gold);
+    color: var(--color-text);
+  }
 
-    /*
-     * A second sheet of the same paper, one cell up and left, its lines on the
-     * card's. Masked off the card box; up-left overflow never scrolls.
-     */
-    &::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      z-index: -2;
-      translate: var(--card-sheet-offset) var(--card-sheet-offset);
-      background-color: var(--color-card-sheet);
-      background-image: var(--card-grid);
-      background-size: var(--card-grid-size) var(--card-grid-size);
-      background-position: var(--card-grid-offset) var(--card-grid-offset);
-      mask:
-        linear-gradient(var(--color-background) 0 0)
-          calc(var(--card-sheet-offset) * -1)
-          calc(var(--card-sheet-offset) * -1) / 100% 100% no-repeat exclude,
-        linear-gradient(var(--color-background) 0 0);
-      pointer-events: none;
+  /*
+   * Light blocks: every second card in a block, `.card-solid`, the plain hero
+   * slab and the post contents. Ink 14.42, subtle 7.40 on the fill.
+   */
+  :is(
+    .card-solid,
+    .plain-slab,
+    .post-contents,
+    .card-block > .card:nth-child(even),
+    .card-block > :nth-child(even) > .card
+  ):not(.surface-gold, .surface-gold *) {
+    --color-background: var(--color-block-light);
+    --color-surface: var(--color-block-light);
+    --color-subtle: var(--color-light-subtle);
 
-      @media (forced-colors: active), print {
-        display: none;
-      }
-    }
+    background-color: var(--color-block-light);
+  }
+
+  /* The post contents juts right of the column by the Step's `--step-x`. */
+  .post-contents {
+    margin-right: calc(var(--step-x) * -1);
+  }
+
+  /*
+   * Hover and focus inside a block: the block's own ring and hover throw keep
+   * the page's cyan, set on the block itself.
+   */
+  :is(.card, .plain-slab, .post-contents):not(.surface-gold, .surface-gold *)
+    > * {
+    --color-cyan: var(--color-gold-link);
+  }
+
+  /* A gold-surface card keeps its own colors and takes the block edge. */
+  .card.surface-gold:not(.surface-gold *) {
+    border-width: var(--block-edge);
+    border-color: var(--color-block-ink);
+  }
+
+  /* A card inside a block is part of it: no second fill, edge or throw. */
+  :is(.card, .plain-slab, .post-contents) .card {
+    border-color: transparent;
+    background-color: transparent;
+    box-shadow: none;
   }
 
   /*
@@ -72,68 +89,6 @@
    * so everything inside is `background`. Holds text, never a form. In a
    * `.card-block` the raised-brick rule gives it an edge.
    */
-  .card-solid {
-    background-color: var(--color-text);
-    color: var(--color-background);
-    border-color: var(--color-text);
-  }
-
-  .card-solid
-    :is(
-      .card-title,
-      .card-link,
-      .label,
-      .badge,
-      a,
-      dt,
-      dd,
-      p,
-      li,
-      time,
-      span,
-      strong,
-      em
-    ) {
-    color: var(--color-background);
-  }
-
-  .card-solid :is(ul, ol) li::marker {
-    color: var(--color-background);
-  }
-
-  /*
-   * Inner edges too: `border` fails SC 1.4.11 on this ground.
-   * tests/failed-images.spec.ts.
-   */
-  .card-solid * {
-    border-color: var(--color-background);
-  }
-
-  /*
-   * Except what paints its own dark fill: the badge, and a failed photo's alt
-   * text on `surface`. tests/failed-images.spec.ts.
-   */
-  .card-solid .badge {
-    background-color: var(--color-background);
-    color: var(--color-text);
-  }
-
-  .card-solid .aspect-frame-alt {
-    color: var(--color-text);
-  }
-
-  /*
-   * Hover on a solid card keeps the title `background`: cyan is 1.29 here; the
-   * cyan shadow is the hover. `.card` in the selector wins on specificity over
-   * the later hover rule.
-   */
-  .card.card-solid:has(.card-link):hover .card-link {
-    color: var(--color-background);
-  }
-
-  .card-solid :focus-visible {
-    outline-color: var(--color-background);
-  }
 
   /*
    * One size for every card title, so a card is never louder than its section.
@@ -201,6 +156,12 @@
 
   .post-contents ol {
     @apply edge border-t-0 border-card-edge;
+  }
+
+  /* `text-text` outranks the base hover color, so hover underlines (SC 1.4.1). */
+  .post-contents a:hover {
+    text-decoration: underline;
+    text-decoration-thickness: var(--underline-thick);
   }
 
   .post-contents li + li {

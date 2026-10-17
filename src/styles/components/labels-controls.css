@@ -8,7 +8,7 @@
    * stay hidden on focus.
    */
   .skip-link {
-    @apply absolute left-4 top-4 z-60 border-4 border-fill-edge bg-gold px-6 py-4
+    @apply absolute left-4 top-4 z-60 border-4 border-fill-edge bg-block-gold px-6 py-4
       text-label font-black uppercase tracking-label text-background;
 
     transform: translateY(calc(-100% - --spacing(6)));
@@ -30,7 +30,7 @@
   }
 
   .motion-toggle:hover {
-    @apply bg-gold text-gold-text;
+    @apply bg-block-gold text-gold-text;
   }
 
   /*

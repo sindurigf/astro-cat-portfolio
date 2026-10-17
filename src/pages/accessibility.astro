@@ -313,10 +313,10 @@ const HAS_TALK = (await getCollection('talks')).length > 0;
             SC 1.4.11 Non-text Contrast (AA). On every page, in dark and light
             mode, at 390 and 1280px, every drawn edge reaches 3:1 against the
             ground it sits on, unless the element's own opaque fill already
-            does. A gold fill's edge also reaches 3:1 against the fill. Dark
-            cards draw no edge, since a card is not a user interface component.
-            Their graph paper is decoration and is hidden in forced colors.
-            Every <dfn>focus ring</dfn>, the outline on the control you are on,
+            does. A gold fill's edge also reaches 3:1 against the fill. Cards
+            are gold or light blocks whose fill reaches 3:1 against the page,
+            with a 4px ink edge that forced colors keep. Every{' '}
+            <dfn>focus ring</dfn>, the outline on the control you are on,
             reaches 3:1 against the ground it paints over, on every page with
             listings sampled.
           </p>

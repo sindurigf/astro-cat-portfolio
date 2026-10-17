@@ -123,7 +123,7 @@ The ring is 4px cyan at a 4px offset plus the element's shadow (4px, or 8px for 
 `#131313` on gold. Look, do not measure.
 
 - [ ] On `#0B0B0B`: header links, footer. → SC 1.4.11, 2.4.7
-- [ ] On `#1A1A1A`: a link in a card, over its graph paper. → SC 1.4.11, 2.4.7
+- [ ] On a gold and a light block: a link in a card. → SC 1.4.11, 2.4.7
 - [ ] Chips and footer tiles: the ring sits past the pink shadow, follows the
       tilt, and never touches the next chip. → SC 1.4.11, 2.4.7
 - [ ] Current nav item and current chip: the ring reads as separate from the

@@ -8,6 +8,16 @@
     padding-top: --spacing(12);
   }
 
+  /* The Step's footer beam: a gold bar with the ink edge, jutting left. */
+  .footer-beam {
+    height: --spacing(6);
+    margin-left: calc(var(--step-x) * -1);
+    margin-right: calc(var(--step-x) * 2);
+    border: var(--block-edge) solid var(--color-block-ink);
+    background-color: var(--color-block-gold);
+    box-shadow: var(--shadow-hard-pink-object);
+  }
+
   .footer-top {
     display: grid;
     grid-template-columns: minmax(0, 1fr);

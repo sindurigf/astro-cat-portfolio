@@ -102,6 +102,17 @@ passed to `vite.build.cssTarget`.
 Every visual rule, token and value is in [docs/STYLEGUIDE.md](docs/STYLEGUIDE.md).
 This section keeps the mechanisms.
 
+### Blocks
+
+Rules: [STYLEGUIDE Color tokens](docs/STYLEGUIDE.md#color-tokens).
+
+- `src/styles/components/cards.css` remaps the color tokens on each block, as
+  light mode does on `<main>`, so utilities inside read on its fill.
+- A fill that must stay gold inside a block uses `bg-block-gold`, a fixed token
+  that is never remapped.
+- The Step's offsets are `--step-x` and `--step-y` in `global.css`; juts are
+  translates or margins, so no page scrolls sideways (`tests/blocks.spec.ts`).
+
 ### Light mode
 
 Dark is the default. Colors and rules:

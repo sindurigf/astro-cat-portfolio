@@ -89,7 +89,6 @@ const readableDate = formatPostDate(date);
         </a>
       </Heading>
 
-      {/* No `text-text`: the utility would beat a solid block's rule (tests/solid-block.spec.ts). */}
       <p class="mt-6 max-w-measure text-body text-pretty">{teaser}</p>
 
       <span class="label mt-8 block text-subtle">
@@ -97,7 +96,6 @@ const readableDate = formatPostDate(date);
       </span>
     </div>
 
-    {/* No `border-border`: the utility would beat a solid block's rule and fail SC 1.4.11. */}
     {feature && cover && coverSize ? (
       <div class="aspect-frame mt-2 border-4">
         <svg
