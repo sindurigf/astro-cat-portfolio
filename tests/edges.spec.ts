@@ -11,7 +11,8 @@ const ROUTE = '/';
 const PLAIN_CARD =
   'main .card:not(.card-solid):not(.surface-gold):not(.surface-gold *)';
 const PAGE_CONTROL = 'main a.btn-secondary';
-const GOLD_FILLS = ['.nav-cta'];
+/* Gold bricks on the header bar: edged in the bar's line color, so the edge reads on the bar. */
+const GOLD_FILLS = ['header .nav-cta', 'header .theme-switch'];
 /* A footer tile has no drawn edge: its fill meets the ground and its throw. */
 const FOOTER_TILE = 'footer .footer-sticker';
 
@@ -43,9 +44,9 @@ const readEdges = (page: Page): Promise<Edges> =>
     for (const selector of ${JSON.stringify(GOLD_FILLS)}) {
       const element = document.querySelector(selector);
       const style = element && getComputedStyle(element);
-      const fill = style && parse(style.backgroundColor);
+      const ground = element && effectiveBackground(element.parentElement);
       const rim = style && parse(style.borderTopColor);
-      fillEdgeRatios[selector] = fill && rim ? ratio(rim, fill) : null;
+      fillEdgeRatios[selector] = ground && rim ? ratio(rim, ground) : null;
     }
     const tile = document.querySelector(${JSON.stringify(FOOTER_TILE)});
     const tileStyle = tile && getComputedStyle(tile);
@@ -67,7 +68,7 @@ const expectFillEdges = (edges: Edges): void => {
   for (const [selector, value] of Object.entries(edges.fillEdgeRatios)) {
     expect(
       value,
-      `${selector}'s edge should reach ${NON_TEXT}:1 against its own fill`,
+      `${selector}'s edge should reach ${NON_TEXT}:1 against the bar it sits on`,
     ).toBeGreaterThanOrEqual(NON_TEXT);
   }
 };

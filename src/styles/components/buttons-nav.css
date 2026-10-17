@@ -126,12 +126,12 @@
   }
 
   /*
-   * Gold tile with the ink edge every gold fill takes. Hidden
+   * Gold tile edged in `text`, the line color of whatever it sits on. Hidden
    * without data-theme, which the head script always sets when JavaScript runs.
    */
   .theme-switch {
     @apply grid size-target shrink-0 cursor-pointer place-items-center border-4
-      border-fill-edge bg-block-gold text-gold-text;
+      border-text bg-block-gold text-gold-text;
   }
 
   :root:not([data-theme]) .theme-switch {
@@ -233,8 +233,7 @@
 
   /*
    * The logo link is a gold block from the slab's outer left edge, hanging
-   * `--spacing-logo-hang` below it: the ink edge every gold fill takes, thrown
-   * in the page's `text`. The
+   * `--spacing-logo-hang` below it, edged and thrown in the page's `text`. The
    * negative margins keep it from growing the row. Its ring is drawn inside,
    * on the gold (ink, 11.32).
    */
@@ -252,7 +251,7 @@
     margin-inline-start: calc(-1 * (var(--slab-pad) + var(--edge)));
     padding-inline: calc(var(--slab-pad) + var(--edge) - var(--block-edge))
       --spacing(2);
-    border: var(--block-edge) solid var(--color-fill-edge);
+    border: var(--block-edge) solid var(--page-text);
     background-color: var(--color-block-gold);
     box-shadow: var(--brick-throw) var(--brick-throw) 0 var(--page-text);
 
@@ -329,7 +328,7 @@
   }
 
   .nav-sticker[aria-current] {
-    @apply border-fill-edge bg-block-gold text-gold-text;
+    @apply bg-block-gold text-gold-text;
 
     box-shadow: var(--inset-shadow-current);
   }
@@ -348,8 +347,8 @@
    * so source order settles `box-shadow`.
    */
   .nav-cta {
-    @apply border-4 border-fill-edge bg-block-gold text-label font-black
-      uppercase tracking-label text-gold-text;
+    @apply border-4 border-text bg-block-gold text-label font-black uppercase
+      tracking-label text-gold-text;
   }
 
   .nav-cta:not([aria-current]):hover {
