@@ -41,15 +41,15 @@
     "check": "npm run check:tokens && npm run check:links && npm run check:pins && npm run check:classes && npm run check:untransformed && npm run check:title-case && npm run check:exif && npm run format:check && npm run check:commits && npm run check:leaks && npm run check:fork"
   },
   "dependencies": {
-    "@astrojs/cloudflare": "^14.3.3",
-    "@astrojs/markdown-satteri": "^0.4.2",
+    "@astrojs/cloudflare": "^14.3.4",
+    "@astrojs/markdown-satteri": "^0.4.3",
     "@astrojs/rss": "^4.0.19",
     "@astrojs/sitemap": "^3.7.4",
     "@astrojs/vue": "^7.0.2",
     "@fontsource-variable/lexend": "^5.3.0",
     "@tailwindcss/vite": "^4.3.3",
-    "astro": "^7.3.5",
-    "js-yaml": "^5.4.2",
+    "astro": "^7.3.8",
+    "js-yaml": "^5.4.3",
     "tailwindcss": "^4.3.3",
     "vue": "^3.5.42"
   },
@@ -62,13 +62,13 @@
     "@axe-core/playwright": "^4.13.0",
     "@fontsource/lexend": "^5.3.0",
     "@playwright/test": "1.63.0",
-    "@types/node": "^24.19.1",
-    "monocart-reporter": "^2.14.0",
+    "@types/node": "^24.19.2",
+    "monocart-reporter": "^2.14.1",
     "prettier": "^3.9.9",
-    "prettier-plugin-astro": "^1.1.0",
+    "prettier-plugin-astro": "^1.1.1",
     "typescript": "^6.0.3",
     "vue-tsc": "3.3.12",
-    "wrangler": "4.147.0"
+    "wrangler": "4.149.0"
   },
   "overrides": {
     "sharp": "0.35.5"
