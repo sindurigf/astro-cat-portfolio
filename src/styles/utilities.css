@@ -4,11 +4,20 @@
  */
 @layer utilities {
   /*
-   * A tilted box softens its border's outer pixels, and a fill painted under
-   * the border shows through them as a pale fringe. tests/tilt.spec.ts.
+   * A tilted box softens its border's edges. A fill under a border of another
+   * color shows outside it as a fringe, so it stops at the padding box; a fill
+   * clipped under a border of its own color leaves a seam of ground between
+   * them, so a matching pair keeps the fill under the border. tests/tilt.spec.ts.
    */
   :is(.rotate-3, .-rotate-3) {
     background-clip: padding-box;
+  }
+
+  .surface-gold :is(.rotate-3, .-rotate-3).sticker,
+  :is(:root[data-theme='light'] main, main .mode-light)
+    :is(.rotate-3, .-rotate-3).sticker:not(.mode-dark *),
+  :is(.rotate-3, .-rotate-3).hero-sticker.bg-surface {
+    background-clip: border-box;
   }
 
   /*
