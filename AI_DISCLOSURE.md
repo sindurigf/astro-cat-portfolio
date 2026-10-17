@@ -27,7 +27,8 @@ AI-drawn art, all by Claude:
   `artwork/mark-dark.svg`).
 - The favicons and app icons in `public/` and their frames in `artwork/`, drawn
   by `scripts/make-icons.mjs` from the logo cat.
-- The sharing image, `public/images/og-default.png`, drawn by
+- The sharing images, `public/images/og-default.png` and
+  `public/images/og/*.jpg`, drawn by
   `scripts/make-og.mjs` with the logo cat.
 
 Every page's footer says "Cat Drawings and Text Made with AI" and links this

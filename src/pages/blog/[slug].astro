@@ -7,7 +7,6 @@ import { isoDate } from '../../lib/time';
 import Roundel from '../../components/Roundel.astro';
 import { postTrail } from '../../lib/breadcrumbs';
 import { markdownSourcePath, tagHref } from '../../lib/paths';
-import { coverOgImage } from '../../lib/og-image';
 import { Picture } from 'astro:assets';
 import { PHOTO_FORMATS } from '../../lib/photo-formats';
 import { HERO_PHOTO_SIZES, WIDTHS } from '../../lib/image-densities';
@@ -43,7 +42,6 @@ const {
   teaser,
   cover,
   coverAlt,
-  coverCardAlt,
   coverCredit,
   readingTime,
   placeholder,
@@ -63,11 +61,6 @@ const contents = [
 
 const formattedDate = formatPostDate(date);
 
-/* The schema requires coverAlt whenever there is a cover. */
-const ogImage =
-  cover && coverAlt
-    ? await coverOgImage(cover, coverCardAlt ?? coverAlt)
-    : undefined;
 const coverSize = cover ? await photoSize(cover) : null;
 const coverCreditHref =
   coverCredit && Object.hasOwn(PHOTOGRAPHERS, coverCredit)
@@ -90,7 +83,6 @@ const article = placeholder
 <BaseLayout
   title={post.data.seoTitle ?? title}
   description={post.data.seoDescription ?? teaser}
-  ogImage={ogImage}
   article={article}
   trail={trail}
   markdownSource={placeholder ? undefined : markdownSourcePath(post.id)}

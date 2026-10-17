@@ -62,10 +62,10 @@ it is done.
      text where each is used. Update or remove `LICENSE-photos`.
    - Logo, favicon and app icons:
      [Replace the logo](docs/DEVELOPMENT.md#replace-the-logo).
-   - Sharing image: `npm run og` redraws `public/images/og-default.png`
-     from your name and tagline
-     ([The sharing image](docs/DEVELOPMENT.md#the-sharing-image)); describe
-     it in `src/lib/og-image.ts`.
+   - Sharing images: `npm run build && npm run og` redraws
+     `public/images/og-default.png` and every page's card
+     ([The sharing images](docs/DEVELOPMENT.md#the-sharing-images)); describe
+     the site card in `src/lib/og-image.ts`.
 4. **Your cats, or none**: [Your cats, or none](#your-cats-or-none).
 5. **Your site**
    - Address and repository: `site.url` and `site.repository` in

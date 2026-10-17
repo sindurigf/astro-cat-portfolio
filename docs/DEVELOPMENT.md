@@ -73,7 +73,7 @@ What happens without the `CONTACT_NOTIFY_TO` secret:
 | `npm run check:umami`         | The vendored Umami tracker against the one Umami serves                                                                                               |
 | `npm run check:pdf`           | Every PDF in `public/` against PDF/UA-1, veraPDF in Docker                                                                                            |
 | `npm run publish:talk`        | Print a talk's slideshow to its tagged PDF in `public/talks/`                                                                                         |
-| `npm run og`                  | Render `public/images/og-default.png` from `src/site.config.ts`                                                                                       |
+| `npm run og`                  | After a build, render `public/images/og-default.png` and every page's card in `public/images/og/`                                                     |
 | `npm run icons`               | Render the favicons, app icons and one-color mark from `src/lib/brand-mark.ts`                                                                        |
 
 ### WebKit
@@ -321,8 +321,8 @@ and [the favicon set](../ARCHITECTURE.md#the-favicon-set).
 3. Keep `mark-dark.png` at 840:900. For another aspect, update `MARK_WIDTHS`
    and the `sizes` in `src/components/Roundel.astro`;
    `tests/image-size.spec.ts` fails on drift.
-4. Run `npm run og` to redraw `public/images/og-default.png` (1200 x 630)
-   ([the sharing image](#the-sharing-image)).
+4. Run `npm run build && npm run og` to redraw the sharing images
+   ([the sharing images](#the-sharing-images)).
 5. Update the `alt` in `src/lib/og-image.ts`, which describes the mark, and
    the mark and icon lines in [AI_DISCLOSURE.md](../AI_DISCLOSURE.md).
 
@@ -342,20 +342,28 @@ npx playwright test tests/icons.spec.ts tests/brand-mark.spec.ts tests/image-siz
 - `tests/alt-text.spec.ts` and `tests/image-priority.spec.ts` match the file
   name `mark-dark`; keep it or update both.
 
-## The sharing image
+## The sharing images
 
-`public/images/og-default.png` is the link preview for every page without a
-post cover. Render it after changing your name, `site.tagline` or `site.name`:
+`public/images/og-default.png` is the homepage's link preview; every other
+page has its own card in `public/images/og/`. Render them after changing your
+name, `site.tagline`, `site.name`, a color, a page title or a page's first
+photo, then commit `public/images/`:
 
 ```sh
-npm run og
+npm run build && npm run og
 ```
 
-- `scripts/make-og.mjs` reads those three values from `src/site.config.ts`
-  and the colors from `src/styles/global.css`, and draws the image in
-  Chromium with Lexend and the logo cat from `src/lib/brand-mark.ts`.
-- Text is inserted as text, never markup. A name over 40 characters, or one
-  that does not fit at the smallest size, fails with a message;
+- `scripts/make-og.mjs` reads those values from `src/site.config.ts`, the
+  colors from `src/styles/global.css` and each page from `dist/client/`, and
+  draws the images in Chromium with Lexend and the logo cat from
+  `src/lib/brand-mark.ts`.
+- A page's card shows your name, the page's `og:title`, and its first photo
+  in `<main>` whole, or the logo cat. To show another photo, or the logo cat,
+  add the route to `OG_PHOTO_CHOICES` in `src/lib/og-cards.ts`.
+- `tests/seo.spec.ts` fails when a card is missing or no longer matches its
+  page.
+- Text is inserted as text, never markup. A name over 40 characters, or a
+  name or title that does not fit at the smallest size, fails with a message;
   `src/site.config.ts` already caps each tagline line at 40.
 - Needs the Playwright Chromium from Setup; no network.
 

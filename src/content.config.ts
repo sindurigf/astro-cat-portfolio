@@ -41,13 +41,11 @@ const blog = defineCollection({
         personaSources: z.boolean().default(false),
         seoTitle: z.string().optional(),
         seoDescription: z.string().optional(),
-        /* Any ratio, shown uncropped in its own ratio; only og:image is cropped. Relative to the post. */
+        /* Any ratio, shown uncropped in its own ratio. Relative to the post. */
         cover: image().optional(),
         coverAlt: z.string().optional(),
         /* The cover's photographer, shown in the post's date line; a PHOTOGRAPHERS name is linked. */
         coverCredit: z.string().optional(),
-        /* Alt for the 1.91:1 og:image crop, when the crop drops something coverAlt names. */
-        coverCardAlt: z.string().optional(),
       })
       .refine((post) => post.cover === undefined || Boolean(post.coverAlt), {
         message: 'A post with a cover needs coverAlt describing the photo.',
