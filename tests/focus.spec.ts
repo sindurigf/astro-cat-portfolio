@@ -483,40 +483,65 @@ for (const colorScheme of SCHEMES) {
         page,
       }) => {
         await gotoSettled(page, route);
+        /* Keyboard modality first, so a scripted focus() still matches :focus-visible. */
         await page.keyboard.press('Tab');
-        const count = await page.locator(FOCUSABLE_SELECTOR).count();
+        /* Two round trips per control: one to read it and aim at the next, one pointer move. */
+        const measure = new Function(
+          'args',
+          `${SHADOW_REACH}
+          const controls = document.querySelectorAll(args.selector);
+          const found = args.read.map((index) => {
+            const el = controls[index];
+            el.focus();
+            const s = getComputedStyle(el);
+            return {
+              name: (el.getAttribute('aria-label') || el.textContent || el.tagName).trim().slice(0, 40),
+              offset: parseFloat(s.outlineOffset) || 0,
+              shadow: shadowReach(el),
+            };
+          });
+          const next = controls[args.aim];
+          if (!next) return { found, at: null };
+          next.scrollIntoView({ block: 'center', inline: 'center' });
+          const r = next.getBoundingClientRect();
+          return { found, at: { x: r.left + r.width / 2, y: r.top + r.height / 2 } };`,
+        ) as (args: { selector: string; read: number[]; aim: number }) => {
+          found: { name: string; offset: number; shadow: number }[];
+          at: { x: number; y: number } | null;
+        };
+        const visible = await page.evaluate(
+          (selector) =>
+            [...document.querySelectorAll(selector)].flatMap((el, index) =>
+              el.checkVisibility({ visibilityProperty: true }) ? [index] : [],
+            ),
+          FOCUSABLE_SELECTOR,
+        );
         const short: string[] = [];
-        for (let i = 0; i < count; i += 1) {
-          const control = page.locator(FOCUSABLE_SELECTOR).nth(i);
-          if (!(await control.isVisible())) continue;
-          for (const hover of [false, true]) {
-            if (hover)
-              await control
-                .hover({ force: true, trial: false })
-                .catch(() => undefined);
-            await control.focus();
-            const found = await control.evaluate(
-              new Function(
-                'el',
-                `${SHADOW_REACH}
-                const s = getComputedStyle(el);
-                return {
-                  name: (el.getAttribute('aria-label') || el.textContent || el.tagName).trim().slice(0, 40),
-                  offset: parseFloat(s.outlineOffset) || 0,
-                  shadow: shadowReach(el),
-                };`,
-              ) as (el: Element) => {
-                name: string;
-                offset: number;
-                shadow: number;
-              },
-            );
-            if (found.shadow > 0 && found.offset < found.shadow)
+        const report = (
+          found: { name: string; offset: number; shadow: number }[],
+          hover: boolean,
+        ) => {
+          for (const { name, offset, shadow } of found)
+            if (shadow > 0 && offset < shadow)
               short.push(
-                `${found.name}${hover ? ' (hovered)' : ''}: ring offset ${found.offset}px, shadow reaches ${found.shadow.toFixed(1)}px past the box`,
+                `${name}${hover ? ' (hovered)' : ''}: ring offset ${offset}px, shadow reaches ${shadow.toFixed(1)}px past the box`,
               );
-          }
-          await page.mouse.move(0, 0);
+        };
+        let step = await page.evaluate(measure, {
+          selector: FOCUSABLE_SELECTOR,
+          read: visible,
+          aim: visible[0] ?? -1,
+        });
+        report(step.found, false);
+        for (const [k, index] of visible.entries()) {
+          if (!step.at) break;
+          await page.mouse.move(step.at.x, step.at.y);
+          step = await page.evaluate(measure, {
+            selector: FOCUSABLE_SELECTOR,
+            read: [index],
+            aim: visible[k + 1] ?? -1,
+          });
+          report(step.found, true);
         }
         expect(
           short,
@@ -536,22 +561,20 @@ for (const route of SAMPLED_ROUTES) {
     page,
   }) => {
     await gotoSettled(page, route);
-    const count = await page.locator(FOCUSABLE_SELECTOR).count();
-    let widest = 0;
-    for (let i = 0; i < count; i += 1) {
-      const control = page.locator(FOCUSABLE_SELECTOR).nth(i);
-      if (!(await control.isVisible())) continue;
-      await control.focus();
-      widest = Math.max(
-        widest,
-        await control.evaluate((el) => {
-          const s = getComputedStyle(el);
-          return s.outlineStyle === 'none'
-            ? 0
-            : parseFloat(s.outlineWidth) + parseFloat(s.outlineOffset);
-        }),
-      );
-    }
+    const widest = await page.evaluate((selector) => {
+      let widest = 0;
+      for (const el of document.querySelectorAll<HTMLElement>(selector)) {
+        if (!el.checkVisibility({ visibilityProperty: true })) continue;
+        el.focus();
+        const s = getComputedStyle(el);
+        if (s.outlineStyle !== 'none')
+          widest = Math.max(
+            widest,
+            parseFloat(s.outlineWidth) + parseFloat(s.outlineOffset),
+          );
+      }
+      return widest;
+    }, FOCUSABLE_SELECTOR);
     const padding = await page.evaluate(() =>
       parseFloat(
         getComputedStyle(document.documentElement).scrollPaddingBottom,
