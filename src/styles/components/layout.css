@@ -41,8 +41,8 @@
       display: flex;
       flex-direction: column;
       min-height: calc(
-        100svh - var(--spacing-header) - var(--hero-pad-block) -
-          var(--spacing-head)
+        100svh - var(--spacing-header) - var(--spacing-main-top) -
+          var(--hero-pad-block) - var(--spacing-head)
       );
 
       > div {
@@ -169,8 +169,8 @@
    * control under the toolbar.
    */
   .hero {
-    min-height: calc(100vh - var(--spacing-header));
-    min-height: calc(100svh - var(--spacing-header));
+    min-height: calc(100vh - var(--spacing-header) - var(--spacing-main-top));
+    min-height: calc(100svh - var(--spacing-header) - var(--spacing-main-top));
 
     @apply isolate flex flex-col;
   }
@@ -247,8 +247,9 @@
   .v-column .hero {
     padding-block: 0;
     min-height: calc(
-      100svh - var(--spacing-header) - var(--hero-name-overhang) -
-        var(--hero-pad-block) - var(--hero-column-edge) - --spacing(1)
+      100svh - var(--spacing-header) - var(--spacing-main-top) -
+        var(--hero-name-overhang) - var(--hero-pad-block) -
+        var(--hero-column-edge) - --spacing(1)
     );
   }
 

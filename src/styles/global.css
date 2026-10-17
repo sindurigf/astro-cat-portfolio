@@ -474,6 +474,17 @@
   --spacing-header: 96px;
   /* How far the gold logo block hangs below the header slab. */
   --spacing-logo-hang: 28px;
+  /*
+   * What <main> adds on top so its first block clears the logo block's throw
+   * by 8px, given the `--hero-pad-block` every opening already has.
+   */
+  --spacing-main-top: max(
+    0px,
+    calc(
+      var(--spacing-logo-hang) + var(--brick-throw) + var(--spacing) * 2 -
+        var(--hero-pad-block)
+    )
+  );
   /* The slideshow's control row: a ~59px button plus its 4px shadow. */
   --spacing-deck-bar: 4.5rem;
 

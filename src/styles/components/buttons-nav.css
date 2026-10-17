@@ -27,14 +27,10 @@
    * bricks share their row's throw, so they hold still. The logo tile's press
    * is in @layer utilities.
    */
-  :is(
-      .btn-primary,
-      .btn-secondary,
-      .mobile-menu-dialog .nav-cta,
-      .mobile-menu-dialog .nav-sticker,
-      a.chip,
-      .footer-sticker
-    ):not([aria-disabled='true'], [aria-current]):active,
+  :is(.btn-primary, .btn-secondary, a.chip, .footer-sticker):not(
+      [aria-disabled='true'],
+      [aria-current]
+    ):active,
   .surface-gold .btn-gold-primary:active {
     @apply shadow-none;
   }
@@ -45,26 +41,18 @@
    * tests/press.spec.ts.
    */
   @media (prefers-reduced-motion: no-preference) {
-    :is(
-        .btn-primary,
-        .btn-secondary,
-        .mobile-menu-dialog .nav-cta,
-        .mobile-menu-dialog .nav-sticker,
-        a.chip,
-        .footer-sticker
-      ):not([aria-disabled='true'], [aria-current]):active,
+    :is(.btn-primary, .btn-secondary, a.chip, .footer-sticker):not(
+        [aria-disabled='true'],
+        [aria-current]
+      ):active,
     .surface-gold .btn-gold-primary:active {
       @apply relative translate-x-1 translate-y-1;
     }
 
-    :is(
-        .btn-primary,
-        .btn-secondary,
-        .mobile-menu-dialog .nav-cta,
-        .mobile-menu-dialog .nav-sticker,
-        a.chip,
-        .footer-sticker
-      ):not([aria-disabled='true'], [aria-current]):active::after,
+    :is(.btn-primary, .btn-secondary, a.chip, .footer-sticker):not(
+        [aria-disabled='true'],
+        [aria-current]
+      ):active::after,
     .surface-gold .btn-gold-primary:active::after {
       content: '';
       position: absolute;
@@ -73,8 +61,18 @@
 
     .mobile-menu-dialog
       :is(.nav-cta, .nav-sticker, .btn-secondary):not([aria-current]):active {
+      position: relative;
       translate: var(--brick-throw) var(--brick-throw);
     }
+  }
+
+  /*
+   * The menu's bricks press like the buttons. Their own rule, not the lists
+   * above: a complex selector inside `:is()` raises the whole list's
+   * specificity past slides.css's fixed Exit button.
+   */
+  .mobile-menu-dialog :is(.nav-cta, .nav-sticker):not([aria-current]):active {
+    @apply shadow-none;
   }
 
   /* The fill is the page's, so the dashed `border` is the boundary. */
