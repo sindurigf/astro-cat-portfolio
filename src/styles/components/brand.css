@@ -83,8 +83,9 @@
     }
   }
 
+  /* Its own stacking context: card fills and sheets paint at negative z above its ground. */
   .brand-stage-half {
-    @apply min-w-0 overflow-clip bg-background p-3 text-text sm:p-card-tight;
+    @apply isolate min-w-0 overflow-clip bg-background p-3 text-text sm:p-card-tight;
   }
 
   .brand-poster > .brand-stage-half {

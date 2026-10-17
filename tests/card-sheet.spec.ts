@@ -73,6 +73,81 @@ for (const route of ROUTES) {
   });
 }
 
+/* /brand/cards draws its card specimens on dark and light stage halves. */
+const PAINTED_ROUTES = [...ROUTES, '/brand/cards/', '/brand/grounds/'];
+
+// A card's fill paints at negative z, so a painted ancestor below main must be its own stacking context.
+for (const route of PAINTED_ROUTES) {
+  test(`${route}: no painted container hides a card's fill`, async ({
+    page,
+  }) => {
+    await gotoSettled(page, route);
+    const hiding = await page.evaluate((selector) => {
+      const isContext = (s: CSSStyleDeclaration) =>
+        s.isolation === 'isolate' ||
+        (s.zIndex !== 'auto' && s.position !== 'static') ||
+        s.transform !== 'none' ||
+        s.translate !== 'none' ||
+        s.opacity !== '1' ||
+        s.filter !== 'none' ||
+        s.position === 'fixed' ||
+        s.position === 'sticky';
+      const painted = (s: CSSStyleDeclaration) =>
+        s.backgroundImage !== 'none' ||
+        !/^(transparent|rgba\(0, 0, 0, 0\))$/.test(s.backgroundColor);
+      const out = new Set<string>();
+      for (const card of document.querySelectorAll(selector)) {
+        for (
+          let node = card.parentElement;
+          node && !node.matches('main, body');
+          node = node.parentElement
+        ) {
+          const style = getComputedStyle(node);
+          if (isContext(style)) break;
+          if (painted(style)) {
+            out.add(node.className.toString());
+            break;
+          }
+        }
+      }
+      return [...out];
+    }, SHEETED);
+    expect(hiding, 'a painted container covers card fills').toEqual([]);
+  });
+}
+
+test('a dark /brand card specimen paints its surface fill', async ({
+  page,
+}) => {
+  await page.setViewportSize(DESKTOP_VIEWPORT);
+  await gotoSettled(page, '/brand/cards/');
+  const card = page
+    .locator('.brand-stage-half.mode-dark .card:not(.card-solid)')
+    .first();
+  await card.scrollIntoViewIfNeeded();
+  const box = await card.boundingBox();
+  expect(box, 'no dark card specimen on /brand/cards').not.toBeNull();
+  const shot = await page.screenshot({
+    // Past the 6px edge, clear of the paper's first line at 15px.
+    clip: { x: box!.x + 10, y: box!.y + 10, width: 1, height: 1 },
+  });
+  const surface = await card.evaluate(
+    (el) => getComputedStyle(el, '::before').backgroundColor,
+  );
+  const pixel = await page.evaluate(async (png) => {
+    const img = new Image();
+    img.src = `data:image/png;base64,${png}`;
+    await img.decode();
+    const canvas = document.createElement('canvas');
+    canvas.width = canvas.height = 1;
+    const ctx = canvas.getContext('2d')!;
+    ctx.drawImage(img, 0, 0);
+    const [r, g, b] = ctx.getImageData(0, 0, 1, 1).data;
+    return `rgb(${r}, ${g}, ${b})`;
+  }, shot.toString('base64'));
+  expect(pixel, 'the card shows the page ground, not its fill').toBe(surface);
+});
+
 test.describe('forced colors', () => {
   test.use({ forcedColors: 'active' });
 
