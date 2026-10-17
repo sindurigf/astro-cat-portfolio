@@ -259,8 +259,9 @@
    * A whole-brick link in a wall (/contact): it holds still, fills cyan under
    * the pointer and draws its ring inside, so it never crosses the next brick.
    */
+  /* The dark mode cyan in both modes: light mode's cyan is a text color, 2.55 under ink. */
   .contact-brick:hover {
-    background-color: var(--color-cyan);
+    background-color: var(--dark-cyan);
   }
 
   /* Inside the brick the ring meets its fill, gold or light, so it is ink (11.32 or more). */
