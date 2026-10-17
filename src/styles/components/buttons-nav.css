@@ -1,7 +1,7 @@
 @layer components {
   /* A label with no break opportunity, like an email address, still reflows (SC 1.4.10). */
   .btn-primary {
-    @apply lift-control inline-block border-4 border-fill-edge bg-gold px-8 py-4
+    @apply lift-control inline-block border-4 border-fill-edge bg-block-gold px-8 py-4
       text-button font-black uppercase tracking-label text-gold-text
       shadow-hard-pink-4 wrap-anywhere max-w-full;
   }
@@ -81,7 +81,7 @@
    * Sending is working, not unavailable: held pressed and gold, not dashed.
    */
   form[data-sending='true'] .btn-primary[aria-disabled='true'] {
-    @apply cursor-progress border-solid border-fill-edge bg-gold text-gold-text;
+    @apply cursor-progress border-solid border-fill-edge bg-block-gold text-gold-text;
   }
 
   @media (prefers-reduced-motion: no-preference) {
@@ -120,7 +120,7 @@
    */
   .theme-switch {
     @apply lift-control grid size-12 shrink-0 cursor-pointer place-items-center
-      bg-gold text-gold-text shadow-hard-pink-4 max-xs:size-target;
+      bg-block-gold text-gold-text shadow-hard-pink-4 max-xs:size-target;
   }
 
   :root:not([data-theme]) .theme-switch {
@@ -235,7 +235,7 @@
    * same layer, so source order settles `box-shadow`.
    */
   .nav-cta {
-    @apply lift-control border-4 border-fill-edge bg-gold text-label font-black
+    @apply lift-control border-4 border-fill-edge bg-block-gold text-label font-black
       uppercase tracking-label text-gold-text shadow-hard-pink-4;
   }
 

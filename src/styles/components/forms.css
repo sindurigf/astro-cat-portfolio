@@ -50,4 +50,12 @@
   .error-summary a {
     @apply text-pink-text;
   }
+
+  /*
+   * Juts left of its form by the Step's `--step-x`; the fields stay on their
+   * labels. A margin, as the press owns `translate`.
+   */
+  .contact-submit {
+    margin-left: calc(var(--step-x) * -1);
+  }
 }

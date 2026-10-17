@@ -160,18 +160,12 @@ const closeRow = await closeRowLinks({
       {
         /* Title first, so heading navigation lands before the employer. */
         EXPERIENCE.map((role) => (
-          <li
-            class:list={[
-              'card grid gap-8 lg:grid-cols-12',
-              role.current && 'card-solid',
-            ]}
-          >
+          <li class:list={['card grid gap-8 lg:grid-cols-12']}>
             <div class="flex min-w-0 flex-col items-start gap-4 lg:col-span-12">
               {role.current && <span class="badge">Current</span>}
               <h3 class="card-title">{role.title}</h3>
             </div>
 
-            {/* No `text-*` inside the solid block: a utility beats its rule (tests/solid-block.spec.ts). */}
             <p class="flex min-w-0 flex-col gap-2 lg:col-span-3">
               <span class:list={['label', !role.current && 'text-subtle']}>
                 {role.dates}

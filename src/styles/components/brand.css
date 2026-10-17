@@ -32,8 +32,10 @@
     @apply self-start;
   }
 
+  /* Juts left of the column by the Step's `--step-x`. */
   .brand-menu-box {
     @apply bg-surface shadow-hard-pink-object;
+    translate: calc(var(--step-x) * -1) 0;
   }
 
   .brand-menu-title {
@@ -83,7 +85,11 @@
     }
   }
 
+  /* Half a page wide, clipped: the Step would run into the clip, so blocks sit level here. */
   .brand-stage-half {
+    --step-x: 0px;
+    --step-y: 0px;
+
     @apply min-w-0 overflow-clip bg-background p-3 text-text sm:p-card-tight;
   }
 

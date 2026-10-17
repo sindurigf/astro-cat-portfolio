@@ -700,7 +700,7 @@ test.describe('the talk slideshow in full screen', () => {
   });
 
   for (const theme of ['dark', 'light'] as const) {
-    test(`in ${theme} mode a slide reached by keyboard has a ring around its card, at least 3:1 against the card and the page`, async ({
+    test(`in ${theme} mode a slide reached by keyboard has a ring off its card, at least 3:1 against the page`, async ({
       page,
     }) => {
       await page.addInitScript((value) => {
@@ -719,15 +719,15 @@ test.describe('the talk slideshow in full screen', () => {
         return {
           style: card.outlineStyle,
           width: parseFloat(card.outlineWidth),
+          offset: parseFloat(card.outlineOffset),
           headingAlpha: parse(getComputedStyle(slide.querySelector('.slide-title')).outlineColor).a,
-          onCard: ratio(color, parse(card.backgroundColor)),
           onPage: ratio(color, parse(getComputedStyle(deck).backgroundColor)),
         };
       })()`)) as {
         style: string;
         width: number;
         headingAlpha: number;
-        onCard: number;
+        offset: number;
         onPage: number;
       };
       expect(ring.style, 'the focused slide has no ring (SC 2.4.7)').toBe(
@@ -739,9 +739,9 @@ test.describe('the talk slideshow in full screen', () => {
         'the heading draws a second ring inside the card',
       ).toBe(0);
       expect(
-        ring.onCard,
-        'the ring is under 3:1 against the card (SC 1.4.11)',
-      ).toBeGreaterThanOrEqual(NON_TEXT);
+        ring.offset,
+        'the ring touches the card; off it, the page is its only neighbour',
+      ).toBeGreaterThan(0);
       expect(
         ring.onPage,
         'the ring is under 3:1 against the page (SC 1.4.11)',

@@ -16,8 +16,6 @@
     --dark-pink-text: var(--color-pink-text);
     --dark-gold-border: var(--color-gold-border);
     --dark-card-edge: var(--color-card-edge);
-    --dark-card-grid: var(--card-grid);
-    --dark-card-sheet: var(--color-card-sheet);
     --dark-gold-bud: var(--color-gold-bud);
     --dark-hero-ground: var(--color-hero-ground);
     --dark-hero-glow: var(--color-hero-glow);
@@ -37,8 +35,6 @@
     --color-pink-text: var(--color-light-pink-text);
     --color-gold-border: var(--color-light-ink);
     --color-card-edge: var(--color-light-ink);
-    --card-grid: none;
-    --color-card-sheet: transparent;
     --color-gold-bud: var(--color-light-ink);
     --color-hero-ground: var(--color-light-ground);
     --color-hero-glow: var(--color-gold);
@@ -60,8 +56,6 @@
     --color-pink-text: var(--dark-pink-text);
     --color-gold-border: var(--dark-gold-border);
     --color-card-edge: var(--dark-card-edge);
-    --card-grid: var(--dark-card-grid);
-    --color-card-sheet: var(--dark-card-sheet);
     --color-gold-bud: var(--dark-gold-bud);
     --color-hero-ground: var(--dark-hero-ground);
     --color-hero-glow: var(--dark-hero-glow);
@@ -116,12 +110,12 @@
     :is(.label.text-gold, .slide-label):not(.mode-dark *)::before {
     content: '';
 
-    @apply mr-2 inline-block size-2.5 bg-gold;
+    @apply mr-2 inline-block size-2.5 bg-block-gold;
   }
 
   /* The homepage's second sticker and `.sticker` are black blocks in light mode. */
   :is(:root[data-theme='light'] main, main .mode-light)
-    .hero-sticker:not(.bg-gold):not(.mode-dark *),
+    .hero-sticker:not(.bg-block-gold):not(.mode-dark *),
   :is(:root[data-theme='light'] main, main .mode-light)
     .sticker:not(.mode-dark *) {
     @apply border-text bg-text text-background;

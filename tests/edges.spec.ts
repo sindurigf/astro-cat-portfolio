@@ -4,8 +4,8 @@ import { NON_TEXT, PAGE_HELPERS } from './contrast';
 
 /*
  * One edge role per ground (docs/STYLEGUIDE.md, Borders): SC 1.4.11 for
- * controls on the page and on a gold fill; a card's graph paper is decoration
- * and must leave its ground measurable and drop out in forced colors.
+ * controls on the page and on a gold fill; a card is a block whose fill or ink
+ * edge reads against the page, with no paper behind it.
  */
 const ROUTE = '/';
 const PLAIN_CARD =
@@ -16,9 +16,8 @@ const GOLD_FILLS = ['.nav-cta', '.footer-sticker'];
 interface Edges {
   cardEdgeAlpha: number;
   cardEdgeRatio: number | null;
+  cardFillRatio: number | null;
   cardPaper: string;
-  cardPaperDisplay: string;
-  cardGround: string | null;
   controlRatio: number | null;
   fillEdgeRatios: Record<string, number | null>;
 }
@@ -30,10 +29,10 @@ const readEdges = (page: Page): Promise<Edges> =>
     const control = document.querySelector(${JSON.stringify(PAGE_CONTROL)});
     if (!card || !control) throw new Error('the home page has no plain card or page control');
     const cardStyle = getComputedStyle(card);
-    const paper = getComputedStyle(card, '::before');
+    const paper = getComputedStyle(card, '::before').backgroundImage + ' ' + getComputedStyle(card, '::after').backgroundImage;
     const edge = parse(cardStyle.borderTopColor);
     const cardGround = effectiveBackground(card.parentElement);
-    const ground = effectiveBackground(card);
+    const fill = parse(cardStyle.backgroundColor);
     const controlEdge = parse(getComputedStyle(control).borderTopColor);
     const controlGround = effectiveBackground(control.parentElement);
     const fillEdgeRatios = {};
@@ -47,9 +46,8 @@ const readEdges = (page: Page): Promise<Edges> =>
     return {
       cardEdgeAlpha: edge ? edge.a : 1,
       cardEdgeRatio: edge && cardGround ? ratio(over(edge, cardGround), cardGround) : null,
-      cardPaper: paper.backgroundImage,
-      cardPaperDisplay: paper.display,
-      cardGround: ground ? cardStyle.backgroundColor : null,
+      cardFillRatio: fill && cardGround ? ratio(fill, cardGround) : null,
+      cardPaper: paper,
       controlRatio: controlEdge && controlGround ? ratio(controlEdge, controlGround) : null,
       fillEdgeRatios,
     };
@@ -64,59 +62,26 @@ const expectFillEdges = (edges: Edges): void => {
   }
 };
 
-test.describe('dark mode edges', () => {
-  test.use({ colorScheme: 'dark' });
+for (const colorScheme of ['dark', 'light'] as const) {
+  test.describe(`${colorScheme} mode edges`, () => {
+    test.use({ colorScheme });
 
-  test('a card has no edge, graph paper, and a measurable ground; controls keep their edges', async ({
-    page,
-  }) => {
-    await gotoSettled(page, ROUTE);
-    const edges = await readEdges(page);
-    expect(edges.cardEdgeAlpha, 'a dark card should draw no edge').toBe(0);
-    expect(edges.cardPaper, 'a dark card should carry graph paper').toContain(
-      'linear-gradient',
-    );
-    expect(
-      edges.cardGround,
-      'the paper should sit on a layer, leaving the card a solid ground to measure text on',
-    ).not.toBeNull();
-    expect(
-      edges.controlRatio,
-      `a control on the page should have an edge of at least ${NON_TEXT}:1`,
-    ).toBeGreaterThanOrEqual(NON_TEXT);
-    expectFillEdges(edges);
+    test('a card is a block with an ink edge and no paper; controls keep their edges', async ({
+      page,
+    }) => {
+      await gotoSettled(page, ROUTE);
+      const edges = await readEdges(page);
+      expect(
+        Math.max(edges.cardFillRatio ?? 1, edges.cardEdgeRatio ?? 1),
+        `a card's fill or edge should reach ${NON_TEXT}:1 against the page`,
+      ).toBeGreaterThanOrEqual(NON_TEXT);
+      expect(edges.cardEdgeAlpha, 'a card should draw its ink edge').toBe(1);
+      expect(edges.cardPaper, 'a card should carry no paper').toBe('none none');
+      expect(
+        edges.controlRatio,
+        `a control on the page should have an edge of at least ${NON_TEXT}:1`,
+      ).toBeGreaterThanOrEqual(NON_TEXT);
+      expectFillEdges(edges);
+    });
   });
-
-  test('forced colors drop the graph paper', async ({ page }) => {
-    await page.emulateMedia({ forcedColors: 'active' });
-    await gotoSettled(page, ROUTE);
-    const edges = await readEdges(page);
-    expect(
-      edges.cardPaperDisplay,
-      'the graph paper should not render in forced colors',
-    ).toBe('none');
-  });
-});
-
-test.describe('light mode edges', () => {
-  test.use({ colorScheme: 'light' });
-
-  test('a card keeps an edge and no graph paper; controls keep their edges', async ({
-    page,
-  }) => {
-    await gotoSettled(page, ROUTE);
-    const edges = await readEdges(page);
-    expect(
-      edges.cardEdgeRatio,
-      `a light card's edge should reach ${NON_TEXT}:1 against the page`,
-    ).toBeGreaterThanOrEqual(NON_TEXT);
-    expect(edges.cardPaper, 'a light card should carry no graph paper').toBe(
-      'none',
-    );
-    expect(
-      edges.controlRatio,
-      `a control on the page should have an edge of at least ${NON_TEXT}:1`,
-    ).toBeGreaterThanOrEqual(NON_TEXT);
-    expectFillEdges(edges);
-  });
-});
+}

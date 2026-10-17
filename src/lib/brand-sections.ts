@@ -43,7 +43,7 @@ export const BRAND_SECTIONS: readonly BrandSection[] = [
     lead: 'Four grounds carry everything on the site. Each sets which colors may sit on it.',
     rule: 'Four grounds: page, surface, gold, solid.',
     description:
-      'The four grounds of the design system: page, surface, gold slab and solid card, and which colors may sit on each.',
+      'The four grounds of the design system: page, surface, gold block and light block, and which colors may sit on each.',
     parts: [
       { id: 'ground-background', name: 'Page Ground' },
       { id: 'ground-surface', name: 'Surface' },
@@ -202,13 +202,13 @@ export const BRAND_SECTIONS: readonly BrandSection[] = [
     anchor: 'cards',
     title: 'Cards',
     group: 'Components',
-    lead: 'One card shape. A solid card leads a group.',
+    lead: 'One card shape: a gold or light block.',
     rule: 'Only the title is a link.',
     description:
-      'The card, the solid card that leads a group, joined card blocks, post cards and fact strips.',
+      'The gold card, the light card, stepped card blocks, post cards and fact strips.',
     parts: [
       { id: 'card', name: 'Card' },
-      { id: 'card-solid', name: 'Solid Card' },
+      { id: 'card-solid', name: 'Light Card' },
       { id: 'card-block', name: 'Card Block' },
       { id: 'post-card', name: 'Post Card' },
       { id: 'fact-strip', name: 'Fact Strip' },

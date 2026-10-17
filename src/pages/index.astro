@@ -106,7 +106,7 @@ const STATS = [
         `border-border`: it fails SC 1.4.11 here and would beat `.surface-gold`'s.
       */}
         <div class="hero-marks" aria-hidden="true" lang={MOTTO.lang}>
-          <span class="hero-sticker -rotate-3 bg-gold text-gold-text shadow-hard-mark-8">
+          <span class="hero-sticker -rotate-3 bg-block-gold text-gold-text shadow-hard-mark-8">
             {MOTTO_STICKERS[0]}
           </span>
           <span class="hero-sticker rotate-3 bg-surface text-pink-text shadow-hard-mark-8">
@@ -200,7 +200,6 @@ const STATS = [
           <li
             class:list={[
               'card flex flex-col',
-              index === 0 && 'card-raised',
               index === 0 && leadSpansSm && 'sm:col-span-2',
               index === 0 && leadSpansLg && 'lg:col-span-2',
             ]}
@@ -246,13 +245,9 @@ const STATS = [
             : 'lg:grid-cols-2',
         ]}
       >
-        {featured.map((post, index) => (
+        {featured.map((post) => (
           <li class="flex min-w-0">
-            <BlogCard
-              {...cardProps(post)}
-              headingLevel={3}
-              class:list={['w-full', index === 0 && 'card-solid']}
-            />
+            <BlogCard {...cardProps(post)} headingLevel={3} class="w-full" />
           </li>
         ))}
       </ul>

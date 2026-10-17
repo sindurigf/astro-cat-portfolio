@@ -78,7 +78,7 @@ const HOVERED_ON_MAIN = {
       'fewer than two published posts, so /blog has no card beside the feature',
     );
     await gotoSettled(page, '/blog/');
-    // A solid block's hover is measured in tests/solid-block.spec.ts.
+    // Every block's links are walked in tests/blocks.spec.ts.
     const card = page
       .locator('article.card:has(.card-link):not(.card-solid)')
       .first();

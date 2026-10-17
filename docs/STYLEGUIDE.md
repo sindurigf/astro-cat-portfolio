@@ -24,7 +24,9 @@ blur, uppercase headings, tilted marks.
 
 ### The gold register
 
-- `cyan` is what you are touching: hover and focus, never at rest.
+- `cyan` is what you are touching: hover and focus, never at rest. Inside a
+  block that job goes to `gold-link` (11.38 on gold, 14.49 on light), new with
+  blocks: cyan is 1.01 on gold.
 - `pink` is depth and error: hard shadows, the invalid edge.
 - `border` is boundary. `text` is words.
 - Gold is the single accent, held by a register rather than one job. A review
@@ -70,7 +72,7 @@ blur, uppercase headings, tilted marks.
 
 - No two light areas in view at once as areas.
 - No two of the same kind on one page: one gold band (a whole section) and
-  one solid block (one card) may share a page; two bands or two blocks may
+  one light block outside a `.card-block` may share a page; two bands may
   not.
 - Judged per screen, not per document: `/career` has a slab, a block and a
   band, and at 1280 by 900 no two share a screen as areas.
@@ -112,12 +114,20 @@ The gold-ground set is in [Gold surface](#gold-surface), light values in
 
 - Two dark grounds: `background` (page, header, footer, bands) and `surface`
   (cards, inputs). Measure every foreground against both.
-- Dark cards draw no edge: the pink shadow and a 16px graph paper of
-  `background` lines over `surface` (`--card-grid`) set them apart. Text over
-  a line keeps its `background` ratio. Behind each, a second sheet of the same
-  paper in `card-sheet` (`fill-edge`) sits one cell up and left
-  (`--card-sheet-offset`), its lines on the card's. Forced colors and print
-  drop the paper and the sheet; light mode has neither.
+- Blocks: every card, the plain hero slab and the post contents are a gold
+  `block-gold` or light `block-light` fill with a 4px `block-ink` edge
+  (`--block-edge`) and the pink throw. Cards are gold; every second card in a
+  `.card-block`, `.card-solid`, the plain hero slab and the post contents are
+  light. Inside a block the color tokens are remapped, so `text-text` and
+  `text-gold` are ink (11.32 on gold, 14.42 on light), `subtle` is `gold-muted`
+  (7.88) or `light-subtle` (7.40), and a badge inverts. Gold fills use
+  `block-gold`, which never remaps. `tests/blocks.spec.ts`.
+- The Step: blocks in a `.card-block` share one wall, and every second one
+  drops `--step-y` (48px from 1120px; sideways `--step-x` below 64rem). The
+  post contents juts right and the contact submit, the /brand menu and talk
+  slides jut left by `--step-x` (24px); the footer opens with a gold beam.
+  Both are 0 below 640px. Juts are translates or margins that never widen
+  the page.
 - `text` for words, `subtle` for captions and meta. Links are `text`, cyan on
   hover; in running text underlined at 2px, 4px on hover.
 - `cyan` never at rest: a cyan label, fill or shadow reads as a control under
@@ -285,7 +295,7 @@ The switch and what it scopes: [ARCHITECTURE.md](../ARCHITECTURE.md#light-mode).
   their `#FFC000` fill, always under `#131313` (11.32).
 - Gold text turns ink; a `.label.text-gold` and a slide label gain a gold
   square before the word.
-- Cards keep a `#131313` edge and no graph paper.
+- Blocks stay gold or light in light mode, with the `#131313` edge (18.58 on white).
 - Logo marks use `mark`, `tile-edge`, the `cat-hela*` coat and
   `shadow-hard-mark-*` or `drop-shadow-hard-mark-*`, never `pink` or `border`:
   they do not change with the mode.
@@ -486,8 +496,8 @@ with a comment beside it.
   an 8px edge, a logo mark. No rule between sections.
 - The default border color is `border`, set in the base layer (Tailwind 4
   defaults to `currentColor`); `gold-border` inside `.surface-gold`.
-- Each ground has one edge role. Dark page: `border` (gold). Dark card:
-  `card-edge` (none) with graph paper. Inside gold: `gold-border` (ink). A
+- Each ground has one edge role. Dark page: `border` (gold). A block:
+  `block-ink`, 4px. The header slab: `card-edge` (none). Inside gold: `gold-border` (ink). A
   gold or light fill: `fill-edge` (ink). Light mode: ink everywhere.
   `tests/edges.spec.ts` asserts each in both modes.
 - Shadows are hard offsets, no blur. Gold casts none (gold on gold is 1.00).
@@ -523,11 +533,11 @@ file per area.
 | `.btn-primary`                          | Gold fill, `gold-text` label, `border-4`, pink 4px shadow, `text-button` 900                                                                                                                                                                                         |
 | `.btn-secondary`                        | `surface` fill, `text` label, `border-4`, pink 4px shadow                                                                                                                                                                                                            |
 | `.actions`                              | Button row; its 32px row gap clears shadow and ring when buttons wrap                                                                                                                                                                                                |
-| `.card`                                 | `surface`, `edge` (6px), pink 8px shadow, padding 24px, 40px from `sm`                                                                                                                                                                                               |
+| `.card`                                 | A gold block: `block-gold`, 4px `block-ink` edge, pink 8px shadow, padding 24px, 40px from `sm`                                                                                                                                                                      |
 | `.card-title`                           | Every card heading, `text-h3` 900                                                                                                                                                                                                                                    |
 | `.card-link`                            | Title link stretched over the card; inline-block, 44px min; card hover turns title and shadow cyan                                                                                                                                                                   |
-| `.card-solid`                           | The subject card, a `text` fill; raised in a `.card-block`, or `.card-raised` in a dark group                                                                                                                                                                        |
-| `.card-block`                           | Cards joined edge to edge, no gaps; each card casts its own shadow, and the subject card lifts by one throw (`--hard-throw`)                                                                                                                                         |
+| `.card-solid`                           | A light block outside a `.card-block`, where alternation does not reach it                                                                                                                                                                                           |
+| `.card-block`                           | The Step: blocks share one 4px wall, alternate gold and light, and every second one drops `--step-y`; each casts its own shadow                                                                                                                                      |
 | `.lead`                                 | Paragraph under a section heading, `text-lead` 400, 24px under it                                                                                                                                                                                                    |
 | `.standfirst`                           | Line beside PageHero's title, `text-standfirst` 400                                                                                                                                                                                                                  |
 | `.bullet-list`                          | Bulleted list, gold markers                                                                                                                                                                                                                                          |
@@ -569,10 +579,9 @@ file per area.
   [ACCESSIBILITY.md §9](../ACCESSIBILITY.md#9-contributor-checklist).
 - Photos: a 4px `border` frame, no shadow or tilt, except the PageHero photo
   (4px pink shadow).
-- `.card-solid`: only `background` passes on its `text` fill (15.28), so
-  everything inside is `background`, the focus ring included. Text only, never
-  a form. Focusable content sits at least 8px inside.
-  `tests/solid-block.spec.ts`.
+- A block's focus ring is its remapped `cyan`, `gold-link` (11.38 on gold,
+  14.49 on light); the block's own ring and hover throw keep the page's cyan.
+  Focusable content sits at least 8px inside. `tests/blocks.spec.ts`.
 - Breadcrumbs stop at the parent; JSON-LD `BreadcrumbList` adds the page
   (`tests/breadcrumbs.spec.ts`).
 - An abbreviation's expansion is a `<button popovertarget>` described by its
@@ -609,7 +618,7 @@ The grid rule in `scripts/check-tokens.mjs` enforces the grid;
   full slab.
 - **Cross-links between two sections:** a chip.
 - **The quote sentence:** `text-h2` at 900, on `/about` and on `/contact`'s
-  closing band. On `/about` it sits on a raised gold card under a decorative
+  closing band. On `/about` it sits on a gold card under a decorative
   `text-quote-mark`, beside the photo.
 - **A name with a line saying what it did** (`/credits`): each entry on an
   inset `bg-background` tile inside the card. No rule between entries.
@@ -844,8 +853,8 @@ text-gold-muted` under the standfirst. Color
 
 ### Header relation
 
-- The header is a slab on the page column, styled as a card: `surface`, the
-  card edge and graph paper, the 8px pink shadow, 12px below the top. No line
+- The header is a slab on the page column: `surface`, the card edge, the 8px
+  pink shadow, 12px below the top. No line
   under it.
 - The logo tile and the slab share the gold ground and dark type; the tile
   keeps its `mark` shadow.
@@ -1229,7 +1238,7 @@ Enforced by `tests/nav-current.spec.ts`, `tests/mobile-menu.spec.ts`,
 | inner `#FFFFFF`, 3px, inset     | `#131313` fill | 18.58 |
 | outer `#131313`, beyond the gap | gold `#FFC000` | 11.32 |
 
-- `.card-solid`'s ring is `background` ([Markup](#markup)).
+- A block's ring is `gold-link` ([Markup](#markup)).
 - Any new surface measures its own ring twice: against the ground behind the
   element (the offset gap) and against the element's own edge.
 - Native media controls: `:is(video, audio)[controls]:is(:focus, :focus-within)`

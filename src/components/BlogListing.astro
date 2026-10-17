@@ -123,11 +123,7 @@ const EMPTY_BLOG = {
             cover={post.data.cover}
             coverAlt={post.data.coverAlt}
             headingLevel={2}
-            class:list={[
-              'w-full',
-              fillsRow && 'card-wide',
-              feature && 'card-solid',
-            ]}
+            class:list={['w-full', fillsRow && 'card-wide']}
           />
         </li>
       );
