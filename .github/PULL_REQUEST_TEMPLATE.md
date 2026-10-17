@@ -1,30 +1,5 @@
-## Changes
+- `file` or function: what changed and why.
 
-- File or function: what changed and why.
+Tested: commands and totals.
 
-## Testing
-
-- Commands run, with totals:
-
-## Docs and pages
-
-- Updated: <files>, or checked: <files>, nothing stale.
-
-## Upstream port
-
-- Upstream site pull request, or why it does not apply:
-
-## Accessibility
-
-Delete this section if the PR touches no markup or CSS.
-
-- [ ] New interactive elements are native, with a visible focus indicator.
-- [ ] New targets outside a sentence are at least 44x44 CSS px (SC 2.5.5).
-- [ ] New colors are tokens from `src/styles/global.css`.
-
-## Content
-
-Delete this section if the PR adds no images, video, audio or editorial text.
-
-- [ ] AI made or edited none of it, or it is listed on `/credits/` and in
-      `AI_DISCLOSURE.md`.
+Upstream port: pull request link, or why it does not apply.

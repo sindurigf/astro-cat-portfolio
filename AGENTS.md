@@ -68,7 +68,7 @@ Record rejected findings beside the code so they are not raised again;
   /accessibility, /privacy, /brand, `llms.txt` and `robots.txt`.
 - In this repository, a generic fix, upgrade, test, tooling or CI change also
   goes to the upstream site repository (linked on `/credits`) as a pull request
-  there, or the pull request says in one line under "Upstream port" why not.
+  there, or the pull request says why not on its "Upstream port:" line.
 - Do not rename the `Required checks` job
   ([why](docs/DEPLOYMENT.md#repository-settings)).
 
@@ -103,6 +103,9 @@ covers attribution once. `scripts/check-commits.sh` enforces it in CI;
 - Validate external input at the boundary; never swallow errors.
 - Reuse existing patterns and dependencies. Justify a new package in the pull
   request.
+- UI: native elements with a visible focus indicator, targets outside a
+  sentence at least 44x44 CSS px (SC 2.5.5), colors only as tokens from
+  `src/styles/global.css`.
 - Names, addresses, ids and switches live in `src/site.config.ts`; never
   repeat one as a literal.
 - Vue only for components with real state (`HeroField.vue`). Small
