@@ -1,0 +1,39 @@
+---
+/* The side menu and content column every /brand page shares, closing on the next section. */
+import '../../styles/components/brand.css';
+import CloseRow from '../CloseRow.astro';
+import BrandMenu from './BrandMenu.astro';
+import {
+  BRAND_PATH,
+  BRAND_SECTIONS,
+  brandHref,
+} from '../../lib/brand-sections';
+import { CONTACT_PATH } from '../../lib/paths';
+import { USE_TEMPLATE_URL } from './links';
+
+interface Props {
+  /* A section slug, or null on the overview. */
+  current: string | null;
+}
+
+const { current } = Astro.props;
+const index = BRAND_SECTIONS.findIndex((s) => s.slug === current);
+/* The overview reads on into the first section; the last section returns to it. */
+const next = BRAND_SECTIONS[index + 1];
+---
+
+<div class="band py-section">
+  <div class="brand-layout mx-auto max-w-page">
+    <BrandMenu current={current} />
+    <div class="brand-content">
+      <slot />
+    </div>
+  </div>
+</div>
+<CloseRow
+  eyebrow="Next"
+  readHref={next ? brandHref(next.slug) : BRAND_PATH}
+  readLabel={next ? next.title : 'Brand Overview'}
+  actionHref={USE_TEMPLATE_URL ?? CONTACT_PATH}
+  actionLabel={USE_TEMPLATE_URL ? 'Use This Design' : 'Get in Touch'}
+/>

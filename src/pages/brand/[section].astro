@@ -1,0 +1,84 @@
+---
+import type { GetStaticPaths } from 'astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHero from '../../components/PageHero.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import BrandFrame from '../../components/brand/BrandFrame.astro';
+import BrandPoster from '../../components/brand/BrandPoster.astro';
+import Grounds from '../../components/brand/Grounds.astro';
+import Palette from '../../components/brand/Palette.astro';
+import Pairings from '../../components/brand/Pairings.astro';
+import TypeScale from '../../components/brand/TypeScale.astro';
+import SpacingSteps from '../../components/brand/SpacingSteps.astro';
+import EdgesAndShadows from '../../components/brand/EdgesAndShadows.astro';
+import MotionRules from '../../components/brand/MotionRules.astro';
+import Actions from '../../components/brand/Actions.astro';
+import Labels from '../../components/brand/Labels.astro';
+import Controls from '../../components/brand/Controls.astro';
+import Heroes from '../../components/brand/Heroes.astro';
+import Navigation from '../../components/brand/Navigation.astro';
+import Cards from '../../components/brand/Cards.astro';
+import Forms from '../../components/brand/Forms.astro';
+import Photos from '../../components/brand/Photos.astro';
+import Text from '../../components/brand/Text.astro';
+import Standard from '../../components/brand/Standard.astro';
+import UseTemplate from '../../components/brand/UseTemplate.astro';
+import { brandTrail } from '../../lib/breadcrumbs';
+import { BRAND_SECTIONS, type BrandSection } from '../../lib/brand-sections';
+
+const PARTS = {
+  grounds: Grounds,
+  color: Palette,
+  contrast: Pairings,
+  type: TypeScale,
+  spacing: SpacingSteps,
+  'borders-and-shadows': EdgesAndShadows,
+  motion: MotionRules,
+  'buttons-and-links': Actions,
+  'chips-and-labels': Labels,
+  controls: Controls,
+  heroes: Heroes,
+  navigation: Navigation,
+  cards: Cards,
+  forms: Forms,
+  photos: Photos,
+  text: Text,
+  accessibility: Standard,
+  template: UseTemplate,
+} as const;
+
+export const getStaticPaths = (() =>
+  BRAND_SECTIONS.map((section) => ({
+    params: { section: section.slug },
+    props: { section },
+  }))) satisfies GetStaticPaths;
+
+interface Props {
+  section: BrandSection;
+}
+
+const { section } = Astro.props;
+const Parts = (PARTS as Record<string, (typeof PARTS)[keyof typeof PARTS]>)[
+  section.slug
+];
+if (!Parts) {
+  throw new Error(
+    `/brand: the section ${section.slug} has no parts in src/pages/brand/[section].astro`,
+  );
+}
+const trail = brandTrail(section.title);
+---
+
+<BaseLayout
+  title={`${section.title} · Brand`}
+  description={section.description}
+  trail={trail}
+>
+  <PageHero title={section.heading ?? section.title} slab="thin">
+    <Breadcrumbs slot="eyebrow" crumbs={trail.crumbs} tone="gold" />
+  </PageHero>
+  <BrandFrame current={section.slug}>
+    <BrandPoster slug={section.slug} />
+    <Parts />
+  </BrandFrame>
+</BaseLayout>

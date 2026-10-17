@@ -119,7 +119,7 @@ try {
   await page.evaluate((title) => (document.title = title), slides[0].title);
   mkdirSync(TMP_DIR, { recursive: true });
   /*
-   * For scripts/tag-talk-pdf.py: link text for /Contents, and the count of
+   * For scripts/tag-pdf.py: link text for /Contents, and the count of
    * aria-hidden text, which Chromium leaves untagged.
    */
   seen = await page.evaluate(() => ({
@@ -135,7 +135,10 @@ try {
     ),
     figures: document.querySelectorAll('.slide img[alt]:not([alt=""])').length,
   }));
-  writeFileSync(pageFile, JSON.stringify({ ...seen, digest }));
+  writeFileSync(
+    pageFile,
+    JSON.stringify({ ...seen, digest, digestKey: 'SlidesSHA256' }),
+  );
   await page.pdf({
     path: raw,
     ...SLIDE,
@@ -150,11 +153,10 @@ try {
 
 const tagged = spawnSync(
   'python3',
-  ['scripts/tag-talk-pdf.py', raw, out, pageFile, slides[0].title],
+  ['scripts/tag-pdf.py', raw, out, pageFile, slides[0].title],
   { stdio: 'inherit' },
 );
-if (tagged.status !== 0)
-  fail('scripts/tag-talk-pdf.py did not finish the tags.');
+if (tagged.status !== 0) fail('scripts/tag-pdf.py did not finish the tags.');
 
 const bytes = readFileSync(out, 'latin1');
 const pages = pdfPageCount(bytes);

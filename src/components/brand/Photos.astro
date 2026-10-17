@@ -6,8 +6,20 @@ import tabbyBed from '../../assets/photos/tabby-round-bed.jpg';
 import calicoDuvet from '../../assets/photos/calico-floral-duvet.jpg';
 
 const STRIP_ID = 'brand-photos';
-/* Gutter, row and card edges around this strip; tests/image-size.spec.ts fails on drift. */
-const STRIP_INSET = '7rem';
+/*
+ * The strip's width in a part's stage, measured at each layout step: the
+ * stacked halves, the halves side by side, the side menu from `lg`, the page
+ * column's cap. tests/image-size.spec.ts fails on drift.
+ */
+const stageSizes = (natural: number): string =>
+  [
+    `(min-width: 83rem) min(${natural}px, 21.5rem)`,
+    `(min-width: 71.5rem) min(${natural}px, calc(48.3vw - 18.75rem))`,
+    `(min-width: 64rem) min(${natural}px, calc(96.6vw - 30rem))`,
+    `(min-width: 51rem) min(${natural}px, calc(50vw - 9.5rem))`,
+    `(min-width: 40rem) min(${natural}px, calc(100vw - 11.5rem))`,
+    `min(${natural}px, calc(100vw - 9rem))`,
+  ].join(', ');
 const PHOTOS = [
   {
     src: tabbyBed,
@@ -20,10 +32,9 @@ const PHOTOS = [
 ];
 ---
 
-<ul class="divide-y-4 divide-border">
+<ul class="brand-parts">
   <ComponentRow
     id="photo-strip"
-    name="Photo Strip"
     use="a row of photos that scrolls sideways."
     rule="Every photo opens full size in the viewer. The arrows show, and the strip takes keyboard focus, only while it overflows."
   >
@@ -66,12 +77,12 @@ const PHOTOS = [
               alt={photo.alt}
               group="brand"
               size="natural"
-              stripInset={STRIP_INSET}
+              stripSizes={stageSizes}
             />
           </li>
         ))}
       </ul>
     </div>
-    <PhotoViewer />
   </ComponentRow>
 </ul>
+<PhotoViewer />

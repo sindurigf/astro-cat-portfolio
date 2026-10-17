@@ -8,7 +8,7 @@ import {
   CATEGORY_ROUTES,
   NO_PUBLISHED_POST,
   PUBLISHED_POST_ROUTES,
-  ROUTES,
+  BRAND_SAMPLED_ROUTES,
 } from './routes';
 
 type Look = { paint: string; text: number | null };
@@ -107,7 +107,7 @@ for (const scheme of ['dark', 'light'] as const) {
 test.describe('dark mode reaches AAA contrast under the pointer (SC 1.4.6)', () => {
   test.use({ colorScheme: 'dark' });
 
-  for (const route of ROUTES) {
+  for (const route of BRAND_SAMPLED_ROUTES) {
     test(`${route}: hovered text is at least 7:1, large text included`, async ({
       page,
     }) => {

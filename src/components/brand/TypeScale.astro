@@ -1,0 +1,50 @@
+---
+import ComponentRow from './ComponentRow.astro';
+import { type } from '../../lib/brand';
+import { brandSection } from '../../lib/brand-sections';
+
+const TYPE_CLASS: Record<string, string> = {
+  'text-h1': 'text-h1 tracking-heading',
+  'text-h2': 'text-h2 tracking-heading',
+  'text-h3': 'text-h3',
+  'text-display': 'text-display',
+  'text-standfirst': 'text-standfirst',
+  'text-body': 'text-body',
+  'text-label': 'text-label uppercase tracking-label',
+};
+const WEIGHT_CLASS: Record<string, string> = {
+  '400': 'font-normal',
+  '900': 'font-black',
+};
+for (const { token } of type) {
+  if (!(token in TYPE_CLASS)) {
+    throw new Error(
+      `/brand: the type step ${token} has no class in src/components/brand/TypeScale.astro`,
+    );
+  }
+}
+---
+
+<ul class="brand-parts">
+  <ComponentRow id="type-scale" rule={brandSection('type').rule}>
+    <ul class="space-y-6">
+      {type.map(({ token, min, max, weight, use }) => (
+        <li>
+          {/* A specimen at its step's size, not a heading or a paragraph. */}
+          <div
+            class:list={[
+              TYPE_CLASS[token],
+              WEIGHT_CLASS[weight] ?? 'font-normal',
+              'text-text wrap-anywhere',
+            ]}
+          >
+            {use}
+          </div>
+          <p class="mt-2 text-body text-subtle">
+            <code>{token}</code>, {min} to {max}px, weight {weight}
+          </p>
+        </li>
+      ))}
+    </ul>
+  </ComponentRow>
+</ul>

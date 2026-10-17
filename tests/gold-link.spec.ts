@@ -12,7 +12,8 @@ import { goldRoutesFromBuild } from './routes';
 /** Excluded by the marker rule: a control its own fill delimits takes no block. */
 const FILLED_CONTROLS = ['btn-gold-primary', 'btn-gold-secondary', 'chip'];
 
-const GOLD_LINKS = '.surface-gold a';
+/* Not the inert copies on /brand's light halves, which take no pointer. */
+const GOLD_LINKS = '.surface-gold a:not([inert] *)';
 
 /** Floors that fail a sweep whose selector stopped matching; the build has more of each. */
 const MORE_LINKS_THAN = 8;

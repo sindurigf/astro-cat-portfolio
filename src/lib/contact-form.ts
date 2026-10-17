@@ -55,7 +55,10 @@ type ValidationResult =
  * add a second `Reply-To` recipient, and `<>"():[]\` and control characters,
  * which a mailer may refuse as a `Reply-To`, failing every resend.
  */
-const NOT_IN_ADDRESS = String.raw`\s\p{Cc}@,;<>"():\[\]\\`;
+const NOT_IN_PART = String.raw`\s\p{Cc},;<>"():\[\]\\`;
+const NOT_IN_ADDRESS = `${NOT_IN_PART}@`;
+/* A space, bracket, comma, name or second address beside the @. */
+const EXTRA_IN_ADDRESS = new RegExp(`[${NOT_IN_PART}]|@.*@`, 'u');
 const EMAIL_SHAPE = new RegExp(
   `^[^${NOT_IN_ADDRESS}]+@[^${NOT_IN_ADDRESS}]+\\.[^${NOT_IN_ADDRESS}]+$`,
   'u',
@@ -76,10 +79,12 @@ export const MESSAGES = {
   nameLong: `Use ${LIMITS.nameMax} characters or fewer for the name.`,
   emailMissing: 'Enter an email address so there is a way to reply.',
   emailShape: 'Check the email address. It needs an @ and a domain.',
+  emailExtra:
+    'Enter one email address on its own, like name@example.com. Remove any spaces, brackets, commas or names.',
   emailLong: `Use ${LIMITS.emailMax} characters or fewer for the email address.`,
   bodyMissing: 'Write a message.',
-  bodyShort: `Write at least ${LIMITS.bodyMin} characters.`,
-  bodyLong: `Use ${LIMITS.bodyMax} characters or fewer. Email works for anything longer.`,
+  bodyShort: `Write a message of at least ${LIMITS.bodyMin} characters.`,
+  bodyLong: `Shorten the message to ${LIMITS.bodyMax} characters or fewer. For anything longer, send an email instead.`,
 } as const;
 
 /** What was typed, trimmed and unchecked, for refilling the form. */
@@ -109,6 +114,8 @@ export const validateSubmission = (form: FormData): ValidationResult => {
     errors.push({ field: 'email', message: MESSAGES.emailMissing });
   } else if (emailLength > LIMITS.emailMax) {
     errors.push({ field: 'email', message: MESSAGES.emailLong });
+  } else if (email.includes('@') && EXTRA_IN_ADDRESS.test(email)) {
+    errors.push({ field: 'email', message: MESSAGES.emailExtra });
   } else if (!EMAIL_SHAPE.test(email)) {
     errors.push({ field: 'email', message: MESSAGES.emailShape });
   }

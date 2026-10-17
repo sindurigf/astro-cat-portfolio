@@ -1,0 +1,54 @@
+---
+import ComponentRow from './ComponentRow.astro';
+import { shadows } from '../../lib/brand';
+import { brandSection } from '../../lib/brand-sections';
+import { SWATCH_BOX } from './swatches';
+
+/* Cyan is never at rest, so its shadow shows only on a hovered card. */
+const SHADOW_CLASS: Record<string, string | null> = {
+  'shadow-hard-pink-4': 'shadow-hard-pink-4',
+  'shadow-hard-pink-object': 'shadow-hard-pink-object',
+  'shadow-hard-cyan-object': null,
+  'shadow-hard-gold-border-4': 'shadow-hard-gold-border-4',
+  'shadow-hard-mark-4': 'shadow-hard-mark-4',
+  'shadow-hard-mark-8': 'shadow-hard-mark-8',
+  'drop-shadow-hard-mark-8': 'drop-shadow-hard-mark-8',
+  'drop-shadow-hard-mark-12': 'drop-shadow-hard-mark-12',
+};
+for (const { utility } of shadows) {
+  if (!(utility in SHADOW_CLASS)) {
+    throw new Error(
+      `/brand: the shadow ${utility} has no class in src/components/brand/EdgesAndShadows.astro`,
+    );
+  }
+}
+---
+
+<ul class="brand-parts">
+  <ComponentRow
+    id="edges-and-shadows"
+    rule={brandSection('borders-and-shadows').rule}
+  >
+    <ul class="space-y-6">
+      {shadows.map(({ utility, casts }) => (
+        <li class="flex items-center gap-6">
+          <span
+            class:list={[
+              SWATCH_BOX,
+              SHADOW_CLASS[utility] === null
+                ? 'border-4 border-dashed border-border'
+                : ['border-4 border-border bg-surface', SHADOW_CLASS[utility]],
+            ]}
+            aria-hidden="true"
+          />
+          <dl class="min-w-0">
+            <dt class="text-body font-black text-text">
+              <code>{utility}</code>
+            </dt>
+            <dd class="text-body text-subtle">{casts}</dd>
+          </dl>
+        </li>
+      ))}
+    </ul>
+  </ComponentRow>
+</ul>

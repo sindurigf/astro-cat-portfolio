@@ -1,6 +1,7 @@
 ---
 import BlogCard from '../BlogCard.astro';
 import ComponentRow from './ComponentRow.astro';
+import StandardText from './StandardText.astro';
 import { cardProps, getSortedPosts } from '../../lib/blog';
 import { accessibilityFacts } from '../../lib/accessibility-facts';
 
@@ -9,15 +10,14 @@ const [post] = await getSortedPosts();
 const { targetStandard, conformanceStatus } = accessibilityFacts;
 ---
 
-<ul class="divide-y-4 divide-border">
+<ul class="brand-parts">
   <ComponentRow
     id="card"
-    name="Card"
     use="a block of related content that stands apart from the page."
     rule="Surface fill with graph paper and a pink shadow, no edge; a 6px ink edge in light mode. One size of title in every card."
   >
     <div class="card">
-      <h4 class="card-title">Card Title</h4>
+      <h3 class="card-title">Card Title</h3>
       <p class="mt-4 text-body text-text">
         Text inside a card sits on the surface fill.
       </p>
@@ -26,29 +26,27 @@ const { targetStandard, conformanceStatus } = accessibilityFacts;
 
   <ComponentRow
     id="card-solid"
-    name="Solid Card"
     use="one card to lead a group, such as the newest post."
     rule="The light third surface: everything on it is background-colored, and it never holds a form."
   >
     <div class="card card-solid">
-      <h4 class="card-title">Solid Card Title</h4>
+      <h3 class="card-title">Solid Card Title</h3>
       <p class="mt-4 text-body">Text on the solid card.</p>
     </div>
   </ComponentRow>
 
   <ComponentRow
     id="card-block"
-    name="Card Block"
     use="cards that sit together as one joined group."
     rule="Cards sit together without gaps; a solid card in the block is raised by its shadow's depth."
   >
     <div class="card-block">
       <div class="card">
-        <h4 class="card-title">First Card</h4>
+        <h3 class="card-title">First Card</h3>
         <p class="mt-4 text-body text-text">Joined to the next.</p>
       </div>
       <div class="card card-solid">
-        <h4 class="card-title">Second Card</h4>
+        <h3 class="card-title">Second Card</h3>
         <p class="mt-4 text-body">Raised within the block.</p>
       </div>
     </div>
@@ -57,24 +55,24 @@ const { targetStandard, conformanceStatus } = accessibilityFacts;
   {post && (
     <ComponentRow
       id="post-card"
-      name="Post Card"
       use="a post in a list: category, title, teaser and date."
       rule="Only the title is a link, so the card has one tab stop and its text stays selectable."
     >
-      <BlogCard {...cardProps(post)} headingLevel={4} />
+      <BlogCard {...cardProps(post)} headingLevel={3} />
     </ComponentRow>
   )}
 
   <ComponentRow
     id="fact-strip"
-    name="Fact Strip"
     use="three or four short facts read at a glance."
     rule="A description list: gold labels over plain values, divided by edges."
   >
     <dl class="fact-strip grid gap-0 lg:grid-cols-12">
       <div class="lg:col-span-6">
         <dt class="label text-gold">Target</dt>
-        <dd class="mt-4 text-text">{targetStandard}</dd>
+        <dd class="mt-4 text-text">
+          <StandardText text={targetStandard} />
+        </dd>
       </div>
       <div class="lg:col-span-6">
         <dt class="label text-gold">Status</dt>

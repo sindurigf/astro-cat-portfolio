@@ -1,6 +1,6 @@
 import { expect, test, type Page } from './test';
 import { gotoSettled } from './settle';
-import { ROUTES } from './routes';
+import { BRAND_SAMPLED_ROUTES } from './routes';
 import { NON_TEXT, PAGE_HELPERS } from './contrast';
 import { DESKTOP_VIEWPORT, PHONE_VIEWPORT } from './wcag';
 
@@ -47,9 +47,15 @@ for (const colorScheme of ['dark', 'light'] as const) {
     test.describe(`drawn edges read in ${colorScheme} mode at ${viewport.width}px`, () => {
       test.use({ colorScheme, viewport });
 
-      for (const route of ROUTES) {
+      for (const route of BRAND_SAMPLED_ROUTES) {
         test(route, async ({ page }) => {
           await gotoSettled(page, route);
+          /* Open every fold in <main>, so the edges inside them are measured on their own ground. */
+          await page.evaluate(() => {
+            for (const fold of document.querySelectorAll('main details')) {
+              (fold as HTMLDetailsElement).open = true;
+            }
+          });
           expect(
             await lostEdges(page),
             `edges under ${NON_TEXT}:1 against their ground, on an element whose fill does not reach it either`,

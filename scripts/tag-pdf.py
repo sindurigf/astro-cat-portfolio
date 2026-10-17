@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-"""Finish the tags Chromium writes on a printed talk, so the PDF meets PDF/UA-1.
+"""Finish the tags Chromium writes on a printed page, so the PDF meets PDF/UA-1.
 
-    python3 scripts/tag-talk-pdf.py <in.pdf> <out.pdf> <page.json> <title>
+    python3 scripts/tag-pdf.py <in.pdf> <out.pdf> <page.json> <title>
 
-Run by `npm run publish:talk`. `page.json` holds `links`, `hidden`,
-`headings` and `digest` (stored as /SlidesSHA256 for tests/talk-pdf.spec.ts).
+Run by `npm run publish:talk`. `page.json` holds
+`links`, `hidden`, `headings`, and `digest` stored under the docinfo key
+`digestKey` for the spec that checks the PDF against its source.
 Needs pikepdf: `apt install python3-pikepdf`.
 What it fixes: docs/DEVELOPMENT.md, "Publishing the PDF".
 """
@@ -18,15 +19,18 @@ from pikepdf import Array, Dictionary, Name, Operator
 PAINT = {"f", "F", "f*", "S", "s", "B", "B*", "b", "b*", "n", "sh"}
 PATH = {"m", "l", "c", "v", "y", "h", "re", "W", "W*"}
 TEXT = {"BT"}
+# The printing application, which says nothing a reader needs.
+INFO_REMOVED = ("/Creator", "/Producer")
+XMP_REMOVED = ("xmp:CreatorTool", "pdf:Producer")
 
 
 def fail(message):
-    sys.exit(f"tag-talk-pdf: {message}")
+    sys.exit(f"tag-pdf: {message}")
 
 
 def artifact_untagged(pdf, page):
-    """Wrap every path and text object drawn outside marked content as an
-    /Artifact; returns how many text objects that was."""
+    """Wrap every path, image and text object drawn outside marked content as
+    an /Artifact; returns how many text objects that was."""
     out, depth, open_artifact, closes_on, texts = [], 0, False, None, 0
     for operands, op in pikepdf.parse_content_stream(page):
         name = str(op)
@@ -34,6 +38,9 @@ def artifact_untagged(pdf, page):
             depth += 1
         elif name == "EMC":
             depth -= 1
+        elif depth == 0 and not open_artifact and name == "Do":
+            out += [([Name.Artifact], Operator("BMC")), (operands, op), ([], Operator("EMC"))]
+            continue
         elif depth == 0 and not open_artifact and name in PATH | TEXT:
             out.append(([Name.Artifact], Operator("BMC")))
             open_artifact = True
@@ -135,14 +142,14 @@ def title_bookmarks(pdf, headings):
 
         collect(outline.root)
         if len(items) != len(headings):
-            fail(f"{len(items)} bookmarks for {len(headings)} slide headings")
+            fail(f"{len(items)} bookmarks for {len(headings)} headings")
         for item, heading in zip(items, headings):
             item.title = heading
 
 
 def main():
     if len(sys.argv) != 5:
-        fail("usage: tag-talk-pdf.py <in.pdf> <out.pdf> <page.json> <title>")
+        fail("usage: tag-pdf.py <in.pdf> <out.pdf> <page.json> <title>")
     source, target, page_file, title = sys.argv[1:]
     with open(page_file, encoding="utf-8") as handle:
         seen = json.load(handle)
@@ -166,11 +173,17 @@ def main():
     if not language:
         fail("the PDF has no /Lang")
     with pdf.open_metadata(set_pikepdf_as_editor=False) as meta:
+        for field in XMP_REMOVED:
+            if field in meta:
+                del meta[field]
         meta["dc:title"] = title
         meta["dc:language"] = [language]
         meta["pdfuaid:part"] = "1"
+    for field in INFO_REMOVED:
+        if field in pdf.docinfo:
+            del pdf.docinfo[field]
     pdf.docinfo[Name.Title] = title
-    pdf.docinfo[Name.SlidesSHA256] = seen["digest"]
+    pdf.docinfo[Name("/" + seen["digestKey"])] = seen["digest"]
     pdf.save(target)
 
 

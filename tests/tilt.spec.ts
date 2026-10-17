@@ -1,6 +1,6 @@
 import { expect, test } from './test';
 import { gotoSettled } from './settle';
-import { ROUTES } from './routes';
+import { BRAND_SAMPLED_ROUTES } from './routes';
 
 /*
  * `backface-visibility: hidden` makes Chromium rasterize then rotate, blurring
@@ -10,7 +10,7 @@ import { ROUTES } from './routes';
 /* Every page tilts something (the footer's tiles); zero means the walk found nothing. */
 const MIN_TILTED_PER_ROUTE = 1;
 
-for (const route of ROUTES) {
+for (const route of BRAND_SAMPLED_ROUTES) {
   test(`${route}: no tilted element is drawn as its own layer`, async ({
     page,
   }) => {
@@ -55,7 +55,7 @@ for (const route of ROUTES) {
  */
 const MAX_TILTED_WORDS = 3;
 
-for (const route of ROUTES) {
+for (const route of BRAND_SAMPLED_ROUTES) {
   test(`${route}: tilted text is a short label`, async ({ page }) => {
     await gotoSettled(page, route);
 

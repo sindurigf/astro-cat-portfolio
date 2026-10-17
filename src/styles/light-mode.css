@@ -4,7 +4,28 @@
  * 7.06, cyan 7.28 (tests/light-mode.spec.ts). Utilities layer beats `.text-gold`.
  */
 @layer utilities {
-  :root[data-theme='light'] :is(main, header) {
+  /* The dark values, read where light mode never reaches, for a .mode-dark sample on a light page. */
+  :root {
+    --dark-background: var(--color-background);
+    --dark-surface: var(--color-surface);
+    --dark-text: var(--color-text);
+    --dark-subtle: var(--color-subtle);
+    --dark-border: var(--color-border);
+    --dark-cyan: var(--color-cyan);
+    --dark-pink: var(--color-pink);
+    --dark-pink-text: var(--color-pink-text);
+    --dark-gold-border: var(--color-gold-border);
+    --dark-card-edge: var(--color-card-edge);
+    --dark-card-grid: var(--card-grid);
+    --dark-gold-bud: var(--color-gold-bud);
+    --dark-hero-ground: var(--color-hero-ground);
+    --dark-hero-glow: var(--color-hero-glow);
+    --dark-hero-veil: var(--color-hero-veil);
+    --dark-hero-floor: var(--color-hero-floor);
+  }
+
+  :root[data-theme='light'] :is(main, header),
+  main .mode-light {
     --color-background: var(--color-light-ground);
     --color-surface: var(--color-light-ground);
     --color-text: var(--color-light-ink);
@@ -26,7 +47,30 @@
     background-color: var(--color-background);
   }
 
-  :root[data-theme='light'] main :is(.surface-gold, .v-column) {
+  :root[data-theme='light'] main .mode-dark {
+    --color-background: var(--dark-background);
+    --color-surface: var(--dark-surface);
+    --color-text: var(--dark-text);
+    --color-subtle: var(--dark-subtle);
+    --color-border: var(--dark-border);
+    --color-cyan: var(--dark-cyan);
+    --color-pink: var(--dark-pink);
+    --color-pink-text: var(--dark-pink-text);
+    --color-gold-border: var(--dark-gold-border);
+    --color-card-edge: var(--dark-card-edge);
+    --card-grid: var(--dark-card-grid);
+    --color-gold-bud: var(--dark-gold-bud);
+    --color-hero-ground: var(--dark-hero-ground);
+    --color-hero-glow: var(--dark-hero-glow);
+    --color-hero-veil: var(--dark-hero-veil);
+    --color-hero-floor: var(--dark-hero-floor);
+    color-scheme: dark;
+    color: var(--color-text);
+    background-color: var(--color-background);
+  }
+
+  :is(:root[data-theme='light'] main, main .mode-light)
+    :is(.surface-gold, .v-column):not(.mode-dark *) {
     background-color: var(--color-background);
   }
 
@@ -34,8 +78,7 @@
    * Gold text fails SC 1.4.3 on white, so it is ink with a gold square before
    * the word.
    */
-  :root[data-theme='light']
-    main
+  :is(:root[data-theme='light'] main, main .mode-light)
     :is(
       .text-gold,
       .motion-toggle,
@@ -45,22 +88,29 @@
       .slide-body strong,
       .slide-lead,
       .slide-body a:not([class])
-    ),
-  :root[data-theme='light'] main :is(.prose, .bullet-list) li::marker {
+    ):not(.mode-dark *),
+  :is(:root[data-theme='light'] main, main .mode-light)
+    :is(.prose, .bullet-list)
+    li:not(.mode-dark *)::marker {
     color: var(--color-text);
   }
 
   /* The underline follows the ink, as on every other link. */
-  :root[data-theme='light'] main .slide-body a:not([class]) {
+  :is(:root[data-theme='light'] main, main .mode-light)
+    .slide-body
+    a:not([class]):not(.mode-dark *) {
     text-decoration-color: currentColor;
   }
 
   /* Hover takes the light page's link hover color, as every other link does. */
-  :root[data-theme='light'] main .slide-body a:not([class]):hover {
+  :is(:root[data-theme='light'] main, main .mode-light)
+    .slide-body
+    a:not([class]):hover:not(.mode-dark *) {
     color: var(--color-cyan);
   }
 
-  :root[data-theme='light'] main :is(.label.text-gold, .slide-label)::before {
+  :is(:root[data-theme='light'] main, main .mode-light)
+    :is(.label.text-gold, .slide-label):not(.mode-dark *)::before {
     content: '';
 
     @apply mr-2 inline-block size-2.5 bg-gold;
@@ -72,19 +122,16 @@
   }
 
   /* The homepage's second sticker and `.sticker` are black blocks in light mode. */
-  :root[data-theme='light'] main .hero-sticker:not(.bg-gold),
-  :root[data-theme='light'] main .sticker {
+  :is(:root[data-theme='light'] main, main .mode-light)
+    .hero-sticker:not(.bg-gold):not(.mode-dark *),
+  :is(:root[data-theme='light'] main, main .mode-light)
+    .sticker:not(.mode-dark *) {
     @apply border-text bg-text text-background;
   }
 
-  /* /brand states each mode's own contrast: the other mode's rows would misstate it. */
-  :root[data-theme='light'] main .contrast-dark,
-  :root:not([data-theme='light']) main .contrast-light {
-    display: none;
-  }
-
   /* A gold fill on white takes an ink edge, as buttons and tiles do. */
-  :root[data-theme='light'] :is(main, header) .theme-switch {
+  :is(:root[data-theme='light'] :is(main, header), main .mode-light)
+    .theme-switch:not(.mode-dark *) {
     @apply border-4 border-text;
   }
 }

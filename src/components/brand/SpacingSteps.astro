@@ -1,0 +1,41 @@
+---
+import ComponentRow from './ComponentRow.astro';
+import { spacing } from '../../lib/brand';
+import { brandSection } from '../../lib/brand-sections';
+
+const SPACING_CLASS: Record<string, string> = {
+  '--spacing-section': 'w-section',
+  '--spacing-head': 'w-head',
+  '--spacing-grid': 'w-grid',
+};
+for (const { token } of spacing) {
+  if (!(token in SPACING_CLASS)) {
+    throw new Error(
+      `/brand: the spacing token ${token} has no class in src/components/brand/SpacingSteps.astro`,
+    );
+  }
+}
+---
+
+<ul class="brand-parts">
+  <ComponentRow id="spacing-steps" rule={brandSection('spacing').rule}>
+    <ul class="space-y-6">
+      {spacing.map(({ token, use, phone, wide }) => (
+        <li>
+          <span
+            class:list={['block h-4 max-w-full bg-text', SPACING_CLASS[token]]}
+            aria-hidden="true"
+          />
+          <dl class="mt-3">
+            <dt class="text-body font-black text-text">
+              <code>{token}</code>
+            </dt>
+            <dd class="text-body text-subtle">
+              {use}: {phone}px on a phone, {wide}px from 1200px
+            </dd>
+          </dl>
+        </li>
+      ))}
+    </ul>
+  </ComponentRow>
+</ul>

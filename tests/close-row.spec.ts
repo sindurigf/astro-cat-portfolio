@@ -2,6 +2,7 @@ import { test, expect } from './test';
 import { gotoSettled } from './settle';
 import { builtHtml } from './routes';
 import { NODE } from './tags';
+import { BRAND_ROUTES } from '../src/lib/brand-sections';
 
 /*
  * The close row's eyebrow sticker sits across the row's top edge; it must never
@@ -14,6 +15,7 @@ const CLOSE_ROW_ROUTES = [
   '/about',
   '/blog',
   '/brand',
+  ...BRAND_ROUTES,
   '/career',
   '/contact/sent',
   '/credits',

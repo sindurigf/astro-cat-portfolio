@@ -1,5 +1,6 @@
 ---
 import ComponentRow from './ComponentRow.astro';
+import { brandHref } from '../../lib/brand-sections';
 import { getSortedPosts, tagLabel } from '../../lib/blog';
 import { tagHref } from '../../lib/paths';
 
@@ -9,17 +10,20 @@ const tag = post?.data.tags?.[0];
 const META = 'text-body text-subtle';
 ---
 
-<ul class="divide-y-4 divide-border">
+<ul class="brand-parts">
   <ComponentRow
     id="chips"
-    name="Chips"
     use="a row of links to pages or sections, such as categories."
     rule="The current one is a flat block with a marker, never color alone."
   >
     <ul class="flex flex-wrap gap-6">
       <li>
-        <a href="/brand/" class="chip" aria-current="page">
-          Brand
+        <a
+          href={brandHref('chips-and-labels')}
+          class="chip"
+          aria-current="page"
+        >
+          Chips and Labels
         </a>
       </li>
       <li>
@@ -33,7 +37,6 @@ const META = 'text-body text-subtle';
   {tag && (
     <ComponentRow
       id="tag-chips"
-      name="Tag Chips"
       use="a post's tags, under the post."
       rule="Pink-text labels, tilted alternately; each leads to the tag's page."
     >
@@ -50,7 +53,6 @@ const META = 'text-body text-subtle';
 
   <ComponentRow
     id="badges"
-    name="Badge"
     use="a short fact on a card that is not a link, such as Current."
     rule="Dark block, light label. Never a link: a link in a row is a chip."
   >
@@ -59,7 +61,6 @@ const META = 'text-body text-subtle';
 
   <ComponentRow
     id="stickers"
-    name="Sticker"
     use="a small label pinned to a card's edge."
     rule="Pink-text label with a mark shadow, slightly tilted; one per card."
   >
