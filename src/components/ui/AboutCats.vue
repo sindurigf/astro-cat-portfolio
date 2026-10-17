@@ -647,7 +647,7 @@ onBeforeUnmount(() => {
             {{ open.name }}
           </h2>
         </div>
-        <p class="mt-8 text-label text-text">{{ open.role }}</p>
+        <p class="mt-8 text-body text-text">{{ open.role }}</p>
       </div>
     </div>
   </dialog>
