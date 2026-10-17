@@ -81,7 +81,7 @@ const EMPTY_BLOG = {
 ---
 
 <nav aria-label="Filter posts by category">
-  <ul class="flex flex-wrap gap-6">
+  <ul class="chip-row">
     {filterOptions.map((option) => {
       const isActive = option.href === activeHref;
       return (
@@ -94,7 +94,7 @@ const EMPTY_BLOG = {
             class="chip"
           >
             {isActive ? (
-              <span aria-hidden="true" class="block size-2 bg-background" />
+              <span aria-hidden="true" class="block size-2 bg-block-ink" />
             ) : null}
             {option.label}
             {option.category && <span class="sr-only">&nbsp;Posts</span>}
@@ -149,7 +149,7 @@ const EMPTY_BLOG = {
 {totalPages > 1 ? (
   <nav aria-label="Pagination" class="mt-head">
     {/* No Previous/Next: beside a number to the same URL, WAVE flags a redundant link. */}
-    <ul class="flex flex-wrap items-center gap-6">
+    <ul class="chip-row">
       {pageNumbers.map((page) => {
         const isCurrent = page === currentPage;
         return (
@@ -161,7 +161,7 @@ const EMPTY_BLOG = {
               class="chip"
             >
               {isCurrent ? (
-                <span aria-hidden="true" class="block size-2 bg-background" />
+                <span aria-hidden="true" class="block size-2 bg-block-ink" />
               ) : null}
               <span class="sr-only">Page&nbsp;</span>
               {page}
