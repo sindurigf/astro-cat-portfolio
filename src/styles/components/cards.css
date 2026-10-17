@@ -254,4 +254,17 @@
   .talk-cover > * + * {
     @apply mt-4;
   }
+
+  /*
+   * A whole-brick link in a wall (/contact): it holds still, fills cyan under
+   * the pointer and draws its ring inside, so the ring never crosses the next
+   * brick.
+   */
+  .contact-brick:hover {
+    background-color: var(--color-cyan);
+  }
+
+  .contact-brick:focus-visible {
+    outline-offset: calc(-1 * (var(--block-edge) + var(--focus-gap)));
+  }
 }
