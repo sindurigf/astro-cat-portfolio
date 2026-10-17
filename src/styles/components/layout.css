@@ -212,6 +212,7 @@
    * Every whole-section gold area: starts at the rail, ends
    * --hero-column-screen-clear from the screen edge or at the rail, whichever
    * is further out. Drawn like a block: the 4px ink edge and the pink throw.
+   * `.header-slab` repeats these margins so the header ends where the hero does.
    */
   .gold-column {
     --hero-column-rail: max(0px, calc((100% - var(--container-page)) / 2));

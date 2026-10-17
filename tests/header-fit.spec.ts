@@ -148,3 +148,33 @@ for (const width of BRICK_WIDTHS) {
     });
   });
 }
+
+/* Wider than the page column, where the gold hero runs out toward the screen edge. */
+const WIDE_WIDTHS = [1440, 1920] as const;
+
+for (const width of WIDE_WIDTHS) {
+  test.describe(`the header bar at ${width}px`, () => {
+    test.use({ viewport: { width, height: VIEWPORT_HEIGHT } });
+
+    test('starts and ends where the gold hero does', async ({ page }) => {
+      await gotoSettled(page, ROUTE);
+      const found = await page.evaluate(() => {
+        const edges = (selector: string) => {
+          const box = document.querySelector(selector)?.getBoundingClientRect();
+          return box ? { left: box.left, right: box.right } : null;
+        };
+        return { bar: edges('.header-slab'), hero: edges('main .gold-column') };
+      });
+      expect(found.bar, 'the header has no bar').not.toBeNull();
+      expect(found.hero, `${ROUTE} has no gold hero`).not.toBeNull();
+      expect(
+        Math.abs(found.bar!.left - found.hero!.left),
+        'the bar starts somewhere other than the hero',
+      ).toBeLessThanOrEqual(1);
+      expect(
+        Math.abs(found.bar!.right - found.hero!.right),
+        'the bar ends somewhere other than the hero',
+      ).toBeLessThanOrEqual(1);
+    });
+  });
+}

@@ -138,8 +138,7 @@
   }
 
   .theme-switch:hover {
-    @apply bg-cyan;
-
+    background-color: var(--hover-fill, var(--color-cyan));
     color: var(--hover-label, var(--color-background));
   }
 
@@ -193,15 +192,28 @@
     --color-surface: var(--page-text);
     --color-text: var(--page-ground);
     --color-border: var(--page-ground);
-    --color-cyan: var(--color-cyan-reverse);
-    /* White on `cyan-reverse` in dark mode (7.28, AAA); ink in light (11.20). */
-    --hover-label: var(--color-light-ground);
+    /*
+     * Hover is the site's cyan in both modes, under an ink label (11.20). The
+     * ring is ink on the light bar, as in a light block, and cyan on the ink bar.
+     */
+    --color-cyan: var(--color-gold-link);
+    --hover-fill: var(--dark-cyan);
+    --hover-label: var(--color-gold-text);
+
+    /* The gold hero's edges (`.gold-column` in layout.css): from the rail, out to the screen clearance. */
+    --hero-column-rail: max(0px, calc((100% - var(--container-page)) / 2));
+
+    margin-inline: var(--hero-column-rail)
+      min(
+        var(--hero-column-rail),
+        calc(var(--hero-column-screen-clear) - --spacing(6))
+      );
 
     @apply edge border-background bg-background px-4 sm:px-6;
   }
 
   :root[data-theme='light'] .header-slab {
-    --hover-label: var(--color-light-ink);
+    --color-cyan: var(--dark-cyan);
   }
 
   .header-slab dialog {
@@ -210,6 +222,7 @@
     --color-text: var(--page-text);
     --color-border: var(--page-border);
     --color-cyan: var(--page-cyan);
+    --hover-fill: var(--page-cyan);
     --hover-label: var(--page-ground);
   }
 
@@ -257,13 +270,9 @@
 
     translate: 0 calc(var(--brick-throw) / -2);
 
-    & > * + * {
-      margin-left: calc(-1 * var(--block-edge));
-    }
-
-    /* The next brick covers its shared edge, so it is that much wider (SC 2.5.5). */
-    & .theme-switch {
-      width: calc(var(--spacing-target) + var(--block-edge));
+    /* Bricks share an edge without overlapping, so each keeps its whole target (SC 2.5.5). */
+    & > * + * > :is(a, button) {
+      border-left-width: 0;
     }
 
     & :focus-visible {
@@ -276,10 +285,21 @@
       outline-color: var(--color-gold-text);
     }
 
-    /* Hover fills `cyan`, the ring's color, so a hovered ring takes the slab's fill. */
-    & :focus-visible:hover {
-      outline-color: var(--color-background);
+    /* A hovered ring takes the hover label's ink; a current brick has no hover fill. */
+    & :focus-visible:hover:not([aria-current]) {
+      outline-color: var(--hover-label);
     }
+  }
+
+  /* The menu button is a brick like the links; hovered, its bars take the label's ink. */
+  .menu-brick {
+    @apply border-text bg-background;
+  }
+
+  .menu-brick:hover {
+    --color-text: var(--hover-label, var(--color-background));
+
+    background-color: var(--hover-fill, var(--color-cyan));
   }
 
   /* Nav and menu links: bricks edged in `text`. tests/edge-contrast.spec.ts. */
@@ -299,8 +319,7 @@
   }
 
   .nav-sticker:not([aria-current]):hover {
-    @apply bg-cyan;
-
+    background-color: var(--hover-fill, var(--color-cyan));
     color: var(--hover-label, var(--color-background));
   }
 
@@ -329,6 +348,7 @@
   }
 
   .nav-cta:not([aria-current]):hover {
+    background-color: var(--hover-fill, var(--color-cyan));
     color: var(--hover-label, var(--color-background));
   }
 

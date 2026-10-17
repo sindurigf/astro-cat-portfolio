@@ -92,24 +92,23 @@ blur, uppercase headings, tilted marks.
 
 ## Color tokens
 
-| Token          | Hex       | Job                                                            |
-| -------------- | --------- | -------------------------------------------------------------- |
-| `background`   | `#0B0B0B` | Page ground; header, footer, bands; a card's grid lines        |
-| `surface`      | `#1A1A1A` | Cards, inputs                                                  |
-| `border`       | `#FFC000` | Every boundary on the page: the gold edge                      |
-| `card-edge`    | none      | Card and plain slab edge; `#131313` in light mode              |
-| `fill-edge`    | `#131313` | Edge of a gold or light fill: buttons, roundel                 |
-| `text`         | `#E5E2E1` | Words                                                          |
-| `subtle`       | `#9BB4C6` | Captions, meta, helper text                                    |
-| `gold`         | `#FFC000` | The accent, only where the style guide allows                  |
-| `cyan`         | `#00DCFD` | Hover and focus only                                           |
-| `cyan-reverse` | `#00606B` | Hover and focus on the header bar; `#00DCFD` in light mode     |
-| `pink`         | `#FF007A` | Depth and error; never text                                    |
-| `pink-text`    | `#FF79B6` | Every pink glyph; never non-text                               |
-| `mark`         | `#FF007A` | Logo marks; same in both modes                                 |
-| `tile-edge`    | `#5A87A8` | Logo tile copies' edge; both modes                             |
-| `cat-*`        | 14 fills  | About cat drawings and props; decoration, never a boundary     |
-| `hero-*`       | 6 values  | Homepage canvas ground, veil, floor and glyph glow; decoration |
+| Token        | Hex       | Job                                                            |
+| ------------ | --------- | -------------------------------------------------------------- |
+| `background` | `#0B0B0B` | Page ground; header, footer, bands; a card's grid lines        |
+| `surface`    | `#1A1A1A` | Cards, inputs                                                  |
+| `border`     | `#FFC000` | Every boundary on the page: the gold edge                      |
+| `card-edge`  | none      | Card and plain slab edge; `#131313` in light mode              |
+| `fill-edge`  | `#131313` | Edge of a gold or light fill: buttons, roundel                 |
+| `text`       | `#E5E2E1` | Words                                                          |
+| `subtle`     | `#9BB4C6` | Captions, meta, helper text                                    |
+| `gold`       | `#FFC000` | The accent, only where the style guide allows                  |
+| `cyan`       | `#00DCFD` | Hover and focus only                                           |
+| `pink`       | `#FF007A` | Depth and error; never text                                    |
+| `pink-text`  | `#FF79B6` | Every pink glyph; never non-text                               |
+| `mark`       | `#FF007A` | Logo marks; same in both modes                                 |
+| `tile-edge`  | `#5A87A8` | Logo tile copies' edge; both modes                             |
+| `cat-*`      | 14 fills  | About cat drawings and props; decoration, never a boundary     |
+| `hero-*`     | 6 values  | Homepage canvas ground, veil, floor and glyph glow; decoration |
 
 The gold-ground set is in [Gold surface](#gold-surface), light values in
 [Light mode](#light-mode).
@@ -298,8 +297,7 @@ The switch and what it scopes: [ARCHITECTURE.md](../ARCHITECTURE.md#light-mode).
 - Gold text turns ink; a `.label.text-gold` and a slide label gain a gold
   square before the word.
 - Blocks stay gold or light in light mode, with the `#131313` edge (18.58 on white).
-- The header bar turns `#131313` with white lines; `cyan-reverse` is
-  `#00DCFD` there (11.20).
+- The header bar turns `#131313` with white lines.
 - Logo marks use `mark`, `tile-edge`, the `cat-hela*` coat and
   `shadow-hard-mark-*` or `drop-shadow-hard-mark-*`, never `pink` or `border`:
   they do not change with the mode.
@@ -1102,7 +1100,7 @@ Enforced by `tests/nav-current.spec.ts`, `tests/mobile-menu.spec.ts`,
 - Links come from `NAV_LINKS` and `CTA` in `src/lib/nav.ts`; the desktop
   header uses `HEADER_LINKS` (no Home; the logo links to `/`).
 - The header bar (`.header-slab`) is the page's reverse: it swaps
-  `background` and `text`, and takes `cyan-reverse` for hover and focus. So
+  `background` and `text`. So
   the bar is `#E5E2E1` with `#0B0B0B` lines in dark mode and `#131313` with
   white lines in light mode, and every edge and throw on it shows in both.
   `.site-header` keeps the page's values as `--page-*` for the logo block and
@@ -1115,10 +1113,14 @@ Enforced by `tests/nav-current.spec.ts`, `tests/mobile-menu.spec.ts`,
   (`.header-bricks`): 44px tall, the target (SC 2.5.5), sharing their 4px
   edges, one `shadow-brick` per row. Each row sits half its throw high, so
   there is 7px above it and under its throw. Gold marks the current page; the
-  rest take the bar's fill. Gold bricks keep `fill-edge`. The theme switch is
-  4px wider, since the next brick covers its shared edge.
-- Hover fills `cyan-reverse` with a white label in dark mode (7.28) and an
-  ink one in light mode (11.20), set as `--hover-label` on the bar.
+  rest take the bar's fill. Gold bricks keep `fill-edge`. A brick after
+  another drops its left edge, so the two share one 4px wall and never overlap
+  each other's target.
+- Hover fills the site's `cyan` (`--hover-fill`) in both modes under a
+  `gold-text` label (11.20). The ring is `gold-link` on the light bar and
+  `cyan` on the ink bar; on a hovered brick it takes the label's ink.
+- The bar takes `.gold-column`'s margins, so it starts and ends where the gold
+  hero does at every width (`tests/header-fit.spec.ts`).
 - The menu follows the same rule on the page ground: `text` edges, each brick
   its own 6px throw, the current page gold.
 
@@ -1139,7 +1141,7 @@ Enforced by `tests/nav-current.spec.ts`, `tests/mobile-menu.spec.ts`,
 
 | Item                | Current                                                                                                                                                                                                        | Hover                                      | Focus                                                                               |
 | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------ | ----------------------------------------------------------------------------------- |
-| Nav link, menu link | `aria-current`, `"page"` on the page and `"true"` inside its section: `block-gold` fill, `gold-text` label (11.32) and the 4px `--inset-shadow-current` ring; in the menu, pressed 6px into its shadow instead | cyan fill, `--hover-label` (7.28 or more)  | in the header, the ring inside the brick (ink on gold); in the menu, past the throw |
+| Nav link, menu link | `aria-current`, `"page"` on the page and `"true"` inside its section: `block-gold` fill, `gold-text` label (11.32) and the 4px `--inset-shadow-current` ring; in the menu, pressed 6px into its shadow instead | cyan fill, `gold-text` label (11.20)       | in the header, the ring inside the brick (ink on gold); in the menu, past the throw |
 | No-JavaScript link  | the same value, a flat `bg-text` block with a `border` edge, label in `background` (15.28)                                                                                                                     | cyan text (11.86), not on the current item | the 4px cyan ring at a 4px offset, on the current item too                          |
 | Call to action      | `aria-current`, `"page"` or `"true"`, a 4px `gold-text` inset ring, no hover fill                                                                                                                              | cyan fill                                  | in the header, inside the brick in `gold-text`; in the menu, past the throw         |
 | Logo link           | `aria-current="page"` on `/`, no visual state: the homepage hero says where you are                                                                                                                            | none                                       | `gold-text`, 4px off the link, inside its gold block (11.32)                        |
@@ -1246,9 +1248,9 @@ Enforced by `tests/nav-current.spec.ts`, `tests/mobile-menu.spec.ts`,
   whole ring on screen.
 - On gold the ring is `gold-text`. Ratios: [Contrast](#contrast).
 - The header's joined bricks draw the ring inside the brick, `--block-edge`
-  plus `--focus-gap` in, so it never crosses the next brick: `cyan-reverse`
-  on the bar's fill (5.65 dark, 11.20 light), `gold-text` on gold (11.32), and
-  the bar's fill on a hovered brick.
+  plus `--focus-gap` in, so it never crosses the next brick: `gold-link` on
+  the light bar (14.49), `cyan` on the ink bar (11.20), `gold-text` on gold
+  (11.32), and `gold-text` on a hovered brick's cyan (11.20).
 - `--lift-control` 4px beside a control's 4px shadow, `--lift-object` (the
   `--hard-throw`, 8px) beside an object's shadow, `--lift-mark` 8px beside the
   logo tile's 8px shadow, so the ring clears the shadow (cyan on pink is 2.29). The button,

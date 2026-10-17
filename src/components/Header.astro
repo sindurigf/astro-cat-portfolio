@@ -26,7 +26,7 @@ const current = (href: string) => ariaCurrent(currentPath, href);
 {/* Gutter on <header>, not the column, so its content box matches <main> and the footer. */}
 <header class="site-header page-gutter sticky top-0 z-50 h-header py-3 bg-background short:static">
   {/* Grid from `lg`, not `md`: between 768 and 1023px the row barely fits and centering wastes slack. */}
-  <div class="header-slab mx-auto flex h-full max-w-page items-center justify-between lg:grid lg:grid-cols-header">
+  <div class="header-slab flex h-full items-center justify-between lg:grid lg:grid-cols-header">
     {/*
       The desktop nav has no Home item, so this link carries aria-current on `/`.
       aria-label repeats the wordmark exactly (SC 2.5.3): the <wbr> below makes
@@ -84,7 +84,7 @@ const current = (href: string) => ariaCurrent(currentPath, href);
       <div class="mobile-menu md:hidden" data-mobile-menu>
         <button
           type="button"
-          class="group flex size-target items-center justify-center border-4 border-text bg-background"
+          class="menu-brick group flex size-target items-center justify-center border-4"
           aria-expanded="false"
           aria-controls="mobile-menu-panel"
           aria-label="Menu"

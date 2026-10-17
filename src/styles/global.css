@@ -136,8 +136,6 @@
   --color-subtle: #9bb4c6;
   --color-gold: #ffc000;
   --color-cyan: #00dcfd;
-  /* Hover and focus on the header bar, which takes the other mode's colors. */
-  --color-cyan-reverse: #00606b;
   /*
    * Two pinks, split by role, not size: `pink` passes SC 1.4.11 and is for
    * non-text only; `pink-text` is every pink glyph, AAA (SC 1.4.6) at any size.

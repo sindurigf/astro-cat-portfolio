@@ -15,8 +15,6 @@ export const SWATCH: Record<string, string | null> = {
   gold: 'bg-gold border-4 border-fill-edge',
   /* Never at rest: it shows on /brand/controls/ under the pointer and the keyboard. */
   cyan: null,
-  /* Never at rest either: it shows on the header bar under the pointer and the keyboard. */
-  'cyan-reverse': null,
   pink: 'border-4 border-border shadow-hard-pink-4',
   'pink-text': 'text-pink-text',
   mark: 'border-4 border-border shadow-hard-mark-8',
