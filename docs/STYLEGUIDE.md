@@ -268,8 +268,8 @@ set; hex values and ratios are in the generated [Contrast](#contrast) table:
 
 ### Buttons on gold
 
-- Never `.btn-primary` (a 1.00 fill on gold) or `.btn-secondary` (`border`
-  1.00, pink shadow 2.31).
+- Never `.btn-primary` (a 1.00 fill on gold) or `.btn-secondary` (a light
+  block on a gold one: two accents in one block, pink shadow 2.31).
 - `.btn-gold-primary`: `gold-text` fill, `gold-btn-label` label, 4px
   `gold-text` border, `shadow-hard-mark-4`, the two-tone ring
   ([Focus](#focus)).
@@ -546,7 +546,7 @@ file per area.
 | Class                                   | What                                                                                                                                                                                                                                                                 |
 | --------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `.btn-primary`                          | Gold fill, `gold-text` label, `border-4`, pink 4px shadow, `text-button` 900                                                                                                                                                                                         |
-| `.btn-secondary`                        | `surface` fill, `text` label, `border-4`, pink 4px shadow                                                                                                                                                                                                            |
+| `.btn-secondary`                        | Light block: `block-light` fill, `block-ink` label and `border-4`, pink 4px shadow                                                                                                                                                                                   |
 | `.actions`                              | Button row; its 32px row gap clears shadow and ring when buttons wrap                                                                                                                                                                                                |
 | `.card`                                 | A gold block: `block-gold`, 4px `block-ink` edge, pink 8px shadow, padding 24px, 40px from `sm`                                                                                                                                                                      |
 | `.card-title`                           | Every card heading, `text-h3` 900                                                                                                                                                                                                                                    |
