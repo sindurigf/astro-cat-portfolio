@@ -178,3 +178,85 @@ for (const width of WIDE_WIDTHS) {
     });
   });
 }
+
+/* Tab stops walked under the slim header: past the opening of /about and into its body. */
+const SLIM_WALK_STOPS = 30;
+
+test.describe('the slim header once the page scrolls', () => {
+  test.use({ viewport: { width: 1280, height: VIEWPORT_HEIGHT } });
+
+  test('is --spacing-header-compact tall, keeps 44px targets, moves nothing and does not animate', async ({
+    page,
+  }) => {
+    await gotoSettled(page, ROUTE);
+    const before = await page.evaluate(
+      () =>
+        document.querySelector('main')!.getBoundingClientRect().top + scrollY,
+    );
+    await page.mouse.wheel(0, 900);
+    await expect(page.locator('header.site-header')).toHaveAttribute(
+      'data-compact',
+      '',
+    );
+    const found = await page.evaluate(() => {
+      const header = document.querySelector<HTMLElement>('header.site-header')!;
+      const root = getComputedStyle(document.documentElement);
+      const targets = [
+        ...header.querySelectorAll<HTMLElement>(
+          '.header-bricks :is(a, button), .logo-link',
+        ),
+      ]
+        .filter((el) => el.checkVisibility())
+        .map((el) => {
+          const box = el.getBoundingClientRect();
+          return Math.min(box.width, box.height);
+        });
+      return {
+        height: header.getBoundingClientRect().height,
+        token: parseFloat(root.getPropertyValue('--spacing-header-compact')),
+        smallest: Math.min(...targets),
+        mainTop:
+          document.querySelector('main')!.getBoundingClientRect().top + scrollY,
+        transition: getComputedStyle(header).transitionDuration,
+      };
+    });
+    expect(
+      found.height,
+      'the slim header is not --spacing-header-compact tall',
+    ).toBe(found.token);
+    expect(
+      found.smallest,
+      'a slim header target is under 44px (SC 2.5.5)',
+    ).toBeGreaterThanOrEqual(44);
+    expect(found.mainTop, 'going slim moved the page under it').toBe(before);
+    expect(found.transition, 'the slim header animates').toBe('0s');
+    await page.mouse.wheel(0, -2000);
+    await expect(page.locator('header.site-header')).not.toHaveAttribute(
+      'data-compact',
+    );
+  });
+
+  test('never hides a focused control under it (SC 2.4.11)', async ({
+    page,
+  }) => {
+    await gotoSettled(page, ROUTE);
+    await page.locator('main a').first().focus();
+    const under: string[] = [];
+    for (let i = 0; i < SLIM_WALK_STOPS; i += 1) {
+      await page.keyboard.press('Tab');
+      const stop = await page.evaluate(() => {
+        const el = document.activeElement as HTMLElement;
+        const header = document.querySelector('header.site-header')!;
+        if (header.contains(el) || !el.closest('main')) return null;
+        const box = el.getBoundingClientRect();
+        return {
+          name: (el.textContent ?? '').trim().slice(0, 30),
+          under:
+            box.top < header.getBoundingClientRect().bottom && box.bottom > 0,
+        };
+      });
+      if (stop?.under) under.push(stop.name);
+    }
+    expect(under, 'focused while partly under the slim header').toEqual([]);
+  });
+});

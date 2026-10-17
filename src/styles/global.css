@@ -472,6 +472,11 @@
    * 2.4.11).
    */
   --spacing-header: 96px;
+  /*
+   * The slim header once the page scrolls: a 60px bar, 6px above and below.
+   * Its flow box keeps `--spacing-header`, so nothing below moves.
+   */
+  --spacing-header-compact: 72px;
   /* How far the gold logo block hangs below the header slab. */
   --spacing-logo-hang: 28px;
   /*

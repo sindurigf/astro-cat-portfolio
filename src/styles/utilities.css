@@ -4,6 +4,32 @@
  */
 @layer utilities {
   /*
+   * Slim once scrolled (src/scripts/header-compact.ts): the bar loses its
+   * invisible edge so the 44px bricks keep 8px above and below, and the logo
+   * block fits the bar instead of hanging. Not when the header scrolls away.
+   * Utilities, to beat the header's `h-header` and `py-3`.
+   */
+  @media (height >= 30rem) {
+    .site-header[data-compact] {
+      height: var(--spacing-header-compact);
+      margin-bottom: calc(
+        var(--spacing-header) - var(--spacing-header-compact)
+      );
+      padding-block: --spacing(1.5);
+
+      & .header-slab {
+        border-width: 0;
+      }
+
+      & .header-logo-block {
+        height: 100%;
+        margin-block: 0;
+        box-shadow: none;
+      }
+    }
+  }
+
+  /*
    * A tilted box softens its border's edges. A fill under a border of another
    * color shows outside it as a fringe, so it stops at the padding box; a fill
    * clipped under a border of its own color leaves a seam of ground between
