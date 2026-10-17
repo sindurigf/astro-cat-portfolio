@@ -1107,15 +1107,14 @@ Enforced by `tests/nav-current.spec.ts`, `tests/mobile-menu.spec.ts`,
   `.site-header` keeps the page's values as `--page-*` for the logo block and
   the menu.
 - The logo hangs in a gold block (`.header-logo-block`) from the bar's left
-  end, `--spacing-logo-hang` (28px) below it, with the `fill-edge` every gold
-  fill takes and a throw in the page's `text`. `<main>` adds `--spacing-main-top`, so
+  end, `--spacing-logo-hang` (28px) below it, edged and thrown in the page's `text`. `<main>` adds `--spacing-main-top`, so
   every opening clears its throw by 8px; fold-sized heroes and slides subtract
   it.
 - Nav links, the theme switch and the call to action are joined bricks
   (`.header-bricks`): 44px tall, the target (SC 2.5.5), sharing their 4px
   edges, one `shadow-brick` per row. Each row sits half its throw high, so
   there is 7px above it and under its throw. Gold marks the current page; the
-  rest take the bar's fill. Gold bricks keep `fill-edge`. A brick after
+  rest take the bar's fill. Gold bricks take the same `text` edge as the rest. A brick after
   another drops its left edge, so the two share one 4px wall and never overlap
   each other's target.
 - Hover fills the site's `cyan` (`--hover-fill`) in both modes under a
