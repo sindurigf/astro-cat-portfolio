@@ -116,11 +116,6 @@
     @apply mr-2 inline-block size-2.5 bg-gold;
   }
 
-  /* The header's edge in its own text color, not blue. */
-  :root[data-theme='light'] body > header {
-    border-bottom-color: var(--color-text);
-  }
-
   /* The homepage's second sticker and `.sticker` are black blocks in light mode. */
   :is(:root[data-theme='light'] main, main .mode-light)
     .hero-sticker:not(.bg-gold):not(.mode-dark *),
