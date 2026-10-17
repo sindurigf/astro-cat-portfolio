@@ -76,15 +76,15 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      # After `npm ci`, which empties node_modules. Astro names each cached image
-      # by a hash of its source and options, so an older entry is never served.
+      # After `npm ci`, which empties node_modules. Falls back only within the same
+      # lockfile: an Astro, sharp or adapter bump must transform every image afresh.
       - name: Restore optimized images
         id: images
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: node_modules/.astro/assets
-          key: ${{ runner.os }}-astro-images-${{ hashFiles('package-lock.json', 'astro.config.mjs', 'src/**') }}
-          restore-keys: ${{ runner.os }}-astro-images-
+          key: ${{ runner.os }}-astro-images-${{ hashFiles('package-lock.json') }}-${{ hashFiles('astro.config.mjs', 'src/**') }}
+          restore-keys: ${{ runner.os }}-astro-images-${{ hashFiles('package-lock.json') }}-
 
       - name: Build
         run: npm run build
@@ -184,8 +184,8 @@ jobs:
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: node_modules/.astro/assets
-          key: ${{ runner.os }}-astro-images-${{ hashFiles('package-lock.json', 'astro.config.mjs', 'src/**') }}
-          restore-keys: ${{ runner.os }}-astro-images-
+          key: ${{ runner.os }}-astro-images-${{ hashFiles('package-lock.json') }}-${{ hashFiles('astro.config.mjs', 'src/**') }}
+          restore-keys: ${{ runner.os }}-astro-images-${{ hashFiles('package-lock.json') }}-
 
       # Read, not repeated: a range would key the cache to a stale version.
       - name: Read the pinned Playwright version
@@ -310,8 +310,8 @@ jobs:
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: node_modules/.astro/assets
-          key: ${{ runner.os }}-astro-images-${{ hashFiles('package-lock.json', 'astro.config.mjs', 'src/**') }}
-          restore-keys: ${{ runner.os }}-astro-images-
+          key: ${{ runner.os }}-astro-images-${{ hashFiles('package-lock.json') }}-${{ hashFiles('astro.config.mjs', 'src/**') }}
+          restore-keys: ${{ runner.os }}-astro-images-${{ hashFiles('package-lock.json') }}-
 
       - name: Read the pinned Playwright version
         id: playwright
