@@ -151,8 +151,98 @@
   },
   "/brand": {
     "title": "Brand",
-    "photo": "/_astro/tabby-round-bed.HmVwakxc_Z2oMU9l.webp",
-    "alt": "Brand, example.com, beside a photo: A tabby cat curled in a round cat bed beside an orange plush toy."
+    "photo": null,
+    "alt": "Brand, example.com, beside the example.com logo."
+  },
+  "/brand/accessibility": {
+    "title": "Accessibility Target · Brand",
+    "photo": null,
+    "alt": "Accessibility Target · Brand, example.com, beside the example.com logo."
+  },
+  "/brand/borders-and-shadows": {
+    "title": "Borders and Shadows · Brand",
+    "photo": null,
+    "alt": "Borders and Shadows · Brand, example.com, beside the example.com logo."
+  },
+  "/brand/buttons-and-links": {
+    "title": "Buttons and Links · Brand",
+    "photo": null,
+    "alt": "Buttons and Links · Brand, example.com, beside the example.com logo."
+  },
+  "/brand/cards": {
+    "title": "Cards · Brand",
+    "photo": null,
+    "alt": "Cards · Brand, example.com, beside the example.com logo."
+  },
+  "/brand/chips-and-labels": {
+    "title": "Chips and Labels · Brand",
+    "photo": null,
+    "alt": "Chips and Labels · Brand, example.com, beside the example.com logo."
+  },
+  "/brand/color": {
+    "title": "Color · Brand",
+    "photo": null,
+    "alt": "Color · Brand, example.com, beside the example.com logo."
+  },
+  "/brand/contrast": {
+    "title": "Contrast · Brand",
+    "photo": null,
+    "alt": "Contrast · Brand, example.com, beside the example.com logo."
+  },
+  "/brand/controls": {
+    "title": "Controls · Brand",
+    "photo": null,
+    "alt": "Controls · Brand, example.com, beside the example.com logo."
+  },
+  "/brand/forms": {
+    "title": "Forms · Brand",
+    "photo": null,
+    "alt": "Forms · Brand, example.com, beside the example.com logo."
+  },
+  "/brand/grounds": {
+    "title": "Grounds · Brand",
+    "photo": null,
+    "alt": "Grounds · Brand, example.com, beside the example.com logo."
+  },
+  "/brand/heroes": {
+    "title": "Heroes · Brand",
+    "photo": null,
+    "alt": "Heroes · Brand, example.com, beside the example.com logo."
+  },
+  "/brand/motion": {
+    "title": "Motion · Brand",
+    "photo": null,
+    "alt": "Motion · Brand, example.com, beside the example.com logo."
+  },
+  "/brand/navigation": {
+    "title": "Navigation · Brand",
+    "photo": null,
+    "alt": "Navigation · Brand, example.com, beside the example.com logo."
+  },
+  "/brand/photos": {
+    "title": "Photos · Brand",
+    "photo": null,
+    "alt": "Photos · Brand, example.com, beside the example.com logo."
+  },
+  "/brand/spacing": {
+    "title": "Spacing · Brand",
+    "photo": null,
+    "alt": "Spacing · Brand, example.com, beside the example.com logo."
+  },
+  "/brand/template": {
+    "title": "The Template · Brand",
+    "photo": null,
+    "alt": "The Template · Brand, example.com, beside the example.com logo."
+  },
+  "/brand/text": {
+    "title": "Text · Brand",
+    "photo": null,
+    "alt": "Text · Brand, example.com, beside the example.com logo."
+  },
+  "/brand/type": {
+    "title": "Type · Brand",
+    "photo": null,
+    "alt": "Type · Brand, example.com, beside the example.com logo."
   },
   "/career": {
     "title": "Career",

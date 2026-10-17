@@ -21,7 +21,10 @@ export interface OgPhotoChoice {
  * logo cat, an `OgPhotoChoice` names another photo. Keyed like `ogRoute`.
  */
 export const OG_PHOTO_CHOICES: Readonly<Record<string, OgPhotoChoice | null>> =
-  {};
+  {
+    /* /brand and its subpages share the logo card; /brand/photos shows sample photos, not its subject. */
+    '/brand/photos': null,
+  };
 
 export interface OgCard {
   title: string;
