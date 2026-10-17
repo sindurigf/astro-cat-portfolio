@@ -1,39 +1,61 @@
 ---
 /*
- * One /brand row: the component's name, what it is for, the rule that matters,
- * one live example and, when it has them, its other states behind a + toggle.
+ * One /brand part: its name, what it is for, the rule that matters, then its
+ * example on the dark ground (live) beside the light one (an inert copy, so
+ * nothing is reached or named twice), its other states under it. A `light`
+ * slot replaces the copy with live content of its own, for facts that differ
+ * by mode, such as contrast ratios.
  */
+import { brandPartName } from '../../lib/brand-sections';
+import { inertCopy } from './mirror';
+
 interface Props {
+  /* A part id from src/lib/brand-sections.ts, which holds its name. */
   id: string;
-  name: string;
-  use: string;
+  use?: string;
   rule: string;
 }
 
-const { id, name, use, rule } = Astro.props;
-const hasStates = Astro.slots.has('states');
+const { id, use, rule } = Astro.props;
+const example = await Astro.slots.render('default');
+const states = Astro.slots.has('states')
+  ? `<div class="mt-8">${await Astro.slots.render('states')}</div>`
+  : '';
+const live = example + states;
+const ownLight = Astro.slots.has('light')
+  ? await Astro.slots.render('light')
+  : null;
 ---
 
-<li class="py-8" data-component={id}>
-  <h3 id={id} class="text-h3 text-text">
-    {name}
-  </h3>
-  <p class="mt-2 mb-paragraph max-w-measure text-body text-text">
-    Use it for {use}
-  </p>
-  <p class="max-w-measure text-body text-subtle">{rule}</p>
-  <div class="mt-6" data-example>
-    <slot />
+<li data-component={id}>
+  <h2 id={id} class="text-h3 text-text">
+    {brandPartName(id)}
+  </h2>
+  <div class="mt-2 max-w-measure text-body">
+    {use && <p class="mb-paragraph text-text">Use it for {use}</p>}
+    <p class="text-subtle">{rule}</p>
   </div>
-  {hasStates && (
-    <details class="mt-6">
-      <summary class="post-contents-summary">
-        <span>States</span>
-        <span class="post-contents-marker" aria-hidden="true" />
-      </summary>
-      <div class="mt-6" data-example>
-        <slot name="states" />
+  <div class="brand-stage mt-6">
+    <div class="brand-stage-half mode-dark" data-example>
+      <div class="label text-subtle">Dark</div>
+      <div class="mt-4">
+        <Fragment set:html={live} />
       </div>
-    </details>
-  )}
+    </div>
+    {ownLight === null ? (
+      <div class="brand-stage-half mode-light" inert aria-hidden="true">
+        <div class="label text-subtle">Light</div>
+        <div class="mt-4">
+          <Fragment set:html={inertCopy(live)} />
+        </div>
+      </div>
+    ) : (
+      <div class="brand-stage-half mode-light" data-example>
+        <div class="label text-subtle">Light</div>
+        <div class="mt-4">
+          <Fragment set:html={ownLight} />
+        </div>
+      </div>
+    )}
+  </div>
 </li>

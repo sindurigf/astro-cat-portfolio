@@ -2,6 +2,7 @@ import { expect, test } from './test';
 import {
   FIELDS,
   LIMITS,
+  MESSAGES,
   validateSubmission,
   type FieldName,
 } from '../src/lib/contact-form';
@@ -86,6 +87,28 @@ test(
     }
   },
 );
+
+test('names what is wrong with each refused address', NODE, () => {
+  const cases: [string, keyof typeof MESSAGES][] = [
+    ['ada', 'emailShape'],
+    ['ada@', 'emailShape'],
+    ['ada@example', 'emailShape'],
+    ['@example.com', 'emailShape'],
+    ['a@b.c,d@e.f', 'emailExtra'],
+    ['a@b.c d@e.f', 'emailExtra'],
+    ['a@b.c@d.e', 'emailExtra'],
+    ['a b@c.d', 'emailExtra'],
+    ['Ada <ada@example.com>', 'emailExtra'],
+    ['ada[x]@example.com', 'emailExtra'],
+  ];
+  for (const [email, key] of cases) {
+    const result = validateSubmission(form({ ...VALID, email }));
+    expect(
+      result.ok ? [] : result.errors.map((error) => error.message),
+      email,
+    ).toEqual([MESSAGES[key]]);
+  }
+});
 
 test('reports every failing field at once, each with a message', NODE, () => {
   const result = validateSubmission(form({}));

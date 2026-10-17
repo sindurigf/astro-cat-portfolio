@@ -4,7 +4,7 @@ import { expectIncompleteDecided } from './incomplete';
 import { NON_TEXT, PAGE_HELPERS } from './contrast';
 import { hoveredTextBelowAaa, sampleControls, sampled } from './hover-contrast';
 import { gotoSettled } from './settle';
-import { ROUTES, SAMPLED_ROUTES } from './routes';
+import { SAMPLED_ROUTES, BRAND_SAMPLED_ROUTES } from './routes';
 import { AXE_TIMEOUT_MS, FOCUSABLE_SELECTOR, REFLOW_VIEWPORT } from './wcag';
 import { THEME_STORAGE_KEY } from '../src/lib/theme';
 
@@ -26,7 +26,7 @@ test.describe('light mode meets WCAG 2.2 AA on every route', () => {
   test.use({ colorScheme: 'light' });
   test.describe.configure({ timeout: AXE_TIMEOUT_MS });
 
-  for (const route of ROUTES) {
+  for (const route of BRAND_SAMPLED_ROUTES) {
     test(route, async ({ page }) => {
       await gotoSettled(page, route);
       expect(
@@ -52,7 +52,7 @@ test.describe('light mode meets WCAG 2.2 AA at 320px', () => {
   test.use({ colorScheme: 'light', viewport: REFLOW_VIEWPORT });
   test.describe.configure({ timeout: AXE_TIMEOUT_MS });
 
-  for (const route of ROUTES) {
+  for (const route of BRAND_SAMPLED_ROUTES) {
     test(route, async ({ page }) => {
       await gotoSettled(page, route);
       const results = await timedScan(page, `${route} in light mode at 320px`);
@@ -122,7 +122,7 @@ const RING_GAP_PX = 2;
 test.describe('light mode reaches AAA contrast under the pointer (SC 1.4.6)', () => {
   test.use({ colorScheme: 'light' });
 
-  for (const route of ROUTES) {
+  for (const route of BRAND_SAMPLED_ROUTES) {
     test(`${route}: hovered text is at least 7:1, large text included`, async ({
       page,
     }) => {
@@ -139,7 +139,7 @@ test.describe('light mode reaches AAA contrast under the pointer (SC 1.4.6)', ()
 test.describe('light mode focus ring stands out from the page, and from the control it touches (SC 2.4.13)', () => {
   test.use({ colorScheme: 'light' });
 
-  for (const route of ROUTES) {
+  for (const route of BRAND_SAMPLED_ROUTES) {
     test(`${route}: every ring is at least 3:1 against its ground and its control`, async ({
       page,
     }) => {

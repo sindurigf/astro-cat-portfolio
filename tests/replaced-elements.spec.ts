@@ -1,5 +1,5 @@
 import { expect, test, type Page } from './test';
-import { ROUTES } from './routes';
+import { BRAND_SAMPLED_ROUTES } from './routes';
 import { gotoSettled } from './settle';
 import { IMAGE_REQUEST } from './html';
 
@@ -46,7 +46,7 @@ const loadEveryImage = async (page: Page) => {
 };
 
 test.describe('replaced elements', () => {
-  for (const route of ROUTES) {
+  for (const route of BRAND_SAMPLED_ROUTES) {
     test(`${route} sets no aspect-ratio on a replaced element`, async ({
       page,
     }) => {

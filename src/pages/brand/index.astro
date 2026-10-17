@@ -1,0 +1,97 @@
+---
+import Abbr from '../../components/Abbr.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHero from '../../components/PageHero.astro';
+import BrandFrame from '../../components/brand/BrandFrame.astro';
+import {
+  DEMO_URL,
+  HAS_LINKS,
+  SOURCE_URL,
+  USE_TEMPLATE_URL,
+} from '../../components/brand/links';
+import { SITE_NAME } from '../../lib/site';
+import {
+  BRAND_GROUPS,
+  BRAND_SECTIONS,
+  brandHref,
+} from '../../lib/brand-sections';
+---
+
+<BaseLayout
+  title="Brand"
+  description={`The design system behind ${SITE_NAME}: color, contrast, type, spacing, shadows, controls and motion, drawn from the site's own CSS.`}
+>
+  <PageHero title="Brand">
+    <p class="standfirst">
+      The design system behind this site, drawn from its own{' '}
+      <Abbr short="CSS" long="Cascading Style Sheets" />. It aims for the{' '}
+      <Abbr short="WCAG" long="Web Content Accessibility Guidelines" /> 2.2 at
+      Level <Abbr short="AA" long="the middle of WCAG's three levels" />, and at
+      Level <Abbr short="AAA" long="the highest of WCAG's three levels" /> for
+      text contrast.
+    </p>
+    {HAS_LINKS && (
+      <p class="mt-8 flex flex-wrap gap-6">
+        {USE_TEMPLATE_URL && (
+          <a href={USE_TEMPLATE_URL} class="btn-gold-primary">
+            Use This Design
+          </a>
+        )}
+        {SOURCE_URL && (
+          <a href={SOURCE_URL} class="btn-gold-secondary">
+            View the Source
+          </a>
+        )}
+        {DEMO_URL && (
+          <a href={DEMO_URL} class="btn-gold-secondary">
+            See the Demo
+          </a>
+        )}
+      </p>
+    )}
+  </PageHero>
+  <BrandFrame current={null}>
+    {/* Draft copy. Each row and part keeps its id from the single page, so old links land here. */}
+    <p class="lead">
+      Every section of the design system and the one rule it keeps. Each section
+      shows its parts on the dark ground and the light one.
+    </p>
+    <div class="mt-section space-y-section">
+      {BRAND_GROUPS.map((group) => (
+        <section aria-labelledby={`group-${group.toLowerCase()}`}>
+          <h2 id={`group-${group.toLowerCase()}`} class="text-h2 text-text">
+            {group}
+          </h2>
+          <ul class="mt-head space-y-head">
+            {BRAND_SECTIONS.filter((s) => s.group === group).map((s) => (
+              <li id={s.anchor}>
+                <h3 class="text-h3 text-text">
+                  <a
+                    href={brandHref(s.slug)}
+                    class="link inline-flex min-h-target items-center"
+                  >
+                    {s.title}
+                  </a>
+                </h3>
+                <p class="mt-2 max-w-measure text-body text-subtle">{s.rule}</p>
+                <ul class="mt-3 flex flex-wrap gap-x-6 gap-y-2">
+                  {s.parts.map((part) => (
+                    <li>
+                      <a
+                        id={part.id}
+                        href={`${brandHref(s.slug)}#${part.id}`}
+                        class="link inline-flex min-h-target min-w-target items-center text-body"
+                      >
+                        {part.name}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))}
+    </div>
+  </BrandFrame>
+</BaseLayout>
