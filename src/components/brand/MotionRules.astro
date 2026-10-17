@@ -1,0 +1,14 @@
+---
+import ComponentRow from './ComponentRow.astro';
+import { brandSection } from '../../lib/brand-sections';
+---
+
+<ul class="brand-parts">
+  <ComponentRow id="motion-rules" rule={brandSection('motion').rule}>
+    <ul class="bullet-list text-body text-text">
+      <li>Anything that moves for more than 5 seconds has a pause control.</li>
+      <li>Under reduced motion, nothing moves.</li>
+      <li>Nothing flashes more than three times a second.</li>
+    </ul>
+  </ComponentRow>
+</ul>

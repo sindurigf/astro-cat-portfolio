@@ -273,17 +273,17 @@ npm run check:pdf -- public/talks/<deck>.pdf
 ```
 
 - Prints the built slideshow to `public/talks/<deck>.pdf`, one slide a page,
-  and tags it with `scripts/tag-talk-pdf.py`. Refuses a stale build.
-- `tag-talk-pdf.py` fixes what veraPDF fails in Chromium's tagged print:
+  and tags it with `scripts/tag-pdf.py`. Refuses a stale build.
+- `tag-pdf.py` fixes what veraPDF fails in Chromium's tagged print:
 
-  | PDF/UA-1 rule      | Fix                                                                                                 |
-  | ------------------ | --------------------------------------------------------------------------------------------------- |
-  | 7.1-3              | Untagged paths and text become `/Artifact`; untagged text must equal the page's `aria-hidden` count |
-  | 7.1-5              | Role map `Strong` to `Span`                                                                         |
-  | 7.2-20             | `LI` content beside `Lbl` moves into an `LBody`                                                     |
-  | 7.18.1-2, 7.18.5-2 | Link annotations get `/Contents` from the page's link text                                          |
-  | 7.1-8              | XMP title, language and PDF/UA identifier                                                           |
-  | Not a rule         | Bookmarks are retitled from the page: Chromium drops spaces at line breaks                          |
+  | PDF/UA-1 rule      | Fix                                                                                                         |
+  | ------------------ | ----------------------------------------------------------------------------------------------------------- |
+  | 7.1-3              | Untagged paths, images and text become `/Artifact`; untagged text must equal the page's `aria-hidden` count |
+  | 7.1-5              | Role map `Strong` to `Span`                                                                                 |
+  | 7.2-20             | `LI` content beside `Lbl` moves into an `LBody`                                                             |
+  | 7.18.1-2, 7.18.5-2 | Link annotations get `/Contents` from the page's link text                                                  |
+  | 7.1-8              | XMP title, language and PDF/UA identifier                                                                   |
+  | Not a rule         | Bookmarks are retitled from the page: Chromium drops spaces at line breaks                                  |
 
 - Update the size and page count wherever the PDF is linked;
   `tests/slides.spec.ts` fails until they match.

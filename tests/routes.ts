@@ -2,6 +2,7 @@ import { readdirSync, existsSync, readFileSync } from 'node:fs';
 import { join, relative, sep } from 'node:path';
 import { BLOG_CONTENT_DIR } from '../src/lib/paths';
 import { DECK_FILE } from '../src/lib/slides';
+import { BRAND_ROUTES } from '../src/lib/brand-sections';
 
 const FRONTMATTER = /^---\r?\n([\s\S]*?)\r?\n---/;
 
@@ -68,7 +69,7 @@ export const postFrontmatter = (
 };
 
 /**
- * Pages, hardcoded: Playwright collects tests before `webServer` builds, so reading
+ * Pages from source, not dist/: Playwright collects tests before `webServer` builds, so reading
  * `dist/` at module scope silently generates wrong tests. a11y.spec.ts "route coverage" catches drift.
  */
 const PAGE_ROUTES = [
@@ -85,7 +86,8 @@ const PAGE_ROUTES = [
   '/privacy',
   '/credits',
   '/brand',
-] as const;
+  ...BRAND_ROUTES,
+];
 
 interface PostSummary {
   route: string;
@@ -270,8 +272,24 @@ export const listingPosts = (): Map<string, string[]> => {
   return listings;
 };
 
-// One category and tag listing per group showing the same posts (longest name
-// kept), for walks that do not depend on label length. axe and reflow walk every route.
+/*
+ * /brand sections whose content differs most from the rest: wide tables
+ * (contrast), form fields (forms) and display headings with roundels (heroes).
+ * The others share their frame and parts; brand.spec.ts and the build checks walk all.
+ */
+export const BRAND_SAMPLE: readonly string[] = [
+  '/brand/contrast',
+  '/brand/forms',
+  '/brand/heroes',
+];
+
+/** Every route, with the /brand overview and BRAND_SAMPLE standing in for all its sections. */
+export const BRAND_SAMPLED_ROUTES: readonly string[] = ROUTES.filter(
+  (route) => !BRAND_ROUTES.includes(route) || BRAND_SAMPLE.includes(route),
+);
+
+// BRAND_SAMPLED_ROUTES with one category and tag listing per group showing the same
+// posts (longest name kept), for walks that do not depend on label length.
 export const SAMPLED_ROUTES: readonly string[] = (() => {
   const keep = new Map<string, string>();
   for (const [route, posts] of listingPosts()) {
@@ -281,7 +299,9 @@ export const SAMPLED_ROUTES: readonly string[] = (() => {
   }
   const listings = new Set<string>([...CATEGORY_ROUTES, ...TAG_ROUTES]);
   const kept = new Set(keep.values());
-  return ROUTES.filter((route) => !listings.has(route) || kept.has(route));
+  return BRAND_SAMPLED_ROUTES.filter(
+    (route) => !listings.has(route) || kept.has(route),
+  );
 })();
 
 /**

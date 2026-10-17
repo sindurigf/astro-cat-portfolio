@@ -1,0 +1,147 @@
+---
+/*
+ * The one picture a section's poster shows. Drawn on both grounds and hidden
+ * from assistive technology (BrandPoster.astro), so it holds no ids, landmarks,
+ * form names or paragraphs: the live examples are the parts below the poster.
+ */
+import { colors } from '../../lib/brand';
+import { GLYPH, SWATCH, SWATCH_BOX as SQUARE } from './swatches';
+
+interface Props {
+  /* A slug from src/lib/brand-sections.ts. */
+  section: string;
+}
+
+const { section } = Astro.props;
+---
+
+{section === 'grounds' && (
+  <div class="surface-gold edge border-border p-card-tight sm:p-card">
+    <div class="text-standfirst">Text on the gold slab.</div>
+    <div class="mt-6">
+      <span class="btn-gold-primary">Gold Primary</span>
+    </div>
+  </div>
+)}
+{section === 'color' && (
+  <ul class="flex flex-wrap gap-4">
+    {colors.map(({ token }) => {
+      const swatch = SWATCH[token];
+      return (
+        <li class="text-center">
+          {swatch === null ? (
+            <span
+              class:list={[SQUARE, 'border-4 border-dashed border-border']}
+            />
+          ) : GLYPH.test(swatch) ? (
+            <span class:list={[SQUARE, 'text-display font-black', swatch]}>
+              Aa
+            </span>
+          ) : (
+            <span class:list={[SQUARE, swatch]} />
+          )}
+          <code class="mt-2 block text-body text-subtle">{token}</code>
+        </li>
+      );
+    })}
+  </ul>
+)}
+{section === 'contrast' && (
+  <div>
+    <div class="text-h1 font-black tracking-heading text-text">7:1</div>
+    <div class="text-standfirst text-subtle">
+      or more for every reading pair
+    </div>
+  </div>
+)}
+{section === 'type' && (
+  <div>
+    <div class="text-h1 font-black tracking-heading text-text">Aa Lexend</div>
+    <div class="text-standfirst text-text">
+      400 for reading, 900 for headings.
+    </div>
+  </div>
+)}
+{section === 'spacing' && (
+  <div class="space-y-4">
+    <span class="block h-8 w-section bg-text" />
+    <span class="block h-8 w-head bg-text" />
+    <span class="block h-8 w-grid bg-text" />
+  </div>
+)}
+{section === 'borders-and-shadows' && (
+  <span class="block size-24 edge border-border bg-surface shadow-hard-pink-object" />
+)}
+{section === 'buttons-and-links' && (
+  <div class="flex flex-wrap gap-6">
+    <span class="btn-primary">Primary Action</span>
+    <span class="btn-secondary">Secondary Action</span>
+  </div>
+)}
+{section === 'chips-and-labels' && (
+  <div class="flex flex-wrap items-center gap-6">
+    <span class="chip">Brand</span>
+    <span class="chip">Credits</span>
+    <span class="badge">Current</span>
+  </div>
+)}
+{section === 'controls' && (
+  <div>
+    <span class="btn-secondary focus-sample">Focused Control</span>
+  </div>
+)}
+{section === 'heroes' && (
+  <div class="surface-gold edge border-border p-card-tight sm:p-card">
+    <div class="text-h2 font-black uppercase tracking-heading">Page Title</div>
+  </div>
+)}
+{section === 'navigation' && (
+  <div class="label text-subtle">
+    <span class="underline">Home</span> <span>/</span>{' '}
+    <span class="underline">Brand</span>
+  </div>
+)}
+{section === 'cards' && (
+  <div class="card">
+    <div class="card-title">Card Title</div>
+    <div class="mt-4 text-body text-text">
+      One edge, one shadow, the surface fill.
+    </div>
+  </div>
+)}
+{section === 'forms' && (
+  <div class="card">
+    <div class="label text-text">
+      Name <span class="font-normal normal-case text-subtle">(required)</span>
+    </div>
+    <span class="mt-4 block h-12 edge border-border bg-surface" />
+  </div>
+)}
+{section === 'photos' && (
+  <div class="text-body text-subtle">
+    Every photo sits in a 4px frame and opens full size.
+  </div>
+)}
+{section === 'text' && (
+  <div class="border-l-4 border-border pl-6 text-standfirst text-text">
+    A quote takes a thick edge on its start side.
+  </div>
+)}
+{section === 'motion' && (
+  <div>
+    <div class="text-h1 font-black tracking-heading text-text">5s</div>
+    <div class="text-standfirst text-subtle">then a pause control</div>
+  </div>
+)}
+{section === 'accessibility' && (
+  <div>
+    <div class="text-h1 font-black tracking-heading text-text">AA, AAA</div>
+    <div class="text-standfirst text-subtle">structure, and text contrast</div>
+  </div>
+)}
+{section === 'template' && (
+  <div class="flex flex-wrap gap-6">
+    <span class="btn-primary">Use This Design</span>
+    <span class="btn-secondary">View the Template</span>
+  </div>
+)}

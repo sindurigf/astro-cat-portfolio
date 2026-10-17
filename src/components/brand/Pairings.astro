@@ -1,0 +1,42 @@
+---
+import ComponentRow from './ComponentRow.astro';
+import ContrastTable from '../ContrastTable.astro';
+import { contrast, lightContrast } from '../../lib/brand';
+import { brandSection } from '../../lib/brand-sections';
+
+/* The pairings every page is read in, shown before the full list. */
+const READING = {
+  fg: ['text', 'subtle'],
+  bg: ['background', 'surface'],
+  needs: '4.5',
+};
+const readingPairs = contrast.filter(
+  (row) =>
+    READING.fg.includes(row.fg) &&
+    READING.bg.includes(row.bg) &&
+    row.needs === READING.needs,
+);
+---
+
+<ul class="brand-parts">
+  <ComponentRow id="pairings" rule={brandSection('contrast').rule}>
+    <div>
+      <ContrastTable rows={readingPairs} caption="Reading Pairs" />
+      <details class="mt-head">
+        <summary class="post-contents-summary">
+          <span>Show All {contrast.length} Pairings</span>
+          <span class="post-contents-marker" aria-hidden="true" />
+        </summary>
+        <div class="mt-6">
+          <ContrastTable rows={contrast} caption="All Pairings" />
+        </div>
+      </details>
+    </div>
+    <div slot="light">
+      <ContrastTable rows={lightContrast} caption="Light Mode Pairings" />
+      <p class="mt-6 text-body text-text">
+        Gold text turns to ink on white, with a gold square before the word.
+      </p>
+    </div>
+  </ComponentRow>
+</ul>

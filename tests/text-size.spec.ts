@@ -1,6 +1,6 @@
 import { test, expect, type Page } from './test';
 import { gotoSettled, sweepTimeout } from './settle';
-import { ROUTES } from './routes';
+import { BRAND_SAMPLED_ROUTES } from './routes';
 
 /*
  * Walks rendered text, not tokens: a new component can ship a size no table
@@ -82,13 +82,13 @@ test.describe('text on a phone', () => {
     test(`nothing is drawn under ${MINIMUM_PX}px at ${width}px`, async ({
       page,
     }) => {
-      test.setTimeout(sweepTimeout(ROUTES.length));
+      test.setTimeout(sweepTimeout(BRAND_SAMPLED_ROUTES.length));
       await page.setViewportSize({ width, height: 844 });
 
       const small: SmallString[] = [];
       let total = 0;
 
-      for (const route of ROUTES) {
+      for (const route of BRAND_SAMPLED_ROUTES) {
         await gotoSettled(page, route);
         const result = await measure(page);
         total += result.total;

@@ -296,7 +296,7 @@ presenter view and a PDF. Authoring rules:
   the Cloudflare dev runtime). `tests/talk.spec.ts` checks no note is in the
   build.
 - **PDF.** `scripts/publish-talk.mjs` prints one slide per 1280x720 page,
-  then `scripts/tag-talk-pdf.py` fixes tags for PDF/UA-1. It prints with static
+  then `scripts/tag-pdf.py` fixes tags for PDF/UA-1. It prints with static
   Lexend 400/900 from `@fontsource/lexend` (dev only): the variable font
   becomes Type 3 and stalls veraPDF past CI's timeout. The PDF stores a
   SHA-256 of the deck; `tests/talk-pdf.spec.ts` fails on drift.

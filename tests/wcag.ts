@@ -9,9 +9,24 @@ export const MIN_TARGET = 44;
 /** A measured box may read a hair under its CSS size: Firefox reports a 44px box as 43.99998. */
 export const SUBPIXEL_TOLERANCE = 0.01;
 
-/** Controls walked by focus.spec.ts (SC 2.4.7, 2.4.11) and sized by target-size.spec.ts (SC 2.5.5). */
-export const FOCUSABLE_SELECTOR =
-  'a[href], button, input, select, textarea, summary, video[controls], audio[controls], [role="button"], [tabindex]:not([tabindex="-1"])';
+/**
+ * Controls walked by focus.spec.ts (SC 2.4.7, 2.4.11) and sized by target-size.spec.ts (SC 2.5.5).
+ * Not inside `inert`, which takes them out of focus and the pointer, as on /brand's light halves.
+ */
+export const FOCUSABLE_SELECTOR = [
+  'a[href]',
+  'button',
+  'input',
+  'select',
+  'textarea',
+  'summary',
+  'video[controls]',
+  'audio[controls]',
+  '[role="button"]',
+  '[tabindex]:not([tabindex="-1"])',
+]
+  .map((control) => `${control}:not([inert] *)`)
+  .join(', ');
 
 /**
  * Every A and AA tag up to WCAG 2.2, for axe. No rule is disabled and no

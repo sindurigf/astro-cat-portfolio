@@ -1,0 +1,45 @@
+---
+import Abbr from '../Abbr.astro';
+import ComponentRow from './ComponentRow.astro';
+import { brandSection } from '../../lib/brand-sections';
+import { DEMO_URL, HAS_LINKS, SOURCE_URL, USE_TEMPLATE_URL } from './links';
+---
+
+<ul class="brand-parts">
+  <ComponentRow id="use-the-template" rule={brandSection('template').rule}>
+    <p class="text-body text-text">
+      This template carries this design system, its tests and its contact form.
+    </p>
+    <ul class="bullet-list mt-6 text-body text-text">
+      <li>Source code and docs: MIT</li>
+      <li>
+        Photographs: <Abbr short="CC BY" long="Creative Commons Attribution" />{' '}
+        4.0, credited in its LICENSE-photos
+      </li>
+      <li>
+        Brand icons: Simple Icons,{' '}
+        <Abbr short="CC0" long="Creative Commons Zero" /> 1.0
+      </li>
+      <li>Lexend: SIL Open Font License 1.1</li>
+    </ul>
+    {HAS_LINKS && (
+      <p class="mt-head flex flex-wrap gap-6">
+        {USE_TEMPLATE_URL && (
+          <a href={USE_TEMPLATE_URL} class="btn-primary">
+            Use This Design
+          </a>
+        )}
+        {SOURCE_URL && (
+          <a href={SOURCE_URL} class="btn-secondary">
+            View the Source
+          </a>
+        )}
+        {DEMO_URL && (
+          <a href={DEMO_URL} class="btn-secondary">
+            See the Demo
+          </a>
+        )}
+      </p>
+    )}
+  </ComponentRow>
+</ul>
