@@ -11,8 +11,12 @@ const ROUTE = '/';
 const PLAIN_CARD =
   'main .card:not(.card-solid):not(.surface-gold):not(.surface-gold *)';
 const PAGE_CONTROL = 'main a.btn-secondary';
-/* Gold bricks on the header bar: edged in the bar's line color, so the edge reads on the bar. */
-const GOLD_FILLS = ['header .nav-cta', 'header .theme-switch'];
+/* Gold controls, edged in the line color of what they sit on: the header bar, or the menu's page ground (read while closed). */
+const GOLD_FILLS = [
+  'header .header-bricks .nav-cta',
+  'header .theme-switch',
+  '.mobile-menu-dialog .nav-cta',
+];
 /* A footer tile has no drawn edge: its fill meets the ground and its throw. */
 const FOOTER_TILE = 'footer .footer-sticker';
 
@@ -44,7 +48,8 @@ const readEdges = (page: Page): Promise<Edges> =>
     for (const selector of ${JSON.stringify(GOLD_FILLS)}) {
       const element = document.querySelector(selector);
       const style = element && getComputedStyle(element);
-      const ground = element && effectiveBackground(element.parentElement);
+      const dialog = element && element.closest('dialog');
+      const ground = dialog ? parse(getComputedStyle(dialog).backgroundColor) : element && effectiveBackground(element.parentElement);
       const rim = style && parse(style.borderTopColor);
       fillEdgeRatios[selector] = ground && rim ? ratio(rim, ground) : null;
     }
