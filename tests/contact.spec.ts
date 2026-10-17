@@ -212,7 +212,8 @@ const expectSiteHeaders = (response: APIResponse, what: string): void => {
 };
 
 /*
- * Browser headers `request.post` omits. `Origin`: Astro's CSRF check 403s without it.
+ * Browser headers `request.post` omits. `Origin` and `Sec-Fetch-Site`: Astro's CSRF check
+ * reads Fetch Metadata first and the Origin header when it is absent.
  * `Sec-Fetch-Mode: navigate`: Cloudflare answers navigations from the asset layer
  * (405) unless `run_worker_first` is set. `CF-Connecting-IP`: one rate limit per request.
  */
@@ -293,9 +294,9 @@ test.describe('the contact endpoint', () => {
   });
 
   /* Astro's checkOrigin answers before send.astro runs; nothing is stored or mailed. */
-  for (const [label, origin] of [
-    ['another origin', 'https://attacker.example'],
-    ['no origin', undefined],
+  for (const [label, origin, site] of [
+    ['another origin', 'https://attacker.example', 'cross-site'],
+    ['a cross-site request with no origin', undefined, 'cross-site'],
   ] as const) {
     test(`a form post from ${label} is refused and stores nothing`, async ({
       request,
@@ -306,9 +307,11 @@ test.describe('the contact endpoint', () => {
       const response = await request.post(ENDPOINT, {
         form: { ...validFields(), message: marker },
         maxRedirects: 0,
-        headers: origin
-          ? { ...headers, origin, 'sec-fetch-site': 'cross-site' }
-          : headers,
+        headers: {
+          ...headers,
+          ...(origin && { origin }),
+          'sec-fetch-site': site,
+        },
       });
       expect(response.status()).toBe(403);
       expect(response.headers()['location']).toBeUndefined();
@@ -319,6 +322,20 @@ test.describe('the contact endpoint', () => {
       ).not.toContain('"id"');
     });
   }
+
+  test('a same-origin form post with no Origin header is accepted', async ({
+    request,
+    baseURL,
+  }) => {
+    const { origin: _same, ...headers } = sameOrigin(baseURL!);
+    const response = await request.post(ENDPOINT, {
+      form: validFields(),
+      maxRedirects: 0,
+      headers,
+    });
+    expect(response.status()).toBe(303);
+    expect(response.headers()['location']).toContain(SENT);
+  });
 
   test('a valid submission redirects to the confirmation', async ({
     request,
