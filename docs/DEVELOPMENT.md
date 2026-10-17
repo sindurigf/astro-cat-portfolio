@@ -131,9 +131,10 @@ WEBKIT_CPUS=8 npm run test:webkit
   not invalidate when a plugin in `src/plugins/` changes. The resulting
   `[WARN] [content] data store cleared (force)` is expected.
 - `prebuild` (`scripts/seed-image-cache.mjs`) copies images from other
-  worktrees on the same sharp and libvips into an empty
+  worktrees with the same `package-lock.json`, sharp and libvips into an empty
   `node_modules/.astro/assets` before `build`, so a new worktree does not
-  regenerate them all.
+  regenerate them all. It skips an entry whose bytes are not its extension's
+  format.
 - Helpers, not run directly: `scripts/build-fingerprint.mjs` stamps `dist/`,
   and checks that read `dist/` refuse a stale build; `scripts/mime-types.mjs`
   holds content types for the test servers; `scripts/pdf-pages.mjs` counts PDF
