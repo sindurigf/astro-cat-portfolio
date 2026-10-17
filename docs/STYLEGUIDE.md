@@ -1107,8 +1107,9 @@ Enforced by `tests/nav-current.spec.ts`, `tests/mobile-menu.spec.ts`,
   the menu.
 - The logo hangs in a gold block (`.header-logo-block`) from the bar's left
   end, `--spacing-logo-hang` (28px) below it, with the `fill-edge` every gold
-  fill takes and a throw in the page's `text`. `<main>` pads the same 28px, so
-  nothing starts under it.
+  fill takes and a throw in the page's `text`. `<main>` adds `--spacing-main-top`, so
+  every opening clears its throw by 8px; fold-sized heroes and slides subtract
+  it.
 - Nav links, the theme switch and the call to action are joined bricks
   (`.header-bricks`): 44px tall, the target (SC 2.5.5), sharing their 4px
   edges, one `shadow-brick` per row. Each row sits half its throw high, so
