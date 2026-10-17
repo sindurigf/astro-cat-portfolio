@@ -27,7 +27,7 @@ import { DESKTOP_VIEWPORT, REFLOW_VIEWPORT } from './wcag';
 const FRAME_ROUTES = [
   '/',
   '/about',
-  '/brand',
+  '/brand/photos',
   ...(BLOG_FEATURES_COVER ? ['/blog'] : []),
   ...new Set([
     ...PHOTO_POST_ROUTES,

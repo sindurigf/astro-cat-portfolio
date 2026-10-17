@@ -2,6 +2,7 @@
 import Breadcrumbs from '../Breadcrumbs.astro';
 import CloseRow from '../CloseRow.astro';
 import ComponentRow from './ComponentRow.astro';
+import { BRAND_PATH, brandHref } from '../../lib/brand-sections';
 
 const PAGER_PAGES = [1, 2] as const;
 const CONTENTS = [
@@ -10,10 +11,9 @@ const CONTENTS = [
 ];
 ---
 
-<ul class="divide-y-4 divide-border">
+<ul class="brand-parts">
   <ComponentRow
     id="breadcrumb"
-    name="Breadcrumb"
     use="where a page sits under its section, above its title."
     rule="Label type in subtle, slashes hidden from screen readers; on gold it turns gold-muted."
   >
@@ -21,14 +21,13 @@ const CONTENTS = [
       label="Example Breadcrumb"
       crumbs={[
         { href: '/', label: 'Home' },
-        { href: '/brand/', label: 'Brand' },
+        { href: BRAND_PATH, label: 'Brand' },
       ]}
     />
   </ComponentRow>
 
   <ComponentRow
     id="pager"
-    name="Pager"
     use="moving between pages of a long list."
     rule="Numbered chips only; the current page is a link with a marker, read as Page 1."
   >
@@ -38,7 +37,7 @@ const CONTENTS = [
         {PAGER_PAGES.map((page) => (
           <li>
             <a
-              href={page === 1 ? '/brand/' : '#pager'}
+              href={page === 1 ? brandHref('navigation') : '#pager'}
               aria-current={page === 1 ? 'page' : undefined}
               class="chip"
             >
@@ -56,7 +55,6 @@ const CONTENTS = [
 
   <ComponentRow
     id="contents-list"
-    name="On This Page"
     use="the sections of a long post."
     rule="A native details element: closed on narrow screens, open beside the text from wide ones."
   >
@@ -84,7 +82,6 @@ const CONTENTS = [
 
   <ComponentRow
     id="close-row"
-    name="Close Row"
     use="the last block of a page: what to read next and one action."
     rule="A gold card with a sticker, a link to read on and one gold primary button."
   >
@@ -101,7 +98,6 @@ const CONTENTS = [
 
   <ComponentRow
     id="footer-links"
-    name="Footer Link Group"
     use="the site's pages and policies, in the footer."
     rule="Label type; pages in text, policies in subtle; cyan under the pointer."
   >

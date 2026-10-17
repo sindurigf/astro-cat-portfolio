@@ -1,0 +1,31 @@
+---
+/*
+ * Text naming the WCAG standard, each abbreviation expanded at its first use
+ * (SC 3.1.4). For a /brand page's first mention only: Abbr's ids are per page.
+ */
+import Abbr from '../Abbr.astro';
+
+interface Props {
+  text: string;
+}
+
+const EXPANSIONS: Record<string, string> = {
+  WCAG: 'Web Content Accessibility Guidelines',
+  AA: "the middle of WCAG's three levels",
+  AAA: "the highest of WCAG's three levels",
+};
+
+const { text } = Astro.props;
+const seen = new Set<string>();
+type Part = { text: string } | { short: string; long: string };
+const parts = text.split(/\b(WCAG|AAA|AA)\b/).map((part): Part => {
+  const long = EXPANSIONS[part];
+  if (!long || seen.has(part)) return { text: part };
+  seen.add(part);
+  return { short: part, long };
+});
+---
+
+{parts.map((part) =>
+  'short' in part ? <Abbr short={part.short} long={part.long} /> : part.text,
+)}

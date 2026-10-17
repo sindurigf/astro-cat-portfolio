@@ -1,6 +1,6 @@
 import { expect, test } from './test';
 import { gotoSettled } from './settle';
-import { ROUTES } from './routes';
+import { BRAND_SAMPLED_ROUTES } from './routes';
 
 /*
  * SC 1.4.8 on blocks of text, "more than one sentence" in the Understanding
@@ -55,7 +55,7 @@ for (const width of WIDTHS) {
   test.describe(`blocks of text at ${width}px (SC 1.4.8)`, () => {
     test.use({ viewport: { width, height: VIEWPORT_HEIGHT } });
 
-    for (const route of ROUTES) {
+    for (const route of BRAND_SAMPLED_ROUTES) {
       test(`${route} keeps lines short, leading open and paragraphs apart`, async ({
         page,
       }) => {

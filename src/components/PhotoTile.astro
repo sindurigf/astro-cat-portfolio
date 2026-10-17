@@ -16,11 +16,11 @@ interface Props {
   size?: 'fluid' | 'natural';
   /** `fluid` only. */
   sizes?: string;
-  /** `natural` only: one inset at every width, for a strip outside About's layout. */
-  stripInset?: string;
+  /** `natural` only: the tile's `sizes` from its natural width, for a strip outside About's layout. */
+  stripSizes?: (naturalWidth: number) => string;
 }
 
-const { image, alt, group, size = 'fluid', sizes, stripInset } = Astro.props;
+const { image, alt, group, size = 'fluid', sizes, stripSizes } = Astro.props;
 
 /*
  * Size via getImage, not `image.width`: reading the imported Proxy marks the
@@ -48,8 +48,8 @@ const STRIP_INSET_SM = '10rem';
 const naturalWidth = Math.round(
   NATURAL_HEIGHT * (master.width / master.height),
 );
-const naturalSizes = stripInset
-  ? `min(${naturalWidth}px, calc(100vw - ${stripInset}))`
+const naturalSizes = stripSizes
+  ? stripSizes(naturalWidth)
   : `(min-width: 40rem) min(${naturalWidth}px, calc(100vw - ${STRIP_INSET_SM})), min(${naturalWidth}px, calc(100vw - ${STRIP_INSET}))`;
 
 const naturalWidths = [

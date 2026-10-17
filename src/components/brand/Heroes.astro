@@ -2,15 +2,14 @@
 import PageHero from '../PageHero.astro';
 import Roundel from '../Roundel.astro';
 import ComponentRow from './ComponentRow.astro';
-
+/* Each hero at its real size; from `sm` the band's gutter is put back around it, under it the stage's padding stands in. */
 /* Each hero at its real size; the band's gutter is put back around it. */
-const FRAME = 'hero-example px-4 sm:px-6';
+const FRAME = 'hero-example sm:px-6';
 ---
 
-<ul class="divide-y-4 divide-border">
+<ul class="brand-parts">
   <ComponentRow
     id="hero-full"
-    name="Page Hero"
     use="the top of a page: its title and one line on what it holds."
     rule="One per page, the page's only h1. Full gold slab for a main page; the round logo mark sits on its bottom edge."
   >
@@ -49,7 +48,6 @@ const FRAME = 'hero-example px-4 sm:px-6';
 
   <ComponentRow
     id="roundel"
-    name="Roundel"
     use="the logo mark on a slab edge or a closing block."
     rule="Gold disc, dark mark, mark shadow, tilted; never on its own as a link."
   >

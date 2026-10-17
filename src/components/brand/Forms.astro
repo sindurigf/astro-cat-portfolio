@@ -4,10 +4,9 @@ import ComponentRow from './ComponentRow.astro';
 const META = 'text-body text-subtle';
 ---
 
-<ul class="divide-y-4 divide-border">
+<ul class="brand-parts">
   <ComponentRow
     id="form"
-    name="Form"
     use="collecting a short message, as on Contact."
     rule="Each field has a visible label and says when it is required. The submit button is never disabled."
   >
@@ -61,9 +60,9 @@ const META = 'text-body text-subtle';
             to each field.
           </p>
           <div class="error-summary" tabindex="-1">
-            <h4 class="text-h3 text-text">
+            <h3 class="text-h3 text-text">
               There Is One Problem with This Form
-            </h4>
+            </h3>
             <ul class="mt-4 list-disc pl-6">
               <li class="mt-2 text-body">
                 <a

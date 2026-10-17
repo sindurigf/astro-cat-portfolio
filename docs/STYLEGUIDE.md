@@ -36,7 +36,7 @@ blur, uppercase headings, tilted marks.
 | #   | Where gold is spent                                                                                             | Measured on                            |
 | --- | --------------------------------------------------------------------------------------------------------------- | -------------------------------------- |
 | 1a  | Ground, full slab: `/about`, `/career`, `/contact`, `/blog`, `/credits`, `/brand`                               | 6 routes                               |
-| 1b  | Ground, thin slab: `/contact/sent`, every post                                                                  | 6 routes                               |
+| 1b  | Ground, thin slab: `/contact/sent`, every post, the 18 `/brand/<section>/` pages                                | 24 routes                              |
 | 1c  | Ground, mid-page: a `Section surface="gold"`, the About quote, `/contact`'s closing band                        | `/career`, `/about`, `/`, `/contact`   |
 | 2   | The primary action: `.nav-cta`, `.btn-primary`                                                                  | 11 routes, 4 routes                    |
 | 3   | the logo marks: the roundel, the homepage sticker; the logo cat is Hela's coat, not gold                        | 9 routes, `/`                          |
@@ -45,7 +45,7 @@ blur, uppercase headings, tilted marks.
 | 5   | Category: the blog label and the homepage glyph tiles, ink-edged on gold                                        | 3 routes                               |
 | 6   | Display words: the homepage family name                                                                         | `/`                                    |
 | 7   | List markers in `.bullet-list`                                                                                  | wherever a bulleted list is            |
-| 8   | The `gold` swatch and the dark-mode contrast samples on gold on `/brand`; fills, hex in both modes              | `/brand`                               |
+| 8   | The `gold` swatch and the contrast samples on gold; fills, hex in both modes                                    | `/brand/color/`, `/brand/contrast/`    |
 | 9   | Edges in dark mode: `border` on fields, controls, chips, rules and the outer edge of a gold area                | every route                            |
 
 - 9 is the edge because the only two colors are ink and gold: an ink edge
@@ -585,15 +585,16 @@ The grid rule in `scripts/check-tokens.mjs` enforces the grid;
 
 ### Section types
 
-| Type    | Build                                                                                                                      |
-| ------- | -------------------------------------------------------------------------------------------------------------------------- |
-| Hero    | First section on every page except a post; a `.gold-column`. See [Hero](#hero).                                            |
-| Open    | `Section`: `text-h2` heading, optional `.lead` 24px under it, content at `--spacing-head`, `max-w-page` in `.page-gutter`. |
-| Panel   | `Section panel`: the same box, the whole section in one `.card`, its h2 `text-h2` inside the card.                         |
-| Listing | Grid of cards, 1 to 3 columns, `--spacing-grid` gaps: blog index, categories, tags, Home's two grids.                      |
-| Reading | One `.prose` column, `max-w-measure` (36rem): Privacy, Accessibility, a post's body.                                       |
-| Surface | The gold band (Home, Career, Contact), a `.gold-column`. With the hero slab, the only change of ground.                    |
-| Close   | `CloseRow`, its own band, always last, never nested.                                                                       |
+| Type    | Build                                                                                                                           |
+| ------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| Hero    | First section on every page except a post; a `.gold-column`. See [Hero](#hero).                                                 |
+| Open    | `Section`: `text-h2` heading, optional `.lead` 24px under it, content at `--spacing-head`, `max-w-page` in `.page-gutter`.      |
+| Panel   | `Section panel`: the same box, the whole section in one `.card`, its h2 `text-h2` inside the card.                              |
+| Listing | Grid of cards, 1 to 3 columns, `--spacing-grid` gaps: blog index, categories, tags, Home's two grids.                           |
+| Reading | One `.prose` column, `max-w-measure` (36rem): Privacy, Accessibility, a post's body.                                            |
+| Surface | The gold band (Home, Career, Contact), a `.gold-column`. With the hero slab, the only change of ground.                         |
+| Close   | `CloseRow`, its own band, always last, never nested.                                                                            |
+| Brand   | `BrandFrame`: the side menu (`BrandMenu`, `--container-rail` wide from `lg`, a closed details box under it) beside the content. |
 
 ### One treatment per type
 
@@ -642,7 +643,7 @@ The grid rule in `scripts/check-tokens.mjs` enforces the grid;
 
 - First: the hero, owning the page's h1. A post opens on its article header.
 - Last: `CloseRow` on pages that end on links (`/`, `/about`, `/career`,
-  `/blog`, `/credits`, `/contact/sent`); otherwise the last section's bottom
+  `/blog`, `/credits`, `/contact/sent`, `/brand` and its sections); otherwise the last section's bottom
   padding. The footer follows with no separator.
 
 ### Grid
@@ -681,11 +682,21 @@ The grid rule in `scripts/check-tokens.mjs` enforces the grid;
 | Blog category, tag     | Hero, Listing                                                  |
 | Post                   | Article header, Reading (contents box from 1280px), Tags nav   |
 | 404                    | Hero (starfield) only                                          |
+| Brand                  | Hero, Brand (each section's rule and parts), Close             |
+| Brand section          | Hero (thin), Brand (lead, poster, parts), Close                |
 
 - About's last Open, Sources, is there only while the sample persona is set.
 - Contact ends on its gold surface, not a closing row: the band is its call to
   action.
 - The blog listing has no section heading: each card's title is its h2.
+- A Brand section is one page per section in `src/lib/brand-sections.ts`.
+  The poster shows the section's rule and picture; each part is an h2 name,
+  what it is for, its rule, and a stage: the example live on the dark ground
+  beside an inert, `aria-hidden` copy on the light one (`mirror.ts`), so
+  nothing is reached or named twice. A part whose facts differ by mode, such
+  as contrast, fills both halves live.
+- The overview keeps every section's and part's id from the single page
+  `/brand` was, so an old `/brand/#id` link lands on its row.
 
 ## Hero
 
@@ -703,7 +714,7 @@ how important the page is.
 | Tier  | `slab`   | Routes                                                                                            | Ground   | Title                                                       | Aside              | Padding              |
 | ----- | -------- | ------------------------------------------------------------------------------------------------- | -------- | ----------------------------------------------------------- | ------------------ | -------------------- |
 | Full  | `"full"` | `/about`, `/career`, `/contact`, `/blog`, `/credits`, `/brand`; `/contact/send`, `/blog/page/<n>` | gold     | `text-h1`; `text-h2` on the last two                        | `.standfirst`      | `py-section`         |
-| Thin  | `"thin"` | `/contact/sent`, and a post's own `.post-slab`                                                    | gold     | `text-post-title`                                           | `text-post-teaser` | `pt-head pb-section` |
+| Thin  | `"thin"` | `/contact/sent`, `/brand/<section>/`, and a post's own `.post-slab`                               | gold     | `text-post-title`                                           | `text-post-teaser` | `pt-head pb-section` |
 | Plain | `"none"` | `/privacy`, `/accessibility`, category and tag listings, `/404`                                   | the page | `text-reading-h1`; `text-h2` on categories, tags and `/404` | `text-post-teaser` | `pt-head pb-section` |
 
 - **Full:** the opening is a statement and the other half of the composition
@@ -730,7 +741,7 @@ how important the page is.
 | Standard | About, Career, Contact, Blog, Credits, Brand                         | `text-h1`                        | `max-w-page`; 6 of 12 with a photo |
 | Reading  | Privacy, Accessibility (`measure="reading"`)                         | `text-reading-h1`                | `max-w-measure`, the prose column  |
 | Compact  | category and tag listings, `/contact/send`, `/blog/page/<n>`, `/404` | `text-h2`, still the page's `h1` | `max-w-page`                       |
-| Thin     | `/contact/sent`                                                      | `text-post-title`                | `max-w-page`                       |
+| Thin     | `/contact/sent`, the `/brand/<section>/` pages                       | `text-post-title`                | `max-w-page`                       |
 
 A post opens on its article header, not PageHero, but its slab is the thin
 tier and takes its padding.
