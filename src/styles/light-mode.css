@@ -1,5 +1,5 @@
 /*
- * Light mode: `data-theme="light"` on <html>. Only <main> changes; ink is
+ * Light mode: `data-theme="light"` on <html>. <main> and the header change; ink is
  * #131313, gold stays a fill. On white: text 18.58, subtle 9.53, pink-text
  * 7.06, cyan 7.28 (tests/light-mode.spec.ts). Utilities layer beats `.text-gold`.
  */
@@ -24,7 +24,7 @@
     --dark-hero-floor: var(--color-hero-floor);
   }
 
-  :root[data-theme='light'] main,
+  :root[data-theme='light'] :is(main, header),
   main .mode-light {
     --color-background: var(--color-light-ground);
     --color-surface: var(--color-light-ground);
@@ -116,11 +116,6 @@
     @apply mr-2 inline-block size-2.5 bg-gold;
   }
 
-  /* The header's edge in its own text color, not blue. */
-  :root[data-theme='light'] body > header {
-    border-bottom-color: var(--color-text);
-  }
-
   /* The homepage's second sticker and `.sticker` are black blocks in light mode. */
   :is(:root[data-theme='light'] main, main .mode-light)
     .hero-sticker:not(.bg-gold):not(.mode-dark *),
@@ -130,7 +125,7 @@
   }
 
   /* A gold fill on white takes an ink edge, as buttons and tiles do. */
-  :is(:root[data-theme='light'] main, main .mode-light)
+  :is(:root[data-theme='light'] :is(main, header), main .mode-light)
     .theme-switch:not(.mode-dark *) {
     @apply border-4 border-text;
   }

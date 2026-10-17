@@ -21,15 +21,12 @@ const [wordmarkHead, wordmarkTail] =
 const currentPath = Astro.url.pathname;
 
 const current = (href: string) => ariaCurrent(currentPath, href);
-
-const LINK_ACTIVE = 'border-border bg-text text-background';
-const LINK_REST = 'border-transparent text-text hover:text-cyan';
 ---
 
 {/* Gutter on <header>, not the column, so its content box matches <main> and the footer. */}
-<header class="page-gutter sticky top-0 z-50 h-header edge-b border-border bg-background short:static">
+<header class="page-gutter sticky top-0 z-50 h-header py-3 bg-background short:static">
   {/* Grid from `lg`, not `md`: between 768 and 1023px the row barely fits and centering wastes slack. */}
-  <div class="mx-auto flex h-full max-w-page items-center justify-between lg:grid lg:grid-cols-header">
+  <div class="header-slab mx-auto flex h-full max-w-page items-center justify-between lg:grid lg:grid-cols-header">
     {/*
       The desktop nav has no Home item, so this link carries aria-current on `/`.
       aria-label repeats the wordmark exactly (SC 2.5.3): the <wbr> below makes
@@ -39,7 +36,7 @@ const LINK_REST = 'border-transparent text-text hover:text-cyan';
       href={HOME_HREF}
       aria-label={SITE_NAME}
       aria-current={current(HOME_HREF)}
-      class="logo-link lift-mark flex min-w-0 items-center gap-4 max-xs:gap-2 lg:justify-self-start"
+      class="logo-link header-logo-edge lift-mark flex min-w-0 items-center gap-4 max-xs:gap-2 lg:justify-self-start"
     >
       <span class="logo-tile flex shrink-0 rotate-3 drop-shadow-hard-mark-8">
         <CatMark body={48} class="size-14" eager />
@@ -52,18 +49,15 @@ const LINK_REST = 'border-transparent text-text hover:text-cyan';
       <span class="label min-w-0 text-text max-xs:tracking-normal below-reflow:sr-only">{wordmarkHead}{wordmarkTail !== undefined && <Fragment><wbr />{wordmarkTail}</Fragment>}</span>
     </a>
 
-    {/*
-      `hit-target` widens the 40.8px link to a 44px pointer area (SC 2.5.5).
-      `border-transparent` reserves the current-page box so the row never shifts.
-    */}
+    {/* Stickers are 48px tall, past the 44px target (SC 2.5.5); styles in buttons-nav.css. */}
     <nav class="hidden md:block lg:justify-self-center" aria-label="Primary">
       {/* The md-to-lg trims (gap, px) let the row fit; tests/header-fit.spec.ts fails if it overlaps or scrolls. */}
       <NavList
         links={HEADER_LINKS}
-        class="flex items-center gap-1 lg:gap-3"
-        linkClass="hit-target label block border-4 px-2 py-2 lg:px-4"
-        activeClass={LINK_ACTIVE}
-        restClass={LINK_REST}
+        class="nav-stickers"
+        linkClass="nav-sticker"
+        activeClass=""
+        restClass=""
       />
     </nav>
 
@@ -71,13 +65,13 @@ const LINK_REST = 'border-transparent text-text hover:text-cyan';
       The CTA is outside the Primary nav so the nav stays centered; `ml-auto`
       inside the list would push the links off-center by half its width.
     */}
-    <div class="flex items-center gap-4 lg:justify-self-end">
+    <div class="flex items-center gap-3 lg:justify-self-end lg:gap-4">
       <ThemeSwitch />
       <div class="hidden md:block">
         <a
           href={CTA.href}
           aria-current={current(CTA.href)}
-          class="nav-cta block whitespace-nowrap px-4 py-3 lg:px-6"
+          class="nav-cta block whitespace-nowrap px-3 py-3 lg:px-6"
         >
           {CTA.label}
         </a>
@@ -114,10 +108,10 @@ const LINK_REST = 'border-transparent text-text hover:text-cyan';
             <nav>
               <NavList
                 links={NAV_LINKS}
-                class="flex flex-col gap-8"
-                linkClass="block border-4 px-4 py-2 font-black uppercase tracking-title"
-                activeClass={LINK_ACTIVE}
-                restClass={LINK_REST}
+                class="nav-stickers nav-stickers-column"
+                linkClass="nav-sticker nav-sticker-large"
+                activeClass=""
+                restClass=""
               />
 
               <a

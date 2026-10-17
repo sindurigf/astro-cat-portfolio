@@ -477,7 +477,7 @@ with a comment beside it.
 ## Borders, shadows and radius
 
 - Two edge weights, by choice. `--edge` (6px) is the width of every card,
-  panel, popover, form field, gold area, table, topic tile, the header's bottom edge, the
+  panel, popover, form field, gold area, table, topic tile, the header slab, the
   `/accessibility` fact-strip rules, a prose `hr` and blockquote: the `edge`,
   `edge-t`, `edge-b` and `edge-l` utilities. Photos, controls, chips, the theme
   switch, stickers and code blocks keep `border-4`. The roundel keeps
@@ -842,7 +842,9 @@ text-gold-muted` under the standfirst. Color
 
 ### Header relation
 
-- The header is opaque `background` with a 6px `border` bottom edge.
+- The header is a slab on the page column, styled as a card: `surface`, the
+  card edge and graph paper, the 8px pink shadow, 12px below the top. No line
+  under it.
 - The logo tile and the slab share the gold ground and dark type; the tile
   keeps its `mark` shadow.
 - The sticky header covers the top of the slab on scroll; nothing on the slab
@@ -1078,12 +1080,17 @@ Enforced by `tests/nav-current.spec.ts`, `tests/mobile-menu.spec.ts`,
 
 - Links come from `NAV_LINKS` and `CTA` in `src/lib/nav.ts`; the desktop
   header uses `HEADER_LINKS` (no Home; the logo links to `/`).
-- Every nav link is 40.8px tall (`py-2` + `border-4`) inside a 44px pointer
-  area (`.hit-target`, SC 2.5.5); neighboring areas never overlap.
+- The header is a card on the page column (`.header-slab`, listed with the
+  cards in `cards.css`); the logo tile sits centered on its left edge
+  (`.header-logo-edge`), the tile itself unchanged.
+- Nav and menu links are stickers (`.nav-sticker`): `border-4` in `fill-edge`,
+  a `text` fill, the 4px pink shadow, tilted -3 and 3 degrees in turn. 48px
+  tall (`min-h-12`), past the 44px target (SC 2.5.5); 12px apart, 24px from
+  `lg`: a ring reaches 12px past its sticker, so it never covers the next one.
 
 ### By height
 
-- Sticky, 96px (`--spacing-header`). `html` keeps focus and anchors
+- Sticky, 96px (`--spacing-header`): the 72px slab and 12px above and below. `html` keeps focus and anchors
   `--spacing-header` plus `--spacing(4)` below the top.
 - Under 30rem of viewport height (`short`: a landscape phone, any window under
   960px tall at 200% zoom) it scrolls away and the scroll padding drops to
@@ -1095,14 +1102,16 @@ Enforced by `tests/nav-current.spec.ts`, `tests/mobile-menu.spec.ts`,
 
 ### States
 
-| Item                                    | Current                                                                                                                                          | Hover                                      | Focus                                                      |
-| --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------ | ---------------------------------------------------------- |
-| Nav link, menu link, no-JavaScript link | `aria-current`, `"page"` on the page and `"true"` inside its section, a flat `bg-text` block with a `border` edge, label in `background` (15.28) | cyan text (11.86), not on the current item | the 4px cyan ring at a 4px offset, on the current item too |
-| Call to action                          | `aria-current`, `"page"` or `"true"`, shadow dropped, a 4px inset ring, pressed in                                                               | cyan fill                                  | the ring, offset past its shadow unless current            |
-| Logo link                               | `aria-current="page"` on `/`, no visual state: the homepage hero says where you are                                                              | none                                       | the ring, offset past the tile's 8px shadow                |
+| Item                | Current                                                                                                                                                                 | Hover                                              | Focus                                                                         |
+| ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------- | ----------------------------------------------------------------------------- |
+| Nav link, menu link | `aria-current`, `"page"` on the page and `"true"` inside its section: straightened, pressed 4px into its shadow, `background` fill with a `text` edge and label (15.28) | straightens, cyan fill, `background` label (11.86) | the 4px cyan ring at a 4px offset past the shadow; at 4px on the current item |
+| No-JavaScript link  | the same value, a flat `bg-text` block with a `border` edge, label in `background` (15.28)                                                                              | cyan text (11.86), not on the current item         | the 4px cyan ring at a 4px offset, on the current item too                    |
+| Call to action      | `aria-current`, `"page"` or `"true"`, shadow dropped, a 4px inset ring, pressed in                                                                                      | cyan fill                                          | the ring, offset past its shadow unless current                               |
+| Logo link           | `aria-current="page"` on `/`, no visual state: the homepage hero says where you are                                                                                     | none                                               | the ring, offset past the tile's 8px shadow                                   |
 
 - `ariaCurrent` in `src/lib/nav.ts` decides the value.
-- Inactive items keep a `border-transparent` 4px edge so nothing reflows.
+- Inactive no-JavaScript links keep a `border-transparent` 4px edge so nothing
+  reflows.
 - A current chip is the same flat `bg-text` block, no shadow.
 - Forced colors drop the fill, shadow and marker, so a current nav link, call
   to action and chip take a 4px underline there (`tests/forced-colors.spec.ts`).

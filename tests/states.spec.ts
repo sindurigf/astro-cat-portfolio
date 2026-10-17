@@ -183,57 +183,70 @@ for (const scheme of ['dark', 'light'] as const) {
   });
 }
 
-// The dialog stays dark in light mode, so one scheme covers it.
-test('hover is drawn and readable on a mobile menu link', async ({ page }) => {
-  await page.setViewportSize(PHONE_VIEWPORT);
-  await gotoSettled(page, '/');
-  await page.getByRole('button', { name: 'Menu' }).click();
-  const link = page
-    .getByRole('dialog', { name: 'Menu' })
-    .getByRole('link', { name: 'Blog' });
-  await expectHoverReadsAndDiffers(page, link);
-});
+for (const scheme of ['dark', 'light'] as const) {
+  test.describe(`${scheme} mode`, () => {
+    test.use({ colorScheme: scheme });
 
-test('the current page stands apart from its siblings and reads', async ({
-  page,
-}) => {
-  await page.setViewportSize(DESKTOP_VIEWPORT);
-  await gotoSettled(page, '/about/');
-  const found = (await page.evaluate(`(() => {
-    ${PAGE_HELPERS}
-    const nav = document.querySelector('header nav[aria-label="Primary"]');
-    const current = nav.querySelector('a[aria-current="page"]');
-    const sibling = nav.querySelector('a:not([aria-current])');
-    if (!current || !sibling) return null;
-    const ground = compositeBackground(nav);
-    const fill = (el) => over(parse(getComputedStyle(el).backgroundColor), ground);
-    const own = fill(current);
-    return {
-      fromSibling: ratio(own, fill(sibling)),
-      fillOnGround: ratio(own, ground),
-      text: ratio(over(parse(getComputedStyle(current).color), own), own),
-    };
-  })()`)) as {
-    fromSibling: number;
-    fillOnGround: number;
-    text: number;
-  } | null;
-  expect(
-    found,
-    'no current item and non-current sibling in the nav',
-  ).not.toBeNull();
-  expect(
-    found!.fromSibling,
-    'the current item is filled like its siblings',
-  ).toBeGreaterThan(1);
-  expect(
-    found!.fillOnGround,
-    'the current fill against the header',
-  ).toBeGreaterThanOrEqual(NON_TEXT);
-  expect(found!.text, 'the current label on its fill').toBeGreaterThanOrEqual(
-    AAA_TEXT,
-  );
-});
+    test('hover is drawn and readable on a mobile menu link', async ({
+      page,
+    }) => {
+      await page.setViewportSize(PHONE_VIEWPORT);
+      await gotoSettled(page, '/');
+      await page.getByRole('button', { name: 'Menu' }).click();
+      const link = page
+        .getByRole('dialog', { name: 'Menu' })
+        .getByRole('link', { name: 'Blog' });
+      await expectHoverReadsAndDiffers(page, link);
+    });
+
+    // SC 1.4.11: the current item is told apart by its fill or its edge.
+    test('the current page stands apart from its siblings and reads', async ({
+      page,
+    }) => {
+      await page.setViewportSize(DESKTOP_VIEWPORT);
+      await gotoSettled(page, '/about/');
+      const found = (await page.evaluate(`(() => {
+        ${PAGE_HELPERS}
+        const nav = document.querySelector('header nav[aria-label="Primary"]');
+        const current = nav.querySelector('a[aria-current="page"]');
+        const sibling = nav.querySelector('a:not([aria-current])');
+        if (!current || !sibling) return null;
+        const ground = compositeBackground(nav);
+        const fill = (el) => over(parse(getComputedStyle(el).backgroundColor), ground);
+        const own = fill(current);
+        const style = getComputedStyle(current);
+        const edge = parseFloat(style.borderTopWidth) > 0
+          ? ratio(over(parse(style.borderTopColor), ground), ground)
+          : 1;
+        return {
+          fromSibling: ratio(own, fill(sibling)),
+          boundary: Math.max(ratio(own, ground), edge),
+          text: ratio(over(parse(style.color), own), own),
+        };
+      })()`)) as {
+        fromSibling: number;
+        boundary: number;
+        text: number;
+      } | null;
+      expect(
+        found,
+        'no current item and non-current sibling in the nav',
+      ).not.toBeNull();
+      expect(
+        found!.fromSibling,
+        'the current item is filled like its siblings',
+      ).toBeGreaterThan(1);
+      expect(
+        found!.boundary,
+        'neither the current fill nor its edge reaches 3:1 on the header',
+      ).toBeGreaterThanOrEqual(NON_TEXT);
+      expect(
+        found!.text,
+        'the current label on its fill',
+      ).toBeGreaterThanOrEqual(AAA_TEXT);
+    });
+  });
+}
 
 /**
  * SC 1.4.11 measures a ring against what it touches: a chip's ring (offset plus

@@ -108,10 +108,10 @@ Dark is the default. Colors and rules:
 [STYLEGUIDE Light mode](docs/STYLEGUIDE.md#light-mode).
 
 - `data-theme="light"` on `<html>`; `src/styles/light-mode.css`, imported last,
-  overrides a subset of tokens on `<main>` while it is set. No `dark:`
-  variants.
-- Only `<main>` changes; the header, no-JS nav and footer stay dark, except
-  the header's bottom edge, which turns `text`.
+  overrides a subset of tokens on `<main>` and the header while it is set. No
+  `dark:` variants.
+- `<main>` and the header change, so the header slab is a light card on the
+  light page; the no-JS nav and footer stay dark.
 - `mark` and `tile-edge` hold the mode-independent logo-tile colors.
 - An inline script in `BaseLayout.astro`'s `<head>` sets `data-theme` from the
   saved choice or `prefers-color-scheme` before the body parses, and adds the

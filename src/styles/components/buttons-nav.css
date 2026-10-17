@@ -26,10 +26,14 @@
    * Everything with the 4px pink shadow drops it while pressed. The logo tile's
    * press is in @layer utilities.
    */
-  :is(.btn-primary, .btn-secondary, .nav-cta, a.chip, .footer-sticker):not(
-      [aria-disabled='true'],
-      [aria-current]
-    ):active,
+  :is(
+      .btn-primary,
+      .btn-secondary,
+      .nav-cta,
+      .nav-sticker,
+      a.chip,
+      .footer-sticker
+    ):not([aria-disabled='true'], [aria-current]):active,
   .surface-gold .btn-gold-primary:active {
     @apply shadow-none;
   }
@@ -40,18 +44,26 @@
    * tests/press.spec.ts.
    */
   @media (prefers-reduced-motion: no-preference) {
-    :is(.btn-primary, .btn-secondary, .nav-cta, a.chip, .footer-sticker):not(
-        [aria-disabled='true'],
-        [aria-current]
-      ):active,
+    :is(
+        .btn-primary,
+        .btn-secondary,
+        .nav-cta,
+        .nav-sticker,
+        a.chip,
+        .footer-sticker
+      ):not([aria-disabled='true'], [aria-current]):active,
     .surface-gold .btn-gold-primary:active {
       @apply relative translate-x-1 translate-y-1;
     }
 
-    :is(.btn-primary, .btn-secondary, .nav-cta, a.chip, .footer-sticker):not(
-        [aria-disabled='true'],
-        [aria-current]
-      ):active::after,
+    :is(
+        .btn-primary,
+        .btn-secondary,
+        .nav-cta,
+        .nav-sticker,
+        a.chip,
+        .footer-sticker
+      ):not([aria-disabled='true'], [aria-current]):active::after,
     .surface-gold .btn-gold-primary:active::after {
       content: '';
       position: absolute;
@@ -152,6 +164,69 @@
     .theme-switch svg {
       color: ButtonText;
     }
+  }
+
+  /* A card on the page column: `cards.css` gives it the card edge and paper. */
+  .header-slab {
+    @apply edge bg-surface px-4 shadow-hard-pink-object sm:px-6;
+  }
+
+  /* Puts the logo tile across the slab's left edge: centered from sm, 12px over below it so it stays inside the 16px gutter. */
+  .header-logo-edge {
+    margin-left: calc(-1 * (--spacing(4) + --spacing(3)));
+
+    @variant sm {
+      margin-left: calc(-1 * (--spacing(6) + --spacing(6)));
+    }
+  }
+
+  /*
+   * Nav links as stickers, tilted like the footer's (tests/tilt.spec.ts). The
+   * current page is pressed flat into its shadow and inverted, edged in `text`
+   * so it still meets 3:1 on the slab (tests/edge-contrast.spec.ts).
+   */
+  .nav-stickers {
+    @apply flex items-center gap-3 lg:gap-6;
+  }
+
+  .nav-stickers-column {
+    @apply flex-col items-start gap-6;
+  }
+
+  .nav-stickers li:nth-child(odd) {
+    --tilt: -3deg;
+  }
+
+  .nav-stickers li:nth-child(even) {
+    --tilt: 3deg;
+  }
+
+  .nav-sticker {
+    rotate: var(--tilt, 0deg);
+
+    @apply lift-control flex min-h-12 items-center border-4 border-fill-edge
+      bg-text px-2 text-label font-black uppercase tracking-label
+      text-background shadow-hard-pink-4 lg:px-4;
+  }
+
+  .nav-sticker-large {
+    @apply px-6 py-3 text-h3 tracking-title;
+  }
+
+  .nav-sticker:is(:hover, :focus-visible) {
+    rotate: 0deg;
+  }
+
+  .nav-sticker:not([aria-current]):hover {
+    @apply bg-cyan text-background;
+  }
+
+  .nav-sticker[aria-current] {
+    --lift: 0px;
+    rotate: 0deg;
+
+    @apply translate-x-1 translate-y-1 border-text bg-background text-text
+      shadow-none;
   }
 
   /*
