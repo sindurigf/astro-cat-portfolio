@@ -106,6 +106,14 @@ const OPEN_SOURCE = [
       'Director of the Library of Ohara, who let me read there as a child.',
   },
 ] as const;
+/* Joined pairs: each pair is its own wall, its second brick climbing from `sm` (the Step). */
+const PAIR_SIZE = 2;
+const OPEN_SOURCE_PAIRS = Array.from(
+  { length: Math.ceil(OPEN_SOURCE.length / PAIR_SIZE) },
+  (_, index) => OPEN_SOURCE.slice(index * PAIR_SIZE, (index + 1) * PAIR_SIZE),
+);
+const pairWall = (count: number) =>
+  wallClasses({ sm: [[...Array(count).keys()]] }, count);
 const closeRow = await closeRowLinks({
   href: '/about/',
   label: 'Learn More about Me',
@@ -245,15 +253,22 @@ const closeRow = await closeRowLinks({
         The scholars of Ohara studied history together, and lost everything for
         it. I still believe history belongs to everyone.
       </p>
-      <dl class="grid gap-grid sm:grid-cols-2 lg:col-span-7">
-        {OPEN_SOURCE.map((item) => (
-          <div class="card">
-            {/* `text-gold` and `text-text` fail SC 1.4.3 on this ground. */}
-            <dt class="label text-gold-muted">{item.award}</dt>
-            <dd class="mt-4 text-body text-pretty">{item.detail}</dd>
-          </div>
-        ))}
-      </dl>
+      <div class="grid gap-grid lg:col-span-7">
+        {OPEN_SOURCE_PAIRS.map((pair) => {
+          const wall = pairWall(pair.length);
+          return (
+            <dl class:list={['card-block grid sm:grid-cols-2', wall.wall]}>
+              {pair.map((item, index) => (
+                <div class:list={['card', wall.bricks[index]]}>
+                  {/* `text-gold` and `text-text` fail SC 1.4.3 on this ground. */}
+                  <dt class="label text-gold-muted">{item.award}</dt>
+                  <dd class="mt-4 text-body text-pretty">{item.detail}</dd>
+                </div>
+              ))}
+            </dl>
+          );
+        })}
+      </div>
     </div>
   </Section>
 

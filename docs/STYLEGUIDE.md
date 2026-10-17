@@ -247,7 +247,8 @@ set; hex values and ratios are in the generated [Contrast](#contrast) table:
   underlined), the focus ring (`gold-text`) and default borders
   (`gold-border`); the area's own outer edge keeps `border`, gold on gold,
   since it meets the page. A card inside turns transparent with
-  `shadow-hard-gold-border-4`; a linked chip keeps its dark fill with a
+  `shadow-hard-gold-border-4`; a `.card-block` wall on gold is light blocks
+  with the ink edge (`/career`); a linked chip keeps its dark fill with a
   `gold-text` edge.
 - A whole gold section (hero slab, gold band) is also a `.gold-column`.
 - Keep the link underline: `gold-link` is 1.01 against `gold-text`, so the
