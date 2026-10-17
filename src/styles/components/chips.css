@@ -83,8 +83,11 @@
       @apply border-block-ink bg-block-light text-block-ink shadow-none;
     }
 
+    /* The dark mode cyan in both modes: light mode's cyan is a text color, 2.55 under ink. */
     & a.chip:not([aria-current]):hover {
-      @apply bg-cyan text-block-ink;
+      @apply text-block-ink;
+
+      background-color: var(--dark-cyan);
     }
 
     & a.chip[aria-current] {
