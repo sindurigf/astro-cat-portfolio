@@ -506,6 +506,9 @@ with a comment beside it.
   gold or light fill: `fill-edge` (ink). Light mode: ink everywhere.
   `tests/edges.spec.ts` asserts each in both modes.
 - Shadows are hard offsets, no blur. Gold casts none (gold on gold is 1.00).
+- A tilted box with a drawn edge clips its fill to the padding box: rotation
+  softens the edge's outer pixels, and a fill under it shows through as a pale
+  fringe (`tests/tilt.spec.ts`).
 
 | Utility                     | Casts it                                                                                                            |
 | --------------------------- | ------------------------------------------------------------------------------------------------------------------- |

@@ -30,10 +30,21 @@ for (const route of BRAND_SAMPLED_ROUTES) {
             matrix.c !== 0
           );
         })
-        .map(({ element, style }) => ({
-          what: `${element.tagName.toLowerCase()}.${[...element.classList].slice(0, 3).join('.')}`,
-          backface: style.backfaceVisibility,
-        })),
+        .map(({ element, style }) => {
+          const alpha = (color: string) => {
+            const parts = color.match(/[\d.]+/g)?.map(Number) ?? [];
+            return parts.length > 3 ? parts[3] : parts.length ? 1 : 0;
+          };
+          return {
+            what: `${element.tagName.toLowerCase()}.${[...element.classList].slice(0, 3).join('.')}`,
+            backface: style.backfaceVisibility,
+            edgedFill:
+              parseFloat(style.borderTopWidth) > 0 &&
+              alpha(style.borderTopColor) > 0 &&
+              alpha(style.backgroundColor) > 0,
+            clip: style.backgroundClip,
+          };
+        }),
     );
 
     expect(
@@ -45,6 +56,13 @@ for (const route of BRAND_SAMPLED_ROUTES) {
       expect(box.backface, `${route} ${box.what} is its own layer`).toBe(
         'visible',
       );
+    }
+    // A fill under a tilted border shows through its softened outer pixels as a fringe.
+    for (const box of tilted.filter((b) => b.edgedFill)) {
+      expect(
+        box.clip,
+        `${route} ${box.what} paints its fill under its tilted border`,
+      ).toBe('padding-box');
     }
   });
 }

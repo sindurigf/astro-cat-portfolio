@@ -4,6 +4,14 @@
  */
 @layer utilities {
   /*
+   * A tilted box softens its border's outer pixels, and a fill painted under
+   * the border shows through them as a pale fringe. tests/tilt.spec.ts.
+   */
+  :is(.rotate-3, .-rotate-3) {
+    background-clip: padding-box;
+  }
+
+  /*
    * The logo tile's press: its drop shadow, which follows the ears, is a markup utility. Only the tile moves,
    * so the link keeps the pointer.
    */
