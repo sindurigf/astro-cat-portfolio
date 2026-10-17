@@ -84,7 +84,7 @@ blur, uppercase headings, tilted marks.
 | Heavy uppercase, tight tracking     | Uppercase on headings, labels and buttons only. Tracking -0.05em on h1 and h2, -0.02em on h3 and titles; labels +0.1em. A heading word over 12 characters takes a soft hyphen.                  |
 | Loud accents against 4.5:1          | `pink` `#FF007A` never sets text. `pink-text` `#FF79B6` carries every pink glyph ([Contrast](#contrast)).                                                                                       |
 | Hard shadow looks like a focus ring | The ring is cyan, which appears only on interaction, offset past the element's shadow by `--lift`, so it only touches ground (11.86).                                                           |
-| Error signaled by color             | `pink` against `border` is 2.31. An error is a shape change (a 4px pink inset ring inside the pink 6px edge), a ✕ mark and words.                                                               |
+| Error signaled by color             | `pink` against `border` or gold is 2.31. An error is a shape change (a 4px pink inset ring inside the edge, which stays ink in a block), a ✕ mark and words.                                    |
 | Tilt hurts reading                  | Tilt only marks (tile, roundel, stickers), at 3deg. Text and headings never rotate; a sticker's label of one to three words turns with it (close row eyebrow, post tags; `tests/tilt.spec.ts`). |
 | Grayed-out disabled fails SC 1.4.11 | Dashed edge, no shadow. Label stays 9.13; control stays focusable (`aria-disabled`).                                                                                                            |
 | Density against 320px reflow        | Spacing tokens are fluid; every border is counted in the 288px content box before any heading floor changes.                                                                                    |
@@ -186,7 +186,7 @@ Every approved pairing, measured from the live tokens. Text needs 4.5 (SC
 | `border` #FFC000          | `background` #0B0B0B  | non-text   | Every boundary on the page                       | 3.0   | 11.99 | pass       |
 | `border` #FFC000          | `surface` #1A1A1A     | non-text   | Input and chip edges on a card                   | 3.0   | 10.60 | pass       |
 | `pink` #FF007A            | `background` #0B0B0B  | non-text   | Error edge; action shadow                        | 3.0   | 5.19  | pass       |
-| `pink` #FF007A            | `surface` #1A1A1A     | non-text   | Error edge on the form card                      | 3.0   | 4.59  | pass       |
+| `pink` #FF007A            | `surface` #1A1A1A     | non-text   | Error edge on a field off a block                | 3.0   | 4.59  | pass       |
 | `background` #0B0B0B      | `gold` #FFC000        | text       | Label on a gold fill                             | 4.5   | 11.99 | pass       |
 | `background` #0B0B0B      | `cyan` #00DCFD        | text       | Label on a hovered button                        | 4.5   | 11.86 | pass       |
 | `background` #0B0B0B      | `text` #E5E2E1        | text       | Badge; the current page block                    | 4.5   | 15.28 | pass       |
@@ -218,6 +218,7 @@ Every approved pairing, measured from the live tokens. Text needs 4.5 (SC
 | `cyan` #00DCFD            | `gold` #FFC000        | apart      | A ring never touches a gold shadow or fill       | n/a   | 1.01  | kept apart |
 | `cyan` #00DCFD            | `border` #FFC000      | apart      | A ring never touches a neighbor edge             | n/a   | 1.01  | kept apart |
 | `pink` #FF007A            | `border` #FFC000      | apart      | An error is a shape change, not a recolor        | n/a   | 2.31  | kept apart |
+| `pink` #FF007A            | `gold` #FFC000        | never      | An invalid edge in a block stays ink             | n/a   | 2.31  | never used |
 | `text` #E5E2E1            | `subtle` #9BB4C6      | apart      | The two text colors never carry a state          | n/a   | 1.67  | kept apart |
 
 <!-- contrast-table:end -->
@@ -629,7 +630,7 @@ The grid rule in `scripts/check-tokens.mjs` enforces the grid;
 - **Photo captions:** none on People and places; the alt text names who is in
   each photo. Where a photo carries a caption, it starts at the photo's left edge.
 - **Form fields:** a 6px edge. A failing field adds a 4px pink inset ring
-  inside the pink 6px edge.
+  inside the 6px edge, which turns pink on the page and stays ink in a block.
 
 ### How sections separate
 
