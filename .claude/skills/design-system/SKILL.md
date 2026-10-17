@@ -20,6 +20,7 @@ before changing anything it covers.
 - `border` on a gold or light fill: it takes `fill-edge`. `fill-edge` on a
   dark fill. An edge on a dark
   card: cards use `card-edge`.
+- A second `::after` on a card: it holds the sheet behind (`card-sheet`).
 - A removed outline, `outline-none`, `:focus` styles or `outline-offset: 0`.
 - A shadow on a focusable element without its lift.
 - State signaled by color alone.

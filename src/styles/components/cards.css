@@ -39,6 +39,32 @@
         display: none;
       }
     }
+
+    /*
+     * A second sheet of the same paper, one cell up and left, its lines on the
+     * card's. Masked off the card box; up-left overflow never scrolls.
+     */
+    &::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      z-index: -2;
+      translate: var(--card-sheet-offset) var(--card-sheet-offset);
+      background-color: var(--color-card-sheet);
+      background-image: var(--card-grid);
+      background-size: var(--card-grid-size) var(--card-grid-size);
+      background-position: var(--card-grid-offset) var(--card-grid-offset);
+      mask:
+        linear-gradient(var(--color-background) 0 0)
+          calc(var(--card-sheet-offset) * -1)
+          calc(var(--card-sheet-offset) * -1) / 100% 100% no-repeat exclude,
+        linear-gradient(var(--color-background) 0 0);
+      pointer-events: none;
+
+      @media (forced-colors: active), print {
+        display: none;
+      }
+    }
   }
 
   /*

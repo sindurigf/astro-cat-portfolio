@@ -114,8 +114,10 @@ The gold-ground set is in [Gold surface](#gold-surface), light values in
   (cards, inputs). Measure every foreground against both.
 - Dark cards draw no edge: the pink shadow and a 16px graph paper of
   `background` lines over `surface` (`--card-grid`) set them apart. Text over
-  a line keeps its `background` ratio. Forced colors and print drop the paper;
-  light mode has none.
+  a line keeps its `background` ratio. Behind each, a second sheet of the same
+  paper in `card-sheet` (`fill-edge`) sits one cell up and left
+  (`--card-sheet-offset`), its lines on the card's. Forced colors and print
+  drop the paper and the sheet; light mode has neither.
 - `text` for words, `subtle` for captions and meta. Links are `text`, cyan on
   hover; in running text underlined at 2px, 4px on hover.
 - `cyan` never at rest: a cyan label, fill or shadow reads as a control under

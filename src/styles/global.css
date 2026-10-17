@@ -125,6 +125,8 @@
    * edge needs to read on gold only (11.32).
    */
   --color-fill-edge: #131313;
+  /* The sheet behind a card, one step darker than `surface`; none in light mode. */
+  --color-card-sheet: var(--color-fill-edge);
   --color-text: #e5e2e1;
   --color-subtle: #9bb4c6;
   --color-gold: #ffc000;
@@ -399,6 +401,8 @@
     linear-gradient(var(--color-background) 1px, transparent 1px),
     linear-gradient(90deg, var(--color-background) 1px, transparent 1px);
   --card-grid-size: 16px;
+  /* One cell up and left, so the sheet's lines meet the card's. */
+  --card-sheet-offset: calc(var(--card-grid-size) * -1);
   --card-grid-offset: -1px;
   /* Card, panel, field, header and rule edges (`edge` utilities); controls, chips, photos and stickers keep `border-4`. */
   --edge: 6px;
