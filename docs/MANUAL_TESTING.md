@@ -74,7 +74,8 @@ Setup: Chrome at 375px. No mouse.
 - [ ] Tab cycles Home, About, Career, Blog, Get in Touch, Close, one stop in
       the browser UI (correct `<dialog>` behavior), Home. The theme switch is
       not in the dialog. Focus never reaches the page behind. → SC 2.1.2
-- [ ] Shift+Tab from the first item goes to Close. → SC 2.1.2
+- [ ] Shift+Tab from the first item stays in the dialog: the browser's own stop
+      or the dialog itself (Firefox), then Close. → SC 2.1.2
 - [ ] Escape closes and focus returns to the menu button. → SC 2.1.2, 2.4.3
 - [ ] Close button: focus returns to the menu button. → SC 2.4.3
 - [ ] A nav link activated with Enter navigates. → SC 2.1.1
