@@ -28,6 +28,7 @@ before changing anything it covers.
   `src/lib/wall.ts`.
 - A removed outline, `outline-none`, `:focus` styles or `outline-offset: 0`.
 - A shadow on a focusable element without its lift.
+- A ring outside a joined brick: it crosses the next one. Draw it inside.
 - State signaled by color alone.
 - Text over a photograph, or `aspect-ratio` on an `<img>`.
 - A radius other than `rounded-full` or `rounded-none`.
@@ -60,7 +61,9 @@ before changing anything it covers.
 - Posts: [Posts](../../../docs/STYLEGUIDE.md#posts).
 - Empty and failed states:
   [Empty, loading and error states](../../../docs/STYLEGUIDE.md#empty-loading-and-error-states).
-- Header and menu: [Navigation](../../../docs/STYLEGUIDE.md#navigation).
+- Header and menu: [Navigation](../../../docs/STYLEGUIDE.md#navigation). The
+  bar is the page's reverse; every edge and throw takes the color opposite its
+  ground, so it shows in both modes.
 - Footer: [Footer](../../../docs/STYLEGUIDE.md#footer).
 - Animation: [Motion](../../../docs/STYLEGUIDE.md#motion).
 - Focus rings: [Focus](../../../docs/STYLEGUIDE.md#focus).
