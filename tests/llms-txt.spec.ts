@@ -10,6 +10,7 @@ import {
   postFileNames,
 } from './routes';
 import { NODE } from './tags';
+import { looksLorem } from './lorem';
 
 /**
  * Drift here is silent: a stale line may still resolve with a wrong
@@ -30,11 +31,6 @@ const llmsTxt = (): string => {
 
 const PLACEHOLDER_MARK = '(placeholder)';
 
-// Two lorem words in a title and teaser is lorem; one could be a real mention.
-const LOREM_WORDS =
-  /\b(lorem|ipsum|dolor|consectetur|adipiscing|eiusmod|tempor|incididunt|labore|veniam|nostrud|exercitation|ullamco|laboris|aliquip|commodo|consequat|irure|reprehenderit|voluptate|cillum|fugiat|pariatur|excepteur|occaecat|cupidatat|proident|officia|deserunt|mollit|perspiciatis|voluptatem|quisquam|quibusdam|temporibus|nemo)\b/gi;
-const LOREM_THRESHOLD = 2;
-
 interface PostSource {
   slug: string;
   placeholder: string | undefined;
@@ -54,9 +50,6 @@ const postSources = (): PostSource[] =>
         text: `${field('title') ?? ''} ${field('teaser') ?? ''}`,
       };
     });
-
-const looksLorem = (text: string): boolean =>
-  (text.match(LOREM_WORDS) ?? []).length >= LOREM_THRESHOLD;
 
 const links = (source: string): string[] =>
   [...source.matchAll(/\]\(([^)]+)\)/g)].map((match) => match[1]!);
