@@ -78,7 +78,8 @@ export const MESSAGES = {
   nameMissing: 'Enter a name. Anything you want to be called is fine.',
   nameLong: `Use ${LIMITS.nameMax} characters or fewer for the name.`,
   emailMissing: 'Enter an email address so there is a way to reply.',
-  emailShape: 'Check the email address. It needs an @ and a domain.',
+  emailShape:
+    'Enter an email address in the correct format, like name@example.com',
   emailExtra:
     'Enter one email address on its own, like name@example.com. Remove any spaces, brackets, commas or names.',
   emailLong: `Use ${LIMITS.emailMax} characters or fewer for the email address.`,

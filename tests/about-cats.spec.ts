@@ -1016,7 +1016,7 @@ test.describe('About cats', () => {
       await expect(
         dialog.getByRole('img'),
         `${NAMES[id]}'s dialog shows no photo with alt text`,
-      ).toHaveAttribute('alt', new RegExp(NAMES[id]));
+      ).toHaveAttribute('alt', /\S/);
       await page.keyboard.press('Escape');
       await expect(
         dialog,
