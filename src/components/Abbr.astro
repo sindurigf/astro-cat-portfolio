@@ -4,36 +4,26 @@
  * popover with no script; src/scripts/abbr-tips.ts adds hover and focus. A
  * browser without popovers reads the expansion inline in brackets.
  */
-import { abbrId } from '../lib/abbr';
-
 interface Props {
   short: string;
   long: string;
   /** Punctuation right after it: a line may break after a button, never inside `.abbr-unit`. */
   after?: string;
-  /** Makes it a link to its definition (G55): a link cannot hold a button, so hover and focus show the expansion. */
-  href?: string;
 }
 
-const { short, long, after = '', href } = Astro.props;
-const id = abbrId(short);
+const { short, long, after = '' } = Astro.props;
+const id = `abbr-${short.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
 ---
 
 <span data-abbr class="abbr-unit">
-  {href ? (
-    <a href={href} aria-describedby={id}>
-      <abbr>{short}</abbr>
-    </a>
-  ) : (
-    <button
-      type="button"
-      class="abbr-trigger"
-      popovertarget={id}
-      aria-describedby={id}
-    >
-      <abbr>{short}</abbr>
-    </button>
-  )}
+  <button
+    type="button"
+    class="abbr-trigger"
+    popovertarget={id}
+    aria-describedby={id}
+  >
+    <abbr>{short}</abbr>
+  </button>
   <span class="abbr-tip" id={id} popover role="tooltip">
     {long}
   </span>

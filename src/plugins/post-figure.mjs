@@ -16,7 +16,6 @@ import {
   SCREENSHOT_CREDIT_PREFIX,
   SCREENSHOT_SOURCES,
 } from '../lib/credits.ts';
-import { abbrId } from '../lib/abbr.ts';
 
 const CREDITS = [
   [PHOTO_CREDIT_PREFIX, PHOTOGRAPHERS],
@@ -116,48 +115,12 @@ const framed = (image, { width, height }) => ({
   ],
 });
 
-const link = (href, children, properties = {}) => ({
+const link = (href, label) => ({
   type: 'element',
   tagName: 'a',
-  properties: { ...properties, href },
-  children,
+  properties: { href },
+  children: [text(label)],
 });
-
-/** src/components/Abbr.astro with `href`, which a plugin cannot render. */
-const abbrLink = (href, short, long) => {
-  const id = abbrId(short);
-  return {
-    type: 'element',
-    tagName: 'span',
-    properties: { dataAbbr: '', className: ['abbr-unit'] },
-    children: [
-      link(
-        href,
-        [
-          {
-            type: 'element',
-            tagName: 'abbr',
-            properties: {},
-            children: [text(short)],
-          },
-        ],
-        { ariaDescribedBy: id },
-      ),
-      {
-        type: 'element',
-        tagName: 'span',
-        properties: {
-          className: ['abbr-tip'],
-          id,
-          popover: '',
-          role: 'tooltip',
-        },
-        children: [text(long)],
-      },
-      text(')'),
-    ],
-  };
-};
 
 /**
  * A Creative Commons photo, keyed by its file name.
@@ -175,18 +138,12 @@ const licensedPhoto = (src, photos) => {
 
 /**
  * "Photo: Name", the name linked to the photo's page or else the photographer's;
- * a Creative Commons photo adds its short license, expanded once per page.
+ * a Creative Commons photo adds its short license, linked to its deed.
  * @param {string} caption
  * @param {unknown} src
  * @param {Readonly<Record<string, import('../lib/credits.ts').LicensedPhoto>>} [photos]
- * @param {Set<string>} [expanded] Short licenses already expanded on the page.
  */
-export const captionChildren = (
-  caption,
-  src,
-  photos = LICENSED_PHOTOS,
-  expanded = new Set(),
-) => {
+export const captionChildren = (caption, src, photos = LICENSED_PHOTOS) => {
   const [prefix, sources] =
     CREDITS.find(([candidate]) => caption.startsWith(candidate)) ?? [];
   if (prefix === undefined) return [text(caption)];
@@ -204,18 +161,14 @@ export const captionChildren = (
     (Object.hasOwn(sources, name) ? sources[name] : undefined);
   if (href === undefined) return [text(caption)];
 
-  const credit = [text(prefix), link(href, [text(name)])];
+  const credit = [text(prefix), link(href, name)];
   if (licensed === undefined) return credit;
 
-  const { licenseShort, license, licenseHref } = licensed;
-  const first = !expanded.has(licenseShort);
-  expanded.add(licenseShort);
   return [
     ...credit,
     text(' ('),
-    ...(first
-      ? [abbrLink(licenseHref, licenseShort, license)]
-      : [link(licenseHref, [text(licenseShort)]), text(')')]),
+    link(licensed.licenseHref, licensed.licenseShort),
+    text(')'),
   ];
 };
 
@@ -238,7 +191,6 @@ export const postFigure = ({ fileURL } = {}) => {
   let firstSeen =
     String(fileURL ?? '').includes(TALKS_PATH) || opensOnCover(fileURL);
   const isFirst = () => !firstSeen && (firstSeen = true);
-  const expanded = new Set();
 
   return {
     name: 'post-figure',
@@ -302,12 +254,7 @@ export const postFigure = ({ fileURL } = {}) => {
                     type: 'element',
                     tagName: 'figcaption',
                     properties: {},
-                    children: captionChildren(
-                      caption,
-                      properties.src,
-                      LICENSED_PHOTOS,
-                      expanded,
-                    ),
+                    children: captionChildren(caption, properties.src),
                   },
                 ]),
           ],

@@ -13,7 +13,7 @@ const unwrap = (button: HTMLButtonElement): void => {
 
 const enhance = (
   root: HTMLElement,
-  trigger: HTMLElement,
+  button: HTMLButtonElement,
   tip: HTMLElement,
 ): void => {
   /* Opened by a click, so leaving the pointer or focus does not close it. */
@@ -22,7 +22,7 @@ const enhance = (
   const isOpen = () => tip.matches(':popover-open');
 
   const place = () => {
-    const anchor = trigger.getBoundingClientRect();
+    const anchor = button.getBoundingClientRect();
     const maxLeft =
       document.documentElement.clientWidth -
       VIEWPORT_MARGIN_PX -
@@ -43,23 +43,21 @@ const enhance = (
     if (isOpen()) place();
     else pinned = false;
   });
-  /* A click on an open, unpinned tip pins it instead of closing it; a link's click follows it. */
-  if (trigger instanceof HTMLButtonElement) {
-    trigger.addEventListener('click', (event) => {
-      if (isOpen() && !pinned) {
-        event.preventDefault();
-        pinned = true;
-      }
-    });
-  }
-  trigger.addEventListener('focus', show);
-  trigger.addEventListener('blur', () => {
+  /* A click on an open, unpinned tip pins it instead of closing it. */
+  button.addEventListener('click', (event) => {
+    if (isOpen() && !pinned) {
+      event.preventDefault();
+      pinned = true;
+    }
+  });
+  button.addEventListener('focus', show);
+  button.addEventListener('blur', () => {
     pinned = false;
     hide();
   });
   root.addEventListener('pointerenter', show);
   root.addEventListener('pointerleave', () => {
-    if (document.activeElement !== trigger) hide();
+    if (document.activeElement !== button) hide();
   });
   addEventListener(
     'scroll',
@@ -78,12 +76,12 @@ const enhance = (
 };
 
 for (const root of document.querySelectorAll<HTMLElement>('[data-abbr]')) {
-  const trigger = root.querySelector<HTMLElement>('button, a[href]');
+  const button = root.querySelector('button');
   const tip = root.querySelector<HTMLElement>('[popover]');
-  if (!trigger || !tip) continue;
-  if ('showPopover' in tip) enhance(root, trigger, tip);
+  if (!button || !tip) continue;
+  if ('showPopover' in tip) enhance(root, button, tip);
   else {
-    if (trigger instanceof HTMLButtonElement) unwrap(trigger);
+    unwrap(button);
     root.dataset.abbrInline = '';
   }
   root.dataset.abbrReady = '';

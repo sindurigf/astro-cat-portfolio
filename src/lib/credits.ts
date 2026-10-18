@@ -39,7 +39,7 @@ export interface LicensedPhoto {
   sourceName: string;
   /** Spelled out, e.g. "Creative Commons Attribution 4.0" (SC 3.1.4). */
   license: string;
-  /** What captions show, e.g. "CC BY 4.0", expanded to `license`. */
+  /** What captions show, e.g. "CC BY 4.0", linked to the deed that names it in full. */
   licenseShort: string;
   licenseHref: string;
   /** What was changed, as the license asks, e.g. "cropped and resized". */

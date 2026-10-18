@@ -148,33 +148,19 @@ test.describe('post-figure', NODE, () => {
       licenseHref: 'https://creativecommons.org/licenses/by/4.0/',
       changes: 'cropped',
     };
-    const caption = el(
-      'figcaption',
-      captionChildren(
-        'Photo: License and Credit',
-        '../../assets/photos/cc-fixture.jpg',
-        { 'cc-fixture': photo },
-      ),
+    const nodes: Node[] = captionChildren(
+      'Photo: License and Credit',
+      '../../assets/photos/cc-fixture.jpg',
+      { 'cc-fixture': photo },
     );
-    const all = (node: Node): Node[] => [
-      node,
-      ...(node.children ?? []).flatMap(all),
-    ];
-    const hasClass = (node: Node, name: string): boolean =>
-      ((node.properties?.className as string[] | undefined) ?? []).includes(
-        name,
-      );
     const textOf = (node: Node): string =>
       node.type === 'text'
         ? String(node.value)
-        : (node.children ?? [])
-            .filter((child) => !hasClass(child, 'abbr-tip'))
-            .map(textOf)
-            .join('');
-    const anchors = all(caption).filter((node) => node.tagName === 'a');
-    const [name, license] = anchors;
+        : (node.children ?? []).map(textOf).join('');
+    const caption = nodes.map(textOf).join('');
+    const [name, license] = nodes.filter((node) => node.tagName === 'a');
 
-    expect(textOf(caption), 'the caption does not open with "Photo: "').toMatch(
+    expect(caption, 'the caption does not open with "Photo: "').toMatch(
       /^Photo: /,
     );
     expect(name?.properties?.href, 'the name does not link the photo').toBe(
@@ -184,50 +170,14 @@ test.describe('post-figure', NODE, () => {
     expect(license?.properties?.href, 'the license is not linked').toBe(
       photo.licenseHref,
     );
-    expect(textOf(license!)).toBe(photo.licenseShort);
-    const tip = all(caption).find((node) => hasClass(node, 'abbr-tip'));
-    expect(
-      license?.properties?.ariaDescribedBy,
-      'the short license is not described by its expansion (SC 3.1.4)',
-    ).toBe(tip?.properties?.id);
-    expect(tip && textOf(tip)).toBe(photo.license);
+    expect(textOf(license!), 'the license link is not its short name').toBe(
+      photo.licenseShort,
+    );
     for (const dropped of [photo.title, photo.sourceName, photo.changes]) {
-      expect(
-        textOf(caption),
-        `the caption still says "${dropped}"`,
-      ).not.toContain(dropped);
-    }
-  });
-
-  test('a license already expanded on the page is linked without a second expansion', () => {
-    const photo: LicensedPhoto = {
-      photographer: 'License and Credit',
-      title: 'A Fixture Photo',
-      source: 'https://photos.example/fixture',
-      sourceName: 'Photos Example',
-      license: 'Creative Commons Attribution 4.0',
-      licenseShort: 'CC BY 4.0',
-      licenseHref: 'https://creativecommons.org/licenses/by/4.0/',
-      changes: 'cropped',
-    };
-    const expanded = new Set<string>();
-    const credit = () =>
-      JSON.stringify(
-        captionChildren(
-          'Photo: License and Credit',
-          'cc-fixture.jpg',
-          { 'cc-fixture': photo },
-          expanded,
-        ),
+      expect(caption, `the caption still says "${dropped}"`).not.toContain(
+        dropped,
       );
-    expect(credit(), 'the first use has no expansion').toContain('abbr-tip');
-    const second = credit();
-    expect(second, 'a second expansion repeats its id').not.toContain(
-      'abbr-tip',
-    );
-    expect(second, 'the second use drops its license link').toContain(
-      photo.licenseHref,
-    );
+    }
   });
 
   test('a Creative Commons photo credited to someone else fails the build', () => {
