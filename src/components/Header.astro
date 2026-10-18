@@ -108,8 +108,8 @@ const current = (href: string) => ariaCurrent(currentPath, href);
             <nav>
               <NavList
                 links={NAV_LINKS}
-                class="nav-stickers-column"
-                linkClass="nav-sticker nav-sticker-large"
+                class="flex flex-col items-start gap-6"
+                linkClass="nav-sticker nav-sticker-large press-brick"
                 activeClass=""
                 restClass=""
               />
@@ -117,7 +117,7 @@ const current = (href: string) => ariaCurrent(currentPath, href);
               <a
                 href={CTA.href}
                 aria-current={current(CTA.href)}
-                class="nav-cta mt-12 block px-8 py-4 text-center"
+                class="nav-cta press-brick mt-12 block px-8 py-4 text-center"
               >
                 {CTA.label}
               </a>
@@ -125,7 +125,7 @@ const current = (href: string) => ariaCurrent(currentPath, href);
 
             <button
               type="button"
-              class="btn-secondary mt-12 w-full"
+              class="btn-secondary press-brick mt-12 w-full"
               data-menu-close
             >
               Close

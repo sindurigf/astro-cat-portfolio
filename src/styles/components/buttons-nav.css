@@ -16,18 +16,16 @@
    * Hover fills cyan (SC 1.4.3). Unavailable is `aria-disabled`, never
    * `disabled`, so it stays focusable; drawn dashed, no shadow, label `subtle`.
    */
-  :is(.btn-primary, .btn-secondary, .nav-cta):not(
-      [aria-disabled='true']
-    ):hover {
+  :is(.btn-primary, .btn-secondary):not([aria-disabled='true']):hover {
     @apply bg-cyan text-background;
   }
 
   /*
-   * Everything with a hard shadow drops it while pressed. The header's joined
-   * bricks share their row's throw, so they hold still. The logo tile's press
-   * is in @layer utilities.
+   * Everything with a hard shadow drops it while pressed; the menu's bricks are
+   * `.press-brick`. The header's joined bricks share their row's throw, so they
+   * hold still. The logo tile's press is in @layer utilities.
    */
-  :is(.btn-primary, .btn-secondary, a.chip, .footer-sticker):not(
+  :is(.btn-primary, .btn-secondary, a.chip, .footer-sticker, .press-brick):not(
       [aria-disabled='true'],
       [aria-current]
     ):active,
@@ -41,45 +39,37 @@
    * tests/press.spec.ts.
    */
   @media (prefers-reduced-motion: no-preference) {
-    :is(.btn-primary, .btn-secondary, a.chip, .footer-sticker):not(
-        [aria-disabled='true'],
-        [aria-current]
-      ):active,
+    :is(
+        .btn-primary,
+        .btn-secondary,
+        a.chip,
+        .footer-sticker,
+        .press-brick
+      ):not([aria-disabled='true'], [aria-current]):active,
     .surface-gold .btn-gold-primary:active {
       @apply relative translate-x-1 translate-y-1;
     }
 
-    :is(.btn-primary, .btn-secondary, a.chip, .footer-sticker):not(
-        [aria-disabled='true'],
-        [aria-current]
-      ):active::after,
+    :is(
+        .btn-primary,
+        .btn-secondary,
+        a.chip,
+        .footer-sticker,
+        .press-brick
+      ):not([aria-disabled='true'], [aria-current]):active::after,
     .surface-gold .btn-gold-primary:active::after {
       content: '';
       position: absolute;
       inset: calc(--spacing(2) * -1) 0 0 calc(--spacing(2) * -1);
     }
 
-    .mobile-menu-dialog
-      :is(.nav-cta, .nav-sticker, .btn-secondary):not([aria-current]):active {
-      position: relative;
+    /* A brick moves by its 6px throw; the type selector matches `a.chip`'s weight. */
+    :is(a, button).press-brick:not(
+        [aria-disabled='true'],
+        [aria-current]
+      ):active {
       translate: var(--brick-throw) var(--brick-throw);
     }
-
-    .mobile-menu-dialog
-      :is(.nav-cta, .nav-sticker):not([aria-current]):active::after {
-      content: '';
-      position: absolute;
-      inset: calc(--spacing(2) * -1) 0 0 calc(--spacing(2) * -1);
-    }
-  }
-
-  /*
-   * The menu's bricks press like the buttons. Their own rule, not the lists
-   * above: a complex selector inside `:is()` raises the whole list's
-   * specificity past slides.css's fixed Exit button.
-   */
-  .mobile-menu-dialog :is(.nav-cta, .nav-sticker):not([aria-current]):active {
-    @apply shadow-none;
   }
 
   /* The fill is the page's, so the dashed `border` is the boundary. */
@@ -142,7 +132,8 @@
     @apply pointer-events-none size-6;
   }
 
-  .theme-switch:hover {
+  /* Hover fills cyan; the header bar and menu set their own fill and label. */
+  :is(.theme-switch, .nav-sticker, .nav-cta):not([aria-current]):hover {
     background-color: var(--hover-fill, var(--color-cyan));
     color: var(--hover-label, var(--color-background));
   }
@@ -186,17 +177,13 @@
    */
   .site-header {
     --page-ground: var(--color-background);
-    --page-surface: var(--color-surface);
     --page-text: var(--color-text);
-    --page-border: var(--color-border);
     --page-cyan: var(--color-cyan);
   }
 
   .header-slab {
     --color-background: var(--page-text);
-    --color-surface: var(--page-text);
     --color-text: var(--page-ground);
-    --color-border: var(--page-ground);
     /*
      * Hover is the site's cyan in both modes, under an ink label (11.20). The
      * ring is ink on the light bar, as in a light block, and cyan on the ink bar.
@@ -223,12 +210,11 @@
 
   .header-slab dialog {
     --color-background: var(--page-ground);
-    --color-surface: var(--page-surface);
     --color-text: var(--page-text);
-    --color-border: var(--page-border);
     --color-cyan: var(--page-cyan);
-    --hover-fill: var(--page-cyan);
-    --hover-label: var(--page-ground);
+    /* Unset, so hovers fall back to the page's cyan and ground. */
+    --hover-fill: initial;
+    --hover-label: initial;
   }
 
   /*
@@ -258,10 +244,13 @@
     @variant sm {
       --slab-pad: --spacing(6);
     }
+  }
 
-    &:focus-visible {
-      outline-offset: calc(-1 * (var(--block-edge) + var(--focus-gap)));
-    }
+  /* Rings drawn inside the brick or block, on its own fill. */
+  :is(.header-bricks :focus-visible, .header-logo-block:focus-visible) {
+    position: relative;
+    z-index: 1;
+    outline-offset: calc(-1 * (var(--block-edge) + var(--focus-gap)));
   }
 
   /*
@@ -270,7 +259,9 @@
    * is drawn inside its brick so it never crosses the next one.
    */
   .header-bricks {
-    @apply flex items-center shadow-brick;
+    @apply flex items-center;
+
+    box-shadow: var(--shadow-brick);
 
     translate: 0 calc(var(--brick-throw) / -2);
 
@@ -279,19 +270,13 @@
       border-left-width: 0;
     }
 
-    & :focus-visible {
-      position: relative;
-      z-index: 1;
-      outline-offset: calc(-1 * (var(--block-edge) + var(--focus-gap)));
-    }
-
     & :is(.nav-cta, .theme-switch, [aria-current]):focus-visible {
       outline-color: var(--color-gold-text);
     }
 
     /* A hovered ring takes the hover label's ink; a current brick has no hover fill. */
     & :focus-visible:hover:not([aria-current]) {
-      outline-color: var(--hover-label);
+      outline-color: var(--hover-label, var(--color-background));
     }
   }
 
@@ -307,24 +292,17 @@
   }
 
   /* Nav and menu links: bricks edged in `text`. tests/edge-contrast.spec.ts. */
-  .nav-stickers-column {
-    @apply flex flex-col items-start gap-6;
-  }
-
   .nav-sticker {
     @apply flex min-h-target items-center border-4 border-text bg-background px-2
       text-label font-black uppercase tracking-label text-text lg:px-4;
   }
 
   .nav-sticker-large {
-    --lift: var(--lift-brick);
+    --lift: var(--brick-throw);
 
-    @apply px-6 py-3 text-h3 tracking-title shadow-brick;
-  }
+    @apply px-6 py-3 text-h3 tracking-title;
 
-  .nav-sticker:not([aria-current]):hover {
-    background-color: var(--hover-fill, var(--color-cyan));
-    color: var(--hover-label, var(--color-background));
+    box-shadow: var(--shadow-brick);
   }
 
   .nav-sticker[aria-current] {
@@ -336,7 +314,7 @@
   .nav-sticker-large[aria-current] {
     --lift: 0px;
 
-    @apply shadow-none;
+    box-shadow: none;
 
     translate: var(--brick-throw) var(--brick-throw);
   }
@@ -351,23 +329,17 @@
       tracking-label text-gold-text;
   }
 
-  .nav-cta:not([aria-current]):hover {
-    background-color: var(--hover-fill, var(--color-cyan));
-    color: var(--hover-label, var(--color-background));
-  }
-
   /* The menu's call to action and Close are bricks like its links. */
   .mobile-menu-dialog :is(.nav-cta, .btn-secondary) {
-    --lift: var(--lift-brick);
+    --lift: var(--brick-throw);
 
-    @apply border-text shadow-brick;
+    @apply border-text;
+
+    box-shadow: var(--shadow-brick);
   }
 
-  .nav-cta[aria-current],
-  .nav-cta[aria-current]:hover {
+  .nav-cta[aria-current] {
     --lift: 0px;
-
-    @apply bg-block-gold text-gold-text;
 
     box-shadow: var(--inset-shadow-current);
   }

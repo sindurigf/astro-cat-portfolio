@@ -502,7 +502,6 @@
   --focus-gap: 4px;
   --lift-control: 4px;
   --lift-object: var(--hard-throw);
-  --lift-brick: var(--brick-throw);
   /* The logo keeps its 8px shadow, so its ring clears 8px. */
   --lift-mark: 8px;
   /* Layout lands on fractions of a pixel, scrolling on whole ones. */

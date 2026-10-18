@@ -20,7 +20,7 @@
    * scrolls to the edge (SC 2.4.7).
    */
   scroll-padding-block: calc(
-    var(--focus-width) + var(--focus-gap) + var(--lift-brick)
+    var(--focus-width) + var(--focus-gap) + var(--brick-throw)
   );
 }
 
