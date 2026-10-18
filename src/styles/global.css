@@ -118,7 +118,7 @@
   --color-background: #0b0b0b;
   --color-surface: #1a1a1a;
   --color-border: #ffc000;
-  /* The header slab draws no edge in dark mode: its pink shadow sets it apart. */
+  /* A card draws no edge in dark mode: its fill and throw set it apart. */
   --color-card-edge: transparent;
   /*
    * The edge of a gold or light fill: the fill delimits it on the page, so the
@@ -133,7 +133,7 @@
   --color-block-gold: #ffc000;
   --color-block-light: #e5e2e1;
   --color-block-ink: #131313;
-  --color-subtle: #9bb4c6;
+  --color-subtle: #9eb6c7;
   --color-gold: #ffc000;
   --color-cyan: #00dcfd;
   /*
@@ -349,7 +349,6 @@
   --text-hero-sticker: clamp(1.125rem, min(2.1vw, 3.4svh), 1.875rem);
   --text-hero-sticker--line-height: 1.02;
   --text-menu: clamp(2.125rem, 8vw, 3.5rem);
-  --text-menu--line-height: 1;
   --text-body: clamp(1.125rem, 1.2vw, 1.1875rem);
   --text-body--line-height: 1.62;
 
@@ -400,6 +399,8 @@
   --hard-throw: 8px;
   /* A block's ink edge; blocks in a `.card-block` share it as one wall. */
   --block-edge: 4px;
+  /* The header's joined bricks and its logo block. */
+  --brick-throw: 6px;
   /*
    * The Step: sideways juts and a wall's Step Up, both 0 below 640px so
    * nothing pushes a phone layout off the column.
@@ -409,6 +410,8 @@
   /* Card, panel, field, header and rule edges (`edge` utilities); controls, chips, photos and stickers keep `border-4`. */
   --edge: 6px;
   --shadow-hard-pink-4: 4px 4px 0 var(--color-pink);
+  /* In the color opposite the ground, so it shows in both modes. */
+  --shadow-brick: var(--brick-throw) var(--brick-throw) 0 var(--color-text);
   --shadow-hard-pink-object: var(--hard-throw) var(--hard-throw) 0
     var(--color-pink);
   --shadow-hard-mark-4: 4px 4px 0 var(--color-mark);
@@ -428,10 +431,10 @@
   --inset-shadow-gold-btn-ring: inset 0 0 0 3px var(--color-gold-btn-label);
 
   /*
-   * Current-page ring on .nav-cta: clears SC 1.4.11 on gold, on the cyan hover
-   * and against the border.
+   * Current-page ring on a gold nav brick and .nav-cta: ink, 11.32 on gold, so
+   * the state is a shape as well as a fill (SC 1.4.1).
    */
-  --inset-shadow-cta-current: inset 0 0 0 4px var(--color-background);
+  --inset-shadow-current: inset 0 0 0 4px var(--color-gold-text);
 
   /* A failing field's 4px pink edge doubled by a 4px ring inside it. */
   --inset-shadow-invalid: inset 0 0 0 4px var(--color-pink);
@@ -463,11 +466,16 @@
    */
   --container-slide-card: 13rem;
   /*
-   * The 72px header slab and 12px above and below it. Fixed px so it
+   * The 80px header slab and 12px above and below it. Fixed px so it
    * stays small at 400% zoom; html's scroll-padding-top derives from it (SC
    * 2.4.11).
    */
-  --spacing-header: 96px;
+  --spacing-header: 104px;
+  /*
+   * The slim header once the page scrolls: a 68px bar, 6px above and below.
+   * Its flow box keeps `--spacing-header`, so nothing below moves.
+   */
+  --spacing-header-compact: 80px;
   /* The slideshow's control row: a ~59px button plus its 4px shadow. */
   --spacing-deck-bar: 4.5rem;
 

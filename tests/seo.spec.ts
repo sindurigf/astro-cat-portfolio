@@ -421,7 +421,7 @@ test.describe("/contact's description", NODE, () => {
     const html = builtHtmlByRoute().get('/contact')!;
     const description = metaContent(html, 'description') ?? '';
     const offered = SOCIAL_PROFILES.filter(({ href }) =>
-      new RegExp(`<a\\b[^>]*href="${href}"[^>]*class="[^"]*lift-object`).test(
+      new RegExp(`<a\\b[^>]*href="${href}"[^>]*class="[^"]*contact-brick`).test(
         html,
       ),
     ).map(({ label }) => label);

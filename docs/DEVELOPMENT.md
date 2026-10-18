@@ -59,7 +59,7 @@ What happens without the `CONTACT_NOTIFY_TO` secret:
 | `npm run check:links`         | Relative Markdown links and `#heading` anchors resolve; no link names a gitignored path; no network                                                   |
 | `npm run check:classes`       | Every class in the built HTML has a CSS rule                                                                                                          |
 | `npm run check:untransformed` | No built file is byte-identical to a source image                                                                                                     |
-| `npm run check:exif`          | No EXIF or XMP metadata in images under `src/assets` and `public`                                                                                     |
+| `npm run check:exif`          | No EXIF, XMP or IPTC in JPEG, PNG or WebP under `src/assets` and `public`; AVIF is not read                                                           |
 | `npm run check:fork`          | Every `TODO(fork)` marker left, as `file:line` with the count; fails on any other TODO comment in code and config; `--strict` fails while one is left |
 | `npm run check:leaks`         | No names or ids from the project this template came from; `--pdf <file>` checks one PDF                                                               |
 | `npm run test:a11y`           | Playwright suite in Chromium and Firefox; CI adds WebKit                                                                                              |

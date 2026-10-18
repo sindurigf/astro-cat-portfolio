@@ -9,12 +9,6 @@
       shadow-hard-pink-object sm:p-card;
   }
 
-  /* The header slab: the `card-edge`, none in dark mode. */
-  .header-slab {
-    position: relative;
-    border-color: var(--color-card-edge);
-  }
-
   /*
    * Blocks: every card, the plain hero slab and the post contents, gold with
    * an ink edge. The color tokens are remapped inside, so `text-text` and
@@ -83,12 +77,6 @@
     background-color: transparent;
     box-shadow: none;
   }
-
-  /*
-   * Solid card: a light third surface where only `background` passes (15.28),
-   * so everything inside is `background`. Holds text, never a form. In a
-   * `.card-block` the raised-brick rule gives it an edge.
-   */
 
   /*
    * One size for every card title, so a card is never louder than its section.
@@ -259,5 +247,20 @@
   /* A talk cover's subtitle and speaker as separate blocks (TalkSlide.astro). */
   .talk-cover > * + * {
     @apply mt-4;
+  }
+
+  /*
+   * A whole-brick link in a wall (/contact): it holds still, fills cyan under
+   * the pointer and draws its ring inside, so it never crosses the next brick.
+   */
+  /* The dark mode cyan in both modes: light mode's cyan is a text color, 2.55 under ink. */
+  .contact-brick:hover {
+    background-color: var(--dark-cyan);
+  }
+
+  /* Inside the brick the ring meets its fill, gold or light, so it is ink (11.32 or more). */
+  .contact-brick:focus-visible {
+    outline-color: var(--color-block-ink);
+    outline-offset: calc(-1 * (var(--block-edge) + var(--focus-gap)));
   }
 }

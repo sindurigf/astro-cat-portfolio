@@ -1,6 +1,6 @@
 import { expect, test, type Page } from './test';
 import { gotoSettled } from './settle';
-import { DESKTOP_VIEWPORT } from './wcag';
+import { DESKTOP_VIEWPORT, PHONE_VIEWPORT } from './wcag';
 import { CONTACT_FORM_ON } from '../src/lib/contact';
 import { CATEGORY_ROUTES, NO_PUBLISHED_POST } from './routes';
 
@@ -25,12 +25,6 @@ const PRESSABLE: Pressable[] = [
     moves: 'main .btn-primary',
   },
   {
-    name: 'the call to action',
-    route: '/blog/',
-    control: 'header .nav-cta',
-    moves: 'header .nav-cta',
-  },
-  {
     name: 'a gold primary button',
     route: '/contact',
     control: 'main .surface-gold .btn-gold-primary',
@@ -38,10 +32,9 @@ const PRESSABLE: Pressable[] = [
   },
   {
     name: 'a chip',
-    route: '/blog/',
+    route: '/about/',
     control: 'main a.chip:not([aria-current])',
     moves: 'main a.chip:not([aria-current])',
-    absent: CATEGORY_ROUTES.length === 0 ? NO_PUBLISHED_POST : undefined,
   },
   {
     name: 'a footer sticker',
@@ -235,4 +228,78 @@ test('a focused gold primary keeps its inner ring when pressed', async ({
     false,
   );
   await page.mouse.up();
+});
+
+/*
+ * The menu's bricks each cast their own 6px throw, so a press drops it and
+ * moves by it; the header's joined bricks share their row's throw and hold still.
+ */
+test.describe('bricks', () => {
+  const MENU_LINK = '#mobile-menu-panel a.nav-sticker:not([aria-current])';
+
+  const openMenu = async (page: Page) => {
+    await page.setViewportSize(PHONE_VIEWPORT);
+    await gotoSettled(page, '/blog/');
+    await page.getByRole('button', { name: 'Menu' }).click();
+    await expect(page.locator(MENU_LINK).first()).toBeVisible();
+  };
+
+  const throwOf = (page: Page) =>
+    page.evaluate(() =>
+      parseFloat(
+        getComputedStyle(document.documentElement).getPropertyValue(
+          '--brick-throw',
+        ),
+      ),
+    );
+
+  test('a menu brick drops its throw and moves by it', async ({ page }) => {
+    await openMenu(page);
+    await pressCenter(page, MENU_LINK);
+    expect(
+      await castsShadow(page, MENU_LINK),
+      'a pressed menu brick keeps its throw',
+    ).toBe(false);
+    const step = await throwOf(page);
+    expect(
+      await translateOf(page, MENU_LINK),
+      'a pressed menu brick does not move into its throw',
+    ).toEqual([step, step]);
+    await page.mouse.up();
+  });
+
+  test('a menu brick pressed under reduced motion drops its throw without moving', async ({
+    page,
+  }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await openMenu(page);
+    await pressCenter(page, MENU_LINK);
+    expect(await castsShadow(page, MENU_LINK)).toBe(false);
+    expect(await translateOf(page, MENU_LINK)).toEqual([0, 0]);
+    await page.mouse.up();
+  });
+
+  test('a joined filter chip holds still when pressed', async ({ page }) => {
+    test.skip(CATEGORY_ROUTES.length === 0, NO_PUBLISHED_POST);
+    const chip = 'main .chip-row a.chip:not([aria-current])';
+    await page.setViewportSize(DESKTOP_VIEWPORT);
+    await gotoSettled(page, '/blog/');
+    await pressCenter(page, chip);
+    expect(
+      await translateOf(page, chip),
+      'a joined chip moved out of its row',
+    ).toEqual([0, 0]);
+    await page.mouse.up();
+  });
+
+  test('a joined header brick holds still when pressed', async ({ page }) => {
+    await page.setViewportSize(DESKTOP_VIEWPORT);
+    await gotoSettled(page, '/blog/');
+    await pressCenter(page, 'header .header-bricks .nav-cta');
+    expect(
+      await translateOf(page, 'header .header-bricks .nav-cta'),
+      'a joined brick moved out of its row',
+    ).toEqual([0, 0]);
+    await page.mouse.up();
+  });
 });

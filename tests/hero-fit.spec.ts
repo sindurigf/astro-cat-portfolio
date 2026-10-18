@@ -18,6 +18,14 @@ const VIEWPORTS = [
   [305, 568],
 ] as const;
 
+/** 400% zoom of 1280x900 and 1280x1024, and short landscape windows where only one sticker fits. */
+const SHORT_WINDOWS = [
+  [320, 225],
+  [320, 256],
+  [600, 300],
+  [1280, 300],
+] as const;
+
 /** CSS px. Boxes are fractional and the stickers tilt three degrees; half a pixel hides no mark. */
 const SUBPIXEL_TOLERANCE = 0.5;
 
@@ -49,7 +57,7 @@ const HERO_PARTS = `
 
 /**
  * The name is centered on the window's top rule, so half of it sits above the
- * section's box and can slide under the 96px sticky header.
+ * section's box and can slide under the 104px sticky header.
  */
 const HIGHEST_EDGE = `
     const highestEdge = () => {
@@ -404,6 +412,42 @@ test.describe('the marks on the window do not collide', () => {
         `a sticker and the name overlap at ${width}x${height}: ` +
           (hits as string[]).join('; '),
       ).toEqual([]);
+    });
+  }
+
+  /* SC 1.4.10: at 400% zoom the window is shorter than the stickers; what does not fit is clipped, never over text. */
+  for (const [width, height] of SHORT_WINDOWS) {
+    test(`no visible sticker covers text at ${width}x${height}`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width, height });
+      await openHero(page);
+
+      const hits = (await page.evaluate(`(() => {
+        const clip = document.querySelector('.hero-marks').getBoundingClientRect();
+        const shown = [...document.querySelectorAll('.hero-sticker')]
+          .map((el) => {
+            const r = el.getBoundingClientRect();
+            return { name: el.textContent.trim(), left: Math.max(r.left, clip.left), right: Math.min(r.right, clip.right), top: Math.max(r.top, clip.top), bottom: Math.min(r.bottom, clip.bottom) };
+          })
+          .filter((r) => r.right - r.left > ${SUBPIXEL_TOLERANCE} && r.bottom - r.top > ${SUBPIXEL_TOLERANCE});
+        const hits = [];
+        const walker = document.createTreeWalker(document.querySelector('main'), NodeFilter.SHOW_TEXT);
+        for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+          if (!node.data.trim() || node.parentElement.closest('.hero-marks, .sr-only')) continue;
+          const range = document.createRange();
+          range.selectNodeContents(node);
+          for (const box of range.getClientRects())
+            for (const s of shown) {
+              const x = Math.min(s.right, box.right) - Math.max(s.left, box.left);
+              const y = Math.min(s.bottom, box.bottom) - Math.max(s.top, box.top);
+              if (x > ${SUBPIXEL_TOLERANCE} && y > ${SUBPIXEL_TOLERANCE}) hits.push('"' + s.name + '" covers "' + node.data.trim().slice(0, 30) + '"');
+            }
+        }
+        return [...new Set(hits)];
+      })()`)) as string[];
+
+      expect(hits, `a sticker covers text at ${width}x${height}`).toEqual([]);
     });
   }
 

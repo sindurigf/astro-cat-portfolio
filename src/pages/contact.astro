@@ -10,6 +10,7 @@ import {
   contactDescription,
 } from '../lib/contact';
 import { PERSON_NAME, SOCIAL_PROFILES } from '../lib/profiles';
+import { wallClasses } from '../lib/wall';
 
 /*
  * Placeholder copy. The form needs `form-action 'self'`
@@ -44,6 +45,8 @@ const CONTACT_METHODS = [
     href: profileHref('GitHub'),
   },
 ] as const;
+/* One stacked wall, each row stepping its right edge in (the Step). */
+const CONTACT_WALL = wallClasses({}, CONTACT_METHODS.length);
 
 // TODO(fork): Write what people can write to you about, and your own page description; the cats line goes with the cats.
 const REASONS = [
@@ -103,15 +106,15 @@ const REASONS = [
           <h3 class="card-title">Or Find Me Here</h3>
 
           {/* Whole-card links, unlike BlogCard: the name stays short ("Email hello@example.com"). */}
-          <ul class="mt-6 flex flex-col gap-6">
-            {CONTACT_METHODS.map((method) => (
-              <li class="flex min-w-0">
+          <ul class:list={['card-block mt-6 grid', CONTACT_WALL.wall]}>
+            {CONTACT_METHODS.map((method, index) => (
+              <li class:list={['flex min-w-0', CONTACT_WALL.bricks[index]]}>
                 <a
                   href={method.href}
-                  class="lift-object flex w-full min-w-0 items-center justify-between gap-6 edge border-border bg-surface p-card-tight text-text shadow-hard-pink-object hover:text-cyan hover:shadow-hard-cyan-object"
+                  class="card contact-brick flex w-full min-w-0 items-center justify-between gap-6"
                 >
                   <span class="flex min-w-0 flex-col gap-2">
-                    <span class="label text-gold">{method.label}</span>
+                    <span class="label">{method.label}</span>
                     <span class="text-display font-black">{method.value}</span>
                   </span>
                   <span aria-hidden="true" class="text-display leading-none">

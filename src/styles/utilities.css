@@ -4,6 +4,48 @@
  */
 @layer utilities {
   /*
+   * Slim once scrolled (src/scripts/header-compact.ts): a 68px bar whose 60px
+   * inside holds the 44px bricks and their throw, and the logo tile at three
+   * quarters in a 44px link. Not when the header scrolls away. Utilities, to beat the
+   * header's `h-header` and `py-3`.
+   */
+  @media (height >= 30rem) {
+    .site-header[data-compact] {
+      height: var(--spacing-header-compact);
+      margin-bottom: calc(
+        var(--spacing-header) - var(--spacing-header-compact)
+      );
+      padding-block: --spacing(1.5);
+
+      & .logo-link {
+        padding-block-end: 0;
+      }
+
+      & .logo-tile {
+        scale: 0.75;
+        margin-block: calc((var(--spacing-target) - --spacing(12)) / 2);
+      }
+    }
+  }
+
+  /*
+   * A tilted box softens its border's edges. A fill under a border of another
+   * color shows outside it as a fringe, so it stops at the padding box; a fill
+   * clipped under a border of its own color leaves a seam of ground between
+   * them, so a matching pair keeps the fill under the border. tests/tilt.spec.ts.
+   */
+  :is(.rotate-3, .-rotate-3) {
+    background-clip: padding-box;
+  }
+
+  .surface-gold :is(.rotate-3, .-rotate-3).sticker,
+  :is(:root[data-theme='light'] main, main .mode-light)
+    :is(.rotate-3, .-rotate-3).sticker:not(.mode-dark *),
+  :is(.rotate-3, .-rotate-3).hero-sticker.bg-surface {
+    background-clip: border-box;
+  }
+
+  /*
    * The logo tile's press: its drop shadow, which follows the ears, is a markup utility. Only the tile moves,
    * so the link keeps the pointer.
    */

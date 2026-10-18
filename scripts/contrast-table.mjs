@@ -14,9 +14,9 @@ const DOC = join(ROOT, 'docs/STYLEGUIDE.md');
 const START = '<!-- contrast-table:start -->';
 const END = '<!-- contrast-table:end -->';
 
-/* WCAG 2.2: SC 1.4.3 for text (3:1 when large), SC 1.4.11 for non-text. */
+/* WCAG 2.2: SC 1.4.6 for text, which /accessibility claims at every size; SC 1.4.11 for non-text. */
 const NEEDS = {
-  text: 4.5,
+  text: 7,
   'non-text': 3,
   decoration: null,
   apart: null,
@@ -26,19 +26,19 @@ const NEEDS = {
 /* The design decision; ratios are computed, never typed. */
 const PAIRS = [
   ['text', 'background', 'text', 'Reading text, headings'],
-  ['text', 'surface', 'text', 'Text inside cards and inputs'],
+  ['text', 'surface', 'text', 'Text in inputs and controls'],
   ['subtle', 'background', 'text', 'Captions, meta, helper text'],
-  ['subtle', 'surface', 'text', 'Helper and required text in cards'],
+  ['subtle', 'surface', 'text', 'Meta text on a surface'],
   ['gold', 'background', 'text', 'Card labels'],
-  ['gold', 'surface', 'text', 'Card labels'],
+  ['gold', 'surface', 'text', 'Labels on a surface'],
   ['pink-text', 'background', 'text', 'Error text, pink glyphs'],
-  ['pink-text', 'surface', 'text', 'Error text in the form card'],
+  ['pink-text', 'surface', 'text', 'Error text on a surface'],
   ['cyan', 'background', 'text', 'Hover text; the focus ring (needs 3)'],
-  ['cyan', 'surface', 'text', 'Hover text and focus ring in cards'],
+  ['cyan', 'surface', 'text', 'Hover text and focus ring on a surface'],
   ['border', 'background', 'non-text', 'Every boundary on the page'],
-  ['border', 'surface', 'non-text', 'Input and chip edges on a card'],
+  ['border', 'surface', 'non-text', 'Input and chip edges on a surface'],
   ['pink', 'background', 'non-text', 'Error edge; action shadow'],
-  ['pink', 'surface', 'non-text', 'Error edge on the form card'],
+  ['pink', 'surface', 'non-text', 'Error edge on a field off a block'],
   ['background', 'gold', 'text', 'Label on a gold fill'],
   ['background', 'cyan', 'text', 'Label on a hovered button'],
   ['background', 'text', 'text', 'Badge; the current page block'],
@@ -50,12 +50,7 @@ const PAIRS = [
   ['gold-border', 'gold', 'non-text', 'Boundaries on gold'],
   ['fill-edge', 'gold', 'non-text', 'Edge of a gold fill'],
   ['fill-edge', 'text', 'non-text', 'Edge of a light fill'],
-  [
-    'surface',
-    'background',
-    'decoration',
-    'A card; shadow and grid set it apart',
-  ],
+  ['surface', 'background', 'decoration', 'A surface; its edge sets it apart'],
   ['surface', 'gold', 'non-text', 'Chip fill on the hero slab'],
   ['gold-btn-label', 'gold-text', 'text', 'Label on the dark button on gold'],
   ['gold', 'background', 'decoration', 'Object shadow'],
@@ -95,6 +90,7 @@ const PAIRS = [
   ['cyan', 'gold', 'apart', 'A ring never touches a gold shadow or fill'],
   ['cyan', 'border', 'apart', 'A ring never touches a neighbor edge'],
   ['pink', 'border', 'apart', 'An error is a shape change, not a recolor'],
+  ['pink', 'gold', 'never', 'An invalid edge in a block stays ink'],
   ['text', 'subtle', 'apart', 'The two text colors never carry a state'],
 ];
 
