@@ -228,7 +228,8 @@ CSS and `tests/contrast-table.spec.ts` fails when it drifts.
 ### The gold surface
 
 A full or thin PageHero slab, the closing band on `/contact`, the quote on
-`/about` and any `Section surface="gold"` are `#FFC000`. Every dark
+`/about`, the close row card, the homepage hero window and any
+`Section surface="gold"` are `#FFC000`. Every dark
 token fails on it, so `.surface-gold` swaps in a near-black set, links stay
 underlined (SC 1.4.1) and the dark buttons are replaced by gold ones:
 [Gold surface](docs/STYLEGUIDE.md#gold-surface).
@@ -280,7 +281,7 @@ merge.
 | `tests/visual-presentation.spec.ts` | 1.4.8                                                            | Line length, line height and paragraph spacing at three widths, open cat card included                                                                                                                                                                                                               |
 | `tests/zoom-lines.spec.ts`          | 1.4.8                                                            | Every line of text on screen and no sideways scroll at 200px and 256px, the 500% zoom widths; code blocks and photo strips scroll in their own region                                                                                                                                                |
 | `tests/hero-fit.spec.ts`            | 1.4.10, 1.4.11, 1.4.12, 2.2.2, 2.4.11                            | Hero name unclipped and uncovered; pause control on the first screen beside the first name, every point of it reachable, clear of the name, edge and ring 3:1 on the page                                                                                                                            |
-| `tests/close-row.spec.ts`           | 1.4.10                                                           | The close row's sticker never covers its text; light mode changes only its colors                                                                                                                                                                                                                    |
+| `tests/close-row.spec.ts`           | 1.4.10                                                           | The close row's sticker never covers its text                                                                                                                                                                                                                                                        |
 | `tests/mobile-menu.spec.ts`         | 2.1.1, 2.4.3                                                     | Menu opens, takes focus, returns it; closes when the page widens past it                                                                                                                                                                                                                             |
 | `tests/no-script.spec.ts`           | 2.1.1, 1.3.1                                                     | Navigation with scripting off                                                                                                                                                                                                                                                                        |
 | `tests/forced-colors.spec.ts`       | 1.4.11, 2.4.7                                                    | Forced colors, listings sampled; every focus stop on /; not WebKit                                                                                                                                                                                                                                   |
@@ -408,7 +409,8 @@ template ships with none of it run; record your own results. Not automated:
 8. **Keyboard use is reached, not pressed.** `tests/focus.spec.ts` proves
    every control is reached and its ring visible. Activation by Enter or Space
    is tested only for the menu (`tests/mobile-menu.spec.ts`), the skip link,
-   the slides and the cat buttons.
+   the slides, the cat buttons, the theme switch, the hero pause control, the
+   photo viewer and the contact form.
 
 ## 8. Reporting a barrier
 
