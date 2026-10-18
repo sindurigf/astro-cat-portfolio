@@ -224,6 +224,8 @@ Headings, alt text, focus rings and axe are checked on the rendered page by
   are `noindex, follow` and excluded from the sitemap by
   `src/lib/sitemap-filter.ts` (`tests/sitemap.spec.ts`).
   `/contact/sent/` is `noindex`.
+  Every other page sends `robots` `max-image-preview:large`, so Google may
+  show its share image large (`tests/canonical.spec.ts`).
 - Non-placeholder posts get `og:type` `article`,
   `article:published_time` and a `BlogPosting` JSON-LD node. Other pages are
   `website`.
