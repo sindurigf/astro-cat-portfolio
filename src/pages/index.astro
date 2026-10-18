@@ -19,6 +19,7 @@ import { WIDTHS } from '../lib/image-densities';
 import { PERSONA_NOTICE_ID, SAMPLE_PERSONA } from '../lib/persona';
 import { MOTTO } from '../lib/site';
 import { CATEGORIES, CATEGORY_TILE } from '../lib/categories';
+import { packRows, wallClasses } from '../lib/wall';
 import { BLOG_PATH, categoryHref } from '../lib/paths';
 import {
   JOB_TITLE,
@@ -31,6 +32,19 @@ import {
 
 const FEATURED_LIMIT = 3;
 const featured = await getFeaturedPosts(FEATURED_LIMIT);
+/* Matches the `lg:grid-cols-*` choice on the list below. */
+const FEWER_FEATURED_COLUMNS = 2;
+const featuredWall = wallClasses(
+  {
+    lg: packRows(
+      featured.map(() => 1),
+      featured.length >= FEATURED_LIMIT
+        ? FEATURED_LIMIT
+        : FEWER_FEATURED_COLUMNS,
+    ),
+  },
+  featured.length,
+);
 
 /* The topic the tagline opens with. */
 const LEAD_CATEGORY: BlogCategory = 'open-source';
@@ -52,6 +66,15 @@ const leadSpansSm = (CATEGORY_CARDS.length - 1) % SM_COLUMNS === 0;
 const leadSpansLg =
   CATEGORY_CARDS.length >= LEAD_SPAN &&
   (CATEGORY_CARDS.length - LEAD_SPAN) % LG_COLUMNS === 0;
+const spansWith = (leadSpans: boolean) =>
+  CATEGORY_CARDS.map((_, index) => (index === 0 && leadSpans ? LEAD_SPAN : 1));
+const categoryWall = wallClasses(
+  {
+    sm: packRows(spansWith(leadSpansSm), SM_COLUMNS),
+    lg: packRows(spansWith(leadSpansLg), LG_COLUMNS),
+  },
+  CATEGORY_CARDS.length,
+);
 
 /*
  * Fitted to measured drawn widths (320 to 2560px, within 1.00 to 1.05). The
@@ -195,11 +218,17 @@ const STATS = [
 
   {CATEGORY_CARDS.length > 0 && (
     <Section title="What I Write About">
-      <ul class="card-block grid gap-grid sm:grid-cols-2 lg:grid-cols-3">
+      <ul
+        class:list={[
+          'card-block grid gap-grid sm:grid-cols-2 lg:grid-cols-3',
+          categoryWall.wall,
+        ]}
+      >
         {CATEGORY_CARDS.map((card, index) => (
           <li
             class:list={[
               'card flex flex-col',
+              categoryWall.bricks[index],
               index === 0 && leadSpansSm && 'sm:col-span-2',
               index === 0 && leadSpansLg && 'lg:col-span-2',
             ]}
@@ -243,10 +272,11 @@ const STATS = [
           featured.length >= FEATURED_LIMIT
             ? 'lg:grid-cols-3'
             : 'lg:grid-cols-2',
+          featuredWall.wall,
         ]}
       >
-        {featured.map((post) => (
-          <li class="flex min-w-0">
+        {featured.map((post, index) => (
+          <li class:list={['flex min-w-0', featuredWall.bricks[index]]}>
             <BlogCard {...cardProps(post)} headingLevel={3} class="w-full" />
           </li>
         ))}

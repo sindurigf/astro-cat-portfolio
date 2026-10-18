@@ -162,7 +162,7 @@ const NAMED_ENTRY = 'min-w-0 bg-background p-card-tight';
   </PageHero>
 
   <section class="band py-section">
-    <div class="mx-auto max-w-page">
+    <div class="card-block mx-auto max-w-page">
       <div id="not-found" class="card">
         <h2 class={CARD_HEADING}>The 404 Page</h2>
         <p class="mt-6 mb-paragraph max-w-4xl text-lead font-normal text-text text-pretty">
@@ -180,7 +180,7 @@ const NAMED_ENTRY = 'min-w-0 bg-background p-card-tight';
         </p>
       </div>
 
-      <div id="photos" class="card mt-grid">
+      <div id="photos" class="card card-step-1">
         <h2 class={CARD_HEADING}>Photos</h2>
 
         <p class="mt-6 max-w-measure text-body text-text text-pretty">
@@ -244,7 +244,7 @@ const NAMED_ENTRY = 'min-w-0 bg-background p-card-tight';
   </section>
 
   <section class="band pb-section">
-    <div class="mx-auto grid max-w-page gap-grid lg:grid-cols-2">
+    <div class="card-block mx-auto grid max-w-page lg:grid-cols-2">
       <div class="card">
         <h2 class={CARD_HEADING}>Design Tools</h2>
 
@@ -268,7 +268,7 @@ const NAMED_ENTRY = 'min-w-0 bg-background p-card-tight';
         </dl>
       </div>
 
-      <div class="card">
+      <div class="card card-step-1 lg:card-step-0">
         <h2 class={CARD_HEADING}>Guides</h2>
 
         <dl class={NAMED_LIST}>
@@ -288,7 +288,7 @@ const NAMED_ENTRY = 'min-w-0 bg-background p-card-tight';
         </dl>
       </div>
 
-      <div class="card lg:col-span-2">
+      <div class="card card-step-2 lg:col-span-2 lg:card-step-1">
         <h2 class={CARD_HEADING}>Built and Tested With</h2>
 
         <ul class="bullet-list mt-6 gap-x-12 sm:grid sm:grid-cols-2 lg:grid-cols-3">
@@ -312,7 +312,7 @@ const NAMED_ENTRY = 'min-w-0 bg-background p-card-tight';
         </p>
       </div>
 
-      <div id="ai" class="card lg:col-span-2">
+      <div id="ai" class="card card-step-2 lg:col-span-2">
         <h2 class={CARD_HEADING}>
           Made with <Abbr short="AI" long="artificial intelligence" />
         </h2>

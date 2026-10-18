@@ -9,11 +9,14 @@ import {
 } from '../lib/contact';
 import {
   ABOUT_PATH,
+  ACCESSIBILITY_PATH,
   BLOG_PATH,
   CAREER_PATH,
   CONTACT_PATH,
+  CREDITS_PATH,
   markdownSourcePath,
   postHref,
+  PRIVACY_PATH,
   SITE_FEED_PATH,
   SITEMAP_PATH,
 } from '../lib/paths';
@@ -60,6 +63,23 @@ const ROUTE_NOTES: { path: string; label: string; note: string }[] = [
     path: BRAND_PATH,
     label: 'Brand',
     note: "The site's design system, one page per section, listed below.",
+  },
+  {
+    path: ACCESSIBILITY_PATH,
+    label: 'Accessibility',
+    note:
+      'What the site aims for, what has been tested, what has not, and how ' +
+      'to report a barrier.',
+  },
+  {
+    path: PRIVACY_PATH,
+    label: 'Privacy',
+    note: 'What the site collects and what it does not.',
+  },
+  {
+    path: CREDITS_PATH,
+    label: 'Credits',
+    note: 'Who took the photos, and what the site was built and tested with.',
   },
 ];
 
