@@ -1,6 +1,6 @@
 import { expect, test, type Page } from './test';
 import { gotoSettled } from './settle';
-import { AA_TEXT, NON_TEXT, PAGE_HELPERS } from './contrast';
+import { AAA_TEXT, NON_TEXT, PAGE_HELPERS } from './contrast';
 import { goldRoutesFromBuild, BRAND_SAMPLED_ROUTES } from './routes';
 import { cssColorToken } from './source';
 import { NARROW_WIDTH } from './wcag';
@@ -163,11 +163,11 @@ test.describe('the gold surface exception', () => {
         invisibleControlMessage(walked.invisible),
       ).toEqual([]);
 
-      const failing = found.filter((entry) => entry.ratio < AA_TEXT);
+      const failing = found.filter((entry) => entry.ratio < AAA_TEXT);
 
       expect(
         failing,
-        `text sitting on ${GOLD} below ${AA_TEXT}:1 (SC 1.4.3). A dark-surface ` +
+        `text sitting on ${GOLD} below ${AAA_TEXT}:1 (SC 1.4.6). A dark-surface ` +
           `token has been used on a gold ground; the inverted set is ` +
           `gold-text / gold-muted / gold-border, applied by .surface-gold:\n` +
           failing
