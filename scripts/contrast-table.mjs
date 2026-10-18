@@ -38,7 +38,7 @@ const PAIRS = [
   ['border', 'background', 'non-text', 'Every boundary on the page'],
   ['border', 'surface', 'non-text', 'Input and chip edges on a card'],
   ['pink', 'background', 'non-text', 'Error edge; action shadow'],
-  ['pink', 'surface', 'non-text', 'Error edge on the form card'],
+  ['pink', 'surface', 'non-text', 'Error edge on a field off a block'],
   ['background', 'gold', 'text', 'Label on a gold fill'],
   ['background', 'cyan', 'text', 'Label on a hovered button'],
   ['background', 'text', 'text', 'Badge; the current page block'],
@@ -95,6 +95,7 @@ const PAIRS = [
   ['cyan', 'gold', 'apart', 'A ring never touches a gold shadow or fill'],
   ['cyan', 'border', 'apart', 'A ring never touches a neighbor edge'],
   ['pink', 'border', 'apart', 'An error is a shape change, not a recolor'],
+  ['pink', 'gold', 'never', 'An invalid edge in a block stays ink'],
   ['text', 'subtle', 'apart', 'The two text colors never carry a state'],
 ];
 

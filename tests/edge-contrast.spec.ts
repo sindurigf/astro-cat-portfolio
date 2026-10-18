@@ -65,6 +65,22 @@ for (const colorScheme of ['dark', 'light'] as const) {
           ).toEqual([]);
         });
       }
+
+      /* An invalid field keeps the card's fill, so its edge alone marks the field. */
+      test('/contact/ with every field invalid', async ({ page }) => {
+        await gotoSettled(page, '/contact/');
+        const invalid = await page.evaluate(() => {
+          const fields = document.querySelectorAll('.field-control');
+          for (const field of fields)
+            field.setAttribute('aria-invalid', 'true');
+          return fields.length;
+        });
+        expect(invalid, '/contact/ has no form fields').toBeGreaterThan(0);
+        expect(
+          await lostEdges(page),
+          `invalid field edges under ${NON_TEXT}:1 against their ground`,
+        ).toEqual([]);
+      });
     });
   }
 }
