@@ -979,6 +979,41 @@ test.describe('the contact error pages in a browser', () => {
     ).toEqual([]);
   };
 
+  /* GOV.UK error summary: a link lands on its field with the field's label in view, not under the sticky header. */
+  const expectSummaryLinksShowLabels = async (page: Page, label: string) => {
+    const links = page.locator('.error-summary a[href^="#"]');
+    const count = await links.count();
+    expect(count, `the ${label} summary links to no field`).toBeGreaterThan(0);
+    for (const viewport of [REFLOW_VIEWPORT, DESKTOP_VIEWPORT]) {
+      await setViewportSettled(page, viewport);
+      for (let i = 0; i < count; i += 1) {
+        const link = links.nth(i);
+        const id = (await link.getAttribute('href'))!.slice(1);
+        await page.evaluate(() =>
+          window.scrollTo(0, document.body.scrollHeight),
+        );
+        await link.focus();
+        await page.keyboard.press('Enter');
+        await expect(page.locator(`[id="${id}"]`)).toBeFocused();
+        const [labelTop, headerBottom] = await page.evaluate((field) => {
+          const header = document.querySelector('.site-header');
+          const sticky =
+            header && getComputedStyle(header).position === 'sticky';
+          return [
+            document
+              .querySelector(`label[for="${field}"]`)!
+              .getBoundingClientRect().top,
+            sticky ? header.getBoundingClientRect().bottom : 0,
+          ];
+        }, id);
+        expect(
+          labelTop,
+          `#${id}'s label is under the sticky header at ${viewport.width}px after its summary link`,
+        ).toBeGreaterThanOrEqual(headerBottom);
+      }
+    }
+  };
+
   /* SC 2.4.12: Tab from the summary, Shift+Tab from the last footer link; no stop is even partly covered. */
   const WALKS = [
     { key: 'Tab', start: (page: Page) => page.locator('.error-summary') },
@@ -1044,6 +1079,7 @@ test.describe('the contact error pages in a browser', () => {
     await expectTypedKept(page, typed);
     await expectHelpBesideFields(page, 'rejected-submission');
     await expectFocusUncovered(page, 'rejected-submission');
+    await expectSummaryLinksShowLabels(page, 'rejected-submission');
   });
 
   test('the storage-failure page', async ({ page }) => {
