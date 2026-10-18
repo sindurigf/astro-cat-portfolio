@@ -491,8 +491,9 @@ Rules this repository follows. Values and reasons:
   [low vision needs](https://www.w3.org/TR/low-vision-needs/), high contrast
   against light sensitivity.
 - **Scripts.** Never hold content back behind a script. What a page says is in
-  its HTML; a script only adds to it. Tested for navigation
-  (`tests/no-script.spec.ts`) and the talk slides (`tests/slideshow.spec.ts`).
+  its HTML; a script only adds to it. Tested for navigation and the About
+  cats' names and lines (`tests/no-script.spec.ts`) and the talk slides
+  (`tests/slideshow.spec.ts`).
 - **Sources.** WCAG and its Understanding documents are normative. Mark any
   other source cited here, an article, checklist or tool, as opinion.
 - **Unusual words.** On a functional page, write jargon in plain words. Where

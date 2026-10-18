@@ -200,3 +200,31 @@ test.describe('navigation without JavaScript', () => {
     ).toHaveCount(0);
   });
 });
+
+/* A11Y.md "Content Held Hostage by JavaScript": the cats are drawn by a script, their words are not. */
+test.describe('the About cats without JavaScript', () => {
+  const NAMES = ['Minerva', 'Hela', 'Rudra'];
+
+  test('each cat is named in text', async ({ browser }) => {
+    const context = await browser.newContext({ javaScriptEnabled: false });
+    try {
+      const page = await context.newPage();
+      await page.goto('/about/');
+      const list = page.locator('.cats-noscript');
+      await expect(
+        list,
+        'the cats text is not shown without JavaScript',
+      ).toBeVisible();
+      for (const name of NAMES) {
+        await expect(list.getByText(`${name}.`, { exact: true })).toBeVisible();
+      }
+    } finally {
+      await context.close();
+    }
+  });
+
+  test('the cats text is hidden when the cats are drawn', async ({ page }) => {
+    await page.goto('/about/');
+    await expect(page.locator('.cats-noscript')).toBeHidden();
+  });
+});

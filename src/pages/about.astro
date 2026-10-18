@@ -416,6 +416,17 @@ const closeRow = await closeRowLinks({
     </Section>
   )}
 
+  {/* The cats are drawn by a script; without one, their names and lines are still on the page (ACCESSIBILITY.md, Scripts). */}
+  <Section title="The Cats" class="cats-noscript">
+    <ul role="list" class="flex flex-col gap-4">
+      {CATS.map((cat) => (
+        <li class="text-body text-text">
+          <strong class="font-black">{cat.name}.</strong> {cat.role}
+        </li>
+      ))}
+    </ul>
+  </Section>
+
   <CloseRow {...closeRow} />
 
   <PhotoViewer />

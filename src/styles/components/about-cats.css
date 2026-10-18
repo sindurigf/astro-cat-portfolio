@@ -355,3 +355,14 @@
     @apply w-48 max-w-full md:w-72;
   }
 }
+
+/* The cats as text, only where scripts do not run; tests/no-script.spec.ts. */
+.cats-noscript {
+  display: none;
+}
+
+@media (scripting: none) {
+  .cats-noscript {
+    display: block;
+  }
+}
