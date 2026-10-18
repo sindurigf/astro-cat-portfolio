@@ -81,7 +81,7 @@ const EMPTY_BLOG = {
 ---
 
 <nav aria-label="Filter posts by category">
-  <ul class="chip-row">
+  <ul role="list" class="chip-row">
     {filterOptions.map((option) => {
       const isActive = option.href === activeHref;
       return (
@@ -119,6 +119,7 @@ const EMPTY_BLOG = {
   </div>
 ) : (
   <ul
+    role="list"
     class:list={['card-block mt-head grid gap-grid lg:grid-cols-2', wall.wall]}
   >
     {posts.map((post, index) => {
@@ -149,7 +150,7 @@ const EMPTY_BLOG = {
 {totalPages > 1 ? (
   <nav aria-label="Pagination" class="mt-head">
     {/* No Previous/Next: beside a number to the same URL, WAVE flags a redundant link. */}
-    <ul class="chip-row">
+    <ul role="list" class="chip-row">
       {pageNumbers.map((page) => {
         const isCurrent = page === currentPage;
         return (

@@ -25,12 +25,12 @@ for (const { utility } of shadows) {
 }
 ---
 
-<ul class="brand-parts">
+<ul role="list" class="brand-parts">
   <ComponentRow
     id="edges-and-shadows"
     rule={brandSection('borders-and-shadows').rule}
   >
-    <ul class="space-y-6">
+    <ul role="list" class="space-y-6">
       {shadows.map(({ utility, casts }) => (
         <li class="flex items-center gap-6">
           <span

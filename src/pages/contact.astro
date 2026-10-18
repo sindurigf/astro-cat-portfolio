@@ -106,7 +106,10 @@ const REASONS = [
           <h3 class="card-title">Or Find Me Here</h3>
 
           {/* Whole-card links, unlike BlogCard: the name stays short ("Email hello@example.com"). */}
-          <ul class:list={['card-block mt-6 grid', CONTACT_WALL.wall]}>
+          <ul
+            role="list"
+            class:list={['card-block mt-6 grid', CONTACT_WALL.wall]}
+          >
             {CONTACT_METHODS.map((method, index) => (
               <li class:list={['flex min-w-0', CONTACT_WALL.bricks[index]]}>
                 <a
