@@ -94,8 +94,8 @@ blur, uppercase headings, tilted marks.
 
 | Token        | Hex       | Job                                                            |
 | ------------ | --------- | -------------------------------------------------------------- |
-| `background` | `#0B0B0B` | Page ground; header, footer, bands; a card's grid lines        |
-| `surface`    | `#1A1A1A` | Cards, inputs                                                  |
+| `background` | `#0B0B0B` | Page ground; header, footer, bands                             |
+| `surface`    | `#1A1A1A` | Inputs and controls off a block                                |
 | `border`     | `#FFC000` | Every boundary on the page: the gold edge                      |
 | `card-edge`  | none      | Card and plain slab edge; `#131313` in light mode              |
 | `fill-edge`  | `#131313` | Edge of a gold or light fill: buttons, roundel                 |
@@ -175,17 +175,17 @@ every size (SC 1.4.6, as /accessibility claims); non-text needs 3.0 (SC
 | Foreground                | Background            | Job        | Used for                                         | Needs | Ratio | Result     |
 | ------------------------- | --------------------- | ---------- | ------------------------------------------------ | ----- | ----- | ---------- |
 | `text` #E5E2E1            | `background` #0B0B0B  | text       | Reading text, headings                           | 7.0   | 15.28 | pass       |
-| `text` #E5E2E1            | `surface` #1A1A1A     | text       | Text inside cards and inputs                     | 7.0   | 13.51 | pass       |
+| `text` #E5E2E1            | `surface` #1A1A1A     | text       | Text in inputs and controls                      | 7.0   | 13.51 | pass       |
 | `subtle` #9EB6C7          | `background` #0B0B0B  | text       | Captions, meta, helper text                      | 7.0   | 9.34  | pass       |
-| `subtle` #9EB6C7          | `surface` #1A1A1A     | text       | Helper and required text in cards                | 7.0   | 8.26  | pass       |
+| `subtle` #9EB6C7          | `surface` #1A1A1A     | text       | Meta text on a surface                           | 7.0   | 8.26  | pass       |
 | `gold` #FFC000            | `background` #0B0B0B  | text       | Card labels                                      | 7.0   | 11.99 | pass       |
-| `gold` #FFC000            | `surface` #1A1A1A     | text       | Card labels                                      | 7.0   | 10.60 | pass       |
+| `gold` #FFC000            | `surface` #1A1A1A     | text       | Labels on a surface                              | 7.0   | 10.60 | pass       |
 | `pink-text` #FF79B6       | `background` #0B0B0B  | text       | Error text, pink glyphs                          | 7.0   | 8.12  | pass       |
-| `pink-text` #FF79B6       | `surface` #1A1A1A     | text       | Error text in the form card                      | 7.0   | 7.18  | pass       |
+| `pink-text` #FF79B6       | `surface` #1A1A1A     | text       | Error text on a surface                          | 7.0   | 7.18  | pass       |
 | `cyan` #00DCFD            | `background` #0B0B0B  | text       | Hover text; the focus ring (needs 3)             | 7.0   | 11.86 | pass       |
-| `cyan` #00DCFD            | `surface` #1A1A1A     | text       | Hover text and focus ring in cards               | 7.0   | 10.49 | pass       |
+| `cyan` #00DCFD            | `surface` #1A1A1A     | text       | Hover text and focus ring on a surface           | 7.0   | 10.49 | pass       |
 | `border` #FFC000          | `background` #0B0B0B  | non-text   | Every boundary on the page                       | 3.0   | 11.99 | pass       |
-| `border` #FFC000          | `surface` #1A1A1A     | non-text   | Input and chip edges on a card                   | 3.0   | 10.60 | pass       |
+| `border` #FFC000          | `surface` #1A1A1A     | non-text   | Input and chip edges on a surface                | 3.0   | 10.60 | pass       |
 | `pink` #FF007A            | `background` #0B0B0B  | non-text   | Error edge; action shadow                        | 3.0   | 5.19  | pass       |
 | `pink` #FF007A            | `surface` #1A1A1A     | non-text   | Error edge on a field off a block                | 3.0   | 4.59  | pass       |
 | `background` #0B0B0B      | `gold` #FFC000        | text       | Label on a gold fill                             | 7.0   | 11.99 | pass       |
@@ -199,7 +199,7 @@ every size (SC 1.4.6, as /accessibility claims); non-text needs 3.0 (SC
 | `gold-border` #131313     | `gold` #FFC000        | non-text   | Boundaries on gold                               | 3.0   | 11.32 | pass       |
 | `fill-edge` #131313       | `gold` #FFC000        | non-text   | Edge of a gold fill                              | 3.0   | 11.32 | pass       |
 | `fill-edge` #131313       | `text` #E5E2E1        | non-text   | Edge of a light fill                             | 3.0   | 14.42 | pass       |
-| `surface` #1A1A1A         | `background` #0B0B0B  | decoration | A card; shadow and grid set it apart             | n/a   | 1.13  | decoration |
+| `surface` #1A1A1A         | `background` #0B0B0B  | decoration | A surface; its edge sets it apart                | n/a   | 1.13  | decoration |
 | `surface` #1A1A1A         | `gold` #FFC000        | non-text   | Chip fill on the hero slab                       | 3.0   | 10.60 | pass       |
 | `gold-btn-label` #FFFFFF  | `gold-text` #131313   | text       | Label on the dark button on gold                 | 7.0   | 18.58 | pass       |
 | `gold` #FFC000            | `background` #0B0B0B  | decoration | Object shadow                                    | n/a   | 11.99 | decoration |
@@ -956,7 +956,7 @@ Enforced by `tests/post-page.spec.ts`.
 | Inline code | `.prose code`: the mono stack at `--text-code`, on a `surface` fill with `px-1` and no border                                                           |
 | Code block  | `.prose pre`: mono, `border-4 border-border` on `surface`, `p-4`, scrolls sideways, a named tab stop while it overflows                                 |
 | Lists       | `mt-6 pl-6`, items `mt-3`, gold markers; a link-only item is 44px tall                                                                                  |
-| Blockquote  | `mt-6`, `edge-l border-gold`, `pl-6`, its text at weight 900                                                                                            |
+| Blockquote  | `mt-6`, `edge-l border-border`, `pl-6`, its text at weight 900                                                                                          |
 | Table       | `mt-6`, `edge`, fixed layout, cells `px-4 py-3`, headers on `surface`; Markdown headers get `scope="col"`, a table with row headers is HTML             |
 | Figure      | `mt-8`, wider than the text ([Measure](#measure)), an `.aspect-frame` sized by the file with a 4px `border` ring; caption `mt-4 text-label text-subtle` |
 | `hr`        | `mt-16`, a 6px `border` rule                                                                                                                            |
@@ -1023,8 +1023,9 @@ A heading, a sentence, one way on. Enforced by `tests/empty-states.spec.ts`,
   `autofocus`, no `role="alert"` (focus already announces it; some screen
   readers read an alert twice).
 - A status region exists, empty, before anything is written to it.
-- The only live regions: the contact form's status and the photo viewer's
-  count. Every other state is its own page.
+- The only live regions: the contact form's status, the photo viewer's count
+  and caption, the slideshow's status and the About cats' trick note. Every
+  other state is its own page.
 - The photo viewer decodes before it swaps, then writes `src`, caption and
   count together, so nothing is announced before it is painted.
 - Loading holds: past 200ms the count reads "Loading photo 4 of 12" and the

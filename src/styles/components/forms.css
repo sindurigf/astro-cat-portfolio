@@ -13,7 +13,7 @@
     @apply font-normal normal-case tracking-normal text-subtle;
   }
 
-  /* 4px edge, like every object on the site. */
+  /* 6px edge, like every panel and field on the site. */
   .field-control {
     @apply mt-3 block w-full edge border-border bg-surface px-4 py-3
       font-sans text-body text-text;
@@ -26,7 +26,7 @@
 
   /*
    * Invalid by shape, not only color (SC 1.4.1: pink and `border` look alike
-   * in luminance): a 4px inset ring inside the 4px edge.
+   * in luminance): a 4px inset ring inside the 6px edge.
    */
   .field-control[aria-invalid='true'] {
     @apply border-pink inset-shadow-invalid;
