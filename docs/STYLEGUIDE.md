@@ -604,9 +604,7 @@ file per area.
 - An abbreviation's expansion is a `<button popovertarget>` described by its
   popover, not a focusable `<abbr>`: a tap opens it with no script, and the
   WAI-ARIA tooltip pattern covers no touch. Flush below, so the pointer can
-  cross onto it (SC 1.4.13). Never inside a link: write the word out there,
-  or, where the link leads to its definition (G55), make the link the trigger
-  with `Abbr`'s `href`: hover and focus show the expansion, a tap follows it.
+  cross onto it (SC 1.4.13). Never inside a link: write the word out there.
 
 ## Sections, rhythm and grid
 
@@ -1325,8 +1323,8 @@ size-full object-cover`). Never put `aspect-ratio` on the image: WebKit
 - The name links the photo's page (`LICENSED_PHOTOS[x].source`), else the
   photographer's site (`PHOTOGRAPHERS`), else stays plain text.
 - A Creative Commons photo adds its short license, "Photo: Name (CC BY 4.0)",
-  linking `licenseHref` and expanded to `license` by `Abbr` with `href`
-  (SC 3.1.4). CC BY §4(a) asks for the license link with every copy.
+  as a plain link to `licenseHref`. No `Abbr`: the deed names the license in
+  full (G55, SC 3.1.4). CC BY §4(a) asks for the license link with every copy.
 - No photo title, source site or changes in the caption.
   `tests/markdown-plugins.spec.ts`.
 
