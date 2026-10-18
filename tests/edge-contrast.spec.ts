@@ -21,7 +21,10 @@ const lostEdges = (page: Page): Promise<string[]> =>
       if (style.visibility !== 'visible' || style.display === 'contents') continue;
       const box = element.getBoundingClientRect();
       if (box.width === 0 || box.height === 0) continue;
-      const ground = effectiveBackground(element.parentElement);
+      /* The logo block hangs from the header bar onto the page: its edge meets the page. */
+      const ground = effectiveBackground(
+        element.matches('.header-logo-block') ? element.closest('header') : element.parentElement,
+      );
       if (!ground) continue;
       const fill = parse(style.backgroundColor);
       if (fill && fill.a === 1 && ratio(fill, ground) >= NON_TEXT) continue;
@@ -62,6 +65,22 @@ for (const colorScheme of ['dark', 'light'] as const) {
           ).toEqual([]);
         });
       }
+
+      /* An invalid field keeps the card's fill, so its edge alone marks the field. */
+      test('/contact/ with every field invalid', async ({ page }) => {
+        await gotoSettled(page, '/contact/');
+        const invalid = await page.evaluate(() => {
+          const fields = document.querySelectorAll('.field-control');
+          for (const field of fields)
+            field.setAttribute('aria-invalid', 'true');
+          return fields.length;
+        });
+        expect(invalid, '/contact/ has no form fields').toBeGreaterThan(0);
+        expect(
+          await lostEdges(page),
+          `invalid field edges under ${NON_TEXT}:1 against their ground`,
+        ).toEqual([]);
+      });
     });
   }
 }

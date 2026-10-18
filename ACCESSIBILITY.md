@@ -61,7 +61,7 @@ out its link.
 | 2.4.9 Link Purpose (Link Only)       | Within a page, one link name leads to one place. Hidden text completes short names: "Community tag", "Robin on GitHub". Exception: link text in posts, listed in `tests/link-purpose.spec.ts`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | 2.4.12 Focus Not Obscured (Enhanced) | No focused control is even partly covered. On pages, none sits under the sticky header in either Tab direction (`tests/focus.spec.ts`); the About cats' sleep and trick controls sit beside their cat buttons, and the last cat's band ends at the raised card above it; inside the open cat card, photo viewer and menu, and from an open trick list, every stop is wholly uncovered (`tests/focus-obscured.spec.ts`). In full-screen slides the focused heading is never covered (`tests/slideshow.spec.ts`), but on a 16:9 screen the pointer bar, while shown, covers part of the bottom edge of the ring drawn around the slide.                                                                               |
 | 2.4.13 Focus Appearance              | One solid ring, `--focus-width` wide. At every page focus stop it covers at least a 2px perimeter of the control and reaches 3:1 against the ground it paints over.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
-| 2.5.5 Target Size (Enhanced)         | Every pointer target outside a sentence has a 44 by 44px area of its own, never shared: controls are drawn at `--spacing-target` (44px); header nav stickers are 48px tall; breadcrumb links get a pointer area wider than their drawn box (`.hit-target`); footer links are 44px rows. `tests/target-size.spec.ts` hit-tests every target at 305px and 1280px on every page, listings sampled, in the open cat card and photo viewer, and in the open menu at 305px. An open trick list is not hit-tested.                                                                                                                                                                                                         |
+| 2.5.5 Target Size (Enhanced)         | Every pointer target outside a sentence has a 44 by 44px area of its own, never shared: controls are drawn at `--spacing-target` (44px); header nav bricks are 44px tall; breadcrumb links get a pointer area wider than their drawn box (`.hit-target`); footer links are 44px rows. `tests/target-size.spec.ts` hit-tests every target at 305px and 1280px on every page, listings sampled, in the open cat card and photo viewer, and in the open menu at 305px. An open trick list is not hit-tested.                                                                                                                                                                                                           |
 | 2.5.6 Concurrent Input Mechanisms    | No input is turned off because another one was detected.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
 | 3.1.3 Unusual Words                  | On functional pages (statement, privacy, credits, brand), jargon is written in plain words, or defined in the sentence of its first use and marked with `<dfn>` (G112, H54). `/404` links its Star Wars lines to their explanation on `/credits` (G55). Posts, About, Career and the contact page's introduction are the site owner's copy and are not checked.                                                                                                                                                                                                                                                                                                                                                     |
 | 3.1.4 Abbreviations                  | On functional pages (statement, privacy, credits, brand), each abbreviation's first use is a `<button popovertarget>` around an `<abbr>`, described by its expansion (`aria-describedby`). A tap or Enter opens the expansion with no script, and Escape or a press elsewhere closes it; a script adds hover and focus and places it under the abbreviation. A browser without popovers reads the expansion inline in brackets, and the script removes the button there. Posts, About and Career are the site owner's copy and are not checked.                                                                                                                                                                     |
@@ -142,9 +142,9 @@ view (development server only, never published), and forks.
 - **No JavaScript.** A fallback navigation replaces the mobile menu, sits
   below the header and never duplicates the primary nav.
 - **Current page.** `aria-current` in every navigation, plus a shape change,
-  never color alone: a sticker pressed flat into its shadow in the header and
-  menu, a filled block in the no-JavaScript navigation, an underline in the
-  footer.
+  never color alone: a gold brick with an inset ink ring in the header, a brick
+  pressed into its shadow in the menu, a filled block in the no-JavaScript
+  navigation, an underline in the footer.
 - **Help.** Every page has the Get in Touch link: in the header from 48rem,
   in the menu below it (SC 3.2.6).
 - **Headings and titles.** One `h1`, no skipped level, nothing under 19px
@@ -228,7 +228,8 @@ CSS and `tests/contrast-table.spec.ts` fails when it drifts.
 ### The gold surface
 
 A full or thin PageHero slab, the closing band on `/contact`, the quote on
-`/about` and any `Section surface="gold"` are `#FFC000`. Every dark
+`/about`, the close row card, the homepage hero window and any
+`Section surface="gold"` are `#FFC000`. Every dark
 token fails on it, so `.surface-gold` swaps in a near-black set, links stay
 underlined (SC 1.4.1) and the dark buttons are replaced by gold ones:
 [Gold surface](docs/STYLEGUIDE.md#gold-surface).
@@ -242,9 +243,9 @@ with a 4px ink edge. Inside, the color tokens are remapped, so text is ink at
 
 ### Light mode
 
-With JavaScript, `<main>` and the header turn light on `prefers-color-scheme:
-light` or the header switch, and the choice is remembered; without it the page
-stays dark and the switch is hidden. The footer stays dark. Every
+With JavaScript, `<main>`, the header and the footer turn light on
+`prefers-color-scheme: light` or the header switch, and the choice is
+remembered; without it the page stays dark and the switch is hidden. Every
 text color clears 7:1 on white:
 [Light mode](docs/STYLEGUIDE.md#light-mode).
 
@@ -280,7 +281,7 @@ merge.
 | `tests/visual-presentation.spec.ts` | 1.4.8                                                            | Line length, line height and paragraph spacing at three widths, open cat card included                                                                                                                                                                                                               |
 | `tests/zoom-lines.spec.ts`          | 1.4.8                                                            | Every line of text on screen and no sideways scroll at 200px and 256px, the 500% zoom widths; code blocks and photo strips scroll in their own region                                                                                                                                                |
 | `tests/hero-fit.spec.ts`            | 1.4.10, 1.4.11, 1.4.12, 2.2.2, 2.4.11                            | Hero name unclipped and uncovered; pause control on the first screen beside the first name, every point of it reachable, clear of the name, edge and ring 3:1 on the page                                                                                                                            |
-| `tests/close-row.spec.ts`           | 1.4.10                                                           | The close row's sticker never covers its text; light mode changes only its colors                                                                                                                                                                                                                    |
+| `tests/close-row.spec.ts`           | 1.4.10                                                           | The close row's sticker never covers its text                                                                                                                                                                                                                                                        |
 | `tests/mobile-menu.spec.ts`         | 2.1.1, 2.4.3                                                     | Menu opens, takes focus, returns it; widened from 320px it closes, leaves one Primary navigation and no dialog                                                                                                                                                                                       |
 | `tests/no-script.spec.ts`           | 2.1.1, 1.3.1                                                     | Navigation with scripting off                                                                                                                                                                                                                                                                        |
 | `tests/forced-colors.spec.ts`       | 1.4.11, 2.4.7                                                    | Forced colors, listings sampled; every focus stop on /; not WebKit                                                                                                                                                                                                                                   |
@@ -409,7 +410,8 @@ template ships with none of it run; record your own results. Not automated:
 8. **Keyboard use is reached, not pressed.** `tests/focus.spec.ts` proves
    every control is reached and its ring visible. Activation by Enter or Space
    is tested only for the menu (`tests/mobile-menu.spec.ts`), the skip link,
-   the slides and the cat buttons.
+   the slides, the cat buttons, the theme switch, the hero pause control, the
+   photo viewer and the contact form.
 
 ## 8. Reporting a barrier
 

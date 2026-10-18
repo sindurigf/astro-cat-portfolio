@@ -90,7 +90,7 @@
     --step-x: 0px;
     --step-y: 0px;
 
-    @apply min-w-0 overflow-clip bg-background p-3 text-text sm:p-card-tight;
+    @apply min-w-0 overflow-clip bg-background p-card-tight text-text;
   }
 
   .brand-poster > .brand-stage-half {
