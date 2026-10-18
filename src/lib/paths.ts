@@ -5,6 +5,9 @@ export const CAREER_PATH = '/career/';
 export const CONTACT_PATH = '/contact/';
 export const CONTACT_SEND_PATH = '/contact/send/';
 export const CONTACT_SENT_PATH = '/contact/sent/';
+export const ACCESSIBILITY_PATH = '/accessibility/';
+export const PRIVACY_PATH = '/privacy/';
+export const CREDITS_PATH = '/credits/';
 export const SITEMAP_PATH = '/sitemap-index.xml';
 export const SITE_FEED_PATH = '/rss.xml';
 

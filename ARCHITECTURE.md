@@ -112,6 +112,8 @@ Rules: [STYLEGUIDE Color tokens](docs/STYLEGUIDE.md#color-tokens).
   that is never remapped.
 - The Step's offsets are `--step-x` and `--step-y` in `global.css`; juts are
   translates or margins, so no page scrolls sideways (`tests/blocks.spec.ts`).
+- `src/lib/wall.ts` turns a wall's rows per breakpoint into `card-rise-*` and
+  `card-step-*` classes; the wall's `drop-shadow` follows the stepped outline.
 
 ### Light mode
 
@@ -119,10 +121,10 @@ Dark is the default. Colors and rules:
 [STYLEGUIDE Light mode](docs/STYLEGUIDE.md#light-mode).
 
 - `data-theme="light"` on `<html>`; `src/styles/light-mode.css`, imported last,
-  overrides a subset of tokens on `<main>` and the header while it is set. No
-  `dark:` variants.
-- `<main>` and the header change, so the header slab is a light card on the
-  light page; the no-JS nav and footer stay dark.
+  overrides a subset of tokens on `<main>`, the header and the footer while it
+  is set. No `dark:` variants.
+- `<main>`, the header and the footer change, so the header bar, the page's
+  reverse, turns ink on the light page; the no-JS nav stays dark.
 - `mark` and `tile-edge` hold the mode-independent logo-tile colors.
 - An inline script in `BaseLayout.astro`'s `<head>` sets `data-theme` from the
   saved choice or `prefers-color-scheme` before the body parses, and adds the
