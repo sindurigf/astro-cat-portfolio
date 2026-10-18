@@ -1,0 +1,26 @@
+name: Accessibility Barrier
+description: Something on the site blocks you or makes it hard to use.
+title: 'Barrier: '
+labels: ['accessibility']
+body:
+  - type: markdown
+    attributes:
+      value: You do not need to know the WCAG criterion or say anything about yourself. Every field is optional. To report privately, use the private reporting address in ACCESSIBILITY.md.
+  - type: input
+    id: page
+    attributes:
+      label: Page
+      description: The address of the page, or its name.
+  - type: textarea
+    id: tried
+    attributes:
+      label: What You Tried
+  - type: textarea
+    id: happened
+    attributes:
+      label: What Happened
+  - type: input
+    id: setup
+    attributes:
+      label: Browser, System and Assistive Technology
+      description: For example Firefox on Windows with NVDA.
