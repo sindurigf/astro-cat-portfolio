@@ -8,13 +8,13 @@ import { brandSection } from '../../lib/brand-sections';
 const READING = {
   fg: ['text', 'subtle'],
   bg: ['background', 'surface'],
-  needs: '4.5',
+  job: 'text',
 };
 const readingPairs = contrast.filter(
   (row) =>
     READING.fg.includes(row.fg) &&
     READING.bg.includes(row.bg) &&
-    row.needs === READING.needs,
+    row.job === READING.job,
 );
 ---
 
