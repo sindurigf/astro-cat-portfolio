@@ -39,6 +39,11 @@
     @apply lift-control shadow-hard-pink-4;
   }
 
+  /* WebKit re-hit-tests mid-press and drops :active on a child span. tests/press.spec.ts. */
+  a.chip * {
+    pointer-events: none;
+  }
+
   a.chip:not([aria-current]):hover {
     @apply text-cyan;
   }
