@@ -403,6 +403,55 @@ test.describe('the failed-photo script', () => {
   }
 });
 
+/* SC 1.1.1: the visible copy of the alt is aria-hidden, so the name is heard once, from the image. */
+for (const javaScriptEnabled of [true, false]) {
+  test(`/about exposes each failed photo's name once ${javaScriptEnabled ? 'with' : 'without'} JavaScript`, async ({
+    browser,
+  }) => {
+    const { page } = await open(
+      browser,
+      DESKTOP_VIEWPORT.width,
+      1,
+      javaScriptEnabled,
+    );
+    await page.route(IMAGE_REQUEST, (request) => request.abort());
+    await page.goto('/about', { waitUntil: 'load' });
+    if (javaScriptEnabled)
+      await expect(
+        page.locator('.aspect-frame[data-failed]').first(),
+      ).toBeAttached();
+    const frames = page.locator('.aspect-frame:has(img[alt]:not([alt=""]))');
+    const count = await frames.count();
+    expect(count, '/about has no named framed photo').toBeGreaterThan(0);
+    for (let index = 0; index < count; index += 1) {
+      const frame = frames.nth(index);
+      const alt =
+        (await frame.locator('img').first().getAttribute('alt')) ?? '';
+      const key = alt.slice(0, 30);
+      const tree = (await frame.ariaSnapshot()).split('\n');
+      const naming = tree
+        .filter((line) => line.includes(key))
+        .map((line) => line.trim());
+      /* A link or button around the photo takes its name from the image, so it is not a second copy. */
+      expect(
+        naming.filter((line) => /^- img\b/.test(line)),
+        `"${key}…" is not the name of exactly one image`,
+      ).toHaveLength(1);
+      expect(
+        naming.filter((line) => !/^- (img|link|button)\b/.test(line)),
+        `"${key}…" is also exposed as text`,
+      ).toEqual([]);
+      expect(
+        await frame.evaluate(
+          (el) =>
+            el.getAttribute('aria-label') ?? el.getAttribute('aria-labelledby'),
+        ),
+        `the frame around "${key}…" has a name of its own`,
+      ).toBeNull();
+    }
+  });
+}
+
 test('FRAME_ROUTES lists every built page with a framed photo', NODE, () => {
   const found = [...builtHtml()]
     .filter(([, html]) => /class="[^"]*\baspect-frame\b/.test(html))

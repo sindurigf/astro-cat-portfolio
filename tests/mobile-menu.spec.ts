@@ -186,7 +186,7 @@ for (const variant of ['', ' without checkVisibility']) {
         Reflect.deleteProperty(Element.prototype, 'checkVisibility');
       });
     }
-    await page.setViewportSize({ width: 390, height: 800 });
+    await page.setViewportSize({ width: REFLOW_VIEWPORT.width, height: 800 });
     await gotoSettled(page, '/about');
     await page.getByRole('button', { name: /menu/i }).click();
     const panel = page.locator('#mobile-menu-panel');
@@ -199,6 +199,15 @@ for (const variant of ['', ' without checkVisibility']) {
         message: 'the menu is still open where it is not drawn',
       })
       .toBe(false);
+
+    await expect(
+      page.getByRole('dialog'),
+      'a dialog is still in the accessibility tree',
+    ).toHaveCount(0);
+    await expect(
+      page.getByRole('navigation', { name: 'Primary', exact: true }),
+      'there is not exactly one Primary navigation',
+    ).toHaveCount(1);
 
     const first = page.locator('header nav[aria-label="Primary"] a').first();
     await expect(first, 'focus is not on the first Primary link').toBeFocused();
