@@ -118,7 +118,7 @@
   --color-background: #0b0b0b;
   --color-surface: #1a1a1a;
   --color-border: #ffc000;
-  /* The header slab draws no edge in dark mode: its pink shadow sets it apart. */
+  /* A card draws no edge in dark mode: its fill and throw set it apart. */
   --color-card-edge: transparent;
   /*
    * The edge of a gold or light fill: the fill delimits it on the page, so the
@@ -400,6 +400,8 @@
   --hard-throw: 8px;
   /* A block's ink edge; blocks in a `.card-block` share it as one wall. */
   --block-edge: 4px;
+  /* The header's joined bricks and its logo block. */
+  --brick-throw: 6px;
   /*
    * The Step: sideways juts and a wall's Step Up, both 0 below 640px so
    * nothing pushes a phone layout off the column.
@@ -409,6 +411,8 @@
   /* Card, panel, field, header and rule edges (`edge` utilities); controls, chips, photos and stickers keep `border-4`. */
   --edge: 6px;
   --shadow-hard-pink-4: 4px 4px 0 var(--color-pink);
+  /* In the color opposite the ground, so it shows in both modes. */
+  --shadow-brick: var(--brick-throw) var(--brick-throw) 0 var(--color-text);
   --shadow-hard-pink-object: var(--hard-throw) var(--hard-throw) 0
     var(--color-pink);
   --shadow-hard-mark-4: 4px 4px 0 var(--color-mark);
@@ -428,10 +432,10 @@
   --inset-shadow-gold-btn-ring: inset 0 0 0 3px var(--color-gold-btn-label);
 
   /*
-   * Current-page ring on .nav-cta: clears SC 1.4.11 on gold, on the cyan hover
-   * and against the border.
+   * Current-page ring on a gold nav brick and .nav-cta: ink, 11.32 on gold, so
+   * the state is a shape as well as a fill (SC 1.4.1).
    */
-  --inset-shadow-cta-current: inset 0 0 0 4px var(--color-background);
+  --inset-shadow-current: inset 0 0 0 4px var(--color-gold-text);
 
   /* A failing field's 4px pink edge doubled by a 4px ring inside it. */
   --inset-shadow-invalid: inset 0 0 0 4px var(--color-pink);
@@ -468,6 +472,24 @@
    * 2.4.11).
    */
   --spacing-header: 96px;
+  /*
+   * The slim header once the page scrolls: a 60px bar, 6px above and below.
+   * Its flow box keeps `--spacing-header`, so nothing below moves.
+   */
+  --spacing-header-compact: 72px;
+  /* How far the gold logo block hangs below the header slab. */
+  --spacing-logo-hang: 28px;
+  /*
+   * What <main> adds on top so its first block clears the logo block's throw
+   * by 8px, given the `--hero-pad-block` every opening already has.
+   */
+  --spacing-main-top: max(
+    0px,
+    calc(
+      var(--spacing-logo-hang) + var(--brick-throw) + var(--spacing) * 2 -
+        var(--hero-pad-block)
+    )
+  );
   /* The slideshow's control row: a ~59px button plus its 4px shadow. */
   --spacing-deck-bar: 4.5rem;
 

@@ -130,11 +130,11 @@ const HAS_TALK = (await getCollection('talks')).length > 0;
           <h3>Color Modes</h3>
           <p>
             axe WCAG A and AA runs on every page in dark mode (the default) and
-            light mode, at 1280 and 320px. Light mode changes the main content
-            and the header; the footer stays dark. With JavaScript on, it
-            follows <code>prefers-color-scheme: light</code> or the header
-            switch, and the choice is remembered. With JavaScript off, the page
-            stays dark and the switch is hidden.
+            light mode, at 1280 and 320px. Light mode changes the main content,
+            the header and the footer. With JavaScript on, it follows{' '}
+            <code>prefers-color-scheme: light</code> or the header switch, and
+            the choice is remembered. With JavaScript off, the page stays dark
+            and the switch is hidden.
           </p>
           <p>
             You can read the main content in dark or light colors. It follows
@@ -314,8 +314,8 @@ const HAS_TALK = (await getCollection('talks')).length > 0;
             mode, at 390 and 1280px, every drawn edge reaches 3:1 against the
             ground it sits on, unless the element's own opaque fill already
             does. A gold fill's edge also reaches 3:1 against the fill. Cards
-            are gold or light blocks whose fill reaches 3:1 against the page,
-            with a 4px ink edge that forced colors keep. Every{' '}
+            are gold or light blocks whose fill or 4px ink edge reaches 3:1
+            against the page; forced colors keep the edge. Every{' '}
             <dfn>focus ring</dfn>, the outline on the control you are on,
             reaches 3:1 against the ground it paints over, on every page with
             listings sampled.
@@ -477,7 +477,8 @@ const HAS_TALK = (await getCollection('talks')).length > 0;
           <p>
             The tab walk proves every control is reached and visible. Pressing
             each control with Enter or Space is tested only for the menu, skip
-            link, slides and cat buttons.
+            link, slides, cat buttons, theme switch, hero pause control, photo
+            viewer and contact form.
           </p>
           <p>
             Tests check that you can reach every control by keyboard, but not

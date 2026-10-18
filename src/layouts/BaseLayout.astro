@@ -238,7 +238,11 @@ const articleData = article && {
     </a>
     <Header />
     {/* tabindex="-1": without it the skip link leaves focus on <body>. */}
-    <main id="main-content" tabindex="-1" class="page-gutter flex-1">
+    <main
+      id="main-content"
+      tabindex="-1"
+      class="page-gutter flex-1 pt-main-top"
+    >
       <slot />
     </main>
     <Footer />

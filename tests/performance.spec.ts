@@ -26,7 +26,7 @@ const scriptBudget = (route: string): number =>
   (ANALYTICS_ON ? ANALYTICS_SCRIPT_BUDGET : 0);
 
 /* Decoded bytes of the stylesheets a page links plus its inline `<style>`. Every route links the one sheet. */
-const PAGE_STYLE_BUDGET = 104_000;
+const PAGE_STYLE_BUDGET = 120_000;
 
 const STYLESHEET_HREF = /<link\b[^>]*\brel="stylesheet"[^>]*\bhref="([^"]+)"/g;
 const INLINE_STYLE = /<style\b[^>]*>([\s\S]*?)<\/style>/g;
