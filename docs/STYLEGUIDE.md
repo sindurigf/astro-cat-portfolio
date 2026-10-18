@@ -613,16 +613,16 @@ The grid rule in `scripts/check-tokens.mjs` enforces the grid;
 
 ### Section types
 
-| Type    | Build                                                                                                                           |
-| ------- | ------------------------------------------------------------------------------------------------------------------------------- |
-| Hero    | First section on every page except a post; a `.gold-column`. See [Hero](#hero).                                                 |
-| Open    | `Section`: `text-h2` heading, optional `.lead` 24px under it, content at `--spacing-head`, `max-w-page` in `.page-gutter`.      |
-| Panel   | `Section panel`: the same box, the whole section in one `.card`, its h2 `text-h2` inside the card.                              |
-| Listing | Grid of cards, 1 to 3 columns, `--spacing-grid` gaps: blog index, categories, tags, Home's two grids.                           |
-| Reading | One `.prose` column, `max-w-measure` (36rem): Privacy, Accessibility, a post's body.                                            |
-| Surface | The gold band (Home, Career, Contact), a `.gold-column`. With the hero slab, the only change of ground.                         |
-| Close   | `CloseRow`, its own band, always last, never nested.                                                                            |
-| Brand   | `BrandFrame`: the side menu (`BrandMenu`, `--container-rail` wide from `lg`, a closed details box under it) beside the content. |
+| Type    | Build                                                                                                                                                                                                                        |
+| ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Hero    | First section on every page except a post; a `.gold-column`. See [Hero](#hero).                                                                                                                                              |
+| Open    | `Section`: `text-h2` heading, optional `.lead` 24px under it, content at `--spacing-head`, `max-w-page` in `.page-gutter`.                                                                                                   |
+| Panel   | `Section panel`: the same box, the whole section in one `.card`, its h2 `text-h2` inside the card.                                                                                                                           |
+| Listing | Grid of cards, 1 to 3 columns, `--spacing-grid` gaps: blog index, categories, tags, Home's two grids.                                                                                                                        |
+| Reading | One `.prose` column, `max-w-measure` (36rem): Privacy, Accessibility, a post's body.                                                                                                                                         |
+| Surface | The gold band (Home, Career, Contact), a `.gold-column`. With the hero slab, the only change of ground.                                                                                                                      |
+| Close   | `CloseRow`, its own band, always last, never nested.                                                                                                                                                                         |
+| Brand   | `BrandFrame`: the side menu (`BrandMenu`, `--container-rail` wide from `lg`, a closed details box under it) beside the content. Its groups are walls of joined light bricks under plain labels; the current section is gold. |
 
 ### One treatment per type
 
