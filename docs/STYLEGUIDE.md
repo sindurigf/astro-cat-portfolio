@@ -59,7 +59,7 @@ blur, uppercase headings, tilted marks.
 - 4a's lead-in terms and links make a projected slide's key words readable at
   a glance; light mode turns them ink, like bold words.
 - A use with a replacement takes it: a `/career` date is `subtle`; the
-  homepage stat numbers are `gold-text` on their gold band (gold on gold is
+  homepage stat numbers are ink on a wall of light blocks (gold on gold is
   1.00).
 
 ### The grid is visible where it is structural
