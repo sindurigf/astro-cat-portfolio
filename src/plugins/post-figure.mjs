@@ -2,7 +2,7 @@
  * Adds `layout` and `sizes` to markdown images for getImage(). A lone image gets
  * an SVG-viewBox `.aspect-frame`: WebKit drops a failed image's size and the CSP
  * bars inline styles. In a post it becomes a figure, its title a figcaption
- * linked via CREDITS; on a slide only a titled image does.
+ * credited via CREDITS; on a slide only a titled image does.
  */
 
 import { readFileSync } from 'node:fs';
@@ -16,6 +16,7 @@ import {
   SCREENSHOT_CREDIT_PREFIX,
   SCREENSHOT_SOURCES,
 } from '../lib/credits.ts';
+import { abbrId } from '../lib/abbr.ts';
 
 const CREDITS = [
   [PHOTO_CREDIT_PREFIX, PHOTOGRAPHERS],
@@ -115,41 +116,107 @@ const framed = (image, { width, height }) => ({
   ],
 });
 
-const link = (href, label) => ({
+const link = (href, children, properties = {}) => ({
   type: 'element',
   tagName: 'a',
-  properties: { href },
-  children: [text(label)],
+  properties: { ...properties, href },
+  children,
 });
 
-/** A Creative Commons photo's source, license and changes, keyed by its file name. */
-export const licenseChildren = (src, photos = LICENSED_PHOTOS) => {
+/** src/components/Abbr.astro with `href`, which a plugin cannot render. */
+const abbrLink = (href, short, long) => {
+  const id = abbrId(short);
+  return {
+    type: 'element',
+    tagName: 'span',
+    properties: { dataAbbr: '', className: ['abbr-unit'] },
+    children: [
+      link(
+        href,
+        [
+          {
+            type: 'element',
+            tagName: 'abbr',
+            properties: {},
+            children: [text(short)],
+          },
+        ],
+        { ariaDescribedBy: id },
+      ),
+      {
+        type: 'element',
+        tagName: 'span',
+        properties: {
+          className: ['abbr-tip'],
+          id,
+          popover: '',
+          role: 'tooltip',
+        },
+        children: [text(long)],
+      },
+      text(')'),
+    ],
+  };
+};
+
+/**
+ * A Creative Commons photo, keyed by its file name.
+ * @param {unknown} src
+ * @param {Readonly<Record<string, import('../lib/credits.ts').LicensedPhoto>>} photos
+ */
+const licensedPhoto = (src, photos) => {
   const stem =
     String(src)
       .split('/')
       .pop()
       ?.replace(/\.[^.]+$/, '') ?? '';
-  const photo = Object.hasOwn(photos, stem) ? photos[stem] : undefined;
-  if (photo === undefined) return [];
-  return [
-    text(' ('),
-    link(photo.source, photo.title),
-    text(` on ${photo.sourceName}, `),
-    link(photo.licenseHref, photo.license),
-    text(`, ${photo.changes})`),
-  ];
+  return Object.hasOwn(photos, stem) ? photos[stem] : undefined;
 };
 
-export const captionChildren = (caption, src, photos = LICENSED_PHOTOS) => {
+/**
+ * "Photo: Name", the name linked to the photo's page or else the photographer's;
+ * a Creative Commons photo adds its short license, expanded once per page.
+ * @param {string} caption
+ * @param {unknown} src
+ * @param {Readonly<Record<string, import('../lib/credits.ts').LicensedPhoto>>} [photos]
+ * @param {Set<string>} [expanded] Short licenses already expanded on the page.
+ */
+export const captionChildren = (
+  caption,
+  src,
+  photos = LICENSED_PHOTOS,
+  expanded = new Set(),
+) => {
   const [prefix, sources] =
     CREDITS.find(([candidate]) => caption.startsWith(candidate)) ?? [];
   if (prefix === undefined) return [text(caption)];
 
   const name = caption.slice(prefix.length);
-  const href = Object.hasOwn(sources, name) ? sources[name] : undefined;
+  const licensed =
+    prefix === PHOTO_CREDIT_PREFIX ? licensedPhoto(src, photos) : undefined;
+  if (licensed !== undefined && licensed.photographer !== name) {
+    throw new Error(
+      `post-figure: ${String(src)} is credited to "${name}", but LICENSED_PHOTOS names "${licensed.photographer}".`,
+    );
+  }
+  const href =
+    licensed?.source ??
+    (Object.hasOwn(sources, name) ? sources[name] : undefined);
   if (href === undefined) return [text(caption)];
 
-  return [text(prefix), link(href, name), ...licenseChildren(src, photos)];
+  const credit = [text(prefix), link(href, [text(name)])];
+  if (licensed === undefined) return credit;
+
+  const { licenseShort, license, licenseHref } = licensed;
+  const first = !expanded.has(licenseShort);
+  expanded.add(licenseShort);
+  return [
+    ...credit,
+    text(' ('),
+    ...(first
+      ? [abbrLink(licenseHref, licenseShort, license)]
+      : [link(licenseHref, [text(licenseShort)]), text(')')]),
+  ];
 };
 
 /* A post with a `cover` opens on it (src/pages/blog/[slug].astro), so that photo loads first. */
@@ -171,6 +238,7 @@ export const postFigure = ({ fileURL } = {}) => {
   let firstSeen =
     String(fileURL ?? '').includes(TALKS_PATH) || opensOnCover(fileURL);
   const isFirst = () => !firstSeen && (firstSeen = true);
+  const expanded = new Set();
 
   return {
     name: 'post-figure',
@@ -234,7 +302,12 @@ export const postFigure = ({ fileURL } = {}) => {
                     type: 'element',
                     tagName: 'figcaption',
                     properties: {},
-                    children: captionChildren(caption, properties.src),
+                    children: captionChildren(
+                      caption,
+                      properties.src,
+                      LICENSED_PHOTOS,
+                      expanded,
+                    ),
                   },
                 ]),
           ],

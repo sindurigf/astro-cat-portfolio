@@ -39,6 +39,8 @@ export interface LicensedPhoto {
   sourceName: string;
   /** Spelled out, e.g. "Creative Commons Attribution 4.0" (SC 3.1.4). */
   license: string;
+  /** What captions show, e.g. "CC BY 4.0", expanded to `license`. */
+  licenseShort: string;
   licenseHref: string;
   /** What was changed, as the license asks, e.g. "cropped and resized". */
   changes: string;
@@ -46,6 +48,7 @@ export interface LicensedPhoto {
 
 /**
  * Photos used under a Creative Commons license, keyed by file name without its
- * extension: the caption and /credits link the source and license and say what changed.
+ * extension. A caption links the photographer to `source` and adds the short
+ * license; /credits gives the title, source, license and changes.
  */
 export const LICENSED_PHOTOS: Readonly<Record<string, LicensedPhoto>> = {};
