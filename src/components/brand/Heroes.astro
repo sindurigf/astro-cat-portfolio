@@ -3,7 +3,6 @@ import PageHero from '../PageHero.astro';
 import Roundel from '../Roundel.astro';
 import ComponentRow from './ComponentRow.astro';
 /* Each hero at its real size; from `sm` the band's gutter is put back around it, under it the stage's padding stands in. */
-/* Each hero at its real size; the band's gutter is put back around it. */
 const FRAME = 'hero-example sm:px-6';
 ---
 
@@ -24,7 +23,7 @@ const FRAME = 'hero-example sm:px-6';
       <ul class="space-y-12">
         <li>
           <p class="mb-6 text-body text-subtle">
-            Thin slab: a post or a tag page.
+            Thin slab: a post, Message Sent or a Brand section page.
           </p>
           <figure class={FRAME}>
             <PageHero title="Post Title" slab="thin" headingLevel={3} />
