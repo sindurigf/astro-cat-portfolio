@@ -39,6 +39,11 @@
     @apply lift-control shadow-hard-pink-4;
   }
 
+  /* WebKit re-hit-tests mid-press and drops :active on a child span. tests/press.spec.ts. */
+  a.chip * {
+    pointer-events: none;
+  }
+
   a.chip:not([aria-current]):hover {
     @apply text-cyan;
   }
@@ -57,5 +62,57 @@
   .badge {
     @apply inline-flex items-center bg-text px-2 py-1 text-label font-black
       uppercase tracking-label text-background;
+  }
+
+  /*
+   * A row of filter or page chips: joined light bricks casting one throw, the
+   * current one gold with an ink marker. Side by side each overlaps the next
+   * by its edge; a wrapped line keeps its own edges, so no target shrinks
+   * (SC 2.5.5). The row holds still.
+   */
+  .chip-row {
+    @apply flex flex-wrap items-center;
+
+    padding-left: var(--block-edge);
+    filter: drop-shadow(
+      var(--brick-throw) var(--brick-throw) 0 var(--color-pink)
+    );
+
+    & > li {
+      margin-left: calc(var(--block-edge) * -1);
+    }
+
+    & a.chip {
+      --lift: 0px;
+
+      @apply border-block-ink bg-block-light text-block-ink shadow-none;
+    }
+
+    /* The dark mode cyan in both modes: light mode's cyan is a text color, 2.55 under ink. */
+    & a.chip:not([aria-current]):hover {
+      @apply text-block-ink;
+
+      background-color: var(--dark-cyan);
+    }
+
+    & a.chip[aria-current] {
+      @apply bg-block-gold;
+    }
+
+    /* Inside the brick, so it never crosses the next; ink on light, gold or cyan. */
+    & a.chip:focus-visible {
+      position: relative;
+      z-index: 1;
+      outline-color: var(--color-block-ink);
+      outline-offset: calc(-1 * (var(--block-edge) + var(--focus-gap)));
+    }
+
+    & a.chip:not([aria-current]):active {
+      translate: none;
+    }
+
+    @media (forced-colors: active) {
+      filter: none;
+    }
   }
 }
