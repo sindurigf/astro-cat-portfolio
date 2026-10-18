@@ -1,14 +1,22 @@
-import { expect, test, type Page } from './test';
+import { expect, test, type Locator, type Page } from './test';
 import { timedScan } from './axe';
 import { expectIncompleteDecided } from './incomplete';
 import { NON_TEXT, PAGE_HELPERS } from './contrast';
 import { hoveredTextBelowAaa, sampleControls, sampled } from './hover-contrast';
 import { gotoSettled } from './settle';
 import { SAMPLED_ROUTES, BRAND_SAMPLED_ROUTES } from './routes';
-import { AXE_TIMEOUT_MS, FOCUSABLE_SELECTOR, REFLOW_VIEWPORT } from './wcag';
-import { THEME_STORAGE_KEY } from '../src/lib/theme';
+import {
+  AXE_TIMEOUT_MS,
+  DESKTOP_VIEWPORT,
+  FOCUSABLE_SELECTOR,
+  MIN_TARGET,
+  REFLOW_VIEWPORT,
+} from './wcag';
+import { THEME_CHOICES, THEME_STORAGE_KEY } from '../src/lib/theme';
+import { brandHref } from '../src/lib/brand-sections';
 
-const SWITCH_NAME = 'Light Mode';
+/** SC 2.4.13's minimum ring thickness. */
+const MIN_RING_PX = 2;
 /** More than the header's stops before the switch, so a missing switch fails. */
 const MAX_TABS = 12;
 
@@ -181,23 +189,113 @@ test.describe('light mode focus ring stands out from the page, and from the cont
   }
 });
 
-test.describe('the switch', () => {
-  test('follows a dark device until pressed, then remembers', async ({
+const switchButton = (page: Page) =>
+  page.locator('header').getByRole('button', { name: 'Theme', exact: true });
+const headerMenu = (page: Page) => page.locator('header .theme-menu');
+const radio = (page: Page, value: string) =>
+  headerMenu(page).locator(`input[value="${value}"]`);
+const stored = (page: Page): Promise<string | null> =>
+  page.evaluate((key) => localStorage.getItem(key), THEME_STORAGE_KEY);
+
+const choose = async (page: Page, label: string): Promise<void> => {
+  await switchButton(page).click();
+  await page
+    .getByRole('group', { name: 'Theme' })
+    .getByRole('radio', { name: label })
+    .check();
+};
+
+const tabTo = async (page: Page, target: Locator): Promise<void> => {
+  for (let tab = 0; tab < MAX_TABS; tab++) {
+    if (await target.evaluate((el) => el === document.activeElement)) return;
+    await page.keyboard.press('Tab');
+  }
+  await expect(target).toBeFocused();
+};
+
+test.describe('the theme menu', () => {
+  test('a button named Theme opens a Theme group of System, Light and Dark radios', async ({
     page,
   }) => {
     await gotoSettled(page, '/about');
-    const toggle = page.getByRole('button', { name: SWITCH_NAME });
+    const button = switchButton(page);
+    await expect(button).toHaveAttribute('aria-expanded', 'false');
+    await button.click();
+    await expect(button).toHaveAttribute('aria-expanded', 'true');
+    const group = page.getByRole('group', { name: 'Theme' });
+    await expect(group).toBeVisible();
+    await expect(group.getByRole('radio')).toHaveCount(THEME_CHOICES.length);
+    for (const choice of THEME_CHOICES) {
+      await expect(
+        group.getByRole('radio', { name: choice.label, exact: true }),
+      ).toBeVisible();
+    }
+    await expect(
+      group.getByRole('radio', { name: 'System' }),
+      'System is not the default.',
+    ).toBeChecked();
+  });
 
-    await expect(toggle).toHaveAttribute('aria-pressed', 'false');
+  test('follows a dark device until Light is chosen, then remembers it', async ({
+    page,
+  }) => {
+    await gotoSettled(page, '/about');
     expect(await mainIsLight(page)).toBe(false);
 
-    await toggle.click();
-    await expect(toggle).toHaveAttribute('aria-pressed', 'true');
+    await choose(page, 'Light');
+    expect(await mainIsLight(page)).toBe(true);
+    expect(await stored(page)).toBe('light');
+
+    await page.reload();
+    await expect(radio(page, 'light')).toBeChecked();
     expect(await mainIsLight(page)).toBe(true);
 
     await gotoSettled(page, '/career');
-    await expect(toggle).toHaveAttribute('aria-pressed', 'true');
+    await expect(radio(page, 'light')).toBeChecked();
     expect(await mainIsLight(page)).toBe(true);
+  });
+
+  test('Dark holds on a light device across a reload', async ({ browser }) => {
+    const context = await browser.newContext({ colorScheme: 'light' });
+    const page = await context.newPage();
+    await gotoSettled(page, '/about');
+    expect(await mainIsLight(page)).toBe(true);
+
+    await choose(page, 'Dark');
+    expect(await mainIsLight(page)).toBe(false);
+    expect(await stored(page)).toBe('dark');
+
+    await page.reload();
+    await expect(radio(page, 'dark')).toBeChecked();
+    expect(await mainIsLight(page)).toBe(false);
+    await context.close();
+  });
+
+  test('System forgets the choice and follows the device as it changes', async ({
+    page,
+  }) => {
+    await gotoSettled(page, '/about');
+    await choose(page, 'Light');
+    await page.emulateMedia({ colorScheme: 'dark' });
+    expect(
+      await mainIsLight(page),
+      'a stored choice gave way to the device.',
+    ).toBe(true);
+
+    await page
+      .getByRole('group', { name: 'Theme' })
+      .getByRole('radio', { name: 'System' })
+      .check();
+    expect(await stored(page), 'System left a stored choice.').toBeNull();
+    expect(await mainIsLight(page)).toBe(false);
+
+    await page.emulateMedia({ colorScheme: 'light' });
+    await expect.poll(() => mainIsLight(page)).toBe(true);
+    await page.emulateMedia({ colorScheme: 'dark' });
+    await expect.poll(() => mainIsLight(page)).toBe(false);
+
+    await page.reload();
+    await expect(radio(page, 'system')).toBeChecked();
   });
 
   test('a stored choice beats the device', async ({ browser }) => {
@@ -209,10 +307,19 @@ test.describe('the switch', () => {
     const page = await context.newPage();
 
     await gotoSettled(page, '/about');
-    await expect(
-      page.getByRole('button', { name: SWITCH_NAME }),
-    ).toHaveAttribute('aria-pressed', 'false');
+    await expect(radio(page, 'dark')).toBeChecked();
     expect(await mainIsLight(page)).toBe(false);
+    await context.close();
+  });
+
+  test('a light device with no choice opens light, with System checked', async ({
+    browser,
+  }) => {
+    const context = await browser.newContext({ colorScheme: 'light' });
+    const page = await context.newPage();
+    await gotoSettled(page, '/about');
+    await expect(radio(page, 'system')).toBeChecked();
+    expect(await mainIsLight(page)).toBe(true);
     await context.close();
   });
 
@@ -220,8 +327,7 @@ test.describe('the switch', () => {
     page,
   }) => {
     await gotoSettled(page, '/about');
-    const toggle = page.getByRole('button', { name: SWITCH_NAME });
-    await expect(toggle).toHaveAttribute('aria-pressed', 'false');
+    await expect(radio(page, 'system')).toBeChecked();
 
     /* As if another page changed the choice while this one sat in the cache. */
     await page.evaluate((key) => {
@@ -231,66 +337,184 @@ test.describe('the switch', () => {
       );
     }, THEME_STORAGE_KEY);
     await expect(
-      toggle,
-      'the restored page kept the theme it was cached with.',
-    ).toHaveAttribute('aria-pressed', 'true');
+      radio(page, 'light'),
+      'the restored page kept the choice it was cached with.',
+    ).toBeChecked();
     expect(await mainIsLight(page)).toBe(true);
   });
 
-  test('the keyboard reaches the tile, and Space presses it', async ({
+  test('the keyboard opens it, moves the choice with the arrows, and Escape returns to the button', async ({
     page,
   }) => {
     await gotoSettled(page, '/about');
-    const toggle = page.getByRole('button', { name: SWITCH_NAME });
+    const button = switchButton(page);
+    const menu = headerMenu(page);
+    await tabTo(page, button);
 
-    for (let tab = 0; tab < MAX_TABS; tab++) {
-      if (await toggle.evaluate((el) => el === document.activeElement)) break;
-      await page.keyboard.press('Tab');
-    }
-    await expect(toggle).toBeFocused();
+    await page.keyboard.press('Enter');
+    await expect(menu).toBeVisible();
+    await expect(radio(page, 'system')).toBeFocused();
+
+    await page.keyboard.press('ArrowDown');
+    await expect(radio(page, 'light')).toBeFocused();
+    await expect(radio(page, 'light')).toBeChecked();
+    expect(await mainIsLight(page)).toBe(true);
+
+    await page.keyboard.press('ArrowDown');
+    await expect(radio(page, 'dark')).toBeChecked();
+    expect(await mainIsLight(page)).toBe(false);
+
+    await page.keyboard.press('Escape');
+    await expect(menu).toBeHidden();
+    await expect(button).toBeFocused();
+    await expect(button).toHaveAttribute('aria-expanded', 'false');
 
     await page.keyboard.press('Space');
-    await expect(toggle).toHaveAttribute('aria-pressed', 'true');
+    await expect(menu).toBeVisible();
+    await expect(radio(page, 'dark')).toBeFocused();
   });
-  /* SC 4.1.2: a toggle button keeps its name; only its pressed state changes. */
-  test('Enter presses and releases it, and its name never changes', async ({
+
+  /* SC 2.4.11: left open, it would cover the control focus moves to. */
+  test('Tab out of the menu closes it', async ({ page }) => {
+    await gotoSettled(page, '/about');
+    await switchButton(page).click();
+    await expect(radio(page, 'system')).toBeFocused();
+    await page.keyboard.press('Tab');
+    await expect(headerMenu(page)).toBeHidden();
+  });
+
+  /* SC 2.5.5: the button and each choice's row. */
+  test('the button and every choice are 44px targets', async ({ page }) => {
+    await gotoSettled(page, '/about');
+    const button = await switchButton(page).boundingBox();
+    expect(button?.width).toBeGreaterThanOrEqual(MIN_TARGET);
+    expect(button?.height).toBeGreaterThanOrEqual(MIN_TARGET);
+    await switchButton(page).click();
+    for (const row of await headerMenu(page).locator('label').all()) {
+      const box = await row.boundingBox();
+      expect(box?.height, 'a choice is under 44px tall').toBeGreaterThanOrEqual(
+        MIN_TARGET,
+      );
+      expect(box?.width).toBeGreaterThanOrEqual(MIN_TARGET);
+    }
+  });
+
+  for (const [width, height] of [
+    [REFLOW_VIEWPORT.width, REFLOW_VIEWPORT.height],
+    [DESKTOP_VIEWPORT.width, DESKTOP_VIEWPORT.height],
+  ]) {
+    for (const [route, scope] of [
+      ['/about', 'header'],
+      [brandHref('controls'), `main [data-example]`],
+    ]) {
+      test(`opens whole inside a ${width}px viewport, below its button (${route} ${scope})`, async ({
+        page,
+      }) => {
+        await page.setViewportSize({ width, height });
+        await gotoSettled(page, route);
+        const button = page.locator(`${scope} .theme-switch`);
+        await button.scrollIntoViewIfNeeded();
+        await button.click();
+        const menu = page.locator(`${scope} .theme-menu`);
+        await expect(menu).toBeVisible();
+        const box = await menu.boundingBox();
+        const anchor = await button.boundingBox();
+        if (!box || !anchor)
+          throw new Error('the menu or its button has no box');
+        expect(
+          box.x,
+          'the menu leaves the viewport on the left',
+        ).toBeGreaterThanOrEqual(0);
+        expect(
+          box.y,
+          'the menu leaves the viewport at the top',
+        ).toBeGreaterThanOrEqual(0);
+        expect(
+          box.x + box.width,
+          'the menu leaves the viewport on the right',
+        ).toBeLessThanOrEqual(width);
+        expect(
+          box.y + box.height,
+          'the menu leaves the viewport at the bottom',
+        ).toBeLessThanOrEqual(height);
+        if (route === '/about') {
+          expect(box.y, 'the menu covers its button').toBeGreaterThanOrEqual(
+            anchor.y + anchor.height,
+          );
+        }
+      });
+    }
+  }
+
+  for (const colorScheme of ['dark', 'light'] as const) {
+    /* SC 2.4.7 and 2.4.13: against the menu's own ground. */
+    test(`a focused choice shows a ring of at least 3:1 in ${colorScheme} mode`, async ({
+      browser,
+    }) => {
+      const context = await browser.newContext({ colorScheme });
+      const page = await context.newPage();
+      await gotoSettled(page, '/about');
+      await tabTo(page, switchButton(page));
+      await page.keyboard.press('Enter');
+      await expect(radio(page, 'system')).toBeFocused();
+      const ring = (await page.evaluate(`(() => {
+        ${PAGE_HELPERS}
+        const el = document.activeElement;
+        const cs = getComputedStyle(el);
+        const ground = effectiveBackground(el.closest('.theme-menu'));
+        return {
+          style: cs.outlineStyle,
+          width: parseFloat(cs.outlineWidth),
+          ratio: ground ? ratio(over(parse(cs.outlineColor), ground), ground) : 0,
+        };
+      })()`)) as { style: string; width: number; ratio: number };
+      expect(ring.style, 'a focused choice has no ring').not.toBe('none');
+      expect(ring.width).toBeGreaterThanOrEqual(MIN_RING_PX);
+      expect(ring.ratio, 'the ring fades into the menu').toBeGreaterThanOrEqual(
+        NON_TEXT,
+      );
+      await context.close();
+    });
+  }
+
+  test('forced colors keep the menu edged and the choices visible', async ({
     page,
+    browserName,
   }) => {
+    test.skip(
+      browserName === 'webkit',
+      'webkit ships the forced-colors query only; see tests/forced-colors.spec.ts',
+    );
     await gotoSettled(page, '/about');
-    const toggle = page.locator('button.theme-switch');
-    await expect(toggle).toHaveAccessibleName(SWITCH_NAME);
-    await toggle.focus();
-
-    await page.keyboard.press('Enter');
-    await expect(toggle).toHaveAttribute('aria-pressed', 'true');
-    await expect(toggle).toHaveAccessibleName(SWITCH_NAME);
-
-    await page.keyboard.press('Enter');
-    await expect(toggle).toHaveAttribute('aria-pressed', 'false');
-    await expect(toggle).toHaveAccessibleName(SWITCH_NAME);
+    await page.emulateMedia({ forcedColors: 'active' });
+    await switchButton(page).click();
+    const edge = await headerMenu(page).evaluate((menu) => {
+      const cs = getComputedStyle(menu);
+      return {
+        width: parseFloat(cs.borderTopWidth),
+        style: cs.borderTopStyle,
+        differs: cs.borderTopColor !== cs.backgroundColor,
+      };
+    });
+    expect(edge.width, 'the menu loses its edge').toBeGreaterThan(0);
+    expect(edge.style).not.toBe('none');
+    expect(edge.differs, 'the edge is the menu fill').toBe(true);
+    for (const choice of THEME_CHOICES) {
+      await expect(radio(page, choice.value)).toBeVisible();
+    }
   });
 
-  test('a choice holds across a reload', async ({ page }) => {
+  /* SC 1.3.1: the glyph says the theme in use; the name stays fixed. */
+  test('the icon follows the theme in use', async ({ page }) => {
     await gotoSettled(page, '/about');
-    await page.getByRole('button', { name: SWITCH_NAME }).click();
-    await page.reload();
-    await expect(
-      page.getByRole('button', { name: SWITCH_NAME }),
-    ).toHaveAttribute('aria-pressed', 'true');
-    expect(await mainIsLight(page)).toBe(true);
-  });
-
-  test('a light device with no choice opens light, with the switch pressed', async ({
-    browser,
-  }) => {
-    const context = await browser.newContext({ colorScheme: 'light' });
-    const page = await context.newPage();
-    await gotoSettled(page, '/about');
-    await expect(
-      page.getByRole('button', { name: SWITCH_NAME }),
-    ).toHaveAttribute('aria-pressed', 'true');
-    expect(await mainIsLight(page)).toBe(true);
-    await context.close();
+    const sun = page.locator('header .theme-switch-sun');
+    const moon = page.locator('header .theme-switch-moon');
+    await expect(moon).toBeVisible();
+    await expect(sun).toBeHidden();
+    await choose(page, 'Light');
+    await expect(sun).toBeVisible();
+    await expect(moon).toBeHidden();
+    await expect(switchButton(page)).toHaveAccessibleName('Theme');
   });
 
   /* SC 1.4.3: no dark frame of <main> before a saved light choice applies. */

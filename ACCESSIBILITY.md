@@ -83,15 +83,15 @@ In scope:
 Not in scope: third-party sites linked from the footer, the talk presenter
 view (development server only, never published), and forks.
 
-| Environment      | Support                                                                                                                             |
-| ---------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
-| Browsers         | Chrome and Edge 120, Firefox 128, Safari and iOS Safari 17 ([ARCHITECTURE.md](ARCHITECTURE.md#browser-support))                     |
-| Engines tested   | Chromium and Firefox locally and in CI; WebKit in CI and through Docker (`npm run test:webkit`)                                     |
-| Color modes      | Dark by default. With JavaScript, light follows `prefers-color-scheme: light`, can be set with the header switch, and is remembered |
-| Forced colors    | Windows High Contrast (`forced-colors: active`)                                                                                     |
-| No JavaScript    | Navigation and the contact form work; the page stays dark and the light-mode switch is hidden; the hero field stays blank           |
-| Zoom and spacing | 400% zoom at 1280px (320px reflow), SC 1.4.12 text spacing                                                                          |
-| Screen readers   | None tested. See [gap 2](#7-known-gaps)                                                                                             |
+| Environment      | Support                                                                                                              |
+| ---------------- | -------------------------------------------------------------------------------------------------------------------- |
+| Browsers         | Chrome and Edge 120, Firefox 128, Safari and iOS Safari 17 ([ARCHITECTURE.md](ARCHITECTURE.md#browser-support))      |
+| Engines tested   | Chromium and Firefox locally and in CI; WebKit in CI and through Docker (`npm run test:webkit`)                      |
+| Color modes      | Dark by default. With JavaScript, the Theme menu offers System (follows the device), Light and Dark (remembered)     |
+| Forced colors    | Windows High Contrast (`forced-colors: active`)                                                                      |
+| No JavaScript    | Navigation and the contact form work; the page stays dark and the theme switch is hidden; the hero field stays blank |
+| Zoom and spacing | 400% zoom at 1280px (320px reflow), SC 1.4.12 text spacing                                                           |
+| Screen readers   | None tested. See [gap 2](#7-known-gaps)                                                                              |
 
 ## 4. What the site supports
 
@@ -243,10 +243,11 @@ with a 4px ink edge. Inside, the color tokens are remapped, so text is ink at
 
 ### Light mode
 
-With JavaScript, `<main>`, the header and the footer turn light on
-`prefers-color-scheme: light` or the header switch, and the choice is
-remembered; without it the page stays dark and the switch is hidden. Every
-text color clears 7:1 on white:
+With JavaScript, `<main>`, the header and the footer turn light when the
+header's Theme menu is on Light, or on System (the default) while
+`prefers-color-scheme` is `light`; System follows a device change at once.
+Light and Dark are remembered. Without JavaScript the page stays dark and the
+switch is hidden. Every text color clears 7:1 on white:
 [Light mode](docs/STYLEGUIDE.md#light-mode).
 
 ## 6. How it is tested
@@ -260,7 +261,7 @@ merge.
 | Check                               | WCAG                                                             | Notes                                                                                                                                                                                                                                                                                                |
 | ----------------------------------- | ---------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `tests/a11y.spec.ts`                | 2.2 A and AA                                                     | axe on every route, at 320px, menu open, open states; decides `incomplete` contrast                                                                                                                                                                                                                  |
-| `tests/light-mode.spec.ts`          | 2.2 A and AA, 1.4.11, 4.1.2                                      | axe in light mode on every route and at 320px; control edges at 3:1; the switch keeps its name, takes Enter and Space, holds across a reload and applies before `<body>`                                                                                                                             |
+| `tests/light-mode.spec.ts`          | 2.2 A and AA, 1.4.11, 2.1.1, 2.4.7, 2.5.5, 4.1.2                 | axe in light mode on every route and at 320px; control edges at 3:1; Theme menu: its names, keys and Escape, choices across a reload, System following the device live, on screen at 320 and 1280px, its ring and forced colors; the theme set before `<body>`                                       |
 | `tests/gold-surface.spec.ts`        | 1.4.3, 1.4.11                                                    | Text on gold and control edges on every gold section; the `/contact` ring at 305px                                                                                                                                                                                                                   |
 | `tests/gold-link.spec.ts`           | 1.4.1, 1.4.3                                                     | Links on gold at rest and under the pointer                                                                                                                                                                                                                                                          |
 | `tests/blocks.spec.ts`              | 1.4.3, 1.4.6, 1.4.11, 2.4.7, 1.4.10                              | Every block's fill or edge 3:1 and its text 7:1, dark and light; links in blocks through hover and focus, ring inside the block; no sideways scroll at 1280, 390, 305; forced colors keep block edges                                                                                                |
