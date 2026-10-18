@@ -79,12 +79,6 @@
   }
 
   /*
-   * Solid card: a light third surface where only `background` passes (15.28),
-   * so everything inside is `background`. Holds text, never a form. In a
-   * `.card-block` the raised-brick rule gives it an edge.
-   */
-
-  /*
    * One size for every card title, so a card is never louder than its section.
    */
   .card-title {

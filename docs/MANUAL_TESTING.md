@@ -208,7 +208,7 @@ Narrows ACCESSIBILITY.md §7 gap 2 without closing it. Firefox throughout, excep
 which needs Chrome: only Chromium puts the `text-transform` string into the
 accessibility tree. A strange Chrome result is a question, not a finding.
 
-Run order: 6.4, 6.5, 6.12.1, 6.6 to 6.9, 6.12.2 to 6.12.5. 6.12.1 goes after
+Run order: 6.4, 6.5, 6.12.1, 6.6 to 6.9, 6.12.2 to 6.12.7. 6.12.1 goes after
 6.5 because its failure is silence, which means nothing until 6.5 proves Orca
 is speaking.
 
@@ -528,6 +528,19 @@ drawings are `aria-hidden`.
 - [ ] Choosing "Chase the Fly" plays it; choosing a trick for a sleeping cat
       wakes it first. → SC 2.2.2
 - [ ] The drawings announce nothing. → SC 1.1.1
+- [ ] While the trick list loads, or if it fails, its note is read once, as
+      a status. → SC 4.1.3
+
+Heard: `________________________`
+
+#### 6.12.7 The photo viewer's count and caption
+
+Setup: a post with a photo strip at 1280px. Open a photo, then press Next
+twice.
+
+- [ ] Each step is heard once: the count ("Photo 2 of N") and the caption,
+      neither cut off nor doubled. → SC 4.1.3
+- [ ] Nothing is read before the new photo shows. → SC 4.1.3
 
 Heard: `________________________`
 

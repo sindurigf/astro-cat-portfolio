@@ -349,7 +349,6 @@
   --text-hero-sticker: clamp(1.125rem, min(2.1vw, 3.4svh), 1.875rem);
   --text-hero-sticker--line-height: 1.02;
   --text-menu: clamp(2.125rem, 8vw, 3.5rem);
-  --text-menu--line-height: 1;
   --text-body: clamp(1.125rem, 1.2vw, 1.1875rem);
   --text-body--line-height: 1.62;
 
