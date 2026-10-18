@@ -1,6 +1,5 @@
 ---
 import ComponentRow from './ComponentRow.astro';
-import { MESSAGES } from '../../lib/contact-form';
 
 const META = 'text-body text-subtle';
 ---
@@ -51,7 +50,7 @@ const META = 'text-body text-subtle';
               aria-describedby="example-email-error"
             />
             <p class="field-error" id="example-email-error">
-              {MESSAGES.emailShape}
+              Enter an email address like name@example.com
             </p>
           </div>
         </li>
@@ -70,7 +69,7 @@ const META = 'text-body text-subtle';
                   href="#example-email"
                   class="link inline-flex min-h-target items-center"
                 >
-                  {MESSAGES.emailShape}
+                  Enter an email address like name@example.com
                 </a>
               </li>
             </ul>
