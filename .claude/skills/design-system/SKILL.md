@@ -62,8 +62,7 @@ before changing anything it covers.
 - Empty and failed states:
   [Empty, loading and error states](../../../docs/STYLEGUIDE.md#empty-loading-and-error-states).
 - Header and menu: [Navigation](../../../docs/STYLEGUIDE.md#navigation). The
-  bar is the page's reverse; every edge and throw takes the color opposite its
-  ground, so it shows in both modes.
+  bar is a gold block in both modes, ink edge, pink throw (ink in light mode).
 - Footer: [Footer](../../../docs/STYLEGUIDE.md#footer).
 - Animation: [Motion](../../../docs/STYLEGUIDE.md#motion).
 - Focus rings: [Focus](../../../docs/STYLEGUIDE.md#focus).

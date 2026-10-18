@@ -179,6 +179,51 @@ for (const width of WIDE_WIDTHS) {
   });
 }
 
+/* The phone and laptop rows: the menu button alone, then nav and call to action. */
+const SLIM_WIDTHS = [390, 1280] as const;
+
+for (const width of SLIM_WIDTHS) {
+  test.describe(`the slim header at ${width}px`, () => {
+    test.use({ viewport: { width, height: VIEWPORT_HEIGHT } });
+
+    test('holds the logo tile inside the bar without scrolling the page', async ({
+      page,
+    }) => {
+      await gotoSettled(page, ROUTE);
+      await page.mouse.wheel(0, 900);
+      await expect(page.locator('header.site-header')).toHaveAttribute(
+        'data-compact',
+        '',
+      );
+      const found = await page.evaluate(() => {
+        const slab = document.querySelector<HTMLElement>('.header-slab');
+        const tile = slab?.querySelector('.logo-tile');
+        if (!slab || !tile) return null;
+        const bar = slab.getBoundingClientRect();
+        const edge = parseFloat(getComputedStyle(slab).borderTopWidth);
+        const box = tile.getBoundingClientRect();
+        return {
+          above: box.top - (bar.top + edge),
+          below: bar.bottom - edge - box.bottom,
+          sideways:
+            document.documentElement.scrollWidth -
+            document.documentElement.clientWidth,
+        };
+      });
+      expect(found, 'the header has no bar or logo tile').not.toBeNull();
+      expect(
+        found!.above,
+        'the logo tile crosses the bar top',
+      ).toBeGreaterThanOrEqual(0);
+      expect(
+        found!.below,
+        'the logo tile crosses the bar bottom',
+      ).toBeGreaterThanOrEqual(0);
+      expect(found!.sideways, 'the page scrolls sideways').toBe(0);
+    });
+  });
+}
+
 /* Tab stops walked under the slim header: past the opening of /about and into its body. */
 const SLIM_WALK_STOPS = 30;
 

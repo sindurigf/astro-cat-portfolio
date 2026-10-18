@@ -466,29 +466,16 @@
    */
   --container-slide-card: 13rem;
   /*
-   * The 72px header slab and 12px above and below it. Fixed px so it
+   * The 80px header slab and 12px above and below it. Fixed px so it
    * stays small at 400% zoom; html's scroll-padding-top derives from it (SC
    * 2.4.11).
    */
-  --spacing-header: 96px;
+  --spacing-header: 104px;
   /*
-   * The slim header once the page scrolls: a 60px bar, 6px above and below.
+   * The slim header once the page scrolls: a 68px bar, 6px above and below.
    * Its flow box keeps `--spacing-header`, so nothing below moves.
    */
-  --spacing-header-compact: 72px;
-  /* How far the gold logo block hangs below the header slab. */
-  --spacing-logo-hang: 28px;
-  /*
-   * What <main> adds on top so its first block clears the logo block's throw
-   * by 8px, given the `--hero-pad-block` every opening already has.
-   */
-  --spacing-main-top: max(
-    0px,
-    calc(
-      var(--spacing-logo-hang) + var(--brick-throw) + var(--spacing) * 2 -
-        var(--hero-pad-block)
-    )
-  );
+  --spacing-header-compact: 80px;
   /* The slideshow's control row: a ~59px button plus its 4px shadow. */
   --spacing-deck-bar: 4.5rem;
 

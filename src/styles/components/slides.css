@@ -180,10 +180,7 @@
     --deck-chrome: calc(var(--spacing-deck-bar) + --spacing(20));
     --slide-pad-inline: var(--spacing-card-tight);
     --slide-pad-block: var(--spacing-card-tight);
-    min-height: calc(
-      100svh - var(--spacing-header) - var(--spacing-main-top) -
-        var(--deck-chrome)
-    );
+    min-height: calc(100svh - var(--spacing-header) - var(--deck-chrome));
     padding-inline: max(var(--slide-pad-inline), 8cqi);
     padding-block: max(var(--slide-pad-block), 4cqi);
   }
@@ -500,11 +497,6 @@
     .deck,
     .deck-stage {
       @apply block p-0;
-    }
-
-    /* Back over <main>'s top padding, or the cover runs past its page onto a second one. */
-    .deck {
-      margin-top: calc(var(--spacing-main-top) * -1);
     }
 
     .slide {

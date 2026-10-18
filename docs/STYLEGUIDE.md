@@ -35,21 +35,21 @@ blur, uppercase headings, tilted marks.
 - **A gold use not on this list adds a row, with its argument, in the same
   change.**
 
-| #   | Where gold is spent                                                                                             | Measured on                            |
-| --- | --------------------------------------------------------------------------------------------------------------- | -------------------------------------- |
-| 1a  | Ground, full slab: `/about`, `/career`, `/contact`, `/blog`, `/credits`, `/brand`                               | 6 routes                               |
-| 1b  | Ground, thin slab: `/contact/sent`, every post, the 18 `/brand/<section>/` pages                                | 24 routes                              |
-| 1c  | Ground, mid-page: a `Section surface="gold"`, the About quote, `/contact`'s closing band                        | `/career`, `/about`, `/`, `/contact`   |
-| 2   | The primary action: `.nav-cta`, `.btn-primary`                                                                  | 11 routes, 4 routes                    |
-| 3   | the logo marks: the roundel, the homepage sticker; the logo cat is Hela's coat, not gold                        | 9 routes, `/`                          |
-| 4   | Card labels, `.label text-gold`; a form's field labels are `text`                                               | `/about`, `/accessibility`, `/contact` |
-| 4a  | A talk slide's label, bold words, part number and lead-in term before a colon; its text links, still underlined | `/talks/<deck>/`                       |
-| 5   | Category: the blog label and the homepage glyph tiles, ink-edged on gold                                        | 3 routes                               |
-| 6   | Display words: the homepage family name                                                                         | `/`                                    |
-| 7   | List markers in `.bullet-list`                                                                                  | wherever a bulleted list is            |
-| 8   | The `gold` swatch and the contrast samples on gold; fills, hex in both modes                                    | `/brand/color/`, `/brand/contrast/`    |
-| 9   | The header's logo block, its current-page brick and the theme switch: the bar's only color                      | every route                            |
-| 9   | Edges in dark mode: `border` on fields, controls, chips, rules and the outer edge of a gold area                | every route                            |
+| #   | Where gold is spent                                                                                                                | Measured on                            |
+| --- | ---------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------- |
+| 1a  | Ground, full slab: `/about`, `/career`, `/contact`, `/blog`, `/credits`, `/brand`                                                  | 6 routes                               |
+| 1b  | Ground, thin slab: `/contact/sent`, every post, the 18 `/brand/<section>/` pages                                                   | 24 routes                              |
+| 1c  | Ground, mid-page: a `Section surface="gold"`, the About quote, `/contact`'s closing band                                           | `/career`, `/about`, `/`, `/contact`   |
+| 2   | The primary action: `.nav-cta`, `.btn-primary`                                                                                     | 11 routes, 4 routes                    |
+| 3   | the logo marks: the roundel, the homepage sticker; the logo cat is Hela's coat, not gold                                           | 9 routes, `/`                          |
+| 4   | Card labels, `.label text-gold`; a form's field labels are `text`                                                                  | `/about`, `/accessibility`, `/contact` |
+| 4a  | A talk slide's label, bold words, part number and lead-in term before a colon; its text links, still underlined                    | `/talks/<deck>/`                       |
+| 5   | Category: the blog label and the homepage glyph tiles, ink-edged on gold                                                           | 3 routes                               |
+| 6   | Display words: the homepage family name                                                                                            | `/`                                    |
+| 7   | List markers in `.bullet-list`                                                                                                     | wherever a bulleted list is            |
+| 8   | The `gold` swatch and the contrast samples on gold; fills, hex in both modes                                                       | `/brand/color/`, `/brand/contrast/`    |
+| 9   | Edges in dark mode: `border` on fields, controls, chips, rules and the outer edge of a gold area                                   | every route                            |
+| 10  | The header bar, a gold ground in both modes; its current-page brick, theme switch and call to action read on it by their ink edges | every route                            |
 
 - 9 is the edge because the only two colors are ink and gold: an ink edge
   vanishes on the dark page and a light one adds a third color. Gold reads as
@@ -507,8 +507,7 @@ with a comment beside it.
 - The default border color is `border`, set in the base layer (Tailwind 4
   defaults to `currentColor`); `gold-border` inside `.surface-gold`.
 - Each ground has one edge role. Dark page: `border` (gold). A block:
-  `block-ink`, 4px. The header bar: the page's reverse, so on it every edge and
-  throw is the page's ground. Inside gold: `gold-border` (ink). A
+  `block-ink`, 4px. The header bar is a gold block in both modes. Inside gold: `gold-border` (ink). A
   gold or light fill: `fill-edge` (ink). Light mode: ink everywhere.
   `tests/edges.spec.ts` asserts each in both modes.
 - Shadows are hard offsets, no blur. Gold casts none (gold on gold is 1.00).
@@ -870,9 +869,8 @@ text-gold-muted` under the standfirst. Color
 
 ### Header relation
 
-- The header is a bar on the page column, the page's reverse: `text` fill,
-  12px below the top, no line under it. The logo hangs in a gold block from
-  its left end ([Navigation](#navigation)).
+- The header is a gold bar on the hero's column, 12px below the top, with the
+  logo tile and name at its left end ([Navigation](#navigation)).
 - The logo tile keeps its `mark` shadow.
 - The sticky header covers the top of the slab on scroll; nothing on the slab
   is fixed.
@@ -1109,26 +1107,23 @@ Enforced by `tests/nav-current.spec.ts`, `tests/mobile-menu.spec.ts`,
 
 - Links come from `NAV_LINKS` and `CTA` in `src/lib/nav.ts`; the desktop
   header uses `HEADER_LINKS` (no Home; the logo links to `/`).
-- The header bar (`.header-slab`) is the page's reverse: it swaps
-  `background` and `text`. So
-  the bar is `#E5E2E1` with `#0B0B0B` lines in dark mode and `#131313` with
-  white lines in light mode, and every edge and throw on it shows in both.
-  `.site-header` keeps the page's values as `--page-*` for the logo block and
-  the menu.
-- The logo hangs in a gold block (`.header-logo-block`) from the bar's left
-  end, `--spacing-logo-hang` (28px) below it, edged and thrown in the page's `text`. `<main>` adds `--spacing-main-top`, so
-  every opening clears its throw by 8px; fold-sized heroes and slides subtract
-  it.
+- The header bar (`.header-slab`) is a gold block in both modes: `block-ink`
+  edge, `hard-pink-object` throw (pink, ink in light mode). Inside it bricks
+  take `block-light` fills and `block-ink` lines. `.site-header` keeps the
+  page's values as `--page-*` for the menu dialog.
+- The logo tile and name sit on the bar with no block, edge or throw of
+  their own; the tile keeps its `mark` shadow.
 - Nav links, the theme switch and the call to action are joined bricks
   (`.header-bricks`): 44px tall, the target (SC 2.5.5), sharing their 4px
   edges, one `shadow-brick` per row. Each row sits half its throw high, so
-  there is 7px above it and under its throw. Gold marks the current page; the
-  rest take the bar's fill. Gold bricks take the same `text` edge as the rest. A brick after
+  there is 11px above it and under its throw. On the bar the throw is
+  `block-ink` in both modes. Gold marks the current page; the
+  rest take `block-light`. Gold bricks on the gold bar read by their ink edge. A brick after
   another drops its left edge, so the two share one 4px wall and never overlap
   each other's target.
 - Hover fills the site's `cyan` (`--hover-fill`) in both modes under a
-  `gold-text` label (11.20). The ring is `gold-link` on the light bar and
-  `cyan` on the ink bar; on a hovered brick it takes the label's ink.
+  `gold-text` label (11.20). The ring is `gold-link` in both modes; on a
+  hovered brick it takes the label's ink.
 - The bar takes `.gold-column`'s margins, so it starts and ends where the gold
   hero does at every width (`tests/header-fit.spec.ts`).
 - The menu follows the same rule on the page ground: `text` edges, each brick
@@ -1136,14 +1131,14 @@ Enforced by `tests/nav-current.spec.ts`, `tests/mobile-menu.spec.ts`,
 
 ### By height
 
-- Sticky, 96px (`--spacing-header`): the 72px bar and 12px above and below;
+- Sticky, 104px (`--spacing-header`): the 80px bar and 12px above and below;
   `tests/header-fit.spec.ts` holds both.
 - Once the page scrolls past it, the header goes slim
-  (`src/scripts/header-compact.ts`): 72px (`--spacing-header-compact`), a 60px
-  bar, the logo block fitted to the bar, bricks still 44px with their throw. A
-  state, not an animation. Its flow box keeps 96px, so nothing below moves, and
+  (`src/scripts/header-compact.ts`): 80px (`--spacing-header-compact`), a 68px
+  bar, the logo tile at three quarters, bricks still 44px with their throw. A
+  state, not an animation. Its flow box keeps 104px, so nothing below moves, and
   the full header's scroll padding still clears it. Not under `short`. `html` keeps focus and anchors
-  `--spacing-header`, `--spacing-logo-hang` and `--spacing(4)` below the top.
+  `--spacing-header` and `--spacing(4)` below the top.
 - Under 30rem of viewport height (`short`: a landscape phone, any window under
   960px tall at 200% zoom) it scrolls away and the scroll padding drops to
   `--spacing(4)`.

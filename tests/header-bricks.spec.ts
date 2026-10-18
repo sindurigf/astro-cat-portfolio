@@ -7,6 +7,7 @@ import { DESKTOP_VIEWPORT, PHONE_VIEWPORT } from './wcag';
  * The header's joined bricks draw their focus ring inside the brick
  * (docs/STYLEGUIDE.md "Focus"), so the ring must read against the brick's own
  * fill, at rest and hovered, and stay clear of its label (SC 1.4.11, 2.4.13).
+ * The logo link's ring sits outside it, on the gold bar.
  */
 
 /* A route with a current header link, so a gold brick is walked too. */
@@ -18,6 +19,7 @@ const MAX_STOPS = 12;
 interface Stop {
   name: string;
   ratio: number;
+  brick: boolean;
   inside: boolean;
   clear: boolean;
 }
@@ -50,6 +52,7 @@ const readStop = `(() => {
   return {
     name: (el.getAttribute('aria-label') || el.textContent || el.tagName).trim().slice(0, 30),
     ratio: ratio(ring, fill),
+    brick: Boolean(el.closest('.header-bricks')),
     inside: offset + width <= 0,
     clear,
   };
@@ -92,15 +95,21 @@ for (const colorScheme of ['dark', 'light'] as const) {
         }
 
         expect(
-          stops.length,
+          stops.some((stop) => !stop.brick),
+          'the walk never reached the logo link',
+        ).toBe(true);
+        expect(
+          stops.filter((stop) => stop.brick).length,
           'the walk reached no header brick',
-        ).toBeGreaterThan(1);
+        ).toBeGreaterThan(0);
         for (const stop of stops) {
           const where = `${stop.name}${stop.hover ? ' (hovered)' : ''}`;
-          expect(
-            stop.inside,
-            `${where}: the ring is not drawn inside the brick`,
-          ).toBe(true);
+          if (stop.brick) {
+            expect(
+              stop.inside,
+              `${where}: the ring is not drawn inside the brick`,
+            ).toBe(true);
+          }
           expect(
             stop.ratio,
             `${where}: the ring is under ${NON_TEXT}:1 on the brick's fill`,
