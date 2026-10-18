@@ -493,8 +493,10 @@ Rules this repository follows. Values and reasons:
 - **Scripts.** Never hold content back behind a script. What a page says is in
   its HTML; a script only adds to it. Tested for navigation
   (`tests/no-script.spec.ts`) and the talk slides (`tests/slideshow.spec.ts`).
-- **Sources.** WCAG and its Understanding documents are normative. Mark any
-  other source cited here, an article, checklist or tool, as opinion.
+- **Sources.** WCAG 2.2 and the specifications it relies on (HTML, WAI-ARIA,
+  CSS) are normative; the Understanding documents are informative W3C
+  guidance. Mark any other source cited here, an article, checklist or tool, as
+  opinion.
 - **Unusual words.** On a functional page, write jargon in plain words. Where
   the term is needed, define it in the sentence of its first use, mark it with
   `<dfn>`, and list it in `tests/unusual-words.spec.ts`.
