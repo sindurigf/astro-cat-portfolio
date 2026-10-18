@@ -57,7 +57,7 @@ const HERO_PARTS = `
 
 /**
  * The name is centered on the window's top rule, so half of it sits above the
- * section's box and can slide under the 96px sticky header.
+ * section's box and can slide under the 104px sticky header.
  */
 const HIGHEST_EDGE = `
     const highestEdge = () => {

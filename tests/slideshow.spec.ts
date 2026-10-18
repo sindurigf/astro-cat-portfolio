@@ -315,16 +315,18 @@ test.describe('the talk slideshow', () => {
         behavior: 'instant',
       }),
     );
-    /* Hidden above the screen or under the sticky header, which scroll-padding-top clears. */
+    /* Hidden above the screen or under the header. */
     const startHidden = () =>
       page.evaluate(
         () =>
           document
             .querySelector('.slide[data-current]')!
             .getBoundingClientRect().top <
-          (parseFloat(
-            getComputedStyle(document.documentElement).scrollPaddingTop,
-          ) || 0),
+          Math.max(
+            0,
+            document.querySelector('.site-header')!.getBoundingClientRect()
+              .bottom,
+          ),
       );
     expect(
       await startHidden(),

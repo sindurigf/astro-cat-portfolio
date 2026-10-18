@@ -4,10 +4,10 @@
  */
 @layer utilities {
   /*
-   * Slim once scrolled (src/scripts/header-compact.ts): the bar loses its
-   * invisible edge so the 44px bricks keep 8px above and below, and the logo
-   * block fits the bar instead of hanging. Not when the header scrolls away.
-   * Utilities, to beat the header's `h-header` and `py-3`.
+   * Slim once scrolled (src/scripts/header-compact.ts): a 68px bar whose 60px
+   * inside holds the 44px bricks and their throw, and the logo tile at three
+   * quarters in a 44px link. Not when the header scrolls away. Utilities, to beat the
+   * header's `h-header` and `py-3`.
    */
   @media (height >= 30rem) {
     .site-header[data-compact] {
@@ -17,14 +17,13 @@
       );
       padding-block: --spacing(1.5);
 
-      & .header-slab {
-        border-width: 0;
+      & .logo-link {
+        padding-block-end: 0;
       }
 
-      & .header-logo-block {
-        height: 100%;
-        margin-block: 0;
-        box-shadow: none;
+      & .logo-tile {
+        scale: 0.75;
+        margin-block: calc((var(--spacing-target) - --spacing(12)) / 2);
       }
     }
   }

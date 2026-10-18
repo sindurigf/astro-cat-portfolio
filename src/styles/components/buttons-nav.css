@@ -170,28 +170,26 @@
     }
   }
 
-  /*
-   * The header is the page's reverse: the bar takes `text` as its fill and the
-   * page's ground for its lines, so every edge and throw on it shows in both
-   * modes. `--page-*` keep the page's colors for what sits on the page: the
-   * logo block and the menu.
-   */
+  /* The page's colors, kept for the menu dialog inside the bar. */
   .site-header {
     --page-ground: var(--color-background);
     --page-text: var(--color-text);
     --page-cyan: var(--color-cyan);
   }
 
+  /*
+   * The bar is gold in both modes, edged in ink and thrown like a card (pink,
+   * ink in light mode). Inside it the bricks take light fills and ink lines, and
+   * the ring, hover label and brick throws are ink (11.32 on gold, 14.49 on light).
+   */
   .header-slab {
-    --color-background: var(--page-text);
-    --color-text: var(--page-ground);
-    /*
-     * Hover is the site's cyan in both modes, under an ink label (11.20). The
-     * ring is ink on the light bar, as in a light block, and cyan on the ink bar.
-     */
+    --color-background: var(--color-block-light);
+    --color-text: var(--color-block-ink);
     --color-cyan: var(--color-gold-link);
     --hover-fill: var(--dark-cyan);
     --hover-label: var(--color-gold-text);
+    --shadow-brick: var(--brick-throw) var(--brick-throw) 0
+      var(--color-block-ink);
 
     /* The gold hero's edges (`.gold-column` in layout.css): from the rail, out to the screen clearance. */
     --hero-column-rail: max(0px, calc((100% - var(--container-page)) / 2));
@@ -201,12 +199,15 @@
         var(--hero-column-rail),
         calc(var(--hero-column-screen-clear) - --spacing(6))
       );
+    border: var(--block-edge) solid var(--color-block-ink);
+    background-color: var(--color-block-gold);
 
-    @apply edge border-background bg-background px-4 sm:px-6;
+    @apply px-4 shadow-hard-pink-object sm:px-6;
   }
 
-  :root[data-theme='light'] .header-slab {
-    --color-cyan: var(--dark-cyan);
+  /* The tile's shadow sits inside the link, so the plain ring clears it and stays on the gold. */
+  .header-slab .logo-link {
+    padding-block-end: var(--lift-mark);
   }
 
   .header-slab dialog {
@@ -216,39 +217,11 @@
     /* Unset, so hovers fall back to the page's cyan and ground. */
     --hover-fill: initial;
     --hover-label: initial;
+    --shadow-brick: var(--brick-throw) var(--brick-throw) 0 var(--page-text);
   }
 
-  /*
-   * The logo link is a gold block from the slab's outer left edge, hanging
-   * `--spacing-logo-hang` below it, edged and thrown in the page's `text`. The
-   * negative margins keep it from growing the row. Its ring is drawn inside,
-   * on the gold (ink, 11.32).
-   */
-  .header-logo-block {
-    --lift: 0px;
-    --color-cyan: var(--color-gold-text);
-    --slab-pad: --spacing(4);
-
-    align-self: start;
-    height: calc(
-      var(--spacing-header) - --spacing(6) + var(--spacing-logo-hang)
-    );
-    margin-block: calc(-1 * var(--edge))
-      calc(-1 * (var(--spacing-logo-hang) + var(--edge)));
-    margin-inline-start: calc(-1 * (var(--slab-pad) + var(--edge)));
-    padding-inline: calc(var(--slab-pad) + var(--edge) - var(--block-edge))
-      --spacing(2);
-    border: var(--block-edge) solid var(--page-text);
-    background-color: var(--color-block-gold);
-    box-shadow: var(--brick-throw) var(--brick-throw) 0 var(--page-text);
-
-    @variant sm {
-      --slab-pad: --spacing(6);
-    }
-  }
-
-  /* Rings drawn inside the brick or block, on its own fill. */
-  :is(.header-bricks :focus-visible, .header-logo-block:focus-visible) {
+  /* Rings drawn inside the brick, on its own fill, so they never cross the next one. */
+  .header-bricks :focus-visible {
     position: relative;
     z-index: 1;
     outline-offset: calc(-1 * (var(--block-edge) + var(--focus-gap)));
