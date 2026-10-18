@@ -522,7 +522,7 @@ with a comment beside it.
 | `shadow-hard-pink-object`   | Cards, post contents, gold areas, popovers, slide cards; `--hard-throw` (8px)                                       |
 | `shadow-hard-pink-4`        | The PageHero photo, `.btn-primary`, `.btn-secondary`, link chips, footer stickers, slide cards                      |
 | `shadow-brick`              | The header's brick rows and logo block, the menu's links, call to action and Close; `--brick-throw` (6px) in `text` |
-| `shadow-hard-cyan-object`   | A hovered linked card or contact card, in place of pink                                                             |
+| `shadow-hard-cyan-object`   | A hovered linked card, in place of pink; a contact link brick fills cyan instead, its ring inside in ink            |
 | `shadow-hard-gold-border-4` | A card on gold                                                                                                      |
 | `shadow-hard-mark-4`        | `.sticker`, `.btn-gold-primary`                                                                                     |
 | `shadow-hard-mark-8`        | The roundel, the homepage stickers                                                                                  |
