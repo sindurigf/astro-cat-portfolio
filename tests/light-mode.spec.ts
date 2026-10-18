@@ -252,6 +252,78 @@ test.describe('the switch', () => {
     await page.keyboard.press('Space');
     await expect(toggle).toHaveAttribute('aria-pressed', 'true');
   });
+  /* SC 4.1.2: a toggle button keeps its name; only its pressed state changes. */
+  test('Enter presses and releases it, and its name never changes', async ({
+    page,
+  }) => {
+    await gotoSettled(page, '/about');
+    const toggle = page.locator('button.theme-switch');
+    await expect(toggle).toHaveAccessibleName(SWITCH_NAME);
+    await toggle.focus();
+
+    await page.keyboard.press('Enter');
+    await expect(toggle).toHaveAttribute('aria-pressed', 'true');
+    await expect(toggle).toHaveAccessibleName(SWITCH_NAME);
+
+    await page.keyboard.press('Enter');
+    await expect(toggle).toHaveAttribute('aria-pressed', 'false');
+    await expect(toggle).toHaveAccessibleName(SWITCH_NAME);
+  });
+
+  test('a choice holds across a reload', async ({ page }) => {
+    await gotoSettled(page, '/about');
+    await page.getByRole('button', { name: SWITCH_NAME }).click();
+    await page.reload();
+    await expect(
+      page.getByRole('button', { name: SWITCH_NAME }),
+    ).toHaveAttribute('aria-pressed', 'true');
+    expect(await mainIsLight(page)).toBe(true);
+  });
+
+  test('a light device with no choice opens light, with the switch pressed', async ({
+    browser,
+  }) => {
+    const context = await browser.newContext({ colorScheme: 'light' });
+    const page = await context.newPage();
+    await gotoSettled(page, '/about');
+    await expect(
+      page.getByRole('button', { name: SWITCH_NAME }),
+    ).toHaveAttribute('aria-pressed', 'true');
+    expect(await mainIsLight(page)).toBe(true);
+    await context.close();
+  });
+
+  /* SC 1.4.3: no dark frame of <main> before a saved light choice applies. */
+  test('a saved choice is applied before the body is parsed', async ({
+    browser,
+  }) => {
+    const context = await browser.newContext({ colorScheme: 'dark' });
+    await context.addInitScript((key) => {
+      localStorage.setItem(key, 'light');
+      const record = window as unknown as { themeBeforeBody?: boolean };
+      new MutationObserver(() => {
+        if (
+          record.themeBeforeBody === undefined &&
+          document.documentElement?.dataset.theme === 'light'
+        )
+          record.themeBeforeBody = document.body === null;
+      }).observe(document, {
+        attributes: true,
+        attributeFilter: ['data-theme'],
+        subtree: true,
+      });
+    }, THEME_STORAGE_KEY);
+    const page = await context.newPage();
+    await page.goto('/about', { waitUntil: 'load' });
+    expect(
+      await page.evaluate(
+        () =>
+          (window as unknown as { themeBeforeBody?: boolean }).themeBeforeBody,
+      ),
+      'the saved light choice was applied only after <body> began.',
+    ).toBe(true);
+    await context.close();
+  });
 });
 
 /* Without JavaScript nothing can apply a choice, so no switch is offered. */

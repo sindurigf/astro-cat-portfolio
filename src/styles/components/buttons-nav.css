@@ -6,9 +6,10 @@
       shadow-hard-pink-4 wrap-anywhere max-w-full;
   }
 
+  /* A light block: quieter than the gold primary, in the same block language. */
   .btn-secondary {
-    @apply lift-control inline-block border-4 border-border bg-surface px-8 py-4
-      text-button font-black uppercase tracking-label text-text
+    @apply lift-control inline-block border-4 border-block-ink bg-block-light px-8
+      py-4 text-button font-black uppercase tracking-label text-block-ink
       shadow-hard-pink-4 wrap-anywhere max-w-full;
   }
 
