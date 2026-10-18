@@ -5,17 +5,7 @@
    */
 
   .footer-inner {
-    padding-top: --spacing(12);
-  }
-
-  /* The Step's footer beam: a gold bar with the ink edge, jutting left. */
-  .footer-beam {
-    height: --spacing(6);
-    margin-left: calc(var(--step-x) * -1);
-    margin-right: calc(var(--step-x) * 2);
-    border: var(--block-edge) solid var(--color-block-ink);
-    background-color: var(--color-block-gold);
-    box-shadow: var(--shadow-hard-pink-object);
+    padding-top: --spacing(16);
   }
 
   .footer-top {
@@ -95,7 +85,11 @@
     place-items: center;
     width: var(--size-sticker);
     height: var(--size-sticker);
-    border: var(--border-width-sticker) solid var(--color-fill-edge);
+    /*
+     * Transparent, so the throw meets the fill: an ink edge is 1.07:1 on the
+     * footer and reads as a gap. Forced colors draw it.
+     */
+    border: var(--border-width-sticker) solid transparent;
     --lift: var(--lift-control);
     rotate: var(--tilt, 0deg);
   }
