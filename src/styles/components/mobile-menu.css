@@ -16,11 +16,11 @@
   color: var(--color-text);
   overflow-y: auto;
   /*
-   * Room for the ring, its gap and the Close button's shadow when a focused
-   * link scrolls to the edge (SC 2.4.7).
+   * Room for the ring, its gap and a brick's throw when a focused link
+   * scrolls to the edge (SC 2.4.7).
    */
   scroll-padding-block: calc(
-    var(--focus-width) + var(--focus-gap) + var(--lift-control)
+    var(--focus-width) + var(--focus-gap) + var(--brick-throw)
   );
 }
 

@@ -8,6 +8,7 @@ import PageHero from '../components/PageHero.astro';
 import Section from '../components/Section.astro';
 import { closeRowLinks } from '../lib/blog';
 import { CV_PATH, PERSON_NAME } from '../lib/profiles';
+import { wallClasses } from '../lib/wall';
 
 /* The sample persona's copy; keep it in step with the CV when one is published. */
 const PUBLIC_DIR = 'public';
@@ -53,6 +54,8 @@ const EXPERIENCE = [
     ],
   },
 ] as const;
+
+const EXPERIENCE_WALL = wallClasses({}, EXPERIENCE.length);
 
 const SKILLS = [
   'Reading Poneglyphs',
@@ -159,8 +162,13 @@ const closeRow = await closeRowLinks({
     <ol class="card-block flex flex-col gap-grid">
       {
         /* Title first, so heading navigation lands before the employer. */
-        EXPERIENCE.map((role) => (
-          <li class:list={['card grid gap-8 lg:grid-cols-12']}>
+        EXPERIENCE.map((role, index) => (
+          <li
+            class:list={[
+              'card grid gap-8 lg:grid-cols-12',
+              EXPERIENCE_WALL.bricks[index],
+            ]}
+          >
             <div class="flex min-w-0 flex-col items-start gap-4 lg:col-span-12">
               {role.current && <span class="badge">Current</span>}
               <h3 class="card-title">{role.title}</h3>
@@ -187,8 +195,8 @@ const closeRow = await closeRowLinks({
   </Section>
 
   <Section title="Skills and Education">
-    <div class="grid gap-grid lg:grid-cols-2">
-      <div class="card">
+    <div class="card-block grid lg:grid-cols-2">
+      <div class="card lg:row-span-2">
         <h3 class="card-title">Education</h3>
         <ul class="mt-8 flex flex-col gap-4">
           {EDUCATION.map((item) => (
@@ -207,28 +215,26 @@ const closeRow = await closeRowLinks({
         </ul>
       </div>
 
-      <div class="flex min-w-0 flex-col gap-grid">
-        <div class="card">
-          <h3 class="card-title">Skills</h3>
-          <ul class="mt-8 flex flex-wrap gap-3">
-            {SKILLS.map((skill) => (
-              <li class="badge">{skill}</li>
-            ))}
-          </ul>
-        </div>
+      <div class="card card-step-1 lg:card-step-0">
+        <h3 class="card-title">Skills</h3>
+        <ul class="mt-8 flex flex-wrap gap-3">
+          {SKILLS.map((skill) => (
+            <li class="badge">{skill}</li>
+          ))}
+        </ul>
+      </div>
 
-        <div class="card">
-          <h3 class="card-title">Languages</h3>
-          <ul class="mt-8 flex flex-col gap-4">
-            {LANGUAGES.map((item) => (
-              <li class="text-body text-text">
-                <strong class="font-black text-text">{item.language}</strong>
-                {': '}
-                {item.level}
-              </li>
-            ))}
-          </ul>
-        </div>
+      <div class="card card-step-2 lg:card-step-1">
+        <h3 class="card-title">Languages</h3>
+        <ul class="mt-8 flex flex-col gap-4">
+          {LANGUAGES.map((item) => (
+            <li class="text-body text-text">
+              <strong class="font-black text-text">{item.language}</strong>
+              {': '}
+              {item.level}
+            </li>
+          ))}
+        </ul>
       </div>
     </div>
   </Section>

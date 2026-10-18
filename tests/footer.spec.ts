@@ -185,3 +185,50 @@ for (const width of WIDTHS) {
     });
   });
 }
+
+/* The footer follows the mode like the page: its words reach AAA and its tiles stand apart from it in both. */
+const AAA_TEXT = 7;
+
+for (const colorScheme of ['dark', 'light'] as const) {
+  test.describe(`the footer in ${colorScheme} mode`, () => {
+    test.use({ colorScheme });
+
+    test('takes the page ground, its words reach 7:1 and its tiles stand apart', async ({
+      page,
+    }) => {
+      await gotoSettled(page, ROUTE);
+      const found = (await page.evaluate(`(() => {
+        ${PAGE_HELPERS}
+        const footer = document.querySelector('footer');
+        const ground = effectiveBackground(footer);
+        const page = effectiveBackground(document.querySelector('main'));
+        const words = [...footer.querySelectorAll('a, small, .footer-name')]
+          .filter((el) => el.checkVisibility() && el.textContent.trim() && !el.closest('.footer-sticker'))
+          .map((el) => ({ text: el.textContent.trim().slice(0, 20), ratio: ratio(parse(getComputedStyle(el).color), ground) }));
+        const tiles = [...footer.querySelectorAll('.footer-sticker')]
+          .map((tile) => ratio(parse(getComputedStyle(tile).backgroundColor), ground));
+        return { same: ground && page && ratio(ground, page) < 1.01, words, tiles };
+      })()`)) as {
+        same: boolean;
+        words: { text: string; ratio: number }[];
+        tiles: number[];
+      };
+      expect(found.same, 'the footer ground differs from the page').toBe(true);
+      expect(found.words.length, 'no footer words were found').toBeGreaterThan(
+        1,
+      );
+      for (const word of found.words) {
+        expect(
+          word.ratio,
+          `"${word.text}" on the footer (SC 1.4.6)`,
+        ).toBeGreaterThanOrEqual(AAA_TEXT);
+      }
+      for (const tile of found.tiles) {
+        expect(
+          tile,
+          'a sticker tile on the footer (SC 1.4.11)',
+        ).toBeGreaterThanOrEqual(NON_TEXT);
+      }
+    });
+  });
+}

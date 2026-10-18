@@ -4,6 +4,49 @@
  */
 @layer utilities {
   /*
+   * Slim once scrolled (src/scripts/header-compact.ts): the bar loses its
+   * invisible edge so the 44px bricks keep 8px above and below, and the logo
+   * block fits the bar instead of hanging. Not when the header scrolls away.
+   * Utilities, to beat the header's `h-header` and `py-3`.
+   */
+  @media (height >= 30rem) {
+    .site-header[data-compact] {
+      height: var(--spacing-header-compact);
+      margin-bottom: calc(
+        var(--spacing-header) - var(--spacing-header-compact)
+      );
+      padding-block: --spacing(1.5);
+
+      & .header-slab {
+        border-width: 0;
+      }
+
+      & .header-logo-block {
+        height: 100%;
+        margin-block: 0;
+        box-shadow: none;
+      }
+    }
+  }
+
+  /*
+   * A tilted box softens its border's edges. A fill under a border of another
+   * color shows outside it as a fringe, so it stops at the padding box; a fill
+   * clipped under a border of its own color leaves a seam of ground between
+   * them, so a matching pair keeps the fill under the border. tests/tilt.spec.ts.
+   */
+  :is(.rotate-3, .-rotate-3) {
+    background-clip: padding-box;
+  }
+
+  .surface-gold :is(.rotate-3, .-rotate-3).sticker,
+  :is(:root[data-theme='light'] main, main .mode-light)
+    :is(.rotate-3, .-rotate-3).sticker:not(.mode-dark *),
+  :is(.rotate-3, .-rotate-3).hero-sticker.bg-surface {
+    background-clip: border-box;
+  }
+
+  /*
    * The logo tile's press: its drop shadow, which follows the ears, is a markup utility. Only the tile moves,
    * so the link keeps the pointer.
    */
@@ -25,27 +68,28 @@
   }
 
   /*
-   * The Step: blocks in a `.card-block` share one wall, and every second one
-   * drops `--step-y` (sideways `--step-x` below 64rem, where they stack). The
-   * block pads for the drop, so nothing below is covered. Each keeps its throw.
-   * Opt-in, not `:has(.card)`: layout gaps elsewhere feed image `sizes`.
+   * A wall: the blocks in a `.card-block` share 4px walls with no gap, and the
+   * wall casts the one throw along its outline, so it shows only on outer
+   * edges. Opt-in, not `:has(.card)`: layout gaps elsewhere feed image `sizes`.
    */
   .card-block {
     gap: 0;
-    padding: 0 0 calc(var(--block-edge) + var(--step-y)) var(--block-edge);
+    padding: 0 0 var(--block-edge) var(--block-edge);
+    filter: drop-shadow(
+      var(--hard-throw) var(--hard-throw) 0 var(--color-pink)
+    );
+
+    & > *,
+    & > * > .card {
+      box-shadow: none;
+    }
 
     & > * {
       margin: 0 0 calc(var(--block-edge) * -1) calc(var(--block-edge) * -1);
     }
 
-    & > :nth-child(even) {
-      position: relative;
-      z-index: 1;
-      translate: var(--step-x) 0;
-
-      @variant lg {
-        translate: 0 var(--step-y);
-      }
+    @media (forced-colors: active) {
+      filter: none;
     }
   }
 
@@ -58,5 +102,52 @@
     color: var(--color-gold);
     background-color: var(--color-gold-link);
     box-shadow: 0 0 0 var(--gold-marker-pad) var(--color-gold-link);
+  }
+}
+
+/*
+ * Step Up (src/lib/wall.ts sets these): bricks in one row rise, rows below the
+ * first bring their right edge in. `&:is(.card-block > *)` beats the wall's
+ * margin reset.
+ */
+@utility card-rise-room {
+  &.card-block {
+    padding-top: var(--step-y);
+  }
+}
+
+@utility card-rise-room-0 {
+  &.card-block {
+    padding-top: 0;
+  }
+}
+
+@utility card-rise-0 {
+  translate: none;
+}
+
+@utility card-rise-half {
+  translate: 0 calc(var(--step-y) / -2);
+}
+
+@utility card-rise-full {
+  translate: 0 calc(var(--step-y) * -1);
+}
+
+@utility card-step-0 {
+  &:is(.card-block > *) {
+    margin-right: 0;
+  }
+}
+
+@utility card-step-1 {
+  &:is(.card-block > *) {
+    margin-right: var(--step-x);
+  }
+}
+
+@utility card-step-2 {
+  &:is(.card-block > *) {
+    margin-right: calc(var(--step-x) * 2);
   }
 }

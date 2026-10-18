@@ -242,7 +242,7 @@ const closeRow = await closeRowLinks({
   </Section>
 
   <Section id={SECTIONS[1].id} title={SECTIONS[1].title}>
-    <div class="card-block grid lg:grid-cols-2">
+    <div class="card-block grid lg:card-rise-room lg:grid-cols-2">
       <blockquote class="card surface-gold flex flex-col justify-center">
         <span aria-hidden="true" class="self-start text-quote-mark font-black">
           &ldquo;
@@ -251,7 +251,7 @@ const closeRow = await closeRowLinks({
           History belongs to everyone who wants to learn it.
         </p>
       </blockquote>
-      <div class="card flex flex-col justify-center">
+      <div class="card card-step-1 lg:card-step-0 lg:card-rise-full flex flex-col justify-center">
         <div class:list={['aspect-frame', PHOTO]}>
           <svg
             class="aspect-sizer"
@@ -311,7 +311,7 @@ const closeRow = await closeRowLinks({
     {/* A <dl>, so short bold values are not paragraphs WAVE reads as headings. */}
     <div class="cat-perch">
       <div class="cat-spot" id="cat-spot-rudra"></div>
-      <div class="card-block flex flex-col lg:flex-row">
+      <div class="card-block flex flex-col lg:card-rise-room lg:flex-row">
         <dl class="card min-w-0 divide-y-4 divide-border lg:flex-1">
           <div class="pb-6">
             <dt class="label text-gold">Reading</dt>
@@ -340,7 +340,7 @@ const closeRow = await closeRowLinks({
             </dd>
           </div>
         </dl>
-        <div class="card lg:flex lg:w-1/2 lg:shrink-0 lg:flex-col lg:justify-center">
+        <div class="card card-step-1 lg:card-step-0 lg:card-rise-full lg:flex lg:w-1/2 lg:shrink-0 lg:flex-col lg:justify-center">
           <div class:list={['aspect-frame aspect-square', PHOTO]}>
             <Picture
               {...PHOTO_FORMATS}
