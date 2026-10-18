@@ -502,8 +502,14 @@
       @apply block p-0;
     }
 
+    /* Back over <main>'s top padding, or the cover runs past its page onto a second one. */
+    .deck {
+      margin-top: calc(var(--spacing-main-top) * -1);
+    }
+
     .slide {
       @apply m-0 shadow-none;
+      translate: none;
       break-after: page;
       height: 100vh;
       min-height: 0;
