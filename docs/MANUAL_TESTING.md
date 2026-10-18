@@ -43,7 +43,6 @@ npm run build && npm run preview   # http://localhost:4340
 | GTK `toolkit-accessibility` | §6.1 fallback only                                 | `gsettings set org.gnome.desktop.interface toolkit-accessibility false` |
 | DevTools Offline            | Network panel, §6.12.1                             | Untick Offline                                                          |
 | `*.webp` request blocking   | Network panel, §6.12.3                             | Remove the pattern, reload                                              |
-| `javascript.enabled`        | `about:config`, §5b and §6.12.3                    | Set it back to `true`                                                   |
 | Firefox 320px window        | Window or Responsive Design Mode, §6.7 and §6.12.5 | Close Responsive Design Mode, restore the window size                   |
 
 - [ ] Teardown done.
@@ -75,7 +74,8 @@ Setup: Chrome at 375px. No mouse.
 - [ ] Tab cycles Home, About, Career, Blog, Get in Touch, Close, one stop in
       the browser UI (correct `<dialog>` behavior), Home. The theme switch is
       not in the dialog. Focus never reaches the page behind. → SC 2.1.2
-- [ ] Shift+Tab from the first item goes to Close. → SC 2.1.2
+- [ ] Shift+Tab from the first item stays in the dialog: the browser's own stop
+      or the dialog itself (Firefox), then Close. → SC 2.1.2
 - [ ] Escape closes and focus returns to the menu button. → SC 2.1.2, 2.4.3
 - [ ] Close button: focus returns to the menu button. → SC 2.4.3
 - [ ] A nav link activated with Enter navigates. → SC 2.1.1
@@ -175,18 +175,13 @@ Zoom (forced colors off, 1280px, 200% then 400%):
 Setup: Chrome, 1280px, `/about`. The switch turns `<main>`, the header and the
 footer light ([ACCESSIBILITY.md](../ACCESSIBILITY.md#light-mode),
 [STYLEGUIDE.md](STYLEGUIDE.md#light-mode)). `tests/light-mode.spec.ts` covers
-axe, control edges, hover contrast and ring contrast; these checks are the
-rest.
+axe, control edges, hover contrast, ring contrast, and the switch: its name
+and pressed state after Enter and Space, the choice across a reload and
+`/career`, a light device with no choice, the theme set before `<body>`, and
+no switch without JavaScript. These checks are the rest.
 
-- [ ] The switch is announced "Light Mode", "toggle button", not pressed; after
-      Enter or Space it is pressed. The name does not change. → SC 4.1.2
-- [ ] Reload and open `/career`: the choice holds. → SC 1.4.3
-- [ ] With the choice saved, hard reload on a throttled network: no dark frame
-      in `<main>` before it turns light. → SC 1.4.3
-- [ ] With no saved choice and the OS set to light, the page opens light and
-      the switch reads pressed. → SC 1.4.3
-- [ ] JavaScript off (`about:config` `javascript.enabled` false in Firefox):
-      the page is dark and the switch is absent. Restore the setting. → SC 4.1.2
+- [ ] By ear: the switch is announced "Light Mode", "toggle button", and its
+      pressed state. → SC 4.1.2
 - [ ] Tab to the switch: a ring shows with a gap, on the dark header. → SC 2.4.7
 - [ ] In light, Tab through `<main>`: every ring reads against white and
       against its control (`#00606b`). → SC 1.4.11, 2.4.7
@@ -323,15 +318,16 @@ Heard: `________________________`
 Setup: Firefox, 1280px, `/about`, JavaScript on. Re-derive the counts from the
 build after any change to `/about`.
 
-- [ ] `Alt+Shift+M` lists 14 landmarks: banner, navigation "Primary", main,
-      navigation "On this page", six regions (one per `SECTIONS` entry in
-      `src/pages/about.astro`, plus Sources while the sample persona is set),
-      contentinfo, navigation "Site", "About this site", "Social". None
-      unnamed or duplicated. Judge whether the list is useful or crowded. → SC 1.3.1
+`tests/structure.spec.ts` reads the accessibility tree of every sampled
+route: one banner, main and contentinfo in order, one "Primary" navigation in
+the banner, every repeated landmark named once, one `h1` opening main, no
+skipped level, an `h2` opening each region, and the home link named
+`site.name` with its mark silent.
+
+- [ ] `Alt+Shift+M` on `/about` lists the landmarks the spec reads. Judge
+      whether the list is useful or crowded. → SC 1.3.1
 - [ ] `M` from the top steps through them in that order. → SC 1.3.1
-- [ ] `Alt+Shift+H` lists seven headings: `h1` "About Me", then one `h2` per
-      spread. The "On this page" nav lists all six spreads. → SC 1.3.1, 2.4.6
-- [ ] `G` skips the header logo mark; the home link is `site.name`. → SC 1.1.1
+- [ ] The "On this page" nav lists every spread. → SC 2.4.6
 - [ ] `G` finds no footer mascot. → SC 1.1.1
 - [ ] `K` to About: announced as the current page. → SC 4.1.2
 - [ ] The current-page box adds nothing to the announcement. → SC 1.3.1
@@ -367,12 +363,10 @@ Heard: `________________________`
 Setup: Firefox, 1280px, `/blog/sample-talk` (25 headings:
 1 `h1`, 12 `h2`, 12 `h3`).
 
-- [ ] `Alt+Shift+H`: `h1` first, then the body's headings in source order.
-      Every `h3` has an `h2` above it. → SC 1.3.1, 2.4.6
-- [ ] `H` from the top walks the same headings, each with its level. → SC 1.3.1
-- [ ] `Alt+Shift+M` lists ten landmarks: banner, navigation "Primary", main,
-      navigation "Breadcrumb", "In This Post", "Tags", contentinfo, "Site",
-      "About this site", "Social". No `article` or inner `header`. → SC 1.3.1
+`tests/structure.spec.ts` covers the heading outline and the landmark set.
+
+- [ ] `H` from the top walks the headings, each with its level. → SC 1.3.1
+- [ ] `Alt+Shift+M` lists no `article` or inner `header`. → SC 1.3.1
 - [ ] From main, `Down` reads breadcrumb, `h1`, teaser, date, body. → SC 1.3.2
 - [ ] The breadcrumb is Home, Blog, Open Source. In `Alt+Shift+K`, judge
       whether "Open Source" and "Blog" make sense alone. → SC 2.4.4
@@ -474,11 +468,12 @@ Heard: `________________________`
 Setup: `/about`, DevTools → Network → block `*.webp`, reload. The visible copy
 of the alt text is `aria-hidden`.
 
-- [ ] `G` reaches the photo once; its alt is announced once. → SC 1.1.1
-- [ ] The full `alt` is read, not the clamped visible copy. → SC 1.1.1
-- [ ] The frame announces nothing of its own. → SC 1.1.1
-- [ ] With `javascript.enabled` false in `about:config`: alt announced once.
-      Restore it afterwards. → SC 1.1.1
+`tests/failed-images.spec.ts` checks, with and without JavaScript, that each
+failed photo's alt is the name of one image, never also text, and that the
+frame has no name of its own.
+
+- [ ] By ear: `G` reaches the photo once and the full `alt` is read, not the
+      clamped visible copy. → SC 1.1.1
 
 Heard: `________________________`
 
@@ -498,10 +493,11 @@ Heard: `________________________`
 
 Setup: Firefox at 320px on `/`. Open the menu, widen past 768px.
 
-- [ ] Focus is on a header nav link. → SC 2.4.3
+`tests/mobile-menu.spec.ts` checks from 320px that focus lands on a header
+nav link, the menu closes, the page scrolls, and one navigation "Primary"
+and no dialog remain.
+
 - [ ] `Orca+Return` describes that link, not the document. → SC 2.4.3
-- [ ] The menu closed by itself and the page scrolls. → SC 2.1.1
-- [ ] `Alt+Shift+M`: one navigation "Primary", no dialog. → SC 1.3.1
 
 Heard: `________________________`
 

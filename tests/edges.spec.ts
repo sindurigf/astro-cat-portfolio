@@ -42,7 +42,9 @@ const readEdges = (page: Page): Promise<Edges> =>
     const edge = parse(cardStyle.borderTopColor);
     const cardGround = effectiveBackground(card.parentElement);
     const fill = parse(cardStyle.backgroundColor);
-    const controlEdge = parse(getComputedStyle(control).borderTopColor);
+    const controlStyle = getComputedStyle(control);
+    const controlEdge = parseFloat(controlStyle.borderTopWidth) >= 1 ? parse(controlStyle.borderTopColor) : null;
+    const controlFill = parse(controlStyle.backgroundColor);
     const controlGround = effectiveBackground(control.parentElement);
     const fillEdgeRatios = {};
     for (const selector of ${JSON.stringify(GOLD_FILLS)}) {
@@ -64,7 +66,13 @@ const readEdges = (page: Page): Promise<Edges> =>
       cardEdgeRatio: edge && cardGround ? ratio(over(edge, cardGround), cardGround) : null,
       cardFillRatio: fill && cardGround ? ratio(fill, cardGround) : null,
       cardPaper: paper,
-      controlRatio: controlEdge && controlGround ? ratio(controlEdge, controlGround) : null,
+      /* A control is delimited by a drawn edge or by its own fill, whichever reads (SC 1.4.11). */
+      controlRatio: controlGround
+        ? Math.max(
+            controlEdge ? ratio(over(controlEdge, controlGround), controlGround) : 0,
+            controlFill && controlFill.a === 1 ? ratio(controlFill, controlGround) : 0,
+          )
+        : null,
       fillEdgeRatios,
     };
   })()`) as Promise<Edges>;
@@ -95,7 +103,7 @@ for (const colorScheme of ['dark', 'light'] as const) {
       expect(edges.cardPaper, 'a card should carry no paper').toBe('none none');
       expect(
         edges.controlRatio,
-        `a control on the page should have an edge of at least ${NON_TEXT}:1`,
+        `a control on the page should have an edge or fill of at least ${NON_TEXT}:1`,
       ).toBeGreaterThanOrEqual(NON_TEXT);
       expectFillEdges(edges);
       expect(
