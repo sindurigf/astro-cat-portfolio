@@ -6,9 +6,10 @@
       shadow-hard-pink-4 wrap-anywhere max-w-full;
   }
 
+  /* A light block: quieter than the gold primary, in the same block language. */
   .btn-secondary {
-    @apply lift-control inline-block border-4 border-border bg-surface px-8 py-4
-      text-button font-black uppercase tracking-label text-text
+    @apply lift-control inline-block border-4 border-block-ink bg-block-light px-8
+      py-4 text-button font-black uppercase tracking-label text-block-ink
       shadow-hard-pink-4 wrap-anywhere max-w-full;
   }
 
@@ -16,24 +17,19 @@
    * Hover fills cyan (SC 1.4.3). Unavailable is `aria-disabled`, never
    * `disabled`, so it stays focusable; drawn dashed, no shadow, label `subtle`.
    */
-  :is(.btn-primary, .btn-secondary, .nav-cta):not(
-      [aria-disabled='true']
-    ):hover {
+  :is(.btn-primary, .btn-secondary):not([aria-disabled='true']):hover {
     @apply bg-cyan text-background;
   }
 
   /*
-   * Everything with the 4px pink shadow drops it while pressed. The logo tile's
-   * press is in @layer utilities.
+   * Everything with a hard shadow drops it while pressed; the menu's bricks are
+   * `.press-brick`. The header's joined bricks share their row's throw, so they
+   * hold still. The logo tile's press is in @layer utilities.
    */
-  :is(
-      .btn-primary,
-      .btn-secondary,
-      .nav-cta,
-      .nav-sticker,
-      a.chip,
-      .footer-sticker
-    ):not([aria-disabled='true'], [aria-current]):active,
+  :is(.btn-primary, .btn-secondary, a.chip, .footer-sticker, .press-brick):not(
+      [aria-disabled='true'],
+      [aria-current]
+    ):active,
   .surface-gold .btn-gold-primary:active {
     @apply shadow-none;
   }
@@ -47,10 +43,9 @@
     :is(
         .btn-primary,
         .btn-secondary,
-        .nav-cta,
-        .nav-sticker,
         a.chip,
-        .footer-sticker
+        .footer-sticker,
+        .press-brick
       ):not([aria-disabled='true'], [aria-current]):active,
     .surface-gold .btn-gold-primary:active {
       @apply relative translate-x-1 translate-y-1;
@@ -59,15 +54,22 @@
     :is(
         .btn-primary,
         .btn-secondary,
-        .nav-cta,
-        .nav-sticker,
         a.chip,
-        .footer-sticker
+        .footer-sticker,
+        .press-brick
       ):not([aria-disabled='true'], [aria-current]):active::after,
     .surface-gold .btn-gold-primary:active::after {
       content: '';
       position: absolute;
       inset: calc(--spacing(2) * -1) 0 0 calc(--spacing(2) * -1);
+    }
+
+    /* A brick moves by its 6px throw; the type selector matches `a.chip`'s weight. */
+    :is(a, button).press-brick:not(
+        [aria-disabled='true'],
+        [aria-current]
+      ):active {
+      translate: var(--brick-throw) var(--brick-throw);
     }
   }
 
@@ -115,12 +117,12 @@
   }
 
   /*
-   * Gold tile, no border: the fill is the edge (SC 1.4.11). Hidden
+   * Gold tile edged in `text`, the line color of whatever it sits on. Hidden
    * without data-theme, which the head script always sets when JavaScript runs.
    */
   .theme-switch {
-    @apply lift-control grid size-12 shrink-0 cursor-pointer place-items-center
-      bg-block-gold text-gold-text shadow-hard-pink-4 max-xs:size-target;
+    @apply grid size-target shrink-0 cursor-pointer place-items-center border-4
+      border-text bg-block-gold text-gold-text;
   }
 
   :root:not([data-theme]) .theme-switch {
@@ -131,8 +133,10 @@
     @apply pointer-events-none size-6;
   }
 
-  .theme-switch:hover {
-    @apply bg-cyan text-background;
+  /* Hover fills cyan; the header bar and menu set their own fill and label. */
+  :is(.theme-switch, .nav-sticker, .nav-cta):not([aria-current]):hover {
+    background-color: var(--hover-fill, var(--color-cyan));
+    color: var(--hover-label, var(--color-background));
   }
 
   .theme-switch-moon,
@@ -166,83 +170,179 @@
     }
   }
 
-  /* A card on the page column: `cards.css` gives it the card edge and paper. */
-  .header-slab {
-    @apply edge bg-surface px-4 shadow-hard-pink-object sm:px-6;
+  /*
+   * The header is the page's reverse: the bar takes `text` as its fill and the
+   * page's ground for its lines, so every edge and throw on it shows in both
+   * modes. `--page-*` keep the page's colors for what sits on the page: the
+   * logo block and the menu.
+   */
+  .site-header {
+    --page-ground: var(--color-background);
+    --page-text: var(--color-text);
+    --page-cyan: var(--color-cyan);
   }
 
-  /* Puts the logo tile across the slab's left edge: centered from sm, 12px over below it so it stays inside the 16px gutter. */
-  .header-logo-edge {
-    margin-left: calc(-1 * (--spacing(4) + --spacing(3)));
+  .header-slab {
+    --color-background: var(--page-text);
+    --color-text: var(--page-ground);
+    /*
+     * Hover is the site's cyan in both modes, under an ink label (11.20). The
+     * ring is ink on the light bar, as in a light block, and cyan on the ink bar.
+     */
+    --color-cyan: var(--color-gold-link);
+    --hover-fill: var(--dark-cyan);
+    --hover-label: var(--color-gold-text);
 
-    @variant sm {
-      margin-left: calc(-1 * (--spacing(6) + --spacing(6)));
-    }
+    /* The gold hero's edges (`.gold-column` in layout.css): from the rail, out to the screen clearance. */
+    --hero-column-rail: max(0px, calc((100% - var(--container-page)) / 2));
+
+    margin-inline: var(--hero-column-rail)
+      min(
+        var(--hero-column-rail),
+        calc(var(--hero-column-screen-clear) - --spacing(6))
+      );
+
+    @apply edge border-background bg-background px-4 sm:px-6;
+  }
+
+  :root[data-theme='light'] .header-slab {
+    --color-cyan: var(--dark-cyan);
+  }
+
+  .header-slab dialog {
+    --color-background: var(--page-ground);
+    --color-text: var(--page-text);
+    --color-cyan: var(--page-cyan);
+    /* Unset, so hovers fall back to the page's cyan and ground. */
+    --hover-fill: initial;
+    --hover-label: initial;
   }
 
   /*
-   * Nav links as stickers, tilted like the footer's (tests/tilt.spec.ts). The
-   * current page is pressed flat into its shadow and inverted, edged in `text`
-   * so it still meets 3:1 on the slab (tests/edge-contrast.spec.ts).
+   * The logo link is a gold block from the slab's outer left edge, hanging
+   * `--spacing-logo-hang` below it, edged and thrown in the page's `text`. The
+   * negative margins keep it from growing the row. Its ring is drawn inside,
+   * on the gold (ink, 11.32).
    */
-  .nav-stickers {
-    @apply flex items-center gap-3 lg:gap-6;
+  .header-logo-block {
+    --lift: 0px;
+    --color-cyan: var(--color-gold-text);
+    --slab-pad: --spacing(4);
+
+    align-self: start;
+    height: calc(
+      var(--spacing-header) - --spacing(6) + var(--spacing-logo-hang)
+    );
+    margin-block: calc(-1 * var(--edge))
+      calc(-1 * (var(--spacing-logo-hang) + var(--edge)));
+    margin-inline-start: calc(-1 * (var(--slab-pad) + var(--edge)));
+    padding-inline: calc(var(--slab-pad) + var(--edge) - var(--block-edge))
+      --spacing(2);
+    border: var(--block-edge) solid var(--page-text);
+    background-color: var(--color-block-gold);
+    box-shadow: var(--brick-throw) var(--brick-throw) 0 var(--page-text);
+
+    @variant sm {
+      --slab-pad: --spacing(6);
+    }
   }
 
-  .nav-stickers-column {
-    @apply flex-col items-start gap-6;
+  /* Rings drawn inside the brick or block, on its own fill. */
+  :is(.header-bricks :focus-visible, .header-logo-block:focus-visible) {
+    position: relative;
+    z-index: 1;
+    outline-offset: calc(-1 * (var(--block-edge) + var(--focus-gap)));
   }
 
-  .nav-stickers li:nth-child(odd) {
-    --tilt: -3deg;
+  /*
+   * Joined bricks: each row shares its edges and casts one throw, and sits
+   * half the throw high so the row and throw are centered on the slab. A ring
+   * is drawn inside its brick so it never crosses the next one.
+   */
+  .header-bricks {
+    @apply flex items-center;
+
+    box-shadow: var(--shadow-brick);
+
+    translate: 0 calc(var(--brick-throw) / -2);
+
+    /* Bricks share an edge without overlapping, so each keeps its whole target (SC 2.5.5). */
+    & > * + * > :is(a, button) {
+      border-left-width: 0;
+    }
+
+    & :is(.nav-cta, .theme-switch, [aria-current]):focus-visible {
+      outline-color: var(--color-gold-text);
+    }
+
+    /* A hovered ring takes the hover label's ink; a current brick has no hover fill. */
+    & :focus-visible:hover:not([aria-current]) {
+      outline-color: var(--hover-label, var(--color-background));
+    }
   }
 
-  .nav-stickers li:nth-child(even) {
-    --tilt: 3deg;
+  /* The menu button is a brick like the links; hovered, its bars take the label's ink. */
+  .menu-brick {
+    @apply border-text bg-background;
   }
 
+  .menu-brick:hover {
+    --color-text: var(--hover-label, var(--color-background));
+
+    background-color: var(--hover-fill, var(--color-cyan));
+  }
+
+  /* Nav and menu links: bricks edged in `text`. tests/edge-contrast.spec.ts. */
   .nav-sticker {
-    rotate: var(--tilt, 0deg);
-
-    @apply lift-control flex min-h-12 items-center border-4 border-fill-edge
-      bg-text px-2 text-label font-black uppercase tracking-label
-      text-background shadow-hard-pink-4 lg:px-4;
+    @apply flex min-h-target items-center border-4 border-text bg-background px-2
+      text-label font-black uppercase tracking-label text-text lg:px-4;
   }
 
   .nav-sticker-large {
+    --lift: var(--brick-throw);
+
     @apply px-6 py-3 text-h3 tracking-title;
-  }
 
-  .nav-sticker:is(:hover, :focus-visible) {
-    rotate: 0deg;
-  }
-
-  .nav-sticker:not([aria-current]):hover {
-    @apply bg-cyan text-background;
+    box-shadow: var(--shadow-brick);
   }
 
   .nav-sticker[aria-current] {
-    --lift: 0px;
-    rotate: 0deg;
+    @apply bg-block-gold text-gold-text;
 
-    @apply translate-x-1 translate-y-1 border-text bg-background text-text
-      shadow-none;
+    box-shadow: var(--inset-shadow-current);
+  }
+
+  .nav-sticker-large[aria-current] {
+    --lift: 0px;
+
+    box-shadow: none;
+
+    translate: var(--brick-throw) var(--brick-throw);
   }
 
   /*
    * Nav call to action, shared by the header row and the mobile dialog so both
-   * get the state rules. On its own page an inset ring replaces the shadow;
-   * same layer, so source order settles `box-shadow`.
+   * get the state rules. On its own page an inset ring marks it; same layer,
+   * so source order settles `box-shadow`.
    */
   .nav-cta {
-    @apply lift-control border-4 border-fill-edge bg-block-gold text-label font-black
-      uppercase tracking-label text-gold-text shadow-hard-pink-4;
+    @apply border-4 border-text bg-block-gold text-label font-black uppercase
+      tracking-label text-gold-text;
   }
 
-  .nav-cta[aria-current],
-  .nav-cta[aria-current]:hover {
+  /* The menu's call to action and Close are bricks like its links. */
+  .mobile-menu-dialog :is(.nav-cta, .btn-secondary) {
+    --lift: var(--brick-throw);
+
+    @apply border-text;
+
+    box-shadow: var(--shadow-brick);
+  }
+
+  .nav-cta[aria-current] {
     --lift: 0px;
-    box-shadow: var(--inset-shadow-cta-current);
+
+    box-shadow: var(--inset-shadow-current);
   }
 
   /*

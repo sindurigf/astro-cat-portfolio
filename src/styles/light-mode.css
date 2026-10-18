@@ -1,7 +1,8 @@
 /*
- * Light mode: `data-theme="light"` on <html>. <main> and the header change; ink is
- * #131313, gold stays a fill. On white: text 18.58, subtle 9.53, pink-text
- * 7.06, cyan 7.28 (tests/light-mode.spec.ts). Utilities layer beats `.text-gold`.
+ * Light mode: `data-theme="light"` on <html>. <main>, the header and the footer
+ * change; ink is #131313, gold stays a fill. On white: text 18.58, subtle 9.53,
+ * pink-text 7.06, cyan 7.28 (tests/light-mode.spec.ts). Utilities layer beats
+ * `.text-gold`.
  */
 @layer utilities {
   /* The dark values, read where light mode never reaches, for a .mode-dark sample on a light page. */
@@ -23,7 +24,7 @@
     --dark-hero-floor: var(--color-hero-floor);
   }
 
-  :root[data-theme='light'] :is(main, header),
+  :root[data-theme='light'] :is(main, header, footer),
   main .mode-light {
     --color-background: var(--color-light-ground);
     --color-surface: var(--color-light-ground);
@@ -119,11 +120,5 @@
   :is(:root[data-theme='light'] main, main .mode-light)
     .sticker:not(.mode-dark *) {
     @apply border-text bg-text text-background;
-  }
-
-  /* A gold fill on white takes an ink edge, as buttons and tiles do. */
-  :is(:root[data-theme='light'] :is(main, header), main .mode-light)
-    .theme-switch:not(.mode-dark *) {
-    @apply border-4 border-text;
   }
 }

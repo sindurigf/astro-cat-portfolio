@@ -96,3 +96,19 @@ export const ogCardPath = (route: string): string =>
 /** Route as the manifest keys it: no trailing slash, `/` for the homepage. */
 export const ogRoute = (pathname: string): string =>
   pathname === '/' ? '/' : pathname.replace(/\/(?:index\.html)?$/, '');
+
+const IMAGE_MIME: Readonly<Record<string, string>> = {
+  jpg: 'image/jpeg',
+  jpeg: 'image/jpeg',
+  png: 'image/png',
+  webp: 'image/webp',
+  avif: 'image/avif',
+};
+
+/** The media type of a photo a card can embed; throws on any other file. */
+export const imageMime = (path: string): string => {
+  const type = IMAGE_MIME[path.split('.').at(-1)!.toLowerCase()];
+  if (!type)
+    throw new Error(`make-og: ${path} is not a JPEG, PNG, WebP or AVIF.`);
+  return type;
+};

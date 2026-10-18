@@ -14,9 +14,9 @@ const DOC = join(ROOT, 'docs/STYLEGUIDE.md');
 const START = '<!-- contrast-table:start -->';
 const END = '<!-- contrast-table:end -->';
 
-/* WCAG 2.2: SC 1.4.3 for text (3:1 when large), SC 1.4.11 for non-text. */
+/* WCAG 2.2: SC 1.4.6 for text, which /accessibility claims at every size; SC 1.4.11 for non-text. */
 const NEEDS = {
-  text: 4.5,
+  text: 7,
   'non-text': 3,
   decoration: null,
   apart: null,
@@ -38,7 +38,7 @@ const PAIRS = [
   ['border', 'background', 'non-text', 'Every boundary on the page'],
   ['border', 'surface', 'non-text', 'Input and chip edges on a card'],
   ['pink', 'background', 'non-text', 'Error edge; action shadow'],
-  ['pink', 'surface', 'non-text', 'Error edge on the form card'],
+  ['pink', 'surface', 'non-text', 'Error edge on a field off a block'],
   ['background', 'gold', 'text', 'Label on a gold fill'],
   ['background', 'cyan', 'text', 'Label on a hovered button'],
   ['background', 'text', 'text', 'Badge; the current page block'],
@@ -95,6 +95,7 @@ const PAIRS = [
   ['cyan', 'gold', 'apart', 'A ring never touches a gold shadow or fill'],
   ['cyan', 'border', 'apart', 'A ring never touches a neighbor edge'],
   ['pink', 'border', 'apart', 'An error is a shape change, not a recolor'],
+  ['pink', 'gold', 'never', 'An invalid edge in a block stays ink'],
   ['text', 'subtle', 'apart', 'The two text colors never carry a state'],
 ];
 

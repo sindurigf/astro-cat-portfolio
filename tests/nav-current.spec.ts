@@ -40,13 +40,22 @@ const HEADER_CTA = `${HEADER_NAV} + div a[href="${CTA.href}"]:not(dialog a)`;
 const HEADER_LOGO = `header > div > a[href="${HOME_HREF}"]`;
 
 /** The current header link's ground against a non-current one's. */
-const currentFillContrast = (page: Page): Promise<number> =>
+/**
+ * The strongest mark the current link carries that is not color alone: its fill
+ * against the other links, or an inset ring against its own fill.
+ */
+const currentMarkContrast = (page: Page): Promise<number> =>
   page.evaluate(`(() => {
     ${PAGE_HELPERS}
     const current = document.querySelector('${HEADER_NAV} a[aria-current]');
     const rest = document.querySelector('${HEADER_NAV} a:not([aria-current])');
     if (!current || !rest) throw new Error('the header nav has no current or no other link');
-    return ratio(effectiveBackground(current), effectiveBackground(rest));
+    const fill = effectiveBackground(current);
+    const inset = getComputedStyle(current)
+      .boxShadow.split(/,(?![^(]*\\))/)
+      .find((layer) => layer.includes('inset') && !/ 0px 0px 0px 0px /.test(layer + ' '));
+    const ring = inset ? ratio(parse(inset.match(/rgba?\\([^)]*\\)/)[0]), fill) : 0;
+    return Math.max(ratio(fill, effectiveBackground(rest)), ring);
   })()`) as Promise<number>;
 
 test.describe('the current page, as the navigation reports it', () => {
@@ -368,13 +377,13 @@ test.describe('the current page, as the navigation reports it', () => {
     }
 
     expect(
-      await currentFillContrast(page),
-      'on a post, the Blog fill is not 3:1 against the other links (SC 1.4.1, 1.4.11)',
+      await currentMarkContrast(page),
+      'on a post, neither the Blog fill nor an inset ring reaches 3:1 (SC 1.4.1, 1.4.11)',
     ).toBeGreaterThanOrEqual(NON_TEXT);
     await gotoSettled(page, blog);
     expect(
-      await currentFillContrast(page),
-      'on /blog/, the Blog fill is not 3:1 against the other links (SC 1.4.1, 1.4.11)',
+      await currentMarkContrast(page),
+      'on /blog/, neither the Blog fill nor an inset ring reaches 3:1 (SC 1.4.1, 1.4.11)',
     ).toBeGreaterThanOrEqual(NON_TEXT);
   });
 

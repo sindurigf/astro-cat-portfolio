@@ -473,7 +473,7 @@ const SHADOW_REACH = `
   };
 `;
 
-/* SC 1.4.11: cyan over a pink shadow is 2.29, so no ring may start inside the shadows of its own control. */
+/* SC 1.4.11: cyan over a pink shadow is 2.29, so no ring outside its box may start inside the shadows of its own control. */
 for (const colorScheme of SCHEMES) {
   test.describe(`ring clearance, ${colorScheme}`, () => {
     test.use({ colorScheme, viewport: { width: 1280, height: 900 } });
@@ -497,6 +497,7 @@ for (const colorScheme of SCHEMES) {
             return {
               name: (el.getAttribute('aria-label') || el.textContent || el.tagName).trim().slice(0, 40),
               offset: parseFloat(s.outlineOffset) || 0,
+              width: parseFloat(s.outlineWidth) || 0,
               shadow: shadowReach(el),
             };
           });
@@ -506,7 +507,12 @@ for (const colorScheme of SCHEMES) {
           const r = next.getBoundingClientRect();
           return { found, at: { x: r.left + r.width / 2, y: r.top + r.height / 2 } };`,
         ) as (args: { selector: string; read: number[]; aim: number }) => {
-          found: { name: string; offset: number; shadow: number }[];
+          found: {
+            name: string;
+            offset: number;
+            width: number;
+            shadow: number;
+          }[];
           at: { x: number; y: number } | null;
         };
         const visible = await page.evaluate(
@@ -518,14 +524,22 @@ for (const colorScheme of SCHEMES) {
         );
         const short: string[] = [];
         const report = (
-          found: { name: string; offset: number; shadow: number }[],
+          found: {
+            name: string;
+            offset: number;
+            width: number;
+            shadow: number;
+          }[],
           hover: boolean,
         ) => {
-          for (const { name, offset, shadow } of found)
-            if (shadow > 0 && offset < shadow)
+          for (const { name, offset, width, shadow } of found) {
+            // A ring drawn wholly inside its box, as on the header's bricks, never meets a shadow outside it.
+            const inside = offset + width <= 0;
+            if (!inside && shadow > 0 && offset < shadow)
               short.push(
                 `${name}${hover ? ' (hovered)' : ''}: ring offset ${offset}px, shadow reaches ${shadow.toFixed(1)}px past the box`,
               );
+          }
         };
         let step = await page.evaluate(measure, {
           selector: FOCUSABLE_SELECTOR,
