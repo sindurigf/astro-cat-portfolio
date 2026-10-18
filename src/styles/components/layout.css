@@ -345,12 +345,23 @@
     @apply absolute z-30 flex min-w-0 flex-col;
   }
 
-  /* Top right, below the rule; never at the foot, over the field. */
+  /*
+   * Top right, below the rule; never at the foot, over the field. The box ends
+   * at the window's foot, one column wide, and clips: a sticker that does not
+   * fit wraps out of sight, so at 400% zoom none hangs over the words below
+   * (SC 1.4.10). The padding is the room the throw and tilt need.
+   */
   .hero-marks {
-    top: var(--hero-gap);
-    right: var(--hero-inset);
+    --marks-room: --spacing(4);
 
-    @apply absolute z-20 flex flex-col items-end gap-4 p-0;
+    top: calc(var(--hero-gap) - var(--marks-room));
+    right: calc(var(--hero-inset) - var(--marks-room));
+    bottom: 0;
+    width: calc(var(--hero-marks-reserve) + 2 * var(--marks-room));
+    padding: var(--marks-room);
+    overflow: clip;
+
+    @apply absolute z-20 flex flex-col flex-wrap-reverse content-start items-start gap-4;
   }
 
   /*
@@ -363,7 +374,7 @@
     }
 
     .hero-marks {
-      top: calc(var(--hero-gap) + var(--text-hero-h1));
+      top: calc(var(--hero-gap) + var(--text-hero-h1) - var(--marks-room));
     }
   }
 
