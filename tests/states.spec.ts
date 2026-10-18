@@ -103,7 +103,7 @@ for (const scheme of ['dark', 'light'] as const) {
   });
 }
 
-/* The header and footer stay dark in light mode, so this also covers them there; light <main> is in tests/light-mode.spec.ts. */
+/* Light mode, header and footer included, is in tests/light-mode.spec.ts and tests/footer.spec.ts. */
 test.describe('dark mode reaches AAA contrast under the pointer (SC 1.4.6)', () => {
   test.use({ colorScheme: 'dark' });
 
