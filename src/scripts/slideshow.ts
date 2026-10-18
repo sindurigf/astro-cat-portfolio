@@ -46,9 +46,12 @@ const titleOf = (slide: HTMLElement): string =>
     .replace(' :', ':')
     .trim();
 
-/* Below the sticky header: base.css sets it as html's scroll-padding-top. */
+/* Below the header; once a static one (`short`) scrolls away, the top. */
 const usableTop = (): number =>
-  parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) || 0;
+  Math.max(
+    0,
+    document.querySelector('.site-header')?.getBoundingClientRect().bottom ?? 0,
+  );
 
 /* The focus ring counts: a control whose box fits but whose ring does not is off screen (SC 2.4.7). */
 const offScreen = (element: HTMLElement): boolean => {

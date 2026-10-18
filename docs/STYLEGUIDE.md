@@ -303,7 +303,8 @@ The switch and what it scopes: [ARCHITECTURE.md](../ARCHITECTURE.md#light-mode).
 - Gold text turns ink; a `.label.text-gold` and a slide label gain a gold
   square before the word.
 - Blocks stay gold or light in light mode, with the `#131313` edge (18.58 on white).
-- The header bar turns `#131313` with white lines.
+- The header bar keeps its `#FFC000` fill and `#131313` edge; its throw
+  turns `#131313`.
 - The footer follows the mode like `<main>`: white in light mode, its words
   7:1 or more and its tiles apart from it (`tests/footer.spec.ts`).
 - Logo marks use `mark`, `tile-edge`, the `cat-hela*` coat and
@@ -499,15 +500,15 @@ with a comment beside it.
 ## Borders, shadows and radius
 
 - Two edge weights, by choice. `--edge` (6px) is the width of every card,
-  panel, popover, form field, gold area, table, topic tile, the header bar, the
+  panel, popover, form field, gold area, table, topic tile, the
   `/accessibility` fact-strip rules, a prose `hr` and blockquote: the `edge`,
   `edge-t`, `edge-b` and `edge-l` utilities. Photos, controls, chips, the theme
   switch, stickers and code blocks keep `border-4`. The roundel keeps
   an 8px edge, a logo mark. No rule between sections.
 - The default border color is `border`, set in the base layer (Tailwind 4
   defaults to `currentColor`); `gold-border` inside `.surface-gold`.
-- Each ground has one edge role. Dark page: `border` (gold). A block:
-  `block-ink`, 4px. The header bar is a gold block in both modes. Inside gold: `gold-border` (ink). A
+- Each ground has one edge role. Dark page: `border` (gold). A block,
+  the header bar included: `block-ink`, 4px. Inside gold: `gold-border` (ink). A
   gold or light fill: `fill-edge` (ink). Light mode: ink everywhere.
   `tests/edges.spec.ts` asserts each in both modes.
 - Shadows are hard offsets, no blur. Gold casts none (gold on gold is 1.00).
@@ -516,17 +517,17 @@ with a comment beside it.
   fringe; when they match, the fill runs under the edge, or the ground shows
   between them as a seam (`tests/tilt.spec.ts`, every route, both modes).
 
-| Utility                     | Casts it                                                                                                            |
-| --------------------------- | ------------------------------------------------------------------------------------------------------------------- |
-| `shadow-hard-pink-object`   | Cards, post contents, gold areas, popovers, slide cards; `--hard-throw` (8px)                                       |
-| `shadow-hard-pink-4`        | The PageHero photo, `.btn-primary`, `.btn-secondary`, link chips, footer stickers, slide cards                      |
-| `shadow-brick`              | The header's brick rows and logo block, the menu's links, call to action and Close; `--brick-throw` (6px) in `text` |
-| `shadow-hard-cyan-object`   | A hovered linked card, in place of pink; a contact link brick fills cyan instead, its ring inside in ink            |
-| `shadow-hard-gold-border-4` | A card on gold                                                                                                      |
-| `shadow-hard-mark-4`        | `.sticker`, `.btn-gold-primary`                                                                                     |
-| `shadow-hard-mark-8`        | The roundel, the homepage stickers                                                                                  |
-| `drop-shadow-hard-mark-8`   | The logo tile, following its ears                                                                                   |
-| `drop-shadow-hard-mark-12`  | The logo tile's larger copy on `/about`                                                                             |
+| Utility                     | Casts it                                                                                                              |
+| --------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| `shadow-hard-pink-object`   | Cards, post contents, gold areas, popovers, slide cards, the header bar; `--hard-throw` (8px)                         |
+| `shadow-hard-pink-4`        | The PageHero photo, `.btn-primary`, `.btn-secondary`, link chips, footer stickers, slide cards                        |
+| `shadow-brick`              | The header's brick rows (in `block-ink`), the menu's links, call to action and Close; `--brick-throw` (6px) in `text` |
+| `shadow-hard-cyan-object`   | A hovered linked card, in place of pink; a contact link brick fills cyan instead, its ring inside in ink              |
+| `shadow-hard-gold-border-4` | A card on gold                                                                                                        |
+| `shadow-hard-mark-4`        | `.sticker`, `.btn-gold-primary`                                                                                       |
+| `shadow-hard-mark-8`        | The roundel, the homepage stickers                                                                                    |
+| `drop-shadow-hard-mark-8`   | The logo tile, following its ears                                                                                     |
+| `drop-shadow-hard-mark-12`  | The logo tile's larger copy on `/about`                                                                               |
 
 - `mark` is `pink`'s hex but stays pink in light mode, where `pink` turns
   ink.
@@ -1107,20 +1108,23 @@ Enforced by `tests/nav-current.spec.ts`, `tests/mobile-menu.spec.ts`,
 
 - Links come from `NAV_LINKS` and `CTA` in `src/lib/nav.ts`; the desktop
   header uses `HEADER_LINKS` (no Home; the logo links to `/`).
-- The header bar (`.header-slab`) is a gold block in both modes: `block-ink`
-  edge, `hard-pink-object` throw (pink, ink in light mode). Inside it bricks
-  take `block-light` fills and `block-ink` lines. `.site-header` keeps the
-  page's values as `--page-*` for the menu dialog.
-- The logo tile and name sit on the bar with no block, edge or throw of
-  their own; the tile keeps its `mark` shadow.
+- The header bar (`.header-slab`): `block-gold` fill in both modes, a 4px
+  `block-ink` edge (`--block-edge`) and `shadow-hard-pink-object` (pink, ink
+  in light mode). 80px tall in a 104px header. Inside it, bricks take
+  `block-light` fills and `block-ink` lines; `.site-header` keeps the page's
+  values as `--page-*` for the menu dialog.
+- The logo tile and name sit inside the bar with no block, edge or throw of
+  their own. The tile keeps its 8px `mark` shadow; the link pads it inside
+  its box (`padding-block-end: var(--lift-mark)`), so the ring at the plain
+  4px gap clears it and stays inside the bar, full and slim
+  (`tests/header-bricks.spec.ts`).
 - Nav links, the theme switch and the call to action are joined bricks
   (`.header-bricks`): 44px tall, the target (SC 2.5.5), sharing their 4px
-  edges, one `shadow-brick` per row. Each row sits half its throw high, so
-  there is 11px above it and under its throw. On the bar the throw is
-  `block-ink` in both modes. Gold marks the current page; the
-  rest take `block-light`. Gold bricks on the gold bar read by their ink edge. A brick after
-  another drops its left edge, so the two share one 4px wall and never overlap
-  each other's target.
+  edges, one `shadow-brick` per row, in `block-ink` in both modes. Each row
+  sits half its throw high: 11px above it and under its throw. The current
+  page is `block-gold`, the rest `block-light`; a gold brick on the gold bar
+  is set apart by its ink edge. A brick after another drops its left edge, so
+  the two share one 4px wall and never overlap each other's target.
 - Hover fills the site's `cyan` (`--hover-fill`) in both modes under a
   `gold-text` label (11.20). The ring is `gold-link` in both modes; on a
   hovered brick it takes the label's ink.
@@ -1138,7 +1142,8 @@ Enforced by `tests/nav-current.spec.ts`, `tests/mobile-menu.spec.ts`,
   bar, the logo tile at three quarters, bricks still 44px with their throw. A
   state, not an animation. Its flow box keeps 104px, so nothing below moves, and
   the full header's scroll padding still clears it. Not under `short`. `html` keeps focus and anchors
-  `--spacing-header` and `--spacing(4)` below the top.
+  `--spacing-header` and `--spacing(10)` below the top, so a focused field's
+  label stays in view too.
 - Under 30rem of viewport height (`short`: a landscape phone, any window under
   960px tall at 200% zoom) it scrolls away and the scroll padding drops to
   `--spacing(4)`.
@@ -1259,8 +1264,8 @@ Enforced by `tests/nav-current.spec.ts`, `tests/mobile-menu.spec.ts`,
 - On gold the ring is `gold-text`. Ratios: [Contrast](#contrast).
 - The header's joined bricks draw the ring inside the brick, `--block-edge`
   plus `--focus-gap` in, so it never crosses the next brick: `gold-link` on
-  the light bar (14.49), `cyan` on the ink bar (11.20), `gold-text` on gold
-  (11.32), and `gold-text` on a hovered brick's cyan (11.20).
+  a light brick (14.49), `gold-text` on gold (11.32), and `gold-text` on a
+  hovered brick's cyan (11.20).
 - `--lift-control` 4px beside a control's 4px shadow, `--lift-object` (the
   `--hard-throw`, 8px) beside an object's shadow, `--lift-mark` 8px beside the
   logo tile's 8px shadow, so the ring clears the shadow (cyan on pink is 2.29). The button,
