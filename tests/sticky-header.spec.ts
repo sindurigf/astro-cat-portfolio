@@ -5,7 +5,7 @@ import { settleFocusScroll, tabWalk } from './tab-walk';
 
 /**
  * Below 30rem of viewport height (a landscape phone, or 960px at 200% zoom) the
- * 96px header would cover up to half the view (SC 2.4.12), so it scrolls away and
+ * 104px header would cover up to half the view (SC 2.4.12), so it scrolls away and
  * the scroll padding drops to `--spacing(4)`. docs/STYLEGUIDE.md "Navigation".
  */
 

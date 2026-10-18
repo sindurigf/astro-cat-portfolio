@@ -8,6 +8,7 @@ interface Row {
   fg: string;
   bg: string;
   use: string;
+  job: string;
   needs: string;
   ratio: string;
   result: string;
@@ -48,20 +49,20 @@ const SAMPLE_EDGE: Record<string, string> = {
   surface: 'border-surface',
   text: 'border-text',
 };
-const TEXT_NEEDS = '4.5';
+const TEXT_JOB = 'text';
 const NEVER_AT_REST = 'cyan';
 
 const sampleOf = (row: Row): string[] | null => {
   if (row.result !== 'pass') return null;
   if (row.fg === NEVER_AT_REST || row.bg === NEVER_AT_REST) return null;
   const fill = SAMPLE_BG[row.bg];
-  const ink = (row.needs === TEXT_NEEDS ? SAMPLE_TEXT : SAMPLE_EDGE)[row.fg];
+  const ink = (row.job === TEXT_JOB ? SAMPLE_TEXT : SAMPLE_EDGE)[row.fg];
   if (!fill || !ink) {
     throw new Error(
       `/brand: ${row.fg} on ${row.bg} passes but has no sample class in src/components/ContrastTable.astro`,
     );
   }
-  return row.needs === TEXT_NEEDS
+  return row.job === TEXT_JOB
     ? [fill, ink, 'text-label font-black']
     : [fill, ink, 'border-4'];
 };
@@ -83,7 +84,7 @@ const sampleOf = (row: Row): string[] | null => {
         return (
           <tr
             data-sample={
-              sample ? (row.needs === TEXT_NEEDS ? 'text' : 'edge') : undefined
+              sample ? (row.job === TEXT_JOB ? 'text' : 'edge') : undefined
             }
           >
             <th scope="row">
@@ -96,7 +97,7 @@ const sampleOf = (row: Row): string[] | null => {
                     ]}
                     aria-hidden="true"
                   >
-                    {row.needs === TEXT_NEEDS && 'Aa'}
+                    {row.job === TEXT_JOB && 'Aa'}
                   </span>
                 )}
                 <span>

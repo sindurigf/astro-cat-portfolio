@@ -34,39 +34,57 @@
 
   /* Juts left of the column by the Step's `--step-x`. */
   .brand-menu-box {
-    @apply bg-surface shadow-hard-pink-object;
     translate: calc(var(--step-x) * -1) 0;
   }
 
-  .brand-menu-title {
-    @apply edge border-border px-card-tight py-4 text-label font-black uppercase
-      tracking-label text-text;
-  }
-
-  .brand-menu-list {
-    @apply edge border-t-0 border-border;
-  }
-
-  .brand-menu-link,
+  /* Headings stay plain labels; each group is a wall of joined light bricks. */
+  .brand-menu-title,
   .brand-menu-group {
-    @apply block edge-t border-border px-card-tight py-3;
+    @apply block pb-2 pt-4 text-label font-black uppercase tracking-label
+      text-subtle;
   }
 
-  .brand-menu-list > li:first-child > .brand-menu-link {
-    border-top-width: 0;
+  .brand-menu-title {
+    @apply pt-0;
+  }
+
+  /* The Overview brick and each group's list: joined bricks casting one throw. */
+  .brand-menu-list > li:first-child,
+  .brand-menu-list ol {
+    filter: drop-shadow(
+      var(--brick-throw) var(--brick-throw) 0 var(--color-pink)
+    );
+
+    @media (forced-colors: active) {
+      filter: none;
+    }
   }
 
   .brand-menu-link {
-    @apply min-h-target text-contents font-normal text-text hover:text-cyan;
+    @apply block min-h-target border-4 border-block-ink bg-block-light
+      px-card-tight py-3 text-contents font-normal text-block-ink;
   }
 
-  /* Current: a flat text-color block, as a current chip (chips.css). */
+  .brand-menu-list ol > li + li > .brand-menu-link {
+    border-top-width: 0;
+  }
+
+  /* The dark mode cyan in both modes: light mode's cyan is a text color, 2.55 under ink. */
+  .brand-menu-link:not([aria-current]):hover {
+    background-color: var(--dark-cyan);
+  }
+
+  /* Current: the gold brick. */
   .brand-menu-link[aria-current] {
-    @apply bg-text font-black text-background hover:text-background;
+    @apply bg-block-gold font-black;
   }
 
-  .brand-menu-group {
-    @apply text-label font-black uppercase tracking-label text-subtle;
+  /* Inside the brick, so it never crosses the next one; ink on light, gold or cyan. */
+  .brand-menu-link:focus-visible {
+    position: relative;
+    z-index: 1;
+    outline-color: var(--color-block-ink);
+    outline-offset: calc(-1 * (var(--block-edge) + var(--focus-gap)));
   }
 
   .brand-parts {
@@ -90,7 +108,7 @@
     --step-x: 0px;
     --step-y: 0px;
 
-    @apply min-w-0 overflow-clip bg-background p-3 text-text sm:p-card-tight;
+    @apply min-w-0 overflow-clip bg-background p-card-tight text-text;
   }
 
   .brand-poster > .brand-stage-half {

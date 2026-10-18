@@ -11,7 +11,14 @@ const ROUTE = '/';
 const PLAIN_CARD =
   'main .card:not(.card-solid):not(.surface-gold):not(.surface-gold *)';
 const PAGE_CONTROL = 'main a.btn-secondary';
-const GOLD_FILLS = ['.nav-cta', '.footer-sticker'];
+/* Gold controls, edged in the line color of what they sit on: the header bar, or the menu's page ground (read while closed). */
+const GOLD_FILLS = [
+  'header .header-bricks .nav-cta',
+  'header .theme-switch',
+  '.mobile-menu-dialog .nav-cta',
+];
+/* A footer tile has no drawn edge: its fill meets the ground and its throw. */
+const FOOTER_TILE = 'footer .footer-sticker';
 
 interface Edges {
   cardEdgeAlpha: number;
@@ -20,6 +27,8 @@ interface Edges {
   cardPaper: string;
   controlRatio: number | null;
   fillEdgeRatios: Record<string, number | null>;
+  tileFillRatio: number | null;
+  tileEdgeAlpha: number;
 }
 
 const readEdges = (page: Page): Promise<Edges> =>
@@ -33,22 +42,37 @@ const readEdges = (page: Page): Promise<Edges> =>
     const edge = parse(cardStyle.borderTopColor);
     const cardGround = effectiveBackground(card.parentElement);
     const fill = parse(cardStyle.backgroundColor);
-    const controlEdge = parse(getComputedStyle(control).borderTopColor);
+    const controlStyle = getComputedStyle(control);
+    const controlEdge = parseFloat(controlStyle.borderTopWidth) >= 1 ? parse(controlStyle.borderTopColor) : null;
+    const controlFill = parse(controlStyle.backgroundColor);
     const controlGround = effectiveBackground(control.parentElement);
     const fillEdgeRatios = {};
     for (const selector of ${JSON.stringify(GOLD_FILLS)}) {
       const element = document.querySelector(selector);
       const style = element && getComputedStyle(element);
-      const fill = style && parse(style.backgroundColor);
+      const dialog = element && element.closest('dialog');
+      const ground = dialog ? parse(getComputedStyle(dialog).backgroundColor) : element && effectiveBackground(element.parentElement);
       const rim = style && parse(style.borderTopColor);
-      fillEdgeRatios[selector] = fill && rim ? ratio(rim, fill) : null;
+      fillEdgeRatios[selector] = ground && rim ? ratio(rim, ground) : null;
     }
+    const tile = document.querySelector(${JSON.stringify(FOOTER_TILE)});
+    const tileStyle = tile && getComputedStyle(tile);
+    const tileFill = tileStyle && parse(tileStyle.backgroundColor);
+    const tileGround = tile && effectiveBackground(tile.parentElement);
     return {
+      tileFillRatio: tileFill && tileGround ? ratio(tileFill, tileGround) : null,
+      tileEdgeAlpha: tileStyle ? parse(tileStyle.borderTopColor).a : 1,
       cardEdgeAlpha: edge ? edge.a : 1,
       cardEdgeRatio: edge && cardGround ? ratio(over(edge, cardGround), cardGround) : null,
       cardFillRatio: fill && cardGround ? ratio(fill, cardGround) : null,
       cardPaper: paper,
-      controlRatio: controlEdge && controlGround ? ratio(controlEdge, controlGround) : null,
+      /* A control is delimited by a drawn edge or by its own fill, whichever reads (SC 1.4.11). */
+      controlRatio: controlGround
+        ? Math.max(
+            controlEdge ? ratio(over(controlEdge, controlGround), controlGround) : 0,
+            controlFill && controlFill.a === 1 ? ratio(controlFill, controlGround) : 0,
+          )
+        : null,
       fillEdgeRatios,
     };
   })()`) as Promise<Edges>;
@@ -57,7 +81,7 @@ const expectFillEdges = (edges: Edges): void => {
   for (const [selector, value] of Object.entries(edges.fillEdgeRatios)) {
     expect(
       value,
-      `${selector}'s edge should reach ${NON_TEXT}:1 against its own fill`,
+      `${selector}'s edge should reach ${NON_TEXT}:1 against the bar it sits on`,
     ).toBeGreaterThanOrEqual(NON_TEXT);
   }
 };
@@ -79,9 +103,17 @@ for (const colorScheme of ['dark', 'light'] as const) {
       expect(edges.cardPaper, 'a card should carry no paper').toBe('none none');
       expect(
         edges.controlRatio,
-        `a control on the page should have an edge of at least ${NON_TEXT}:1`,
+        `a control on the page should have an edge or fill of at least ${NON_TEXT}:1`,
       ).toBeGreaterThanOrEqual(NON_TEXT);
       expectFillEdges(edges);
+      expect(
+        edges.tileFillRatio,
+        `a footer tile's fill should reach ${NON_TEXT}:1 against the footer`,
+      ).toBeGreaterThanOrEqual(NON_TEXT);
+      expect(
+        edges.tileEdgeAlpha,
+        'a footer tile should draw no edge, so its throw meets its fill',
+      ).toBe(0);
     });
   });
 }

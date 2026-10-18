@@ -43,7 +43,6 @@ npm run build && npm run preview   # http://localhost:4340
 | GTK `toolkit-accessibility` | §6.1 fallback only                                 | `gsettings set org.gnome.desktop.interface toolkit-accessibility false` |
 | DevTools Offline            | Network panel, §6.12.1                             | Untick Offline                                                          |
 | `*.webp` request blocking   | Network panel, §6.12.3                             | Remove the pattern, reload                                              |
-| `javascript.enabled`        | `about:config`, §5b and §6.12.3                    | Set it back to `true`                                                   |
 | Firefox 320px window        | Window or Responsive Design Mode, §6.7 and §6.12.5 | Close Responsive Design Mode, restore the window size                   |
 
 - [ ] Teardown done.
@@ -75,7 +74,8 @@ Setup: Chrome at 375px. No mouse.
 - [ ] Tab cycles Home, About, Career, Blog, Get in Touch, Close, one stop in
       the browser UI (correct `<dialog>` behavior), Home. The theme switch is
       not in the dialog. Focus never reaches the page behind. → SC 2.1.2
-- [ ] Shift+Tab from the first item goes to Close. → SC 2.1.2
+- [ ] Shift+Tab from the first item stays in the dialog: the browser's own stop
+      or the dialog itself (Firefox), then Close. → SC 2.1.2
 - [ ] Escape closes and focus returns to the menu button. → SC 2.1.2, 2.4.3
 - [ ] Close button: focus returns to the menu button. → SC 2.4.3
 - [ ] A nav link activated with Enter navigates. → SC 2.1.1
@@ -98,7 +98,7 @@ Resizing is not zooming, so this stays manual even though
 - [ ] The mobile menu button replaces the desktop nav and the menu is fully
       operable. → SC 1.4.10
 - [ ] Nothing overlaps or is cut off. → SC 1.4.10
-- [ ] Tab through: the 96px sticky header never covers the focused element. → SC 2.4.11
+- [ ] Tab through: the 104px sticky header never covers the focused element. → SC 2.4.11
 - [ ] Repeat on `/blog/sample-talk`. → SC 1.4.10, 2.4.11
 - [ ] Repeat at 200% and 250%. → SC 1.4.10
 - [ ] Repeat at 400% in a window 1024px tall (256px CSS): the header does not
@@ -136,8 +136,8 @@ The ring is 4px cyan at a 4px offset plus the element's shadow (4px, or 8px for 
 - [ ] On a gold slab or band: the `#131313` ring is visible. → SC 1.4.11
 - [ ] No ring is clipped by a parent or hidden under the header. → SC 2.4.11
 - [ ] Focus is never shown by shadow alone. → SC 2.4.7
-- [ ] Light mode on `<main>` and the header: the ring is `--color-light-focus`
-      (`#00606b`) on white; the footer keeps the cyan ring on dark. See §5b. → SC 1.4.11, 2.4.7
+- [ ] Light mode on `<main>`, the header bar's page parts and the footer: the
+      ring is `--color-light-focus` (`#00606b`) on white. See §5b. → SC 1.4.11, 2.4.7
 
 ## 5a. Header height, roundel and hero edge
 
@@ -172,21 +172,16 @@ Zoom (forced colors off, 1280px, 200% then 400%):
 
 ## 5b. Light mode
 
-Setup: Chrome, 1280px, `/about`. The switch turns `<main>` and the header
-light; the footer stays dark ([ACCESSIBILITY.md](../ACCESSIBILITY.md#light-mode),
+Setup: Chrome, 1280px, `/about`. The switch turns `<main>`, the header and the
+footer light ([ACCESSIBILITY.md](../ACCESSIBILITY.md#light-mode),
 [STYLEGUIDE.md](STYLEGUIDE.md#light-mode)). `tests/light-mode.spec.ts` covers
-axe, control edges, hover contrast and ring contrast; these checks are the
-rest.
+axe, control edges, hover contrast, ring contrast, and the switch: its name
+and pressed state after Enter and Space, the choice across a reload and
+`/career`, a light device with no choice, the theme set before `<body>`, and
+no switch without JavaScript. These checks are the rest.
 
-- [ ] The switch is announced "Light Mode", "toggle button", not pressed; after
-      Enter or Space it is pressed. The name does not change. → SC 4.1.2
-- [ ] Reload and open `/career`: the choice holds. → SC 1.4.3
-- [ ] With the choice saved, hard reload on a throttled network: no dark frame
-      in `<main>` before it turns light. → SC 1.4.3
-- [ ] With no saved choice and the OS set to light, the page opens light and
-      the switch reads pressed. → SC 1.4.3
-- [ ] JavaScript off (`about:config` `javascript.enabled` false in Firefox):
-      the page is dark and the switch is absent. Restore the setting. → SC 4.1.2
+- [ ] By ear: the switch is announced "Light Mode", "toggle button", and its
+      pressed state. → SC 4.1.2
 - [ ] Tab to the switch: a ring shows with a gap, on the dark header. → SC 2.4.7
 - [ ] In light, Tab through `<main>`: every ring reads against white and
       against its control (`#00606b`). → SC 1.4.11, 2.4.7
@@ -208,7 +203,7 @@ Narrows ACCESSIBILITY.md §7 gap 2 without closing it. Firefox throughout, excep
 which needs Chrome: only Chromium puts the `text-transform` string into the
 accessibility tree. A strange Chrome result is a question, not a finding.
 
-Run order: 6.4, 6.5, 6.12.1, 6.6 to 6.9, 6.12.2 to 6.12.5. 6.12.1 goes after
+Run order: 6.4, 6.5, 6.12.1, 6.6 to 6.9, 6.12.2 to 6.12.7. 6.12.1 goes after
 6.5 because its failure is silence, which means nothing until 6.5 proves Orca
 is speaking.
 
@@ -323,15 +318,16 @@ Heard: `________________________`
 Setup: Firefox, 1280px, `/about`, JavaScript on. Re-derive the counts from the
 build after any change to `/about`.
 
-- [ ] `Alt+Shift+M` lists 14 landmarks: banner, navigation "Primary", main,
-      navigation "On this page", six regions (one per `SECTIONS` entry in
-      `src/pages/about.astro`, plus Sources while the sample persona is set),
-      contentinfo, navigation "Site", "About this site", "Social". None
-      unnamed or duplicated. Judge whether the list is useful or crowded. → SC 1.3.1
+`tests/structure.spec.ts` reads the accessibility tree of every sampled
+route: one banner, main and contentinfo in order, one "Primary" navigation in
+the banner, every repeated landmark named once, one `h1` opening main, no
+skipped level, an `h2` opening each region, and the home link named
+`site.name` with its mark silent.
+
+- [ ] `Alt+Shift+M` on `/about` lists the landmarks the spec reads. Judge
+      whether the list is useful or crowded. → SC 1.3.1
 - [ ] `M` from the top steps through them in that order. → SC 1.3.1
-- [ ] `Alt+Shift+H` lists seven headings: `h1` "About Me", then one `h2` per
-      spread. The "On this page" nav lists all six spreads. → SC 1.3.1, 2.4.6
-- [ ] `G` skips the header logo mark; the home link is `site.name`. → SC 1.1.1
+- [ ] The "On this page" nav lists every spread. → SC 2.4.6
 - [ ] `G` finds no footer mascot. → SC 1.1.1
 - [ ] `K` to About: announced as the current page. → SC 4.1.2
 - [ ] The current-page box adds nothing to the announcement. → SC 1.3.1
@@ -367,12 +363,10 @@ Heard: `________________________`
 Setup: Firefox, 1280px, `/blog/sample-talk` (25 headings:
 1 `h1`, 12 `h2`, 12 `h3`).
 
-- [ ] `Alt+Shift+H`: `h1` first, then the body's headings in source order.
-      Every `h3` has an `h2` above it. → SC 1.3.1, 2.4.6
-- [ ] `H` from the top walks the same headings, each with its level. → SC 1.3.1
-- [ ] `Alt+Shift+M` lists ten landmarks: banner, navigation "Primary", main,
-      navigation "Breadcrumb", "In This Post", "Tags", contentinfo, "Site",
-      "About this site", "Social". No `article` or inner `header`. → SC 1.3.1
+`tests/structure.spec.ts` covers the heading outline and the landmark set.
+
+- [ ] `H` from the top walks the headings, each with its level. → SC 1.3.1
+- [ ] `Alt+Shift+M` lists no `article` or inner `header`. → SC 1.3.1
 - [ ] From main, `Down` reads breadcrumb, `h1`, teaser, date, body. → SC 1.3.2
 - [ ] The breadcrumb is Home, Blog, Open Source. In `Alt+Shift+K`, judge
       whether "Open Source" and "Blog" make sense alone. → SC 2.4.4
@@ -474,11 +468,12 @@ Heard: `________________________`
 Setup: `/about`, DevTools → Network → block `*.webp`, reload. The visible copy
 of the alt text is `aria-hidden`.
 
-- [ ] `G` reaches the photo once; its alt is announced once. → SC 1.1.1
-- [ ] The full `alt` is read, not the clamped visible copy. → SC 1.1.1
-- [ ] The frame announces nothing of its own. → SC 1.1.1
-- [ ] With `javascript.enabled` false in `about:config`: alt announced once.
-      Restore it afterwards. → SC 1.1.1
+`tests/failed-images.spec.ts` checks, with and without JavaScript, that each
+failed photo's alt is the name of one image, never also text, and that the
+frame has no name of its own.
+
+- [ ] By ear: `G` reaches the photo once and the full `alt` is read, not the
+      clamped visible copy. → SC 1.1.1
 
 Heard: `________________________`
 
@@ -498,10 +493,11 @@ Heard: `________________________`
 
 Setup: Firefox at 320px on `/`. Open the menu, widen past 768px.
 
-- [ ] Focus is on a header nav link. → SC 2.4.3
+`tests/mobile-menu.spec.ts` checks from 320px that focus lands on a header
+nav link, the menu closes, the page scrolls, and one navigation "Primary"
+and no dialog remain.
+
 - [ ] `Orca+Return` describes that link, not the document. → SC 2.4.3
-- [ ] The menu closed by itself and the page scrolls. → SC 2.1.1
-- [ ] `Alt+Shift+M`: one navigation "Primary", no dialog. → SC 1.3.1
 
 Heard: `________________________`
 
@@ -528,6 +524,19 @@ drawings are `aria-hidden`.
 - [ ] Choosing "Chase the Fly" plays it; choosing a trick for a sleeping cat
       wakes it first. → SC 2.2.2
 - [ ] The drawings announce nothing. → SC 1.1.1
+- [ ] While the trick list loads, or if it fails, its note is read once, as
+      a status. → SC 4.1.3
+
+Heard: `________________________`
+
+#### 6.12.7 The photo viewer's count and caption
+
+Setup: a post with a photo strip at 1280px. Open a photo, then press Next
+twice.
+
+- [ ] Each step is heard once: the count ("Photo 2 of N") and the caption,
+      neither cut off nor doubled. → SC 4.1.3
+- [ ] Nothing is read before the new photo shows. → SC 4.1.3
 
 Heard: `________________________`
 
@@ -566,7 +575,7 @@ Setup: Firefox, Settings → General → Zoom → "Zoom text only", Ctrl+`+` to 
 
 - [ ] No text clipped, truncated or hidden.
 - [ ] Header and footer labels fit their boxes, the current-page box included.
-- [ ] Nothing spills out of the 96px header.
+- [ ] Nothing spills out of the 104px header.
 - [ ] The mobile menu, if shown, works.
 - [ ] Repeat on `/blog/sample-talk`.
 
@@ -610,8 +619,8 @@ header or nav layout change.
 
 - [ ] At 320px, content sits 16px from both edges on `/about` and a blog
       route. → SC 1.4.10
-- [ ] Header nav stickers are 48px tall and equal height, current or not.
-- [ ] Mobile menu button and theme switch 48x48, 44x44 below 21rem (336px).
+- [ ] Header nav bricks are 44px tall and equal height, current or not.
+- [ ] Mobile menu button and theme switch 44x44.
 - [ ] Footer profile tiles 56x56 from 64rem, 48x48 below; footer page links 44px
       rows.
 - [ ] Breadcrumb links above a post `h1` keep a 44px pointer area, and wrapped

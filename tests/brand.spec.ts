@@ -618,3 +618,67 @@ test(
     );
   },
 );
+
+/* The examples sit in halves that clip; a ring cut by the clip is smaller than drawn (SC 2.4.13). */
+const REFLOW_WIDTH = 320;
+const ROUNDING_PX = 0.5;
+
+test.describe('/brand examples at 320px', () => {
+  test.use({ viewport: { width: REFLOW_WIDTH, height: HEIGHT } });
+
+  test('every focused example keeps its whole ring inside every clipping ancestor', async ({
+    page,
+  }) => {
+    const cut: string[] = [];
+    let measured = 0;
+
+    for (const route of ALL_ROUTES) {
+      await gotoSettled(page, route);
+      const result = await page.evaluate((tolerance) => {
+        const found: string[] = [];
+        let rings = 0;
+        const controls = [
+          ...document.querySelectorAll<HTMLElement>(
+            '[data-example] :is(a[href], button, input, select, textarea, summary, [tabindex]:not([tabindex="-1"]))',
+          ),
+        ].filter((el) => el.checkVisibility());
+
+        for (const el of controls) {
+          el.focus({ focusVisible: true });
+          if (document.activeElement !== el) continue;
+          const style = getComputedStyle(el);
+          if (style.outlineStyle === 'none') continue;
+          rings += 1;
+          const reach =
+            parseFloat(style.outlineOffset) + parseFloat(style.outlineWidth);
+          const box = el.getBoundingClientRect();
+
+          for (let node = el.parentElement; node; node = node.parentElement) {
+            const s = getComputedStyle(node);
+            // A scroller brings its focused child into view; only a clip cannot.
+            if (!/clip|hidden/.test(`${s.overflowX} ${s.overflowY}`)) continue;
+            const r = node.getBoundingClientRect();
+            const over = Math.max(
+              r.left + parseFloat(s.borderLeftWidth) - (box.left - reach),
+              r.top + parseFloat(s.borderTopWidth) - (box.top - reach),
+              box.right + reach - (r.right - parseFloat(s.borderRightWidth)),
+              box.bottom + reach - (r.bottom - parseFloat(s.borderBottomWidth)),
+            );
+            if (over > tolerance) {
+              found.push(
+                `${el.tagName.toLowerCase()} "${el.textContent?.trim().slice(0, 30)}" cut ${over.toFixed(1)}px by .${node.className.split(' ')[0]}`,
+              );
+            }
+          }
+        }
+        return { found, rings };
+      }, ROUNDING_PX);
+
+      measured += result.rings;
+      cut.push(...result.found.map((line) => `${route}: ${line}`));
+    }
+
+    expect(measured, 'no /brand example drew a focus ring').toBeGreaterThan(0);
+    expect(cut, `focus rings clipped at 320px:\n${cut.join('\n')}`).toEqual([]);
+  });
+});
