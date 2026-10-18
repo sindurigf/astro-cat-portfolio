@@ -26,6 +26,7 @@ import {
   SITE_CARD_ROUTES,
   cardPhoto,
   decodeEntities,
+  imageMime,
   ogCardPath,
 } from '../src/lib/og-cards.ts';
 import { SITE_CONFIG } from '../src/site.config.ts';
@@ -77,20 +78,6 @@ if (personName.length > MAX_NAME_LENGTH) {
 const dataUri = (path, type) =>
   `data:${type};base64,${readFileSync(path).toString('base64')}`;
 
-const MIME = {
-  jpg: 'image/jpeg',
-  jpeg: 'image/jpeg',
-  png: 'image/png',
-  webp: 'image/webp',
-  avif: 'image/avif',
-};
-const mimeOf = (path) => {
-  const type = MIME[path.split('.').at(-1).toLowerCase()];
-  if (!type)
-    throw new Error(`make-og: ${path} is not a JPEG, PNG, WebP or AVIF.`);
-  return type;
-};
-
 const markSvg = () =>
   `<svg class="mark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${MARK_SIZE + SHADOW_OFFSET} ${MARK_SIZE + SHADOW_OFFSET}">` +
   `<g transform="translate(${SHADOW_OFFSET} ${SHADOW_OFFSET})">${markSilhouette(TOKENS.mark)}</g>` +
@@ -98,7 +85,7 @@ const markSvg = () =>
   '</svg>';
 
 const photoMarkup = (path) =>
-  `<div class="photo"><img alt="" src="${dataUri(path, mimeOf(path))}"></div>`;
+  `<div class="photo"><img alt="" src="${dataUri(path, imageMime(path))}"></div>`;
 
 const page = (art) => {
   const font = readFileSync(FONT).toString('base64');
