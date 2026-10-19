@@ -13,8 +13,9 @@ import { photoSize } from '../lib/photo-size';
 
 /*
  * The link is on the heading, not the whole card: a card-wide <a> would take
- * every word as its name and make the teaser unselectable. No separate "Read
- * the post" link: a second tab stop to the same URL.
+ * every word as its name and make the teaser unselectable. A press on the
+ * card follows it (src/scripts/card-click.ts). No separate "Read the post"
+ * link: a second tab stop to the same URL.
  */
 
 interface Props {
@@ -120,3 +121,7 @@ const readableDate = formatPostDate(date);
     ) : null}
   </div>
 </article>
+
+<script>
+  import '../scripts/card-click';
+</script>
