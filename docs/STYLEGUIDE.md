@@ -1231,6 +1231,12 @@ Enforced by `tests/nav-current.spec.ts`, `tests/mobile-menu.spec.ts`,
 - A drawing may reach `MAX_OVERHANG` (the phone gutter) past its band's end,
   never over text or a control (`src/lib/about-cats.ts`). A cat about to lie
   down near an end turns to face the band first.
+- A cat stands on the brick under it. Where its wall steps up (Rudra's raised
+  photo brick), the floor follows the brick tops, read from the laid-out wall
+  on every resize, and Rudra springs up the step and stretches down it
+  (`src/lib/about-cats-climb.ts`). Under reduced motion a cat sits on the brick
+  it is on. The wall's empty top takes no clicks, so a cat on the lower brick
+  stays a target.
 - Games too long for a band are skipped: at a 320px viewport the yarn and fly
   games do not fit, and the cats play the others.
 - Each cat lives in a `.cat-perch` band above its card, sized by
