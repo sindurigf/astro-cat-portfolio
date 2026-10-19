@@ -64,6 +64,14 @@ const translateOf = (page: Page, selector: string) =>
       return [x, y];
     });
 
+const transitionsDone = (page: Page, selector: string) =>
+  page
+    .locator(selector)
+    .first()
+    .evaluate((el) =>
+      Promise.all(el.getAnimations().map((a) => a.finished)).then(() => true),
+    );
+
 /* A hard shadow layer that is not inset and not the transparent placeholder
  * Tailwind composes `shadow-none` from, or the logo's offset drop shadow. */
 const castsShadow = (page: Page, selector: string) =>
@@ -183,12 +191,10 @@ test.describe('a press on the edge still clicks', () => {
           node.dataset.clicked = 'yes';
         });
       });
-      // Hovered and read once straight: a footer sticker is tilted until pointed at,
-      // and a box read mid-change puts the corner outside it.
+      // Read once the lift lands: Firefox truncates the pointer to whole pixels and
+      // hit-tests a moving control short of its box, so a mid-lift corner misses.
       await el.hover();
-      await expect
-        .poll(() => el.evaluate((node) => getComputedStyle(node).rotate))
-        .toMatch(/^(none|0deg)$/);
+      await transitionsDone(page, p.moves);
       const box = await el.boundingBox();
       if (!box) throw new Error(`${p.name} has no box`);
       const x = box.x + 1;
@@ -315,14 +321,6 @@ const pressLift = (page: Page) =>
       ),
     ),
   );
-
-const transitionsDone = (page: Page, selector: string) =>
-  page
-    .locator(selector)
-    .first()
-    .evaluate((el) =>
-      Promise.all(el.getAnimations().map((a) => a.finished)).then(() => true),
-    );
 
 /* The largest x offset among the shadow layers that are not inset. */
 const throwOf = (page: Page, selector: string) =>
