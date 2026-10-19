@@ -169,7 +169,7 @@ const NAMES = [
   'OWASP Foundation',
   'OWASP Secure Headers Project',
   'Understanding WCAG 2.2',
-  'W3C Web Accessibility Initiative',
+  'W3C',
 ];
 
 const ABBREVIATION = /\bCC BY\b|\bIPv[46]\b|\b[A-Z][A-Z0-9]+(?:-\d+)?\b/g;
