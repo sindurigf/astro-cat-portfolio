@@ -33,7 +33,8 @@ import {
   type CatRig,
   type PropRig,
 } from './about-cats-rig';
-import type { PropState } from './about-cats-types';
+import type { Ledge, PropState } from './about-cats-types';
+import { CLIMB_CLEAR, CLIMB_START, climbMove } from './about-cats-climb';
 import {
   createIdle,
   idleFrameMs,
@@ -62,6 +63,8 @@ export const CONTROL_ROOM = 48;
 const FIT_STEPS = 24;
 /** Chance a cat moves along its band, by one leap, instead of playing where it is. */
 const LEAP_CHANCE = 0.15;
+/** Chance a cat on a stepped band climbs to the next brick instead. */
+const CLIMB_CHANCE = 0.3;
 /* Ways to get about, one at a time and weighted; there is no walking. */
 const LEAPS: Partial<Record<MoveName, number>> = {
   pounce: 3,
@@ -137,6 +140,9 @@ interface Playing {
 
 interface CatState extends CatSpot {
   width: number;
+  /** The band's bottom, and the floor under the cat: the top of the brick it is on. */
+  base: number;
+  ledges: Ledge[];
   groundY: number;
   min: number;
   max: number;
@@ -185,8 +191,12 @@ const poseGap = (a: Pose, b: Pose): number =>
   );
 
 export interface Colony {
+  /** `ledges` are the brick tops under a band, left to right; none means the band's bottom. */
   layout: (
-    sizes: Map<CatSpot['id'], { width: number; height: number }>,
+    sizes: Map<
+      CatSpot['id'],
+      { width: number; height: number; ledges?: Ledge[] }
+    >,
   ) => void;
   /** Draws a frame; returns when the next is needed: `now` or earlier, a rest's end, or Infinity. */
   frame: (now: number) => number;
@@ -257,11 +267,11 @@ export const planMove = (
 
 /**
  * The cup push from anywhere on the track, heading left: a trot and a creep to
- * CUP_EDGE, on the track, so the cup goes over the card's edge.
+ * `edge`, the track's left end, so the cup goes over the card's or the step's edge.
  * Left only: the right end is the sleep control's corner.
  */
-export const cupPush = (x: number): Move =>
-  withApproach(moveToPlay('knock'), Math.max(0, x - CUP_EDGE));
+export const cupPush = (x: number, edge = CUP_EDGE): Move =>
+  withApproach(moveToPlay('knock'), Math.max(0, x - edge));
 
 export const createColony = (
   spots: CatSpot[],
@@ -270,6 +280,8 @@ export const createColony = (
   const cats: CatState[] = spots.map((spot) => ({
     ...spot,
     width: 0,
+    base: 0,
+    ledges: [],
     groundY: 0,
     min: 0,
     max: 0,
@@ -295,6 +307,28 @@ export const createColony = (
 
   const find = (id: CatSpot['id']): CatState | undefined =>
     cats.find((cat) => cat.id === id);
+
+  /** The ledge under `x`, or -1 on a flat band. */
+  const ledgeIndex = (cat: CatState, x: number): number => {
+    const i = cat.ledges.findIndex((l) => x < l.x1);
+    return i < 0 ? cat.ledges.length - 1 : i;
+  };
+
+  /** Puts the cat on the brick under it: its floor, and a track that keeps to that brick. */
+  const onLedge = (cat: CatState): void => {
+    const i = ledgeIndex(cat, cat.pose.x);
+    const l = cat.ledges[i] ?? { x0: 0, x1: cat.width, drop: 0 };
+    cat.groundY = cat.base + l.drop;
+    cat.min = l.x0 + (i > 0 ? CLIMB_CLEAR : TRACK_MARGIN);
+    cat.max = Math.max(
+      cat.min,
+      l.x1 -
+        (i < cat.ledges.length - 1 ? CLIMB_CLEAR : TRACK_MARGIN + CONTROL_ROOM),
+    );
+    cat.pose.x = clamp(cat.pose.x, cat.min, cat.max);
+    for (const layer of [cat.rig.props, cat.rig.propsFront])
+      layer.setAttribute('transform', `translate(0 ${cat.groundY})`);
+  };
 
   /* Asleep is reported on its own too: a hidden cat can be asleep, and its control says so. */
   const updateMood = (cat: CatState): void => {
@@ -335,8 +369,13 @@ export const createColony = (
   /** A cut-short move's prop fades out over PROP_FADE_MS instead of vanishing. */
   const fading: { prop: PropRig; shown: PropState; t0: number }[] = [];
 
-  const drop = (cat: CatState, fade = false): void => {
+  const drop = (cat: CatState, fade = false, cut = true): void => {
     const playing = cat.playing;
+    /* Cut short mid-climb, the cat sits on the brick it is over. */
+    if (cut && playing?.move.rise) {
+      cat.pose = pose('sit', { x: cat.pose.x, face: cat.pose.face });
+      onLedge(cat);
+    }
     if (playing?.prop && playing.shown && fade)
       fading.push({
         prop: playing.prop,
@@ -351,7 +390,11 @@ export const createColony = (
   const endMove = (cat: CatState): void => {
     const playing = cat.playing;
     if (!playing) return;
-    drop(cat);
+    if (playing.move.rise) {
+      if (playing.move.rise > 0) cat.pose.by -= playing.move.rise;
+      onLedge(cat);
+    }
+    drop(cat, false, false);
     if (!playing.settle) cat.restUntil = performance.now() + rand(...PAUSE_MS);
     playing.then?.();
   };
@@ -369,6 +412,11 @@ export const createColony = (
     if (cat.idling) {
       addIdle(from, cat.idleShown);
       cat.idling = false;
+    }
+    /* A climb down plays on the lower floor, so the cat starts the step's height up. */
+    if (move.rise && move.rise < 0) {
+      cat.groundY -= move.rise;
+      from.by -= move.rise;
     }
     const origin = from.x;
     from.x = 0;
@@ -419,6 +467,34 @@ export const createColony = (
     return true;
   };
 
+  /** Walks to the step beside its brick and climbs it; false on a flat band. */
+  const climb = (cat: CatState, now: number): boolean => {
+    const i = ledgeIndex(cat, cat.pose.x);
+    const sides = [i - 1, i + 1].filter((j) => i >= 0 && cat.ledges[j]);
+    if (sides.length === 0) return false;
+    const j = sides[Math.floor(Math.random() * sides.length)];
+    const dir = j > i ? 1 : -1;
+    const edge = dir > 0 ? cat.ledges[i].x1 : cat.ledges[i].x0;
+    const h = cat.ledges[i].drop - cat.ledges[j].drop;
+    const rising = h > 0;
+    const start = edge - dir * CLIMB_START[rising ? 'up' : 'down'];
+    const walk = withApproach(
+      { steps: [], mods: [] },
+      Math.max(0, (start - cat.pose.x) * dir),
+    );
+    play(cat, walk, now, dir, () =>
+      play(
+        cat,
+        climbMove(rising, Math.abs(h)),
+        performance.now(),
+        dir,
+        undefined,
+        true,
+      ),
+    );
+    return true;
+  };
+
   /** The spot on the track nearest the cat where `name` fits, or null if it fits nowhere. */
   const fitPoint = (cat: CatState, name: MoveName): number | null => {
     if (EDGE_MOVES.has(name)) return cat.pose.x;
@@ -441,7 +517,7 @@ export const createColony = (
   /** Plays `name` from where the cat stands; false if it fits nowhere on the track. */
   const begin = (cat: CatState, name: MoveName, now: number): boolean => {
     if (EDGE_MOVES.has(name)) {
-      play(cat, cupPush(cat.pose.x), now, -1);
+      play(cat, cupPush(cat.pose.x, cat.min), now, -1);
       return true;
     }
     const plan = planFor(cat, name);
@@ -457,6 +533,7 @@ export const createColony = (
       return;
     }
     if (cat.holds.size > 0 || now < cat.restUntil) return;
+    if (Math.random() < CLIMB_CHANCE && climb(cat, now)) return;
     if (Math.random() < LEAP_CHANCE && leap(cat, now)) return;
     if (!begin(cat, pickWeighted(CAT_WEIGHTS[cat.id]), now)) leap(cat, now);
   };
@@ -664,14 +741,15 @@ export const createColony = (
         const size = sizes.get(cat.id);
         if (!size) continue;
         const first = cat.width === 0;
+        if (cat.playing?.move.rise) drop(cat);
         cat.width = size.width;
-        cat.groundY = size.height;
-        for (const layer of [cat.rig.props, cat.rig.propsFront])
-          layer.setAttribute('transform', `translate(0 ${size.height})`);
-        cat.min = TRACK_MARGIN;
-        cat.max = Math.max(cat.min, size.width - TRACK_MARGIN - CONTROL_ROOM);
-        if (first) cat.pose.x = cat.min + (cat.max - cat.min) * cat.start;
-        cat.pose.x = clamp(cat.pose.x, cat.min, cat.max);
+        cat.base = size.height;
+        cat.ledges = size.ledges ?? [];
+        if (first)
+          cat.pose.x =
+            TRACK_MARGIN +
+            (size.width - 2 * TRACK_MARGIN - CONTROL_ROOM) * cat.start;
+        onLedge(cat);
         settleTail(cat.rig);
         draw(cat, performance.now());
       }
@@ -758,6 +836,7 @@ export const createColony = (
           x: cat.pose.x,
           face: Math.sign(cat.pose.face) || cat.facing,
         });
+        onLedge(cat);
         cat.hiddenAt ??= now;
         updateMood(cat);
         settleTail(cat.rig);

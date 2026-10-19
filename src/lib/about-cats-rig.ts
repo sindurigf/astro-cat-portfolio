@@ -514,7 +514,9 @@ const legBones = (p: Pose): Record<Paw, Point[]> => {
     const isFront = k[0] === 'f';
     const scale = isFront ? p.fl : p.hl;
     const paw = pt(center.x + p[k][0], center.y + p[k][1]);
-    const lift = Math.max(0, -paw.y);
+    /* A paw on the higher side of a step stands on it: its lift counts from there. */
+    const floor = p[k][0] >= p.sx === p.sh > 0 ? Math.abs(p.sh) : 0;
+    const lift = Math.max(0, -paw.y - floor);
     const room = Math.hypot(paw.x - from.x, paw.y - from.y) / (LEG * scale);
     /* Up from the paw to the wrist or hock: angle from the ground, measured backwards. */
     const angle = isFront
@@ -548,7 +550,7 @@ const legBones = (p: Pose): Record<Paw, Point[]> => {
     const bones = [from, joint, reached, end];
     if (isFront) return bones;
     /* Toes lie forward on the ground, and hang in line with the foot once it lifts. */
-    const hang = clamp(-end.y / TOES_HANG_AT, 0, 1);
+    const hang = clamp((-end.y - floor) / TOES_HANG_AT, 0, 1);
     const tx = 1 - hang + hang * cos;
     const ty = hang * sin;
     const reach = HIND_TOES / (Math.hypot(tx, ty) || 1);
