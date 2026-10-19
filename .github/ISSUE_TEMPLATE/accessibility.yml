@@ -26,9 +26,11 @@ body:
     id: severity
     attributes:
       label: Severity
+      description: Blocker means you cannot finish a task. Minor means nothing is blocked.
       options:
         - Blocker
-        - Major
+        - Serious
+        - Moderate
         - Minor
     validations:
       required: false

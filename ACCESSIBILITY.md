@@ -422,8 +422,9 @@ WCAG criterion or say anything about yourself.
 - **Public:** <https://github.example/robin-ohara/example-site/issues>
 - **Private:** <hello@example.com>
 
-Useful, never required: the page, what you tried and what happened, your
-browser, operating system and assistive technology, a screenshot.
+Useful, never required: the page address, the problem, steps to reproduce,
+severity, your browser and device, any assistive technology, and screenshots or
+recordings.
 
 Replies aim to arrive within the number of days set as
 `accessibility.responseDays` in `src/site.config.ts`.
