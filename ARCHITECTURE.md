@@ -224,6 +224,8 @@ Headings, alt text, focus rings and axe are checked on the rendered page by
   are `noindex, follow` and excluded from the sitemap by
   `src/lib/sitemap-filter.ts` (`tests/sitemap.spec.ts`).
   `/contact/sent/` is `noindex`.
+  Every other page sends `robots` `max-image-preview:large`, so Google may
+  show its share image large (`tests/canonical.spec.ts`).
 - Non-placeholder posts get `og:type` `article`,
   `article:published_time` and a `BlogPosting` JSON-LD node. Other pages are
   `website`.
@@ -457,9 +459,10 @@ in `wrangler.jsonc`).
   links `SCREENSHOT_SOURCES`; an unlisted name stays plain text.
 - A Creative Commons photo goes in `LICENSED_PHOTOS`, keyed by its file name
   without the extension: `photographer`, `title`, `source`, `sourceName`,
-  `license` (spelled out), `licenseHref` and `changes`. Its "Photo: name"
-  caption then adds "(title on sourceName, license, changes)", linked, and
-  /credits lists it. Empty in the template.
+  `license` (spelled out), `licenseShort` ("CC BY 4.0"), `licenseHref` and
+  `changes`. Its "Photo: name" caption then links the name to `source` and
+  adds the short license ([Photo credits](docs/STYLEGUIDE.md#photo-credits));
+  /credits lists it in full. Empty in the template.
 - **Video** goes in `public/videos/` (none published). Encode AV1 WebM, H.264
   MP4 fallback, WebP poster, WebVTT captions; max 25 MiB a file.
   - Workers static assets answer `Range` with a full `200`; Safari and iOS need
@@ -582,7 +585,8 @@ style-src  'self' <1 sha256 hash>;
 connect-src 'self';
 object-src 'none'; base-uri 'none';
 form-action 'self'; frame-ancestors 'none';
-upgrade-insecure-requests
+upgrade-insecure-requests;
+require-trusted-types-for 'script'; trusted-types vue
 ```
 
 - No `'unsafe-inline'`, no `'unsafe-eval'`. Everything is same-origin: fonts in
@@ -597,6 +601,12 @@ upgrade-insecure-requests
   form. Never `*`. A form posting to a new origin widens it to that exact
   origin and updates `tests/headers-rules.spec.ts` and this section in the same
   commit; so does loosening any directive now `'none'`.
+- Trusted Types: no script of ours writes HTML; Vue's runtime does, through
+  its own `vue` policy, the only one allowed. `tests/headers.spec.ts` opens
+  every page with a script and the island dialogs under the policy.
+- Trusted Types: no script of ours writes HTML; Vue's runtime does, through
+  its own `vue` policy, the only one allowed. `tests/headers.spec.ts` opens
+  every page with a script and the island dialogs under the policy.
 - `tests/headers-rules.spec.ts` asserts each directive.
 
 ### The hashes go stale
