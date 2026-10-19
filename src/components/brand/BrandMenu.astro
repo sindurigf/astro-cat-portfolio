@@ -4,14 +4,11 @@
  * page. Closed under `lg`, like a post's contents; open beside the content from
  * it. The section you jumped to is the gold block (brand.css).
  */
-import { BRAND_GROUPS, BRAND_SECTIONS } from '../../lib/brand-sections';
-
-const NUMBER_DIGITS = 2;
-const number = (title: string): string =>
-  String(BRAND_SECTIONS.findIndex((s) => s.title === title) + 1).padStart(
-    NUMBER_DIGITS,
-    '0',
-  );
+import {
+  BRAND_GROUPS,
+  BRAND_SECTIONS,
+  sectionNumber,
+} from '../../lib/brand-sections';
 ---
 
 <nav aria-label="Brand sections" id="brand-menu" class="brand-menu">
@@ -27,7 +24,7 @@ const number = (title: string): string =>
                   <a class="brand-menu-link" href={`#${s.anchor}`}>
                     <span>{s.title}</span>
                     <span class="brand-menu-number" aria-hidden="true">
-                      {number(s.title)}
+                      {sectionNumber(s.slug)}
                     </span>
                   </a>
                 </li>

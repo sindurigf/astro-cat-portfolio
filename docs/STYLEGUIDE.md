@@ -627,16 +627,16 @@ The grid rule in `scripts/check-tokens.mjs` enforces the grid;
 
 ### Section types
 
-| Type    | Build                                                                                                                                                                                                          |
-| ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Hero    | First section on every page except a post; a `.gold-column`. See [Hero](#hero).                                                                                                                                |
-| Open    | `Section`: `text-h2` heading, optional `.lead` 24px under it, content at `--spacing-head`, `max-w-page` in `.page-gutter`.                                                                                     |
-| Panel   | `Section panel`: the same box, the whole section in one `.card`, its h2 `text-h2` inside the card.                                                                                                             |
-| Listing | Grid of cards, 1 to 3 columns, `--spacing-grid` gaps: blog index, categories, tags, Home's two grids.                                                                                                          |
-| Reading | One `.prose` column, `max-w-measure` (36rem): Privacy, Accessibility, a post's body.                                                                                                                           |
-| Surface | The gold band (Home, Career, Contact), a `.gold-column`. With the hero slab, the only change of ground.                                                                                                        |
-| Close   | `CloseRow`, its own band, always last, never nested.                                                                                                                                                           |
-| Brand   | `BrandFrame`: the sections list (`BrandMenu`, `--container-rail` wide, sticky from `lg`, a closed details box under it) beside the content. Plain numbered links; the section you jumped to is the gold block. |
+| Type    | Build                                                                                                                                                                                                                                                                                          |
+| ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Hero    | First section on every page except a post; a `.gold-column`. See [Hero](#hero).                                                                                                                                                                                                                |
+| Open    | `Section`: `text-h2` heading, optional `.lead` 24px under it, content at `--spacing-head`, `max-w-page` in `.page-gutter`.                                                                                                                                                                     |
+| Panel   | `Section panel`: the same box, the whole section in one `.card`, its h2 `text-h2` inside the card.                                                                                                                                                                                             |
+| Listing | Grid of cards, 1 to 3 columns, `--spacing-grid` gaps: blog index, categories, tags, Home's two grids.                                                                                                                                                                                          |
+| Reading | One `.prose` column, `max-w-measure` (36rem): Privacy, Accessibility, a post's body.                                                                                                                                                                                                           |
+| Surface | The gold band (Home, Career, Contact), a `.gold-column`. With the hero slab, the only change of ground.                                                                                                                                                                                        |
+| Close   | `CloseRow`, its own band, always last, never nested.                                                                                                                                                                                                                                           |
+| Brand   | `BrandFrame`: the sections list (`BrandMenu`, `--container-rail` wide; sticky only from `lg` on a screen 68.5rem tall, where the whole list fits under the header, and a closed details box under `lg`) beside the content. Plain numbered links; the section you jumped to is the gold block. |
 
 ### One treatment per type
 
@@ -733,7 +733,7 @@ The grid rule in `scripts/check-tokens.mjs` enforces the grid;
   action.
 - The blog listing has no section heading: each card's title is its h2.
 - `/brand` is one page of 18 sections in `src/lib/brand-sections.ts`, beside a
-  numbered sections list that is sticky from `lg`. A section opens on its
+  numbered sections list that is sticky only where the whole list fits under the header (`lg` wide, 68.5rem tall), never a scrolling region; elsewhere each section links back to it. A section opens on its
   number and name, its lead and the mirror of its picture; each part is an h3
   name, what it is for, its rule, and a stage: the example live on the dark
   ground beside an inert, `aria-hidden` copy on the light one (`mirror.ts`), so

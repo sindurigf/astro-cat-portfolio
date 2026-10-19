@@ -6,11 +6,7 @@ import { REPOSITORY_URL, sourceUrl, templateUseUrl } from '../src/lib/site';
 import { ENGINE_INVARIANT, NODE } from './tags';
 import { builtHtml } from './routes';
 import { readFileSync } from 'node:fs';
-import {
-  BRAND_LEGACY_PATHS,
-  BRAND_PATH,
-  BRAND_SECTIONS,
-} from '../src/lib/brand-sections';
+import { BRAND_PATH, BRAND_SECTIONS } from '../src/lib/brand-sections';
 import { blockGroups } from '../src/lib/brand-blocks';
 
 /*
@@ -21,6 +17,10 @@ const RATIO_DIGITS = 2;
 const NARROW = 390;
 const WIDE = 1280;
 const HEIGHT = 900;
+/* Tall enough for the whole sections list under the header (brand.css). */
+const TALL = 1100;
+/* Far enough down that the sticky list has stuck. */
+const SCROLLED = 3000;
 const THEMES = ['dark', 'light'] as const;
 
 /* The live examples: the light half's inert copy repeats them for the eye only. */
@@ -256,6 +256,92 @@ test.describe('/brand', () => {
     });
   }
 
+  for (const theme of THEMES) {
+    test(`on a ${theme} page each color row states the hex of its token, and each table is captioned in words`, async ({
+      browser,
+    }) => {
+      const { context, page } = await pageInTheme(browser, theme, BRAND_PATH);
+      const partName = (id: string) =>
+        BRAND_SECTIONS.flatMap((s) => s.parts).find((p) => p.id === id)!.name;
+      for (const group of blockGroups) {
+        for (const mode of THEMES) {
+          const shown = half(page, group.id, mode);
+          await expect(
+            shown.locator('caption'),
+            `${group.id} ${mode} caption runs its words together`,
+          ).toHaveText(
+            `${partName(group.id)}, ${mode} mode: the ratio of each pair`,
+          );
+          const rows = await shown
+            .locator('tbody th[scope="row"]')
+            .evaluateAll((ths) =>
+              ths.map((th) => ({
+                token: th.getAttribute('data-token') ?? '',
+                stated:
+                  th.querySelector('.block-hex')?.textContent?.trim() ?? '',
+              })),
+            );
+          expect(rows.length, `${group.id} ${mode} has no row`).toBeGreaterThan(
+            0,
+          );
+          const hex = await resolveTokens(shown, [
+            ...new Set(rows.map((row) => row.token)),
+          ]);
+          const wrong = rows
+            .filter((row) => hex[row.token] !== row.stated.toUpperCase())
+            .map(
+              (row) =>
+                `${group.id} ${mode} ${row.token}: states ${row.stated}, the half paints ${hex[row.token]}`,
+            );
+          expect(wrong, 'a stated hex differs from its token').toEqual([]);
+        }
+      }
+      await context.close();
+    });
+  }
+
+  test('each section heading is named for the section alone', async ({
+    page,
+  }) => {
+    await gotoSettled(page, BRAND_PATH);
+    for (const section of BRAND_SECTIONS) {
+      await expect(
+        page.locator(`section[id="${section.anchor}"] > header h2`),
+        `${section.anchor}'s number and slashes reach assistive technology`,
+      ).toHaveAccessibleName(section.heading ?? section.title);
+    }
+  });
+
+  test('the menu stays in the flow unless the whole list fits under the header', async ({
+    page,
+  }) => {
+    const menu = page.getByRole('navigation', { name: 'Brand sections' });
+    for (const [height, sticky] of [
+      [HEIGHT, false],
+      [TALL, true],
+    ] as const) {
+      await page.setViewportSize({ width: WIDE, height });
+      await gotoSettled(page, BRAND_PATH);
+      const list = menu.locator('.hidden.lg\\:block');
+      expect(
+        await menu.evaluate((el) => getComputedStyle(el).position),
+        `the menu is ${sticky ? 'not ' : ''}sticky at ${height}px tall`,
+      ).toBe(sticky ? 'sticky' : 'static');
+      expect(
+        await menu.evaluate((el) => el.scrollHeight - el.clientHeight),
+        `the menu scrolls inside itself at ${height}px tall`,
+      ).toBeLessThanOrEqual(0);
+      if (sticky) {
+        await page.evaluate((y) => window.scrollTo(0, y), SCROLLED);
+        const box = await list.boundingBox();
+        expect(
+          box!.y + box!.height,
+          'the sticky list reaches below the viewport',
+        ).toBeLessThanOrEqual(height);
+      }
+    }
+  });
+
   test(
     'every part has a name, its rule and a live example, and each section shows the parts it lists',
     ENGINE_INVARIANT,
@@ -333,9 +419,6 @@ test.describe('/brand', () => {
         )
           lost.push(`brand.css does not mark #${section.anchor} as current`);
       }
-      expect(BRAND_LEGACY_PATHS.length, 'the legacy list lost a section').toBe(
-        BRAND_SECTIONS.length,
-      );
       expect(lost, 'a retired link or a menu rule is missing').toEqual([]);
     },
   );

@@ -33,6 +33,7 @@ export const BRAND_GROUPS: readonly BrandGroup[] = [
   'About',
 ];
 
+/* Draft copy: leads, rules, descriptions and the foundations' part names wait for the owner's approval. */
 export const BRAND_SECTIONS: readonly BrandSection[] = [
   {
     slug: 'grounds',
@@ -286,11 +287,6 @@ export const BRAND_SECTIONS: readonly BrandSection[] = [
 export const brandHref = (slug: string): string =>
   `${BRAND_PATH}#${brandSection(slug).anchor}`;
 
-/** The retired per-section routes, which redirect to their anchor on /brand. */
-export const BRAND_LEGACY_PATHS: readonly string[] = BRAND_SECTIONS.map(
-  ({ slug }) => `${BRAND_PATH}${slug}/`,
-);
-
 export const brandSection = (slug: string): BrandSection => {
   const found = BRAND_SECTIONS.find((s) => s.slug === slug);
   if (!found) throw new Error(`/brand: no section with the slug ${slug}`);
@@ -307,3 +303,12 @@ export const brandPartName = (id: string): string => {
   }
   return part.name;
 };
+
+const NUMBER_DIGITS = 2;
+
+/** The section's place in the menu order, two digits: "01" for the first. */
+export const sectionNumber = (slug: string): string =>
+  String(BRAND_SECTIONS.indexOf(brandSection(slug)) + 1).padStart(
+    NUMBER_DIGITS,
+    '0',
+  );

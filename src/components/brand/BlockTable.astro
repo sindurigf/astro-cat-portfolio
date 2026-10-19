@@ -17,7 +17,7 @@ const { group, mode } = Astro.props;
 
 <table class="block-table" data-cols={group.columns.length}>
   <caption class="sr-only">
-    {brandPartName(group.id)},{mode}mode: the ratio of each pair
+    {`${brandPartName(group.id)}, ${mode} mode: the ratio of each pair`}
   </caption>
   <thead>
     <tr>
@@ -34,12 +34,15 @@ const { group, mode } = Astro.props;
   <tbody>
     {group.rows.map((row) => (
       <tr>
-        <th scope="row">
+        <th scope="row" data-token={row.hexToken[mode]}>
           <code class="block text-body font-black text-text">
             {row.name ?? row.token}
           </code>
           <span class="mt-1 block text-label font-normal text-subtle">
             {row.job}
+          </span>
+          <span class="block-hex mt-1 block text-label font-normal text-subtle">
+            {row.hex[mode]}
           </span>
         </th>
         {row.cells[mode].map((cell) => (

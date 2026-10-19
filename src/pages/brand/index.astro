@@ -127,8 +127,8 @@ const sections = BRAND_SECTIONS.map((section) => {
   </div>
 
   <BrandFrame>
-    {sections.map(({ section, Parts }, index) => (
-      <BrandSection section={section} number={index + 1}>
+    {sections.map(({ section, Parts }) => (
+      <BrandSection section={section}>
         <Parts />
       </BrandSection>
     ))}

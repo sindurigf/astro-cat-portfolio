@@ -37,10 +37,9 @@ const EDGE_CLASS: Record<string, string> = {
   'fill-edge': 'border-fill-edge',
 };
 
-/* The page's own edge is the first key, which scripts/check-tokens.mjs reads as a width when spelled out. */
-const [PAGE_EDGE] = Object.keys(EDGE_CLASS) as [string];
-const FILL_EDGE = 'fill-edge';
-const EDGE_TOKENS = Object.keys(EDGE_CLASS).filter((t) => t !== FILL_EDGE);
+/* The page's own edge token; check-tokens lists this one literal as a color name, not a border width. */
+const PAGE_EDGE = 'border';
+const EDGE_TOKENS = [PAGE_EDGE, 'pink', 'mark', 'cyan'] as const;
 
 /* An edge cell has no text color of its own; its numbers take the ground's reading color. */
 const LABEL_ON: Record<string, string> = {
@@ -49,13 +48,21 @@ const LABEL_ON: Record<string, string> = {
   'bg-block-gold': 'text-block-ink',
 };
 
-const hexOf = (token: string, mode: Mode): string => {
+const lookup = <T>(table: Record<string, T>, key: string, what: string): T => {
+  const found = table[key];
+  if (found === undefined) {
+    throw new Error(`/brand: no ${what} for ${key} in src/lib/brand-blocks.ts`);
+  }
+  return found;
+};
+
+const colorOf = (token: string) => {
   const color = colors.find((c) => c.token === token);
   if (!color) throw new Error(`/brand: no color token ${token}`);
-  return color[mode];
+  return color;
 };
-const jobOf = (token: string): string =>
-  colors.find((c) => c.token === token)?.job ?? '';
+const hexOf = (token: string, mode: Mode): string => colorOf(token)[mode];
+const jobOf = (token: string): string => colorOf(token).job;
 
 export interface BlockCell {
   kind: Kind;
@@ -78,8 +85,9 @@ export interface BlockRow {
   /** The row's heading when it is not a token's own name. */
   name?: string;
   job: string;
-  dark: string;
-  light: string;
+  /** The token whose hex the row states in each mode; a label row states the ink it paints in light mode. */
+  hexToken: Record<Mode, string>;
+  hex: Record<Mode, string>;
   cells: Record<Mode, BlockCell[]>;
 }
 
@@ -110,7 +118,10 @@ const measure = (
     pair: `${fg} on ${bg}`,
     groundClass: classes.ground,
     paintClass: classes.paint,
-    labelClass: kind === 'text' ? classes.paint : LABEL_ON[classes.ground]!,
+    labelClass:
+      kind === 'text'
+        ? classes.paint
+        : lookup(LABEL_ON, classes.ground, 'reading color on the ground'),
     ratio: value.toFixed(RATIO_DIGITS),
     verdict: VERDICT[kind],
     span: 1,
@@ -133,29 +144,39 @@ const textCell = (fg: string, bg: string, mode: Mode): BlockCell => {
     });
   }
   return measure('text', fg, bg, mode, {
-    ground: GROUND_CLASS[bg]!,
-    paint: TEXT_CLASS[fg]!,
+    ground: lookup(GROUND_CLASS, bg, 'ground class'),
+    paint: lookup(TEXT_CLASS, fg, 'text class'),
   });
 };
 
 const edgeCell = (fg: string, bg: string, mode: Mode): BlockCell =>
   measure('edge', fg, bg, mode, {
-    ground: GROUND_CLASS[bg]!,
-    paint: EDGE_CLASS[fg]!,
+    ground: lookup(GROUND_CLASS, bg, 'ground class'),
+    paint: lookup(EDGE_CLASS, fg, 'edge class'),
   });
 
 const row = (
   token: string,
   cells: (mode: Mode) => BlockCell[],
-  own: { name?: string; job?: string } = {},
-): BlockRow => ({
-  token,
-  name: own.name,
-  job: own.job ?? jobOf(token),
-  dark: hexOf(token, 'dark'),
-  light: hexOf(token, 'light'),
-  cells: { dark: cells('dark'), light: cells('light') },
-});
+  own: {
+    name?: string;
+    job?: string;
+    hexToken?: Record<Mode, string>;
+  } = {},
+): BlockRow => {
+  const hexToken = own.hexToken ?? { dark: token, light: token };
+  return {
+    token,
+    name: own.name,
+    job: own.job ?? jobOf(token),
+    hexToken,
+    hex: {
+      dark: hexOf(hexToken.dark, 'dark'),
+      light: hexOf(hexToken.light, 'light'),
+    },
+    cells: { dark: cells('dark'), light: cells('light') },
+  };
+};
 
 const GROUNDS = ['background', 'surface'];
 

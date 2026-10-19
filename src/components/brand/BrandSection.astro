@@ -5,23 +5,22 @@
  * page /brand used to be, so old links land here.
  */
 import BrandPoster from './BrandPoster.astro';
-import type { BrandSection } from '../../lib/brand-sections';
+import { sectionNumber, type BrandSection } from '../../lib/brand-sections';
 
 interface Props {
   section: BrandSection;
-  number: number;
 }
 
-const { section, number } = Astro.props;
-const NUMBER_DIGITS = 2;
-const label = String(number).padStart(NUMBER_DIGITS, '0');
+const { section } = Astro.props;
 const headingId = `${section.anchor}-heading`;
 ---
 
 <section id={section.anchor} class="brand-section" aria-labelledby={headingId}>
   <header class="flex flex-col">
     <h2 id={headingId} class="text-h2 text-text">
-      <span class="text-subtle">{label} //</span>
+      <span class="text-subtle" aria-hidden="true">
+        {sectionNumber(section.slug)} //{' '}
+      </span>
       {section.heading ?? section.title}
     </h2>
     {/* After the heading in the page's order, so the region opens on its h2; first on screen. */}
@@ -30,7 +29,7 @@ const headingId = `${section.anchor}-heading`;
     <div class="mt-6 max-w-measure text-standfirst text-subtle">
       {section.lead}
     </div>
-    <p class="mt-6 lg:hidden">
+    <p class="brand-back mt-6">
       <a href="#brand-menu" class="link inline-flex min-h-target items-center">
         Back to Sections
       </a>

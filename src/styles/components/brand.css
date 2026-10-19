@@ -29,32 +29,31 @@
   }
 
   /*
-   * Sticky from `lg`, under the header, and scrolling inside itself when the
-   * list is taller than the screen. Static on a short screen, like the header.
+   * Sticky only where the whole list fits under the header, so it never needs
+   * a scroll of its own: on a shorter screen it stays in the flow and each
+   * section carries a link back to it (`.brand-back`).
    */
   .brand-menu {
     @apply self-start;
 
-    @media (width >= 64rem) {
+    @media (width >= 64rem) and (height >= 68.5rem) {
       position: sticky;
       top: calc(var(--spacing-header) + --spacing(6));
-      max-height: calc(100svh - var(--spacing-header) - --spacing(12));
-      overflow-y: auto;
-
-      @variant short {
-        position: static;
-        max-height: none;
-      }
     }
   }
 
-  .brand-menu-title,
+  .brand-back {
+    @media (width >= 64rem) and (height >= 68.5rem) {
+      display: none;
+    }
+  }
+
   .brand-menu-group {
     @apply block pb-2 pt-6 text-label font-black uppercase tracking-label
       text-subtle;
   }
 
-  .brand-menu-title {
+  .brand-menu li:first-child > .brand-menu-group {
     @apply pt-0;
   }
 
@@ -78,7 +77,7 @@
     }
   }
 
-  /* Inside the link: the list scrolls, and a ring outside would be clipped. */
+  /* Inside the link, so a ring never crosses the next one. */
   .brand-menu-link:focus-visible {
     position: relative;
     z-index: 1;
@@ -184,6 +183,10 @@
 
   .block-edge {
     @apply block size-8 border-4;
+  }
+
+  .block-hex {
+    @apply font-mono;
   }
 
   .block-sample {
