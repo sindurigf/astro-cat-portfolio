@@ -292,6 +292,7 @@ merge.
 | `tests/titles.spec.ts`              | 2.4.2                                                            | Titles distinct and descriptive                                                                                                                                                                                                                                                                      |
 | `tests/site-language.spec.ts`       | 3.1.1                                                            | One declared language everywhere                                                                                                                                                                                                                                                                     |
 | `tests/alt-text.spec.ts`            | 1.1.1                                                            | Every image named or decorative on purpose                                                                                                                                                                                                                                                           |
+| `tests/card-click.spec.ts`          | best practice (Intopia Card)                                     | A blog card follows its title link on a click and keeps its teaser selectable on a drag                                                                                                                                                                                                              |
 | `tests/list-semantics.spec.ts`      | 1.3.1                                                            | Every list drawn without markers outside `<nav>` carries `role="list"`, which Safari needs to keep it a list                                                                                                                                                                                         |
 | `tests/failed-images.spec.ts`       | 1.1.1                                                            | A failed photo shows its alt text; its name is exposed once, with and without JavaScript                                                                                                                                                                                                             |
 | `tests/print.spec.ts`               | 1.3.1, 1.3.2                                                     | On paper the talk prints one slide per page, the cover included, and a post prints its In This Post list open                                                                                                                                                                                        |
@@ -504,8 +505,10 @@ Rules this repository follows. Values and reasons:
 - **Scripts.** Never hold content back behind a script. What a page says is in
   its HTML; a script only adds to it. Tested for navigation
   (`tests/no-script.spec.ts`) and the talk slides (`tests/slideshow.spec.ts`).
-- **Sources.** WCAG and its Understanding documents are normative. Mark any
-  other source cited here, an article, checklist or tool, as opinion.
+- **Sources.** WCAG 2.2 and the specifications it relies on (HTML, WAI-ARIA,
+  CSS) are normative; the Understanding documents are informative W3C
+  guidance. Mark any other source cited here, an article, checklist or tool, as
+  opinion.
 - **Unusual words.** On a functional page, write jargon in plain words. Where
   the term is needed, define it in the sentence of its first use, mark it with
   `<dfn>`, and list it in `tests/unusual-words.spec.ts`.
