@@ -365,6 +365,21 @@
       border-left-width: 0;
     }
 
+    /* A hidden theme switch leaves the next brick first, so it keeps its left edge. */
+    :root:not([data-theme])
+      &
+      > .theme-switch
+      ~ :not(.theme-menu, script)
+      > :is(a, button) {
+      border-left-width: var(--block-edge);
+    }
+
+    @supports not selector(:popover-open) {
+      & > .theme-switch ~ :not(.theme-menu, script) > :is(a, button) {
+        border-left-width: var(--block-edge);
+      }
+    }
+
     & :is(.nav-cta, .theme-switch, [aria-current]):focus-visible {
       outline-color: var(--color-gold-text);
     }
