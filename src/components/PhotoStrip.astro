@@ -43,6 +43,7 @@ const { id, label, noun, group, photos } = Astro.props;
 </div>
 {/* accesslint focus-order flags tabindex="0" here: false positive, a keyboard can only scroll a focusable region. */}
 <ul
+  role="list"
   id={id}
   class="photo-strip"
   tabindex="0"

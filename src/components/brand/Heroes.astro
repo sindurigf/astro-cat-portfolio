@@ -6,7 +6,7 @@ import ComponentRow from './ComponentRow.astro';
 const FRAME = 'hero-example sm:px-6';
 ---
 
-<ul class="brand-parts">
+<ul role="list" class="brand-parts">
   <ComponentRow
     id="hero-full"
     use="the top of a page: its title and one line on what it holds."
@@ -20,7 +20,7 @@ const FRAME = 'hero-example sm:px-6';
       </PageHero>
     </figure>
     <Fragment slot="states">
-      <ul class="space-y-12">
+      <ul role="list" class="space-y-12">
         <li>
           <p class="mb-6 text-body text-subtle">
             Thin slab: a post, Message Sent or a Brand section page.

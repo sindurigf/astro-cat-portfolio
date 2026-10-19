@@ -621,7 +621,7 @@ onBeforeUnmount(() => {
           @beforetoggle="onTricksToggle(cat.id, $event)"
           @focusout="onTricksFocusOut"
         >
-          <ul v-if="tricks" class="cat-trick-list">
+          <ul role="list" v-if="tricks" class="cat-trick-list">
             <li
               v-for="(name, i) in ['random', ...(listed[cat.id] ?? [])]"
               :key="name"
