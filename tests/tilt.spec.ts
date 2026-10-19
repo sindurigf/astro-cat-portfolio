@@ -1,6 +1,6 @@
 import { expect, test } from './test';
 import { gotoSettled } from './settle';
-import { BRAND_SAMPLED_ROUTES, ROUTES } from './routes';
+import { ROUTES } from './routes';
 
 /*
  * `backface-visibility: hidden` makes Chromium rasterize then rotate, blurring
@@ -108,7 +108,7 @@ for (const colorScheme of ['dark', 'light'] as const) {
  */
 const MAX_TILTED_WORDS = 3;
 
-for (const route of BRAND_SAMPLED_ROUTES) {
+for (const route of ROUTES) {
   test(`${route}: tilted text is a short label`, async ({ page }) => {
     await gotoSettled(page, route);
 

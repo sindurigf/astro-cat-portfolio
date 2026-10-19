@@ -15,15 +15,7 @@ const CONTEXT_CHARS = 40;
 const BLOCK_WIDTHS = { min: 120, max: 320 };
 
 /* Static, so `--list` works before a build; the first test keeps it complete. */
-const ABBR_ROUTES = [
-  '/accessibility',
-  '/brand',
-  '/brand/accessibility',
-  '/brand/cards',
-  '/brand/template',
-  '/credits',
-  '/privacy',
-];
+const ABBR_ROUTES = ['/accessibility', '/brand', '/credits', '/privacy'];
 
 test('every page with an Abbr is in ABBR_ROUTES', NODE, () => {
   const unlisted = [...builtHtml()]

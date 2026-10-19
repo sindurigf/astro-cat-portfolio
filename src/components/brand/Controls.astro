@@ -24,7 +24,7 @@ const MOTION_EXAMPLES = [
 <ul role="list" class="brand-parts">
   {MOTION_EXAMPLES.map((example) => (
     <ComponentRow id={example.id} use={example.use} rule={example.rule}>
-      <div class="relative h-12">
+      <div class="needs-script relative h-12">
         <button
           type="button"
           class="motion-toggle top-0 left-0"
@@ -43,6 +43,9 @@ const MOTION_EXAMPLES = [
         </button>
       </div>
       <p class="mt-4 text-body text-subtle">This example moves nothing.</p>
+      <p class="needs-script-note mt-4 text-body text-subtle">
+        This example needs JavaScript.
+      </p>
     </ComponentRow>
   ))}
 
@@ -51,7 +54,12 @@ const MOTION_EXAMPLES = [
     use="choosing System, Light or Dark."
     rule="Opens three choices. System follows the device and is the default; Light or Dark is remembered. It shows the theme in use and works like the one in the header."
   >
-    <ThemeSwitch id="theme-menu-sample" />
+    <div class="needs-script">
+      <ThemeSwitch id="theme-menu-sample" />
+    </div>
+    <p class="needs-script-note text-body text-subtle">
+      This example needs JavaScript.
+    </p>
   </ComponentRow>
 
   <ComponentRow

@@ -62,7 +62,7 @@ const ROUTE_NOTES: { path: string; label: string; note: string }[] = [
   {
     path: BRAND_PATH,
     label: 'Brand',
-    note: "The site's design system, one page per section, listed below.",
+    note: "The site's design system on one page, its sections listed below.",
   },
   {
     path: ACCESSIBILITY_PATH,

@@ -1,11 +1,9 @@
 import type { Page } from './test';
-import { BRAND_ROUTES } from '../src/lib/brand-sections';
 
 /** Functional pages: their copy is written by whoever builds the UI (AGENTS.md "Copy"). */
 export const FUNCTIONAL_ROUTES = [
   '/accessibility',
   '/brand',
-  ...BRAND_ROUTES,
   '/credits',
   '/privacy',
   '/contact',

@@ -7,7 +7,7 @@ import { DESKTOP_VIEWPORT, REFLOW_VIEWPORT } from './wcag';
  * report the end they are at (SC 4.1.2), and a strip that fits is not a tab
  * stop named for scrolling it cannot do (SC 2.4.3, 4.1.2).
  */
-const ROUTE = '/brand/photos';
+const ROUTE = '/brand';
 const SCROLLS = /scrolls sideways$/;
 /* More presses than the strip has photos. */
 const MAX_PRESSES = 12;
@@ -73,7 +73,7 @@ test.describe('the photo strip where it fits', () => {
   }) => {
     await gotoSettled(page, ROUTE);
     const strip = page.locator('main .photo-strip').first();
-    /* /brand/photos draws the strip in half the column, where it overflows; keep only what fits. */
+    /* /brand draws the strip in half the column, where it overflows; keep only what fits. */
     await strip.evaluate((el) => {
       while (el.scrollWidth > el.clientWidth && el.children.length > 1) {
         el.lastElementChild!.remove();

@@ -80,6 +80,42 @@ test.describe('navigation without JavaScript', () => {
     });
   }
 
+  test('/brand hides the examples that need a script and says so', async ({
+    browser,
+  }) => {
+    const context = await browser.newContext({
+      javaScriptEnabled: false,
+      viewport: DESKTOP,
+    });
+
+    try {
+      const page = await context.newPage();
+      await page.goto('/brand/');
+
+      const toggles = page.locator('#controls [data-example-toggle]');
+      expect(
+        await toggles.count(),
+        'the motion examples are gone, so this test checks nothing',
+      ).toBeGreaterThan(0);
+      for (const toggle of await toggles.all()) {
+        await expect(
+          toggle,
+          'A motion example is visible with scripting off, where pressing it does nothing.',
+        ).toBeHidden();
+      }
+      await expect(
+        page.locator('#controls .theme-switch:visible'),
+        'The theme switch example is visible with scripting off.',
+      ).toHaveCount(0);
+      await expect(
+        page.locator('#controls .needs-script-note:visible').first(),
+        'The page does not say these examples need JavaScript.',
+      ).toBeVisible();
+    } finally {
+      await context.close();
+    }
+  });
+
   test('the dead trigger is hidden rather than left inert', async ({
     browser,
   }) => {

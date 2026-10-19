@@ -8,7 +8,6 @@ import {
   builtHtml,
 } from './routes';
 import { NODE } from './tags';
-import { BRAND_ROUTES } from '../src/lib/brand-sections';
 import { LD_JSON } from './html';
 
 /*
@@ -87,19 +86,6 @@ test.describe('breadcrumbs', NODE, () => {
     }
   });
 
-  test('every /brand section has the trail Home / Brand', () => {
-    const pages = builtHtml();
-    for (const route of BRAND_ROUTES) {
-      expect(
-        visibleTrail(pages.get(route)!),
-        `${route} should show Home / Brand`,
-      ).toEqual([
-        { name: 'Home', item: `${SITE}/` },
-        { name: 'Brand', item: `${SITE}/brand/` },
-      ]);
-    }
-  });
-
   test("a post's trail ends at its category", () => {
     const pages = builtHtml();
     for (const route of POST_ROUTES) {
@@ -120,7 +106,7 @@ test.describe('breadcrumbs', NODE, () => {
 
   test('the JSON-LD is the visible trail plus the page itself', () => {
     const pages = builtHtml();
-    for (const route of [...TRAIL_ROUTES, ...BRAND_ROUTES]) {
+    for (const route of TRAIL_ROUTES) {
       const html = pages.get(route)!;
       expect(
         breadcrumbList(html),
@@ -129,12 +115,10 @@ test.describe('breadcrumbs', NODE, () => {
     }
   });
 
-  test('pages outside the blog and the /brand sections carry neither', () => {
+  test('pages outside the blog carry neither', () => {
     const pages = builtHtml();
     const others = ROUTES.filter(
-      (route) =>
-        (route === '/blog' || !route.startsWith('/blog')) &&
-        !BRAND_ROUTES.includes(route),
+      (route) => route === '/blog' || !route.startsWith('/blog'),
     );
     expect(
       others.length,

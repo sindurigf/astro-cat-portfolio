@@ -1,0 +1,40 @@
+---
+/*
+ * One /brand section: its number and name, the rule it keeps, the mirror of
+ * its picture, then its parts. The id is the section's anchor from the single
+ * page /brand used to be, so old links land here.
+ */
+import BrandPoster from './BrandPoster.astro';
+import { sectionNumber, type BrandSection } from '../../lib/brand-sections';
+
+interface Props {
+  section: BrandSection;
+}
+
+const { section } = Astro.props;
+const headingId = `${section.anchor}-heading`;
+---
+
+<section id={section.anchor} class="brand-section" aria-labelledby={headingId}>
+  <header class="flex flex-col">
+    <h2 id={headingId} class="text-h2 text-text">
+      <span class="text-subtle" aria-hidden="true">
+        {sectionNumber(section.slug)} //{' '}
+      </span>
+      {section.heading ?? section.title}
+    </h2>
+    {/* After the heading in the page's order, so the region opens on its h2; first on screen. */}
+    <div class="label order-first text-subtle">{section.group}</div>
+    {/* Not a paragraph: a short line at standfirst size reads to WAVE as a heading. */}
+    <div class="mt-6 max-w-measure text-standfirst text-subtle">
+      {section.lead}
+    </div>
+    <p class="brand-back mt-6">
+      <a href="#brand-menu" class="link inline-flex min-h-target items-center">
+        Back to Sections
+      </a>
+    </p>
+  </header>
+  <BrandPoster slug={section.slug} />
+  <slot />
+</section>

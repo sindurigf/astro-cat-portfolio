@@ -22,8 +22,8 @@ export interface OgPhotoChoice {
  */
 export const OG_PHOTO_CHOICES: Readonly<Record<string, OgPhotoChoice | null>> =
   {
-    /* /brand and its subpages share the logo card; /brand/photos shows sample photos, not its subject. */
-    '/brand/photos': null,
+    /* /brand shows sample photos, not its subject, so it keeps the logo card. */
+    '/brand': null,
   };
 
 export interface OgCard {

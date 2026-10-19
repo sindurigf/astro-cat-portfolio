@@ -1,6 +1,6 @@
 import { expect, test, type Page } from './test';
 import { gotoSettled } from './settle';
-import { BRAND_SAMPLED_ROUTES } from './routes';
+import { ROUTES } from './routes';
 import { NON_TEXT, PAGE_HELPERS } from './contrast';
 import { DESKTOP_VIEWPORT, PHONE_VIEWPORT } from './wcag';
 
@@ -47,7 +47,7 @@ for (const colorScheme of ['dark', 'light'] as const) {
     test.describe(`drawn edges read in ${colorScheme} mode at ${viewport.width}px`, () => {
       test.use({ colorScheme, viewport });
 
-      for (const route of BRAND_SAMPLED_ROUTES) {
+      for (const route of ROUTES) {
         test(route, async ({ page }) => {
           await gotoSettled(page, route);
           /* Open every fold in <main>, so the edges inside them are measured on their own ground. */

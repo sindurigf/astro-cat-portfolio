@@ -13,7 +13,7 @@ export const SWATCH: Record<string, string | null> = {
   subtle: 'text-subtle',
   /* A fill: light mode turns gold text to ink, but keeps gold fills. */
   gold: 'bg-gold border-4 border-fill-edge',
-  /* Never at rest: it shows on /brand/controls/ under the pointer and the keyboard. */
+  /* Never at rest: it shows in /brand's Controls section under the pointer and the keyboard. */
   cyan: null,
   pink: 'border-4 border-border shadow-hard-pink-4',
   'pink-text': 'text-pink-text',

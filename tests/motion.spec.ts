@@ -1,11 +1,7 @@
 import { expect, test, type Page } from './test';
 import { gotoSettled, sweepTimeout } from './settle';
 import { readFileSync } from 'node:fs';
-import {
-  builtPages,
-  islandRoutesFromBuild,
-  BRAND_SAMPLED_ROUTES,
-} from './routes';
+import { builtPages, islandRoutesFromBuild, ROUTES } from './routes';
 import { PHONE_VIEWPORT } from './wcag';
 import { NODE } from './tags';
 
@@ -511,11 +507,11 @@ const movingElements = (page: Page) =>
   });
 
 test('nothing anywhere still moves under reduced motion', async ({ page }) => {
-  test.setTimeout(sweepTimeout(BRAND_SAMPLED_ROUTES.length));
+  test.setTimeout(sweepTimeout(ROUTES.length));
   await page.emulateMedia({ reducedMotion: 'reduce' });
 
   const moving: string[] = [];
-  for (const route of BRAND_SAMPLED_ROUTES) {
+  for (const route of ROUTES) {
     await gotoSettled(page, route);
 
     expect(

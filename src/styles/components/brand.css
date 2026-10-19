@@ -10,7 +10,7 @@
 }
 
 @layer components {
-  /* /brand's pages: the side menu beside the content from `lg`, above it below. */
+  /* The sections list beside the content from `lg`, a closed list above it. */
   .brand-layout {
     @apply grid gap-head;
 
@@ -28,75 +28,115 @@
     container: brand-content / inline-size;
   }
 
+  /*
+   * Sticky only where the whole list fits under the header, so it never needs
+   * a scroll of its own: on a shorter screen it stays in the flow and each
+   * section carries a link back to it (`.brand-back`).
+   */
   .brand-menu {
     @apply self-start;
-  }
 
-  /* Juts left of the column by the Step's `--step-x`. */
-  .brand-menu-box {
-    translate: calc(var(--step-x) * -1) 0;
-  }
-
-  /* Headings stay plain labels; each group is a wall of joined light bricks. */
-  .brand-menu-title,
-  .brand-menu-group {
-    @apply block pb-2 pt-4 text-label font-black uppercase tracking-label
-      text-subtle;
-  }
-
-  .brand-menu-title {
-    @apply pt-0;
-  }
-
-  /* The Overview brick and each group's list: joined bricks casting one throw. */
-  .brand-menu-list > li:first-child,
-  .brand-menu-list ol {
-    filter: drop-shadow(
-      var(--brick-throw) var(--brick-throw) 0 var(--color-pink)
-    );
-
-    @media (forced-colors: active) {
-      filter: none;
+    @variant menu-fits {
+      position: sticky;
+      top: calc(var(--spacing-header) + --spacing(6));
     }
   }
 
-  .brand-menu-link {
-    @apply block min-h-target border-4 border-block-ink bg-block-light
-      px-card-tight py-3 text-contents font-normal text-block-ink;
+  .brand-back {
+    @variant menu-fits {
+      display: none;
+    }
   }
 
-  .brand-menu-list ol > li + li > .brand-menu-link {
-    border-top-width: 0;
+  .brand-menu-group {
+    @apply block pb-2 pt-6 text-label font-black uppercase tracking-label
+      text-subtle;
+  }
+
+  .brand-menu li:first-child > .brand-menu-group {
+    @apply pt-0;
+  }
+
+  .brand-menu-link {
+    @apply flex min-h-target items-center justify-between gap-4 px-4 text-contents
+      font-normal text-text;
+  }
+
+  .brand-menu-number {
+    @apply text-label font-normal text-subtle;
   }
 
   /* The dark mode cyan in both modes: light mode's cyan is a text color, 2.55 under ink. */
-  .brand-menu-link:not([aria-current]):hover {
+  .brand-menu-link:hover {
     background-color: var(--dark-cyan);
+    color: var(--color-block-ink);
+    outline-color: var(--color-block-ink);
+
+    & .brand-menu-number {
+      color: var(--color-block-ink);
+    }
   }
 
-  /* Current: the gold brick. */
-  .brand-menu-link[aria-current] {
-    @apply bg-block-gold font-black;
-  }
-
-  /* Inside the brick, so it never crosses the next one; ink on light, gold or cyan. */
+  /* Inside the link, so a ring never crosses the next one. */
   .brand-menu-link:focus-visible {
     position: relative;
     z-index: 1;
+    outline-offset: calc(-1 * (var(--focus-width) + var(--focus-gap)));
+  }
+
+  /*
+   * The section you jumped to is the gold block. One rule per anchor, because
+   * the link and the section share only their name: tests/brand.spec.ts checks
+   * every section has its rule.
+   */
+  :is(
+    main:has(#grounds:target) [href='#grounds'],
+    main:has(#color:target) [href='#color'],
+    main:has(#contrast:target) [href='#contrast'],
+    main:has(#type:target) [href='#type'],
+    main:has(#spacing:target) [href='#spacing'],
+    main:has(#shadows:target) [href='#shadows'],
+    main:has(#motion:target) [href='#motion'],
+    main:has(#actions:target) [href='#actions'],
+    main:has(#labels:target) [href='#labels'],
+    main:has(#controls:target) [href='#controls'],
+    main:has(#heroes:target) [href='#heroes'],
+    main:has(#navigation:target) [href='#navigation'],
+    main:has(#cards:target) [href='#cards'],
+    main:has(#forms:target) [href='#forms'],
+    main:has(#photos:target) [href='#photos'],
+    main:has(#text:target) [href='#text'],
+    main:has(#accessibility:target) [href='#accessibility'],
+    main:has(#use:target) [href='#use']
+  ).brand-menu-link {
+    @apply bg-block-gold font-black text-block-ink;
+
     outline-color: var(--color-block-ink);
-    outline-offset: calc(-1 * (var(--block-edge) + var(--focus-gap)));
+
+    & .brand-menu-number {
+      color: var(--color-block-ink);
+    }
+  }
+
+  /* Space between sections, twice a section's own gap. */
+  .brand-section + .brand-section {
+    margin-top: calc(var(--spacing-section) * 2);
   }
 
   .brand-parts {
     @apply mt-section space-y-section;
   }
 
+  .brand-section > .brand-stage {
+    @apply mt-head;
+  }
+
   /*
    * A part drawn on the dark ground beside the light one, side by side once
-   * the content column fits two halves. One edge round the pair.
+   * the content column fits two halves. No edge: the grounds differ.
    */
   .brand-stage {
-    @apply grid grid-cols-1 edge border-border;
+    @apply grid grid-cols-1;
 
     @container brand-content (width >= 48rem) {
       grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -113,6 +153,116 @@
 
   .brand-poster > .brand-stage-half {
     @apply sm:p-card;
+  }
+
+  /*
+   * Pairs on their real ground. The table keeps row and column headers for
+   * assistive technology; below `sm` each row becomes a short grid so the cells
+   * keep their width.
+   */
+  .block-table {
+    @apply w-full table-fixed border-separate border-spacing-x-0
+      border-spacing-y-3;
+  }
+
+  .block-table th {
+    @apply text-left align-middle;
+  }
+
+  .block-table th:first-child {
+    @apply w-1/4 pr-4;
+  }
+
+  .block-table td {
+    @apply p-0;
+  }
+
+  .block-cell {
+    @apply flex flex-col items-start gap-1 p-card-tight;
+  }
+
+  .block-edge {
+    @apply block size-8 border-4;
+  }
+
+  .block-hex {
+    @apply font-mono;
+  }
+
+  .block-sample {
+    @apply leading-none;
+  }
+
+  .block-ratio {
+    @apply mt-2;
+  }
+
+  .block-verdict {
+    @apply font-normal;
+  }
+
+  .block-note {
+    @apply mt-2 font-normal;
+  }
+
+  @media (width < 40rem) {
+    .block-table :is(thead, tbody, tr, th, td) {
+      display: block;
+    }
+
+    .block-table tr {
+      display: grid;
+      grid-template-columns: repeat(var(--block-cols), minmax(0, 1fr));
+    }
+
+    .block-table[data-cols='1'] {
+      --block-cols: 1;
+    }
+
+    .block-table[data-cols='2'] {
+      --block-cols: 2;
+    }
+
+    .block-table[data-cols='3'] {
+      --block-cols: 3;
+    }
+
+    .block-table th[scope='row'] {
+      @apply w-auto pb-2 pr-0;
+
+      grid-column: 1 / -1;
+    }
+
+    .block-table td[colspan='2'] {
+      grid-column: span 2;
+    }
+
+    .block-table thead {
+      @apply mb-3;
+    }
+
+    .block-table thead th:first-child {
+      @apply sr-only;
+    }
+
+    .block-cell {
+      @apply p-3;
+    }
+  }
+
+  /* An example whose control only works with a script is replaced by a note, like the header's menu trigger. */
+  .needs-script-note {
+    display: none;
+  }
+
+  @media (scripting: none) {
+    .needs-script {
+      display: none;
+    }
+
+    .needs-script-note {
+      display: block;
+    }
   }
 
   /* The focus ring drawn at rest, so a still sample shows it (base.css :focus-visible). */

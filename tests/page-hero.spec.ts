@@ -2,7 +2,6 @@ import { expect, test, type Page } from './test';
 import { builtHtml, POST_ROUTES, POSTS, ROUTES, TALK_ROUTES } from './routes';
 import { gotoSettled } from './settle';
 import { NODE } from './tags';
-import { BRAND_ROUTES } from '../src/lib/brand-sections';
 
 /**
  * PageHero's roundel and photo cover no text in the hero or the next section, and in forced
@@ -26,7 +25,7 @@ const FULL_ROUTES = [
   '/credits',
   '/brand',
 ] as const;
-const THIN_ROUTES = ['/contact/sent', ...BRAND_ROUTES];
+const THIN_ROUTES = ['/contact/sent'];
 const PLAIN_ROUTES = HERO_ROUTES.filter(
   (route) =>
     !(FULL_ROUTES as readonly string[]).includes(route) &&
@@ -48,7 +47,7 @@ test('the slab census matches the build', NODE, () => {
     .filter(
       ([route, html]) =>
         (HERO_ROUTES as readonly string[]).includes(route) &&
-        /* The opening hero only: /brand/heroes/ shows each tier again as an example. */
+        /* The opening hero only: /brand's Heroes section shows each tier again as an example. */
         /\bpage-hero-plain\b/.test(
           /class="([^"]*\bpage-hero\b[^"]*)"/.exec(html)?.[1] ?? '',
         ),

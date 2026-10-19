@@ -1,6 +1,6 @@
 import { expect, test, type Page } from './test';
 import { gotoSettled } from './settle';
-import { BRAND_SAMPLED_ROUTES } from './routes';
+import { ROUTES } from './routes';
 
 /*
  * SC 1.4.8: text at 200% "does not require the user to scroll horizontally to
@@ -68,7 +68,7 @@ for (const width of ZOOMED_WIDTHS) {
   test.describe(`every line of text stays on screen at ${width}px (SC 1.4.8)`, () => {
     test.use({ viewport: { width, height: VIEWPORT_HEIGHT } });
 
-    for (const route of BRAND_SAMPLED_ROUTES) {
+    for (const route of ROUTES) {
       test(route, async ({ page }) => {
         await gotoSettled(page, route);
 

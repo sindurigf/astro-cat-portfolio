@@ -1,44 +1,28 @@
 ---
 /*
- * A section's opening: its rule, its lead and its picture on the dark ground
- * beside the light one. The light half is an inert copy; the pictures are
- * decoration.
+ * A section's picture on the dark ground beside the light one. The light half
+ * is an inert copy; the pictures are decoration.
  */
 import BrandSample from './BrandSample.astro';
-import StandardText from './StandardText.astro';
-import { brandSection } from '../../lib/brand-sections';
 
 interface Props {
   slug: string;
 }
 
 const { slug } = Astro.props;
-const { lead, rule } = brandSection(slug);
 ---
 
 <div class="brand-stage brand-poster">
-  {(['dark', 'light'] as const).map((mode) => {
-    const live = mode === 'dark';
-    return (
-      <div
-        class:list={['brand-stage-half', `mode-${mode}`]}
-        inert={!live}
-        aria-hidden={live ? undefined : 'true'}
-      >
-        <div class="label text-subtle">{live ? 'Dark' : 'Light'}</div>
-        {/* Not a paragraph: a short line at standfirst size reads to WAVE as a heading. */}
-        <div class="mt-4 max-w-measure text-standfirst text-text">
-          {live ? <StandardText text={rule} /> : rule}
-        </div>
-        {live ? (
-          <p class="mt-4 max-w-measure text-body text-text">{lead}</p>
-        ) : (
-          <div class="mt-4 max-w-measure text-body text-text">{lead}</div>
-        )}
-        <div class="mt-8" aria-hidden="true">
-          <BrandSample section={slug} />
-        </div>
+  {(['dark', 'light'] as const).map((mode) => (
+    <div
+      class:list={['brand-stage-half', `mode-${mode}`]}
+      inert={mode === 'light'}
+      aria-hidden={mode === 'light' ? 'true' : undefined}
+    >
+      <div class="label text-subtle">{mode === 'dark' ? 'Dark' : 'Light'}</div>
+      <div class="mt-8" aria-hidden="true">
+        <BrandSample section={slug} />
       </div>
-    );
-  })}
+    </div>
+  ))}
 </div>

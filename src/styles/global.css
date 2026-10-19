@@ -114,6 +114,13 @@
 /* The footer's 280px sticker grid (four --size-sticker, three gaps, padding) stops fitting. */
 @custom-variant stickers-wrap (@media (width < 17.5rem));
 
+/*
+ * /brand's sections list is sticky only on a screen it fits whole under the
+ * sticky header: 18 links and 3 group labels at --spacing-target, the header,
+ * and 24px above and below. tests/brand.spec.ts holds the list to it.
+ */
+@custom-variant menu-fits (@media (width >= 64rem) and (height >= 68.5rem));
+
 @theme static {
   --color-background: #0b0b0b;
   --color-surface: #1a1a1a;

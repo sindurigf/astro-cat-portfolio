@@ -1,5 +1,5 @@
 import { expect, test, type Locator, type Page } from './test';
-import { POSTS, BRAND_SAMPLED_ROUTES } from './routes';
+import { POSTS, ROUTES } from './routes';
 import { gotoSettled } from './settle';
 
 /**
@@ -85,7 +85,7 @@ const ambiguous = (links: Link[]): Map<string, string[]> => {
 };
 
 test.describe('link purpose from the name alone (SC 2.4.9)', () => {
-  for (const route of BRAND_SAMPLED_ROUTES) {
+  for (const route of ROUTES) {
     test(`${route} gives each link name one destination`, async ({ page }) => {
       await gotoSettled(page, route);
       const links = await exposedLinks(page);
@@ -153,7 +153,7 @@ const COMPLETED_NAMES: readonly {
     completedBy: /\bposts$/i,
   },
   {
-    route: '/brand/chips-and-labels',
+    route: '/brand',
     links: '[data-component="tag-chips"] .mode-dark a',
     completedBy: /\btag$/i,
   },

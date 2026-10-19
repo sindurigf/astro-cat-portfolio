@@ -10,7 +10,6 @@ import {
   ROUTES,
   TALK_ROUTES,
   routesFromBuild,
-  BRAND_SAMPLED_ROUTES,
 } from './routes';
 import {
   AXE_EXPERIMENTAL_RULES,
@@ -95,7 +94,7 @@ test.describe('axe: WCAG 2.2 AA', () => {
     ).toEqual([...ROUTES].sort());
   });
 
-  for (const route of BRAND_SAMPLED_ROUTES) {
+  for (const route of ROUTES) {
     test(`${route} has no violations and no unmeasured contrast`, async ({
       page,
     }) => {
@@ -105,7 +104,7 @@ test.describe('axe: WCAG 2.2 AA', () => {
 });
 
 test.describe('axe: best practice', () => {
-  for (const route of BRAND_SAMPLED_ROUTES) {
+  for (const route of ROUTES) {
     test(`${route} has no best-practice violations`, async ({ page }) => {
       await analyze(page, route, 'best-practice');
     });
@@ -116,7 +115,7 @@ test.describe('axe: best practice', () => {
 test.describe('axe: WCAG 2.2 AA at 320px', () => {
   test.use({ viewport: REFLOW_VIEWPORT });
 
-  for (const route of BRAND_SAMPLED_ROUTES) {
+  for (const route of ROUTES) {
     test(`${route} has no violations and no unmeasured contrast at 320px`, async ({
       page,
     }) => {
@@ -132,7 +131,7 @@ test.describe('axe: WCAG 2.2 AA at 320px', () => {
 test.describe('axe: WCAG 2.2 AA with the mobile menu open at 320px', () => {
   test.use({ viewport: REFLOW_VIEWPORT });
 
-  for (const route of BRAND_SAMPLED_ROUTES) {
+  for (const route of ROUTES) {
     test(`${route} has no violations with the menu open`, async ({ page }) => {
       const response = await gotoSettled(page, route);
       expect(response?.status(), `${route} should serve a 200`).toBe(200);
