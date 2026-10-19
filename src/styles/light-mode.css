@@ -1,7 +1,7 @@
 /*
  * Light mode: `data-theme="light"` on <html>. <main>, the header and the footer
  * change; ink is #131313, gold stays a fill. On white: text 18.58, subtle 9.53,
- * pink-text 7.06, cyan 7.28 (tests/light-mode.spec.ts). Utilities layer beats
+ * pink-text 7.06, cyan 8.23 (tests/light-mode.spec.ts). Utilities layer beats
  * `.text-gold`.
  */
 @layer utilities {
@@ -44,6 +44,21 @@
     color-scheme: light;
     color: var(--color-text);
     background-color: var(--color-background);
+  }
+
+  /* Hover fills take the dark mode cyan under ink: light mode's cyan is a text color. */
+  :root[data-theme='light'] .header-slab :is(dialog, .theme-menu) {
+    --hover-fill: var(--dark-cyan);
+    --hover-label: var(--color-light-ink);
+  }
+
+  :is(:root[data-theme='light'] main, main .mode-light)
+    :is(.btn-primary, .btn-secondary):not([aria-disabled='true']):hover:not(
+      .mode-dark *,
+      :is(.card, .plain-slab, .post-contents) *
+    ) {
+    background-color: var(--dark-cyan);
+    color: var(--color-light-ink);
   }
 
   :root[data-theme='light'] main .mode-dark {

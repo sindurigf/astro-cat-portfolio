@@ -137,7 +137,7 @@ The ring is 4px cyan at a 4px offset plus the element's shadow (4px, or 8px for 
 - [ ] No ring is clipped by a parent or hidden under the header. → SC 2.4.11
 - [ ] Focus is never shown by shadow alone. → SC 2.4.7
 - [ ] The Light theme on `<main>`, the header bar's page parts and the footer: the
-      ring is `--color-light-focus` (`#00606b`) on white. See §5b. → SC 1.4.11, 2.4.7
+      ring is `--color-light-focus` (`#0047b3`) on white. See §5b. → SC 1.4.11, 2.4.7
 
 ## 5a. Header height, roundel and hero edge
 
@@ -188,7 +188,7 @@ its place at 320 and 1280px, its ring, forced colors, the theme set before
 - [ ] Choose System, then switch the device between light and dark: the page
       follows without a reload. → SC 1.4.3
 - [ ] In light, Tab through `<main>`: every ring reads against white and
-      against its control (`#00606b`). → SC 1.4.11, 2.4.7
+      against its control (`#0047b3`). → SC 1.4.11, 2.4.7
 - [ ] A focused tag chip, the current chip, the current nav link in the dark
       header and a primary button: each ring is separate from its block. → SC 1.4.11, 2.4.7
 - [ ] Hover and press a button, a chip and a link: text and edge stay readable

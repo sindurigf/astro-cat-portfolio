@@ -291,17 +291,18 @@ The switch and what it scopes: [ARCHITECTURE.md](../ARCHITECTURE.md#light-mode).
   `prefers-color-scheme`, live, and is the default; Light and Dark are
   remembered.
 
-| Token                                                | Light     | on `#ffffff` |
-| ---------------------------------------------------- | --------- | ------------ |
-| `background`, `surface`, `hero-ground`               | `#ffffff` | ground       |
-| `text`, `border`, `pink`, `gold-border`, `gold-bud`  | `#131313` | 18.58        |
-| `card-edge`                                          | `#131313` | 18.58        |
-| gold as text, `.text-gold`                           | `#131313` | 18.58        |
-| `subtle`                                             | `#3f4650` | 9.53         |
-| `pink-text`                                          | `#b00054` | 7.06         |
-| `cyan` (focus ring, hover text and fill under white) | `#00606b` | 7.28         |
+| Token                                               | Light     | on `#ffffff` |
+| --------------------------------------------------- | --------- | ------------ |
+| `background`, `surface`, `hero-ground`              | `#ffffff` | ground       |
+| `text`, `border`, `pink`, `gold-border`, `gold-bud` | `#131313` | 18.58        |
+| `card-edge`                                         | `#131313` | 18.58        |
+| gold as text, `.text-gold`                          | `#131313` | 18.58        |
+| `subtle`                                            | `#3f4650` | 9.53         |
+| `pink-text`                                         | `#b00054` | 7.06         |
+| `cyan` (focus ring and hover text)                  | `#0047b3` | 8.23         |
 
 - Every hard shadow and edge turns `#131313`.
+- Hover fills are dark mode's `#00dcfd` under `#131313` (11.20).
 - `.surface-gold` and `.v-column` go white. Buttons, tiles and stickers keep
   their `#FFC000` fill, always under `#131313` (11.32).
 - Gold text turns ink; a `.label.text-gold` and a slide label gain a gold
