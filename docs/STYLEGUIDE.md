@@ -290,6 +290,8 @@ The switch and what it scopes: [ARCHITECTURE.md](../ARCHITECTURE.md#light-mode).
 - The header's theme switch offers System, Light and Dark. System follows
   `prefers-color-scheme`, live, and is the default; Light and Dark are
   remembered.
+- A click, Enter or Space on a choice picks it, closes the menu and returns
+  focus to the switch (SC 2.4.3). Arrow keys move the choice and keep it open.
 
 | Token                                               | Light     | on `#ffffff` |
 | --------------------------------------------------- | --------- | ------------ |
