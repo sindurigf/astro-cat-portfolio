@@ -66,6 +66,24 @@ test('the contact form names its personal fields for autofill', NODE, () => {
   }
 });
 
+/* Google Search Central (Discover): a large image preview needs max-image-preview:large. */
+test('every indexable page allows a large image preview', NODE, () => {
+  const missing = [...builtHtml()]
+    .filter(
+      ([, html]) => !/<meta name="robots" content="[^"]*noindex/.test(html),
+    )
+    .filter(
+      ([, html]) =>
+        !html.includes(
+          '<meta name="robots" content="max-image-preview:large">',
+        ),
+    )
+    .map(([route]) => route);
+  expect(missing, 'indexable pages without max-image-preview:large').toEqual(
+    [],
+  );
+});
+
 /* GOV.UK names and email patterns: a spellchecker flags real names and addresses as errors. */
 test(
   'the contact form does not spellcheck a name or an email address',
