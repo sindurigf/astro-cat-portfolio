@@ -100,7 +100,7 @@ const setUp = (button: HTMLButtonElement): void => {
   menu.addEventListener('beforetoggle', (event) => {
     const opening = (event as ToggleEvent).newState === 'open';
     if (opening) place(button, menu);
-    button.setAttribute('aria-expanded', String(opening));
+    button.setAttribute('aria-expanded', `${opening}`);
   });
   /* Focus goes to the chosen radio, so the arrow keys move the choice at once. */
   menu.addEventListener('toggle', (event) => {
@@ -118,7 +118,7 @@ const setUp = (button: HTMLButtonElement): void => {
     const value = (event.target as HTMLInputElement).value;
     if (value === 'system' || isTheme(value)) choose(value);
   });
-  addEventListener('scroll', follow, { passive: true });
+  addEventListener('scroll', follow);
   addEventListener('resize', follow);
 };
 
