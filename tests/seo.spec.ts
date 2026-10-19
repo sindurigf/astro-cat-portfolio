@@ -1,5 +1,5 @@
 import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { basename, join } from 'node:path';
 import { contactDescription } from '../src/lib/contact';
 import { SOCIAL_PROFILES } from '../src/lib/profiles';
 import { BING_SITE_VERIFICATION, bingVerificationFor } from '../src/lib/site';
@@ -19,6 +19,7 @@ import {
 import { NODE } from './tags';
 import { metaContent } from './html';
 import {
+  OG_CARD_DIR,
   OG_CARD_MANIFEST,
   SITE_CARD_ROUTES,
   cardPhoto,
@@ -263,6 +264,34 @@ test.describe('link previews', NODE, () => {
     expect(
       stale,
       'a card is missing or stale: run `npm run build && npm run og`, then commit public/images/og/.',
+    ).toEqual([]);
+  });
+
+  test('every card file and manifest entry belongs to a built page', () => {
+    const manifest = JSON.parse(
+      readFileSync(join('public', OG_CARD_MANIFEST), 'utf8'),
+    ) as OgCardManifest;
+    const routes = builtHtml()
+      .filter(
+        ({ route, html }) =>
+          /<link[^>]+rel="canonical"/i.test(html) &&
+          !SITE_CARD_ROUTES.includes(route),
+      )
+      .map(({ route }) => route);
+    const wanted = new Set(routes.map((route) => basename(ogCardPath(route))));
+    const files = readdirSync(join('public', OG_CARD_DIR)).filter((file) =>
+      file.endsWith('.jpg'),
+    );
+    expect(
+      [
+        ...Object.keys(manifest)
+          .filter((route) => !routes.includes(route))
+          .map((route) => `cards.json lists ${route}, which is not built`),
+        ...files
+          .filter((file) => !wanted.has(file))
+          .map((file) => `${file} has no built page`),
+      ],
+      'delete a card whose page is gone, with its manifest entry',
     ).toEqual([]);
   });
 });
