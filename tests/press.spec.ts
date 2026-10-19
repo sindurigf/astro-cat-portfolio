@@ -244,7 +244,7 @@ test.describe('bricks', () => {
     await expect(page.locator(MENU_LINK).first()).toBeVisible();
   };
 
-  const throwOf = (page: Page) =>
+  const brickThrowOf = (page: Page) =>
     page.evaluate(() =>
       parseFloat(
         getComputedStyle(document.documentElement).getPropertyValue(
@@ -260,7 +260,7 @@ test.describe('bricks', () => {
       await castsShadow(page, MENU_LINK),
       'a pressed menu brick keeps its throw',
     ).toBe(false);
-    const step = await throwOf(page);
+    const step = await brickThrowOf(page);
     expect(
       await translateOf(page, MENU_LINK),
       'a pressed menu brick does not move into its throw',
@@ -301,5 +301,129 @@ test.describe('bricks', () => {
       'a joined brick moved out of its row',
     ).toEqual([0, 0]);
     await page.mouse.up();
+  });
+});
+
+/* The logo's link holds still while its tile lifts, so it has no edge to lose. */
+const LIFTS = PRESSABLE.filter((p) => p.control === p.moves);
+
+const pressLift = (page: Page) =>
+  page.evaluate(() =>
+    parseFloat(
+      getComputedStyle(document.documentElement).getPropertyValue(
+        '--press-lift',
+      ),
+    ),
+  );
+
+const transitionsDone = (page: Page, selector: string) =>
+  page
+    .locator(selector)
+    .first()
+    .evaluate((el) =>
+      Promise.all(el.getAnimations().map((a) => a.finished)).then(() => true),
+    );
+
+/* The largest x offset among the shadow layers that are not inset. */
+const throwOf = (page: Page, selector: string) =>
+  page
+    .locator(selector)
+    .first()
+    .evaluate((el) =>
+      Math.max(
+        0,
+        ...getComputedStyle(el)
+          .boxShadow.split(/,(?![^(]*\))/)
+          .filter((layer) => !layer.includes('inset'))
+          .map((layer) =>
+            parseFloat(layer.replace(/rgba?\([^)]*\)/, '').trim()),
+          )
+          .filter(Number.isFinite),
+      ),
+    );
+
+test.describe('a hover lift', () => {
+  for (const p of LIFTS) {
+    // A control that lifts out from under a pointer at its edge would lose hover and drop back under it, over and over.
+    test(`${p.name} keeps hover with the pointer on its resting edge`, async ({
+      page,
+    }) => {
+      await page.setViewportSize(DESKTOP_VIEWPORT);
+      await gotoSettled(page, p.route);
+      const el = page.locator(p.control).first();
+      await el.hover();
+      await transitionsDone(page, p.control);
+      const lift = await pressLift(page);
+      const box = await el.evaluate((node) => {
+        const r = node.getBoundingClientRect();
+        return { right: r.right, bottom: r.bottom };
+      });
+      await page.mouse.move(box.right + lift - 1, box.bottom + lift - 1);
+      await transitionsDone(page, p.control);
+      expect(
+        await el.evaluate((node) => node.matches(':hover')),
+        'the lift carried the control out from under the pointer',
+      ).toBe(true);
+    });
+
+    test(`${p.name} holds still under the pointer under reduced motion`, async ({
+      page,
+    }) => {
+      await page.emulateMedia({ reducedMotion: 'reduce' });
+      await page.setViewportSize(DESKTOP_VIEWPORT);
+      await gotoSettled(page, p.route);
+      await page.locator(p.control).first().hover();
+      expect(await translateOf(page, p.moves)).toEqual([0, 0]);
+    });
+
+    test(`${p.name} keeps its focus ring clear of its lifted throw`, async ({
+      page,
+    }) => {
+      await page.setViewportSize(DESKTOP_VIEWPORT);
+      await gotoSettled(page, p.route);
+      const el = page.locator(p.control).first();
+      await el.focus();
+      await page.keyboard.press('Shift+Tab');
+      await page.keyboard.press('Tab');
+      await expect(el).toBeFocused();
+      await el.hover();
+      await transitionsDone(page, p.control);
+      const { offset, gap } = await el.evaluate((node) => ({
+        offset: parseFloat(getComputedStyle(node).outlineOffset),
+        gap: parseFloat(
+          getComputedStyle(document.documentElement).getPropertyValue(
+            '--focus-gap',
+          ),
+        ),
+      }));
+      expect(
+        offset,
+        'the ring does not clear the throw by its gap: cyan over pink fails SC 1.4.11',
+      ).toBeGreaterThanOrEqual((await throwOf(page, p.control)) + gap);
+    });
+  }
+});
+
+test.describe('on a touch screen', () => {
+  test.skip(
+    ({ browserName }) => browserName === 'firefox',
+    'Firefox has no isMobile emulation, so it always reports hover: hover',
+  );
+  test.use({ isMobile: true, hasTouch: true });
+
+  // A tap leaves :hover set on a phone, so a lift would stay on after the finger leaves.
+  test('a hovered button does not lift without a hovering pointer', async ({
+    page,
+  }) => {
+    await page.setViewportSize(PHONE_VIEWPORT);
+    await gotoSettled(page, '/contact');
+    expect(
+      await page.evaluate(() => matchMedia('(hover: hover)').matches),
+    ).toBe(false);
+    const button = page.locator('main .btn-primary').first();
+    await button.hover();
+    expect(await button.evaluate((node) => node.matches(':hover'))).toBe(true);
+    await transitionsDone(page, 'main .btn-primary');
+    expect(await translateOf(page, 'main .btn-primary')).toEqual([0, 0]);
   });
 });

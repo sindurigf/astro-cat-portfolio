@@ -581,10 +581,18 @@ file per area.
 
 - Hover: `.btn-primary`, `.btn-secondary` and `.nav-cta` fill cyan with a
   `background` label (11.86).
+- Lifted: under a hovering pointer the same controls rise `--press-lift` (2px)
+  off their shadow, which grows by as much, so its far corner stays put. Not
+  on touch screens, where hover sticks after a tap, and not under reduced
+  motion.
 - Pressed: buttons, `.btn-gold-primary`, linked chips and footer stickers drop
   their shadow and move 4px into it; the menu's bricks 6px; the logo tile 8px.
-  The header's joined bricks share their row's throw and hold still. No move
-  under reduced motion. `tests/press.spec.ts` presses each.
+  The header's joined bricks and a chip row's chips share their row's throw
+  and hold still. No move under reduced motion. `tests/press.spec.ts` presses
+  each.
+- Travel: the press lands at once; the lift and the release slide at an even
+  speed in `--press-travel` (80ms). The shadow is one layer in every state, so
+  it slides instead of fading (`buttons-nav.css`).
 - Unavailable: `aria-disabled="true"`, never `disabled`. Dashed `border`
   (the dash says unavailable, the gold keeps the shape), `bg-background`,
   `subtle` label, no shadow; still focusable.
@@ -886,8 +894,8 @@ text-gold-muted` under the standfirst. Color
 
 ### Hero motion
 
-None. Gold buttons press 4px into their shadow at 0ms like every control. The
-roundel's tilt is static.
+None. Gold buttons lift and press like every control
+([Control states](#control-states)). The roundel's tilt is static.
 
 ### The hero pause control
 
@@ -1193,7 +1201,8 @@ Enforced by `tests/nav-current.spec.ts`, `tests/mobile-menu.spec.ts`,
 - Anything moving automatically for over five seconds needs a pause control
   (SC 2.2.2): the homepage hero field and each About cat.
 - Nothing flashes more than three times per second (SC 2.3.1).
-- Controls press into their shadow at 0ms; no movement under reduced motion.
+- Controls lift off their shadow under a hovering pointer and press into it at
+  once ([Control states](#control-states)); no movement under reduced motion.
 - No marquee.
 - Pattern (`src/components/ui/HeroField.vue`, its logic in
   `src/composables/use-hero-field.ts`): start the animation on mount,

@@ -46,23 +46,46 @@
   }
 
   /*
-   * The logo tile's press: its drop shadow, which follows the ears, is a markup utility. Only the tile moves,
-   * so the link keeps the pointer.
+   * The logo tile's press, as the controls' in buttons-nav.css with the mark's
+   * 8px throw. A drop shadow, so it follows the ears. Only the tile moves, so
+   * the link keeps the pointer.
    */
+  .logo-link .logo-tile {
+    filter: drop-shadow(var(--lift-mark) var(--lift-mark) 0 var(--color-mark));
+
+    @media (prefers-reduced-motion: no-preference) {
+      transition-property: translate, filter;
+      transition-duration: var(--press-travel);
+      transition-timing-function: linear;
+    }
+  }
+
   .logo-link:active .logo-tile {
-    @apply drop-shadow-none;
+    filter: drop-shadow(0 0 0 var(--color-mark));
   }
 
   /* Forced colors keep a filter, so the pink offset goes, as the footer's does. */
   @media (forced-colors: active) {
-    .logo-tile {
-      @apply drop-shadow-none;
+    :is(.logo-tile, .logo-link .logo-tile) {
+      filter: none;
+    }
+  }
+
+  /* Not in forced colors, which keep a filter and would paint the offset back. */
+  @media (prefers-reduced-motion: no-preference) and (hover: hover) and (forced-colors: none) {
+    .logo-link:hover:not(:active) .logo-tile {
+      translate: calc(var(--press-lift) * -1) calc(var(--press-lift) * -1);
+      filter: drop-shadow(
+        calc(var(--lift-mark) + var(--press-lift))
+          calc(var(--lift-mark) + var(--press-lift)) 0 var(--color-mark)
+      );
     }
   }
 
   @media (prefers-reduced-motion: no-preference) {
     .logo-link:active .logo-tile {
-      @apply translate-x-2 translate-y-2;
+      translate: var(--lift-mark) var(--lift-mark);
+      transition-duration: 0s;
     }
   }
 
