@@ -490,6 +490,15 @@ Rules this repository follows. Values and reasons:
   W3C note, opinion here, gives an example:
   [low vision needs](https://www.w3.org/TR/low-vision-needs/), high contrast
   against light sensitivity.
+  Choices made:
+  - A dark page against a light one: dark is the default, for readers
+    sensitive to light; Light Mode in the header, which is remembered, is
+    for readers who need a light page.
+  - High contrast against light sensitivity: text keeps 7:1 in both modes;
+    the dark default carries the light-sensitive need.
+  - Capitals against dyslexia: uppercase only on headings, labels and
+    buttons of a few words, never on running text
+    ([why](ARCHITECTURE.md#rejected-findings)).
 - **Scripts.** Never hold content back behind a script. What a page says is in
   its HTML; a script only adds to it. Tested for navigation
   (`tests/no-script.spec.ts`) and the talk slides (`tests/slideshow.spec.ts`).
