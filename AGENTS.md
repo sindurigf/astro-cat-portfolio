@@ -39,11 +39,15 @@ security and privacy, or build correctness. "Looks as designed" is not one.
 
 ### Which suites to run
 
-CI runs the full gate on every pull request. Locally, before opening one:
+CI runs the full gate in Chromium, Firefox and WebKit on every pull request.
+It is the test of record. Locally:
 
-- `build`, `typecheck`, `check`, `test:worker` and `test:demo`.
-- The specs the change touches or whose behavior it changes, in every engine:
-  `npx playwright test <specs>` and `npm run test:webkit -- <specs>`.
+- Every change: `build`, `typecheck` and `check`.
+- A change to the Worker: also `test:worker`; to the demo build: `test:demo`.
+- A major change to code, CSS or tests: the specs it touches, in Chromium only,
+  while iterating: `npx playwright test <specs> --project=chromium`.
+- No full suites and no other engines locally. Run
+  `npm run test:webkit -- <specs>` only to debug a failure CI reported.
 
 State what ran in the pull request.
 
