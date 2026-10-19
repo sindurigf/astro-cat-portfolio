@@ -348,7 +348,8 @@
    * Top right, below the rule; never at the foot, over the field. The box ends
    * at the window's foot, one column wide, and clips: a sticker that does not
    * fit wraps out of sight, so at 400% zoom none hangs over the words below
-   * (SC 1.4.10). The padding is the room the throw and tilt need.
+   * (SC 1.4.10). The padding is the room the throw and tilt need; a column gap
+   * wider than the box puts a wrapped sticker wholly past the clip, never half a word.
    */
   .hero-marks {
     --marks-room: --spacing(4);
@@ -360,7 +361,18 @@
     padding: var(--marks-room);
     overflow: clip;
 
-    @apply absolute z-20 flex flex-col flex-wrap-reverse content-start items-start gap-4;
+    column-gap: calc(100% + 2 * var(--marks-room));
+
+    @apply absolute z-20 flex flex-col flex-wrap-reverse content-start items-start gap-y-4;
+  }
+
+  /*
+   * A flex column never wraps its first item, so an empty first item lets a
+   * sticker taller than the room wrap out of sight too. The margin cancels its gap.
+   */
+  .hero-marks::before {
+    content: '';
+    margin-top: calc(-1 * --spacing(4));
   }
 
   /*
