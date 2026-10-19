@@ -638,7 +638,9 @@ The grid rule in `scripts/check-tokens.mjs` enforces the grid;
   closing band. On `/about` it sits on a gold card under a decorative
   `text-quote-mark`, beside the photo.
 - **A name with a line saying what it did** (`/credits`): each entry on an
-  inset `bg-background` tile inside the card. No rule between entries.
+  inset `bg-background` tile inside the card. No rule between entries. On a
+  full-width card (Guides), each tile is a row from `lg`: name in 3 of 12
+  columns, text in 9 at `max-w-measure`; stacked below.
 - **Photo captions:** none on People and places; the alt text names who is in
   each photo. Where a photo carries a caption, it starts at the photo's left edge.
 - **Form fields:** a 6px edge. A failing field adds a 4px pink inset ring
@@ -704,7 +706,7 @@ The grid rule in `scripts/check-tokens.mjs` enforces the grid;
 | Career                 | Hero, Panel, Open (with the solid block), Open, Surface, Close |
 | Contact                | Hero, Open, Surface                                            |
 | Contact sent           | Hero, Panel, Close                                             |
-| Credits                | Hero, Open (panels), Open (panels), Close                      |
+| Credits                | Hero, Open (panels) x3, Close                                  |
 | Privacy, Accessibility | Hero (reading measure), Reading                                |
 | Blog index             | Hero, Listing, Close                                           |
 | Blog category, tag     | Hero, Listing                                                  |
@@ -1313,6 +1315,18 @@ size-full object-cover`). Never put `aspect-ratio` on the image: WebKit
   `background`, 10.60 on `surface`), `gold-text` on the hero slab (11.32).
 - `min-w-0`: WebKit gives a grid item with an aspect ratio a minimum width
   wider than its track.
+
+### Photo credits
+
+- Outside `/credits` a credit is "Photo: Name" (`PHOTO_CREDIT_PREFIX`) in the
+  caption's own tokens; `/credits` keeps the full attribution line.
+- The name links the photo's page (`LICENSED_PHOTOS[x].source`), else the
+  photographer's site (`PHOTOGRAPHERS`), else stays plain text.
+- A Creative Commons photo adds its short license, "Photo: Name (CC BY 4.0)",
+  as a plain link to `licenseHref`. No `Abbr`: the deed names the license in
+  full (G55, SC 3.1.4). CC BY §4(a) asks for the license link with every copy.
+- No photo title, source site or changes in the caption.
+  `tests/markdown-plugins.spec.ts`.
 
 ### The failed state
 
