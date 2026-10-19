@@ -8,7 +8,7 @@
   Referrer-Policy: strict-origin-when-cross-origin
   X-Content-Type-Options: nosniff
   X-Frame-Options: DENY
-  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=(), accelerometer=(), gyroscope=(), magnetometer=(), display-capture=(), encrypted-media=(), midi=(), hid=(), serial=(), idle-detection=(), screen-wake-lock=(), xr-spatial-tracking=(), publickey-credentials-get=(), clipboard-read=(), sync-xhr=(), unload=(), local-fonts=(), window-management=(), fullscreen=(self)
   Cross-Origin-Opener-Policy: same-origin
   Cache-Control: no-transform
   Speculation-Rules: "/speculationrules.json"

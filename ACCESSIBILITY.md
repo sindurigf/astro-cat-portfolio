@@ -64,7 +64,7 @@ out its link.
 | 2.5.5 Target Size (Enhanced)         | Every pointer target outside a sentence has a 44 by 44px area of its own, never shared: controls are drawn at `--spacing-target` (44px); header nav bricks are 44px tall; breadcrumb links get a pointer area wider than their drawn box (`.hit-target`); footer links are 44px rows. `tests/target-size.spec.ts` hit-tests every target at 305px and 1280px on every page, listings sampled, in the open cat card and photo viewer, and in the open menu at 305px. An open trick list is not hit-tested.                                                                                                                                                                                                           |
 | 2.5.6 Concurrent Input Mechanisms    | No input is turned off because another one was detected.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
 | 3.1.3 Unusual Words                  | On functional pages (statement, privacy, credits, brand), jargon is written in plain words, or defined in the sentence of its first use and marked with `<dfn>` (G112, H54). `/404` links its Star Wars lines to their explanation on `/credits` (G55). Posts, About, Career and the contact page's introduction are the site owner's copy and are not checked.                                                                                                                                                                                                                                                                                                                                                     |
-| 3.1.4 Abbreviations                  | On functional pages (statement, privacy, credits, brand), each abbreviation's first use is a `<button popovertarget>` around an `<abbr>`, described by its expansion (`aria-describedby`). A tap or Enter opens the expansion with no script, and Escape or a press elsewhere closes it; a script adds hover and focus and places it under the abbreviation. A browser without popovers reads the expansion inline in brackets, and the script removes the button there. Posts, About and Career are the site owner's copy and are not checked.                                                                                                                                                                     |
+| 3.1.4 Abbreviations                  | On functional pages (statement, privacy, credits, brand), each abbreviation's first use is a `<button popovertarget>` around an `<abbr>`, described by its expansion (`aria-describedby`). A tap or Enter opens the expansion with no script, and Escape or a press elsewhere closes it; a script adds hover and focus and places it under the abbreviation. A browser without popovers reads the expansion inline in brackets, and the script removes the button there. A Creative Commons license in a photo caption ("CC BY 4.0") is instead a link to its deed, which names it in full (G55). Posts, About and Career are the site owner's copy and are not checked.                                            |
 | 3.2.5 Change on Request              | No new windows, automatic refresh or navigation by script.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 
 axe's `wcag2aaa` rules are not run.
@@ -422,8 +422,9 @@ WCAG criterion or say anything about yourself.
 - **Public:** <https://github.example/robin-ohara/example-site/issues>
 - **Private:** <hello@example.com>
 
-Useful, never required: the page, what you tried and what happened, your
-browser, operating system and assistive technology, a screenshot.
+Useful, never required: the page address, the problem, steps to reproduce,
+severity, your browser and device, any assistive technology, and screenshots or
+recordings.
 
 Replies aim to arrive within the number of days set as
 `accessibility.responseDays` in `src/site.config.ts`.
@@ -490,6 +491,15 @@ Rules this repository follows. Values and reasons:
   W3C note, opinion here, gives an example:
   [low vision needs](https://www.w3.org/TR/low-vision-needs/), high contrast
   against light sensitivity.
+  Choices made:
+  - A dark page against a light one: dark is the default, for readers
+    sensitive to light; Light Mode in the header, which is remembered, is
+    for readers who need a light page.
+  - High contrast against light sensitivity: text keeps 7:1 in both modes;
+    the dark default carries the light-sensitive need.
+  - Capitals against dyslexia: uppercase only on headings, labels and
+    buttons of a few words, never on running text
+    ([why](ARCHITECTURE.md#rejected-findings)).
 - **Scripts.** Never hold content back behind a script. What a page says is in
   its HTML; a script only adds to it. Tested for navigation
   (`tests/no-script.spec.ts`) and the talk slides (`tests/slideshow.spec.ts`).
