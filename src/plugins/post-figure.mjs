@@ -15,6 +15,7 @@ import {
   PHOTO_CREDIT_PREFIX,
   SCREENSHOT_CREDIT_PREFIX,
   SCREENSHOT_SOURCES,
+  licensedCaption,
 } from '../lib/credits.ts';
 
 const CREDITS = [
@@ -137,8 +138,8 @@ const licensedPhoto = (src, photos) => {
 };
 
 /**
- * "Photo: Name", the name linked to the photo's page or else the photographer's;
- * a Creative Commons photo adds its short license, linked to its deed.
+ * "Photo: Name", the name linked to the photographer's page; a Creative Commons
+ * photo is credited by `licensedCaption`.
  * @param {string} caption
  * @param {unknown} src
  * @param {Readonly<Record<string, import('../lib/credits.ts').LicensedPhoto>>} [photos]
@@ -156,20 +157,16 @@ export const captionChildren = (caption, src, photos = LICENSED_PHOTOS) => {
       `post-figure: ${String(src)} is credited to "${name}", but LICENSED_PHOTOS names "${licensed.photographer}".`,
     );
   }
-  const href =
-    licensed?.source ??
-    (Object.hasOwn(sources, name) ? sources[name] : undefined);
-  if (href === undefined) return [text(caption)];
-
-  const credit = [text(prefix), link(href, name)];
-  if (licensed === undefined) return credit;
-
-  return [
-    ...credit,
-    text(' ('),
-    link(licensed.licenseHref, licensed.licenseShort),
-    text(')'),
-  ];
+  if (licensed !== undefined) {
+    return [
+      text(prefix),
+      ...licensedCaption(licensed).map((part) =>
+        typeof part === 'string' ? text(part) : link(part.href, part.text),
+      ),
+    ];
+  }
+  if (!Object.hasOwn(sources, name)) return [text(caption)];
+  return [text(prefix), link(sources[name], name)];
 };
 
 /* A post with a `cover` opens on it (src/pages/blog/[slug].astro), so that photo loads first. */
