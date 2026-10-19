@@ -68,7 +68,8 @@ before changing anything it covers.
 - Focus rings: [Focus](../../../docs/STYLEGUIDE.md#focus).
 - Photos: [Photo frames](../../../docs/STYLEGUIDE.md#photo-frames-and-the-failed-photo-state).
 - Photo captions: "Photo: Name", plus the short license on a Creative Commons
-  photo ([Photo credits](../../../docs/STYLEGUIDE.md#photo-credits)).
+  photo, and its title first where the license asks for it
+  ([Photo credits](../../../docs/STYLEGUIDE.md#photo-credits)).
 - A form posting to a new origin: [The CSP](../../../ARCHITECTURE.md#the-csp).
 
 ## Before calling it done
