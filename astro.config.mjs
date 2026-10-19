@@ -29,6 +29,29 @@ import {
   readPosts,
 } from './src/lib/sitemap-filter.ts';
 
+/*
+ * `astro build` syncs through a dev server that leaves plugin-vue's
+ * `devServer` set, so SFC templates compile non-inline in production.
+ * `post` runs this after plugin-vue's own `configResolved` copies its options.
+ * tests/client-chunks.spec.ts fails if the clear stops working.
+ */
+const inlineVueTemplates = () => ({
+  name: 'inline-vue-templates',
+  enforce: /** @type {const} */ ('post'),
+  configResolved(/** @type {import('vite').ResolvedConfig} */ config) {
+    if (config.command !== 'build') return;
+    const vuePlugin = config.plugins.find(
+      (plugin) => plugin.name === 'vite:vue',
+    );
+    if (!vuePlugin?.api?.options) {
+      throw new Error(
+        'inline-vue-templates: @vitejs/plugin-vue no longer exposes api.options.',
+      );
+    }
+    vuePlugin.api.options.devServer = undefined;
+  },
+});
+
 const VIDEO_DIR = 'public/videos';
 const VIDEO_URL_PREFIX = '/videos/';
 
@@ -134,7 +157,7 @@ export default defineConfig({
       /* The on-demand bundle; src/lib/person-image.ts reads it. */
       ssr: { define: { __PRERENDERED__: 'false' } },
     },
-    plugins: [tailwindcss()],
+    plugins: [tailwindcss(), inlineVueTemplates()],
     define: {
       __VIDEO_SIZES__: JSON.stringify(videoSizes),
       __THEME_COLOR__: JSON.stringify(themeColor),
