@@ -61,7 +61,7 @@ const GUIDES = [
     name: 'ACCESSIBILITY.md',
     href: 'https://github.com/mgifford/ACCESSIBILITY.md',
     author: { name: 'Mike Gifford', href: 'https://ox.ca/' },
-    use: 'Thank you for posting about ACCESSIBILITY.md, and for sharing so many resources that make websites more accessible. It is a good place to learn how to declare what a project does for accessibility. The accessibility statement of this site follows this format.',
+    use: "Thank you for posting about ACCESSIBILITY.md, and for sharing so many resources that make websites more accessible. It is a good place to learn how to declare what a project does for accessibility. The ACCESSIBILITY.md file in this site's source code follows this format.",
   },
   {
     name: 'The Website Specification',
@@ -94,7 +94,7 @@ const GUIDES = [
       name: 'Laurence Lewis',
       href: 'https://github.com/LaurenceRLewis',
     },
-    use: 'This makes coding assistants cite the specification before they write any code, which is a good lesson for people too. This site treats the Web Content Accessibility Guidelines and their Understanding documents as the rule, and everything else as opinion. Thank you for sharing it.',
+    use: 'This makes coding assistants cite the specification before they write any code, which is a good lesson for people too. This site treats the Web Content Accessibility Guidelines and the specifications behind them as the rule, their Understanding documents as the explanation, and everything else as opinion. Thank you for sharing it.',
   },
   {
     name: 'Intopia Web Accessibility Skill',
@@ -106,7 +106,7 @@ const GUIDES = [
     name: 'accessibility-skills',
     href: 'https://github.com/mgifford/accessibility-skills',
     author: { name: 'Mike Gifford', href: 'https://ox.ca/' },
-    use: 'Thank you, Mike, for another helpful one! Its navigation and touch skills show how to test a website with voice control. The voice control check in the manual tests of this site comes from them.',
+    use: 'Thank you, Mike, for another helpful one! Its navigation, touch and speech recognition skills show how to test a website with voice control. The voice control check in the manual tests of this site builds on them.',
   },
   {
     name: 'Accessibility Agents',
@@ -116,6 +116,54 @@ const GUIDES = [
       href: 'https://github.com/Community-Access/accessibility-agents/graphs/contributors',
     },
     use: 'The cognitive accessibility skill in this set has good ideas on plain language and error messages. The writing rules of this site borrow from them. Thank you to Taylor, Jeff and everyone who contributes.',
+  },
+  {
+    name: 'GOV.UK Design System',
+    href: 'https://design-system.service.gov.uk/',
+    author: {
+      name: 'Government Digital Service',
+      href: 'https://www.gov.uk/government/organisations/government-digital-service',
+    },
+    use: 'Its patterns for names, email addresses and error messages shaped the contact form of this site, from the error summary to the page title when something goes wrong. Thank you for making them public.',
+  },
+  {
+    name: 'OWASP Secure Headers Project',
+    href: 'https://owasp.org/www-project-secure-headers/',
+    author: { name: 'OWASP Foundation', href: 'https://owasp.org/' },
+    use: 'It lists the security headers a website should send and explains each one. This site follows it and switches off every browser feature it does not use. Thank you!',
+  },
+  {
+    name: 'Understanding WCAG 2.2',
+    href: 'https://www.w3.org/WAI/WCAG22/Understanding/',
+    author: {
+      name: 'W3C Web Accessibility Initiative',
+      href: 'https://www.w3.org/WAI/',
+    },
+    use: 'These documents explain what each success criterion means and how to meet it. When a rule was unclear, this is where I checked. Thank you to everyone at the W3C who writes them.',
+  },
+  {
+    name: 'Google Search Central',
+    href: 'https://developers.google.com/search',
+    author: { name: 'Google', href: 'https://developers.google.com/' },
+    use: 'Its guides explain canonical links, robots rules, sitemaps and structured data. This site follows them so search engines show each page correctly. Thank you.',
+  },
+  {
+    name: '“Fixing” Lists',
+    href: 'https://www.scottohara.me/blog/2019/01/12/lists-and-safari.html',
+    author: { name: "Scott O'Hara", href: 'https://www.scottohara.me/' },
+    use: 'His article explains why Safari stops announcing a list once its bullets are removed, and how to fix it. Lists on this site stay lists for screen readers. Thank you, Scott!',
+  },
+  {
+    name: 'Inclusive Components',
+    href: 'https://inclusive-components.design/',
+    author: { name: 'Heydon Pickering', href: 'https://heydonworks.com/' },
+    use: 'Its card pattern shows how a whole card can open a post while its text stays selectable. The blog cards on this site work this way. Thank you, Heydon!',
+  },
+  {
+    name: 'Adrian Roselli on Dark Mode',
+    href: 'https://x.com/aardrian/status/1385210854715629569',
+    author: { name: 'Adrian Roselli', href: 'https://adrianroselli.com/' },
+    use: 'His post on dark mode points out that a theme switch needs three options, not two. The theme menu on this site offers System, Light and Dark because of it. Thank you, Adrian!',
   },
 ] as const;
 

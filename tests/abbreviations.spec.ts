@@ -165,6 +165,11 @@ const NAMES = [
   'ACCESSIBILITY.md',
   'A11Y.md',
   'LICENSE-photos',
+  'GOV.UK Design System',
+  'OWASP Foundation',
+  'OWASP Secure Headers Project',
+  'Understanding WCAG 2.2',
+  'W3C',
 ];
 
 const ABBREVIATION = /\bCC BY\b|\bIPv[46]\b|\b[A-Z][A-Z0-9]+(?:-\d+)?\b/g;
