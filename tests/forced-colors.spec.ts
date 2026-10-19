@@ -289,6 +289,30 @@ test.describe('forced colors', () => {
     });
   }
 
+  // A filter survives forced colors, so the logo's pink offset would paint in the system palette.
+  test('the logo casts no offset in forced colors, at rest or hovered', async ({
+    page,
+  }) => {
+    await gotoSettled(page, '/blog/');
+    await forceColors(page, '/blog/');
+    const tile = page.locator('header .logo-tile');
+    const settled = () =>
+      tile.evaluate((el) =>
+        Promise.all(el.getAnimations().map((a) => a.finished)).then(() => true),
+      );
+    // Forcing colors after load starts the filter's own transition.
+    await settled();
+    expect(await tile.evaluate((el) => getComputedStyle(el).filter)).toBe(
+      'none',
+    );
+    await page.locator('header .logo-link').hover();
+    await settled();
+    expect(
+      await tile.evaluate((el) => getComputedStyle(el).filter),
+      'the hovered logo paints its offset in forced colors',
+    ).toBe('none');
+  });
+
   // Every stop: box-shadow paints nothing here, so a shadow ring disappears.
   test('the focus indicator survives forced colors', async ({ page }) => {
     await gotoSettled(page, '/');

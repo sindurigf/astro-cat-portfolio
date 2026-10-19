@@ -71,7 +71,8 @@
     }
   }
 
-  @media (prefers-reduced-motion: no-preference) and (hover: hover) {
+  /* Not in forced colors, which keep a filter and would paint the offset back. */
+  @media (prefers-reduced-motion: no-preference) and (hover: hover) and (forced-colors: none) {
     .logo-link:hover:not(:active) .logo-tile {
       translate: calc(var(--press-lift) * -1) calc(var(--press-lift) * -1);
       filter: drop-shadow(
