@@ -40,6 +40,8 @@ const BASE: Pose = {
   rot: 0,
   mouth: 0,
   zz: 0,
+  sx: 0,
+  sh: 0,
 };
 
 export const clonePose = (p: Pose): Pose => ({
@@ -204,7 +206,7 @@ const POSES = {
   }),
 } satisfies Record<string, Pose>;
 
-type PoseName = keyof typeof POSES;
+export type PoseName = keyof typeof POSES;
 
 export const pose = (name: PoseName, over: Partial<Pose> = {}): Pose =>
   derive(POSES[name], over);
@@ -261,9 +263,9 @@ const EASE = {
   snap: (k: number) => (k < 0.5 ? 0 : 1),
 } as const;
 
-type Ease = keyof typeof EASE;
+export type Ease = keyof typeof EASE;
 
-interface Step {
+export interface Step {
   ms: number;
   pose: Pose;
   ease: Ease;
@@ -281,6 +283,8 @@ export interface Move {
   prop?: PropKind;
   /** Prop position relative to the cat's starting point, forward positive. */
   propAt?: (t: number) => PropState;
+  /** px the cat ends higher than it starts, a climb; it plays on the lower floor. */
+  rise?: number;
 }
 
 const step = (

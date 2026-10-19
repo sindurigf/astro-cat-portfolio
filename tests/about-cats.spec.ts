@@ -47,6 +47,7 @@ import {
   cupPush,
   planMove,
 } from '../src/lib/about-cats';
+import { climbMove } from '../src/lib/about-cats-climb';
 
 /**
  * The About cats (src/components/ui/AboutCats.vue): each cat opens its photo,
@@ -309,6 +310,37 @@ test('no move lifts any part of a cat above its band', NODE, () => {
     'a move rises above --spacing-cat-band into the text above',
   ).toEqual([]);
 });
+
+/** The raised brick's step at 1024 and at 1280: `--step-y` in px. */
+const STEP_HEIGHTS = [38.4, 48];
+
+test(
+  'no climb lifts any part of a cat above its band, measured from the higher brick',
+  NODE,
+  () => {
+    const band = catBand();
+    const tooHigh: string[] = [];
+    for (const h of STEP_HEIGHTS)
+      for (const rising of [true, false]) {
+        const move = climbMove(rising, h);
+        const start = move.steps[0].pose;
+        for (let t = 0; t <= duration(move); t += FRAME_MS) {
+          const height = highestPoint(poseAt(move, start, t));
+          /* A climb plays on the lower brick, whose band top is the step's height further up. */
+          if (height > band + h) {
+            tooHigh.push(
+              `${rising ? 'up' : 'down'} ${h}px at ${Math.round(t)}ms: ${Math.round(height - h)}px`,
+            );
+            break;
+          }
+        }
+      }
+    expect(
+      tooHigh,
+      'a climb rises above --spacing-cat-band into the text above',
+    ).toEqual([]);
+  },
+);
 
 /** The sleep control's box: `.motion-toggle`, h-10 w-10. */
 const CONTROL_SIZE = 40;
@@ -981,6 +1013,165 @@ const expectHeldHeadRelaxes = async (page: Page) => {
     throw error;
   }
 };
+
+/** A roll under every chance in about-cats.ts: Rudra climbs whenever the wall under him has a step. */
+const CLIMB_ROLL = 0.01;
+/** Page time for Rudra to climb down and back up at least once, or to leap across the step. */
+const CLIMB_WINDOW_MS = 30_000;
+const SAMPLE_MS = 250;
+/** px below the floor where the brick's border is, clear of the drawn paws' edge and shadow. */
+const UNDER_FEET_PX = 6;
+/** Widths where the photo brick in Rudra's wall is raised, and phone widths where the wall stacks. */
+const STEPPED_WIDTHS = [1280, 1024];
+const STACKED_WIDTHS = [REFLOW_VIEWPORT.width, PHONE_VIEWPORT.width];
+
+/** Rudra on screen on a paused clock, rolling CLIMB_ROLL for every choice. */
+const rudraClimbing = async (page: Page, width: number) => {
+  await page.addInitScript((roll) => {
+    Math.random = () => roll;
+  }, CLIMB_ROLL);
+  await page.setViewportSize({ width, height: DESKTOP_VIEWPORT.height });
+  await page.clock.install();
+  await gotoSettled(page, ROUTE);
+  await page.locator('#cat-spot-rudra').scrollIntoViewIfNeeded();
+  await page.evaluate(() =>
+    document
+      .getElementById('cat-spot-rudra')!
+      .scrollIntoView({ block: 'center' }),
+  );
+  await showCat(page, 'rudra');
+  await pauseClock(page);
+};
+
+/** Rudra's floor in px below his band's bottom, his place along it, and whether a brick lies just under his feet, with nothing above. */
+const rudraFloor = (page: Page) =>
+  page.evaluate((gap) => {
+    const spot = document.getElementById('cat-spot-rudra')!;
+    const band = spot.getBoundingClientRect();
+    const [x, y] = (
+      /translate\(([-\d.]+) ([-\d.]+)\)/.exec(
+        spot.querySelector('.cat-hit')?.getAttribute('transform') ?? '',
+      ) ?? []
+    )
+      .slice(1)
+      .map(Number);
+    const brickAt = (dy: number) =>
+      Boolean(
+        document
+          .elementsFromPoint(band.left + x, band.top + y + dy)
+          .find((node) => !spot.contains(node))
+          ?.closest('.cat-perch .card'),
+      );
+    return {
+      x,
+      floor: Math.round(band.top + y - band.bottom),
+      onBrick: brickAt(gap),
+      /* A climb plays on the lower brick's floor while the cat is still over the higher one. */
+      onTop: brickAt(gap) && !brickAt(-gap),
+    };
+  }, UNDER_FEET_PX);
+
+/** Runs the clock until Rudra rests on the lower brick: a floor below the band's bottom, unchanged for a while. */
+const rudraOnLowerBrick = async (page: Page) => {
+  let last = '';
+  for (let t = 0; t < CLIMB_WINDOW_MS; t += SAMPLE_MS) {
+    await page.clock.runFor(SAMPLE_MS);
+    const now = await rudraFloor(page);
+    const seen = JSON.stringify(now);
+    if (now.floor > 0 && now.onTop && seen === last) return now;
+    last = seen;
+  }
+  throw new Error(
+    `Rudra did not come to rest on the lower brick within ${CLIMB_WINDOW_MS} ms of page time.`,
+  );
+};
+
+test.describe('Rudra on a stepped wall', () => {
+  for (const width of STEPPED_WIDTHS)
+    test(`at ${width}px his floor is always the brick under him, never the air above it`, async ({
+      page,
+    }) => {
+      test.slow();
+      await rudraClimbing(page, width);
+      const floors = new Set<number>();
+      const inAir: string[] = [];
+      for (let t = 0; t < CLIMB_WINDOW_MS; t += SAMPLE_MS) {
+        await page.clock.runFor(SAMPLE_MS);
+        const { x, floor, onBrick } = await rudraFloor(page);
+        floors.add(floor);
+        if (!onBrick) inAir.push(`${t}ms at x ${Math.round(x)}`);
+      }
+      expect(inAir, 'Rudra stood on no brick').toEqual([]);
+      expect(
+        floors.size,
+        'Rudra stayed on one brick, so the step was never climbed',
+      ).toBeGreaterThan(1);
+    });
+
+  test('on the lower brick he is still a target: a click on him opens his card', async ({
+    page,
+  }) => {
+    test.slow();
+    await rudraClimbing(page, DESKTOP_VIEWPORT.width);
+    await rudraOnLowerBrick(page);
+    const box = await page
+      .locator('#cat-spot-rudra .cat-hit-area')
+      .boundingBox();
+    expect(box, 'Rudra is not drawn').not.toBeNull();
+    if (!box) return;
+    const point = {
+      x: box.x + box.width / 2,
+      y: box.y + box.height * (1 - LEG_HEIGHT),
+    };
+    expect(
+      await page.evaluate(
+        ({ x, y }) =>
+          Boolean(
+            document
+              .elementFromPoint(x, y)
+              ?.closest('.cat-button[data-cat="rudra"]'),
+          ),
+        point,
+      ),
+      'the wall above the lower brick covers Rudra',
+    ).toBe(true);
+    await page.mouse.click(point.x, point.y);
+    await expect(page.getByRole('dialog', { name: NAMES.rudra })).toBeVisible();
+  });
+
+  test('under reduced motion he stops climbing and sits on the brick under him', async ({
+    page,
+  }) => {
+    test.slow();
+    await rudraClimbing(page, DESKTOP_VIEWPORT.width);
+    await rudraOnLowerBrick(page);
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.clock.runFor(SAMPLE_MS);
+    const sat = await rudraFloor(page);
+    expect(sat.onTop, 'Rudra sat in the air or inside a brick').toBe(true);
+    expect(sat.floor, 'Rudra left the lower brick').toBeGreaterThan(0);
+    expect(
+      await drawnOver(page, 'rudra', CLIMB_WINDOW_MS),
+      'Rudra kept moving under reduced motion',
+    ).toBe(0);
+  });
+
+  for (const width of STACKED_WIDTHS)
+    test(`at ${width}px, where the wall stacks, his floor is his band's bottom`, async ({
+      page,
+    }) => {
+      await rudraClimbing(page, width);
+      const off: string[] = [];
+      for (let t = 0; t < CLIMB_WINDOW_MS; t += SAMPLE_MS * 4) {
+        await page.clock.runFor(SAMPLE_MS * 4);
+        const { floor } = await rudraFloor(page);
+        if (floor !== 0) off.push(`${t}ms: ${floor}px`);
+      }
+      expect(off, "Rudra's floor left the band's bottom on a phone").toEqual(
+        [],
+      );
+    });
+});
 
 test.describe('About cats', () => {
   test('each cat is a named button that opens its photo in a dialog, Close first, and returns focus', async ({
