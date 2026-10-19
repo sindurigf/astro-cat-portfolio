@@ -39,6 +39,16 @@ export interface Pose {
   rot: number;
   mouth: number;
   zz: number;
+  /** A step under the cat: its edge's x from the body center, and how much higher the ground ahead of it is (behind it, if negative). */
+  sx: number;
+  sh: number;
+}
+
+/** A stretch of the band's floor and how far below the band's bottom it lies, in px. */
+export interface Ledge {
+  x0: number;
+  x1: number;
+  drop: number;
 }
 
 export type PropKind = 'toy' | 'cup' | 'post' | 'fly' | 'yarn';

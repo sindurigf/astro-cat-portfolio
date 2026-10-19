@@ -527,6 +527,10 @@ drawings are `aria-hidden`.
       uncovered, and the list closes once focus is past the paw. → SC 2.4.12
 - [ ] Choosing "Chase the Fly" plays it; choosing a trick for a sleeping cat
       wakes it first. → SC 2.2.2
+- [ ] Rudra climbs between his two bricks, and a click on him opens his card
+      on either brick. → SC 2.5.5
+- [ ] Under reduced motion Rudra sits on the brick under him, never in the
+      air above it. → SC 2.3.3
 - [ ] The drawings announce nothing. → SC 1.1.1
 - [ ] While the trick list loads, or if it fails, its note is read once, as
       a status. → SC 4.1.3
