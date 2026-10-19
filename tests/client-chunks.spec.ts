@@ -6,6 +6,10 @@ import { NODE } from './tags';
 
 const CHUNKS = join(DIST_DIR, '_astro');
 
+/** The flag plugin-vue emits only for `<script setup>` components compiled without inlined templates. */
+const NON_INLINE_SCRIPT_SETUP =
+  /defineProperty\([^,]+,\s*["']__isScriptSetup["']/;
+
 /** A global `process` read: `process.x` not preceded by a name character or a dot. */
 const GLOBAL_PROCESS = /(?<![\w$.])process\s*\./;
 
@@ -28,6 +32,15 @@ test.describe('client chunks', NODE, () => {
         .filter(({ source }) => source.startsWith('globalThis.process'))
         .map(({ file }) => file),
       'chunks open with the server `process` shim: check the client banner override in astro.config.mjs',
+    ).toEqual([]);
+  });
+
+  test('no Vue component ships a non-inline template', () => {
+    expect(
+      clientChunks()
+        .filter(({ source }) => NON_INLINE_SCRIPT_SETUP.test(source))
+        .map(({ file }) => file),
+      'components compiled with a dev server attached: check inlineVueTemplates in astro.config.mjs',
     ).toEqual([]);
   });
 

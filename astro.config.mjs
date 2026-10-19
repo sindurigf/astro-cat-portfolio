@@ -32,6 +32,8 @@ import {
 /*
  * `astro build` syncs through a dev server that leaves plugin-vue's
  * `devServer` set, so SFC templates compile non-inline in production.
+ * `post` runs this after plugin-vue's own `configResolved` copies its options.
+ * tests/client-chunks.spec.ts fails if the clear stops working.
  */
 const inlineVueTemplates = () => ({
   name: 'inline-vue-templates',
@@ -41,7 +43,12 @@ const inlineVueTemplates = () => ({
     const vuePlugin = config.plugins.find(
       (plugin) => plugin.name === 'vite:vue',
     );
-    if (vuePlugin?.api) vuePlugin.api.options.devServer = undefined;
+    if (!vuePlugin?.api?.options) {
+      throw new Error(
+        'inline-vue-templates: @vitejs/plugin-vue no longer exposes api.options.',
+      );
+    }
+    vuePlugin.api.options.devServer = undefined;
   },
 });
 
