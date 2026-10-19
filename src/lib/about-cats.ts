@@ -64,7 +64,7 @@ const FIT_STEPS = 24;
 /** Chance a cat moves along its band, by one leap, instead of playing where it is. */
 const LEAP_CHANCE = 0.15;
 /** Chance a cat on a stepped band climbs to the next brick instead. */
-const CLIMB_CHANCE = 0.3;
+const CLIMB_CHANCE = 0.5;
 /* Ways to get about, one at a time and weighted; there is no walking. */
 const LEAPS: Partial<Record<MoveName, number>> = {
   pounce: 3,
