@@ -137,41 +137,65 @@ test.describe('post-figure', NODE, () => {
     });
   }
 
-  test('a Creative Commons photo credits its source, license and changes', () => {
+  test('a Creative Commons photo credit links its source and short license', () => {
     const photo: LicensedPhoto = {
       photographer: 'License and Credit',
       title: 'A Fixture Photo',
       source: 'https://photos.example/fixture',
       sourceName: 'Photos Example',
       license: 'Creative Commons Attribution 4.0',
+      licenseShort: 'CC BY 4.0',
       licenseHref: 'https://creativecommons.org/licenses/by/4.0/',
       changes: 'cropped',
     };
     const nodes: Node[] = captionChildren(
       'Photo: License and Credit',
-      '../../assets/blog/x/cc-fixture.jpg',
+      '../../assets/photos/cc-fixture.jpg',
       { 'cc-fixture': photo },
     );
     const textOf = (node: Node): string =>
       node.type === 'text'
         ? String(node.value)
         : (node.children ?? []).map(textOf).join('');
-    expect(
-      nodes.map(textOf).join(''),
-      'the caption does not name the source, license and changes',
-    ).toBe(
-      'Photo: License and Credit (A Fixture Photo on Photos Example, Creative Commons Attribution 4.0, cropped)',
+    const caption = nodes.map(textOf).join('');
+    const [name, license] = nodes.filter((node) => node.tagName === 'a');
+
+    expect(caption, 'the caption does not open with "Photo: "').toMatch(
+      /^Photo: /,
     );
-    expect(
-      nodes
-        .filter((node) => node.tagName === 'a')
-        .map((a) => a.properties?.href),
-      'the photographer, source and license are not all linked',
-    ).toEqual([
-      PHOTOGRAPHERS['License and Credit'],
+    expect(name?.properties?.href, 'the name does not link the photo').toBe(
       photo.source,
+    );
+    expect(textOf(name!)).toBe(photo.photographer);
+    expect(license?.properties?.href, 'the license is not linked').toBe(
       photo.licenseHref,
-    ]);
+    );
+    expect(textOf(license!), 'the license link is not its short name').toBe(
+      photo.licenseShort,
+    );
+    for (const dropped of [photo.title, photo.sourceName, photo.changes]) {
+      expect(caption, `the caption still says "${dropped}"`).not.toContain(
+        dropped,
+      );
+    }
+  });
+
+  test('a Creative Commons photo credited to someone else fails the build', () => {
+    const photo: LicensedPhoto = {
+      photographer: 'License and Credit',
+      title: 'A Fixture Photo',
+      source: 'https://photos.example/fixture',
+      sourceName: 'Photos Example',
+      license: 'Creative Commons Attribution 4.0',
+      licenseShort: 'CC BY 4.0',
+      licenseHref: 'https://creativecommons.org/licenses/by/4.0/',
+      changes: 'cropped',
+    };
+    expect(() =>
+      captionChildren('Photo: Someone Else', 'cc-fixture.jpg', {
+        'cc-fixture': photo,
+      }),
+    ).toThrow(/LICENSED_PHOTOS names/);
   });
 
   test('a photo not in LICENSED_PHOTOS gets no license text', () => {

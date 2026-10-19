@@ -16,6 +16,7 @@ import {
   SAMPLE_PERSONA,
   personaNotice,
 } from '../lib/persona';
+import { wallClasses } from '../lib/wall';
 
 /* The project this template was extracted from; scripts/check-leaks.mjs allows this one line. */
 // prettier-ignore
@@ -143,6 +144,12 @@ const CARD_HEADING = 'text-h2 text-text';
 const NAMED_LIST = 'mt-6 grid gap-4';
 /* `min-w-0`: otherwise "ACCESSIBILITY.md" under SC 1.4.12 spacing overflows its grid track at 305px. */
 const NAMED_ENTRY = 'min-w-0 bg-background p-card-tight';
+
+/* `lg:grid-cols-12` and spans: the 3/9 split; one column below `lg`. */
+const GUIDE_ROW = 'lg:grid lg:grid-cols-12 lg:gap-x-grid';
+
+/* Design Tools, Built and Tested With, The 404 Page, Made with AI. */
+const TOOLS_WALL = wallClasses({ lg: [[0, 1], [2], [3]] }, 4);
 ---
 
 <BaseLayout
@@ -163,24 +170,31 @@ const NAMED_ENTRY = 'min-w-0 bg-background p-card-tight';
 
   <section class="band py-section">
     <div class="card-block mx-auto max-w-page">
-      <div id="not-found" class="card">
-        <h2 class={CARD_HEADING}>The 404 Page</h2>
-        <p class="mt-6 mb-paragraph max-w-4xl text-lead font-normal text-text text-pretty">
-          The 404 page is a nod to <cite>Star Wars</cite> (1977), the film later
-          called <cite>Episode IV: A New Hope</cite>.
-        </p>
-        <p class="mt-6 max-w-measure text-body text-text text-pretty">
-          Its opening line is the film's own, with a website in place of the
-          galaxy. The headline comes from a checkpoint in Mos Eisley, where
-          stormtroopers stop Obi-Wan Kenobi and Luke Skywalker with R2-D2 and
-          C-3PO right there in the speeder. Obi-Wan waves his hand and says
-          &ldquo;These aren't the droids you're looking for.&rdquo; It is a Jedi
-          mind trick: the stormtrooper repeats it and waves them through. Here
-          it means the page you wanted is not here, so move along.
-        </p>
-      </div>
+      <div class="card">
+        <h2 class={CARD_HEADING}>Guides</h2>
 
-      <div id="photos" class="card card-step-1">
+        <dl class={NAMED_LIST}>
+          {GUIDES.map((guide) => (
+            <div class:list={[NAMED_ENTRY, GUIDE_ROW]}>
+              <dt class="min-w-0 text-body font-black lg:col-span-3">
+                <a href={guide.href} class={LINK_ITEM}>
+                  {guide.name}
+                </a>
+              </dt>
+              <dd class="mt-1 min-w-0 max-w-measure text-body text-text text-pretty lg:col-span-9 lg:mt-0">
+                By <a href={guide.author.href}>{guide.author.name}</a>.{' '}
+                {guide.use}
+              </dd>
+            </div>
+          ))}
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <section class="band pb-section">
+    <div class="card-block mx-auto max-w-page">
+      <div id="photos" class="card">
         <h2 class={CARD_HEADING}>Photos</h2>
 
         <p class="mt-6 max-w-measure text-body text-text text-pretty">
@@ -245,7 +259,7 @@ const NAMED_ENTRY = 'min-w-0 bg-background p-card-tight';
 
   <section class="band pb-section">
     <div class="card-block mx-auto grid max-w-page lg:grid-cols-2">
-      <div class="card">
+      <div class:list={['card', TOOLS_WALL.bricks[0]]}>
         <h2 class={CARD_HEADING}>Design Tools</h2>
 
         <dl class={NAMED_LIST}>
@@ -268,27 +282,7 @@ const NAMED_ENTRY = 'min-w-0 bg-background p-card-tight';
         </dl>
       </div>
 
-      <div class="card card-step-1 lg:card-step-0">
-        <h2 class={CARD_HEADING}>Guides</h2>
-
-        <dl class={NAMED_LIST}>
-          {GUIDES.map((guide) => (
-            <div class={NAMED_ENTRY}>
-              <dt class="text-body font-black">
-                <a href={guide.href} class={LINK_ITEM}>
-                  {guide.name}
-                </a>
-              </dt>
-              <dd class="mt-1 text-body text-text text-pretty">
-                By <a href={guide.author.href}>{guide.author.name}</a>.{' '}
-                {guide.use}
-              </dd>
-            </div>
-          ))}
-        </dl>
-      </div>
-
-      <div class="card card-step-2 lg:col-span-2 lg:card-step-1">
+      <div class:list={['card', TOOLS_WALL.bricks[1]]}>
         <h2 class={CARD_HEADING}>Built and Tested With</h2>
 
         <ul class="bullet-list mt-6 gap-x-12 sm:grid sm:grid-cols-2 lg:grid-cols-3">
@@ -312,7 +306,27 @@ const NAMED_ENTRY = 'min-w-0 bg-background p-card-tight';
         </p>
       </div>
 
-      <div id="ai" class="card card-step-2 lg:col-span-2">
+      <div
+        id="not-found"
+        class:list={['card lg:col-span-2', TOOLS_WALL.bricks[2]]}
+      >
+        <h2 class={CARD_HEADING}>The 404 Page</h2>
+        <p class="mt-6 mb-paragraph max-w-4xl text-lead font-normal text-text text-pretty">
+          The 404 page is a nod to <cite>Star Wars</cite> (1977), the film later
+          called <cite>Episode IV: A New Hope</cite>.
+        </p>
+        <p class="mt-6 max-w-measure text-body text-text text-pretty">
+          Its opening line is the film's own, with a website in place of the
+          galaxy. The headline comes from a checkpoint in Mos Eisley, where
+          stormtroopers stop Obi-Wan Kenobi and Luke Skywalker with R2-D2 and
+          C-3PO right there in the speeder. Obi-Wan waves his hand and says
+          &ldquo;These aren't the droids you're looking for.&rdquo; It is a Jedi
+          mind trick: the stormtrooper repeats it and waves them through. Here
+          it means the page you wanted is not here, so move along.
+        </p>
+      </div>
+
+      <div id="ai" class:list={['card lg:col-span-2', TOOLS_WALL.bricks[3]]}>
         <h2 class={CARD_HEADING}>
           Made with <Abbr short="AI" long="artificial intelligence" />
         </h2>
