@@ -190,7 +190,7 @@ const article = placeholder
                 <span>In This Post</span>
                 <span class="post-contents-marker" aria-hidden="true" />
               </summary>
-              <ol>
+              <ol role="list">
                 {contents.map((heading) => (
                   <li>
                     <a
@@ -222,7 +222,7 @@ const article = placeholder
             <span id="post-tags" class="label block text-subtle">
               Tags
             </span>
-            <ul class="mt-4 flex flex-wrap gap-6">
+            <ul role="list" class="mt-4 flex flex-wrap gap-6">
               {tags.map((tag, index) => (
                 <li>
                   <a

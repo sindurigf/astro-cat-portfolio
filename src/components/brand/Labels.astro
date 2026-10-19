@@ -10,13 +10,13 @@ const tag = post?.data.tags?.[0];
 const META = 'text-body text-subtle';
 ---
 
-<ul class="brand-parts">
+<ul role="list" class="brand-parts">
   <ComponentRow
     id="chips"
     use="a row of links to pages or sections, such as categories."
     rule="The current one is a flat block with a marker, never color alone."
   >
-    <ul class="flex flex-wrap gap-6">
+    <ul role="list" class="flex flex-wrap gap-6">
       <li>
         <a
           href={brandHref('chips-and-labels')}
@@ -40,7 +40,7 @@ const META = 'text-body text-subtle';
       use="a post's tags, under the post."
       rule="Pink-text labels, tilted alternately; each leads to the tag's page."
     >
-      <ul class="flex flex-wrap gap-6">
+      <ul role="list" class="flex flex-wrap gap-6">
         <li>
           <a href={tagHref(tag)} class="chip chip-sticker -rotate-3">
             {tagLabel(tag)}
