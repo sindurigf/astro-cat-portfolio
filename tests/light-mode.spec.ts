@@ -281,10 +281,7 @@ test.describe('the theme menu', () => {
       'a stored choice gave way to the device.',
     ).toBe(true);
 
-    await page
-      .getByRole('group', { name: 'Theme' })
-      .getByRole('radio', { name: 'System' })
-      .check();
+    await choose(page, 'System');
     expect(await stored(page), 'System left a stored choice.').toBeNull();
     expect(await mainIsLight(page)).toBe(false);
 
@@ -362,6 +359,7 @@ test.describe('the theme menu', () => {
     await page.keyboard.press('ArrowDown');
     await expect(radio(page, 'dark')).toBeChecked();
     expect(await mainIsLight(page)).toBe(false);
+    await expect(menu, 'an arrow key closed the menu').toBeVisible();
 
     await page.keyboard.press('Escape');
     await expect(menu).toBeHidden();
@@ -372,6 +370,47 @@ test.describe('the theme menu', () => {
     await expect(menu).toBeVisible();
     await expect(radio(page, 'dark')).toBeFocused();
   });
+
+  /* SC 2.4.3: a pick ends at the button that opened the menu. */
+  test('a pointer pick closes the menu and returns focus to the button', async ({
+    page,
+  }) => {
+    await gotoSettled(page, '/about');
+    await choose(page, 'Light');
+    await expect(headerMenu(page)).toBeHidden();
+    await expect(switchButton(page)).toBeFocused();
+    await expect(switchButton(page)).toHaveAttribute('aria-expanded', 'false');
+    expect(await mainIsLight(page)).toBe(true);
+  });
+
+  for (const key of ['Enter', 'Space']) {
+    test(`${key} picks the focused choice, closes the menu and returns focus to the button`, async ({
+      page,
+    }) => {
+      await gotoSettled(page, '/about');
+      const button = switchButton(page);
+      await tabTo(page, button);
+      await page.keyboard.press('Enter');
+      await expect(radio(page, 'system')).toBeFocused();
+      await page.keyboard.press('ArrowDown');
+      await expect(headerMenu(page)).toBeVisible();
+
+      await page.keyboard.press(key);
+      await expect(headerMenu(page)).toBeHidden();
+      await expect(button).toBeFocused();
+      await expect(button).toHaveAttribute('aria-expanded', 'false');
+      await expect(radio(page, 'light')).toBeChecked();
+      expect(await mainIsLight(page)).toBe(true);
+      // The key's release lands on the button; it must not open the menu again.
+      await page.evaluate(
+        () =>
+          new Promise((done) =>
+            requestAnimationFrame(() => requestAnimationFrame(done)),
+          ),
+      );
+      await expect(headerMenu(page)).toBeHidden();
+    });
+  }
 
   /* SC 2.4.11: left open, it would cover the control focus moves to. */
   test('Tab out of the menu closes it', async ({ page }) => {
