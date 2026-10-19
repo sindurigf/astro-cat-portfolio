@@ -167,7 +167,7 @@ const closeRow = await closeRowLinks({
   </Section>
 
   <Section title="Work Experience">
-    <ol class="card-block flex flex-col gap-grid">
+    <ol role="list" class="card-block flex flex-col gap-grid">
       {
         /* Title first, so heading navigation lands before the employer. */
         EXPERIENCE.map((role, index) => (
@@ -206,7 +206,7 @@ const closeRow = await closeRowLinks({
     <div class="card-block grid lg:grid-cols-2">
       <div class="card lg:row-span-2">
         <h3 class="card-title">Education</h3>
-        <ul class="mt-8 flex flex-col gap-4">
+        <ul role="list" class="mt-8 flex flex-col gap-4">
           {EDUCATION.map((item) => (
             <li class="text-body text-text text-pretty">
               <strong class="font-black text-text">{item.award}</strong>
@@ -225,7 +225,7 @@ const closeRow = await closeRowLinks({
 
       <div class="card card-step-1 lg:card-step-0">
         <h3 class="card-title">Skills</h3>
-        <ul class="mt-8 flex flex-wrap gap-3">
+        <ul role="list" class="mt-8 flex flex-wrap gap-3">
           {SKILLS.map((skill) => (
             <li class="badge">{skill}</li>
           ))}
@@ -234,7 +234,7 @@ const closeRow = await closeRowLinks({
 
       <div class="card card-step-2 lg:card-step-1">
         <h3 class="card-title">Languages</h3>
-        <ul class="mt-8 flex flex-col gap-4">
+        <ul role="list" class="mt-8 flex flex-col gap-4">
           {LANGUAGES.map((item) => (
             <li class="text-body text-text">
               <strong class="font-black text-text">{item.language}</strong>

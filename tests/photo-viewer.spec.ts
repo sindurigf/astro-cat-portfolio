@@ -211,7 +211,8 @@ test.describe('the photo strip', () => {
   }) => {
     await page.route(`**${ROUTE}`, async (route) => {
       const html = await (await route.fetch()).text();
-      const open = html.indexOf('<ul id="people-photos"');
+      /* By id, not attribute order: the list also carries role="list". */
+      const open = html.lastIndexOf('<ul', html.indexOf('id="people-photos"'));
       const close = html.indexOf('</ul>', open);
       const [head, first] = html.slice(open, close).split('<li>');
       await route.fulfill({

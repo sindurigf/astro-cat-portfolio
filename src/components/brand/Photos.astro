@@ -32,7 +32,7 @@ const PHOTOS = [
 ];
 ---
 
-<ul class="brand-parts">
+<ul role="list" class="brand-parts">
   <ComponentRow
     id="photo-strip"
     use="a row of photos that scrolls sideways."
@@ -65,6 +65,7 @@ const PHOTOS = [
         </div>
       </div>
       <ul
+        role="list"
         id={STRIP_ID}
         class="photo-strip"
         tabindex="0"

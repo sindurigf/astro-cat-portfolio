@@ -5,7 +5,7 @@ import { brandSection } from '../../lib/brand-sections';
 import { ACCESSIBILITY_MD_URL } from './links';
 ---
 
-<ul class="brand-parts">
+<ul role="list" class="brand-parts">
   <ComponentRow id="standard" rule={brandSection('accessibility').rule}>
     <p class="max-w-measure text-body text-text">
       The floor for every page is {accessibilityFacts.targetStandard}. The site

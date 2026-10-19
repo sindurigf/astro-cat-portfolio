@@ -9,7 +9,7 @@ interface Props {
 const { sources, class: className } = Astro.props;
 ---
 
-<ul class={className}>
+<ul role="list" class={className}>
   {sources.map((source) => (
     <li>
       {source.story}: {primaryCitation(source)}.{' '}

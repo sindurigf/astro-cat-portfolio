@@ -21,7 +21,7 @@ const MOTION_EXAMPLES = [
 ] as const;
 ---
 
-<ul class="brand-parts">
+<ul role="list" class="brand-parts">
   {MOTION_EXAMPLES.map((example) => (
     <ComponentRow id={example.id} use={example.use} rule={example.rule}>
       <div class="relative h-12">

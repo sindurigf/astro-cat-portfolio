@@ -555,7 +555,7 @@ file per area.
 | `.actions`                              | Button row; its 32px row gap clears shadow and ring when buttons wrap                                                                                                                                                                                                |
 | `.card`                                 | A gold block: `block-gold`, 4px `block-ink` edge, pink 8px shadow, padding 24px, 40px from `sm`                                                                                                                                                                      |
 | `.card-title`                           | Every card heading, `text-h3` 900                                                                                                                                                                                                                                    |
-| `.card-link`                            | Title link stretched over the card; inline-block, 44px min; card hover turns title and shadow cyan                                                                                                                                                                   |
+| `.card-link`                            | Title link; a short press on the card follows it, text stays selectable (`card-click.ts`); inline-block, 44px min; card hover turns title and shadow cyan                                                                                                            |
 | `.card-solid`                           | A light block outside a `.card-block`, where alternation does not reach it                                                                                                                                                                                           |
 | `.card-block`                           | A wall: blocks share 4px walls, alternate gold and light, and step up to the right (`card-rise-*`, `card-step-*` from `src/lib/wall.ts`); the wall casts the one throw                                                                                               |
 | `.lead`                                 | Paragraph under a section heading, `text-lead` 400, 24px under it                                                                                                                                                                                                    |
@@ -1320,6 +1320,18 @@ size-full object-cover`). Never put `aspect-ratio` on the image: WebKit
   `background`, 10.60 on `surface`), `gold-text` on the hero slab (11.32).
 - `min-w-0`: WebKit gives a grid item with an aspect ratio a minimum width
   wider than its track.
+
+### Photo credits
+
+- Outside `/credits` a credit is "Photo: Name" (`PHOTO_CREDIT_PREFIX`) in the
+  caption's own tokens; `/credits` keeps the full attribution line.
+- The name links the photo's page (`LICENSED_PHOTOS[x].source`), else the
+  photographer's site (`PHOTOGRAPHERS`), else stays plain text.
+- A Creative Commons photo adds its short license, "Photo: Name (CC BY 4.0)",
+  as a plain link to `licenseHref`. No `Abbr`: the deed names the license in
+  full (G55, SC 3.1.4). CC BY §4(a) asks for the license link with every copy.
+- No photo title, source site or changes in the caption.
+  `tests/markdown-plugins.spec.ts`.
 
 ### The failed state
 

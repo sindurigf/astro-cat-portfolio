@@ -26,7 +26,7 @@ const linkTo = (href: string, own: boolean) => ({
 <nav aria-label="Brand sections" class="brand-menu">
   {(['narrow', 'wide'] as const).map((width) => {
     const list = (
-      <ol class="brand-menu-list">
+      <ol role="list" class="brand-menu-list">
         <li>
           <a class="brand-menu-link" {...linkTo(BRAND_PATH, current === null)}>
             Overview
@@ -35,7 +35,7 @@ const linkTo = (href: string, own: boolean) => ({
         {BRAND_GROUPS.map((group) => (
           <li>
             <span class="brand-menu-group">{group}</span>
-            <ol>
+            <ol role="list">
               {BRAND_SECTIONS.filter((s) => s.group === group).map((s) => (
                 <li>
                   <a

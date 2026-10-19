@@ -16,7 +16,8 @@ const lockScroll = (locked: boolean): void => {
 
 /*
  * Keeps the focus ring visible (SC 2.4.7). Firefox scrolls only fully hidden
- * controls; WebKit ignores scroll-padding, so the ring's reach is added here.
+ * controls; WebKit ignores scroll-padding, so the ring's reach is added here:
+ * https://bugs.webkit.org/show_bug.cgi?id=290096 (fixed in WebKit 311512@main).
  */
 const keepInView = (panel: HTMLDialogElement, event: FocusEvent): void => {
   const control = event.target;

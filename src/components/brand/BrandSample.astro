@@ -24,7 +24,7 @@ const { section } = Astro.props;
   </div>
 )}
 {section === 'color' && (
-  <ul class="flex flex-wrap gap-4">
+  <ul role="list" class="flex flex-wrap gap-4">
     {colors.map(({ token }) => {
       const swatch = SWATCH[token];
       return (
