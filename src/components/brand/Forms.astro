@@ -5,7 +5,7 @@ import { MESSAGES } from '../../lib/contact-form';
 const META = 'text-body text-subtle';
 ---
 
-<ul class="brand-parts">
+<ul role="list" class="brand-parts">
   <ComponentRow
     id="form"
     use="collecting a short message, as on Contact."
@@ -31,7 +31,7 @@ const META = 'text-body text-subtle';
       <p class:list={[META, 'mt-3']}>This example sends nothing.</p>
     </form>
     <Fragment slot="states">
-      <ul class="space-y-12">
+      <ul role="list" class="space-y-12">
         <li>
           <p class:list={[META, 'mb-6']}>
             A field with an error: the message is tied to the field and the

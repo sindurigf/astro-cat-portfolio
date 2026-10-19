@@ -25,9 +25,9 @@ for (const { token } of type) {
 }
 ---
 
-<ul class="brand-parts">
+<ul role="list" class="brand-parts">
   <ComponentRow id="type-scale" rule={brandSection('type').rule}>
-    <ul class="space-y-6">
+    <ul role="list" class="space-y-6">
       {type.map(({ token, min, max, weight, use }) => (
         <li>
           {/* A specimen at its step's size, not a heading or a paragraph. */}

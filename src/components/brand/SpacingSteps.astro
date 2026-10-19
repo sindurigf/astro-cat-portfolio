@@ -17,9 +17,9 @@ for (const { token } of spacing) {
 }
 ---
 
-<ul class="brand-parts">
+<ul role="list" class="brand-parts">
   <ComponentRow id="spacing-steps" rule={brandSection('spacing').rule}>
-    <ul class="space-y-6">
+    <ul role="list" class="space-y-6">
       {spacing.map(({ token, use, phone, wide }) => (
         <li>
           <span

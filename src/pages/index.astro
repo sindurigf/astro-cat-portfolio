@@ -178,7 +178,10 @@ const statWall = wallClasses({ sm: [[0, 1]] }, STATS.length);
         </div>
 
         <div class="card lg:mt-16">
-          <ul class:list={['card-block grid sm:grid-cols-2', statWall.wall]}>
+          <ul
+            role="list"
+            class:list={['card-block grid sm:grid-cols-2', statWall.wall]}
+          >
             {STATS.map((stat, index) => (
               <li
                 class:list={[
@@ -221,6 +224,7 @@ const statWall = wallClasses({ sm: [[0, 1]] }, STATS.length);
   {CATEGORY_CARDS.length > 0 && (
     <Section title="What I Write About">
       <ul
+        role="list"
         class:list={[
           'card-block grid gap-grid sm:grid-cols-2 lg:grid-cols-3',
           categoryWall.wall,
@@ -269,6 +273,7 @@ const statWall = wallClasses({ sm: [[0, 1]] }, STATS.length);
     <Section title="Featured Posts">
       {/* Class names written out in full: Tailwind scans source text. */}
       <ul
+        role="list"
         class:list={[
           'card-block grid gap-grid',
           featured.length >= FEATURED_LIMIT

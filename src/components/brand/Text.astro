@@ -5,7 +5,7 @@ import ComponentRow from './ComponentRow.astro';
 const CODE_LABEL = 'Code, scrolls sideways';
 ---
 
-<ul class="brand-parts">
+<ul role="list" class="brand-parts">
   <ComponentRow
     id="prose"
     use="running text: posts and reading pages."
@@ -17,7 +17,7 @@ const CODE_LABEL = 'Code, scrolls sideways';
         <a href="/accessibility/">accessibility statement</a> and some{' '}
         <code>inline code</code>.
       </p>
-      <ul>
+      <ul role="list">
         <li>A list item</li>
         <li>Another list item</li>
       </ul>
