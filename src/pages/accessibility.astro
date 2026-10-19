@@ -131,14 +131,15 @@ const HAS_TALK = (await getCollection('talks')).length > 0;
           <p>
             axe WCAG A and AA runs on every page in dark mode (the default) and
             light mode, at 1280 and 320px. Light mode changes the main content,
-            the header and the footer. With JavaScript on, it follows{' '}
-            <code>prefers-color-scheme: light</code> or the header switch, and
-            the choice is remembered. With JavaScript off, the page stays dark
-            and the switch is hidden.
+            the header and the footer. With JavaScript on, the Theme menu in the
+            header offers System, Light and Dark. System is the default and
+            follows <code>prefers-color-scheme</code>, also when it changes.
+            Light and Dark are remembered. With JavaScript off, the page stays
+            dark and the switch is hidden.
           </p>
           <p>
             You can read the main content in dark or light colors. It follows
-            your device or the switch at the top.
+            your device, or the choice you make in the Theme menu at the top.
           </p>
           <p>
             Learn more:{' '}
@@ -180,9 +181,9 @@ const HAS_TALK = (await getCollection('talks')).length > 0;
             a cat also naps after 30 seconds on screen. SC 2.3.3 Animation from
             Interactions (AAA): under{' '}
             <code>prefers-reduced-motion: reduce</code>, the field is drawn once
-            and held, and the cats sit still with no controls. A pressed button
-            does not move, and the photo strip scrolls without smooth scrolling.
-            Nothing else animates.
+            and held, and the cats sit still on the brick under them with no
+            controls. A pressed button does not move, and the photo strip
+            scrolls without smooth scrolling. Nothing else animates.
           </p>
           <p>
             You can pause the moving pictures. If your device asks for less
@@ -685,7 +686,7 @@ const HAS_TALK = (await getCollection('talks')).length > 0;
           <p>We aim to reply within {RESPONSE_TIME}.</p>
         </div>
 
-        <ul class="actions mt-head">
+        <ul role="list" class="actions mt-head">
           <li>
             <a
               href={`mailto:${accessibilityFacts.privateReporting}`}

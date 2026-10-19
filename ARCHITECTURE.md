@@ -133,9 +133,20 @@ Dark is the default. Colors and rules:
   every slide. Its hash is in `script-src`.
   It sits in `<head>`, not beside the switch, so nothing paints in the wrong
   theme first.
-- `src/components/ThemeSwitch.astro` is a `<button aria-pressed>` named "Light
-  mode"; `src/scripts/theme-switch.ts` wires it and a press saves the choice.
-- Without JavaScript the page is dark and the switch hidden.
+- Three choices: System (the default, nothing stored), Light and Dark (stored
+  as `light` or `dark` under `THEME_STORAGE_KEY` in `src/lib/theme.ts`).
+  `data-theme` always holds the resolved `light` or `dark`.
+- `src/components/ThemeSwitch.astro` is a 44px `<button popovertarget>` named
+  "Theme" showing the theme in use, and a popover with a "Theme" `<fieldset>`
+  of three native radios. Its `id` prop names the popover and the radio group,
+  so two on a page do not clash.
+- `src/scripts/theme-switch.ts` applies a choice at once, removes the key for
+  System, keeps every menu's radios in step, and follows a
+  `prefers-color-scheme` change while System is chosen. It places the popover
+  beside its button, toward the larger side of the viewport, and closes it
+  when focus leaves.
+- Without JavaScript the page is dark and the switch hidden; without popovers
+  the switch is hidden and the page follows the system.
 - `HeroField.vue` (through `use-hero-field.ts`) reads its palette from its own element and rebuilds when a
   `MutationObserver` sees `data-theme` change. Its ground is `hero-ground`.
   A `(resolution)` media query resizes its canvases when only the pixel ratio
@@ -224,6 +235,8 @@ Headings, alt text, focus rings and axe are checked on the rendered page by
   are `noindex, follow` and excluded from the sitemap by
   `src/lib/sitemap-filter.ts` (`tests/sitemap.spec.ts`).
   `/contact/sent/` is `noindex`.
+  Every other page sends `robots` `max-image-preview:large`, so Google may
+  show its share image large (`tests/canonical.spec.ts`).
 - Non-placeholder posts get `og:type` `article`,
   `article:published_time` and a `BlogPosting` JSON-LD node. Other pages are
   `website`.
@@ -456,10 +469,12 @@ in `wrangler.jsonc`).
   Markdown image title "Photo: name" links `PHOTOGRAPHERS`, "Screenshot: name"
   links `SCREENSHOT_SOURCES`; an unlisted name stays plain text.
 - A Creative Commons photo goes in `LICENSED_PHOTOS`, keyed by its file name
-  without the extension: `photographer`, `title`, `source`, `sourceName`,
-  `license` (spelled out), `licenseHref` and `changes`. Its "Photo: name"
-  caption then adds "(title on sourceName, license, changes)", linked, and
-  /credits lists it. Empty in the template.
+  without the extension: `photographer`, `title`, `titleInCaption`, `source`,
+  `sourceName`, `license` (spelled out), `licenseShort` ("CC BY 4.0"),
+  `licenseHref` and `changes`. Its "Photo: name" caption is then
+  `licensedCaption`: the title first with `titleInCaption`, and the short
+  license ([Photo credits](docs/STYLEGUIDE.md#photo-credits)); /credits lists
+  it in full. Empty in the template.
 - **Video** goes in `public/videos/` (none published). Encode AV1 WebM, H.264
   MP4 fallback, WebP poster, WebVTT captions; max 25 MiB a file.
   - Workers static assets answer `Range` with a full `200`; Safari and iOS need
@@ -582,7 +597,8 @@ style-src  'self' <1 sha256 hash>;
 connect-src 'self';
 object-src 'none'; base-uri 'none';
 form-action 'self'; frame-ancestors 'none';
-upgrade-insecure-requests
+upgrade-insecure-requests;
+require-trusted-types-for 'script'; trusted-types vue
 ```
 
 - No `'unsafe-inline'`, no `'unsafe-eval'`. Everything is same-origin: fonts in
@@ -597,6 +613,12 @@ upgrade-insecure-requests
   form. Never `*`. A form posting to a new origin widens it to that exact
   origin and updates `tests/headers-rules.spec.ts` and this section in the same
   commit; so does loosening any directive now `'none'`.
+- Trusted Types: no script of ours writes HTML; Vue's runtime does, through
+  its own `vue` policy, the only one allowed. `tests/headers.spec.ts` opens
+  every page with a script and the island dialogs under the policy.
+- Trusted Types: no script of ours writes HTML; Vue's runtime does, through
+  its own `vue` policy, the only one allowed. `tests/headers.spec.ts` opens
+  every page with a script and the island dialogs under the policy.
 - `tests/headers-rules.spec.ts` asserts each directive.
 
 ### The hashes go stale

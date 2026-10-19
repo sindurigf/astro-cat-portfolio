@@ -75,18 +75,18 @@ const description = ANALYTICS_ON
       <div class="prose mx-auto max-w-measure">
         <h2>What This Site Does Not Do</h2>
 
-        <ul>
+        <ul role="list">
           <li>
             <strong>No cookies.</strong> Nothing on {SITE_NAME} sets a cookie,
             and nothing reads one.
           </li>
           <li>
-            <strong>One browser setting.</strong> When you press the color
-            switch, your choice, light or dark, is kept in{' '}
-            <dfn>local storage</dfn>, a small store of settings in your browser,
-            under the name <code>{THEME_STORAGE_KEY}</code>. The next page then
-            opens the same way. It never leaves your browser. Nothing else is
-            stored in your browser.{' '}
+            <strong>One browser setting.</strong> When you choose Light or Dark
+            in the Theme menu, your choice is kept in <dfn>local storage</dfn>,
+            a small store of settings in your browser, under the name{' '}
+            <code>{THEME_STORAGE_KEY}</code>. The next page then opens the same
+            way. Choosing System deletes it. It never leaves your browser.
+            Nothing else is stored in your browser.{' '}
             {ANALYTICS_ON && (
               <Fragment>
                 The <dfn>analytics script</dfn>, the code that counts visits,
@@ -131,7 +131,7 @@ const description = ANALYTICS_ON
             </p>
 
             <p>For each page you open, it sends:</p>
-            <ul>
+            <ul role="list">
               <li>the page's address and title</li>
               <li>
                 the address of the page that linked you here, if your browser
@@ -143,7 +143,7 @@ const description = ANALYTICS_ON
             <p>Both addresses are sent without anything after a ? or #.</p>
 
             <p>When you click a link or a button, it also sends:</p>
-            <ul>
+            <ul role="list">
               <li>what kind of control it was</li>
               <li>its label</li>
               <li>which part of the page it is in</li>
@@ -244,7 +244,7 @@ const description = ANALYTICS_ON
               name, email address and message you type, so that there is
               something to reply to. Stored with it are:
             </p>
-            <ul>
+            <ul role="list">
               <li>the time it was sent</li>
               <li>the time the emailed copy below went out</li>
               <li>how many times a failed copy has been retried</li>

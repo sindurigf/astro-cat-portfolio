@@ -139,7 +139,12 @@ const articleData = article && {
     <title>{documentTitle}</title>
     <meta name="description" content={description} />
     {!noCanonical && <link rel="canonical" href={canonical} />}
-    {noindex && <meta name="robots" content="noindex, follow" />}
+    {/* Google shows a large image preview only when a page allows it (Search Central, Discover). */}
+    {noindex ? (
+      <meta name="robots" content="noindex, follow" />
+    ) : (
+      <meta name="robots" content="max-image-preview:large" />
+    )}
     {bingVerification !== null && (
       <meta name="msvalidate.01" content={bingVerification} />
     )}

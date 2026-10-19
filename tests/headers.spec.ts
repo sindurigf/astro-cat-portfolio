@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { expect, test, type Page, type Response } from './test';
-import { DIST_DIR } from './routes';
+import { DIST_DIR, PUBLISHED_POST_ROUTES, TALK_ROUTES } from './routes';
 import { fontsSettled, waitForHydration } from './settle';
 import { collectViolations } from './policy-server';
 import { REFLOW_VIEWPORT } from './wcag';
@@ -9,6 +9,15 @@ import { ASSET_CACHE_CONTROL, usePolicyServer } from './headers-fixture';
 import { LD_JSON } from './html';
 
 /** Browser behavior under the served headers; tests/headers-rules.spec.ts checks the rules. */
+
+const POLICY_ROUTES = [
+  '/about/',
+  '/contact/',
+  '/blog/',
+  '/brand/controls/',
+  ...PUBLISHED_POST_ROUTES.slice(0, 1),
+  ...TALK_ROUTES,
+];
 
 /** Under the 30s test budget, so the named assertion fires, not a timeout. */
 const ASSET_TIMEOUT_MS = 10_000;
@@ -123,6 +132,9 @@ const expectAssetHeaders = async (
   }
 };
 
+/* A rare WebKit goto stall here passes on retry, which keeps no trace of the stall. */
+test.use({ trace: 'retain-on-first-failure' });
+
 test.describe('security headers', () => {
   // A stalled Firefox page.goto never recovers (playwright.config.ts), so fail it early.
   test.use({ navigationTimeout: 15_000 });
@@ -185,6 +197,21 @@ test.describe('security headers', () => {
   }) => {
     const violations = await collectViolations(page);
 
+    /* Every page with a script or an island, and the islands' dialogs, under Trusted Types. */
+    for (const route of POLICY_ROUTES) {
+      await page.goto(`${policy().origin}${route}`);
+      await waitForHydration(page);
+    }
+    await page.goto(`${policy().origin}/about/`);
+    await waitForHydration(page);
+    /* The cats never hold still for a pointer click; the keyboard opens the dialog. */
+    await page.getByRole('button', { name: 'Meet Minerva' }).focus();
+    await page.keyboard.press('Enter');
+    await expect(page.getByRole('dialog', { name: 'Minerva' })).toBeVisible();
+    await page.keyboard.press('Escape');
+    await page.locator('#people-photos a[data-photo]').first().click();
+    await expect(page.locator('#photo-viewer')).toBeVisible();
+    await page.keyboard.press('Escape');
     await page.goto(`${policy().origin}/`);
     await waitForHydration(page);
     await fontsSettled(page);

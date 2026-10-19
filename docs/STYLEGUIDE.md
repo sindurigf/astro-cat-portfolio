@@ -287,6 +287,10 @@ set; hex values and ratios are in the generated [Contrast](#contrast) table:
 
 The switch and what it scopes: [ARCHITECTURE.md](../ARCHITECTURE.md#light-mode).
 
+- The header's theme switch offers System, Light and Dark. System follows
+  `prefers-color-scheme`, live, and is the default; Light and Dark are
+  remembered.
+
 | Token                                                | Light     | on `#ffffff` |
 | ---------------------------------------------------- | --------- | ------------ |
 | `background`, `surface`, `hero-ground`               | `#ffffff` | ground       |
@@ -551,7 +555,7 @@ file per area.
 | `.actions`                              | Button row; its 32px row gap clears shadow and ring when buttons wrap                                                                                                                                                                                                |
 | `.card`                                 | A gold block: `block-gold`, 4px `block-ink` edge, pink 8px shadow, padding 24px, 40px from `sm`                                                                                                                                                                      |
 | `.card-title`                           | Every card heading, `text-h3` 900                                                                                                                                                                                                                                    |
-| `.card-link`                            | Title link stretched over the card; inline-block, 44px min; card hover turns title and shadow cyan                                                                                                                                                                   |
+| `.card-link`                            | Title link; a short press on the card follows it, text stays selectable (`card-click.ts`); inline-block, 44px min; card hover turns title and shadow cyan                                                                                                            |
 | `.card-solid`                           | A light block outside a `.card-block`, where alternation does not reach it                                                                                                                                                                                           |
 | `.card-block`                           | A wall: blocks share 4px walls, alternate gold and light, and step up to the right (`card-rise-*`, `card-step-*` from `src/lib/wall.ts`); the wall casts the one throw                                                                                               |
 | `.lead`                                 | Paragraph under a section heading, `text-lead` 400, 24px under it                                                                                                                                                                                                    |
@@ -566,6 +570,7 @@ file per area.
 | `.page-gutter`, `max-w-page`, `.band`   | [Gutter and column](#gutter-and-column)                                                                                                                                                                                                                              |
 | `.skip-link`                            | Skip link, visible on focus                                                                                                                                                                                                                                          |
 | `.motion-toggle`                        | 44px SC 2.2.2 pause control; position from a second class                                                                                                                                                                                                            |
+| `.theme-switch`, `.theme-menu`          | 44px gold brick showing the theme in use (moon, sun), named "Theme"; opens a popover `surface` box, 6px `border` edge, pink throw, a "Theme" fieldset of System, Light and Dark radios in 44px rows, `text` accent                                                   |
 | `.prose`                                | Rendered Markdown (no typography plugin)                                                                                                                                                                                                                             |
 | `.aspect-frame`                         | Every photo: [Photo frames](#photo-frames-and-the-failed-photo-state)                                                                                                                                                                                                |
 | `.surface-gold`, `.btn-gold-*`          | [Gold surface](#gold-surface)                                                                                                                                                                                                                                        |
@@ -1231,6 +1236,12 @@ Enforced by `tests/nav-current.spec.ts`, `tests/mobile-menu.spec.ts`,
 - A drawing may reach `MAX_OVERHANG` (the phone gutter) past its band's end,
   never over text or a control (`src/lib/about-cats.ts`). A cat about to lie
   down near an end turns to face the band first.
+- A cat stands on the brick under it. Where its wall steps up (Rudra's raised
+  photo brick), the floor follows the brick tops, read from the laid-out wall
+  on every resize, and Rudra springs up the step and stretches down it
+  (`src/lib/about-cats-climb.ts`). Under reduced motion a cat sits on the brick
+  it is on. The wall's empty top takes no clicks, so a cat on the lower brick
+  stays a target.
 - Games too long for a band are skipped: at a 320px viewport the yarn and fly
   games do not fit, and the cats play the others.
 - Each cat lives in a `.cat-perch` band above its card, sized by
@@ -1315,6 +1326,23 @@ size-full object-cover`). Never put `aspect-ratio` on the image: WebKit
   `background`, 10.60 on `surface`), `gold-text` on the hero slab (11.32).
 - `min-w-0`: WebKit gives a grid item with an aspect ratio a minimum width
   wider than its track.
+
+### Photo credits
+
+- Outside `/credits` a credit is "Photo: Name" (`PHOTO_CREDIT_PREFIX`) in the
+  caption's own tokens; `/credits` keeps the full attribution line.
+- The name links the photographer's site (`PHOTOGRAPHERS`), else stays plain
+  text.
+- A Creative Commons photo (`licensedCaption`) links the name to the photo's
+  page (`LICENSED_PHOTOS[x].source`) and adds its short license, "Photo: Name
+  (CC BY 4.0)", as a plain link to `licenseHref`. No `Abbr`: the deed names
+  the license in full (G55, SC 3.1.4). CC BY §4(a) asks for the license link
+  with every copy.
+- `titleInCaption` puts the title first, linked to `source`, and the name
+  links the photographer's site: "Photo: Title by Name (CC BY 2.0)". Set it
+  where the license asks for the title (CC BY 2.0 §4(b)); each link names
+  where it goes (SC 2.4.9).
+- No source site or changes in the caption. `tests/markdown-plugins.spec.ts`.
 
 ### The failed state
 

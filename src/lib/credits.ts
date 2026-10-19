@@ -34,11 +34,15 @@ export interface LicensedPhoto {
   photographer: string;
   /** The photo's title where it is published. */
   title: string;
+  /** The license asks for the title, as CC BY 2.0 §4(b) does; 4.0 licenses do not. */
+  titleInCaption: boolean;
   source: string;
   /** Where `source` is, e.g. Flickr or Wikimedia Commons. */
   sourceName: string;
   /** Spelled out, e.g. "Creative Commons Attribution 4.0" (SC 3.1.4). */
   license: string;
+  /** What captions show, e.g. "CC BY 4.0", linked to the deed that names it in full. */
+  licenseShort: string;
   licenseHref: string;
   /** What was changed, as the license asks, e.g. "cropped and resized". */
   changes: string;
@@ -46,6 +50,38 @@ export interface LicensedPhoto {
 
 /**
  * Photos used under a Creative Commons license, keyed by file name without its
- * extension: the caption and /credits link the source and license and say what changed.
+ * extension. A caption is `licensedCaption`; /credits gives the title, source,
+ * license and changes.
  */
 export const LICENSED_PHOTOS: Readonly<Record<string, LicensedPhoto>> = {};
+
+export type CaptionPart =
+  string | { readonly text: string; readonly href: string };
+
+/**
+ * The credit after "Photo: ". With `titleInCaption`: the title linked to
+ * `source`, "by", the name linked to the photographer's site; else the name
+ * linked to `source`. Then the short license, linked to its deed.
+ */
+export const licensedCaption = ({
+  photographer,
+  title,
+  titleInCaption,
+  source,
+  licenseShort,
+  licenseHref,
+}: LicensedPhoto): readonly CaptionPart[] => [
+  ...(titleInCaption
+    ? [
+        { text: title, href: source },
+        ' by ',
+        {
+          text: photographer,
+          href: photographerHref(photographer as Photographer),
+        },
+      ]
+    : [{ text: photographer, href: source }]),
+  ' (',
+  { text: licenseShort, href: licenseHref },
+  ')',
+];

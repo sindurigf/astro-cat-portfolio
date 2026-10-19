@@ -474,26 +474,35 @@ test.describe('/brand', () => {
     expect(requests, 'the example form sent a request').toEqual([]);
   });
 
-  test('both theme switches change the one theme and always agree', async ({
+  test('both theme menus change the one theme and always agree', async ({
     page,
   }) => {
     await gotoSettled(page, CONTROLS);
     const switches = page.locator(`.theme-switch${LIVE}`);
     await expect(switches).toHaveCount(2);
+    const menus = page.locator(`.theme-menu${LIVE}`);
     const state = () =>
-      switches.evaluateAll((all) => ({
+      menus.evaluateAll((all) => ({
         theme: document.documentElement.dataset.theme,
-        pressed: all.map((b) => b.getAttribute('aria-pressed')),
+        checked: all.map(
+          (menu) =>
+            menu.querySelector<HTMLInputElement>('input:checked')?.value,
+        ),
       }));
-    for (const which of [1, 0]) {
-      const before = await state();
+    for (const [which, label, value] of [
+      [1, 'Light', 'light'],
+      [0, 'Dark', 'dark'],
+      [1, 'System', 'system'],
+    ] as const) {
       await switches.nth(which).click();
+      await menus
+        .nth(which)
+        .getByRole('radio', { name: label, exact: true })
+        .check();
       const after = await state();
-      expect(after.theme, 'a switch did not change the theme').not.toBe(
-        before.theme,
-      );
-      expect(new Set(after.pressed).size, 'the two switches disagree').toBe(1);
-      expect(after.pressed[0]).toBe(String(after.theme === 'light'));
+      expect(after.checked, 'the two menus disagree').toEqual([value, value]);
+      if (value !== 'system') expect(after.theme).toBe(value);
+      await page.keyboard.press('Escape');
     }
   });
 

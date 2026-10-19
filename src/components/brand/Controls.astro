@@ -21,7 +21,7 @@ const MOTION_EXAMPLES = [
 ] as const;
 ---
 
-<ul class="brand-parts">
+<ul role="list" class="brand-parts">
   {MOTION_EXAMPLES.map((example) => (
     <ComponentRow id={example.id} use={example.use} rule={example.rule}>
       <div class="relative h-12">
@@ -48,10 +48,10 @@ const MOTION_EXAMPLES = [
 
   <ComponentRow
     id="theme-switch"
-    use="choosing light or dark."
-    rule="Turns every page light, header to footer, and is remembered. Pressed while light. It is the same switch as the one in the header."
+    use="choosing System, Light or Dark."
+    rule="Opens three choices. System follows the device and is the default; Light or Dark is remembered. It shows the theme in use and works like the one in the header."
   >
-    <ThemeSwitch />
+    <ThemeSwitch id="theme-menu-sample" />
   </ComponentRow>
 
   <ComponentRow
