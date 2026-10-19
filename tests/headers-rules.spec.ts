@@ -180,6 +180,14 @@ const expectOutboundDirectives = (csp: string): void => {
     directive(csp, 'upgrade-insecure-requests'),
     'the CSP is missing upgrade-insecure-requests.',
   ).toBe('upgrade-insecure-requests');
+  expect(
+    directive(csp, 'require-trusted-types-for'),
+    'the CSP no longer requires Trusted Types for script sinks.',
+  ).toBe("require-trusted-types-for 'script'");
+  expect(
+    directive(csp, 'trusted-types'),
+    "the CSP allows a Trusted Types policy other than Vue's.",
+  ).toBe('trusted-types vue');
 };
 
 test.describe('security headers as declared and served', NODE, () => {

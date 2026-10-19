@@ -585,7 +585,8 @@ style-src  'self' <1 sha256 hash>;
 connect-src 'self';
 object-src 'none'; base-uri 'none';
 form-action 'self'; frame-ancestors 'none';
-upgrade-insecure-requests
+upgrade-insecure-requests;
+require-trusted-types-for 'script'; trusted-types vue
 ```
 
 - No `'unsafe-inline'`, no `'unsafe-eval'`. Everything is same-origin: fonts in
@@ -600,6 +601,12 @@ upgrade-insecure-requests
   form. Never `*`. A form posting to a new origin widens it to that exact
   origin and updates `tests/headers-rules.spec.ts` and this section in the same
   commit; so does loosening any directive now `'none'`.
+- Trusted Types: no script of ours writes HTML; Vue's runtime does, through
+  its own `vue` policy, the only one allowed. `tests/headers.spec.ts` opens
+  every page with a script and the island dialogs under the policy.
+- Trusted Types: no script of ours writes HTML; Vue's runtime does, through
+  its own `vue` policy, the only one allowed. `tests/headers.spec.ts` opens
+  every page with a script and the island dialogs under the policy.
 - `tests/headers-rules.spec.ts` asserts each directive.
 
 ### The hashes go stale
