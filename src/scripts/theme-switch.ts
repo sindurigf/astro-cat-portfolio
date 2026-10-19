@@ -38,21 +38,13 @@ const currentChoice = (): ThemeChoice => storedChoice() ?? pageChoice;
 const resolve = (choice: ThemeChoice): Theme =>
   choice === 'system' ? (systemLight.matches ? 'light' : 'dark') : choice;
 
-const menus = [...document.querySelectorAll<HTMLElement>('.theme-menu')];
-const buttons = [
-  ...document.querySelectorAll<HTMLButtonElement>('.theme-switch'),
-];
+/* Every menu's radios; a menu holds nothing else. */
+const radios = document.querySelectorAll<HTMLInputElement>('.theme-menu input');
 
 /* Every menu reads the one choice, so two on a page never disagree. */
 const apply = (choice: ThemeChoice): void => {
   root.dataset.theme = resolve(choice);
-  for (const menu of menus) {
-    for (const radio of menu.querySelectorAll<HTMLInputElement>(
-      'input[type="radio"]',
-    )) {
-      radio.checked = radio.value === choice;
-    }
-  }
+  for (const radio of radios) radio.checked = radio.value === choice;
 };
 
 const choose = (choice: ThemeChoice): void => {
@@ -73,24 +65,29 @@ const place = (button: HTMLElement, menu: HTMLElement): void => {
   const opensDown = box.top + box.height / 2 < height / 2;
   const inline = opensRight ? box.left : width - box.right;
   const block = opensDown ? box.bottom : height - box.top;
-  const set = (name: string, value: number | null): void =>
-    menu.style.setProperty(name, value === null ? 'auto' : `${value}px`);
-  set('--theme-menu-left', opensRight ? inline : null);
-  set('--theme-menu-right', opensRight ? null : inline);
-  set('--theme-menu-top', opensDown ? block : null);
-  set('--theme-menu-bottom', opensDown ? null : block);
-  set('--theme-menu-inline', inline);
-  set('--theme-menu-block', block);
+  const set = (side: string, value: number | null): void =>
+    menu.style.setProperty(
+      `--theme-menu-${side}`,
+      value === null ? 'auto' : `${value}px`,
+    );
+  set('left', opensRight ? inline : null);
+  set('right', opensRight ? null : inline);
+  set('top', opensDown ? block : null);
+  set('bottom', opensDown ? null : block);
+  set('inline', inline);
+  set('block', block);
 };
 
 const setUp = (button: HTMLButtonElement): void => {
   const id = button.getAttribute('popovertarget');
   const menu = id ? document.getElementById(id) : null;
-  if (!menu || !('showPopover' in menu)) return;
+  /* Without popovers the button is hidden and no menu event ever fires. */
+  if (!menu) return;
 
   let frame = 0;
+  const isOpen = (): boolean => menu.matches(':popover-open');
   const follow = (): void => {
-    if (frame || !menu.matches(':popover-open')) return;
+    if (frame || !isOpen()) return;
     frame = requestAnimationFrame(() => {
       frame = 0;
       place(button, menu);
@@ -112,16 +109,19 @@ const setUp = (button: HTMLButtonElement): void => {
     const next = event.relatedTarget;
     if (next instanceof Node && (menu.contains(next) || next === button))
       return;
-    if (menu.matches(':popover-open')) menu.hidePopover();
+    if (isOpen()) menu.hidePopover();
   });
-  /* A pick closes the menu and hands focus back to its button (SC 2.4.3). */
+  /*
+   * A pick closes the menu and hands focus back to its button (SC 2.4.3).
+   * Only an open menu takes a pick, so this needs no open check.
+   */
   const closeToButton = (): void => {
-    if (menu.matches(':popover-open')) menu.hidePopover();
+    menu.hidePopover();
     button.focus();
   };
   /* Arrow keys click the next radio too, with `detail` 0: they move the choice and keep the menu open. */
   menu.addEventListener('click', (event) => {
-    if (event.detail > 0 && (event.target as Element).closest('label'))
+    if (event.detail && (event.target as Element).closest('label'))
       closeToButton();
   });
   /*
@@ -129,22 +129,21 @@ const setUp = (button: HTMLButtonElement): void => {
    * keyup lands on the button without activating it.
    */
   menu.addEventListener('keydown', (event) => {
-    const radio = event.target;
-    if (!(radio instanceof HTMLInputElement) || radio.type !== 'radio') return;
-    if (event.key !== 'Enter' && event.key !== ' ') return;
+    const radio = event.target as HTMLInputElement;
+    if (radio.type !== 'radio' || (event.key !== 'Enter' && event.key !== ' '))
+      return;
     event.preventDefault();
     if (!radio.checked) radio.click();
     closeToButton();
   });
   menu.addEventListener('change', (event) => {
-    const value = (event.target as HTMLInputElement).value;
-    if (value === 'system' || isTheme(value)) choose(value);
+    /* Only the radios' own values, from THEME_CHOICES, reach here. */
+    choose((event.target as HTMLInputElement).value as ThemeChoice);
   });
-  addEventListener('scroll', follow);
-  addEventListener('resize', follow);
+  for (const type of ['scroll', 'resize']) addEventListener(type, follow);
 };
 
-buttons.forEach(setUp);
+document.querySelectorAll<HTMLButtonElement>('.theme-switch').forEach(setUp);
 apply(currentChoice());
 
 systemLight.addEventListener('change', () => {
