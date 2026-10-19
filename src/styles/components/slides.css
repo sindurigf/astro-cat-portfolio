@@ -41,8 +41,6 @@
   /*
    * Inside the card's border by `--focus-gap`: the `max()` is the letterbox
    * beside the 16:9 stage, the rest `.deck:fullscreen`'s padding and the border.
-   * `button`, to outrank the pressed button's `relative`, which would drop it
-   * back into the bar mid-click.
    */
   :fullscreen:not(.presenter) button.deck-exit {
     @apply fixed;

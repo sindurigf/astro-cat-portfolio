@@ -490,6 +490,12 @@
   --lift-object: var(--hard-throw);
   /* The logo keeps its 8px shadow, so its ring clears 8px. */
   --lift-mark: 8px;
+  /* A pressable rises this far off its throw under the pointer. */
+  --press-lift: 2px;
+  /* A pressable's `border-4`; its hit strip reaches past it. */
+  --press-edge: 4px;
+  /* A lift or release slides at an even speed in this time; a press lands at once. */
+  --press-travel: 80ms;
   /* Layout lands on fractions of a pixel, scrolling on whole ones. */
   --scroll-rounding: 1px;
 

@@ -76,15 +76,11 @@
 
   /*
    * Two-tone ring, since the fill equals the ring color: #FFFFFF inside
-   * (18.58), #131313 outside (11.32). The pink shadow stays in the same
-   * `box-shadow`.
+   * (18.58), #131313 outside (11.32). The inner half rides in the press rule's
+   * `box-shadow` (buttons-nav.css), so the throw stays beside it.
    */
   .surface-gold .btn-gold-primary:focus-visible {
-    box-shadow: var(--inset-shadow-gold-btn-ring), var(--shadow-hard-mark-4);
-  }
-
-  .surface-gold .btn-gold-primary:focus-visible:active {
-    box-shadow: var(--inset-shadow-gold-btn-ring);
+    --press-ring: var(--inset-shadow-gold-btn-ring);
   }
 
   /* No underline: the box already marks it as a control (SC 1.4.1). */
