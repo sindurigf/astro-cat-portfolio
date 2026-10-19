@@ -473,22 +473,26 @@ const SHADOW_REACH = `
   };
 `;
 
+/* WebKit takes 130-250ms per pointer move, so each route's hovers run in stripes, one test each. */
+const RING_CLEARANCE_STRIPES = 3;
+
 /* SC 1.4.11: cyan over a pink shadow is 2.29, so no ring outside its box may start inside the shadows of its own control. */
 for (const colorScheme of SCHEMES) {
   test.describe(`ring clearance, ${colorScheme}`, () => {
     test.use({ colorScheme, viewport: { width: 1280, height: 900 } });
 
     for (const route of SAMPLED_ROUTES) {
-      test(`${route} clears every focused control's shadow, at rest and under the pointer`, async ({
-        page,
-      }) => {
-        await gotoSettled(page, route);
-        /* Keyboard modality first, so a scripted focus() still matches :focus-visible. */
-        await page.keyboard.press('Tab');
-        /* Two round trips per control: one to read it and aim at the next, one pointer move. */
-        const measure = new Function(
-          'args',
-          `${SHADOW_REACH}
+      for (let stripe = 0; stripe < RING_CLEARANCE_STRIPES; stripe += 1) {
+        test(`${route} clears every focused control's shadow${stripe === 0 ? ' at rest and' : ''} under the pointer, part ${stripe + 1} of ${RING_CLEARANCE_STRIPES}`, async ({
+          page,
+        }) => {
+          await gotoSettled(page, route);
+          /* Keyboard modality first, so a scripted focus() still matches :focus-visible. */
+          await page.keyboard.press('Tab');
+          /* Two round trips per control: one to read it and aim at the next, one pointer move. */
+          const measure = new Function(
+            'args',
+            `${SHADOW_REACH}
           const controls = document.querySelectorAll(args.selector);
           const found = args.read.map((index) => {
             const el = controls[index];
@@ -506,62 +510,67 @@ for (const colorScheme of SCHEMES) {
           next.scrollIntoView({ block: 'center', inline: 'center' });
           const r = next.getBoundingClientRect();
           return { found, at: { x: r.left + r.width / 2, y: r.top + r.height / 2 } };`,
-        ) as (args: { selector: string; read: number[]; aim: number }) => {
-          found: {
-            name: string;
-            offset: number;
-            width: number;
-            shadow: number;
-          }[];
-          at: { x: number; y: number } | null;
-        };
-        const visible = await page.evaluate(
-          (selector) =>
-            [...document.querySelectorAll(selector)].flatMap((el, index) =>
-              el.checkVisibility({ visibilityProperty: true }) ? [index] : [],
-            ),
-          FOCUSABLE_SELECTOR,
-        );
-        const short: string[] = [];
-        const report = (
-          found: {
-            name: string;
-            offset: number;
-            width: number;
-            shadow: number;
-          }[],
-          hover: boolean,
-        ) => {
-          for (const { name, offset, width, shadow } of found) {
-            // A ring drawn wholly inside its box, as on the header's bricks, never meets a shadow outside it.
-            const inside = offset + width <= 0;
-            if (!inside && shadow > 0 && offset < shadow)
-              short.push(
-                `${name}${hover ? ' (hovered)' : ''}: ring offset ${offset}px, shadow reaches ${shadow.toFixed(1)}px past the box`,
-              );
-          }
-        };
-        let step = await page.evaluate(measure, {
-          selector: FOCUSABLE_SELECTOR,
-          read: visible,
-          aim: visible[0] ?? -1,
-        });
-        report(step.found, false);
-        for (const [k, index] of visible.entries()) {
-          if (!step.at) break;
-          await page.mouse.move(step.at.x, step.at.y);
-          step = await page.evaluate(measure, {
+          ) as (args: { selector: string; read: number[]; aim: number }) => {
+            found: {
+              name: string;
+              offset: number;
+              width: number;
+              shadow: number;
+            }[];
+            at: { x: number; y: number } | null;
+          };
+          const visible = await page.evaluate(
+            (selector) =>
+              [...document.querySelectorAll(selector)].flatMap((el, index) =>
+                el.checkVisibility({ visibilityProperty: true }) ? [index] : [],
+              ),
+            FOCUSABLE_SELECTOR,
+          );
+          const short: string[] = [];
+          const report = (
+            found: {
+              name: string;
+              offset: number;
+              width: number;
+              shadow: number;
+            }[],
+            hover: boolean,
+          ) => {
+            for (const { name, offset, width, shadow } of found) {
+              // A ring drawn wholly inside its box, as on the header's bricks, never meets a shadow outside it.
+              const inside = offset + width <= 0;
+              if (!inside && shadow > 0 && offset < shadow)
+                short.push(
+                  `${name}${hover ? ' (hovered)' : ''}: ring offset ${offset}px, shadow reaches ${shadow.toFixed(1)}px past the box`,
+                );
+            }
+          };
+          const hovered = visible.filter(
+            (_, i) => i % RING_CLEARANCE_STRIPES === stripe,
+          );
+          /* The resting read is one evaluate, so only the first stripe makes it. */
+          let step = await page.evaluate(measure, {
             selector: FOCUSABLE_SELECTOR,
-            read: [index],
-            aim: visible[k + 1] ?? -1,
+            read: stripe === 0 ? visible : [],
+            aim: hovered[0] ?? -1,
           });
-          report(step.found, true);
-        }
-        expect(
-          short,
-          `${route} has a ring that lands on its own shadow`,
-        ).toEqual([]);
-      });
+          report(step.found, false);
+          for (const [k, index] of hovered.entries()) {
+            if (!step.at) break;
+            await page.mouse.move(step.at.x, step.at.y);
+            step = await page.evaluate(measure, {
+              selector: FOCUSABLE_SELECTOR,
+              read: [index],
+              aim: hovered[k + 1] ?? -1,
+            });
+            report(step.found, true);
+          }
+          expect(
+            short,
+            `${route} has a ring that lands on its own shadow`,
+          ).toEqual([]);
+        });
+      }
     }
   });
 }
