@@ -63,8 +63,7 @@ const PINNED_HEADERS = {
   'x-frame-options': 'DENY',
 } as const;
 
-/** Features the site never uses, each denied to every origin with `()`. */
-/* OWASP: deny every feature the site does not use. Chromium names each one; it warns on any it does not know. */
+/** Every feature the site never uses, denied to every origin with `()` (OWASP); only names Chromium knows, since it warns on others. */
 const DENIED_FEATURES = [
   'camera',
   'microphone',
