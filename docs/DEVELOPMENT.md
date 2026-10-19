@@ -74,6 +74,7 @@ What happens without the `CONTACT_NOTIFY_TO` secret:
 | `npm run check:pdf`           | Every PDF in `public/` against PDF/UA-1, veraPDF in Docker                                                                                            |
 | `npm run publish:talk`        | Print a talk's slideshow to its tagged PDF in `public/talks/`                                                                                         |
 | `npm run og`                  | After a build, render `public/images/og-default.png` and every page's card in `public/images/og/`                                                     |
+| `npm run hero-still`          | After a build, redraws the hero stills in `src/assets/hero-still-*.webp` shown without JavaScript                                                     |
 | `npm run icons`               | Render the favicons, app icons and one-color mark from `src/lib/brand-mark.ts`                                                                        |
 
 ### WebKit
