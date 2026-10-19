@@ -5,22 +5,44 @@ labels: ['accessibility']
 body:
   - type: markdown
     attributes:
-      value: You do not need to know the WCAG criterion or say anything about yourself. Every field is optional. To report privately, use the private reporting address in ACCESSIBILITY.md.
+      value: "Tell me what got in your way. Every field is optional, and you don't need to know any accessibility terms. To report privately, email hello@example.com."
   - type: input
     id: page
     attributes:
-      label: Page
-      description: The address of the page, or its name.
+      label: Page Address
+      description: For example https://example.com/about/
   - type: textarea
-    id: tried
+    id: problem
     attributes:
-      label: What You Tried
+      label: Problem
+      description: What went wrong, and what you expected instead.
   - type: textarea
-    id: happened
+    id: steps
     attributes:
-      label: What Happened
+      label: Steps to Reproduce
+      description: 'For example: press Tab three times, then Enter.'
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      options:
+        - Blocker
+        - Major
+        - Minor
+    validations:
+      required: false
   - type: input
-    id: setup
+    id: browser
     attributes:
-      label: Browser, System and Assistive Technology
-      description: For example Firefox on Windows with NVDA.
+      label: Browser and Device
+      description: For example Firefox 131 on Windows 11.
+  - type: input
+    id: assistive
+    attributes:
+      label: Assistive Technology
+      description: For example NVDA, VoiceOver, 200% zoom or keyboard only. Leave empty if none.
+  - type: textarea
+    id: media
+    attributes:
+      label: Screenshots or Recordings
+      description: Drag files here. Leave out anything private.
