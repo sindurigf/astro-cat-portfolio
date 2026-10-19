@@ -83,3 +83,21 @@ test('every indexable page allows a large image preview', NODE, () => {
     [],
   );
 });
+
+/* GOV.UK names and email patterns: a spellchecker flags real names and addresses as errors. */
+test(
+  'the contact form does not spellcheck a name or an email address',
+  NODE,
+  () => {
+    const form = builtHtml().get('/contact') ?? '';
+    for (const field of ['name', 'email']) {
+      const input =
+        new RegExp(`<input\\b[^>]*name="${field}"[^>]*>`).exec(form)?.[0] ?? '';
+      expect(input, `no ${field} field in the built /contact`).not.toBe('');
+      expect(
+        input.includes('spellcheck="false"'),
+        `the ${field} field is spellchecked`,
+      ).toBe(true);
+    }
+  },
+);

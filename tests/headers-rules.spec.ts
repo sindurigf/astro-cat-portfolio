@@ -63,13 +63,30 @@ const PINNED_HEADERS = {
   'x-frame-options': 'DENY',
 } as const;
 
-/** Features the site never uses, each denied to every origin with `()`. */
+/** Every feature the site never uses, denied to every origin with `()` (OWASP); only names Chromium knows, since it warns on others. */
 const DENIED_FEATURES = [
   'camera',
   'microphone',
   'geolocation',
   'payment',
   'usb',
+  'accelerometer',
+  'gyroscope',
+  'magnetometer',
+  'display-capture',
+  'encrypted-media',
+  'midi',
+  'hid',
+  'serial',
+  'idle-detection',
+  'screen-wake-lock',
+  'xr-spatial-tracking',
+  'publickey-credentials-get',
+  'clipboard-read',
+  'sync-xhr',
+  'unload',
+  'local-fonts',
+  'window-management',
 ] as const;
 
 /** 180 days, pinned exactly: browsers remember HSTS for `max-age`. */
@@ -406,6 +423,10 @@ test.describe('security headers as declared and served', NODE, () => {
         `Permissions-Policy no longer denies ${feature} to every origin`,
       ).toBe('()');
     }
+    expect(
+      allowlists.get('fullscreen'),
+      'Permissions-Policy must keep fullscreen for this origin: the slideshow and videos use it',
+    ).toBe('(self)');
   });
 
   /**
