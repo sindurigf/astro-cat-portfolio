@@ -36,14 +36,14 @@
   .brand-menu {
     @apply self-start;
 
-    @media (width >= 64rem) and (height >= 68.5rem) {
+    @variant menu-fits {
       position: sticky;
       top: calc(var(--spacing-header) + --spacing(6));
     }
   }
 
   .brand-back {
-    @media (width >= 64rem) and (height >= 68.5rem) {
+    @variant menu-fits {
       display: none;
     }
   }

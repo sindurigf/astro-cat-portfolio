@@ -37,9 +37,18 @@ const EDGE_CLASS: Record<string, string> = {
   'fill-edge': 'border-fill-edge',
 };
 
-/* The page's own edge token; check-tokens lists this one literal as a color name, not a border width. */
-const PAGE_EDGE = 'border';
-const EDGE_TOKENS = [PAGE_EDGE, 'pink', 'mark', 'cyan'] as const;
+const EDGE_TOKENS = Object.keys(EDGE_CLASS).filter(
+  (token) => token !== 'fill-edge',
+);
+/* The page's own edge is the token the `border-border` class paints. */
+const PAGE_EDGE = EDGE_TOKENS.find(
+  (token) => EDGE_CLASS[token] === 'border-border',
+);
+if (PAGE_EDGE === undefined) {
+  throw new Error(
+    '/brand: no edge token paints border-border in src/lib/brand-blocks.ts',
+  );
+}
 
 /* An edge cell has no text color of its own; its numbers take the ground's reading color. */
 const LABEL_ON: Record<string, string> = {

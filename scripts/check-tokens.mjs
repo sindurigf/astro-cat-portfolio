@@ -78,11 +78,6 @@ const EXCEPTIONS = [
     text: 'light-[a-z-]',
     reason: 'a regex character class naming light-mode tokens, not a class',
   },
-  {
-    file: 'src/lib/brand-blocks.ts',
-    text: 'border',
-    reason: 'the `border` color token named as data, not a border width',
-  },
 ];
 
 /* Blanks, not deletes, so reported line and column numbers stay true. */
@@ -225,7 +220,6 @@ for (const path of sourceFiles) {
 
   for (const match of source.matchAll(BORDER_WIDTH)) {
     if (match[1] !== undefined && BORDER_WIDTHS.has(match[1])) continue;
-    if (isException(name, match[0])) continue;
     failures.push(
       `${name}:${locate(source, match.index)}  border width off 0, 4, 8  ${match[0]}`,
     );

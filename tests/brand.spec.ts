@@ -17,8 +17,14 @@ const RATIO_DIGITS = 2;
 const NARROW = 390;
 const WIDE = 1280;
 const HEIGHT = 900;
-/* Tall enough for the whole sections list under the header (brand.css). */
-const TALL = 1100;
+const ROOT_FONT_PX = 16;
+/* The screen height where the sections list is sticky: `menu-fits` in global.css. */
+const MENU_FITS_HEIGHT =
+  Number(
+    /@custom-variant menu-fits[^;]*height >= ([\d.]+)rem/.exec(
+      readFileSync('src/styles/global.css', 'utf8'),
+    )?.[1],
+  ) * ROOT_FONT_PX;
 /* Far enough down that the sticky list has stuck. */
 const SCROLLED = 3000;
 const THEMES = ['dark', 'light'] as const;
@@ -316,9 +322,14 @@ test.describe('/brand', () => {
     page,
   }) => {
     const menu = page.getByRole('navigation', { name: 'Brand sections' });
+    expect(
+      MENU_FITS_HEIGHT,
+      'global.css has no menu-fits variant',
+    ).toBeGreaterThan(0);
     for (const [height, sticky] of [
       [HEIGHT, false],
-      [TALL, true],
+      [MENU_FITS_HEIGHT - 1, false],
+      [MENU_FITS_HEIGHT, true],
     ] as const) {
       await page.setViewportSize({ width: WIDE, height });
       await gotoSettled(page, BRAND_PATH);
