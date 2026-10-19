@@ -504,8 +504,9 @@ Rules this repository follows. Values and reasons:
     buttons of a few words, never on running text
     ([why](ARCHITECTURE.md#rejected-findings)).
 - **Scripts.** Never hold content back behind a script. What a page says is in
-  its HTML; a script only adds to it. Tested for navigation
-  (`tests/no-script.spec.ts`) and the talk slides (`tests/slideshow.spec.ts`).
+  its HTML; a script only adds to it. Tested for navigation and the About
+  cats' names and lines (`tests/no-script.spec.ts`) and the talk slides
+  (`tests/slideshow.spec.ts`).
 - **Sources.** WCAG 2.2 and the specifications it relies on (HTML, WAI-ARIA,
   CSS) are normative; the Understanding documents are informative W3C
   guidance. Mark any other source cited here, an article, checklist or tool, as
