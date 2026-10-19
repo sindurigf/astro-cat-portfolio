@@ -17,8 +17,9 @@ const PORT = 4399;
 const ORIGIN = `http://127.0.0.1:${PORT}`;
 const SERVER_START_MS = 10_000;
 const DRAW_TIMEOUT_MS = 20_000;
-const WEBP_QUALITY = 72;
-/* Sharp enough on a 2x screen; `cover` scales it to the window. */
+const WEBP_QUALITY = 60;
+const WEBP_EFFORT = 6;
+/* Sharp on a 2x screen; `contain` scales it to the window. */
 const DEVICE_SCALE = 2;
 
 const FRAMES = [
@@ -52,6 +53,22 @@ const waitForServer = async () => {
 };
 
 /* The three canvas layers, back to front, as one PNG. */
+/*
+ * The window's ground, flattened in: a lossy alpha plane bands the field's
+ * haze, and a lossless one is most of the bytes.
+ */
+const groundColor = () => {
+  for (
+    let element = document.querySelector('.hero-field');
+    element;
+    element = element.parentElement
+  ) {
+    const color = getComputedStyle(element).backgroundColor;
+    if (color !== 'rgba(0, 0, 0, 0)') return color;
+  }
+  throw new Error('make-hero-still: the hero has no ground color.');
+};
+
 const drawnFrame = () => {
   const layers = [...document.querySelectorAll('.hero-field-layer')];
   const out = document.createElement('canvas');
@@ -63,7 +80,7 @@ const drawnFrame = () => {
 };
 
 /* The sky is empty: cut it so `contain` can fit the whole field in a short window. */
-const withoutSky = async (png) => {
+const withoutSky = async (png, ground) => {
   const { data, info } = await sharp(png)
     .ensureAlpha()
     .raw()
@@ -77,7 +94,11 @@ const withoutSky = async (png) => {
     throw new Error('make-hero-still: the field drew nothing.');
   return sharp(png)
     .extract({ left: 0, top, width: info.width, height: info.height - top })
-    .webp({ quality: WEBP_QUALITY })
+    .flatten({ background: ground })
+    .webp({
+      quality: WEBP_QUALITY,
+      effort: WEBP_EFFORT,
+    })
     .toBuffer();
 };
 
@@ -115,7 +136,10 @@ try {
         ),
     );
     const png = Buffer.from(await page.evaluate(drawnFrame), 'base64');
-    writeFileSync(file, await withoutSky(png));
+    writeFileSync(
+      file,
+      await withoutSky(png, await page.evaluate(groundColor)),
+    );
     console.log(`make-hero-still: wrote ${file}`);
     await context.close();
   }
