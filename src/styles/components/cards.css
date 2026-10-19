@@ -197,17 +197,12 @@
   }
 
   /*
-   * The whole card is clickable via an empty layer over the title link, which
-   * stays the only link. The card must hold no other link.
+   * The title link is the only link; src/scripts/card-click.ts follows it on a
+   * short press anywhere on the card and leaves the text selectable. The card
+   * must hold no other link.
    */
-  .card:has(.card-link) {
-    @apply relative;
-  }
-
-  .card-link::after {
-    @apply absolute inset-0;
-
-    content: '';
+  .js .card:has(.card-link) {
+    cursor: pointer;
   }
 
   /*

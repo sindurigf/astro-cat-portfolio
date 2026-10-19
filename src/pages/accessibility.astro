@@ -131,14 +131,15 @@ const HAS_TALK = (await getCollection('talks')).length > 0;
           <p>
             axe WCAG A and AA runs on every page in dark mode (the default) and
             light mode, at 1280 and 320px. Light mode changes the main content,
-            the header and the footer. With JavaScript on, it follows{' '}
-            <code>prefers-color-scheme: light</code> or the header switch, and
-            the choice is remembered. With JavaScript off, the page stays dark
-            and the switch is hidden.
+            the header and the footer. With JavaScript on, the Theme menu in the
+            header offers System, Light and Dark. System is the default and
+            follows <code>prefers-color-scheme</code>, also when it changes.
+            Light and Dark are remembered. With JavaScript off, the page stays
+            dark and the switch is hidden.
           </p>
           <p>
             You can read the main content in dark or light colors. It follows
-            your device or the switch at the top.
+            your device, or the choice you make in the Theme menu at the top.
           </p>
           <p>
             Learn more:{' '}

@@ -1,6 +1,22 @@
-{/* Pressed while light; the name stays fixed. Hidden without JavaScript. */}
-<button type="button" class="theme-switch" aria-pressed="false">
-  <span class="sr-only">Light Mode</span>
+---
+import { THEME_CHOICES } from '../lib/theme';
+
+interface Props {
+  /** The popover's id and the radios' name: unique per page. */
+  id?: string;
+}
+
+const { id = 'theme-menu' } = Astro.props;
+---
+
+{/* Shows the theme in use; hidden without JavaScript or popovers. */}
+<button
+  type="button"
+  class="theme-switch"
+  popovertarget={id}
+  aria-expanded="false"
+>
+  <span class="sr-only">Theme</span>
   <svg
     class="theme-switch-sun"
     viewBox="0 0 24 24"
@@ -27,6 +43,22 @@
     ></path>
   </svg>
 </button>
+<div id={id} class="theme-menu" popover tabindex="-1">
+  <fieldset>
+    <legend class="label">Theme</legend>
+    {THEME_CHOICES.map((choice) => (
+      <label class="theme-option">
+        <input
+          type="radio"
+          name={id}
+          value={choice.value}
+          checked={choice.value === 'system'}
+        />
+        {choice.label}
+      </label>
+    ))}
+  </fieldset>
+</div>
 
 <script>
   import '../scripts/theme-switch';
