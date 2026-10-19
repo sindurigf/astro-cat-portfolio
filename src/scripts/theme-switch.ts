@@ -114,6 +114,28 @@ const setUp = (button: HTMLButtonElement): void => {
       return;
     if (menu.matches(':popover-open')) menu.hidePopover();
   });
+  /* A pick closes the menu and hands focus back to its button (SC 2.4.3). */
+  const closeToButton = (): void => {
+    if (menu.matches(':popover-open')) menu.hidePopover();
+    button.focus();
+  };
+  /* Arrow keys click the next radio too, with `detail` 0: they move the choice and keep the menu open. */
+  menu.addEventListener('click', (event) => {
+    if (event.detail > 0 && (event.target as Element).closest('label'))
+      closeToButton();
+  });
+  /*
+   * Enter, or Space, picks the focused radio. Handled on keydown, so the key's
+   * keyup lands on the button without activating it.
+   */
+  menu.addEventListener('keydown', (event) => {
+    const radio = event.target;
+    if (!(radio instanceof HTMLInputElement) || radio.type !== 'radio') return;
+    if (event.key !== 'Enter' && event.key !== ' ') return;
+    event.preventDefault();
+    if (!radio.checked) radio.click();
+    closeToButton();
+  });
   menu.addEventListener('change', (event) => {
     const value = (event.target as HTMLInputElement).value;
     if (value === 'system' || isTheme(value)) choose(value);
