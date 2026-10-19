@@ -55,7 +55,7 @@ Setup: Chrome, 1280px, `/`, focus in the address bar.
 - [ ] Enter on it: focus moves to main, which shows a cyan outline. → SC 2.4.1
 - [ ] Next Tab reaches the first control in the page (the hero pause control on `/`), not the header. → SC 2.4.1
 - [ ] Reload and Tab through: skip link, logo, About, Career, Blog, the
-      "Light Mode" switch, Get in Touch, the page, footer Site (Home, About,
+      "Theme" button, Get in Touch, the page, footer Site (Home, About,
       Career, Blog), About this site (in the order of `POLICY_LINKS` in
       `Footer.astro`), Social (GitHub, LinkedIn, Instagram, Bluesky, Mastodon,
       Email). Re-read `Footer.astro` when a footer link changes. → SC 2.4.3
@@ -136,7 +136,7 @@ The ring is 4px cyan at a 4px offset plus the element's shadow (4px, or 8px for 
 - [ ] On a gold slab or band: the `#131313` ring is visible. → SC 1.4.11
 - [ ] No ring is clipped by a parent or hidden under the header. → SC 2.4.11
 - [ ] Focus is never shown by shadow alone. → SC 2.4.7
-- [ ] Light mode on `<main>`, the header bar's page parts and the footer: the
+- [ ] The Light theme on `<main>`, the header bar's page parts and the footer: the
       ring is `--color-light-focus` (`#00606b`) on white. See §5b. → SC 1.4.11, 2.4.7
 
 ## 5a. Header height, roundel and hero edge
@@ -172,17 +172,21 @@ Zoom (forced colors off, 1280px, 200% then 400%):
 
 ## 5b. Light mode
 
-Setup: Chrome, 1280px, `/about`. The switch turns `<main>`, the header and the
-footer light ([ACCESSIBILITY.md](../ACCESSIBILITY.md#light-mode),
+Setup: Chrome, 1280px, `/about`. The Theme menu's Light turns `<main>`, the
+header and the footer light ([ACCESSIBILITY.md](../ACCESSIBILITY.md#light-mode),
 [STYLEGUIDE.md](STYLEGUIDE.md#light-mode)). `tests/light-mode.spec.ts` covers
-axe, control edges, hover contrast, ring contrast, and the switch: its name
-and pressed state after Enter and Space, the choice across a reload and
-`/career`, a light device with no choice, the theme set before `<body>`, and
-no switch without JavaScript. These checks are the rest.
+axe, control edges, hover contrast, ring contrast, and the menu: the Theme
+button and group, Enter, Space, arrows and Escape, Light and Dark across a
+reload and `/career`, System removing the key and following the device live,
+its place at 320 and 1280px, its ring, forced colors, the theme set before
+`<body>`, and no switch without JavaScript. These checks are the rest.
 
-- [ ] By ear: the switch is announced "Light Mode", "toggle button", and its
-      pressed state. → SC 4.1.2
-- [ ] Tab to the switch: a ring shows with a gap, on the dark header. → SC 2.4.7
+- [ ] By ear: the button is announced "Theme", "button", collapsed or
+      expanded; open, the group "Theme" and each radio, "System", "Light",
+      "Dark", with its checked state. → SC 4.1.2
+- [ ] Tab to the button: a ring shows with a gap, on the dark header. → SC 2.4.7
+- [ ] Choose System, then switch the device between light and dark: the page
+      follows without a reload. → SC 1.4.3
 - [ ] In light, Tab through `<main>`: every ring reads against white and
       against its control (`#00606b`). → SC 1.4.11, 2.4.7
 - [ ] A focused tag chip, the current chip, the current nav link in the dark
@@ -194,8 +198,8 @@ no switch without JavaScript. These checks are the rest.
 - [ ] Repeat §3 at 400% in light: no overlap, no cut-off. → SC 1.4.10
 - [ ] Repeat §5a.2 forced colors in light: the roundel edge and the focus ring
       show. → SC 1.4.11
-- [ ] The switch's name is not a visible label, so §6a needs it reachable by
-      the tool's numbers in both modes. → SC 2.1.1
+- [ ] The button's name is not a visible label, so §6a needs it reachable by
+      the tool's numbers in both modes; the choices are visible labels. → SC 2.1.1
 
 ## 6. Screen reader: the Orca pass
 
@@ -523,6 +527,10 @@ drawings are `aria-hidden`.
       uncovered, and the list closes once focus is past the paw. → SC 2.4.12
 - [ ] Choosing "Chase the Fly" plays it; choosing a trick for a sleeping cat
       wakes it first. → SC 2.2.2
+- [ ] Rudra climbs between his two bricks, and a click on him opens his card
+      on either brick. → SC 2.5.5
+- [ ] Under reduced motion Rudra sits on the brick under him, never in the
+      air above it. → SC 2.3.3
 - [ ] The drawings announce nothing. → SC 1.1.1
 - [ ] While the trick list loads, or if it fails, its note is read once, as
       a status. → SC 4.1.3

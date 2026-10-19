@@ -133,9 +133,20 @@ Dark is the default. Colors and rules:
   every slide. Its hash is in `script-src`.
   It sits in `<head>`, not beside the switch, so nothing paints in the wrong
   theme first.
-- `src/components/ThemeSwitch.astro` is a `<button aria-pressed>` named "Light
-  mode"; `src/scripts/theme-switch.ts` wires it and a press saves the choice.
-- Without JavaScript the page is dark and the switch hidden.
+- Three choices: System (the default, nothing stored), Light and Dark (stored
+  as `light` or `dark` under `THEME_STORAGE_KEY` in `src/lib/theme.ts`).
+  `data-theme` always holds the resolved `light` or `dark`.
+- `src/components/ThemeSwitch.astro` is a 44px `<button popovertarget>` named
+  "Theme" showing the theme in use, and a popover with a "Theme" `<fieldset>`
+  of three native radios. Its `id` prop names the popover and the radio group,
+  so two on a page do not clash.
+- `src/scripts/theme-switch.ts` applies a choice at once, removes the key for
+  System, keeps every menu's radios in step, and follows a
+  `prefers-color-scheme` change while System is chosen. It places the popover
+  beside its button, toward the larger side of the viewport, and closes it
+  when focus leaves.
+- Without JavaScript the page is dark and the switch hidden; without popovers
+  the switch is hidden and the page follows the system.
 - `HeroField.vue` (through `use-hero-field.ts`) reads its palette from its own element and rebuilds when a
   `MutationObserver` sees `data-theme` change. Its ground is `hero-ground`.
   A `(resolution)` media query resizes its canvases when only the pixel ratio
@@ -458,11 +469,12 @@ in `wrangler.jsonc`).
   Markdown image title "Photo: name" links `PHOTOGRAPHERS`, "Screenshot: name"
   links `SCREENSHOT_SOURCES`; an unlisted name stays plain text.
 - A Creative Commons photo goes in `LICENSED_PHOTOS`, keyed by its file name
-  without the extension: `photographer`, `title`, `source`, `sourceName`,
-  `license` (spelled out), `licenseShort` ("CC BY 4.0"), `licenseHref` and
-  `changes`. Its "Photo: name" caption then links the name to `source` and
-  adds the short license ([Photo credits](docs/STYLEGUIDE.md#photo-credits));
-  /credits lists it in full. Empty in the template.
+  without the extension: `photographer`, `title`, `titleInCaption`, `source`,
+  `sourceName`, `license` (spelled out), `licenseShort` ("CC BY 4.0"),
+  `licenseHref` and `changes`. Its "Photo: name" caption is then
+  `licensedCaption`: the title first with `titleInCaption`, and the short
+  license ([Photo credits](docs/STYLEGUIDE.md#photo-credits)); /credits lists
+  it in full. Empty in the template.
 - **Video** goes in `public/videos/` (none published). Encode AV1 WebM, H.264
   MP4 fallback, WebP poster, WebVTT captions; max 25 MiB a file.
   - Workers static assets answer `Range` with a full `200`; Safari and iOS need
