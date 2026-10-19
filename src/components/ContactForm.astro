@@ -109,6 +109,7 @@ const BODY = idsFor('body');
       name={FIELDS.name}
       type="text"
       autocomplete="name"
+      spellcheck="false"
       required
       value={values.name ?? ''}
       aria-invalid={nameError ? 'true' : undefined}
@@ -131,6 +132,7 @@ const BODY = idsFor('body');
       name={FIELDS.email}
       type="email"
       autocomplete="email"
+      spellcheck="false"
       required
       value={values.email ?? ''}
       aria-invalid={emailError ? 'true' : undefined}
