@@ -129,6 +129,51 @@
     @apply hidden;
   }
 
+  /* No popovers: the button would open nothing and the menu would always show. */
+  @supports not selector(:popover-open) {
+    .theme-switch,
+    .theme-menu {
+      @apply hidden;
+    }
+  }
+
+  /* src/scripts/theme-switch.ts places it beside its button and sets the room it has. */
+  .theme-menu {
+    @apply my-2 overflow-y-auto edge border-border bg-surface px-4 pt-2 pb-3
+      text-text shadow-hard-pink-object;
+
+    position: fixed;
+    inset: auto;
+    margin-inline: 0;
+    top: var(--theme-menu-top, auto);
+    right: var(--theme-menu-right, auto);
+    bottom: var(--theme-menu-bottom, auto);
+    left: var(--theme-menu-left, auto);
+    max-width: calc(100% - var(--theme-menu-inline, 0px) - --spacing(4));
+    max-height: calc(100% - var(--theme-menu-block, 0px) - --spacing(6));
+    overscroll-behavior: contain;
+  }
+
+  .theme-menu fieldset {
+    @apply m-0 min-w-0 border-0 p-0;
+  }
+
+  .theme-menu legend {
+    @apply p-0 text-text;
+  }
+
+  /* The whole row is the 44px target (SC 2.5.5); the radio's own ring marks focus. */
+  .theme-option {
+    @apply flex min-h-target cursor-pointer items-center gap-3 pr-2 text-body
+      text-text;
+  }
+
+  .theme-option input {
+    @apply m-0 size-5 shrink-0 cursor-pointer;
+
+    accent-color: var(--color-text);
+  }
+
   .theme-switch svg {
     @apply pointer-events-none size-6;
   }
@@ -139,12 +184,13 @@
     color: var(--hover-label, var(--color-background));
   }
 
-  .theme-switch-moon,
-  :root[data-theme='light'] .theme-switch-sun {
+  /* The glyph is the theme in use: a moon while dark, a sun while light. */
+  .theme-switch-sun,
+  :root[data-theme='light'] .theme-switch-moon {
     @apply hidden;
   }
 
-  :root[data-theme='light'] .theme-switch-moon {
+  :root[data-theme='light'] .theme-switch-sun {
     @apply block;
   }
 
@@ -170,7 +216,7 @@
     }
   }
 
-  /* The page's colors, kept for the menu dialog inside the bar. */
+  /* The page's colors, kept for the menu dialog and the theme menu inside the bar. */
   .site-header {
     --page-ground: var(--color-background);
     --page-text: var(--color-text);
@@ -210,7 +256,7 @@
     padding-block-end: var(--lift-mark);
   }
 
-  .header-slab dialog {
+  .header-slab :is(dialog, .theme-menu) {
     --color-background: var(--page-ground);
     --color-text: var(--page-text);
     --color-cyan: var(--page-cyan);
@@ -221,7 +267,7 @@
   }
 
   /* Rings drawn inside the brick, on its own fill, so they never cross the next one. */
-  .header-bricks :focus-visible {
+  .header-bricks :focus-visible:not(.theme-menu *) {
     position: relative;
     z-index: 1;
     outline-offset: calc(-1 * (var(--block-edge) + var(--focus-gap)));
@@ -249,7 +295,7 @@
     }
 
     /* A hovered ring takes the hover label's ink; a current brick has no hover fill. */
-    & :focus-visible:hover:not([aria-current]) {
+    & :focus-visible:hover:not([aria-current], .theme-menu *) {
       outline-color: var(--hover-label, var(--color-background));
     }
   }

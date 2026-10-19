@@ -287,6 +287,10 @@ set; hex values and ratios are in the generated [Contrast](#contrast) table:
 
 The switch and what it scopes: [ARCHITECTURE.md](../ARCHITECTURE.md#light-mode).
 
+- The header's theme switch offers System, Light and Dark. System follows
+  `prefers-color-scheme`, live, and is the default; Light and Dark are
+  remembered.
+
 | Token                                                | Light     | on `#ffffff` |
 | ---------------------------------------------------- | --------- | ------------ |
 | `background`, `surface`, `hero-ground`               | `#ffffff` | ground       |
@@ -566,6 +570,7 @@ file per area.
 | `.page-gutter`, `max-w-page`, `.band`   | [Gutter and column](#gutter-and-column)                                                                                                                                                                                                                              |
 | `.skip-link`                            | Skip link, visible on focus                                                                                                                                                                                                                                          |
 | `.motion-toggle`                        | 44px SC 2.2.2 pause control; position from a second class                                                                                                                                                                                                            |
+| `.theme-switch`, `.theme-menu`          | 44px gold brick showing the theme in use (moon, sun), named "Theme"; opens a popover `surface` box, 6px `border` edge, pink throw, a "Theme" fieldset of System, Light and Dark radios in 44px rows, `text` accent                                                   |
 | `.prose`                                | Rendered Markdown (no typography plugin)                                                                                                                                                                                                                             |
 | `.aspect-frame`                         | Every photo: [Photo frames](#photo-frames-and-the-failed-photo-state)                                                                                                                                                                                                |
 | `.surface-gold`, `.btn-gold-*`          | [Gold surface](#gold-surface)                                                                                                                                                                                                                                        |

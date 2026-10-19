@@ -158,7 +158,7 @@ export const BRAND_SECTIONS: readonly BrandSection[] = [
     lead: 'Small controls for motion, theme and focus.',
     rule: 'Every control shows the cyan ring.',
     description:
-      'The small controls: pause and sleep controls for motion, the theme switch and the cyan focus ring.',
+      'The small controls: pause and sleep controls for motion, the theme switch with its System, Light and Dark choice, and the cyan focus ring.',
     parts: [
       { id: 'pause-control', name: 'Pause Control' },
       { id: 'sleep-control', name: 'Sleep Control' },
