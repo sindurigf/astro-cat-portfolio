@@ -33,7 +33,6 @@ export const BRAND_GROUPS: readonly BrandGroup[] = [
   'About',
 ];
 
-/* Draft copy: leads, rules, descriptions and the foundations' part names wait for the owner's approval. */
 export const BRAND_SECTIONS: readonly BrandSection[] = [
   {
     slug: 'grounds',
