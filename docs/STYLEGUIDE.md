@@ -1331,13 +1331,18 @@ size-full object-cover`). Never put `aspect-ratio` on the image: WebKit
 
 - Outside `/credits` a credit is "Photo: Name" (`PHOTO_CREDIT_PREFIX`) in the
   caption's own tokens; `/credits` keeps the full attribution line.
-- The name links the photo's page (`LICENSED_PHOTOS[x].source`), else the
-  photographer's site (`PHOTOGRAPHERS`), else stays plain text.
-- A Creative Commons photo adds its short license, "Photo: Name (CC BY 4.0)",
-  as a plain link to `licenseHref`. No `Abbr`: the deed names the license in
-  full (G55, SC 3.1.4). CC BY §4(a) asks for the license link with every copy.
-- No photo title, source site or changes in the caption.
-  `tests/markdown-plugins.spec.ts`.
+- The name links the photographer's site (`PHOTOGRAPHERS`), else stays plain
+  text.
+- A Creative Commons photo (`licensedCaption`) links the name to the photo's
+  page (`LICENSED_PHOTOS[x].source`) and adds its short license, "Photo: Name
+  (CC BY 4.0)", as a plain link to `licenseHref`. No `Abbr`: the deed names
+  the license in full (G55, SC 3.1.4). CC BY §4(a) asks for the license link
+  with every copy.
+- `titleInCaption` puts the title first, linked to `source`, and the name
+  links the photographer's site: "Photo: Title by Name (CC BY 2.0)". Set it
+  where the license asks for the title (CC BY 2.0 §4(b)); each link names
+  where it goes (SC 2.4.9).
+- No source site or changes in the caption. `tests/markdown-plugins.spec.ts`.
 
 ### The failed state
 
