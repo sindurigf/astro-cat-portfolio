@@ -132,6 +132,9 @@ const expectAssetHeaders = async (
   }
 };
 
+/* A rare WebKit goto stall here passes on retry, which keeps no trace of the stall. */
+test.use({ trace: 'retain-on-first-failure' });
+
 test.describe('security headers', () => {
   // A stalled Firefox page.goto never recovers (playwright.config.ts), so fail it early.
   test.use({ navigationTimeout: 15_000 });
