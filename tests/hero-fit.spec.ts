@@ -22,6 +22,7 @@ const VIEWPORTS = [
 const SHORT_WINDOWS = [
   [320, 225],
   [320, 256],
+  [568, 320],
   [600, 300],
   [1280, 300],
 ] as const;
@@ -448,6 +449,33 @@ test.describe('the marks on the window do not collide', () => {
       })()`)) as string[];
 
       expect(hits, `a sticker covers text at ${width}x${height}`).toEqual([]);
+    });
+  }
+
+  for (const [width, height] of SHORT_WINDOWS) {
+    test(`each sticker shows whole or not at all at ${width}x${height}`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width, height });
+      await openHero(page);
+
+      const cut = (await page.evaluate(`(() => {
+        const clip = document.querySelector('.hero-marks').getBoundingClientRect();
+        return [...document.querySelectorAll('.hero-sticker')]
+          .filter((el) => {
+            const r = el.getBoundingClientRect();
+            const x = Math.min(r.right, clip.right) - Math.max(r.left, clip.left);
+            const y = Math.min(r.bottom, clip.bottom) - Math.max(r.top, clip.top);
+            const shown = Math.max(0, x) * Math.max(0, y);
+            return shown > ${SUBPIXEL_TOLERANCE} && shown < r.width * r.height - ${SUBPIXEL_TOLERANCE};
+          })
+          .map((el) => el.textContent.trim());
+      })()`)) as string[];
+
+      expect(
+        cut,
+        `a sticker shows part of its word at ${width}x${height}`,
+      ).toEqual([]);
     });
   }
 
