@@ -495,9 +495,9 @@ Rules this repository follows. Values and reasons:
   [low vision needs](https://www.w3.org/TR/low-vision-needs/), high contrast
   against light sensitivity.
   Choices made:
-  - A dark page against a light one: dark is the default, for readers
-    sensitive to light; Light Mode in the header, which is remembered, is
-    for readers who need a light page.
+  - A dark page against a light one: the Theme menu in the header offers
+    System, Light and Dark. System, the default, follows the device and is dark
+    when the device states no preference; a choice is remembered.
   - High contrast against light sensitivity: text keeps 7:1 in both modes;
     the dark default carries the light-sensitive need.
   - Capitals against dyslexia: uppercase only on headings, labels and
