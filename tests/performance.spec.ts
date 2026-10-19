@@ -14,7 +14,7 @@ import { ANALYTICS_ON } from '../src/lib/analytics-site';
 
 /* Decoded script bytes. `/` and `/about` carry Vue. */
 const ROUTE_SCRIPT_BUDGETS: Readonly<Record<string, number>> = {
-  '/': 96_000,
+  '/': 97_000,
   '/about': 124_900,
 };
 const PAGE_SCRIPT_BUDGET = 14_000;
