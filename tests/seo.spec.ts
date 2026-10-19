@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import { basename, join } from 'node:path';
 import { contactDescription } from '../src/lib/contact';
 import { SOCIAL_PROFILES } from '../src/lib/profiles';
