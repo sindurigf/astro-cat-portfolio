@@ -1,3 +1,42 @@
 # Crawlers and people often try the conventional sitemap name first. The
 # sitemap integration writes an index instead, which robots.txt points at.
 /sitemap.xml /sitemap-index.xml 301
+
+# /brand is one page. Each retired section route lands on its section.
+
+/brand/grounds /brand/#grounds 301
+/brand/grounds/ /brand/#grounds 301
+/brand/color /brand/#color 301
+/brand/color/ /brand/#color 301
+/brand/contrast /brand/#contrast 301
+/brand/contrast/ /brand/#contrast 301
+/brand/type /brand/#type 301
+/brand/type/ /brand/#type 301
+/brand/spacing /brand/#spacing 301
+/brand/spacing/ /brand/#spacing 301
+/brand/borders-and-shadows /brand/#shadows 301
+/brand/borders-and-shadows/ /brand/#shadows 301
+/brand/motion /brand/#motion 301
+/brand/motion/ /brand/#motion 301
+/brand/buttons-and-links /brand/#actions 301
+/brand/buttons-and-links/ /brand/#actions 301
+/brand/chips-and-labels /brand/#labels 301
+/brand/chips-and-labels/ /brand/#labels 301
+/brand/controls /brand/#controls 301
+/brand/controls/ /brand/#controls 301
+/brand/heroes /brand/#heroes 301
+/brand/heroes/ /brand/#heroes 301
+/brand/navigation /brand/#navigation 301
+/brand/navigation/ /brand/#navigation 301
+/brand/cards /brand/#cards 301
+/brand/cards/ /brand/#cards 301
+/brand/forms /brand/#forms 301
+/brand/forms/ /brand/#forms 301
+/brand/photos /brand/#photos 301
+/brand/photos/ /brand/#photos 301
+/brand/text /brand/#text 301
+/brand/text/ /brand/#text 301
+/brand/accessibility /brand/#accessibility 301
+/brand/accessibility/ /brand/#accessibility 301
+/brand/template /brand/#use 301
+/brand/template/ /brand/#use 301

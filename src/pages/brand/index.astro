@@ -3,6 +3,25 @@ import Abbr from '../../components/Abbr.astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import PageHero from '../../components/PageHero.astro';
 import BrandFrame from '../../components/brand/BrandFrame.astro';
+import BrandSection from '../../components/brand/BrandSection.astro';
+import ColorBlocks from '../../components/brand/ColorBlocks.astro';
+import Grounds from '../../components/brand/Grounds.astro';
+import Pairings from '../../components/brand/Pairings.astro';
+import TypeScale from '../../components/brand/TypeScale.astro';
+import SpacingSteps from '../../components/brand/SpacingSteps.astro';
+import EdgesAndShadows from '../../components/brand/EdgesAndShadows.astro';
+import MotionRules from '../../components/brand/MotionRules.astro';
+import Actions from '../../components/brand/Actions.astro';
+import Labels from '../../components/brand/Labels.astro';
+import Controls from '../../components/brand/Controls.astro';
+import Heroes from '../../components/brand/Heroes.astro';
+import Navigation from '../../components/brand/Navigation.astro';
+import Cards from '../../components/brand/Cards.astro';
+import Forms from '../../components/brand/Forms.astro';
+import Photos from '../../components/brand/Photos.astro';
+import Text from '../../components/brand/Text.astro';
+import Standard from '../../components/brand/Standard.astro';
+import UseTemplate from '../../components/brand/UseTemplate.astro';
 import {
   DEMO_URL,
   HAS_LINKS,
@@ -10,11 +29,41 @@ import {
   USE_TEMPLATE_URL,
 } from '../../components/brand/links';
 import { SITE_NAME } from '../../lib/site';
-import {
-  BRAND_GROUPS,
-  BRAND_SECTIONS,
-  brandHref,
-} from '../../lib/brand-sections';
+import { TEXT_TARGET_RATIO } from '../../lib/brand-blocks';
+import { BRAND_SECTIONS } from '../../lib/brand-sections';
+
+const PARTS = {
+  grounds: Grounds,
+  color: ColorBlocks,
+  contrast: Pairings,
+  type: TypeScale,
+  spacing: SpacingSteps,
+  'borders-and-shadows': EdgesAndShadows,
+  motion: MotionRules,
+  'buttons-and-links': Actions,
+  'chips-and-labels': Labels,
+  controls: Controls,
+  heroes: Heroes,
+  navigation: Navigation,
+  cards: Cards,
+  forms: Forms,
+  photos: Photos,
+  text: Text,
+  accessibility: Standard,
+  template: UseTemplate,
+} as const;
+
+const sections = BRAND_SECTIONS.map((section) => {
+  const Parts = (PARTS as Record<string, (typeof PARTS)[keyof typeof PARTS]>)[
+    section.slug
+  ];
+  if (!Parts) {
+    throw new Error(
+      `/brand: the section ${section.slug} has no parts in src/pages/brand/index.astro`,
+    );
+  }
+  return { section, Parts };
+});
 ---
 
 <BaseLayout
@@ -51,48 +100,38 @@ import {
       </p>
     )}
   </PageHero>
-  <BrandFrame current={null}>
-    {/* Draft copy. Each row and part keeps its id from the single page, so old links land here. */}
-    <p class="lead">
-      Every section of the design system and the one rule it keeps. Each section
-      shows its parts on the dark ground and the light one.
-    </p>
-    <div class="mt-section space-y-section">
-      {BRAND_GROUPS.map((group) => (
-        <section aria-labelledby={`group-${group.toLowerCase()}`}>
-          <h2 id={`group-${group.toLowerCase()}`} class="text-h2 text-text">
-            {group}
-          </h2>
-          <ul role="list" class="mt-head space-y-head">
-            {BRAND_SECTIONS.filter((s) => s.group === group).map((s) => (
-              <li id={s.anchor}>
-                <h3 class="text-h3 text-text">
-                  <a
-                    href={brandHref(s.slug)}
-                    class="link inline-flex min-h-target items-center"
-                  >
-                    {s.title}
-                  </a>
-                </h3>
-                <p class="mt-2 max-w-measure text-body text-subtle">{s.rule}</p>
-                <ul role="list" class="mt-3 flex flex-wrap gap-x-6 gap-y-2">
-                  {s.parts.map((part) => (
-                    <li>
-                      <a
-                        id={part.id}
-                        href={`${brandHref(s.slug)}#${part.id}`}
-                        class="link inline-flex min-h-target min-w-target items-center text-body"
-                      >
-                        {part.name}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </li>
-            ))}
-          </ul>
-        </section>
-      ))}
+
+  <div class="band pt-section">
+    <div class="mx-auto max-w-page">
+      {/* Draft copy: the four facts wait for the owner's approval. */}
+      <dl class="fact-strip grid gap-0 lg:grid-cols-12">
+        <div class="lg:col-span-3">
+          <dt class="label text-gold">Text contrast</dt>
+          <dd class="mt-4 text-text">{TEXT_TARGET_RATIO}:1 or more</dd>
+        </div>
+        <div class="lg:col-span-3">
+          <dt class="label text-gold">Spacing</dt>
+          <dd class="mt-4 text-text">A 4px base</dd>
+        </div>
+        <div class="lg:col-span-3">
+          <dt class="label text-gold">Type</dt>
+          <dd class="mt-4 text-text">Lexend at 400 and 900</dd>
+        </div>
+        <div class="lg:col-span-3">
+          <dt class="label text-gold">Sections</dt>
+          <dd class="mt-4 text-text">
+            {BRAND_SECTIONS.length}, each shown dark and light
+          </dd>
+        </div>
+      </dl>
     </div>
+  </div>
+
+  <BrandFrame>
+    {sections.map(({ section, Parts }, index) => (
+      <BrandSection section={section} number={index + 1}>
+        <Parts />
+      </BrandSection>
+    ))}
   </BrandFrame>
 </BaseLayout>

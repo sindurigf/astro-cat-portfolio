@@ -14,7 +14,7 @@ const POLICY_ROUTES = [
   '/about/',
   '/contact/',
   '/blog/',
-  '/brand/controls/',
+  '/brand/',
   ...PUBLISHED_POST_ROUTES.slice(0, 1),
   ...TALK_ROUTES,
 ];

@@ -29,7 +29,7 @@ const BLOCK_ROUTES = [
   '/accessibility',
   ...(CONTENTS_POST_ROUTE ? [CONTENTS_POST_ROUTE] : []),
   ...TALK_ROUTES,
-  '/brand/cards',
+  '/brand',
 ];
 /* A few links per page cover each block kind in reasonable time. */
 const LINKS_PER_PAGE = 6;

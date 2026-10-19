@@ -1,5 +1,5 @@
 import { expect, test } from './test';
-import { BRAND_SAMPLED_ROUTES } from './routes';
+import { ROUTES } from './routes';
 import { waitForHydration } from './settle';
 import { usePolicyServer } from './headers-fixture';
 import { collectViolations } from './policy-server';
@@ -24,7 +24,7 @@ test.describe('the browser console', () => {
     return () => policy().origin;
   })();
 
-  for (const route of BRAND_SAMPLED_ROUTES) {
+  for (const route of ROUTES) {
     test(`${route} loads without errors`, async ({ page }) => {
       const problems: string[] = [];
 

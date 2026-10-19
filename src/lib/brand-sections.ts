@@ -1,8 +1,8 @@
 /*
- * /brand's sections: one subpage each, in menu order. Plain data so the pages,
- * the menu, llms.txt and the tests read one list. `anchor` is the section's id
- * on the single page /brand used to be; the overview keeps it, and each part's
- * id, so an old /brand/#anchor link still lands on its row.
+ * /brand's sections, in menu order, all on the one page. Plain data so the
+ * page, the menu, llms.txt and the tests read one list. `anchor` is the
+ * section's id on the page; it is also where the retired /brand/<slug>/ route
+ * redirects to (public/_redirects).
  */
 
 export const BRAND_PATH = '/brand/';
@@ -60,7 +60,12 @@ export const BRAND_SECTIONS: readonly BrandSection[] = [
     rule: 'Each color has one job.',
     description:
       'Every color token in the design system, the one job it does, and its value in dark and light mode.',
-    parts: [{ id: 'palette', name: 'Palette' }],
+    parts: [
+      { id: 'ink-and-accents', name: 'Ink and Accents' },
+      { id: 'edges-and-focus', name: 'Edges and Focus' },
+      { id: 'color-grounds', name: 'Grounds' },
+      { id: 'on-gold', name: 'On Gold' },
+    ],
   },
   {
     slug: 'contrast',
@@ -279,10 +284,12 @@ export const BRAND_SECTIONS: readonly BrandSection[] = [
   },
 ];
 
-export const brandHref = (slug: string): string => `${BRAND_PATH}${slug}/`;
+export const brandHref = (slug: string): string =>
+  `${BRAND_PATH}#${brandSection(slug).anchor}`;
 
-export const BRAND_ROUTES: readonly string[] = BRAND_SECTIONS.map(
-  ({ slug }) => `${BRAND_PATH}${slug}`,
+/** The retired per-section routes, which redirect to their anchor on /brand. */
+export const BRAND_LEGACY_PATHS: readonly string[] = BRAND_SECTIONS.map(
+  ({ slug }) => `${BRAND_PATH}${slug}/`,
 );
 
 export const brandSection = (slug: string): BrandSection => {

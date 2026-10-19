@@ -1,6 +1,6 @@
 import { expect, test, type Page } from './test';
 import { fontsSettled, gotoSettled } from './settle';
-import { TALK_ROUTES, BRAND_SAMPLED_ROUTES } from './routes';
+import { TALK_ROUTES, ROUTES } from './routes';
 import {
   FOCUSABLE_SELECTOR,
   NARROW_WIDTH,
@@ -281,7 +281,7 @@ for (const width of WIDE_WIDTHS) {
   test.describe(`no sideways scroll at ${width}px`, () => {
     test.use({ viewport: { width, height: REFLOW_HEIGHT } });
 
-    for (const route of BRAND_SAMPLED_ROUTES) {
+    for (const route of ROUTES) {
       test(`${route} does not scroll sideways at ${width}px`, async ({
         page,
       }) => {
@@ -295,7 +295,7 @@ for (const { width, contentBox, note } of REFLOW_WIDTHS) {
   test.describe(`reflow at ${width}px (${contentBox}px content box, ${note})`, () => {
     test.use({ viewport: { width, height: REFLOW_HEIGHT } });
 
-    for (const route of BRAND_SAMPLED_ROUTES) {
+    for (const route of ROUTES) {
       test(`${route} does not scroll sideways`, async ({ page }) => {
         await expectNoHorizontalOverflow(page, route, width, false);
         await expectContentBox(page, route, contentBox);
@@ -308,7 +308,7 @@ for (const { width, contentBox, note } of REFLOW_WIDTHS) {
   test.describe(`reflow at ${width}px with the SC 1.4.12 text-spacing override`, () => {
     test.use({ viewport: { width, height: REFLOW_HEIGHT } });
 
-    for (const route of BRAND_SAMPLED_ROUTES) {
+    for (const route of ROUTES) {
       test(`${route} does not scroll sideways`, async ({ page }) => {
         await expectNoHorizontalOverflow(page, route, width, true);
         await expectCellsHoldTheirText(page, route);

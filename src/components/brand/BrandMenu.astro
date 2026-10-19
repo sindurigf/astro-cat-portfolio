@@ -1,48 +1,34 @@
 ---
 /*
- * /brand's side menu: every section, the page's own marked aria-current.
- * Closed under `lg`, like a post's contents; open beside the content from it.
- * Not sticky: a tall list hides its own links (cards.css .post-layout).
+ * /brand's sections list: every section, numbered, linking to its place on the
+ * page. Closed under `lg`, like a post's contents; open beside the content from
+ * it. The section you jumped to is the gold block (brand.css).
  */
-import {
-  BRAND_GROUPS,
-  BRAND_PATH,
-  BRAND_SECTIONS,
-  brandHref,
-} from '../../lib/brand-sections';
+import { BRAND_GROUPS, BRAND_SECTIONS } from '../../lib/brand-sections';
 
-interface Props {
-  /* A section slug, or null on the overview. */
-  current: string | null;
-}
-
-const { current } = Astro.props;
-const linkTo = (href: string, own: boolean) => ({
-  href,
-  'aria-current': own ? ('page' as const) : undefined,
-});
+const NUMBER_DIGITS = 2;
+const number = (title: string): string =>
+  String(BRAND_SECTIONS.findIndex((s) => s.title === title) + 1).padStart(
+    NUMBER_DIGITS,
+    '0',
+  );
 ---
 
-<nav aria-label="Brand sections" class="brand-menu">
+<nav aria-label="Brand sections" id="brand-menu" class="brand-menu">
   {(['narrow', 'wide'] as const).map((width) => {
     const list = (
-      <ol role="list" class="brand-menu-list">
-        <li>
-          <a class="brand-menu-link" {...linkTo(BRAND_PATH, current === null)}>
-            Overview
-          </a>
-        </li>
+      <ol role="list">
         {BRAND_GROUPS.map((group) => (
           <li>
             <span class="brand-menu-group">{group}</span>
             <ol role="list">
               {BRAND_SECTIONS.filter((s) => s.group === group).map((s) => (
                 <li>
-                  <a
-                    class="brand-menu-link"
-                    {...linkTo(brandHref(s.slug), s.slug === current)}
-                  >
-                    {s.title}
+                  <a class="brand-menu-link" href={`#${s.anchor}`}>
+                    <span>{s.title}</span>
+                    <span class="brand-menu-number" aria-hidden="true">
+                      {number(s.title)}
+                    </span>
                   </a>
                 </li>
               ))}
@@ -52,7 +38,7 @@ const linkTo = (href: string, own: boolean) => ({
       </ol>
     );
     return width === 'narrow' ? (
-      <details class="brand-menu-box lg:hidden">
+      <details class="lg:hidden">
         <summary class="post-contents-summary">
           <span>All Sections</span>
           <span class="post-contents-marker" aria-hidden="true" />
@@ -60,10 +46,7 @@ const linkTo = (href: string, own: boolean) => ({
         {list}
       </details>
     ) : (
-      <div class="brand-menu-box hidden lg:block">
-        <div class="brand-menu-title">Sections</div>
-        {list}
-      </div>
+      <div class="hidden lg:block">{list}</div>
     );
   })}
 </nav>

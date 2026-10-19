@@ -1,12 +1,12 @@
 import { expect, test } from './test';
-import { BRAND_SAMPLED_ROUTES } from './routes';
+import { ROUTES } from './routes';
 import { gotoSettled } from './settle';
 
 /**
  * Tailwind 4 preflight leaves `<button>` on `cursor: default`; base.css sets
  * pointer, or not-allowed for `aria-disabled="true"`. Includes the closed menu.
  */
-for (const route of BRAND_SAMPLED_ROUTES) {
+for (const route of ROUTES) {
   test(`${route} gives every enabled button the pointer cursor`, async ({
     page,
   }) => {

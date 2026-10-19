@@ -1,6 +1,5 @@
 ---
 import ComponentRow from './ComponentRow.astro';
-import { brandHref } from '../../lib/brand-sections';
 
 const META = 'text-body text-subtle';
 ---
@@ -68,10 +67,7 @@ const META = 'text-body text-subtle';
         <a href="#gold-buttons" class="btn-gold-primary">
           Primary on Gold
         </a>
-        <a
-          href={`${brandHref('grounds')}#ground-gold`}
-          class="btn-gold-secondary"
-        >
+        <a href="#ground-gold" class="btn-gold-secondary">
           Secondary on Gold
         </a>
       </p>

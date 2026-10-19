@@ -1,0 +1,86 @@
+---
+/*
+ * One group in one mode: a table of pairs drawn on their real ground. Row
+ * headers name the color, column headers name the ground, and each cell states
+ * its measured ratio and what it reaches.
+ */
+import type { BlockGroup, Mode } from '../../lib/brand-blocks';
+import { brandPartName } from '../../lib/brand-sections';
+
+interface Props {
+  group: BlockGroup;
+  mode: Mode;
+}
+
+const { group, mode } = Astro.props;
+---
+
+<table class="block-table" data-cols={group.columns.length}>
+  <caption class="sr-only">
+    {brandPartName(group.id)},{mode}mode: the ratio of each pair
+  </caption>
+  <thead>
+    <tr>
+      <th scope="col">
+        <span class="sr-only">Color</span>
+      </th>
+      {group.columns.map((column) => (
+        <th scope="col" class="text-label font-normal text-subtle">
+          {column}
+        </th>
+      ))}
+    </tr>
+  </thead>
+  <tbody>
+    {group.rows.map((row) => (
+      <tr>
+        <th scope="row">
+          <code class="block text-body font-black text-text">
+            {row.name ?? row.token}
+          </code>
+          <span class="mt-1 block text-label font-normal text-subtle">
+            {row.job}
+          </span>
+        </th>
+        {row.cells[mode].map((cell) => (
+          <td colspan={cell.span} data-pair={cell.pair}>
+            <div class:list={['block-cell', cell.groundClass]}>
+              {cell.kind === 'text' ? (
+                <span
+                  class:list={[
+                    'block-sample text-h3 font-black',
+                    cell.paintClass,
+                  ]}
+                  aria-hidden="true"
+                >
+                  Aa
+                </span>
+              ) : (
+                <span
+                  class:list={['block-edge', cell.paintClass]}
+                  aria-hidden="true"
+                />
+              )}
+              <span
+                class:list={[
+                  'block-ratio text-body font-black',
+                  cell.labelClass,
+                ]}
+              >
+                {cell.ratio}:1
+              </span>
+              <span class:list={['block-verdict text-label', cell.labelClass]}>
+                {cell.verdict}
+              </span>
+              {cell.note && (
+                <span class:list={['block-note text-label', cell.labelClass]}>
+                  {cell.note}
+                </span>
+              )}
+            </div>
+          </td>
+        ))}
+      </tr>
+    ))}
+  </tbody>
+</table>

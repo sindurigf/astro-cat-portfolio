@@ -5,25 +5,18 @@ import { contrastRows } from '../scripts/contrast-table.mjs';
 import { REPOSITORY_URL, sourceUrl, templateUseUrl } from '../src/lib/site';
 import { ENGINE_INVARIANT, NODE } from './tags';
 import { builtHtml } from './routes';
+import { readFileSync } from 'node:fs';
 import {
+  BRAND_LEGACY_PATHS,
   BRAND_PATH,
-  BRAND_ROUTES,
   BRAND_SECTIONS,
-  brandHref,
 } from '../src/lib/brand-sections';
+import { blockGroups } from '../src/lib/brand-blocks';
 
 /*
  * /brand states the design system's facts; these tests hold them to the CSS the
  * pages ship, so a token cannot change without the pages changing with it.
  */
-const ALL_ROUTES = [
-  BRAND_PATH,
-  ...BRAND_SECTIONS.map((s) => brandHref(s.slug)),
-];
-const CONTRAST = brandHref('contrast');
-const COLOR = brandHref('color');
-const CONTROLS = brandHref('controls');
-const FORMS = brandHref('forms');
 const RATIO_DIGITS = 2;
 const NARROW = 390;
 const WIDE = 1280;
@@ -80,7 +73,7 @@ test.describe('/brand', () => {
     'the full contrast table lists every pairing the site measures, in order',
     ENGINE_INVARIANT,
     async ({ page }) => {
-      await gotoSettled(page, CONTRAST);
+      await gotoSettled(page, BRAND_PATH);
       const pairs = await half(page, 'pairings', 'dark')
         .locator('details tbody tr th')
         .evaluateAll((cells) =>
@@ -104,7 +97,7 @@ test.describe('/brand', () => {
   test('every contrast table has a caption and a row header per row (SC 1.3.1)', async ({
     page,
   }) => {
-    await gotoSettled(page, CONTRAST);
+    await gotoSettled(page, BRAND_PATH);
     const tables = await page
       .locator('[data-component="pairings"] table')
       .evaluateAll((all) =>
@@ -128,7 +121,7 @@ test.describe('/brand', () => {
     test(`on a ${theme} page each half's stated ratios and samples match the colors it ships (SC 1.4.3, 1.4.11)`, async ({
       browser,
     }) => {
-      const { context, page } = await pageInTheme(browser, theme, CONTRAST);
+      const { context, page } = await pageInTheme(browser, theme, BRAND_PATH);
       for (const mode of THEMES) {
         const shown = half(page, 'pairings', mode);
         const rows = await shown.locator('tbody tr').evaluateAll((trs) =>
@@ -201,69 +194,64 @@ test.describe('/brand', () => {
   }
 
   for (const theme of THEMES) {
-    test(`on a ${theme} page each color swatch shows the hex its row states for its half`, async ({
+    test(`on a ${theme} page each color block states the ratio of the colors it paints (SC 1.4.3, 1.4.6, 1.4.11)`, async ({
       browser,
     }) => {
-      const { context, page } = await pageInTheme(browser, theme, COLOR);
-      for (const mode of THEMES) {
-        const rows = await half(page, 'palette', mode)
-          .locator('li')
-          .evaluateAll((items, own) => {
-            /* The last opaque color in the value: Tailwind lists empty ring and inset layers before a shadow. */
-            const hex = (value: string) => {
-              const opaque = [...value.matchAll(/rgba?\(([^)]+)\)/g)]
-                .map((m) =>
-                  m[1]!
-                    .split(/[,\s/]+/)
-                    .filter(Boolean)
-                    .map(Number),
-                )
-                .filter((c) => c.length < 4 || c[3] !== 0);
-              const [r, g, b] = opaque.at(-1) ?? [];
-              return `#${[r, g, b].map((v) => (v ?? 0).toString(16).padStart(2, '0')).join('')}`.toUpperCase();
-            };
-            return items.map((item) => {
-              const token = item.querySelector('code')!.textContent!;
-              const facts = item.querySelectorAll('dd');
-              const stated = facts[facts.length - 1]!.textContent!;
-              const dark = /Dark (#[0-9A-F]{6})/.exec(stated)?.[1];
-              const light = /light (#[0-9A-F]{6})/.exec(stated)?.[1] ?? dark;
-              const chip = item.querySelector<HTMLElement>(
-                '[aria-hidden="true"]',
-              )!;
-              const style = getComputedStyle(chip);
-              const cls = chip.className;
-              /* Each swatch paints its color where its job puts it: the utility named for the token. */
-              const names = (prefix: string): boolean =>
-                cls
-                  .split(/\s+/)
-                  .some((c) => c.startsWith(`${prefix}-${token}`));
-              const painted = /\bborder-dashed\b/.test(cls)
-                ? null
-                : names('bg')
-                  ? hex(style.backgroundColor)
-                  : names('shadow-hard')
-                    ? hex(style.boxShadow)
-                    : names('border')
-                      ? hex(style.borderTopColor)
-                      : names('text')
-                        ? hex(style.color)
-                        : null;
-              return { token, want: own === 'light' ? light : dark, painted };
-            });
-          }, mode);
-        expect(rows.length, `the ${mode} half lists no color`).toBeGreaterThan(
-          0,
-        );
-        const wrong = rows
-          .filter((row) => row.painted !== null && row.painted !== row.want)
-          .map(
-            (row) => `${row.token}: states ${row.want}, paints ${row.painted}`,
-          );
-        expect(wrong, `a ${mode} swatch differs from its stated hex`).toEqual(
-          [],
-        );
+      const { context, page } = await pageInTheme(browser, theme, BRAND_PATH);
+      let measured = 0;
+      for (const group of blockGroups) {
+        for (const mode of THEMES) {
+          const cells = await half(page, group.id, mode)
+            .locator('td')
+            .evaluateAll((tds) =>
+              tds.map((td) => {
+                const cell = td.querySelector<HTMLElement>('.block-cell')!;
+                const sample = td.querySelector<HTMLElement>(
+                  '.block-sample, .block-edge',
+                )!;
+                const text = sample.classList.contains('block-sample');
+                const style = getComputedStyle(sample);
+                return {
+                  pair: td.getAttribute('data-pair') ?? '',
+                  text,
+                  stated: td.querySelector('.block-ratio')!.textContent!,
+                  verdict: td.querySelector('.block-verdict')!.textContent!,
+                  fg: text ? style.color : style.borderTopColor,
+                  bg: getComputedStyle(cell).backgroundColor,
+                };
+              }),
+            );
+          expect(
+            cells.length,
+            `${group.id} ${mode} half draws no block`,
+          ).toBeGreaterThan(0);
+          const result = (await page.evaluate(`(() => {
+            ${PAGE_HELPERS}
+            return ${JSON.stringify(cells)}.map((c) => ratio(parse(c.fg), parse(c.bg)).toFixed(${RATIO_DIGITS}));
+          })()`)) as string[];
+          const wrong = cells.flatMap((cell, i) => {
+            const need = cell.text ? 7 : 3;
+            const label = `${group.id} ${mode} ${cell.pair}`;
+            return [
+              ...(cell.stated === `${result[i]}:1`
+                ? []
+                : [`${label}: states ${cell.stated}, paints ${result[i]}:1`]),
+              ...(Number(result[i]) >= need
+                ? []
+                : [`${label}: paints ${result[i]}:1, under ${need}`]),
+              ...(cell.verdict === (cell.text ? 'AAA' : '3:1 pass')
+                ? []
+                : [`${label}: says ${cell.verdict}`]),
+            ];
+          });
+          expect(
+            wrong,
+            `a ${mode} block differs from the colors it paints`,
+          ).toEqual([]);
+          measured += cells.length;
+        }
       }
+      expect(measured, 'no color block was measured').toBeGreaterThan(0);
       await context.close();
     });
   }
@@ -272,15 +260,15 @@ test.describe('/brand', () => {
     'every part has a name, its rule and a live example, and each section shows the parts it lists',
     ENGINE_INVARIANT,
     async ({ page }) => {
+      await gotoSettled(page, BRAND_PATH);
       for (const section of BRAND_SECTIONS) {
-        await gotoSettled(page, brandHref(section.slug));
         const parts = await page
-          .locator('[data-component]')
+          .locator(`[id="${section.anchor}"] [data-component]`)
           .evaluateAll((items) =>
             items.map((item) => ({
               id: item.getAttribute('data-component'),
               name:
-                item.querySelector(':scope > h2')?.textContent?.trim() ?? '',
+                item.querySelector(':scope > h3')?.textContent?.trim() ?? '',
               rule:
                 item
                   .querySelector(':scope > div > p:last-of-type')
@@ -304,30 +292,53 @@ test.describe('/brand', () => {
     },
   );
 
-  test('every old /brand anchor still lands on the overview, linked to its section', async ({
+  test('every section is one page with its anchor, heading and sections link', async ({
     page,
   }) => {
     await gotoSettled(page, BRAND_PATH);
     const missing: string[] = [];
     for (const section of BRAND_SECTIONS) {
-      const row = page.locator(`[id="${section.anchor}"]`);
-      if (
-        (await row
-          .getByRole('link', { name: section.title, exact: true })
-          .getAttribute('href')) !== brandHref(section.slug)
-      ) {
-        missing.push(section.anchor);
-      }
+      const heading = page.locator(
+        `section[id="${section.anchor}"] > header h2`,
+      );
+      if ((await heading.count()) !== 1) missing.push(section.anchor);
       for (const part of section.parts) {
-        const href = await page
-          .locator(`[id="${part.id}"]`)
-          .getAttribute('href');
-        if (href !== `${brandHref(section.slug)}#${part.id}`)
+        if ((await page.locator(`[id="${part.id}"]`).count()) !== 1)
           missing.push(part.id);
       }
     }
-    expect(missing, 'an old anchor no longer leads to its section').toEqual([]);
+    expect(missing, 'a section or part lacks its anchor').toEqual([]);
   });
+
+  test(
+    'every retired section route redirects to its anchor, and the menu marks the target',
+    NODE,
+    () => {
+      const redirects = readFileSync('public/_redirects', 'utf8');
+      const css = readFileSync('src/styles/components/brand.css', 'utf8');
+      const lost: string[] = [];
+      for (const section of BRAND_SECTIONS) {
+        const target = `${BRAND_PATH}#${section.anchor}`;
+        for (const path of [
+          `/brand/${section.slug}`,
+          `/brand/${section.slug}/`,
+        ]) {
+          if (!redirects.includes(`${path} ${target} 301`))
+            lost.push(`${path} does not redirect to ${target}`);
+        }
+        if (
+          !css.includes(
+            `#${section.anchor}:target) [href='#${section.anchor}']`,
+          )
+        )
+          lost.push(`brand.css does not mark #${section.anchor} as current`);
+      }
+      expect(BRAND_LEGACY_PATHS.length, 'the legacy list lost a section').toBe(
+        BRAND_SECTIONS.length,
+      );
+      expect(lost, 'a retired link or a menu rule is missing').toEqual([]);
+    },
+  );
 
   test(
     'the light half is a picture: no headings, ids, names or reachable controls',
@@ -335,15 +346,14 @@ test.describe('/brand', () => {
     () => {
       const pages = builtHtml();
       const leaks: string[] = [];
-      for (const route of [BRAND_PATH.slice(0, -1), ...BRAND_ROUTES]) {
-        const html = pages.get(route);
-        expect(html, `${route} is not in the build`).toBeDefined();
-        for (const [copy] of html!.matchAll(
-          /<div class="brand-stage-half mode-light" inert aria-hidden="true">[\s\S]*?<\/div>\s*<\/div>\s*<\/div>/g,
-        )) {
-          const found = /<h[1-6]\b|\sid="|\sname="|\sfor="/.exec(copy);
-          if (found) leaks.push(`${route}: ${found[0].trim()}`);
-        }
+      const route = BRAND_PATH.slice(0, -1);
+      const html = pages.get(route);
+      expect(html, `${route} is not in the build`).toBeDefined();
+      for (const [copy] of html!.matchAll(
+        /<div class="brand-stage-half mode-light" inert aria-hidden="true">[\s\S]*?<\/div>\s*<\/div>\s*<\/div>/g,
+      )) {
+        const found = /<h[1-6]\b|\sid="|\sname="|\sfor="/.exec(copy);
+        if (found) leaks.push(`${route}: ${found[0].trim()}`);
       }
       expect(leaks, "a light half's copy repeats a heading or an id").toEqual(
         [],
@@ -355,11 +365,7 @@ test.describe('/brand', () => {
     test(`on a ${theme} page each half keeps its own ground`, async ({
       browser,
     }) => {
-      const { context, page } = await pageInTheme(
-        browser,
-        theme,
-        brandHref('grounds'),
-      );
+      const { context, page } = await pageInTheme(browser, theme, BRAND_PATH);
       const grounds = await page.evaluate(() => {
         const bg = (selector: string) =>
           getComputedStyle(document.querySelector(selector)!).backgroundColor;
@@ -375,7 +381,7 @@ test.describe('/brand', () => {
       const { context: other, page: darkPage } = await pageInTheme(
         browser,
         'dark',
-        brandHref('grounds'),
+        BRAND_PATH,
       );
       const darkGround = await darkPage.evaluate(
         () => getComputedStyle(document.body).backgroundColor,
@@ -389,42 +395,66 @@ test.describe('/brand', () => {
   }
 
   for (const width of [WIDE, NARROW] as const) {
-    test(`the menu marks only its own page, ${width === NARROW ? 'closed' : 'open'} at ${width}px`, async ({
+    test(`the menu lists every section once and links to it, ${width === NARROW ? 'closed' : 'open'} at ${width}px`, async ({
       page,
     }) => {
       await page.setViewportSize({ width, height: HEIGHT });
-      for (const route of ALL_ROUTES) {
-        await gotoSettled(page, route);
-        const menu = page.getByRole('navigation', { name: 'Brand sections' });
-        await expect(menu, `${route} has no single menu`).toHaveCount(1);
-        /* One list for each width; only one is rendered. */
-        const current = menu.locator('a[aria-current="page"]');
+      await gotoSettled(page, BRAND_PATH);
+      const menu = page.getByRole('navigation', { name: 'Brand sections' });
+      const anchors = BRAND_SECTIONS.map((s) => `#${s.anchor}`);
+      await expect(menu, 'the page has no single menu').toHaveCount(1);
+      const links = menu.locator('a.brand-menu-link');
+      expect(
+        await links.evaluateAll((all) =>
+          all.map((a) => a.getAttribute('href')),
+        ),
+        'the menu lists other sections than src/lib/brand-sections.ts',
+      ).toEqual([...anchors, ...anchors]);
+      await expect(
+        menu.locator('a[aria-current]'),
+        'no link is current: the page cannot tell which section is read',
+      ).toHaveCount(0);
+      await expect(
+        links.locator('visible=true'),
+        `the menu shows another number of links at ${width}px`,
+      ).toHaveCount(width === NARROW ? 0 : BRAND_SECTIONS.length);
+      if (width === NARROW) {
         expect(
-          await current.evaluateAll((all) =>
-            all.map((a) => a.getAttribute('href')),
-          ),
-          `${route} marks another page current, or more than its own link`,
-        ).toEqual([route, route]);
-        await expect(
-          current.locator('visible=true'),
-          `${route} shows its current link at ${width}px`,
-        ).toHaveCount(width === NARROW ? 0 : 1);
-        if (width === NARROW) {
-          expect(
-            await menu
-              .locator('details')
-              .evaluate((d) => (d as HTMLDetailsElement).open),
-            `${route} opens its menu at ${width}px`,
-          ).toBe(false);
-        }
+          await menu
+            .locator('details')
+            .evaluate((d) => (d as HTMLDetailsElement).open),
+          `the menu starts open at ${width}px`,
+        ).toBe(false);
       }
     });
   }
 
+  test('the section you jumped to is the gold block in the menu', async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: WIDE, height: HEIGHT });
+    await gotoSettled(page, `${BRAND_PATH}#color`);
+    const menu = page.getByRole('navigation', { name: 'Brand sections' });
+    const fills = await menu
+      .locator('a.brand-menu-link')
+      .locator('visible=true')
+      .evaluateAll((all) =>
+        all.map((a) => [
+          a.getAttribute('href'),
+          getComputedStyle(a).backgroundColor,
+        ]),
+      );
+    const painted = fills.filter(([, fill]) => fill !== 'rgba(0, 0, 0, 0)');
+    expect(
+      painted.map(([href]) => href),
+      'only the targeted section is painted in the menu',
+    ).toEqual(['#color']);
+  });
+
   test('ids and landmark names are unique on every page, with the examples on it', async ({
     page,
   }) => {
-    for (const route of ALL_ROUTES) {
+    for (const route of [BRAND_PATH]) {
       await gotoSettled(page, route);
       const { ids, landmarks, mains, h1s } = await page.evaluate(() => {
         const repeated = (values: string[]) =>
@@ -459,7 +489,7 @@ test.describe('/brand', () => {
   test('the example form sends nothing and stays on the page', async ({
     page,
   }) => {
-    await gotoSettled(page, FORMS);
+    await gotoSettled(page, BRAND_PATH);
     const form = half(page, 'form', 'dark').locator('form');
     const requests: string[] = [];
     page.on('request', (request) => {
@@ -469,7 +499,7 @@ test.describe('/brand', () => {
     await form.getByRole('button', { name: 'Send Message' }).click();
     await form.getByLabel(/^Name/).press('Enter');
     await expect(page, 'the example form left the page').toHaveURL(
-      new RegExp(`${FORMS}$`),
+      new RegExp(`${BRAND_PATH}$`),
     );
     expect(requests, 'the example form sent a request').toEqual([]);
   });
@@ -477,7 +507,7 @@ test.describe('/brand', () => {
   test('both theme menus change the one theme and always agree', async ({
     page,
   }) => {
-    await gotoSettled(page, CONTROLS);
+    await gotoSettled(page, BRAND_PATH);
     const switches = page.locator(`.theme-switch${LIVE}`);
     await expect(switches).toHaveCount(2);
     const menus = page.locator(`.theme-menu${LIVE}`);
@@ -507,7 +537,7 @@ test.describe('/brand', () => {
   });
 
   test('each motion example changes only its own name', async ({ page }) => {
-    await gotoSettled(page, CONTROLS);
+    await gotoSettled(page, BRAND_PATH);
     const toggles = page.locator(`button[data-example-toggle]${LIVE}`);
     expect(await toggles.count()).toBeGreaterThan(1);
     const names = () =>
@@ -526,7 +556,7 @@ test.describe('/brand', () => {
       page,
     }) => {
       await page.setViewportSize({ width, height: HEIGHT });
-      for (const route of [BRAND_PATH, brandHref('heroes')]) {
+      for (const route of [BRAND_PATH]) {
         await gotoSettled(page, route);
         for (const open of [false, true]) {
           const covered = await page.evaluate((openAll) => {
@@ -641,7 +671,7 @@ test.describe('/brand examples at 320px', () => {
     const cut: string[] = [];
     let measured = 0;
 
-    for (const route of ALL_ROUTES) {
+    for (const route of [BRAND_PATH]) {
       await gotoSettled(page, route);
       const result = await page.evaluate((tolerance) => {
         const found: string[] = [];

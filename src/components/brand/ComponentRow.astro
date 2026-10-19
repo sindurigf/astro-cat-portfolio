@@ -28,9 +28,9 @@ const ownLight = Astro.slots.has('light')
 ---
 
 <li data-component={id}>
-  <h2 id={id} class="text-h3 text-text">
+  <h3 id={id} class="text-h3 text-text">
     {brandPartName(id)}
-  </h2>
+  </h3>
   <div class="mt-2 max-w-measure text-body">
     {use && <p class="mb-paragraph text-text">Use it for {use}</p>}
     <p class="text-subtle">{rule}</p>

@@ -97,44 +97,14 @@ const FIRST_USES: readonly {
     expansion: "the highest of WCAG's three levels",
   },
   {
-    route: '/brand/template',
+    route: '/brand',
     abbreviation: 'CC BY',
     expansion: 'Creative Commons Attribution',
   },
   {
-    route: '/brand/template',
+    route: '/brand',
     abbreviation: 'CC0',
     expansion: 'Creative Commons Zero',
-  },
-  {
-    route: '/brand/cards',
-    abbreviation: 'WCAG',
-    expansion: 'Web Content Accessibility Guidelines',
-  },
-  {
-    route: '/brand/cards',
-    abbreviation: 'AA',
-    expansion: "the middle of WCAG's three levels",
-  },
-  {
-    route: '/brand/cards',
-    abbreviation: 'AAA',
-    expansion: "the highest of WCAG's three levels",
-  },
-  {
-    route: '/brand/accessibility',
-    abbreviation: 'WCAG',
-    expansion: 'Web Content Accessibility Guidelines',
-  },
-  {
-    route: '/brand/accessibility',
-    abbreviation: 'AA',
-    expansion: "the middle of WCAG's three levels",
-  },
-  {
-    route: '/brand/accessibility',
-    abbreviation: 'AAA',
-    expansion: "the highest of WCAG's three levels",
   },
   { route: '/privacy', abbreviation: 'IP', expansion: 'Internet Protocol' },
   {

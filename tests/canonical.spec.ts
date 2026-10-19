@@ -42,11 +42,13 @@ test('every redirect in public/_redirects lands on a built file', NODE, () => {
     .split('\n')
     .map((line) => line.trim())
     .filter((line) => line !== '' && !line.startsWith('#'))
-    .map((line) => line.split(/\s+/)[1]!);
+    .map((line) => line.split(/\s+/)[1]!.split('#')[0]!);
   expect(targets.length, 'no redirects read').toBeGreaterThan(0);
-  expect(targets.filter((path) => !existsSync(join(DIST_DIR, path)))).toEqual(
-    [],
-  );
+  const file = (path: string) =>
+    path.endsWith('/') ? `${path}index.html` : path;
+  expect(
+    targets.filter((path) => !existsSync(join(DIST_DIR, file(path)))),
+  ).toEqual([]);
 });
 
 /* SC 1.3.5: axe checks an autocomplete value only when one is present. */

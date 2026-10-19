@@ -1,7 +1,6 @@
 ---
 import BlogCard from '../BlogCard.astro';
 import ComponentRow from './ComponentRow.astro';
-import StandardText from './StandardText.astro';
 import { cardProps, getSortedPosts } from '../../lib/blog';
 import { accessibilityFacts } from '../../lib/accessibility-facts';
 
@@ -70,9 +69,7 @@ const { targetStandard, conformanceStatus } = accessibilityFacts;
     <dl class="fact-strip grid gap-0 lg:grid-cols-12">
       <div class="lg:col-span-6">
         <dt class="label text-gold">Target</dt>
-        <dd class="mt-4 text-text">
-          <StandardText text={targetStandard} />
-        </dd>
+        <dd class="mt-4 text-text">{targetStandard}</dd>
       </div>
       <div class="lg:col-span-6">
         <dt class="label text-gold">Status</dt>
