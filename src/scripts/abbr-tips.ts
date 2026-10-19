@@ -80,7 +80,10 @@ for (const root of document.querySelectorAll<HTMLElement>('[data-abbr]')) {
   const tip = root.querySelector<HTMLElement>('[popover]');
   if (!button || !tip) continue;
   if ('showPopover' in tip) enhance(root, button, tip);
-  else unwrap(button);
+  else {
+    unwrap(button);
+    root.dataset.abbrInline = '';
+  }
   root.dataset.abbrReady = '';
 }
 

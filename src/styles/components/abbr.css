@@ -10,6 +10,11 @@
     white-space: normal;
   }
 
+  /* Read inline, the expansion wraps with its abbreviation (SC 1.4.10); no line starts with the `after` punctuation. */
+  .abbr-unit[data-abbr-inline] {
+    white-space: normal;
+  }
+
   /* Dotted, so it does not read as a link; no color change, which gold forbids. */
   .abbr-trigger {
     @apply border-0 bg-transparent p-0 text-inherit;
