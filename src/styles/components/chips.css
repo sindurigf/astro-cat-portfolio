@@ -107,10 +107,6 @@
       outline-offset: calc(-1 * (var(--block-edge) + var(--focus-gap)));
     }
 
-    & a.chip:not([aria-current]):active {
-      translate: none;
-    }
-
     @media (forced-colors: active) {
       filter: none;
     }
