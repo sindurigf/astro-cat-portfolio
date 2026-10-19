@@ -22,54 +22,129 @@
   }
 
   /*
-   * Everything with a hard shadow drops it while pressed; the menu's bricks are
-   * `.press-brick`. The header's joined bricks share their row's throw, so they
-   * hold still. The logo tile's press is in @layer utilities.
+   * Each pressable's throw: its shadow offset, which is also its ring's `--lift`.
+   * The press rule below draws the shadow from these.
    */
-  :is(.btn-primary, .btn-secondary, a.chip, .footer-sticker, .press-brick):not(
-      [aria-disabled='true'],
-      [aria-current]
-    ):active,
-  .surface-gold .btn-gold-primary:active {
-    @apply shadow-none;
+  /* Kept apart from `a.chip`, whose weight would beat `.press-brick` below. */
+  :is(.btn-primary, .btn-secondary, .footer-sticker),
+  a.chip {
+    --press-throw: var(--lift-control);
+    --press-throw-color: var(--color-pink);
+  }
+
+  .surface-gold .btn-gold-primary {
+    --press-throw: var(--lift-control);
+    --press-throw-color: var(--color-mark);
+  }
+
+  /* The menu's bricks; the header's joined bricks share their row's throw and hold still. */
+  .press-brick {
+    --press-throw: var(--brick-throw);
+    --press-throw-color: var(--color-text);
   }
 
   /*
-   * The 4px press move, opt-in for no-preference. `::after` fills the vacated
-   * strip so a press near the top-left edge still lands on the control.
+   * The press: a control lifts off its throw under the pointer, slams onto it at
+   * once and slides back. The throw's far corner never moves, and the shadow is
+   * one layer in every state, so it slides instead of fading. Reduced motion
+   * keeps only the dropped throw. The logo tile's press is in @layer utilities.
    * tests/press.spec.ts.
    */
+  :is(
+    .btn-primary,
+    .btn-secondary,
+    a.chip:not(.chip-row *),
+    .footer-sticker,
+    .press-brick,
+    .surface-gold .btn-gold-primary
+  ):not([aria-disabled='true'], [aria-current]) {
+    box-shadow:
+      var(--press-ring, 0 0 transparent),
+      var(--press-throw) var(--press-throw) 0 var(--press-throw-color);
+
+    &:active {
+      box-shadow:
+        var(--press-ring, 0 0 transparent),
+        0 0 0 var(--press-throw-color);
+    }
+
+    @media (prefers-reduced-motion: no-preference) {
+      transition-property: translate, box-shadow;
+      transition-duration: var(--press-travel);
+      transition-timing-function: linear;
+
+      &:active {
+        translate: var(--press-throw) var(--press-throw);
+        transition-duration: 0s;
+      }
+
+      /*
+       * The `::after`s fill the strip the control leaves, past its border, so
+       * a pointer at its edge keeps hover and a press there lands on it.
+       */
+      &:active::after {
+        --vacated: calc(
+          var(--press-edge) + var(--press-throw) + var(--press-lift)
+        );
+
+        content: '';
+        position: absolute;
+        inset: calc(var(--vacated) * -1) 0 0 calc(var(--vacated) * -1);
+      }
+
+      /* No lift on touch, where :hover sticks after a tap. */
+      @media (hover: hover) {
+        /* The ring clears the grown throw: cyan over pink fails SC 1.4.11. */
+        &:hover:not(:active) {
+          --lift: calc(var(--press-throw) + var(--press-lift));
+
+          translate: calc(var(--press-lift) * -1) calc(var(--press-lift) * -1);
+          box-shadow:
+            var(--press-ring, 0 0 transparent),
+            calc(var(--press-throw) + var(--press-lift))
+              calc(var(--press-throw) + var(--press-lift)) 0
+              var(--press-throw-color);
+        }
+
+        &:hover:not(:active)::after {
+          --vacated: calc(var(--press-edge) + var(--press-lift));
+
+          content: '';
+          position: absolute;
+          inset: calc(var(--press-edge) * -1) calc(var(--vacated) * -1)
+            calc(var(--vacated) * -1) calc(var(--press-edge) * -1);
+        }
+      }
+    }
+  }
+
+  /*
+   * The `::after`s' containing block, at no weight, so a control placed
+   * `fixed` (the slideshow's Exit Full Screen) keeps its place mid-click.
+   */
   @media (prefers-reduced-motion: no-preference) {
-    :is(
+    :where(
+      .btn-primary,
+      .btn-secondary,
+      a.chip,
+      .footer-sticker,
+      .press-brick,
+      .btn-gold-primary
+    ):where(:active) {
+      position: relative;
+    }
+
+    @media (hover: hover) {
+      :where(
         .btn-primary,
         .btn-secondary,
         a.chip,
         .footer-sticker,
-        .press-brick
-      ):not([aria-disabled='true'], [aria-current]):active,
-    .surface-gold .btn-gold-primary:active {
-      @apply relative translate-x-1 translate-y-1;
-    }
-
-    :is(
-        .btn-primary,
-        .btn-secondary,
-        a.chip,
-        .footer-sticker,
-        .press-brick
-      ):not([aria-disabled='true'], [aria-current]):active::after,
-    .surface-gold .btn-gold-primary:active::after {
-      content: '';
-      position: absolute;
-      inset: calc(--spacing(2) * -1) 0 0 calc(--spacing(2) * -1);
-    }
-
-    /* A brick moves by its 6px throw; the type selector matches `a.chip`'s weight. */
-    :is(a, button).press-brick:not(
-        [aria-disabled='true'],
-        [aria-current]
-      ):active {
-      translate: var(--brick-throw) var(--brick-throw);
+        .press-brick,
+        .btn-gold-primary
+      ):where(:hover) {
+        position: relative;
+      }
     }
   }
 
@@ -288,6 +363,21 @@
     /* Bricks share an edge without overlapping, so each keeps its whole target (SC 2.5.5). */
     & > * + * > :is(a, button) {
       border-left-width: 0;
+    }
+
+    /* A hidden theme switch leaves the next brick first, so it keeps its left edge. */
+    :root:not([data-theme])
+      &
+      > .theme-switch
+      ~ :not(.theme-menu, script)
+      > :is(a, button) {
+      border-left-width: var(--block-edge);
+    }
+
+    @supports not selector(:popover-open) {
+      & > .theme-switch ~ :not(.theme-menu, script) > :is(a, button) {
+        border-left-width: var(--block-edge);
+      }
     }
 
     & :is(.nav-cta, .theme-switch, [aria-current]):focus-visible {

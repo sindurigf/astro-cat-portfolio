@@ -13,6 +13,10 @@ import { DESKTOP_VIEWPORT, NARROW_WIDTH, PHONE_VIEWPORT } from './wcag';
 /** Narrowest viewport measured, where the primary nav is hidden. */
 const MOBILE = { width: NARROW_WIDTH, height: 800 };
 
+/** `md` and `lg`: below `md` the header shows no action brick without JavaScript. */
+const MD_WIDTH = 768;
+const LG_WIDTH = 1024;
+
 /** A width where the primary nav is visible, so the fallback can collide with it. */
 const DESKTOP = DESKTOP_VIEWPORT;
 
@@ -99,6 +103,60 @@ test.describe('navigation without JavaScript', () => {
       await context.close();
     }
   });
+
+  for (const width of [MD_WIDTH, LG_WIDTH, DESKTOP.width]) {
+    test(`the header actions at ${width}px have one edge between bricks`, async ({
+      browser,
+    }) => {
+      const context = await browser.newContext({
+        javaScriptEnabled: false,
+        viewport: { width, height: DESKTOP.height },
+      });
+
+      try {
+        const page = await context.newPage();
+        await page.goto('/');
+
+        // SC 1.4.11: a hidden theme switch must not leave the first brick open on its left.
+        const edges = await page
+          .locator('header .header-bricks:has(.theme-switch)')
+          .evaluate((row) =>
+            [...row.children]
+              .map((child) =>
+                child.matches('a, button')
+                  ? child
+                  : child.querySelector(':scope > :is(a, button)'),
+              )
+              .filter(
+                (brick): brick is Element =>
+                  !!brick && brick.getBoundingClientRect().width > 0,
+              )
+              .map((brick) => {
+                const style = getComputedStyle(brick);
+                return {
+                  left: style.borderLeftWidth,
+                  right: style.borderRightWidth,
+                };
+              }),
+          );
+        expect(
+          edges.length,
+          'No visible header action bricks.',
+        ).toBeGreaterThan(0);
+        const [first, ...rest] = edges;
+        expect(first.left, 'The first visible brick has no left edge.').toBe(
+          first.right,
+        );
+        for (const brick of rest) {
+          expect(brick.left, 'A following brick doubles the shared edge.').toBe(
+            '0px',
+          );
+        }
+      } finally {
+        await context.close();
+      }
+    });
+  }
 
   test('the fallback does not duplicate the primary nav above the breakpoint', async ({
     browser,
