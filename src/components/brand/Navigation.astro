@@ -11,7 +11,7 @@ const CONTENTS = [
 ];
 ---
 
-<ul class="brand-parts">
+<ul role="list" class="brand-parts">
   <ComponentRow
     id="breadcrumb"
     use="where a page sits under its section, above its title."
@@ -33,7 +33,7 @@ const CONTENTS = [
   >
     {/* Inert: page 1 is this page, the others return to this row. */}
     <nav aria-label="Example pagination">
-      <ul class="flex flex-wrap items-center gap-6">
+      <ul role="list" class="flex flex-wrap items-center gap-6">
         {PAGER_PAGES.map((page) => (
           <li>
             <a
@@ -64,7 +64,7 @@ const CONTENTS = [
           <span>In This Post</span>
           <span class="post-contents-marker" aria-hidden="true" />
         </summary>
-        <ol>
+        <ol role="list">
           {CONTENTS.map(({ href, label }) => (
             <li>
               <a
@@ -102,7 +102,7 @@ const CONTENTS = [
     rule="Label type; pages in text, policies in subtle; cyan under the pointer."
   >
     <nav aria-label="Example footer links" class="footer-pages mt-0">
-      <ul class="flex flex-wrap gap-x-6">
+      <ul role="list" class="flex flex-wrap gap-x-6">
         <li>
           <a href="/about/" class="label text-text hover:text-cyan">
             About
