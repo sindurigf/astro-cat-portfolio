@@ -1208,7 +1208,9 @@ Enforced by `tests/nav-current.spec.ts`, `tests/mobile-menu.spec.ts`,
   `src/composables/use-hero-field.ts`): start the animation on mount,
   never in server HTML. Under reduced motion render one still frame and no
   button. The state lives in the accessible name ("Play the hero animation" /
-  "Pause the hero animation"), no `aria-pressed`.
+  "Pause the hero animation"), no `aria-pressed`. Without JavaScript the hero
+  shows that still frame as a WebP (`npm run hero-still` after a change to the
+  field).
 - `HeroField` loads `client:load`.
 - The About cats (`src/components/ui/AboutCats.vue`) wake when their band is
   first on screen, play along it (games like the yarn and the fly carry them,

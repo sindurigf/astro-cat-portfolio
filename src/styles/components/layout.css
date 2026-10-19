@@ -289,6 +289,29 @@
   }
 
   /*
+   * The reduced-motion frame where no script draws it (scripts/make-hero-still.mjs).
+   * Its sky is cut and `contain` keeps all of the field in a short window.
+   */
+  @media (scripting: none) {
+    .hero-field {
+      background: url('../../assets/hero-still-tall.webp') left bottom / contain
+        no-repeat;
+    }
+
+    @media (width < theme(--breakpoint-md)) and (orientation: landscape) {
+      .hero-field {
+        background-image: url('../../assets/hero-still-short.webp');
+      }
+    }
+
+    @media (width >= theme(--breakpoint-md)) {
+      .hero-field {
+        background-image: url('../../assets/hero-still-wide.webp');
+      }
+    }
+  }
+
+  /*
    * The SC 2.2.2 pause control, beside the first name above the window, which
    * can be too low to hold it clear of the name. `z-40`: above the name's line
    * box, empty there. `pointer-events-auto`: `.hero-field` disables them.

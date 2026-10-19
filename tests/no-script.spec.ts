@@ -286,3 +286,69 @@ test.describe('the About cats without JavaScript', () => {
     await expect(page.locator('.cats-noscript')).toBeHidden();
   });
 });
+
+/*
+ * The hero field is drawn by a script; without one a still of its
+ * reduced-motion frame stands in. Short phones, landscape and 400% zoom
+ * (SC 1.4.10) of the 1280px desktop.
+ */
+test.describe('the hero without JavaScript', () => {
+  const ZOOM = 4;
+  const VIEWPORTS = [
+    { width: 320, height: 568 },
+    { width: 375, height: 667 },
+    { width: 568, height: 320 },
+    { width: DESKTOP.width / ZOOM, height: DESKTOP.height / ZOOM },
+    DESKTOP,
+  ];
+
+  for (const viewport of VIEWPORTS) {
+    test(`at ${viewport.width}x${viewport.height} the still frame loads and fits one screen`, async ({
+      browser,
+    }) => {
+      const context = await browser.newContext({
+        javaScriptEnabled: false,
+        viewport,
+      });
+
+      try {
+        const page = await context.newPage();
+        await page.goto('/');
+
+        const field = await page.locator('.hero-field').evaluate((element) => {
+          const header = document.querySelector('header');
+          const sticky =
+            header && getComputedStyle(header).position === 'sticky'
+              ? header.getBoundingClientRect().height
+              : 0;
+          return {
+            image: /url\("?([^")]+)"?\)/.exec(
+              getComputedStyle(element).backgroundImage,
+            )?.[1],
+            height: element.getBoundingClientRect().height,
+            room: innerHeight - sticky,
+          };
+        });
+
+        expect(field.image, 'The hero shows no still frame.').toBeTruthy();
+        const response = await page.request.get(field.image!);
+        expect(response.ok(), 'The hero still frame does not load.').toBe(true);
+        expect(response.headers()['content-type']).toContain('image/');
+        expect(
+          field.height,
+          'The hero window, and with it the still frame, is taller than the screen below the header.',
+        ).toBeLessThanOrEqual(field.room);
+      } finally {
+        await context.close();
+      }
+    });
+  }
+
+  test('script users never fetch the still frame', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.locator('.hero-field')).toHaveCSS(
+      'background-image',
+      'none',
+    );
+  });
+});
