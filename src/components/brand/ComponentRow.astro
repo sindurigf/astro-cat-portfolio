@@ -6,8 +6,9 @@
  * slot replaces the copy with live content of its own, for facts that differ
  * by mode, such as contrast ratios.
  */
+import { PART_ACCESSIBILITY } from '../../lib/brand-a11y';
 import { brandPartName } from '../../lib/brand-sections';
-import { inertCopy } from './mirror';
+import { inertCopy, sourceOf } from './mirror';
 
 interface Props {
   /* A part id from src/lib/brand-sections.ts, which holds its name. */
@@ -22,6 +23,7 @@ const states = Astro.slots.has('states')
   ? `<div class="mt-8">${await Astro.slots.render('states')}</div>`
   : '';
 const live = example + states;
+const keeps = PART_ACCESSIBILITY[id];
 const ownLight = Astro.slots.has('light')
   ? await Astro.slots.render('light')
   : null;
@@ -33,7 +35,12 @@ const ownLight = Astro.slots.has('light')
   </h3>
   <div class="mt-2 max-w-measure text-body">
     {use && <p class="mb-paragraph text-text">Use it for {use}</p>}
-    <p class="text-subtle">{rule}</p>
+    <p class:list={['text-subtle', keeps && 'mb-paragraph']}>{rule}</p>
+    {keeps && (
+      <p class="text-subtle">
+        <b class="font-black text-text">Accessibility</b> {keeps}
+      </p>
+    )}
   </div>
   <div class="brand-stage mt-6">
     <div class="brand-stage-half mode-dark" data-example>
@@ -58,4 +65,16 @@ const ownLight = Astro.slots.has('light')
       </div>
     )}
   </div>
+  {ownLight === null && (
+    <div class="mt-6">
+      <div class="label text-subtle">HTML</div>
+      <Fragment
+        set:html={`<div class="brand-code-frame"><pre class="brand-code" data-copy="HTML for ${brandPartName(id)}"><code>${sourceOf(example)}</code></pre></div>`}
+      />
+    </div>
+  )}
 </li>
+
+<script>
+  import '../../scripts/copy';
+</script>

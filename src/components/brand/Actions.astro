@@ -1,5 +1,7 @@
 ---
 import ComponentRow from './ComponentRow.astro';
+import DoDont from './DoDont.astro';
+import StateRow from './StateRow.astro';
 
 const META = 'text-body text-subtle';
 ---
@@ -14,23 +16,26 @@ const META = 'text-body text-subtle';
       Primary Action
     </a>
     <Fragment slot="states">
-      <ul role="list" class="space-y-6">
-        <li class="flex flex-wrap items-center gap-6">
-          <button type="button" class="btn-primary" aria-disabled="true">
-            Unavailable
-          </button>
-          <p class={META}>
-            Marked unavailable with aria-disabled: dashed edge, no shadow, still
-            reachable by keyboard.
+      <StateRow button="btn-primary" label="Primary Action" />
+      <p class={`mt-6 ${META}`}>
+        Unavailable is aria-disabled: dashed edge, no shadow, still reachable by
+        keyboard.
+      </p>
+      <div class="mt-8">
+        <DoDont
+          doText="One primary in a section, with a secondary beside it."
+          dontText="Two primaries side by side: nothing stands out."
+        >
+          <p slot="do" class="flex flex-wrap gap-6">
+            <span class="btn-primary">Save</span>
+            <span class="btn-secondary">Cancel</span>
           </p>
-        </li>
-        <li>
-          <p class={META}>
-            Point at, press or Tab to the button above: hover fills it cyan and
-            lifts it, active presses it in, focus adds the 4px cyan ring.
+          <p slot="dont" class="flex flex-wrap gap-6">
+            <span class="btn-primary">Save</span>
+            <span class="btn-primary">Send</span>
           </p>
-        </li>
-      </ul>
+        </DoDont>
+      </div>
     </Fragment>
   </ComponentRow>
 
@@ -48,12 +53,7 @@ const META = 'text-body text-subtle';
       </a>
     </p>
     <Fragment slot="states">
-      <p class="flex flex-wrap items-center gap-6">
-        <button type="button" class="btn-secondary" aria-disabled="true">
-          Unavailable
-        </button>
-        <span class={META}>aria-disabled, as on the primary.</span>
-      </p>
+      <StateRow button="btn-secondary" label="Secondary Action" />
     </Fragment>
   </ComponentRow>
 

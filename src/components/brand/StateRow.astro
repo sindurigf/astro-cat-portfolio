@@ -1,0 +1,34 @@
+---
+interface Props {
+  button: 'btn-primary' | 'btn-secondary';
+  label: string;
+}
+
+const { button, label } = Astro.props;
+const STATES = [
+  { name: 'Rest', cls: '' },
+  { name: 'Hover', cls: 'state-hover' },
+  { name: 'Focus', cls: 'focus-sample' },
+  { name: 'Pressed', cls: 'state-pressed' },
+  { name: 'Unavailable', cls: '' },
+] as const;
+---
+
+<ul
+  role="list"
+  aria-label={`${label} states`}
+  class="flex flex-wrap gap-x-8 gap-y-12"
+>
+  {STATES.map(({ name, cls }) => (
+    <li>
+      <span
+        class:list={[button, cls]}
+        aria-hidden="true"
+        aria-disabled={name === 'Unavailable' ? 'true' : undefined}
+      >
+        {label}
+      </span>
+      <span class="label mt-4 block text-subtle">{name}</span>
+    </li>
+  ))}
+</ul>

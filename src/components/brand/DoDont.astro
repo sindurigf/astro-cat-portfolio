@@ -1,0 +1,25 @@
+---
+interface Props {
+  doText: string;
+  dontText: string;
+}
+
+const { doText, dontText } = Astro.props;
+---
+
+<div class="flex flex-wrap gap-6">
+  <div class="brand-pair">
+    <div class="label text-text">Do</div>
+    <div class="brand-pair-sample" aria-hidden="true">
+      <slot name="do" />
+    </div>
+    <p class="text-body text-subtle">{doText}</p>
+  </div>
+  <div class="brand-pair">
+    <div class="label text-text">Don't</div>
+    <div class="brand-pair-sample" aria-hidden="true">
+      <slot name="dont" />
+    </div>
+    <p class="text-body text-subtle">{dontText}</p>
+  </div>
+</div>

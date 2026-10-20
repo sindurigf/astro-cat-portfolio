@@ -148,10 +148,10 @@ const setUpStrips = (): void => {
   }
 
   for (const button of document.querySelectorAll<HTMLButtonElement>(
-    '[data-strip-scroll]',
+    '[data-strip-scroll][aria-controls]',
   )) {
     const strip = document.getElementById(
-      button.getAttribute('aria-controls') ?? '',
+      button.getAttribute('aria-controls')!,
     );
     if (!strip) continue;
     const direction = Number(button.dataset.stripScroll);
