@@ -1,14 +1,11 @@
 /*
- * The 404 page's crossroads: the site's sections as signs, and the pages down
- * the chosen one as links. The Cat's way, toward the page the address most
- * likely meant, starts chosen. The data comes from #signpost-pages.
+ * The 404 page's signpost: turns the section links 404.astro renders into signs
+ * that choose a way, and lists the pages down the chosen one. The Cat's way,
+ * toward the page the address most likely meant, starts chosen.
  */
 import { rankPages } from '../lib/page-match';
-import type { SignpostPage } from '../lib/signpost-pages';
+import { childrenOf, type SignpostPage } from '../lib/signpost-pages';
 
-/* Carroll's text, Project Gutenberg #11, chapter VI. */
-const CAT_LINE =
-  '“That depends a good deal on where you want to get to,” said the Cat.';
 const CAT_PICK = 'The Cat’s pick';
 
 const make = <K extends keyof HTMLElementTagNameMap>(
@@ -25,49 +22,51 @@ const make = <K extends keyof HTMLElementTagNameMap>(
 const start = (): void => {
   const root = document.getElementById('crossroads');
   const data = document.getElementById('signpost-pages');
-  const guide = root?.querySelector<HTMLElement>('[data-guide]');
-  if (!root || !data || !guide) return;
+  const pagesColumn = root?.querySelector<HTMLElement>('[data-pending]');
+  const pagesLabel = document.getElementById('crossroads-pages-label');
+  const status = root?.querySelector('[aria-live]');
+  if (!root || !data || !pagesColumn || !pagesLabel || !status) return;
   const pages = JSON.parse(data.textContent ?? '[]') as SignpostPage[];
   const home = pages.find((page) => page.trail.length === 1);
   if (!home) return;
-
-  const childrenOf = (page: SignpostPage): SignpostPage[] => {
-    const index = pages.indexOf(page);
-    return pages.filter(
-      (other) =>
-        other.trail.length === page.trail.length + 1 &&
-        other.trail.at(-2) === index,
-    );
-  };
-  const sections = childrenOf(home);
+  const byPath = new Map(pages.map((page) => [page.path, page]));
+  /* Built here, not in 404.astro: screen readers announce an empty served list (tests/empty-states.spec.ts). */
+  const links = make('ul', 'crossroads-pages');
+  links.setAttribute('role', 'list');
+  links.setAttribute('aria-labelledby', pagesLabel.id);
   const best = rankPages(
     pages.filter((page) => page !== home),
     location.pathname,
   )[0];
   const onCatsWay = (page: SignpostPage): boolean =>
     best?.trail.includes(pages.indexOf(page)) ?? false;
-  let chosen = sections.find(onCatsWay) ?? sections[0];
+
+  const signs = [
+    ...root.querySelectorAll<HTMLAnchorElement>('a.crossroads-sign'),
+  ].flatMap((link) => {
+    const section = byPath.get(link.dataset.path ?? '');
+    if (!section) return [];
+    const sign = make('button', link.className, section.title);
+    sign.type = 'button';
+    if (onCatsWay(section)) {
+      sign.append(make('span', 'sr-only', ' (the Cat went this way)'));
+    }
+    link.replaceWith(sign);
+    return [{ sign, section }];
+  });
+  let chosen = signs.find(({ section }) => onCatsWay(section)) ?? signs[0];
   if (!chosen) return;
 
-  const cat = make('p', 'crossroads-cat', CAT_LINE);
-  const signsLabel = make('div', 'crossroads-heading label', 'Sections');
-  signsLabel.id = 'crossroads-signs-label';
-  const signs = make('ul', 'crossroads-signs');
-  signs.setAttribute('role', 'list');
-  signs.setAttribute('aria-labelledby', signsLabel.id);
-  const pole = make('div', 'crossroads-pole');
-  pole.setAttribute('aria-hidden', 'true');
-  const pagesLabel = make('div', 'crossroads-heading label');
-  pagesLabel.id = 'crossroads-pages-label';
-  const links = make('ul', 'crossroads-pages');
-  links.setAttribute('role', 'list');
-  links.setAttribute('aria-labelledby', pagesLabel.id);
-  const status = make('p', 'sr-only');
-  status.setAttribute('aria-live', 'polite');
-
-  const drawPages = (): void => {
-    const down = [chosen!, ...childrenOf(chosen!)];
-    pagesLabel.textContent = `Down the ${chosen!.title} Way`;
+  /* A #fragment of a page is listed only when it is the Cat's pick, so no list outgrows the signs. */
+  const draw = (): void => {
+    const { section } = chosen!;
+    const down = [
+      section,
+      ...childrenOf(pages, section).filter(
+        (page) => !page.path.includes('#') || page === best,
+      ),
+    ];
+    pagesLabel.textContent = `Down the ${section.title} Way`;
     links.replaceChildren(
       ...down.map((page) => {
         const item = make('li');
@@ -81,46 +80,22 @@ const start = (): void => {
         return item;
       }),
     );
-    for (const sign of signs.querySelectorAll('button')) {
-      sign.setAttribute(
-        'aria-pressed',
-        String(sign.dataset.path === chosen!.path),
-      );
+    for (const entry of signs) {
+      entry.sign.setAttribute('aria-pressed', String(entry === chosen));
     }
   };
 
-  signs.append(
-    ...sections.map((section) => {
-      const item = make('li', 'crossroads-sign-row');
-      const sign = make('button', 'crossroads-sign label', section.title);
-      sign.type = 'button';
-      sign.dataset.path = section.path;
-      sign.addEventListener('click', () => {
-        chosen = section;
-        drawPages();
-        const count = links.children.length;
-        status.textContent = `${count} ${count === 1 ? 'page' : 'pages'} down the ${section.title} way.`;
-      });
-      item.append(sign);
-      if (onCatsWay(section)) {
-        sign.append(make('span', 'sr-only', ' (the Cat went this way)'));
-      }
-      return item;
-    }),
-  );
-
-  const signsColumn = make('div', 'crossroads-column');
-  signsColumn.append(signsLabel, signs);
-  const pagesColumn = make('div', 'crossroads-column');
-  pagesColumn.append(pagesLabel, links);
-  const map = make('div', 'crossroads-map');
-  map.append(signsColumn, pole, pagesColumn);
-
-  guide.hidden = false;
-  pole.append(guide);
-  drawPages();
-  root.querySelector('[data-fallback]')?.remove();
-  root.prepend(cat, map, status);
+  for (const entry of signs) {
+    entry.sign.addEventListener('click', () => {
+      chosen = entry;
+      draw();
+      const count = links.children.length;
+      status.textContent = `${count} ${count === 1 ? 'page' : 'pages'} down the ${entry.section.title} way.`;
+    });
+  }
+  draw();
+  pagesColumn.append(links);
+  delete pagesColumn.dataset.pending;
 };
 
 start();

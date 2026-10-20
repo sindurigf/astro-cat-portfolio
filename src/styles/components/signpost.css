@@ -86,6 +86,11 @@
     }
   }
 
+  /* Holds its place until the script fills it, so nothing below moves. */
+  .crossroads-column[data-pending] {
+    visibility: hidden;
+  }
+
   .crossroads-column {
     @media (width >= 48rem) {
       padding-bottom: var(--size-crossroads-guide);
@@ -118,6 +123,7 @@
       0 100%
     );
     text-align: left;
+    text-decoration: none;
     cursor: pointer;
 
     @media (width >= 48rem) {

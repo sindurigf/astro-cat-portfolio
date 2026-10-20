@@ -119,14 +119,19 @@ test.describe('the 404 signpost', () => {
 test.describe('without JavaScript', () => {
   test.use({ javaScriptEnabled: false });
 
-  test('the main pages are plain links and no crossroads is drawn', async ({
+  test('every section sign is a plain link and no page list shows', async ({
     page,
   }) => {
     await page.goto(ADDRESS);
-    await expect(page.locator('.crossroads-sign')).toHaveCount(0);
-    await expect(
-      page.getByRole('navigation', { name: 'Main pages' }).getByRole('link'),
-      'the main pages are the way out without JavaScript',
-    ).toHaveText(['Home', 'About', 'Career', 'Blog']);
+    const signs = page
+      .getByRole('list', { name: 'Sections' })
+      .getByRole('link');
+    await expect(signs.first(), 'the sections are the way out').toHaveAttribute(
+      'href',
+      '/about/',
+    );
+    expect(await signs.count()).toBeGreaterThan(3);
+    await expect(page.getByRole('button')).toHaveCount(0);
+    await expect(page.locator('.crossroads-pages')).toBeHidden();
   });
 });

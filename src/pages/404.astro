@@ -3,8 +3,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import CatMark from '../components/CatMark.astro';
 import PageHero from '../components/PageHero.astro';
 import '../styles/components/signpost.css';
-import { NAV_LINKS } from '../lib/nav';
-import { signpostPages } from '../lib/signpost-pages';
+import { sectionsOf, signpostPages } from '../lib/signpost-pages';
 import { sitePages } from '../lib/site-pages';
 
 /*
@@ -16,11 +15,14 @@ import { sitePages } from '../lib/site-pages';
 /* CSS px: the tile body CatMark draws 72px tall, --size-crossroads-guide. */
 const GUIDE_BODY = 63;
 
+const pages = signpostPages(await sitePages());
 /* `<` escaped, so no title can close the data block. */
-const pagesJson = JSON.stringify(signpostPages(await sitePages())).replace(
-  /</g,
-  '\\u003c',
-);
+const pagesJson = JSON.stringify(pages).replace(/</g, '\\u003c');
+const sections = sectionsOf(pages);
+
+/* Carroll's text, Project Gutenberg #11, chapter VI. */
+const CAT_LINE =
+  '“That depends a good deal on where you want to get to,” said the Cat.';
 ---
 
 <BaseLayout
@@ -45,26 +47,47 @@ const pagesJson = JSON.stringify(signpostPages(await sitePages())).replace(
       <a href="/contact/">tell me about the broken link</a>.
     </p>
 
+    {/* Without JavaScript the signs are links; src/scripts/signpost.ts makes them choose a way. */}
     <div id="crossroads" slot="slab" class="crossroads mt-head">
-      {/* Without JavaScript these are the way out; src/scripts/signpost.ts replaces them with the crossroads. */}
-      <nav aria-label="Main pages" data-fallback>
-        <ul role="list" class="actions">
-          {NAV_LINKS.map((page, index) => (
-            <li>
-              <a
-                href={page.href}
-                class={index === 0 ? 'btn-primary' : 'btn-secondary'}
-              >
-                {page.label}
-              </a>
-            </li>
-          ))}
-        </ul>
-      </nav>
-      <span class="crossroads-guide" data-guide hidden>
-        <CatMark body={GUIDE_BODY} />
-      </span>
+      <p class="crossroads-cat">{CAT_LINE}</p>
+      <div class="crossroads-map">
+        <div class="crossroads-column">
+          <div id="crossroads-signs-label" class="crossroads-heading label">
+            Sections
+          </div>
+          <ul
+            role="list"
+            class="crossroads-signs"
+            aria-labelledby="crossroads-signs-label"
+          >
+            {sections.map((section) => (
+              <li>
+                <a
+                  href={section.path}
+                  class="crossroads-sign label"
+                  data-path={section.path}
+                >
+                  {section.title}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div class="crossroads-pole" aria-hidden="true">
+          <span class="crossroads-guide">
+            <CatMark body={GUIDE_BODY} eager />
+          </span>
+        </div>
+        <div class="crossroads-column" data-pending>
+          <div
+            id="crossroads-pages-label"
+            class="crossroads-heading label"
+          ></div>
+        </div>
+      </div>
+      <p class="sr-only" aria-live="polite"></p>
       <script
+        is:inline
         type="application/json"
         id="signpost-pages"
         set:html={pagesJson}
