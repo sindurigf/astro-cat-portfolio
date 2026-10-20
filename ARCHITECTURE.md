@@ -432,8 +432,8 @@ in `wrangler.jsonc`).
   ([AI_DISCLOSURE.md](AI_DISCLOSURE.md)).
 - The header and `/about` draw `src/assets/logo-cat.svg` (written by
   `npm run icons`) as an `<img alt="">`, cached once for every page; the
-  footer draws the head inline, since its tufts take theme and forced-color
-  CSS. The roundel renders `mark-dark.png` through `<Image>` with `widths` and
+  footer draws the head inline, standing on the motto band, since its shadow
+  takes theme and forced-color CSS. The roundel renders `mark-dark.png` through `<Image>` with `widths` and
   `sizes`.
 - A `.vue` component cannot reach `astro:assets`: call `getImage()` in Astro
   and pass the result as a prop.

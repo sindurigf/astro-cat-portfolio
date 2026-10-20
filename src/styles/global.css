@@ -372,11 +372,14 @@
   --text-copyright: 1.25rem;
   --text-copyright--line-height: 1.2;
   /*
-   * The motto in the footer, one line in the 288px phone box: 32px
-   * uppercase Lexend 900 is about 250px wide.
+   * The motto on the footer band, sized by the band: its width less padding
+   * over the motto's width in em, plus room for SC 1.4.12 letter spacing. One
+   * word a line below 48rem, one line from 48rem. TODO(fork): set both
+   * divisors from your motto's longest word and full width in em.
    */
-  --text-footer-name: clamp(2rem, 3vw, 2.5rem);
-  --text-footer-name--line-height: 1;
+  --text-footer-name-fluid: calc((100cqi - 3rem) / 3.3);
+  --text-footer-name-fluid-md: calc((100cqi - 3rem) / 6.15);
+  --text-footer-name--line-height: 0.82;
   /* The glyph in a homepage category tile; colors in src/lib/categories.ts. */
   --text-section-number: clamp(1.3125rem, 2.4vw, 1.75rem);
   --text-section-number--line-height: 1;
@@ -556,15 +559,16 @@
 
   /*
    * Footer profile tiles (48px, 56px from `lg`, each past SC 2.5.5's 44px),
-   * icon, edge, and tuft (266px from `md`). Size tokens, so no utilities are
+   * icon, edge, and the mascot on the motto. Size tokens, so no utilities are
    * generated.
    */
   --size-sticker: 48px;
   --size-sticker-lg: 56px;
   --size-sticker-icon: 22px;
   --border-width-sticker: 4px;
-  --size-tuft: 220px;
-  --size-tuft-md: 266px;
+  --size-footer-mascot: clamp(72px, 9vw, 120px);
+  /* How far the mascot drops below the type's top: the cap gap. */
+  --footer-mascot-sink: 0.04em;
   /*
    * Header row above `md`: equal outer tracks center the nav. A token because
    * components allow no arbitrary values.
