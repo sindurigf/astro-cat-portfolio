@@ -18,6 +18,7 @@ import {
 import socialIcons from '../assets/social-icons.svg?url';
 /* `?worker&url`: a separate file, so no Vite preload helper, loaded by src under Trusted Types. */
 import onDemandRegistry from '../scripts/on-demand.ts?worker&url';
+import mascotTickle from '../scripts/mascot-tickle.ts?worker&url';
 
 /* Source order is the reading order at every width; no CSS `order`. */
 
@@ -139,6 +140,18 @@ const SHADOW = 3;
           ></path>
           <g set:html={markMarkup(tokenPaint, { id: 'footer' })} />
         </svg>
+        {/* Over the mascot, which stays a plain drawing: without the registry the button stays hidden. */}
+        {onDemand && (
+          <button
+            type="button"
+            class="footer-mascot-button"
+            lang="en"
+            data-on-demand={mascotTickle}
+            data-mascot-tickle
+            aria-label="Tickle the Cat"
+            hidden
+          ></button>
+        )}
       </span>
     </div>
   </div>

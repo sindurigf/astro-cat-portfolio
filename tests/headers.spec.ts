@@ -214,6 +214,11 @@ test.describe('security headers', () => {
     await page.keyboard.press('Escape');
     await page.goto(`${policy().origin}/`);
     await waitForHydration(page);
+    /* Tickle the Cat loads its script on the first press. */
+    await page.getByRole('button', { name: 'Tickle the Cat' }).click();
+    await expect(page.locator('footer').getByRole('status')).toHaveText(
+      'The cat purrs.',
+    );
     await fontsSettled(page);
 
     expect(violations, 'the browser refused something under the CSP').toEqual(

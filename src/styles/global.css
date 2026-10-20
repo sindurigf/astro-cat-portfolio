@@ -582,6 +582,15 @@
   --size-footer-mascot: clamp(72px, 9vw, 120px);
   /* How far the mascot drops below the type's top: the cap gap. */
   --footer-mascot-sink: 0.04em;
+  /* Tickle the Cat: one short purr-hop of the mascot while the motto band laughs. */
+  --mascot-tickle-time: 820ms;
+  --mascot-tickle-hop: 32px;
+  --mascot-tickle-turn: 9deg;
+  --name-laugh-rise: 6px;
+  --name-laugh-turn: 1deg;
+  --mascot-tickle-blink: 200ms;
+  /* Overshoots its end value, so a hop lands past its spot and settles back. */
+  --ease-tickle: cubic-bezier(0.3, 2.2, 0.5, 1);
   /*
    * Header row above `md`: equal outer tracks center the nav. A token because
    * components allow no arbitrary values.

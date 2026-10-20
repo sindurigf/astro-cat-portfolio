@@ -160,17 +160,24 @@ for (const width of WIDTHS) {
     }) => {
       const m = await page.evaluate(() => {
         const mascot = document.querySelector('.footer-mascot') as SVGElement;
-        const box = mascot.getBoundingClientRect();
+        /* The mascot, and the Tickle the Cat button drawn over it. */
+        const boxes = [
+          mascot,
+          ...document.querySelectorAll('[data-mascot-tickle]'),
+        ].map((el) => el.getBoundingClientRect());
         const overlapping = [
           ...document.querySelectorAll('footer a, .footer-copyright'),
         ]
           .filter((el) => {
             const other = el.getBoundingClientRect();
-            return !(
-              other.right <= box.left ||
-              other.left >= box.right ||
-              other.bottom <= box.top ||
-              other.top >= box.bottom
+            return boxes.some(
+              (box) =>
+                !(
+                  other.right <= box.left ||
+                  other.left >= box.right ||
+                  other.bottom <= box.top ||
+                  other.top >= box.bottom
+                ),
             );
           })
           .map((el) => el.textContent?.trim() || el.outerHTML.slice(0, 60));
@@ -231,6 +238,83 @@ for (const width of WIDTHS) {
     });
   });
 }
+
+/* Tickle the Cat (src/scripts/mascot-tickle.ts): the band's one control, loaded on demand. */
+const TICKLE = { name: 'Tickle the Cat' };
+const PURRS = 'The cat purrs.';
+const TARGET_MIN = 44;
+
+test.describe('Tickle the Cat', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.setViewportSize({ width: PHONE_WIDTH, height: 900 });
+    await gotoSettled(page, ROUTE);
+  });
+
+  test('is the only control on the motto band and a 44px target (SC 2.5.5)', async ({
+    page,
+  }) => {
+    const band = page.locator('.footer-name');
+    await expect(
+      band.locator('a, button, input, select, textarea, [tabindex]'),
+    ).toHaveCount(1);
+    const button = band.getByRole('button', TICKLE);
+    await expect(button).toBeVisible();
+    const box = (await button.boundingBox())!;
+    expect(
+      box.width,
+      'the button is narrower than 44px',
+    ).toBeGreaterThanOrEqual(TARGET_MIN);
+    expect(
+      box.height,
+      'the button is shorter than 44px',
+    ).toBeGreaterThanOrEqual(TARGET_MIN);
+  });
+
+  test('a press from the keyboard makes the cat purr and says so (SC 4.1.3)', async ({
+    page,
+  }) => {
+    await page.getByRole('button', TICKLE).focus();
+    await page.keyboard.press('Enter');
+    await expect(page.locator('footer').getByRole('status')).toHaveText(PURRS);
+    await expect(page.locator('.footer-mascot')).toHaveCSS(
+      'animation-name',
+      'mascot-purr',
+    );
+    await expect(page.locator('.footer-name-text')).toHaveCSS(
+      'animation-name',
+      'name-laugh',
+    );
+  });
+
+  test('under reduced motion only blinks (SC 2.3.3)', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.getByRole('button', TICKLE).click();
+    await expect(page.locator('footer').getByRole('status')).toHaveText(PURRS);
+    await expect(page.locator('.footer-mascot')).toHaveCSS(
+      'animation-name',
+      'mascot-blink',
+    );
+    await expect(page.locator('.footer-name-text')).toHaveCSS(
+      'animation-name',
+      'none',
+    );
+  });
+});
+
+test('without JavaScript the mascot is a plain drawing and no button shows', async ({
+  browser,
+  baseURL,
+}) => {
+  const context = await browser.newContext({
+    baseURL,
+    javaScriptEnabled: false,
+  });
+  const page = await context.newPage();
+  await page.goto(ROUTE);
+  await expect(page.getByRole('button', TICKLE)).toHaveCount(0);
+  await expect(page.locator('.footer-mascot')).toBeVisible();
+  await context.close();
+});
 
 /* The footer follows the mode like the page: its words reach AAA and its tiles stand apart from it in both. */
 const AAA_TEXT = 7;

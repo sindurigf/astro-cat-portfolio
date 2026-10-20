@@ -199,6 +199,91 @@
   }
 
   /*
+   * Tickle the Cat: a button over the mascot, which stays a plain drawing.
+   * The ring is two-tone because the box crosses the page ground and the gold
+   * band: the band's `gold-text` ring between two cyan bands, which meet the ground.
+   */
+  .footer-mascot-button {
+    position: absolute;
+    right: 0;
+    bottom: calc(100% - var(--footer-mascot-sink));
+    width: var(--size-footer-mascot);
+    height: var(--size-footer-mascot);
+    cursor: pointer;
+  }
+
+  .footer-mascot-button:focus-visible {
+    outline-color: var(--color-gold-text);
+    box-shadow: 0 0 0 calc(var(--focus-gap) + var(--focus-width) * 2)
+      var(--color-cyan);
+  }
+
+  @keyframes mascot-purr {
+    0%,
+    100% {
+      translate: 0 0;
+      rotate: 0deg;
+    }
+    15% {
+      rotate: calc(var(--mascot-tickle-turn) * -1);
+    }
+    30% {
+      translate: 0 calc(var(--mascot-tickle-hop) * -1);
+      rotate: var(--mascot-tickle-turn);
+    }
+    50% {
+      translate: 0 0;
+      rotate: calc(var(--mascot-tickle-turn) * -0.7);
+    }
+    65% {
+      translate: 0 calc(var(--mascot-tickle-hop) * -0.3);
+      rotate: calc(var(--mascot-tickle-turn) * 0.5);
+    }
+  }
+
+  @keyframes name-laugh {
+    0%,
+    100% {
+      translate: 0 0;
+      rotate: 0deg;
+    }
+    12%,
+    37%,
+    62% {
+      translate: 0 calc(var(--name-laugh-rise) * -1);
+      rotate: calc(var(--name-laugh-turn) * -1);
+    }
+    25%,
+    50%,
+    75% {
+      translate: 0 0;
+      rotate: var(--name-laugh-turn);
+    }
+  }
+
+  /* One step of opacity, no movement (SC 2.3.3). */
+  @keyframes mascot-blink {
+    50% {
+      opacity: 0.4;
+    }
+  }
+
+  .footer-mascot[data-tickled] {
+    transform-origin: 50% 100%;
+    animation: mascot-blink var(--mascot-tickle-blink) steps(1);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .footer-mascot[data-tickled] {
+      animation: mascot-purr var(--mascot-tickle-time) var(--ease-tickle);
+    }
+
+    .footer-name-text[data-tickled] {
+      animation: name-laugh var(--mascot-tickle-time) ease-in-out;
+    }
+  }
+
+  /*
    * Source order is stickers, pages, policies, and reads the same row-major. `space-between` equalizes the gaps; the column gap is a floor,
    * kept small so the row fits at the md breakpoint.
    */
@@ -280,6 +365,11 @@
   @media (forced-colors: active) {
     .footer-mascot .mascot-shadow {
       display: none;
+    }
+
+    /* Transparent over the mascot, so forced colors need its edge to show a control (tests/forced-colors.spec.ts). */
+    .footer-mascot-button {
+      border: var(--border-width-sticker) solid ButtonText;
     }
 
     .footer-sticker svg {
