@@ -23,6 +23,8 @@ const toHex = (css: string) =>
     .slice(0, 3)
     .map((v) => Number(v).toString(16).padStart(2, '0'))
     .join('')}`.toUpperCase();
+/* Firefox lays out in 1/60 px units: stacked blocks measure -4.0001, not -4. */
+const LAYOUT_EPSILON_PX = 0.01;
 const NARROW = 390;
 const WIDE = 1280;
 const HEIGHT = 900;
@@ -601,8 +603,10 @@ test.describe('/brand', () => {
         for (const [i, half] of halves.entries()) {
           if (!half.touching || !half.before) continue;
           const shared =
-            half.box.left - half.before.right === -blockEdge ||
-            half.box.top - half.before.bottom === -blockEdge;
+            Math.abs(half.box.left - half.before.right + blockEdge) <
+              LAYOUT_EPSILON_PX ||
+            Math.abs(half.box.top - half.before.bottom + blockEdge) <
+              LAYOUT_EPSILON_PX;
           expect(
             shared,
             `block ${i} does not share one edge with the block before it`,
