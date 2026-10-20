@@ -67,9 +67,9 @@ const ownLight = Astro.slots.has('light')
   </div>
   {ownLight === null && (
     <div class="mt-6">
-      <div class="label text-subtle">HTML</div>
+      <div class="label text-subtle">Markup</div>
       <Fragment
-        set:html={`<div class="brand-code-frame"><pre class="brand-code" data-copy="HTML for ${brandPartName(id)}"><code>${sourceOf(example)}</code></pre></div>`}
+        set:html={`<div class="brand-code-frame"><pre class="brand-code" data-copy="markup for ${brandPartName(id)}"><code>${sourceOf(example)}</code></pre></div>`}
       />
     </div>
   )}

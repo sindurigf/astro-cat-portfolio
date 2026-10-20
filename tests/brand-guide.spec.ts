@@ -5,6 +5,9 @@ import { PAGE_HELPERS } from './contrast';
 import { BRAND_PATH, BRAND_SECTIONS } from '../src/lib/brand-sections';
 import { PART_ACCESSIBILITY } from '../src/lib/brand-a11y';
 
+/* WebKit applies upgrade-insecure-requests on loopback and then loads nothing over http. */
+const UPGRADE_INSECURE = /;?\s*upgrade-insecure-requests/;
+
 test.describe('/brand guide', () => {
   test('the page opens with how to use it, before the first section (SC 3.3.5)', async ({
     page,
@@ -62,7 +65,7 @@ test.describe('/brand guide', () => {
     expect(pressSample.translate).toBe(pressed.translate);
   });
 
-  test('each example shows its HTML under it and the code never scrolls sideways at 320px (SC 1.4.10, 2.1.1)', async ({
+  test('each example shows its markup under it and the code never scrolls sideways at 320px (SC 1.4.10, 2.1.1)', async ({
     page,
   }) => {
     await page.setViewportSize({ width: 320, height: 800 });
@@ -85,9 +88,9 @@ test.describe('/brand guide', () => {
           ];
         }),
       );
-    expect(blocks.length, 'no example shows its HTML').toBeGreaterThan(0);
+    expect(blocks.length, 'no example shows its markup').toBeGreaterThan(0);
     const wrong = blocks.flatMap((b) => [
-      ...(b.label === 'HTML'
+      ...(b.label === 'Markup'
         ? []
         : [`${b.part}: the code has no visible label`]),
       ...(b.text.includes('<') ? [] : [`${b.part}: the code shows no markup`]),
@@ -196,7 +199,7 @@ test.describe('/brand guide', () => {
     await gotoSettled(page, BRAND_PATH);
     const code = page.locator('pre.brand-code').first();
     const button = page.getByRole('button', {
-      name: 'Copy HTML for Page Ground',
+      name: 'Copy markup for Page Ground',
     });
     await expect(button).toHaveCount(1);
     await button.scrollIntoViewIfNeeded();
@@ -210,7 +213,7 @@ test.describe('/brand guide', () => {
       ),
     ).toEqual([await code.textContent()]);
     await expect(
-      page.getByRole('button', { name: 'Copy HTML for Page Ground' }),
+      page.getByRole('button', { name: 'Copy markup for Page Ground' }),
       'the name changed after the press',
     ).toHaveCount(1);
   });
@@ -224,7 +227,7 @@ test.describe('/brand guide', () => {
     await gotoSettled(page, BRAND_PATH);
     const code = page.locator('pre.brand-code').first();
     await page
-      .getByRole('button', { name: 'Copy HTML for Page Ground' })
+      .getByRole('button', { name: 'Copy markup for Page Ground' })
       .click();
     await expect(page.getByRole('status').last()).toHaveText(
       'Copy failed. The code is selected: press Ctrl+C or Command+C.',
@@ -264,7 +267,10 @@ test.describe('/brand guide', () => {
       const response = await route.fetch();
       await route.fulfill({
         response,
-        headers: { ...response.headers(), 'content-security-policy': csp! },
+        headers: {
+          ...response.headers(),
+          'content-security-policy': csp!.replace(UPGRADE_INSECURE, ''),
+        },
       });
     });
     await gotoSettled(page, BRAND_PATH);
@@ -419,7 +425,7 @@ test.describe('/brand guide', () => {
         'the ring should be drawn inside the button',
       ).toBeLessThan(0);
       expect(ring.inside).toBe(true);
-      expect(before).toContain('Copy HTML for');
+      expect(before).toContain('Copy markup for');
     });
   }
 

@@ -22,7 +22,7 @@ const ENTITIES: Record<string, string> = {
 /** `<main>` text of built HTML in source case, before CSS upper-casing. */
 export const mainText = (html: string): string =>
   (/<main\b[\s\S]*?<\/main>/.exec(html)?.[0] ?? '')
-    .replace(/<(script|style|svg)\b[\s\S]*?<\/\1>/g, ' ')
+    .replace(/<(script|style|svg|pre)\b[\s\S]*?<\/\1>/g, ' ')
     .replace(/<[^>]+>/g, ' ')
     .replace(/&(#\d+|#x[0-9a-f]+|[a-z]+);/gi, (entity, body: string) =>
       body.startsWith('#x')

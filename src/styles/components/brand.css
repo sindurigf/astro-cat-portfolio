@@ -141,16 +141,16 @@
     @apply relative mt-2;
   }
 
-  /* Pinned inside the frame's edge; the pre reserves its corner, so no code runs under it. */
+  /* Joined to the frame's corner, so its edge is the frame's; the pre reserves the corner and no code runs under it. */
   .copy-wrap {
     @apply absolute;
 
-    top: var(--block-edge);
-    right: var(--block-edge);
+    top: 0;
+    right: 0;
   }
 
   .copy-button {
-    @apply inline-flex min-h-target min-w-target items-center justify-center gap-2 border-4 border-transparent bg-surface px-2 text-label font-black uppercase tracking-label text-text;
+    @apply inline-flex min-h-target min-w-target items-center justify-center gap-2 border-4 border-border bg-surface px-2 text-label font-black uppercase tracking-label text-text;
 
     flex-direction: row-reverse;
 
@@ -204,6 +204,11 @@
     &:focus-visible {
       outline-color: var(--color-light-ink);
     }
+  }
+
+  /* Inside the field: the menu clips a ring drawn outside it (SC 2.4.13). */
+  .brand-menu .field-control:focus-visible {
+    outline-offset: calc(-1 * var(--focus-width));
   }
 
   .brand-menu .field-control::placeholder {
