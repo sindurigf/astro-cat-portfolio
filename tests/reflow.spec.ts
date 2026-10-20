@@ -317,6 +317,9 @@ for (const { width, contentBox, note } of REFLOW_WIDTHS) {
   });
 }
 
+/* /brand shows every button kind in <main> without JavaScript. */
+const BUTTON_ROUTE = '/brand';
+
 /* No break point, like an email address: only wrap-anywhere can break it. */
 const UNBROKEN_LABEL =
   'Email averylongmailboxnamewithnobreak@anexampledomainfortesting.example';
@@ -328,7 +331,7 @@ test.describe('button labels reflow at 305px (SC 1.4.10)', () => {
     test(`a ${button} with an unbroken label wraps inside its column`, async ({
       page,
     }) => {
-      await gotoSettled(page, '/404');
+      await gotoSettled(page, BUTTON_ROUTE);
       await fontsSettled(page);
       const fit = await page.evaluate(
         ({ selector, label }) => {
@@ -346,7 +349,10 @@ test.describe('button labels reflow at 305px (SC 1.4.10)', () => {
         { selector: button, label: UNBROKEN_LABEL },
       );
 
-      expect(fit, `/404 has no ${button} in a column`).not.toBeNull();
+      expect(
+        fit,
+        `${BUTTON_ROUTE} has no ${button} in a column`,
+      ).not.toBeNull();
       expect(
         fit!.scrollWidth,
         `a long ${button} label makes the page scroll sideways at 305px.`,

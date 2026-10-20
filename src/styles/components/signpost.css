@@ -1,0 +1,211 @@
+@reference '../global.css';
+
+@layer components {
+  /* The 404 page's signpost in the hero slab; src/scripts/signpost.ts builds it. */
+  .crossroads {
+    display: grid;
+    gap: --spacing(8);
+  }
+
+  .crossroads-cat {
+    max-width: var(--container-measure);
+    font-size: var(--text-post-teaser);
+    line-height: var(--text-post-teaser--line-height);
+
+    @apply text-text italic text-pretty;
+  }
+
+  /*
+   * From 48rem: sections point back on the left arm, pages point on along the
+   * right. On a phone the post runs down the left edge and both hang off it.
+   */
+  .crossroads-map {
+    position: relative;
+    display: grid;
+    gap: --spacing(8);
+    padding-left: calc(var(--spacing-pole) + --spacing(3));
+    padding-bottom: var(--size-crossroads-guide);
+
+    @media (width >= 48rem) {
+      padding: 0;
+      grid-template-columns:
+        minmax(0, var(--container-rail)) var(--spacing-pole)
+        minmax(0, var(--container-measure));
+      justify-content: center;
+      gap: 0;
+    }
+  }
+
+  .crossroads-pole {
+    position: absolute;
+    inset-block: 0;
+    left: 0;
+    width: var(--spacing-pole);
+    background-color: var(--color-block-ink);
+
+    @media (width >= 48rem) {
+      position: relative;
+      z-index: 1;
+      width: auto;
+    }
+  }
+
+  .crossroads-heading {
+    margin-bottom: --spacing(4);
+
+    @apply text-text;
+
+    @media (width >= 48rem) {
+      padding-inline: --spacing(6);
+    }
+  }
+
+  .crossroads-column:first-child .crossroads-heading {
+    @media (width >= 48rem) {
+      text-align: right;
+    }
+  }
+
+  .crossroads-signs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: --spacing(2);
+
+    @media (width >= 48rem) {
+      display: grid;
+      gap: --spacing(3);
+    }
+  }
+
+  .crossroads-pages {
+    display: grid;
+    gap: --spacing(2);
+
+    @media (width >= 48rem) {
+      gap: --spacing(3);
+    }
+  }
+
+  .crossroads-column {
+    @media (width >= 48rem) {
+      padding-bottom: var(--size-crossroads-guide);
+    }
+  }
+
+  .crossroads-pages {
+    @media (width >= 48rem) {
+      margin-top: --spacing(16);
+    }
+  }
+
+  .crossroads-sign,
+  .crossroads-page {
+    display: block;
+    min-height: var(--spacing-target);
+    padding-block: --spacing(3);
+    border: var(--border-width-sticker) solid var(--color-block-ink);
+    background-color: var(--color-block-ink);
+    color: var(--color-block-light);
+  }
+
+  .crossroads-sign {
+    padding-inline: --spacing(3) --spacing(7);
+    clip-path: polygon(
+      0 0,
+      calc(100% - var(--size-sign-point)) 0,
+      100% 50%,
+      calc(100% - var(--size-sign-point)) 100%,
+      0 100%
+    );
+    text-align: left;
+    cursor: pointer;
+
+    @media (width >= 48rem) {
+      width: 100%;
+      padding-inline: --spacing(10) --spacing(4);
+      clip-path: polygon(
+        var(--size-sign-point) 0,
+        100% 0,
+        100% 100%,
+        var(--size-sign-point) 100%,
+        0 50%
+      );
+      text-align: right;
+    }
+  }
+
+  .crossroads-sign[aria-pressed='true'] {
+    background-color: var(--color-block-gold);
+    color: var(--color-block-ink);
+  }
+
+  .crossroads-page {
+    padding-inline: --spacing(4) --spacing(10);
+    clip-path: polygon(
+      0 0,
+      calc(100% - var(--size-sign-point)) 0,
+      100% 50%,
+      calc(100% - var(--size-sign-point)) 100%,
+      0 100%
+    );
+    font-size: var(--text-body);
+    text-decoration: none;
+  }
+
+  .crossroads-page-pick {
+    background-color: var(--color-block-gold);
+    color: var(--color-block-ink);
+  }
+
+  .crossroads-pick {
+    display: block;
+    margin-top: --spacing(1);
+  }
+
+  /* Light mode's cyan is a text color, so the fill keeps the dark one under ink. */
+  :is(.crossroads-sign, .crossroads-page):hover {
+    background-color: var(--dark-cyan);
+    color: var(--color-block-ink);
+  }
+
+  /* At the foot of the post, facing the pages. */
+  .crossroads-guide {
+    height: var(--size-crossroads-guide);
+    pointer-events: none;
+    position: absolute;
+    bottom: 0;
+    left: 100%;
+
+    & img {
+      width: auto;
+      max-width: none;
+      height: 100%;
+    }
+  }
+
+  /* System colors keep the chosen sign and the Cat's pick apart from the rest. */
+  @media (forced-colors: active) {
+    :is(.crossroads-sign, .crossroads-page) {
+      clip-path: none;
+      border-color: CanvasText;
+      background-color: Canvas;
+      color: LinkText;
+    }
+
+    .crossroads-sign {
+      color: ButtonText;
+    }
+
+    /* Text sits on a Canvas backplate here, so the cue is the edge and an underline. */
+    :is(.crossroads-sign[aria-pressed='true'], .crossroads-page-pick) {
+      border-color: Highlight;
+      color: Highlight;
+      text-decoration: underline;
+    }
+
+    /* A border keeps its color in forced colors; a background does not. */
+    .crossroads-pole {
+      border-left: var(--spacing-pole) solid CanvasText;
+    }
+  }
+}

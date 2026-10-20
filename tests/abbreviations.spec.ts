@@ -128,8 +128,7 @@ const FIRST_USES: readonly {
 const NAMES = [
   'Tailwind CSS',
   'Cloudflare D1',
-  'R2-D2',
-  'Episode IV',
+  'chapter VI',
   'SIL Open Font License',
   'MIT',
   'ACCESSIBILITY.md',

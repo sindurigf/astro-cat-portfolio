@@ -1,58 +1,78 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import CatMark from '../components/CatMark.astro';
 import PageHero from '../components/PageHero.astro';
-import '../styles/components/starfield.css';
-import { BLOG_PATH } from '../lib/paths';
+import '../styles/components/signpost.css';
+import { NAV_LINKS } from '../lib/nav';
+import { signpostPages } from '../lib/signpost-pages';
+import { sitePages } from '../lib/site-pages';
 
 /*
  * Served with status 404 via `not_found_handling: "404-page"` in wrangler.jsonc.
  * noCanonical: it answers every dead URL. noindex: /404 itself is a route that
  * answers 200, and would otherwise be indexable.
  */
+
+/* CSS px: the tile body CatMark draws 72px tall, --size-crossroads-guide. */
+const GUIDE_BODY = 63;
+
+/* `<` escaped, so no title can close the data block. */
+const pagesJson = JSON.stringify(signpostPages(await sitePages())).replace(
+  /</g,
+  '\\u003c',
+);
 ---
 
 <BaseLayout
   title="Page Not Found"
-  description="These are not the droids you are looking for: that address does not lead anywhere on this site."
+  description="That address does not lead anywhere on this site. Ask the Cat for a page that does."
   noCanonical
   noindex
 >
   <PageHero
-    title="These are not the droids you are looking for."
+    title="Which Way From Here?"
     titleSize="h2"
     hiddenPrefix="Page Not Found:"
     slab="none"
-    starfield
   >
     <span slot="eyebrow" class="badge">
-      Episode 404
+      Page Not Found
     </span>
 
-    <p slot="kicker" class="mb-6 text-post-teaser text-text text-pretty">
-      <span class="star-clear">
-        A long time ago, on a website not so far, far away&hellip;
-      </span>
-    </p>
-
-    <p class="standfirst">
-      This page does not exist. It may have moved, or the address has a typo.
-      Nothing is broken on your end, so move along. The credits{' '}
-      <a href="/credits/#not-found">explain the Star Wars lines</a>. If a link
-      on this site brought you here,{' '}
+    <p slot="slab" class="standfirst">
+      This page does not exist, but the Cat knows the way. Nothing is broken on
+      your end. If a link on this site brought you here,{' '}
       <a href="/contact/">tell me about the broken link</a>.
     </p>
 
-    <ul role="list" class="actions mt-head">
-      <li>
-        <a href="/" class="btn-primary">
-          Go to the Homepage
-        </a>
-      </li>
-      <li>
-        <a href={BLOG_PATH} class="btn-secondary">
-          Read the Blog
-        </a>
-      </li>
-    </ul>
+    <div id="crossroads" slot="slab" class="crossroads mt-head">
+      {/* Without JavaScript these are the way out; src/scripts/signpost.ts replaces them with the crossroads. */}
+      <nav aria-label="Main pages" data-fallback>
+        <ul role="list" class="actions">
+          {NAV_LINKS.map((page, index) => (
+            <li>
+              <a
+                href={page.href}
+                class={index === 0 ? 'btn-primary' : 'btn-secondary'}
+              >
+                {page.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+      <span class="crossroads-guide" data-guide hidden>
+        <CatMark body={GUIDE_BODY} />
+      </span>
+      <script
+        type="application/json"
+        id="signpost-pages"
+        set:html={pagesJson}
+      />
+    </div>
   </PageHero>
 </BaseLayout>
+
+<script>
+  import '../scripts/signpost';
+</script>

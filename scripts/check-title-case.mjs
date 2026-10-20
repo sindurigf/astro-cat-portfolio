@@ -41,14 +41,7 @@ const BRAND_TOKENS = new Set([
  * Each entry names why the text stays as written. An entry that no longer
  * matches fails.
  */
-const ALLOWED = [
-  {
-    route: '/404.html',
-    kind: 'heading',
-    text: 'Page Not Found: These are not the droids you are looking for.',
-    reason: 'the quoted line is a sentence, not a title.',
-  },
-];
+const ALLOWED = [];
 
 const ENTITIES = {
   '&nbsp;': ' ',

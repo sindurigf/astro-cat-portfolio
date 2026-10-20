@@ -550,13 +550,6 @@
    */
   --hero-marks-reserve: clamp(9rem, 14vw, 13rem);
 
-  /* Where each 404 star's gradient stops dead, so no point glows. */
-  --star-small: 1px;
-  --star: 2px;
-  --star-large: 3px;
-  /* Cycled over starfield.css's layers; no two sides share a factor, so no repeat lines up. */
-  --starfield-tiles: 307px 263px, 409px 353px, 509px 443px;
-
   /*
    * Footer profile tiles (48px, 56px from `lg`, each past SC 2.5.5's 44px),
    * icon, edge, and the mascot on the motto. Size tokens, so no utilities are
@@ -569,6 +562,8 @@
   --size-footer-mascot: clamp(72px, 9vw, 120px);
   /* How far the mascot drops below the type's top: the cap gap. */
   --footer-mascot-sink: 0.04em;
+  /* The cat at the foot of the 404 signpost; GUIDE_BODY in src/pages/404.astro draws it at this height. */
+  --size-crossroads-guide: 72px;
   /*
    * Header row above `md`: equal outer tracks center the nav. A token because
    * components allow no arbitrary values.
@@ -610,6 +605,8 @@
 
   /* SC 2.5.5 target size. Keep equal to MIN_TARGET in tests/wcag.ts. */
   --spacing-target: 44px;
+  --spacing-pole: 16px;
+  --size-sign-point: 20px;
 
   /*
    * Menu bars in a 24x16 box; they end at 17px, so they are absolutely

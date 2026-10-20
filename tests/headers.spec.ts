@@ -257,4 +257,23 @@ test.describe('security headers', () => {
       [],
     );
   });
+
+  test('the 404 signpost runs under the policy', async ({ page }) => {
+    const violations = await collectViolations(page);
+
+    await page.goto(`${policy().origin}/blgo`);
+    const sign = page.getByRole('button', { name: 'Career', exact: true });
+    await expect(
+      sign,
+      'the signpost did not start; the policy may have blocked src/scripts/signpost.ts or its data block',
+    ).toBeVisible();
+    await sign.click();
+    await expect(
+      page.getByRole('list', { name: 'Down the Career Way' }).getByRole('link'),
+    ).not.toHaveCount(0);
+
+    expect(violations, 'the browser refused something under the CSP').toEqual(
+      [],
+    );
+  });
 });
