@@ -256,8 +256,9 @@ set; hex values and ratios are in the generated [Contrast](#contrast) table:
 - A whole gold section (hero slab, gold band) is also a `.gold-column`.
 - Exception: the footer motto band (register row 11) is a `block-gold` fill
   with `gold-text` type and a `fill-edge` top, not `.surface-gold`. It holds
-  the motto and the mascot and never a control, so there is nothing for
-  `.surface-gold` to repaint.
+  the motto and the mascot, so there is nothing for `.surface-gold` to
+  repaint. Its one control is Tickle the Cat, a button over the mascot on the
+  band's edge (see [Footer](#footer)); `tests/footer.spec.ts` keeps it the only one.
 - Keep the link underline: `gold-link` is 1.01 against `gold-text`, so the
   underline carries SC 1.4.1.
 - `gold-btn-label` sits only on `.btn-gold-primary`'s `#131313` fill (18.58),
@@ -1090,6 +1091,14 @@ Enforced by `tests/footer.spec.ts`.
   `subtle` link to `AI_DISCLOSURE.md` with a 44px-tall box (EU AI Act Art. 50)
 - the motto, `site.motto` (a `div` with its `lang`, not a heading), as display
   type on a gold band, the `aria-hidden` mascot standing on its last letter
+- Tickle the Cat (`src/scripts/mascot-tickle.ts`, loaded on demand): an
+  empty button with that `aria-label` over the mascot, which stays a plain
+  drawing; hidden without JavaScript and on talk decks. A press plays a short
+  purr-hop and the motto laughs once, untimed; a polite status says "The cat
+  purrs." (placeholder copy). Under reduced motion the mascot blinks once and
+  nothing moves. Its ring is two-tone because its box crosses the page ground
+  and the band: a `gold-text` outline, the band's ring color, between two
+  cyan bands (`box-shadow`) that meet the ground.
 
 ### Text size
 
@@ -1329,6 +1338,9 @@ Enforced by `tests/nav-current.spec.ts`, `tests/mobile-menu.spec.ts`,
   `--focus-gap` 4px plus `--lift`. Never style `:focus`; never remove an
   outline; never `outline-offset: 0`.
 - A hard shadow is not a focus indicator.
+- Tickle the Cat straddles the page ground and the gold motto band, so its
+  `gold-text` ring sits between two cyan bands: cyan meets the ground, ink
+  stands out from the cyan on the gold ([Footer](#footer)).
 - `html` `scroll-padding-bottom` is the ring's width, gap, the largest lift and
   `--scroll-rounding` (1px), so a control scrolled to the bottom edge keeps its
   whole ring on screen.
