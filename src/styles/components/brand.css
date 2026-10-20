@@ -194,8 +194,6 @@
 
   .role-swatch {
     @apply flex size-12 shrink-0 items-center justify-center border-4 border-text;
-
-    forced-color-adjust: none;
   }
 
   .role-swatch-glyph {

@@ -287,11 +287,11 @@ test.describe('/brand', () => {
           expect(
             read.verdict,
             `${role.id} ${mode} states the wrong verdict`,
-          ).toBe(text ? 'AAA' : '3:1');
+          ).toBe(text ? 'needs 7:1 AAA' : 'needs 3:1');
           expect(
             await shown.locator('.role-read').innerText(),
             `${role.id} ${mode}: the reading line runs its words together`,
-          ).toMatch(/^[a-z-]+ \/ [a-z-]+ \d+\.\d\d:1 (AAA|3:1)$/);
+          ).toMatch(/^[a-z-]+ \/ [a-z-]+ \d+\.\d\d:1, needs (7:1 AAA|3:1)$/);
         }
       }
       await context.close();

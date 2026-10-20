@@ -7,7 +7,10 @@ export type Mode = 'dark' | 'light';
 type Kind = 'text' | 'edge';
 
 const NEEDS: Record<Kind, number> = { text: 7, edge: 3 };
-const VERDICT: Record<Kind, string> = { text: 'AAA', edge: '3:1' };
+const VERDICT: Record<Kind, string> = {
+  text: `needs ${NEEDS.text}:1 AAA`,
+  edge: `needs ${NEEDS.edge}:1`,
+};
 const RATIO_DIGITS = 2;
 const MODES: readonly Mode[] = ['dark', 'light'];
 const GROUNDS = ['background', 'surface'] as const;
@@ -95,7 +98,7 @@ export interface Role {
 
 const measure = (reading: Reading, mode: Mode): RoleRead => {
   const ink = mode === 'light' && reading.fg === 'gold';
-  const fg = ink ? 'fill-edge' : reading.fg;
+  const fg = ink ? 'text' : reading.fg;
   const bg = reading.bg;
   const value = ratio(hexOf(fg, mode), hexOf(bg, mode)) as number;
   if (value < NEEDS[reading.kind]) {

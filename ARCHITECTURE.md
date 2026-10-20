@@ -658,6 +658,9 @@ An Astro upgrade can change a hash; the island then silently fails to hydrate
 Review findings investigated and rejected. Do not re-raise without new
 evidence.
 
+- **Keep `/brand` swatch colors in forced colors with `forced-color-adjust: none`:**
+  `tests/forced-colors.spec.ts` holds the site rule that forced colors replaces
+  every color; a swatch there is a bordered box.
 - **Delete the video byte-range pipeline as dead code:** the next
   published video would not play in Safari and iOS, which need `206`.
 - **Route `/llms.txt` through `getSortedPosts`:** it drops placeholder
