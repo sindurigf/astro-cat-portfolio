@@ -142,12 +142,7 @@
     @apply mt-head;
   }
 
-  /*
-   * A part drawn on the dark ground beside the light one, side by side once
-   * the content column fits two halves. Each half wears the page's own edge,
-   * so a dark half on the dark page and a light half on the light page never
-   * vanish; halves that touch share one edge.
-   */
+  /* The dark and light halves of a part, side by side once the column fits two; each wears the page's edge, and halves that touch share one. */
   .brand-stage {
     --stage-edge: var(--color-border);
 
@@ -197,9 +192,14 @@
     }
   }
 
-  /* One swatch size and shape for every color: only the fill differs. */
   .role-swatch {
-    @apply block size-12 shrink-0 border-4 border-text;
+    @apply flex size-12 shrink-0 items-center justify-center border-4 border-text;
+
+    forced-color-adjust: none;
+  }
+
+  .role-swatch-glyph {
+    @apply bg-background text-body font-black;
   }
 
   .role-list {

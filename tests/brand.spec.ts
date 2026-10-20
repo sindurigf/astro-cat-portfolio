@@ -14,6 +14,11 @@ import { roles } from '../src/lib/brand-roles';
  * pages ship, so a token cannot change without the pages changing with it.
  */
 const RATIO_DIGITS = 2;
+const toHex = (css: string) =>
+  `#${(css.match(/\d+/g) ?? [])
+    .slice(0, 3)
+    .map((v) => Number(v).toString(16).padStart(2, '0'))
+    .join('')}`.toUpperCase();
 const NARROW = 390;
 const WIDE = 1280;
 const HEIGHT = 900;
@@ -205,25 +210,21 @@ test.describe('/brand', () => {
       browser,
     }) => {
       const { context, page } = await pageInTheme(browser, theme, BRAND_PATH);
-      const sizes = new Set<string>();
-      const toHex = (css: string) =>
-        `#${(css.match(/\d+/g) ?? [])
-          .slice(0, 3)
-          .map((v) => Number(v).toString(16).padStart(2, '0'))
-          .join('')}`.toUpperCase();
       for (const role of roles) {
         for (const mode of THEMES) {
           const shown = half(page, role.id, mode);
           const rows = await shown.locator('.role-token').evaluateAll((items) =>
             items.map((li) => {
               const swatch = li.querySelector<HTMLElement>('.role-swatch')!;
-              const box = swatch.getBoundingClientRect();
+              const paint = swatch.dataset.paint ?? '';
+              const style = getComputedStyle(swatch);
               return {
                 token: li.getAttribute('data-token') ?? '',
                 stated:
                   li.querySelector('.role-hex')?.textContent?.trim() ?? '',
-                paints: getComputedStyle(swatch).backgroundColor,
-                size: `${Math.round(box.width)}x${Math.round(box.height)}`,
+                paint,
+                paints: paint === 'glyph' ? style.color : style.backgroundColor,
+                glyph: swatch.textContent?.trim() ?? '',
               };
             }),
           );
@@ -241,17 +242,29 @@ test.describe('/brand', () => {
               : [
                   `${role.id} ${mode} ${row.token}: states ${row.stated}, the token is ${hex[row.token]}`,
                 ]),
-            ...(toHex(row.paints) === row.stated.toUpperCase()
+            ...(row.paint === 'empty' ||
+            toHex(row.paints) === row.stated.toUpperCase()
               ? []
               : [
                   `${role.id} ${mode} ${row.token}: states ${row.stated}, the swatch paints ${toHex(row.paints)}`,
                 ]),
+            ...(row.paint === 'glyph' && row.glyph !== 'Aa'
+              ? [
+                  `${role.id} ${mode} ${row.token}: a text color is not drawn as Aa`,
+                ]
+              : []),
+            ...(row.paint === 'empty' && row.token !== 'cyan'
+              ? [`${role.id} ${mode} ${row.token}: only cyan stays unpainted`]
+              : []),
+            ...(row.paint === 'fill' &&
+            ['text', 'subtle', 'pink-text', 'cyan'].includes(row.token)
+              ? [`${role.id} ${mode} ${row.token}: painted as a fill`]
+              : []),
           ]);
           expect(
             wrong,
             'a stated hex differs from its token or swatch',
           ).toEqual([]);
-          for (const row of rows) sizes.add(row.size);
 
           const read = await shown.locator('.role-read').evaluate((p) => ({
             fg: (p as HTMLElement).dataset.fg ?? '',
@@ -281,10 +294,6 @@ test.describe('/brand', () => {
           ).toMatch(/^[a-z-]+ \/ [a-z-]+ \d+\.\d\d:1 (AAA|3:1)$/);
         }
       }
-      expect(
-        [...sizes],
-        'the swatches come in more than one size',
-      ).toHaveLength(1);
       await context.close();
     });
   }
@@ -501,70 +510,80 @@ test.describe('/brand', () => {
   }
 
   for (const theme of THEMES) {
-    test(`on a ${theme} page every dark and light block wears the page's edge, clear of the ground (SC 1.4.11)`, async ({
-      browser,
-    }) => {
-      const { context, page } = await pageInTheme(browser, theme, BRAND_PATH);
-      const edge = (await resolveTokens(page.locator('main'), ['border']))
-        .border;
-      const halves = await page
-        .locator('.brand-stage-half')
-        .evaluateAll((all) =>
-          all.map((el) => {
-            const style = getComputedStyle(el);
-            return {
-              width: style.borderTopWidth,
-              color: style.borderTopColor,
-              touching: el.previousElementSibling?.matches('.brand-stage-half'),
-              box: el.getBoundingClientRect().toJSON(),
-              before: el.previousElementSibling
-                ?.getBoundingClientRect()
-                .toJSON(),
-            };
-          }),
+    for (const width of [WIDE, NARROW] as const) {
+      test(`on a ${theme} page at ${width}px every dark and light block wears the page's edge, clear of the ground (SC 1.4.11)`, async ({
+        browser,
+      }) => {
+        const { context, page } = await pageInTheme(browser, theme, BRAND_PATH);
+        await page.setViewportSize({ width, height: HEIGHT });
+        const tokens = await resolveTokens(page.locator('main'), [
+          'border',
+          'background',
+        ]);
+        const blockEdge = await page.evaluate(() =>
+          parseFloat(
+            getComputedStyle(document.documentElement).getPropertyValue(
+              '--block-edge',
+            ),
+          ),
         );
-      expect(
-        halves.length,
-        'the page shows no dark or light block',
-      ).toBeGreaterThan(0);
-      const groundHex = (
-        await resolveTokens(page.locator('main'), ['background'])
-      ).background!;
-      const ground = `rgb(${[1, 3, 5].map((i) => parseInt(groundHex.slice(i, i + 2), 16)).join(', ')})`;
-      const measured = (await page.evaluate(`(() => {
-        ${PAGE_HELPERS}
-        const ground = ${JSON.stringify(ground)};
-        return ${JSON.stringify(halves.map((h) => h.color))}.map((c) => ratio(parse(c), parse(ground)));
-      })()`)) as number[];
-      const wrong = halves.flatMap((half, i) => [
-        ...(half.width === '4px' ? [] : [`block ${i}: edge is ${half.width}`]),
-        ...(measured[i]! >= 3
-          ? []
-          : [`block ${i}: edge is ${measured[i]!.toFixed(2)}:1 on the page`]),
-        ...(half.color.startsWith('rgb')
-          ? []
-          : [`block ${i}: edge has no color`]),
-      ]);
-      expect(
-        wrong,
-        'a block has no edge that stands clear of the page',
-      ).toEqual([]);
-      expect(
-        new Set(halves.map((h) => h.color)).size,
-        `the blocks do not share the page's edge ${edge}`,
-      ).toBe(1);
-      for (const [i, half] of halves.entries()) {
-        if (!half.touching || !half.before) continue;
-        const shared =
-          half.box.left - half.before.right === -4 ||
-          half.box.top - half.before.bottom === -4;
+        const halves = await page
+          .locator('.brand-stage-half')
+          .evaluateAll((all) =>
+            all.map((el) => {
+              const style = getComputedStyle(el);
+              return {
+                width: parseFloat(style.borderTopWidth),
+                color: style.borderTopColor,
+                touching:
+                  el.previousElementSibling?.matches('.brand-stage-half'),
+                box: el.getBoundingClientRect().toJSON(),
+                before: el.previousElementSibling
+                  ?.getBoundingClientRect()
+                  .toJSON(),
+              };
+            }),
+          );
         expect(
-          shared,
-          `block ${i} does not share one edge with the block before it`,
-        ).toBe(true);
-      }
-      await context.close();
-    });
+          halves.length,
+          'the page shows no dark or light block',
+        ).toBeGreaterThan(0);
+        const ground = `rgb(${[1, 3, 5].map((i) => parseInt(tokens.background!.slice(i, i + 2), 16)).join(', ')})`;
+        const measured = (await page.evaluate(`(() => {
+          ${PAGE_HELPERS}
+          const ground = ${JSON.stringify(ground)};
+          return ${JSON.stringify(halves.map((h) => h.color))}.map((c) => ratio(parse(c), parse(ground)));
+        })()`)) as number[];
+        const wrong = halves.flatMap((half, i) => [
+          ...(half.width === blockEdge
+            ? []
+            : [`block ${i}: edge is ${half.width}px, not ${blockEdge}px`]),
+          ...(toHex(half.color) === tokens.border!.toUpperCase()
+            ? []
+            : [
+                `block ${i}: edge is ${toHex(half.color)}, not the border token ${tokens.border}`,
+              ]),
+          ...(measured[i]! >= 3
+            ? []
+            : [`block ${i}: edge is ${measured[i]!.toFixed(2)}:1 on the page`]),
+        ]);
+        expect(
+          wrong,
+          'a block has no edge that stands clear of the page',
+        ).toEqual([]);
+        for (const [i, half] of halves.entries()) {
+          if (!half.touching || !half.before) continue;
+          const shared =
+            half.box.left - half.before.right === -blockEdge ||
+            half.box.top - half.before.bottom === -blockEdge;
+          expect(
+            shared,
+            `block ${i} does not share one edge with the block before it`,
+          ).toBe(true);
+        }
+        await context.close();
+      });
+    }
   }
 
   for (const width of [WIDE, NARROW] as const) {

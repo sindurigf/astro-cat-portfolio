@@ -11,7 +11,7 @@ import {
 } from '../../lib/brand-sections';
 ---
 
-<nav aria-label="On This Page" id="brand-menu" class="brand-menu">
+<nav aria-label="On This Page" id="brand-menu" tabindex="-1" class="brand-menu">
   {(['narrow', 'wide'] as const).map((width) => {
     const list = (
       <ol role="list">

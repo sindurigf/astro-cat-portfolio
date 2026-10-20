@@ -17,7 +17,17 @@ const read = role.read[mode];
 <ul role="list" class="role-list">
   {role.tokens.map((t) => (
     <li class="role-token" data-token={t.token}>
-      <span class:list={['role-swatch', t.swatchClass]} aria-hidden="true" />
+      <span
+        class:list={[
+          'role-swatch',
+          t.swatch.paint === 'glyph' && 'role-swatch-glyph',
+          t.swatch.cls,
+        ]}
+        data-paint={t.swatch.paint}
+        aria-hidden="true"
+      >
+        {t.swatch.paint === 'glyph' && 'Aa'}
+      </span>
       <span class="min-w-0">
         <code class="block text-body font-black text-text">{t.token}</code>
         <span class="block text-label text-subtle">{t.job}</span>

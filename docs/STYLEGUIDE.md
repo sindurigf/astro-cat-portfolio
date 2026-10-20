@@ -734,22 +734,19 @@ The grid rule in `scripts/check-tokens.mjs` enforces the grid;
 - Contact ends on its gold surface, not a closing row: the band is its call to
   action.
 - The blog listing has no section heading: each card's title is its h2.
-- `/brand` is one page of 18 sections in `src/lib/brand-sections.ts`, beside a
-  numbered sections list that is sticky from `lg` under the header and scrolls inside itself when the screen is shorter than the list; a scroll container is keyboard-reachable in Firefox, which helps SC 2.1.1, and the same list stays in the flow under 30rem tall (a landscape phone, 400% zoom) so it never covers content (SC 1.4.10, 2.4.11), where each section links back to it. With no script the jumped-to link can sit out of view in a short list. A section opens on its
-  number and name, its lead and the mirror of its picture; each part is an h3
-  name, what it is for, its rule, and a stage: the example live on the dark
-  ground beside an inert, `aria-hidden` copy on the light one (`mirror.ts`), so
-  nothing is reached or named twice. Each block wears the page's own 4px edge,
-  so a dark block on the dark page or a light one on the light page never
-  vanishes; blocks that touch share one edge (`tests/brand.spec.ts`). A part whose facts differ by mode, such
-  as contrast, fills both halves live.
-- Color is one part per role: its tokens as rows of one swatch size and shape,
-  then the one pair the role is read on, with the ratio computed from the
-  tokens by `src/lib/brand-roles.ts`. A text pair under 7 or an edge under 3,
-  for any text color on either ground, fails the build.
-- Each section is an id'd anchor; the retired `/brand/<section>/` routes
-  redirect to it in `public/_redirects`, and the old single page's part ids
-  are kept, so any old `/brand/#id` link still lands.
+- `/brand`: one page of 18 sections from `src/lib/brand-sections.ts`.
+  - Sections list: numbered, sticky from `lg` under the header, scrolls inside itself when shorter than the list.
+  - Under 30rem tall (a landscape phone, 400% zoom) the list stays in the flow and each section links back to it (SC 1.4.10, 2.4.11).
+  - No script: a link landed on from outside can sit out of view in the list's own scroll.
+  - A section: number and name, lead, then parts. A part: h3 name, use, rule, and a stage.
+  - Stage: the live example on the dark ground beside an inert, `aria-hidden` copy on the light one (`mirror.ts`).
+  - Each half wears the page's 4px edge, so dark on the dark page or light on the light page stays visible; halves that touch share one edge (`tests/brand.spec.ts`).
+- Color is one part per role in `src/lib/brand-roles.ts`.
+  - Tokens are rows of one swatch size: fills as fills, text colors as "Aa", cyan unpainted.
+  - Each role ends in the one pair it is read on; the ratio is computed from the tokens.
+  - Any text color under 7 or edge under 3 on either ground fails the build.
+- Each section is an id'd anchor; the retired `/brand/<section>/` routes redirect to it in `public/_redirects`.
+  - Part ids `ink-and-accents`, `edges-and-focus`, `color-grounds` and `on-gold` are gone.
 
 ## Hero
 
