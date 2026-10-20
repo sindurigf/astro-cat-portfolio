@@ -61,10 +61,12 @@ export const BRAND_SECTIONS: readonly BrandSection[] = [
     description:
       'Every color token in the design system, the one job it does, and its value in dark and light mode.',
     parts: [
-      { id: 'ink-and-accents', name: 'Ink and Accents' },
-      { id: 'edges-and-focus', name: 'Edges and Focus' },
-      { id: 'color-grounds', name: 'Grounds' },
-      { id: 'on-gold', name: 'On Gold' },
+      { id: 'role-grounds', name: 'Grounds' },
+      { id: 'role-ink', name: 'Ink' },
+      { id: 'role-accent', name: 'Accent' },
+      { id: 'role-interaction', name: 'Interaction' },
+      { id: 'role-depth', name: 'Depth and Error' },
+      { id: 'role-edges', name: 'Edges' },
     ],
   },
   {

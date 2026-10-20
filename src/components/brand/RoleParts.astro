@@ -1,0 +1,16 @@
+---
+import ComponentRow from './ComponentRow.astro';
+import RoleHalf from './RoleHalf.astro';
+import { roles } from '../../lib/brand-roles';
+---
+
+<ul role="list" class="brand-parts">
+  {roles.map((role) => (
+    <ComponentRow id={role.id} use={role.use} rule={role.rule}>
+      <RoleHalf role={role} mode="dark" />
+      <div slot="light">
+        <RoleHalf role={role} mode="light" />
+      </div>
+    </ComponentRow>
+  ))}
+</ul>

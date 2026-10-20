@@ -1,13 +1,13 @@
 import { expect, test, type Locator, type Page } from './test';
 import { gotoSettled } from './settle';
 import { PAGE_HELPERS } from './contrast';
-import { contrastRows } from '../scripts/contrast-table.mjs';
+import { contrastRows, ratio } from '../scripts/contrast-table.mjs';
 import { REPOSITORY_URL, sourceUrl, templateUseUrl } from '../src/lib/site';
 import { ENGINE_INVARIANT, NODE } from './tags';
 import { builtHtml } from './routes';
 import { readFileSync } from 'node:fs';
 import { BRAND_PATH, BRAND_SECTIONS } from '../src/lib/brand-sections';
-import { blockGroups } from '../src/lib/brand-blocks';
+import { roles } from '../src/lib/brand-roles';
 
 /*
  * /brand states the design system's facts; these tests hold them to the CSS the
@@ -18,13 +18,14 @@ const NARROW = 390;
 const WIDE = 1280;
 const HEIGHT = 900;
 const ROOT_FONT_PX = 16;
-/* The screen height where the sections list is sticky: `menu-fits` in global.css. */
-const MENU_FITS_HEIGHT =
+/* The screen height under which the sections list stays in the flow: `short` in global.css. */
+const SHORT_HEIGHT =
   Number(
-    /@custom-variant menu-fits[^;]*height >= ([\d.]+)rem/.exec(
+    /@custom-variant short \(@media \(height < ([\d.]+)rem\)\)/.exec(
       readFileSync('src/styles/global.css', 'utf8'),
     )?.[1],
   ) * ROOT_FONT_PX;
+const LAPTOP_HEIGHT = 800;
 /* Far enough down that the sticky list has stuck. */
 const SCROLLED = 3000;
 const THEMES = ['dark', 'light'] as const;
@@ -200,108 +201,90 @@ test.describe('/brand', () => {
   }
 
   for (const theme of THEMES) {
-    test(`on a ${theme} page each color block states the ratio of the colors it paints (SC 1.4.3, 1.4.6, 1.4.11)`, async ({
+    test(`on a ${theme} page each color role states its swatches' hex and the ratio of its pair (SC 1.4.3, 1.4.6, 1.4.11)`, async ({
       browser,
     }) => {
       const { context, page } = await pageInTheme(browser, theme, BRAND_PATH);
-      let measured = 0;
-      for (const group of blockGroups) {
+      const sizes = new Set<string>();
+      const toHex = (css: string) =>
+        `#${(css.match(/\d+/g) ?? [])
+          .slice(0, 3)
+          .map((v) => Number(v).toString(16).padStart(2, '0'))
+          .join('')}`.toUpperCase();
+      for (const role of roles) {
         for (const mode of THEMES) {
-          const cells = await half(page, group.id, mode)
-            .locator('td')
-            .evaluateAll((tds) =>
-              tds.map((td) => {
-                const cell = td.querySelector<HTMLElement>('.block-cell')!;
-                const sample = td.querySelector<HTMLElement>(
-                  '.block-sample, .block-edge',
-                )!;
-                const text = sample.classList.contains('block-sample');
-                const style = getComputedStyle(sample);
-                return {
-                  pair: td.getAttribute('data-pair') ?? '',
-                  text,
-                  stated: td.querySelector('.block-ratio')!.textContent!,
-                  verdict: td.querySelector('.block-verdict')!.textContent!,
-                  fg: text ? style.color : style.borderTopColor,
-                  bg: getComputedStyle(cell).backgroundColor,
-                };
-              }),
-            );
+          const shown = half(page, role.id, mode);
+          const rows = await shown.locator('.role-token').evaluateAll((items) =>
+            items.map((li) => {
+              const swatch = li.querySelector<HTMLElement>('.role-swatch')!;
+              const box = swatch.getBoundingClientRect();
+              return {
+                token: li.getAttribute('data-token') ?? '',
+                stated:
+                  li.querySelector('.role-hex')?.textContent?.trim() ?? '',
+                paints: getComputedStyle(swatch).backgroundColor,
+                size: `${Math.round(box.width)}x${Math.round(box.height)}`,
+              };
+            }),
+          );
           expect(
-            cells.length,
-            `${group.id} ${mode} half draws no block`,
-          ).toBeGreaterThan(0);
-          const result = (await page.evaluate(`(() => {
-            ${PAGE_HELPERS}
-            return ${JSON.stringify(cells)}.map((c) => ratio(parse(c.fg), parse(c.bg)).toFixed(${RATIO_DIGITS}));
-          })()`)) as string[];
-          const wrong = cells.flatMap((cell, i) => {
-            const need = cell.text ? 7 : 3;
-            const label = `${group.id} ${mode} ${cell.pair}`;
-            return [
-              ...(cell.stated === `${result[i]}:1`
-                ? []
-                : [`${label}: states ${cell.stated}, paints ${result[i]}:1`]),
-              ...(Number(result[i]) >= need
-                ? []
-                : [`${label}: paints ${result[i]}:1, under ${need}`]),
-              ...(cell.verdict === (cell.text ? 'AAA' : '3:1 pass')
-                ? []
-                : [`${label}: says ${cell.verdict}`]),
-            ];
-          });
+            rows.map((row) => row.token),
+            `${role.id} lists other tokens than src/lib/brand-roles.ts`,
+          ).toEqual(role.tokens.map((token) => token.token));
+          const hex = await resolveTokens(
+            shown,
+            rows.map((row) => row.token),
+          );
+          const wrong = rows.flatMap((row) => [
+            ...(hex[row.token] === row.stated.toUpperCase()
+              ? []
+              : [
+                  `${role.id} ${mode} ${row.token}: states ${row.stated}, the token is ${hex[row.token]}`,
+                ]),
+            ...(toHex(row.paints) === row.stated.toUpperCase()
+              ? []
+              : [
+                  `${role.id} ${mode} ${row.token}: states ${row.stated}, the swatch paints ${toHex(row.paints)}`,
+                ]),
+          ]);
           expect(
             wrong,
-            `a ${mode} block differs from the colors it paints`,
+            'a stated hex differs from its token or swatch',
           ).toEqual([]);
-          measured += cells.length;
-        }
-      }
-      expect(measured, 'no color block was measured').toBeGreaterThan(0);
-      await context.close();
-    });
-  }
+          for (const row of rows) sizes.add(row.size);
 
-  for (const theme of THEMES) {
-    test(`on a ${theme} page each color row states the hex of its token, and each table is captioned in words`, async ({
-      browser,
-    }) => {
-      const { context, page } = await pageInTheme(browser, theme, BRAND_PATH);
-      const partName = (id: string) =>
-        BRAND_SECTIONS.flatMap((s) => s.parts).find((p) => p.id === id)!.name;
-      for (const group of blockGroups) {
-        for (const mode of THEMES) {
-          const shown = half(page, group.id, mode);
-          await expect(
-            shown.locator('caption'),
-            `${group.id} ${mode} caption runs its words together`,
-          ).toHaveText(
-            `${partName(group.id)}, ${mode} mode: the ratio of each pair`,
-          );
-          const rows = await shown
-            .locator('tbody th[scope="row"]')
-            .evaluateAll((ths) =>
-              ths.map((th) => ({
-                token: th.getAttribute('data-token') ?? '',
-                stated:
-                  th.querySelector('.block-hex')?.textContent?.trim() ?? '',
-              })),
-            );
-          expect(rows.length, `${group.id} ${mode} has no row`).toBeGreaterThan(
-            0,
-          );
-          const hex = await resolveTokens(shown, [
-            ...new Set(rows.map((row) => row.token)),
-          ]);
-          const wrong = rows
-            .filter((row) => hex[row.token] !== row.stated.toUpperCase())
-            .map(
-              (row) =>
-                `${group.id} ${mode} ${row.token}: states ${row.stated}, the half paints ${hex[row.token]}`,
-            );
-          expect(wrong, 'a stated hex differs from its token').toEqual([]);
+          const read = await shown.locator('.role-read').evaluate((p) => ({
+            fg: (p as HTMLElement).dataset.fg ?? '',
+            bg: (p as HTMLElement).dataset.bg ?? '',
+            kind: (p as HTMLElement).dataset.kind ?? '',
+            stated: p.querySelector('.role-ratio')?.textContent ?? '',
+            verdict: p.querySelector('.role-verdict')?.textContent ?? '',
+          }));
+          const pair = await resolveTokens(shown, [read.fg, read.bg]);
+          const value = ratio(pair[read.fg]!, pair[read.bg]!) as number;
+          const text = read.kind === 'text';
+          expect(
+            read.stated,
+            `${role.id} ${mode}: ${read.fg} on ${read.bg} states another ratio than its colors give`,
+          ).toBe(`${value.toFixed(RATIO_DIGITS)}:1`);
+          expect(
+            value,
+            `${role.id} ${mode}: ${read.fg} on ${read.bg} is under its target`,
+          ).toBeGreaterThanOrEqual(text ? 7 : 3);
+          expect(
+            read.verdict,
+            `${role.id} ${mode} states the wrong verdict`,
+          ).toBe(text ? 'AAA' : '3:1 pass');
+          expect(
+            await shown.locator('.role-read').innerText(),
+            `${role.id} ${mode}: the reading line runs its words together`,
+          ).toMatch(/^[a-z][a-z -]+: \d+\.\d\d:1, (AAA|3:1 pass)\.$/);
         }
       }
+      expect(
+        [...sizes],
+        'the swatches come in more than one size',
+      ).toHaveLength(1);
       await context.close();
     });
   }
@@ -318,38 +301,67 @@ test.describe('/brand', () => {
     }
   });
 
-  test('the menu stays in the flow unless the whole list fits under the header', async ({
+  test('the sections list sticks under the header, clear of the content, with a focused last link in view', async ({
     page,
   }) => {
+    await page.setViewportSize({ width: WIDE, height: LAPTOP_HEIGHT });
+    await gotoSettled(page, BRAND_PATH);
     const menu = page.getByRole('navigation', { name: 'Brand sections' });
     expect(
-      MENU_FITS_HEIGHT,
-      'global.css has no menu-fits variant',
-    ).toBeGreaterThan(0);
+      await menu.evaluate((el) => getComputedStyle(el).position),
+      'the sections list is not sticky on a laptop screen',
+    ).toBe('sticky');
+    const header = (await page.locator('header').first().boundingBox())!;
+    const content = page.locator('.brand-content');
+    for (const y of [SCROLLED, SCROLLED * 2]) {
+      await page.evaluate((to) => window.scrollTo(0, to), y);
+      const box = (await menu.boundingBox())!;
+      expect(
+        box.y,
+        `the list slides under the header at scroll ${y}`,
+      ).toBeGreaterThanOrEqual(header.y + header.height);
+      expect(
+        box.y + box.height,
+        `the list runs past the screen at scroll ${y}`,
+      ).toBeLessThanOrEqual(LAPTOP_HEIGHT);
+      const column = (await content.boundingBox())!;
+      expect(
+        box.x + box.width,
+        `the list overlaps the content at scroll ${y}`,
+      ).toBeLessThanOrEqual(column.x);
+    }
+    const last = menu
+      .locator('a.brand-menu-link')
+      .locator('visible=true')
+      .last();
+    await last.focus();
+    const link = (await last.boundingBox())!;
+    const list = (await menu.boundingBox())!;
+    expect(
+      link.y,
+      'a focused last link is hidden above the list or the header',
+    ).toBeGreaterThanOrEqual(Math.max(list.y, header.y + header.height) - 0.5);
+    expect(
+      link.y + link.height,
+      'a focused last link is cut off at the bottom of the list or the screen',
+    ).toBeLessThanOrEqual(Math.min(list.y + list.height, LAPTOP_HEIGHT) + 0.5);
+  });
+
+  test('the sections list stays in the flow on a screen under the short height', async ({
+    page,
+  }) => {
+    expect(SHORT_HEIGHT, 'global.css has no short variant').toBeGreaterThan(0);
+    const menu = page.getByRole('navigation', { name: 'Brand sections' });
     for (const [height, sticky] of [
-      [HEIGHT, false],
-      [MENU_FITS_HEIGHT - 1, false],
-      [MENU_FITS_HEIGHT, true],
+      [SHORT_HEIGHT - 1, false],
+      [SHORT_HEIGHT, true],
     ] as const) {
       await page.setViewportSize({ width: WIDE, height });
       await gotoSettled(page, BRAND_PATH);
-      const list = menu.locator('.hidden.lg\\:block');
       expect(
         await menu.evaluate((el) => getComputedStyle(el).position),
-        `the menu is ${sticky ? 'not ' : ''}sticky at ${height}px tall`,
+        `the list is ${sticky ? 'not ' : ''}sticky at ${height}px tall`,
       ).toBe(sticky ? 'sticky' : 'static');
-      expect(
-        await menu.evaluate((el) => el.scrollHeight - el.clientHeight),
-        `the menu scrolls inside itself at ${height}px tall`,
-      ).toBeLessThanOrEqual(0);
-      if (sticky) {
-        await page.evaluate((y) => window.scrollTo(0, y), SCROLLED);
-        const box = await list.boundingBox();
-        expect(
-          box!.y + box!.height,
-          'the sticky list reaches below the viewport',
-        ).toBeLessThanOrEqual(height);
-      }
     }
   });
 
@@ -484,6 +496,73 @@ test.describe('/brand', () => {
         darkGround,
       );
       await other.close();
+      await context.close();
+    });
+  }
+
+  for (const theme of THEMES) {
+    test(`on a ${theme} page every dark and light block wears the page's edge, clear of the ground (SC 1.4.11)`, async ({
+      browser,
+    }) => {
+      const { context, page } = await pageInTheme(browser, theme, BRAND_PATH);
+      const edge = (await resolveTokens(page.locator('main'), ['border']))
+        .border;
+      const halves = await page
+        .locator('.brand-stage-half')
+        .evaluateAll((all) =>
+          all.map((el) => {
+            const style = getComputedStyle(el);
+            return {
+              width: style.borderTopWidth,
+              color: style.borderTopColor,
+              touching: el.previousElementSibling?.matches('.brand-stage-half'),
+              box: el.getBoundingClientRect().toJSON(),
+              before: el.previousElementSibling
+                ?.getBoundingClientRect()
+                .toJSON(),
+            };
+          }),
+        );
+      expect(
+        halves.length,
+        'the page shows no dark or light block',
+      ).toBeGreaterThan(0);
+      const groundHex = (
+        await resolveTokens(page.locator('main'), ['background'])
+      ).background!;
+      const ground = `rgb(${[1, 3, 5].map((i) => parseInt(groundHex.slice(i, i + 2), 16)).join(', ')})`;
+      const measured = (await page.evaluate(`(() => {
+        ${PAGE_HELPERS}
+        const ground = ${JSON.stringify(ground)};
+        return ${JSON.stringify(halves.map((h) => h.color))}.map((c) => ratio(parse(c), parse(ground)));
+      })()`)) as number[];
+      const wrong = halves.flatMap((half, i) => [
+        ...(half.width === '4px' ? [] : [`block ${i}: edge is ${half.width}`]),
+        ...(measured[i]! >= 3
+          ? []
+          : [`block ${i}: edge is ${measured[i]!.toFixed(2)}:1 on the page`]),
+        ...(half.color.startsWith('rgb')
+          ? []
+          : [`block ${i}: edge has no color`]),
+      ]);
+      expect(
+        wrong,
+        'a block has no edge that stands clear of the page',
+      ).toEqual([]);
+      expect(
+        new Set(halves.map((h) => h.color)).size,
+        `the blocks do not share the page's edge ${edge}`,
+      ).toBe(1);
+      for (const [i, half] of halves.entries()) {
+        if (!half.touching || !half.before) continue;
+        const shared =
+          half.box.left - half.before.right === -4 ||
+          half.box.top - half.before.bottom === -4;
+        expect(
+          shared,
+          `block ${i} does not share one edge with the block before it`,
+        ).toBe(true);
+      }
       await context.close();
     });
   }

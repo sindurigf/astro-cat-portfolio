@@ -4,7 +4,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import PageHero from '../../components/PageHero.astro';
 import BrandFrame from '../../components/brand/BrandFrame.astro';
 import BrandSection from '../../components/brand/BrandSection.astro';
-import ColorBlocks from '../../components/brand/ColorBlocks.astro';
+import RoleParts from '../../components/brand/RoleParts.astro';
 import Grounds from '../../components/brand/Grounds.astro';
 import Pairings from '../../components/brand/Pairings.astro';
 import TypeScale from '../../components/brand/TypeScale.astro';
@@ -29,12 +29,12 @@ import {
   USE_TEMPLATE_URL,
 } from '../../components/brand/links';
 import { SITE_NAME } from '../../lib/site';
-import { TEXT_TARGET_RATIO } from '../../lib/brand-blocks';
+import { TEXT_TARGET_RATIO } from '../../lib/brand-roles';
 import { BRAND_SECTIONS } from '../../lib/brand-sections';
 
 const PARTS = {
   grounds: Grounds,
-  color: ColorBlocks,
+  color: RoleParts,
   contrast: Pairings,
   type: TypeScale,
   spacing: SpacingSteps,
