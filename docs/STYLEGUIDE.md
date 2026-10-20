@@ -1095,7 +1095,7 @@ Enforced by `tests/footer.spec.ts`.
   empty button with that `aria-label` over the mascot, which stays a plain
   drawing; hidden without JavaScript and on talk decks. A press plays a short
   purr-hop and the motto laughs once, untimed; a polite status says "The cat
-  purrs." (placeholder copy). Under reduced motion the mascot blinks once and
+  purrs.". Under reduced motion the mascot blinks once and
   nothing moves. Its ring is two-tone because its box crosses the page ground
   and the band: a `gold-text` outline, the band's ring color, between two
   cyan bands (`box-shadow`) that meet the ground.

@@ -1,7 +1,6 @@
 /* Tickle the Cat: the footer mascot purrs and the motto band laughs. Motion lives in footer.css; this only restarts it. */
 export {};
 
-/* Placeholder copy: the site's owner rewrites it in their voice. */
 const PURRS = 'The cat purrs.';
 
 const button = document.querySelector<HTMLButtonElement>(
