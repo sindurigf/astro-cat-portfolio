@@ -735,7 +735,7 @@ The grid rule in `scripts/check-tokens.mjs` enforces the grid;
   action.
 - The blog listing has no section heading: each card's title is its h2.
 - `/brand` is one page of 18 sections in `src/lib/brand-sections.ts`, beside a
-  numbered sections list that is sticky from `lg` under the header and scrolls inside itself when the screen is shorter than the list; a scroll container is keyboard-reachable in Firefox, which helps SC 2.1.1, and the same list stays in the flow under 30rem tall (a landscape phone, 400% zoom) so it never covers content (SC 1.4.10, 2.4.11), where each section links back to it. A section opens on its
+  numbered sections list that is sticky from `lg` under the header and scrolls inside itself when the screen is shorter than the list; a scroll container is keyboard-reachable in Firefox, which helps SC 2.1.1, and the same list stays in the flow under 30rem tall (a landscape phone, 400% zoom) so it never covers content (SC 1.4.10, 2.4.11), where each section links back to it. With no script the jumped-to link can sit out of view in a short list. A section opens on its
   number and name, its lead and the mirror of its picture; each part is an h3
   name, what it is for, its rule, and a stage: the example live on the dark
   ground beside an inert, `aria-hidden` copy on the light one (`mirror.ts`), so

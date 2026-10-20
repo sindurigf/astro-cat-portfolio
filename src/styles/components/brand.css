@@ -16,7 +16,7 @@
 
     grid-template-columns: minmax(0, 1fr);
 
-    @media (width >= 64rem) {
+    @variant lg {
       column-gap: var(--spacing-grid);
       grid-template-columns: var(--container-rail) minmax(0, 1fr);
     }
@@ -29,17 +29,13 @@
   }
 
   /*
-   * From `lg` the list sticks under the header and scrolls inside itself when
-   * a screen is shorter than it. On a screen under 30rem tall (a landscape
-   * phone, 200% or 400% zoom) it stays in the flow, so it never covers
-   * content (SC 1.4.10, 2.4.11) and each section links back to it
-   * (`.brand-back`). The jumped-to link is the gold block, but with no script
-   * it can sit out of view in a short list.
+   * Sticks from `lg`; under the `short` height it stays in the flow so it never
+   * covers content, and each section links back to it (`.brand-back`).
    */
   .brand-menu {
     @apply self-start;
 
-    @media (width >= 64rem) {
+    @variant lg {
       position: sticky;
       top: calc(var(--spacing-header) + --spacing(6));
       max-height: calc(100dvh - var(--spacing-header) - --spacing(12));
@@ -54,7 +50,7 @@
   }
 
   .brand-back {
-    @media (width >= 64rem) {
+    @variant lg {
       display: none;
 
       @variant short {
