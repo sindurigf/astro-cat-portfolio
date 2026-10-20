@@ -274,11 +274,11 @@ test.describe('/brand', () => {
           expect(
             read.verdict,
             `${role.id} ${mode} states the wrong verdict`,
-          ).toBe(text ? 'AAA' : '3:1 pass');
+          ).toBe(text ? 'AAA' : '3:1');
           expect(
             await shown.locator('.role-read').innerText(),
             `${role.id} ${mode}: the reading line runs its words together`,
-          ).toMatch(/^[a-z][a-z -]+: \d+\.\d\d:1, (AAA|3:1 pass)\.$/);
+          ).toMatch(/^[a-z-]+ \/ [a-z-]+ \d+\.\d\d:1 (AAA|3:1)$/);
         }
       }
       expect(
@@ -306,7 +306,7 @@ test.describe('/brand', () => {
   }) => {
     await page.setViewportSize({ width: WIDE, height: LAPTOP_HEIGHT });
     await gotoSettled(page, BRAND_PATH);
-    const menu = page.getByRole('navigation', { name: 'Brand sections' });
+    const menu = page.getByRole('navigation', { name: 'On This Page' });
     expect(
       await menu.evaluate((el) => getComputedStyle(el).position),
       'the sections list is not sticky on a laptop screen',
@@ -351,7 +351,7 @@ test.describe('/brand', () => {
     page,
   }) => {
     expect(SHORT_HEIGHT, 'global.css has no short variant').toBeGreaterThan(0);
-    const menu = page.getByRole('navigation', { name: 'Brand sections' });
+    const menu = page.getByRole('navigation', { name: 'On This Page' });
     for (const [height, sticky] of [
       [SHORT_HEIGHT - 1, false],
       [SHORT_HEIGHT, true],
@@ -573,7 +573,7 @@ test.describe('/brand', () => {
     }) => {
       await page.setViewportSize({ width, height: HEIGHT });
       await gotoSettled(page, BRAND_PATH);
-      const menu = page.getByRole('navigation', { name: 'Brand sections' });
+      const menu = page.getByRole('navigation', { name: 'On This Page' });
       const anchors = BRAND_SECTIONS.map((s) => `#${s.anchor}`);
       await expect(menu, 'the page has no single menu').toHaveCount(1);
       const links = menu.locator('a.brand-menu-link');
@@ -607,7 +607,7 @@ test.describe('/brand', () => {
   }) => {
     await page.setViewportSize({ width: WIDE, height: HEIGHT });
     await gotoSettled(page, `${BRAND_PATH}#color`);
-    const menu = page.getByRole('navigation', { name: 'Brand sections' });
+    const menu = page.getByRole('navigation', { name: 'On This Page' });
     const fills = await menu
       .locator('a.brand-menu-link')
       .locator('visible=true')

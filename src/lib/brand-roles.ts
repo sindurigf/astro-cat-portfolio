@@ -13,7 +13,7 @@ export type Mode = 'dark' | 'light';
 type Kind = 'text' | 'edge';
 
 const NEEDS: Record<Kind, number> = { text: 7, edge: 3 };
-const VERDICT: Record<Kind, string> = { text: 'AAA', edge: '3:1 pass' };
+const VERDICT: Record<Kind, string> = { text: 'AAA', edge: '3:1' };
 const RATIO_DIGITS = 2;
 const MODES: readonly Mode[] = ['dark', 'light'];
 const GROUNDS = ['background', 'surface'] as const;
@@ -66,8 +66,6 @@ interface Reading {
   fg: string;
   bg: string;
   kind: Kind;
-  /** What the pair is, in words: "subtle on the page ground". */
-  label: string;
 }
 
 export interface RoleToken {
@@ -82,7 +80,6 @@ export interface RoleRead {
   fg: string;
   bg: string;
   kind: Kind;
-  label: string;
   ratio: string;
   verdict: string;
 }
@@ -109,7 +106,6 @@ const measure = (reading: Reading, mode: Mode): RoleRead => {
     fg,
     bg,
     kind: reading.kind,
-    label: ink ? 'gold text becomes ink on the gold slab' : reading.label,
     ratio: value.toFixed(RATIO_DIGITS),
     verdict: VERDICT[reading.kind],
   };
@@ -129,7 +125,7 @@ const assertEveryPair = (): void => {
   ];
   for (const [fg, kind] of pairs) {
     for (const bg of GROUNDS) {
-      for (const mode of MODES) measure({ fg, bg, kind, label: '' }, mode);
+      for (const mode of MODES) measure({ fg, bg, kind }, mode);
     }
   }
 };
@@ -167,7 +163,6 @@ export const roles: Role[] = [
       fg: 'text',
       bg: 'background',
       kind: 'text',
-      label: 'text on the page ground',
     },
   ),
   role(
@@ -179,7 +174,6 @@ export const roles: Role[] = [
       fg: 'subtle',
       bg: 'background',
       kind: 'text',
-      label: 'subtle on the page ground',
     },
   ),
   role(
@@ -191,7 +185,6 @@ export const roles: Role[] = [
       fg: 'gold',
       bg: 'background',
       kind: 'text',
-      label: 'gold on the page ground',
     },
   ),
   role(
@@ -203,7 +196,6 @@ export const roles: Role[] = [
       fg: 'cyan',
       bg: 'background',
       kind: 'edge',
-      label: 'the cyan ring on the page ground',
     },
   ),
   role(
@@ -215,7 +207,6 @@ export const roles: Role[] = [
       fg: 'pink-text',
       bg: 'background',
       kind: 'text',
-      label: 'pink-text on the page ground',
     },
   ),
   role(
@@ -227,7 +218,6 @@ export const roles: Role[] = [
       fg: PAGE_EDGE,
       bg: 'background',
       kind: 'edge',
-      label: 'the edge on the page ground',
     },
   ),
 ];

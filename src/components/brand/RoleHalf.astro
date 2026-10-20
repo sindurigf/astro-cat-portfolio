@@ -32,6 +32,7 @@ const read = role.read[mode];
   data-bg={read.bg}
   data-kind={read.kind}
 >
-  {read.label}: <b class="role-ratio font-black text-text">{read.ratio}:1</b>,{' '}
-  <span class="role-verdict">{read.verdict}</span>.
+  {read.fg} / {read.bg}{' '}
+  <b class="role-ratio font-black text-text">{read.ratio}:1</b>{' '}
+  <span class="role-verdict">{read.verdict}</span>
 </p>
