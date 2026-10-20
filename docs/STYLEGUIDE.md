@@ -722,20 +722,20 @@ The grid rule in `scripts/check-tokens.mjs` enforces the grid;
 
 ### Page compositions
 
-| Page                   | Order (type)                                                   |
-| ---------------------- | -------------------------------------------------------------- |
-| Home                   | Hero, Surface, Listing, Listing, Close                         |
-| About                  | Hero, Open, Open, Open, Open, Open, Open, Close                |
-| Career                 | Hero, Panel, Open (with the solid block), Open, Surface, Close |
-| Contact                | Hero, Open, Surface                                            |
-| Contact sent           | Hero, Panel, Close                                             |
-| Credits                | Hero, Open (panels) x3, Close                                  |
-| Privacy, Accessibility | Hero (reading measure), Reading                                |
-| Blog index             | Hero, Listing, Close                                           |
-| Blog category, tag     | Hero, Listing                                                  |
-| Post                   | Article header, Reading (contents box from 1280px), Tags nav   |
-| 404                    | Hero (starfield) only                                          |
-| Brand                  | Hero (full), Facts, Brand (sections list), Close               |
+| Page                   | Order (type)                                                            |
+| ---------------------- | ----------------------------------------------------------------------- |
+| Home                   | Hero, Surface, Listing, Listing, Close                                  |
+| About                  | Hero, Open, Open, Open, Open, Open, Open, Close                         |
+| Career                 | Hero, Panel, Open (with the solid block), Open, Surface, Close          |
+| Contact                | Hero, Open, Surface                                                     |
+| Contact sent           | Hero, Panel, Close                                                      |
+| Credits                | Hero, Open (panels) x3, Close                                           |
+| Privacy, Accessibility | Hero (reading measure), Reading                                         |
+| Blog index             | Hero, Listing, Close                                                    |
+| Blog category, tag     | Hero, Listing                                                           |
+| Post                   | Article header, Reading (contents box from 1280px), Tags nav            |
+| 404                    | Hero with the signpost in its slab (main page links without JavaScript) |
+| Brand                  | Hero (full), Facts, Brand (sections list), Close                        |
 
 - About's last Open, Sources, is there only while the sample persona is set.
 - Contact ends on its gold surface, not a closing row: the band is its call to
@@ -794,9 +794,6 @@ how important the page is.
   and roundel; the breadcrumb sits above it and everything else under it, on
   the page body's column (the measure on a reading page, the page column on a
   listing).
-- `/404` sets `starfield`: stars across the whole slab on an `aria-hidden`
-  layer; `.star-clear` puts the slab's ground behind the kicker and title, so
-  no star shows behind text. `tests/not-found.spec.ts` checks it.
 
 ### Variants
 
@@ -817,6 +814,8 @@ tier and takes its padding.
   `h1`.
 - Breadcrumbs go in the `eyebrow` slot above the `h1`, as a named `nav`,
   with `tone="gold"` on a slab.
+- The plain tier's `slab` slot puts content inside the slab under the `h1`;
+  `/404` holds its standfirst and signpost there.
 - The photo is a `<figure>`; its credit, if any, a `figcaption`.
 - The roundel is decoration: `alt=""`, no role, no focus.
 
@@ -1043,7 +1042,7 @@ A heading, a sentence, one way on. Enforced by `tests/empty-states.spec.ts`,
 
 | State                   | Where                                   | Heading                                                                             | Sentence                                                         | Action                                 | Announced by                       |
 | ----------------------- | --------------------------------------- | ----------------------------------------------------------------------------------- | ---------------------------------------------------------------- | -------------------------------------- | ---------------------------------- |
-| Not found               | `/404`                                  | `h1` "These are not the droids…"                                                    | the page does not exist, and a link to report a broken one       | homepage (primary), blog (secondary)   | the page load                      |
+| Not found               | `/404`                                  | `h1` "Which Way From Here?"                                                         | the page does not exist, and a link to report a broken one       | the Cat's pick on the signpost         | the page load                      |
 | Empty category or tag   | not built: pages exist only with a post |                                                                                     |                                                                  |                                        |                                    |
 | Empty blog              | `/blog` with no posts                   | `h2` "No Posts Yet"                                                                 | "Nothing has been published here yet."                           | "Go to the Homepage"                   | the page load                      |
 | Invalid form            | `/contact/send`, 422                    | `h2` "There Is One Problem with This Form" or "There Are N Problems with This Form" | one linked entry per field                                       | each entry moves to its field          | focus on the summary on arrival    |
