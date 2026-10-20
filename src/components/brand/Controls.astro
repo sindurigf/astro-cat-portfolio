@@ -1,6 +1,7 @@
 ---
 import ThemeSwitch from '../ThemeSwitch.astro';
 import ComponentRow from './ComponentRow.astro';
+import DoDont from './DoDont.astro';
 
 /* Examples only: src/scripts/brand-examples.ts flips their own name and glyph. */
 const MOTION_EXAMPLES = [
@@ -70,6 +71,19 @@ const MOTION_EXAMPLES = [
     <a href="#focus-ring" class="btn-secondary">
       Tab to This Button
     </a>
+    <Fragment slot="states">
+      <DoDont
+        doText="Cyan on hover and focus only."
+        dontText="Cyan at rest: it no longer signals a state."
+      >
+        <span slot="do" class="btn-primary">
+          Rest
+        </span>
+        <span slot="dont" class="btn-primary state-hover">
+          At Rest
+        </span>
+      </DoDont>
+    </Fragment>
   </ComponentRow>
 </ul>
 

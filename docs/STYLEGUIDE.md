@@ -742,6 +742,13 @@ The grid rule in `scripts/check-tokens.mjs` enforces the grid;
   - A section: number and name, lead, then parts. A part: h3 name, use, rule, and a stage.
   - Stage: the live example on the dark ground beside an inert, `aria-hidden` copy on the light one (`mirror.ts`).
   - Each half wears the page's 4px edge, so dark on the dark page or light on the light page stays visible; halves that touch share one edge (`tests/brand.spec.ts`).
+  - The guide above the first section says how to read the page.
+  - A part lists what it keeps for accessibility from `src/lib/brand-a11y.ts`.
+  - Two rules show as a Do and Don't pair: one primary per section, and cyan only on hover and focus (`DoDont.astro`).
+  - With a script, a Search field above each sections list (wide and narrow) shows the sections whose title, group, lead, tokens, hex values, rules or accessibility lines hold every typed word, ignoring case and accents (`brand-filter.ts`). It counts the matches and Escape clears it.
+  - Each part with a live example shows its markup under it, wrapped, never scrolling (`sourceOf` in `mirror.ts`). With a script each block gets an icon Copy button (`src/scripts/copy.ts`) pinned in its top-right corner, named "Copy markup for <part>". A "Copy" tip shows on hover and focus (SC 1.4.13, Escape hides it); a press shows a check and "Copied" for 2 s and announces it, or selects the code and says the copy failed. With no script, no button is drawn.
+  - Button parts show rest, hover, focus, pressed and unavailable side by side (`StateRow.astro`, `.state-*` in `brand.css`), with the real tokens; the lift and the transition are not shown.
+  - A still state sample on `/brand` may show its hover color; `cyan` at rest stays banned everywhere else.
 - Color is one part per role in `src/lib/brand-roles.ts`.
   - Tokens are rows of one swatch size: fills as fills, text colors as "Aa", cyan unpainted.
   - Each role ends in the one pair it is read on; the ratio is computed from the tokens.

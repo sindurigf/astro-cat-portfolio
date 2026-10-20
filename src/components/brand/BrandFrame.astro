@@ -11,6 +11,17 @@ import { USE_TEMPLATE_URL } from './links';
   <div class="brand-layout mx-auto max-w-page">
     <BrandMenu />
     <div class="brand-content">
+      <div class="brand-guide">
+        <div class="label text-subtle">How to Use This Page</div>
+        <ul
+          role="list"
+          class="mt-4 max-w-measure space-y-2 text-body text-text"
+        >
+          <li>Each example shows dark and light side by side.</li>
+          <li>Every ratio is computed from the tokens.</li>
+          <li>The list jumps between sections.</li>
+        </ul>
+      </div>
       <slot />
     </div>
   </div>

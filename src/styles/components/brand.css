@@ -134,6 +134,111 @@
     margin-top: calc(var(--spacing-section) * 2);
   }
 
+  /* The corner the code leaves free: the button with its Copied label, about 145px with text spacing, plus the pre's 16px padding. */
+  .brand-code-frame {
+    --copy-reach: calc(var(--spacing-target) + --spacing(32));
+
+    @apply relative mt-2;
+  }
+
+  /* Joined to the frame's corner, so its edge is the frame's; the pre reserves the corner and no code runs under it. */
+  .copy-wrap {
+    @apply absolute;
+
+    top: 0;
+    right: 0;
+  }
+
+  .copy-button {
+    @apply inline-flex min-h-target min-w-target items-center justify-center gap-2 border-4 border-border bg-surface px-2 text-label font-black uppercase tracking-label text-text;
+
+    flex-direction: row-reverse;
+
+    & svg {
+      @apply size-5 shrink-0;
+    }
+
+    & :is(svg, path) {
+      forced-color-adjust: auto;
+    }
+
+    &:hover {
+      @apply bg-cyan text-background;
+    }
+
+    &:focus-visible {
+      outline-offset: calc(-1 * (var(--focus-width) + var(--focus-gap)));
+    }
+
+    /* The ring is cyan, as is the hover fill: it turns to the page ground. */
+    &:hover:focus-visible {
+      outline-color: var(--color-background);
+    }
+
+    @media (forced-colors: active) {
+      border-color: ButtonText;
+    }
+  }
+
+  /* Above the button and touching it, so the pointer can move onto the tip (SC 1.4.13). */
+  .copy-tip {
+    @apply absolute right-0 hidden border-4 border-border bg-surface px-3 py-1 text-label font-black uppercase tracking-label whitespace-nowrap text-text;
+
+    bottom: 100%;
+  }
+
+  .copy-wrap:focus-within:not([data-dismissed], [data-copied]) .copy-tip {
+    display: block;
+  }
+
+  @media (hover: hover) {
+    .copy-wrap:hover:not([data-dismissed], [data-copied]) .copy-tip {
+      display: block;
+    }
+  }
+
+  :root[data-theme='light'] main .copy-button:hover {
+    background-color: var(--dark-cyan);
+    color: var(--color-light-ink);
+
+    &:focus-visible {
+      outline-color: var(--color-light-ink);
+    }
+  }
+
+  /* Inside the field: the menu clips a ring drawn outside it (SC 2.4.13). */
+  .brand-menu .field-control:focus-visible {
+    outline-offset: calc(-1 * var(--focus-width));
+  }
+
+  .brand-menu .field-control::placeholder {
+    @apply text-subtle opacity-100;
+  }
+
+  .brand-code {
+    @apply whitespace-break-spaces border-4 border-border bg-surface p-4 font-mono text-label text-text wrap-anywhere;
+
+    /* A float the width of the button and its Copied label, so the top lines wrap around it. */
+    &::before {
+      content: '';
+      float: right;
+      width: var(--copy-reach);
+      height: var(--spacing-target);
+    }
+  }
+
+  .brand-pair {
+    @apply min-w-0 flex-1 basis-60 space-y-4 border-4 border-border p-4;
+  }
+
+  .brand-pair-sample {
+    @apply min-h-16;
+  }
+
+  .brand-guide {
+    @apply mb-section;
+  }
+
   .brand-parts {
     @apply mt-section space-y-section;
   }
@@ -237,6 +342,27 @@
     .needs-script-note {
       display: block;
     }
+  }
+
+  /* Hover and press drawn at rest, so a still row shows each state (buttons-nav.css, light-mode.css). */
+  .state-hover:not([aria-disabled='true']) {
+    @apply bg-cyan text-background;
+  }
+
+  :is(:root[data-theme='light'] main, main .mode-light)
+    .state-hover:not([aria-disabled='true'], .mode-dark *) {
+    background-color: var(--dark-cyan);
+    color: var(--color-light-ink);
+  }
+
+  /* Doubled class: outweighs the press rule in buttons-nav.css. */
+  :is(.btn-primary, .btn-secondary).state-pressed.state-pressed:not(
+      [aria-disabled='true']
+    ) {
+    box-shadow:
+      var(--press-ring, 0 0 transparent),
+      0 0 0 var(--press-throw-color);
+    translate: var(--press-throw) var(--press-throw);
   }
 
   /* The focus ring drawn at rest, so a still sample shows it (base.css :focus-visible). */

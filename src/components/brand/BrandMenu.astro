@@ -34,16 +34,43 @@ import {
         ))}
       </ol>
     );
+    const filtered = (
+      <div data-menu-list>
+        <div class="needs-script mb-6">
+          <label class="field-label" for={`menu-filter-${width}`}>
+            Search
+          </label>
+          <input
+            class="field-control"
+            id={`menu-filter-${width}`}
+            type="search"
+            autocomplete="off"
+            placeholder="Token, hex, component, rule"
+            data-menu-filter
+          />
+          <p
+            class="mt-3 text-body text-subtle"
+            role="status"
+            data-menu-status
+          />
+        </div>
+        {list}
+      </div>
+    );
     return width === 'narrow' ? (
       <details class="lg:hidden">
         <summary class="post-contents-summary">
           <span>On This Page</span>
           <span class="post-contents-marker" aria-hidden="true" />
         </summary>
-        {list}
+        {filtered}
       </details>
     ) : (
-      <div class="hidden lg:block">{list}</div>
+      <div class="hidden lg:block">{filtered}</div>
     );
   })}
 </nav>
+
+<script>
+  import '../../scripts/brand-filter';
+</script>
