@@ -93,7 +93,8 @@
   /*
    * Reading column centered between equal tracks; contents list on the right
    * from `xl`. Not sticky: a tall list hides links, and a scrolling one is an
-   * extra Firefox tab stop (tests/focus.spec.ts).
+   * extra Firefox tab stop (tests/focus.spec.ts). /brand's sections list is the
+   * exception, and scrolls inside itself (brand.css).
    */
   .post-layout {
     @apply grid gap-y-head;

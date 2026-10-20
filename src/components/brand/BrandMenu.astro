@@ -11,7 +11,7 @@ import {
 } from '../../lib/brand-sections';
 ---
 
-<nav aria-label="Brand sections" id="brand-menu" class="brand-menu">
+<nav aria-label="On This Page" id="brand-menu" tabindex="-1" class="brand-menu">
   {(['narrow', 'wide'] as const).map((width) => {
     const list = (
       <ol role="list">
@@ -37,7 +37,7 @@ import {
     return width === 'narrow' ? (
       <details class="lg:hidden">
         <summary class="post-contents-summary">
-          <span>All Sections</span>
+          <span>On This Page</span>
           <span class="post-contents-marker" aria-hidden="true" />
         </summary>
         {list}

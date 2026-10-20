@@ -19,7 +19,7 @@ const headingId = `${section.anchor}-heading`;
   <header class="flex flex-col">
     <h2 id={headingId} class="text-h2 text-text">
       <span class="text-subtle" aria-hidden="true">
-        {sectionNumber(section.slug)} //{' '}
+        {sectionNumber(section.slug)}{' '}
       </span>
       {section.heading ?? section.title}
     </h2>
@@ -30,8 +30,11 @@ const headingId = `${section.anchor}-heading`;
       {section.lead}
     </div>
     <p class="brand-back mt-6">
-      <a href="#brand-menu" class="link inline-flex min-h-target items-center">
-        Back to Sections
+      <a
+        href="#brand-menu"
+        class="link inline-flex min-h-target min-w-target items-center"
+      >
+        Contents
       </a>
     </p>
   </header>

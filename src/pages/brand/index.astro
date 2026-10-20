@@ -4,7 +4,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import PageHero from '../../components/PageHero.astro';
 import BrandFrame from '../../components/brand/BrandFrame.astro';
 import BrandSection from '../../components/brand/BrandSection.astro';
-import ColorBlocks from '../../components/brand/ColorBlocks.astro';
+import RoleParts from '../../components/brand/RoleParts.astro';
 import Grounds from '../../components/brand/Grounds.astro';
 import Pairings from '../../components/brand/Pairings.astro';
 import TypeScale from '../../components/brand/TypeScale.astro';
@@ -29,12 +29,12 @@ import {
   USE_TEMPLATE_URL,
 } from '../../components/brand/links';
 import { SITE_NAME } from '../../lib/site';
-import { TEXT_TARGET_RATIO } from '../../lib/brand-blocks';
-import { BRAND_SECTIONS } from '../../lib/brand-sections';
+import { TEXT_TARGET_RATIO } from '../../lib/brand-roles';
+import { BRAND_SECTIONS, groupSize } from '../../lib/brand-sections';
 
 const PARTS = {
   grounds: Grounds,
-  color: ColorBlocks,
+  color: RoleParts,
   contrast: Pairings,
   type: TypeScale,
   spacing: SpacingSteps,
@@ -105,22 +105,24 @@ const sections = BRAND_SECTIONS.map((section) => {
     <div class="mx-auto max-w-page">
       <dl class="fact-strip grid gap-0 lg:grid-cols-12">
         <div class="lg:col-span-3">
-          <dt class="label text-gold">Text contrast</dt>
-          <dd class="mt-4 text-text">{TEXT_TARGET_RATIO}:1 or more</dd>
+          <dt class="label text-gold">Contrast</dt>
+          <dd class="mt-4 text-text">{TEXT_TARGET_RATIO}:1+</dd>
+        </div>
+        <div class="lg:col-span-2">
+          <dt class="label text-gold">Base Unit</dt>
+          <dd class="mt-4 text-text">4px</dd>
         </div>
         <div class="lg:col-span-3">
-          <dt class="label text-gold">Spacing</dt>
-          <dd class="mt-4 text-text">A 4px base</dd>
+          <dt class="label text-gold">Typeface</dt>
+          <dd class="mt-4 text-text">Lexend 400/900</dd>
         </div>
-        <div class="lg:col-span-3">
-          <dt class="label text-gold">Type</dt>
-          <dd class="mt-4 text-text">Lexend at 400 and 900</dd>
+        <div class="lg:col-span-2">
+          <dt class="label text-gold">Foundations</dt>
+          <dd class="mt-4 text-text">{groupSize('Foundations')}</dd>
         </div>
-        <div class="lg:col-span-3">
-          <dt class="label text-gold">Sections</dt>
-          <dd class="mt-4 text-text">
-            {BRAND_SECTIONS.length}, each shown dark and light
-          </dd>
+        <div class="lg:col-span-2">
+          <dt class="label text-gold">Components</dt>
+          <dd class="mt-4 text-text">{groupSize('Components')}</dd>
         </div>
       </dl>
     </div>

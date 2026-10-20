@@ -7,7 +7,7 @@
 
 export const BRAND_PATH = '/brand/';
 
-export type BrandGroup = 'Foundations' | 'Components' | 'About';
+export type BrandGroup = 'Foundations' | 'Components' | 'Resources';
 
 export interface BrandPart {
   id: string;
@@ -30,7 +30,7 @@ export interface BrandSection {
 export const BRAND_GROUPS: readonly BrandGroup[] = [
   'Foundations',
   'Components',
-  'About',
+  'Resources',
 ];
 
 /* Draft copy: leads, rules, descriptions and the foundations' part names wait for the owner's approval. */
@@ -61,10 +61,12 @@ export const BRAND_SECTIONS: readonly BrandSection[] = [
     description:
       'Every color token in the design system, the one job it does, and its value in dark and light mode.',
     parts: [
-      { id: 'ink-and-accents', name: 'Ink and Accents' },
-      { id: 'edges-and-focus', name: 'Edges and Focus' },
-      { id: 'color-grounds', name: 'Grounds' },
-      { id: 'on-gold', name: 'On Gold' },
+      { id: 'role-grounds', name: 'Grounds' },
+      { id: 'role-ink', name: 'Ink' },
+      { id: 'role-accent', name: 'Accent' },
+      { id: 'role-interaction', name: 'Interaction' },
+      { id: 'role-depth', name: 'Depth and Error' },
+      { id: 'role-edges', name: 'Edges' },
     ],
   },
   {
@@ -264,7 +266,7 @@ export const BRAND_SECTIONS: readonly BrandSection[] = [
     title: 'Accessibility Target',
     /* A soft hyphen (U+00AD) after "Acces". */
     heading: 'Acces\u00ADsibility Target',
-    group: 'About',
+    group: 'Resources',
     lead: 'The floor for every page, and where it is written down.',
     rule: 'WCAG 2.2 AA, and AAA for text contrast.',
     description:
@@ -275,7 +277,7 @@ export const BRAND_SECTIONS: readonly BrandSection[] = [
     slug: 'template',
     anchor: 'use',
     title: 'The Template',
-    group: 'About',
+    group: 'Resources',
     lead: 'This design system, its tests and its contact form, ready to use.',
     rule: 'MIT code and docs.',
     description:
@@ -303,6 +305,10 @@ export const brandPartName = (id: string): string => {
   }
   return part.name;
 };
+
+/** How many sections the group holds, for the fact strip. */
+export const groupSize = (group: BrandGroup): number =>
+  BRAND_SECTIONS.filter((s) => s.group === group).length;
 
 const NUMBER_DIGITS = 2;
 

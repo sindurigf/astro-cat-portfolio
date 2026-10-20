@@ -629,16 +629,16 @@ The grid rule in `scripts/check-tokens.mjs` enforces the grid;
 
 ### Section types
 
-| Type    | Build                                                                                                                                                                                                                                                                                                         |
-| ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Hero    | First section on every page except a post; a `.gold-column`. See [Hero](#hero).                                                                                                                                                                                                                               |
-| Open    | `Section`: `text-h2` heading, optional `.lead` 24px under it, content at `--spacing-head`, `max-w-page` in `.page-gutter`.                                                                                                                                                                                    |
-| Panel   | `Section panel`: the same box, the whole section in one `.card`, its h2 `text-h2` inside the card.                                                                                                                                                                                                            |
-| Listing | Grid of cards, 1 to 3 columns, `--spacing-grid` gaps: blog index, categories, tags, Home's two grids.                                                                                                                                                                                                         |
-| Reading | One `.prose` column, `max-w-measure` (36rem): Privacy, Accessibility, a post's body.                                                                                                                                                                                                                          |
-| Surface | The gold band (Home, Career, Contact), a `.gold-column`. With the hero slab, the only change of ground.                                                                                                                                                                                                       |
-| Close   | `CloseRow`, its own band, always last, never nested.                                                                                                                                                                                                                                                          |
-| Brand   | `BrandFrame`: the sections list (`BrandMenu`, `--container-rail` wide; sticky only under the `menu-fits` variant (`lg` wide and tall enough for the whole list under the header), and a closed details box under `lg`) beside the content. Plain numbered links; the section you jumped to is the gold block. |
+| Type    | Build                                                                                                                                                                                                                                                                                                                                |
+| ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Hero    | First section on every page except a post; a `.gold-column`. See [Hero](#hero).                                                                                                                                                                                                                                                      |
+| Open    | `Section`: `text-h2` heading, optional `.lead` 24px under it, content at `--spacing-head`, `max-w-page` in `.page-gutter`.                                                                                                                                                                                                           |
+| Panel   | `Section panel`: the same box, the whole section in one `.card`, its h2 `text-h2` inside the card.                                                                                                                                                                                                                                   |
+| Listing | Grid of cards, 1 to 3 columns, `--spacing-grid` gaps: blog index, categories, tags, Home's two grids.                                                                                                                                                                                                                                |
+| Reading | One `.prose` column, `max-w-measure` (36rem): Privacy, Accessibility, a post's body.                                                                                                                                                                                                                                                 |
+| Surface | The gold band (Home, Career, Contact), a `.gold-column`. With the hero slab, the only change of ground.                                                                                                                                                                                                                              |
+| Close   | `CloseRow`, its own band, always last, never nested.                                                                                                                                                                                                                                                                                 |
+| Brand   | `BrandFrame`: the sections list (`BrandMenu`, `--container-rail` wide; sticky from `lg` under the header, scrolling inside itself when the screen is shorter than the list, and static under 30rem tall, and a closed details box under `lg`) beside the content. Plain numbered links; the section you jumped to is the gold block. |
 
 ### One treatment per type
 
@@ -728,26 +728,26 @@ The grid rule in `scripts/check-tokens.mjs` enforces the grid;
 | Blog category, tag     | Hero, Listing                                                  |
 | Post                   | Article header, Reading (contents box from 1280px), Tags nav   |
 | 404                    | Hero (starfield) only                                          |
-| Brand                  | Hero (full), Facts, Brand (sections list, 18 sections), Close  |
+| Brand                  | Hero (full), Facts, Brand (sections list), Close               |
 
 - About's last Open, Sources, is there only while the sample persona is set.
 - Contact ends on its gold surface, not a closing row: the band is its call to
   action.
 - The blog listing has no section heading: each card's title is its h2.
-- `/brand` is one page of 18 sections in `src/lib/brand-sections.ts`, beside a
-  numbered sections list that is sticky only where the whole list fits under the header (the `menu-fits` variant in `global.css`), never a scrolling region; elsewhere each section links back to it. A section opens on its
-  number and name, its lead and the mirror of its picture; each part is an h3
-  name, what it is for, its rule, and a stage: the example live on the dark
-  ground beside an inert, `aria-hidden` copy on the light one (`mirror.ts`), so
-  nothing is reached or named twice. A part whose facts differ by mode, such
-  as contrast, fills both halves live.
-- A part drawn as blocks (Color) puts each pair on its real ground and states
-  the ratio of its two colors, computed from the tokens by
-  `src/lib/brand-blocks.ts`. A text pair under 7 or an edge under 3 fails the
-  build.
-- Each section is an id'd anchor; the retired `/brand/<section>/` routes
-  redirect to it in `public/_redirects`, and the old single page's part ids
-  are kept, so any old `/brand/#id` link still lands.
+- `/brand`: one page of sections from `src/lib/brand-sections.ts`.
+  - The fact strip counts the Foundations and Components sections from their group sizes.
+  - Sections list: numbered, sticky from `lg` under the header, scrolls inside itself when shorter than the list.
+  - Under 30rem tall (a landscape phone, 400% zoom) the list stays in the flow and each section links back to it (SC 1.4.10, 2.4.11).
+  - No script: a link landed on from outside can sit out of view in the list's own scroll.
+  - A section: number and name, lead, then parts. A part: h3 name, use, rule, and a stage.
+  - Stage: the live example on the dark ground beside an inert, `aria-hidden` copy on the light one (`mirror.ts`).
+  - Each half wears the page's 4px edge, so dark on the dark page or light on the light page stays visible; halves that touch share one edge (`tests/brand.spec.ts`).
+- Color is one part per role in `src/lib/brand-roles.ts`.
+  - Tokens are rows of one swatch size: fills as fills, text colors as "Aa", cyan unpainted.
+  - Each role ends in the one pair it is read on; the ratio is computed from the tokens.
+  - Any text color under 7 or edge under 3 on either ground fails the build.
+- Each section is an id'd anchor; the retired `/brand/<section>/` routes redirect to it in `public/_redirects`.
+  - Part ids `ink-and-accents`, `edges-and-focus`, `color-grounds` and `on-gold` are gone.
 
 ## Hero
 

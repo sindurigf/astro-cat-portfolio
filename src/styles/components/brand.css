@@ -16,7 +16,7 @@
 
     grid-template-columns: minmax(0, 1fr);
 
-    @media (width >= 64rem) {
+    @variant lg {
       column-gap: var(--spacing-grid);
       grid-template-columns: var(--container-rail) minmax(0, 1fr);
     }
@@ -29,22 +29,33 @@
   }
 
   /*
-   * Sticky only where the whole list fits under the header, so it never needs
-   * a scroll of its own: on a shorter screen it stays in the flow and each
-   * section carries a link back to it (`.brand-back`).
+   * Sticks from `lg`; under the `short` height it stays in the flow so it never
+   * covers content, and each section links back to it (`.brand-back`).
    */
   .brand-menu {
     @apply self-start;
 
-    @variant menu-fits {
+    @variant lg {
       position: sticky;
       top: calc(var(--spacing-header) + --spacing(6));
+      max-height: calc(100dvh - var(--spacing-header) - --spacing(12));
+      overflow-y: auto;
+
+      @variant short {
+        position: static;
+        max-height: none;
+        overflow-y: visible;
+      }
     }
   }
 
   .brand-back {
-    @variant menu-fits {
+    @variant lg {
       display: none;
+
+      @variant short {
+        display: block;
+      }
     }
   }
 
@@ -131,11 +142,10 @@
     @apply mt-head;
   }
 
-  /*
-   * A part drawn on the dark ground beside the light one, side by side once
-   * the content column fits two halves. No edge: the grounds differ.
-   */
+  /* The dark and light halves of a part, side by side once the column fits two; each wears the page's edge, and halves that touch share one. */
   .brand-stage {
+    --stage-edge: var(--color-border);
+
     @apply grid grid-cols-1;
 
     @container brand-content (width >= 48rem) {
@@ -148,106 +158,70 @@
     --step-x: 0px;
     --step-y: 0px;
 
-    @apply min-w-0 overflow-clip bg-background p-card-tight text-text;
-  }
+    @apply min-w-0 overflow-clip border-4 bg-background text-text;
 
-  .brand-poster > .brand-stage-half {
-    @apply sm:p-card;
+    border-color: var(--stage-edge);
+    padding: calc(var(--spacing-card-tight) - var(--block-edge));
   }
 
   /*
-   * Pairs on their real ground. The table keeps row and column headers for
-   * assistive technology; below `sm` each row becomes a short grid so the cells
-   * keep their width.
+   * The second half's edge is the first's: it reaches back over it, and its
+   * padding keeps the content where the edge-free stage had it.
    */
-  .block-table {
-    @apply w-full table-fixed border-separate border-spacing-x-0
-      border-spacing-y-3;
+  .brand-stage-half + .brand-stage-half {
+    margin-top: calc(var(--block-edge) * -1);
+
+    @container brand-content (width >= 48rem) {
+      margin-top: 0;
+      margin-left: calc(var(--block-edge) * -1);
+      padding-left: var(--spacing-card-tight);
+    }
   }
 
-  .block-table th {
-    @apply text-left align-middle;
+  .brand-poster > .brand-stage-half {
+    @variant sm {
+      padding: calc(var(--spacing-card) - var(--block-edge));
+    }
+
+    & + .brand-stage-half {
+      @container brand-content (width >= 48rem) {
+        @variant sm {
+          padding-left: var(--spacing-card);
+        }
+      }
+    }
   }
 
-  .block-table th:first-child {
-    @apply w-1/4 pr-4;
+  .role-swatch {
+    @apply flex size-12 shrink-0 items-center justify-center border-4 border-text;
   }
 
-  .block-table td {
-    @apply p-0;
+  .role-swatch-glyph {
+    @apply bg-background text-body font-black;
   }
 
-  .block-cell {
-    @apply flex flex-col items-start gap-1 p-card-tight;
+  .role-list {
+    @apply space-y-6;
   }
 
-  .block-edge {
-    @apply block size-8 border-4;
+  .role-token {
+    @apply flex items-start gap-6;
   }
 
-  .block-hex {
+  .role-hex {
     @apply font-mono;
   }
 
-  .block-sample {
-    @apply leading-none;
+  .role-read {
+    @apply max-w-measure;
   }
 
-  .block-ratio {
-    @apply mt-2;
+  .role-ratio {
+    @apply font-mono;
   }
 
-  .block-verdict {
-    @apply font-normal;
-  }
-
-  .block-note {
-    @apply mt-2 font-normal;
-  }
-
-  @media (width < 40rem) {
-    .block-table :is(thead, tbody, tr, th, td) {
-      display: block;
-    }
-
-    .block-table tr {
-      display: grid;
-      grid-template-columns: repeat(var(--block-cols), minmax(0, 1fr));
-    }
-
-    .block-table[data-cols='1'] {
-      --block-cols: 1;
-    }
-
-    .block-table[data-cols='2'] {
-      --block-cols: 2;
-    }
-
-    .block-table[data-cols='3'] {
-      --block-cols: 3;
-    }
-
-    .block-table th[scope='row'] {
-      @apply w-auto pb-2 pr-0;
-
-      grid-column: 1 / -1;
-    }
-
-    .block-table td[colspan='2'] {
-      grid-column: span 2;
-    }
-
-    .block-table thead {
-      @apply mb-3;
-    }
-
-    .block-table thead th:first-child {
-      @apply sr-only;
-    }
-
-    .block-cell {
-      @apply p-3;
-    }
+  .role-verdict {
+    @apply font-black text-text;
   }
 
   /* An example whose control only works with a script is replaced by a note, like the header's menu trigger. */
