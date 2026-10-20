@@ -50,11 +50,14 @@ blur, uppercase headings, tilted marks.
 | 8   | The `gold` swatch and the contrast samples on gold; fills, hex in both modes                                                       | `/brand`                               |
 | 9   | Edges in dark mode: `border` on fields, controls, chips, rules and the outer edge of a gold area                                   | every route                            |
 | 10  | The header bar, a gold ground in both modes; its current-page brick, theme switch and call to action read on it by their ink edges | every route                            |
+| 11  | The footer motto band: the motto in ink on a `block-gold` band at every page's end, the mascot standing on it                      | every route                            |
 
 - 9 is the edge because the only two colors are ink and gold: an ink edge
   vanishes on the dark page and a light one adds a third color. Gold reads as
   structure there (10.60 or more on both dark grounds), and inside gold every edge
   is ink.
+- 11 closes every page the way the header (10) opens it: the site's own
+  motto in ink on gold.
 
 - 4a's lead-in terms and links make a projected slide's key words readable at
   a glance; light mode turns them ink, like bold words.
@@ -251,6 +254,10 @@ set; hex values and ratios are in the generated [Contrast](#contrast) table:
   with the ink edge (`/career`); a linked chip keeps its dark fill with a
   `gold-text` edge.
 - A whole gold section (hero slab, gold band) is also a `.gold-column`.
+- Exception: the footer motto band (register row 11) is a `block-gold` fill
+  with `gold-text` type and a `fill-edge` top, not `.surface-gold`. It holds
+  the motto and the mascot and never a control, so there is nothing for
+  `.surface-gold` to repaint.
 - Keep the link underline: `gold-link` is 1.01 against `gold-text`, so the
   underline carries SC 1.4.1.
 - `gold-btn-label` sits only on `.btn-gold-primary`'s `#131313` fill (18.58),
@@ -361,7 +368,7 @@ copyright and contents list are fixed, and `text-code` is `max(1rem, 0.92em)`,
 | `text-slide-title-frame`  | 26     | 65     | 1           | 900    | Slide title in full screen, by frame  |
 | `text-slide-number-frame` | 72     | 160    | 1           | 900    | Part number in full screen, by frame  |
 | `text-copyright`          | 20     | 20     | 1.2         | 900    | Footer copyright                      |
-| `text-footer-name`        | 32     | 40     | 1           | 900    | Footer name                           |
+| `text-footer-name`        | fills  | fills  | 0.82        | 900    | Footer motto band, sized to its width |
 | `text-section-number`     | 21     | 28     | 1           | 900    | Category glyph tile                   |
 | `text-quote-mark`         | 64     | 144    | 0.75        | 900    | About quote mark                      |
 
@@ -402,9 +409,9 @@ copyright and contents list are fixed, and `text-code` is `max(1rem, 0.92em)`,
 - The talk cover keeps the fluid `text-deck-cover`; the deck has its own
   rule ([ACCESSIBILITY.md](../ACCESSIBILITY.md) gap 7).
 - Posts use `text-post-*`. Do not raise them to the page scale.
-- The footer motto's 32px floor keeps about 11 characters on one line at 288px.
+- The footer motto fills its band by container width (`--text-footer-name-fluid`, `-md`), one word a line below 48rem, one line from 48rem; no rem floor, so a larger default font never pushes it past the band. A fork sets both divisors from its motto.
 - Tracking: `--tracking-heading` -0.05em on h1 and h2, `--tracking-title`
-  -0.02em on h3, post and slide titles and the footer name, `--tracking-label`
+  -0.02em on h3, post and slide titles, `--tracking-label`
   0.1em on labels and buttons.
 - The standfirst is `max-w-2xl`, `--spacing` step 8 under the title.
 
@@ -1075,32 +1082,32 @@ Enforced by `tests/footer.spec.ts`.
 
 `<footer class="page-gutter">`, outside `<main>`, no headings:
 
-- the motto, `site.motto` (a `div` with its `lang`, not a heading)
-- `nav` "Site": Home, About, Career, Blog
-- `nav` "About this site": the links in `POLICY_LINKS` in `Footer.astro`
 - `nav` "Social": one sticker link per profile plus Email, each an
   `aria-hidden` icon and a visually hidden name
+- `nav` "Site": Home, About, Career, Blog
+- `nav` "About this site": the links in `POLICY_LINKS` in `Footer.astro`
 - the copyright, then "Cat Drawings and Text Made with AI", an underlined
   `subtle` link to `AI_DISCLOSURE.md` with a 44px-tall box (EU AI Act Art. 50)
-- the `aria-hidden` tuft
+- the motto, `site.motto` (a `div` with its `lang`, not a heading), as display
+  type on a gold band, the `aria-hidden` mascot standing on its last letter
 
 ### Footer layout
 
-| Width       | Layout                                                                                                                                             |
-| ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
-| below 48rem | one centered column in source order; the stickers a 4-column grid, the fifth onward offset by `--spacing(8)`; copyright and AI label over the tuft |
-| from 48rem  | three columns, name and stickers, Site, About this site, `column-gap` `--spacing(8)`; copyright and AI label, then the tuft, in one row            |
-| from 64rem  | inset `--spacing(8)` either side; stickers `--size-sticker-lg`                                                                                     |
+| Width       | Layout                                                                                                                                  |
+| ----------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| below 48rem | one centered column in source order; the stickers a 4-column grid, the fifth onward offset by `--spacing(8)`; the motto one word a line |
+| from 48rem  | three columns, stickers, Site, About this site, `column-gap` `--spacing(8)`; copyright and AI label left; the motto on one line         |
+| from 64rem  | inset `--spacing(8)` either side; stickers `--size-sticker-lg`                                                                          |
 
 ### Footer spacing
 
-| Relationship                | Value                                                                     |
-| --------------------------- | ------------------------------------------------------------------------- |
-| Last section to footer      | that section's `--spacing-section`, then the footer's `--spacing(12)` top |
-| Name to page links (phone)  | `--spacing(8)`                                                            |
-| Stickers to copyright       | `--spacing(8)` at every width                                             |
-| Between stickers            | `--spacing(6)`; `--spacing(4)` at 48rem; `--spacing(6)` at 64rem          |
-| Copyright to the page's end | `--spacing(6)` from 48rem; the tuft sits on the edge below it             |
+| Relationship                   | Value                                                                     |
+| ------------------------------ | ------------------------------------------------------------------------- |
+| Last section to footer         | that section's `--spacing-section`, then the footer's `--spacing(12)` top |
+| Between the nav groups (phone) | `--spacing(8)`                                                            |
+| Stickers to copyright          | `--spacing(8)` at every width                                             |
+| Between stickers               | `--spacing(6)`; `--spacing(4)` at 48rem; `--spacing(6)` at 64rem          |
+| AI label to the motto band     | `--size-footer-mascot`, room for the mascot standing on the band          |
 
 No rule or divider joins the footer to the page.
 
@@ -1117,8 +1124,8 @@ No rule or divider joins the footer to the page.
 - One colorway, the `.badge` inversion: `text` fill, `background` glyph
   (15.28). Not cycled by `nth-child`.
 - Sizes are `@theme` tokens: `--size-sticker`, `--size-sticker-lg`,
-  `--size-sticker-icon` (22px), `--border-width-sticker`, `--size-tuft` (220px),
-  `--size-tuft-md` (266px).
+  `--size-sticker-icon` (22px), `--border-width-sticker`, `--size-footer-mascot`
+  (72px to 120px).
 
 ## Navigation
 

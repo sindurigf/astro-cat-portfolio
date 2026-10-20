@@ -42,34 +42,32 @@ const AI_DISCLOSURE_HREF = `${REPOSITORY_URL}/blob/main/AI_DISCLOSURE.md`;
 /* Not inline: Astro drops the space between two expressions on separate lines. */
 const copyright = `© ${FIRST_PUBLISHED} ${SITE_NAME}`;
 
-/* The logo's head at twice its size, sunk below the ground up to its whiskers. */
-const HEAD_SCALE = 2;
-const HEAD_CENTER = -9;
-/** Mark units of the head left above the ground, from the ear tips to the chin's top. */
-const HEAD_ROW = 55;
-const HEAD_X = HEAD_CENTER - (MARK_SIZE / 2) * HEAD_SCALE;
-const HEAD_Y = -HEAD_ROW * HEAD_SCALE;
-const SHADOW = 6;
-/** Paw centers, outside the head's sides, in mark units from its center. */
-const PAW_REACH = 44;
-const PAW_XS = [-PAW_REACH, PAW_REACH].map(
-  (dx) => HEAD_CENTER + dx * HEAD_SCALE,
-);
-/* A mitt over the ground line, its toes hanging below it. */
-const PAW =
-  'M-15 4V-2Q-15 -10 -6 -10H6Q15 -10 15 -2V4Q15 7 12 7H-12Q-15 7 -15 4Z';
-const TOES = 'M-5 2V6M0 2V6.5M5 2V6';
+/** Mark units the sticker shadow drops, down and right. */
+const SHADOW = 3;
 ---
 
 <footer class="page-gutter bg-background">
   <div class="mx-auto max-w-page">
     <div class="footer-inner">
       <div class="footer-top">
-        {/* A <div>: a <p> trips WAVE's "Possible heading" (tests/wave-alerts.spec.ts). */}
-        <div class="footer-name" lang={MOTTO.lang}>
-          {MOTTO.text}
-        </div>
-
+        <nav aria-label="Social">
+          <ul class="footer-stickers">
+            {SOCIAL_LINKS.map((link) => (
+              <li>
+                <a
+                  href={link.href}
+                  class="footer-sticker"
+                  rel={link.href.startsWith('https:') ? 'me' : undefined}
+                >
+                  <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                    <use href={`${socialIcons}#${link.label}`} />
+                  </svg>
+                  <span class="sr-only">{link.name}</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </nav>
         <nav aria-label="Site" class="footer-pages">
           <ul>
             {NAV_LINKS.map((link) => (
@@ -101,86 +99,37 @@ const TOES = 'M-5 2V6M0 2V6.5M5 2V6';
             ))}
           </ul>
         </nav>
-
-        <nav aria-label="Social" class="footer-social">
-          <ul class="footer-stickers">
-            {SOCIAL_LINKS.map((link) => (
-              <li>
-                <a
-                  href={link.href}
-                  class="footer-sticker"
-                  rel={link.href.startsWith('https:') ? 'me' : undefined}
-                >
-                  <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                    <use href={`${socialIcons}#${link.label}`} />
-                  </svg>
-                  <span class="sr-only">{link.name}</span>
-                </a>
-              </li>
-            ))}
-          </ul>
-        </nav>
       </div>
 
-      <div class="footer-base">
-        <div class="footer-notes">
-          <small class="footer-copyright">{copyright}</small>
-          {/* EU AI Act Art. 50: the one label for the AI-drawn cats and the AI-written sample text. */}
-          <small class="footer-ai">
-            <a href={AI_DISCLOSURE_HREF} class="link">
-              Cat Drawings and Text Made with AI
-            </a>
-          </small>
-        </div>
+      <div class="footer-notes">
+        <small class="footer-copyright">{copyright}</small>
+        {/* EU AI Act Art. 50: the one label for the AI-drawn cats and the AI-written sample text. */}
+        <small class="footer-ai">
+          <a href={AI_DISCLOSURE_HREF} class="link">
+            Cat Drawings and Text Made with AI
+          </a>
+        </small>
+      </div>
+    </div>
 
-        {/* Origin where the head meets the ground; the head below the ground is clipped. */}
+    {/* A <div>: a <p> trips WAVE's "Possible heading" (tests/wave-alerts.spec.ts). */}
+    <div class="footer-name" lang={MOTTO.lang}>
+      <span class="footer-name-text">
+        {MOTTO.text}
         <svg
-          class="footer-tuft"
-          viewBox="-142 -120 266 136"
+          class="footer-mascot"
+          viewBox={`0 0 ${MARK_SIZE + SHADOW} ${MARK_SIZE + SHADOW}`}
           aria-hidden="true"
           focusable="false"
         >
-          <defs>
-            <clipPath id="footer-above-ground">
-              <rect x="-142" y="-120" width="266" height="120"></rect>
-            </clipPath>
-          </defs>
-          <g class="tuft-back">
-            <path d="M-138 0Q-140 -32 -142 -58Q-132 -30 -129 0Z"></path>
-            <path d="M-124 0Q-125 -44 -122 -82Q-115 -40 -114 0Z"></path>
-            <path d="M96 0Q99 -38 111 -70Q109 -34 105 0Z"></path>
-            <path d="M110 0Q115 -27 124 -48Q122 -24 118 0Z"></path>
-          </g>
-          <rect
-            class="tuft-ground"
-            x="-142"
-            y="0"
-            width="266"
-            height="4"
-          ></rect>
-          <g clip-path="url(#footer-above-ground)">
-            <path
-              class="mascot-shadow"
-              d={MARK_HEAD}
-              transform={`translate(${HEAD_X + SHADOW} ${HEAD_Y + SHADOW}) scale(${HEAD_SCALE})`}
-            ></path>
-            <g
-              transform={`translate(${HEAD_X} ${HEAD_Y}) scale(${HEAD_SCALE})`}
-              set:html={markMarkup(tokenPaint, { id: 'footer' })}
-            />
-          </g>
-          {PAW_XS.map((x) => (
-            <g transform={`translate(${x} 0) scale(${HEAD_SCALE})`}>
-              <path class="mascot-paw-fill" d={PAW}></path>
-              <path class="mascot-paw-toes" d={TOES}></path>
-            </g>
-          ))}
-          <g class="tuft-front">
-            <path d="M-128 0Q-130 -11 -130 -20Q-123 -10 -120 0Z"></path>
-            <path d="M104 0Q107 -10 113 -18Q113 -9 111 0Z"></path>
-          </g>
+          <path
+            class="mascot-shadow"
+            d={MARK_HEAD}
+            transform={`translate(${SHADOW} ${SHADOW})`}
+          ></path>
+          <g set:html={markMarkup(tokenPaint, { id: 'footer' })} />
         </svg>
-      </div>
+      </span>
     </div>
   </div>
 </footer>

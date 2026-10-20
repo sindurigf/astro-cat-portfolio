@@ -14,22 +14,10 @@
     justify-items: center;
   }
 
-  .footer-name {
-    font-size: var(--text-footer-name);
-    line-height: var(--text-footer-name--line-height);
-    letter-spacing: var(--tracking-title);
-    text-align: center;
-
-    @apply font-black uppercase text-text;
-  }
-
   /* Phone: one full-width row per link, as tall as the target minimum. */
   .footer-pages,
   .footer-policies {
     justify-self: stretch;
-  }
-
-  .footer-pages {
     margin-top: --spacing(8);
   }
 
@@ -46,10 +34,6 @@
     text-decoration: underline;
     text-decoration-thickness: var(--underline-thin);
     text-underline-offset: var(--underline-offset);
-  }
-
-  .footer-social {
-    margin-top: --spacing(8);
   }
 
   /*
@@ -141,19 +125,13 @@
     --tilt: -3deg;
   }
 
-  .footer-base {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: --spacing(4);
-    margin-top: --spacing(8);
-  }
-
+  /* Clear of the mascot, which stands up to its own height above the band. */
   .footer-notes {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: --spacing(2);
+    margin: --spacing(8) auto var(--size-footer-mascot);
   }
 
   /* The link's own box reaches SC 2.5.8 without the spacing exception. */
@@ -178,92 +156,72 @@
   }
 
   /*
-   * 266x136 viewBox, 220px wide on a phone, 1:1 from `md`. The logo's head
-   * (src/lib/brand-mark.ts) peeks over a ground line 16 units up, mitts on it.
+   * The motto as display type on a gold band at the page's end; the mascot
+   * stands on its last letter. The band is the container the type is sized by.
+   * A gold block, not `.surface-gold`: it holds the motto in ink and no controls.
    */
-  .footer-tuft {
-    display: block;
-    width: var(--size-tuft);
-    max-width: 100%;
-    height: auto;
-    overflow: visible;
-  }
-
-  .footer-tuft .tuft-back,
-  .footer-tuft .tuft-ground {
-    fill: var(--color-border);
-  }
-
-  .footer-tuft .tuft-front {
-    fill: var(--color-subtle);
-  }
-
-  .footer-tuft .mascot-shadow {
-    fill: var(--color-mark);
-  }
-
-  .footer-tuft .mascot-paw-fill {
-    fill: var(--color-cat-hela);
-    stroke: var(--color-tile-edge);
-    /* Must match MARK_EDGE in src/lib/brand-mark.ts: the paws share the head's edge. */
-    stroke-width: 4.67;
-    stroke-linejoin: round;
-  }
-
-  .footer-tuft .mascot-paw-toes {
-    fill: none;
-    stroke: var(--color-gold-text);
-    stroke-width: 1.8;
-    stroke-linecap: round;
+  .footer-name {
+    position: relative;
+    container-type: inline-size;
+    padding: --spacing(4) --spacing(6) --spacing(3);
+    border-top: var(--block-edge) solid var(--color-fill-edge);
+    background-color: var(--color-block-gold);
+    color: var(--color-gold-text);
   }
 
   /*
-   * Source order is name, pages, policies, stickers, and reads the same
-   * row-major. `space-between` equalizes the gaps; the column gap is a floor,
+   * Shrink-wrapped to its widest line (min-content: one word a line below
+   * 48rem), so the mascot's `right: 0` lands on the first line's last letter.
+   */
+  .footer-name-text {
+    position: relative;
+    display: inline-block;
+    width: min-content;
+    font-size: var(--text-footer-name-fluid);
+    line-height: var(--text-footer-name--line-height);
+
+    @apply font-black uppercase;
+  }
+
+  /* Its bottom edge on the cap line. */
+  .footer-mascot {
+    position: absolute;
+    right: 0;
+    bottom: calc(100% - var(--footer-mascot-sink));
+    width: var(--size-footer-mascot);
+    height: var(--size-footer-mascot);
+    overflow: visible;
+    pointer-events: none;
+  }
+
+  .footer-mascot .mascot-shadow {
+    fill: var(--color-mark);
+  }
+
+  /*
+   * Source order is stickers, pages, policies, and reads the same row-major. `space-between` equalizes the gaps; the column gap is a floor,
    * kept small so the row fits at the md breakpoint.
    */
   @media (width >= 48rem) {
     .footer-top {
       grid-template-columns: repeat(3, auto);
-      grid-template-rows: auto 1fr;
       justify-content: space-between;
       justify-items: start;
       align-items: start;
       column-gap: --spacing(8);
     }
 
-    .footer-name {
-      grid-column: 1;
-      grid-row: 1;
-      text-align: left;
-    }
-
     .footer-pages,
     .footer-policies {
-      grid-row: 1 / span 2;
       justify-self: start;
       margin-top: 0;
       padding-top: --spacing(2);
-    }
-
-    .footer-pages {
-      grid-column: 2;
-    }
-
-    .footer-policies {
-      grid-column: 3;
     }
 
     /* Padding spaces the line; the min-height above still sets the target. */
     .footer-pages a,
     .footer-policies a {
       padding-block: --spacing(2);
-    }
-
-    .footer-social {
-      grid-column: 1;
-      grid-row: 2;
-      margin-top: --spacing(6);
     }
 
     .footer-stickers {
@@ -276,23 +234,18 @@
       left: 0;
     }
 
-    .footer-base {
-      flex-direction: row;
-      justify-content: space-between;
-      align-items: flex-end;
-    }
-
     .footer-notes {
       align-items: flex-start;
-      padding-bottom: --spacing(6);
+      margin-inline: 0;
     }
 
     .footer-copyright {
       text-align: left;
     }
 
-    .footer-tuft {
-      width: var(--size-tuft-md);
+    .footer-name-text {
+      width: max-content;
+      font-size: var(--text-footer-name-fluid-md);
     }
   }
 
@@ -315,23 +268,17 @@
   /*
    * Forced colors: SVGs back to `auto` from Chromium's `preserve-parent-color`
    * (tests/forced-colors.spec.ts); icons get LinkText because `auto` does not
-   * force `fill`. The tuft drops its shadow.
+   * force `fill`. The mascot drops its shadow.
    */
-  .footer-tuft,
-  .footer-tuft *,
+  .footer-mascot,
+  .footer-mascot *,
   .footer-sticker svg,
   .footer-sticker svg * {
     forced-color-adjust: auto;
   }
 
   @media (forced-colors: active) {
-    .footer-tuft .tuft-back,
-    .footer-tuft .tuft-front,
-    .footer-tuft .tuft-ground {
-      fill: CanvasText;
-    }
-
-    .footer-tuft .mascot-shadow {
+    .footer-mascot .mascot-shadow {
       display: none;
     }
 

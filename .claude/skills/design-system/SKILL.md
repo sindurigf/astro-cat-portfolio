@@ -17,7 +17,8 @@ before changing anything it covers.
 - `cyan` at rest. It is hover and focus only; inside a block, hover and focus
   are `gold-link`. A still state sample on `/brand` may show its hover color.
 - A gold ground without `.surface-gold`, or `.btn-primary`/`.btn-secondary`
-  on gold.
+  on gold. The one exception is the footer motto band, a `block-gold` fill with
+  ink text and no controls ([Gold surface](../../../docs/STYLEGUIDE.md#gold-surface)).
 - `border` on a gold or light fill: it takes `fill-edge`. `fill-edge` on a
   dark fill. A card's own edge or fill: cards are blocks (`block-gold`,
   `block-light`, `block-ink`), set in `cards.css`.
