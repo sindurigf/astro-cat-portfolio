@@ -23,17 +23,12 @@ const start = (): void => {
   const root = document.getElementById('crossroads');
   const data = document.getElementById('signpost-pages');
   const pagesColumn = root?.querySelector<HTMLElement>('[data-pending]');
-  const pagesLabel = document.getElementById('crossroads-pages-label');
   const status = root?.querySelector('[aria-live]');
-  if (!root || !data || !pagesColumn || !pagesLabel || !status) return;
+  if (!root || !data || !pagesColumn || !status) return;
   const pages = JSON.parse(data.textContent ?? '[]') as SignpostPage[];
   const home = pages.find((page) => page.trail.length === 1);
   if (!home) return;
   const byPath = new Map(pages.map((page) => [page.path, page]));
-  /* Built here, not in 404.astro: screen readers announce an empty served list (tests/empty-states.spec.ts). */
-  const links = make('ul', 'crossroads-pages');
-  links.setAttribute('role', 'list');
-  links.setAttribute('aria-labelledby', pagesLabel.id);
   const best = rankPages(
     pages.filter((page) => page !== home),
     location.pathname,
@@ -56,6 +51,13 @@ const start = (): void => {
   });
   let chosen = signs.find(({ section }) => onCatsWay(section)) ?? signs[0];
   if (!chosen) return;
+
+  const pagesLabel = make('div', 'crossroads-heading label');
+  pagesLabel.id = 'crossroads-pages-label';
+  const links = make('ul', 'crossroads-pages');
+  links.setAttribute('role', 'list');
+  links.setAttribute('aria-labelledby', pagesLabel.id);
+  pagesColumn.append(pagesLabel, links);
 
   /* A #fragment of a page is listed only when it is the Cat's pick, so no list outgrows the signs. */
   const draw = (): void => {
@@ -94,7 +96,6 @@ const start = (): void => {
     });
   }
   draw();
-  pagesColumn.append(links);
   delete pagesColumn.dataset.pending;
 };
 
