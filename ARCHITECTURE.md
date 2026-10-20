@@ -340,6 +340,39 @@ Commits, copy rules and process: [AGENTS.md](AGENTS.md).
 - Internal links end with `/`; production 307s the unslashed form.
   `tests/seo.spec.ts`.
 
+### Text size
+
+`--text-scale` (Smaller and Larger) is a unitless number on the root,
+multiplied into `--text-lead`, `--text-standfirst`, `--text-post-teaser`, `--text-body` and
+`--text-label` in `global.css`. Scaling the root font size was rejected: media
+queries ignore it, so layouts overflowed at widths such as 768px.
+`tests/reading-tab.spec.ts` holds the no-sideways-scroll rule at 320, 390 and
+1280px. The control is the reading tab (`ReadingTab.astro`).
+
+### Scripts loaded on demand
+
+`src/scripts/on-demand.ts` loads a feature's code on its first use, so
+it stays out of the per-page script budgets (`tests/performance.spec.ts`).
+
+- A feature is a `?worker&url` file. `Footer.astro` renders the registry on
+  every page except under `/talks/`.
+- A trigger is `[data-on-demand="<feature file URL>"]`, shipped `hidden`; the
+  registry unhides it. Without JavaScript nothing shows.
+- First click imports the file, then dispatches an `on-demand` event on the
+  trigger; later clicks only dispatch. A failed import is reported with
+  `reportError` and retried on the next click.
+- A feature file finds its trigger and listens at top level:
+  `trigger.addEventListener('on-demand', ...)`, and ends with `export {};` so
+  TypeScript treats it as a module.
+
+Rejected:
+
+- Main-bundle `import()`: Vite adds its preload helper to the page bundle.
+- `script.src`: blocked by the Trusted Types CSP.
+- `build.modulePreload: false`: changes the preloads of every page.
+- Nested `?worker&url` in a worker-built file: emits into `dist/server` (404).
+- Exporting a function from a feature: the IIFE worker build drops exports.
+
 ### Tests
 
 - A green check is evidence only once it has been shown to fail on its defect
@@ -440,7 +473,8 @@ in `wrangler.jsonc`).
 - Footer links: one sticker tile per profile plus Email (six as shipped), with
   Simple Icons (CC0) paths, one `<symbol>` per link label in
   `src/assets/social-icons.svg`. The footer mascot is an inline `aria-hidden`
-  SVG colored from `components/footer.css`. The footer runs no JavaScript.
+  SVG colored from `components/footer.css`. The footer runs JavaScript only for features
+  [loaded on demand](#scripts-loaded-on-demand).
 
 ### Photos and video
 
