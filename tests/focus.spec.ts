@@ -301,7 +301,15 @@ const walkFor = async (page: Page, colorScheme: (typeof SCHEMES)[number]) => {
 
   /* Backward: the direction that lands controls under the sticky header. */
   await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
-  await page.locator('footer a').last().focus();
+  /* The no-script fallback link is not rendered when scripts run; the reading tab follows the footer. */
+  const last = await page.evaluateHandle(
+    (selector) =>
+      [...document.querySelectorAll(selector)]
+        .filter((control) => control.checkVisibility())
+        .at(-1),
+    FOCUSABLE_SELECTOR,
+  );
+  await last.asElement()!.focus();
   const backward = await walk(page, 'Shift+Tab');
   const backwardCoverage = await walkCoverage(page, FOCUSABLE_SELECTOR);
 

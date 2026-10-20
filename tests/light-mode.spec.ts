@@ -417,6 +417,12 @@ test.describe('the theme menu', () => {
     await gotoSettled(page, '/about');
     await switchButton(page).click();
     await expect(radio(page, 'system')).toBeFocused();
+    /* The three theme radios are one tab stop; the text size buttons follow in the menu, then focus leaves. */
+    const SIZE_BUTTONS = 3;
+    for (let stop = 0; stop < SIZE_BUTTONS; stop += 1) {
+      await page.keyboard.press('Tab');
+      await expect(headerMenu(page)).toBeVisible();
+    }
     await page.keyboard.press('Tab');
     await expect(headerMenu(page)).toBeHidden();
   });

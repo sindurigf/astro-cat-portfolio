@@ -1,0 +1,29 @@
+---
+import { TALKS_PATH } from '../lib/paths';
+import textSizeFeature from '../scripts/text-size.ts?worker&url';
+import TextSizeGroup from './TextSizeGroup.astro';
+
+/* The text size control on wide screens: a tab on the right edge, where the page leaves a free gutter. */
+const show = !Astro.url.pathname.startsWith(TALKS_PATH);
+---
+
+{show && (
+  <div
+    class="reading-tab js-only"
+    hidden
+    data-reading-tab
+    data-on-demand={textSizeFeature}
+  >
+    <button
+      type="button"
+      class="reading-tab-button"
+      popovertarget="reading-tab-panel"
+      data-on-demand={textSizeFeature}
+    >
+      Aa<span class="sr-only"> Text Size</span>
+    </button>
+    <div id="reading-tab-panel" class="reading-tab-panel" popover>
+      <TextSizeGroup idPrefix="reading-tab" />
+    </div>
+  </div>
+)}

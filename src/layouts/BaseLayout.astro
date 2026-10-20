@@ -4,6 +4,11 @@ import { OG_LOCALE, SITE_LANGUAGE } from '../lib/site-language';
 import { themeColor } from '../lib/theme-color';
 import { DECK_READY_TIMEOUT_MS } from '../lib/deck-ready';
 import { THEME_STORAGE_KEY } from '../lib/theme';
+import {
+  TEXT_SCALE_KEY,
+  TEXT_SCALE_PROPERTY,
+  TEXT_SCALE_STEPS,
+} from '../lib/text-scale';
 /* The woff2 global.css's @font-face names; `?url` gives Vite's hashed path to preload. */
 import lexendLatin from '@fontsource-variable/lexend/files/lexend-latin-wght-normal.woff2?url';
 import { structuredDataScript, type ArticleMeta } from '../lib/structured-data';
@@ -14,6 +19,7 @@ import { pageOgImage } from '../lib/og-image';
 import { personImageUrl } from '../lib/person-image';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import ReadingTab from '../components/ReadingTab.astro';
 import { SITE_FEED_PATH, SITEMAP_PATH } from '../lib/paths';
 import {
   BING_SITE_VERIFICATION,
@@ -102,6 +108,7 @@ const articleData = article && {
       Sets data-theme and the `js` class before first paint. In <head>, not
       beside the switch: an inline script in the header lets it paint half-built.
       Blocked storage throws; the empty catch falls back to the system theme.
+      The saved text size sets --text-scale here too, so no page reflows after paint.
       A page restored from the back-forward cache takes the stored choice again:
       another page may have changed it.
       The timer marks a deck whose script never started, so slides.css shows it whole.
@@ -111,6 +118,9 @@ const articleData = article && {
       define:vars={{
         key: THEME_STORAGE_KEY,
         deckTimeout: DECK_READY_TIMEOUT_MS,
+        scaleKey: TEXT_SCALE_KEY,
+        scaleProperty: TEXT_SCALE_PROPERTY,
+        scaleSteps: TEXT_SCALE_STEPS,
       }}
     >
       document.documentElement.classList.add('js');
@@ -135,6 +145,26 @@ const articleData = article && {
       addEventListener('pageshow', (event) => {
         if (event.persisted) applyTheme();
       });
+      try {
+        const scale = Number(localStorage.getItem(scaleKey));
+        const root = document.documentElement;
+        const setScale = (percent) =>
+          root.style.setProperty(scaleProperty, percent / 100);
+        if (scale > 100 && scaleSteps.includes(scale)) {
+          setScale(scale);
+          /* A size this page cannot hold without sideways scroll steps down to one it can (SC 1.4.10). */
+          addEventListener('load', () => {
+            for (
+              let i = scaleSteps.indexOf(scale);
+              i > 0 &&
+              scaleSteps[i] > 100 &&
+              root.scrollWidth > root.clientWidth;
+              i--
+            )
+              setScale(scaleSteps[i - 1]);
+          });
+        } else if (scale < 100 && scaleSteps.includes(scale)) setScale(scale);
+      } catch {}
     </script>
     <title>{documentTitle}</title>
     <meta name="description" content={description} />
@@ -247,6 +277,7 @@ const articleData = article && {
       <slot />
     </main>
     <Footer />
+    <ReadingTab />
     {ANALYTICS_ON && <script>
       import '../scripts/track-clicks';
     </script>}

@@ -111,6 +111,12 @@
  */
 @custom-variant below-reflow (@media (width < 19rem));
 
+/*
+ * From 86rem the page column (--container-page, 80rem) leaves 3rem each side:
+ * room for the reading tab's 44px with nothing under it. tests/reading-tab.spec.ts.
+ */
+@custom-variant tab (@media (width >= 86rem));
+
 /* The footer's 280px sticker grid (four --size-sticker, three gaps, padding) stops fitting. */
 @custom-variant stickers-wrap (@media (width < 17.5rem));
 
@@ -286,7 +292,9 @@
   --text-post-title: 2rem;
   --text-post-title--line-height: 1.06;
   /* The post teaser beside the title on its slab, read as a standfirst. */
-  --text-post-teaser: clamp(1.3125rem, 2vw, 1.625rem);
+  --text-post-teaser: calc(
+    clamp(1.3125rem, 2vw, 1.625rem) * var(--text-scale, 1)
+  );
   --text-post-teaser--line-height: var(--leading-paragraph);
   /* Under the post title, over the h3 at 0.8 or less (tests/headings.spec.ts). */
   --text-post-h2: 1.75rem;
@@ -312,14 +320,17 @@
   /* Display text that is not a heading: links, values and stats at h3's old fluid size. */
   --text-display: clamp(1.25rem, 2.6vw, 2rem);
   --text-display--line-height: 1.1;
+  /* --text-scale (Smaller and Larger) multiplies the reading sizes only: lead, standfirst, post teaser, body and label. */
   /* A lead or card paragraph: fixed, under the 28px h2 (SC 1.4.4 at 200% zoom). */
-  --text-lead: 1.5rem;
+  --text-lead: calc(1.5rem * var(--text-scale, 1));
   --text-lead--line-height: var(--leading-paragraph);
   /*
    * PageHero standfirst. Its own token because --text-lead also sizes card
    * paragraphs and section leads.
    */
-  --text-standfirst: clamp(1.25rem, 2.8vw, 2.25rem);
+  --text-standfirst: calc(
+    clamp(1.25rem, 2.8vw, 2.25rem) * var(--text-scale, 1)
+  );
   --text-standfirst--line-height: var(--leading-paragraph);
   /*
    * Talk slides, height-aware for 16:9 projectors: 23px text and 56px title at
@@ -349,7 +360,7 @@
   --text-hero-sticker: clamp(1.125rem, min(2.1vw, 3.4svh), 1.875rem);
   --text-hero-sticker--line-height: 1.02;
   --text-menu: clamp(2.125rem, 8vw, 3.5rem);
-  --text-body: clamp(1.125rem, 1.2vw, 1.1875rem);
+  --text-body: calc(clamp(1.125rem, 1.2vw, 1.1875rem) * var(--text-scale, 1));
   --text-body--line-height: 1.62;
 
   /*
@@ -363,7 +374,9 @@
    * 16px to 40rem, 14px from 48rem, where the desktop nav needs the room.
    * tests/text-size.spec.ts holds the 16px floor.
    */
-  --text-label: clamp(0.875rem, calc(26px - 1.5625vw), 1rem);
+  --text-label: calc(
+    clamp(0.875rem, calc(26px - 1.5625vw), 1rem) * var(--text-scale, 1)
+  );
   --text-label--line-height: 1.2;
   /* Same curve as a label: a button and the label beside it read together. */
   --text-button: var(--text-label);
@@ -633,6 +646,7 @@
 @import './components/labels-controls.css';
 @import './components/abbr.css';
 @import './components/footer.css';
+@import './components/reading-tab.css';
 @import './reduced-motion.css';
 @import './components/forms.css';
 @import './components/mobile-menu.css';

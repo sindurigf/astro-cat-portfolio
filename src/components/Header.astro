@@ -10,6 +10,8 @@ import { SITE_NAME } from '../lib/site';
 import CatMark from './CatMark.astro';
 import NavList from './NavList.astro';
 import ThemeSwitch from './ThemeSwitch.astro';
+import TextSizeGroup from './TextSizeGroup.astro';
+import { TALKS_PATH } from '../lib/paths';
 
 /* A line break is allowed after the first dot, as in `example.<wbr>com`. */
 const dot = SITE_NAME.indexOf('.');
@@ -19,6 +21,9 @@ const [wordmarkHead, wordmarkTail] =
     : [SITE_NAME.slice(0, dot + 1), SITE_NAME.slice(dot + 1)];
 
 const currentPath = Astro.url.pathname;
+
+/* A slide deck loads no on-demand script, so it has no text size control. */
+const sizeControls = !currentPath.startsWith(TALKS_PATH);
 
 const current = (href: string) => ariaCurrent(currentPath, href);
 ---
@@ -66,7 +71,7 @@ const current = (href: string) => ariaCurrent(currentPath, href);
       inside the list would push the links off-center by half its width.
     */}
     <div class="header-bricks lg:justify-self-end">
-      <ThemeSwitch />
+      <ThemeSwitch textSize={sizeControls} />
       <div class="hidden md:block">
         <a
           href={CTA.href}
@@ -122,6 +127,10 @@ const current = (href: string) => ariaCurrent(currentPath, href);
                 {CTA.label}
               </a>
             </nav>
+
+            {sizeControls && (
+              <TextSizeGroup idPrefix="menu-text-size" class="menu-text-size" />
+            )}
 
             <button
               type="button"

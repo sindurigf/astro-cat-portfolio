@@ -24,7 +24,7 @@ const PRIVACY_PAGE = '/privacy';
 /** The page's `<strong>` labels, lower-cased, without the trailing full stop. */
 const CLAIMS = [
   'no cookies',
-  'one browser setting',
+  'two browser settings',
   'nothing loaded from other websites',
 ];
 
@@ -38,11 +38,12 @@ const TRACKER_WRITES = [
 
 const ownHost = (): string => new URL(configuredSite()).host;
 
-// The one write /privacy discloses: the color choice, read in BaseLayout.astro, written by theme-switch.ts.
+// The two writes /privacy discloses: the color choice (BaseLayout.astro reads it, theme-switch.ts writes it) and the text size (BaseLayout.astro reads it, text-size.ts writes it).
 const DISCLOSED_STORAGE = {
   files: [
     join('src', 'layouts', 'BaseLayout.astro'),
     join('src', 'scripts', 'theme-switch.ts'),
+    join('src', 'scripts', 'text-size.ts'),
   ],
   api: 'localStorage',
 };
