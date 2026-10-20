@@ -722,20 +722,20 @@ The grid rule in `scripts/check-tokens.mjs` enforces the grid;
 
 ### Page compositions
 
-| Page                   | Order (type)                                                            |
-| ---------------------- | ----------------------------------------------------------------------- |
-| Home                   | Hero, Surface, Listing, Listing, Close                                  |
-| About                  | Hero, Open, Open, Open, Open, Open, Open, Close                         |
-| Career                 | Hero, Panel, Open (with the solid block), Open, Surface, Close          |
-| Contact                | Hero, Open, Surface                                                     |
-| Contact sent           | Hero, Panel, Close                                                      |
-| Credits                | Hero, Open (panels) x3, Close                                           |
-| Privacy, Accessibility | Hero (reading measure), Reading                                         |
-| Blog index             | Hero, Listing, Close                                                    |
-| Blog category, tag     | Hero, Listing                                                           |
-| Post                   | Article header, Reading (contents box from 1280px), Tags nav            |
-| 404                    | Hero with the signpost in its slab (main page links without JavaScript) |
-| Brand                  | Hero (full), Facts, Brand (sections list), Close                        |
+| Page                   | Order (type)                                                          |
+| ---------------------- | --------------------------------------------------------------------- |
+| Home                   | Hero, Surface, Listing, Listing, Close                                |
+| About                  | Hero, Open, Open, Open, Open, Open, Open, Close                       |
+| Career                 | Hero, Panel, Open (with the solid block), Open, Surface, Close        |
+| Contact                | Hero, Open, Surface                                                   |
+| Contact sent           | Hero, Panel, Close                                                    |
+| Credits                | Hero, Open (panels) x3, Close                                         |
+| Privacy, Accessibility | Hero (reading measure), Reading                                       |
+| Blog index             | Hero, Listing, Close                                                  |
+| Blog category, tag     | Hero, Listing                                                         |
+| Post                   | Article header, Reading (contents box from 1280px), Tags nav          |
+| 404                    | Hero with the signpost in its slab (section links without JavaScript) |
+| Brand                  | Hero (full), Facts, Brand (sections list), Close                      |
 
 - About's last Open, Sources, is there only while the sample persona is set.
 - Contact ends on its gold surface, not a closing row: the band is its call to
