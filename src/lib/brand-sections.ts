@@ -306,6 +306,10 @@ export const brandPartName = (id: string): string => {
   return part.name;
 };
 
+/** How many sections the group holds, for the fact strip. */
+export const groupSize = (group: BrandGroup): number =>
+  BRAND_SECTIONS.filter((s) => s.group === group).length;
+
 const NUMBER_DIGITS = 2;
 
 /** The section's place in the menu order, two digits: "01" for the first. */

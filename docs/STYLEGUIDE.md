@@ -728,13 +728,14 @@ The grid rule in `scripts/check-tokens.mjs` enforces the grid;
 | Blog category, tag     | Hero, Listing                                                  |
 | Post                   | Article header, Reading (contents box from 1280px), Tags nav   |
 | 404                    | Hero (starfield) only                                          |
-| Brand                  | Hero (full), Facts, Brand (sections list, 18 sections), Close  |
+| Brand                  | Hero (full), Facts, Brand (sections list), Close               |
 
 - About's last Open, Sources, is there only while the sample persona is set.
 - Contact ends on its gold surface, not a closing row: the band is its call to
   action.
 - The blog listing has no section heading: each card's title is its h2.
-- `/brand`: one page of 18 sections from `src/lib/brand-sections.ts`.
+- `/brand`: one page of sections from `src/lib/brand-sections.ts`.
+  - The fact strip counts the Foundations and Components sections from their group sizes.
   - Sections list: numbered, sticky from `lg` under the header, scrolls inside itself when shorter than the list.
   - Under 30rem tall (a landscape phone, 400% zoom) the list stays in the flow and each section links back to it (SC 1.4.10, 2.4.11).
   - No script: a link landed on from outside can sit out of view in the list's own scroll.
