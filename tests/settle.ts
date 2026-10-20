@@ -90,6 +90,18 @@ export const usesWebFont = (page: Page): Promise<boolean> =>
     return width("'Lexend Variable', monospace") !== width('monospace');
   });
 
+/** The WOFF2 file arrived with a body: the face timed out rather than failed. */
+const webFontDownloaded = (page: Page): Promise<boolean> =>
+  page.evaluate(() =>
+    performance
+      .getEntriesByType('resource')
+      .some(
+        (entry) =>
+          entry.name.endsWith('.woff2') &&
+          (entry as PerformanceResourceTiming).decodedBodySize > 0,
+      ),
+  );
+
 /** The downloaded face; the fallbacks are local. */
 const WEB_FONT_FAMILY = 'Lexend Variable';
 
@@ -100,7 +112,10 @@ const WEB_FONT_FAMILY = 'Lexend Variable';
  */
 export const fontsSettled = async (
   page: Page,
-  { webFont = true }: { webFont?: boolean } = {},
+  {
+    webFont = true,
+    missedWindowOk = false,
+  }: { webFont?: boolean; missedWindowOk?: boolean } = {},
 ): Promise<void> => {
   await page.waitForFunction(
     () =>
@@ -115,10 +130,17 @@ export const fontsSettled = async (
       status: face.status,
     })),
   );
+  const loaded = faces.some(
+    ({ family, status }) => family === WEB_FONT_FAMILY && status === 'loaded',
+  );
+  /*
+   * `font-display: optional`: WebKit reports a face that missed its 100ms block
+   * period as `error` (FontFace::status maps TimedOut to Error), though the file
+   * arrived. The caller reloads with it cached.
+   */
+  if (!loaded && missedWindowOk && (await webFontDownloaded(page))) return;
   expect(
-    faces.some(
-      ({ family, status }) => family === WEB_FONT_FAMILY && status === 'loaded',
-    ),
+    loaded,
     `${WEB_FONT_FAMILY} failed to load: ${faces.map(({ family, status }) => `${family}:${status}`).join(', ')}`,
   ).toBe(true);
 };
@@ -134,7 +156,7 @@ export const gotoSettled = async (
 ): Promise<Response | null> => {
   let response = await page.goto(route, { waitUntil: 'load' });
   await waitForHydration(page);
-  await fontsSettled(page, { webFont });
+  await fontsSettled(page, { webFont, missedWindowOk: true });
   if (webFont && !(await usesWebFont(page))) {
     /* Shows in the report how often a page misses the font. */
     test.info().annotations.push({ type: 'font-reload', description: route });
