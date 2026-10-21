@@ -353,6 +353,8 @@ test.describe('The reading tab: Smaller, Larger and Reset', () => {
     await page.keyboard.press('Escape');
     await expect(menu).toBeHidden();
     await theme.click();
+    /* The menu's toggle event moves focus to the chosen radio; wait for it, or it lands after the Tab. */
+    await expect(menu.locator('input:checked')).toBeFocused();
     await menu.getByRole('button', { name: /^Reset/ }).focus();
     await page.keyboard.press('Tab');
     await expect(menu).toBeHidden();
@@ -388,10 +390,12 @@ test.describe('The reading tab: Smaller, Larger and Reset', () => {
     await page.mouse.click(20, 700);
     await expect(popover).toBeHidden();
     await aa.click();
+    await expect(popover).toBeVisible();
     await page.keyboard.press('Escape');
     await expect(popover).toBeHidden();
     await expect(aa).toBeFocused();
     await aa.click();
+    await expect(popover).toBeVisible();
     await popover.getByRole('button', { name: /^Reset/ }).focus();
     await page.keyboard.press('Tab');
     await expect(popover).toBeHidden();
