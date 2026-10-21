@@ -4,8 +4,8 @@ import { DESKTOP_VIEWPORT, PHONE_VIEWPORT } from './wcag';
 import { CONTACT_FORM_ON } from '../src/lib/contact';
 import { CATEGORY_ROUTES, NO_PUBLISHED_POST } from './routes';
 
-/* The form's send button, or /brand's primary action when there is no form. */
-const PRIMARY_ROUTE = CONTACT_FORM_ON ? '/contact' : '/brand';
+/* The form's send button, or the 404 page's link when there is no form. */
+const PRIMARY_ROUTE = CONTACT_FORM_ON ? '/contact' : '/404';
 
 /** A pressed control drops its shadow, and moves only without reduced motion. `moves` carries the shadow. */
 interface Pressable {

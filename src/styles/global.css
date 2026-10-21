@@ -575,8 +575,6 @@
   --size-footer-mascot: clamp(72px, 9vw, 120px);
   /* How far the mascot drops below the type's top: the cap gap. */
   --footer-mascot-sink: 0.04em;
-  /* The cat at the foot of the 404 signpost; GUIDE_BODY in src/pages/404.astro draws it at this height. */
-  --size-crossroads-guide: 72px;
   /*
    * Header row above `md`: equal outer tracks center the nav. A token because
    * components allow no arbitrary values.
@@ -618,8 +616,6 @@
 
   /* SC 2.5.5 target size. Keep equal to MIN_TARGET in tests/wcag.ts. */
   --spacing-target: 44px;
-  --spacing-pole: 16px;
-  --size-sign-point: 20px;
 
   /*
    * Menu bars in a 24x16 box; they end at 17px, so they are absolutely

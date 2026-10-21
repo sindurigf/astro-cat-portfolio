@@ -87,7 +87,7 @@ const HOVERED_ON_MAIN = {
   },
   // The home page's one primary action sits on gold, as `.btn-gold-primary`.
   'a primary button': async (page: Page) => {
-    await gotoSettled(page, CONTACT_FORM_ON ? '/contact' : '/brand');
+    await gotoSettled(page, CONTACT_FORM_ON ? '/contact' : '/404');
     const button = page.locator('main .btn-primary').first();
     await expect(button).toHaveCount(1);
     await expectHoverReadsAndDiffers(page, button);

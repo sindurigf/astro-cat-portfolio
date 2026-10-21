@@ -117,10 +117,8 @@ test.describe('breadcrumbs', NODE, () => {
 
   test('pages outside the blog carry neither', () => {
     const pages = builtHtml();
-    /* /404's trail is the Cat's way to the page the address meant, which the visitor builds; tests/signpost.spec.ts covers it. */
     const others = ROUTES.filter(
-      (route) =>
-        route !== '/404' && (route === '/blog' || !route.startsWith('/blog')),
+      (route) => route === '/blog' || !route.startsWith('/blog'),
     );
     expect(
       others.length,
