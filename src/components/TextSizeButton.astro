@@ -1,0 +1,21 @@
+---
+import textSizeFeature from '../scripts/text-size.ts?worker&url';
+import TextSizeGroup from './TextSizeGroup.astro';
+
+/* The phone control: an "Aa" brick beside Theme and Menu. From `md` the group is in the Theme popover. */
+---
+
+{/* Shown by the on-demand registry: without a script the popover would open empty. */}
+<button
+  type="button"
+  class="theme-switch aa-switch md:hidden"
+  popovertarget="text-menu"
+  aria-expanded="false"
+  hidden
+  data-on-demand={textSizeFeature}
+>
+  Aa<span class="sr-only"> Text Size</span>
+</button>
+<div id="text-menu" class="theme-menu" popover tabindex="-1">
+  <TextSizeGroup idPrefix="aa-text-size" />
+</div>

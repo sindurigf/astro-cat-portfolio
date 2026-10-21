@@ -2,8 +2,8 @@
   /*
    * Text size control. From the `tab` width the page leaves a free gutter and
    * the control is a tab on the right edge, at mid-height, with its panel
-   * opening to the left. Narrower, the same group sits in the mobile menu and,
-   * from `md`, in the theme popover. Rings are drawn inside the controls that
+   * opening to the left. Narrower, an "Aa" brick in the header opens the same group in a popover
+   * below `md`, and from `md` it is in the theme popover. Rings are drawn inside the controls that
    * touch an edge, where a ring outside would be cut off.
    */
   .reading-tab {
@@ -68,9 +68,9 @@
     }
   }
 
-  /* At the foot of the mobile menu, above Close. */
-  .menu-text-size {
-    @apply mt-12;
+  /* The brick shares its left edge with the Theme brick beside it. */
+  .aa-switch {
+    @apply border-l-0 text-label font-black;
   }
 
   .text-size-button {
