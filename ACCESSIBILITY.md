@@ -125,8 +125,8 @@ view (development server only, never published), and forks.
 - **Text size control.** Smaller, Larger and Reset step the reading text
   (lead, standfirst, post teaser, body, label) from 75 to 200 percent. From
   86rem wide it is an "Aa Text Size" button on the right edge that opens a
-  native popover; below that the same group sits in the mobile menu and, from
-  `md`, in the Theme menu. Escape closes the popover and returns focus to its
+  native popover; below that an "Aa Text Size" button in the header opens the same
+  group in a popover below `md`, and from `md` it is in the Theme menu. Escape closes the popover and returns focus to its
   button, a press outside or Tab out closes it, and it slides away while a
   control in the page has keyboard focus (SC 2.4.11). A step that would scroll
   the page sideways is taken back and announced (SC 1.4.10). The browser's own
