@@ -1088,6 +1088,15 @@ Enforced by `tests/footer.spec.ts`.
 - `nav` "About this site": the links in `POLICY_LINKS` in `Footer.astro`
 - the copyright, then "Cat Drawings and Text Made with AI", an underlined
   `subtle` link to `AI_DISCLOSURE.md` with a 44px-tall box (EU AI Act Art. 50)
+- Let It Fall (`src/scripts/let-it-fall.ts`, loaded on demand), above the
+  copyright: one press drops the blocks on screen, in the page and the footer,
+  into a pile above the button with a bounce; the same button (now Put It
+  Back), Esc, or focus moving anywhere else puts them back. Transform only
+  (`translate`, `rotate`), so the order and text stay as they are; the name
+  swaps between Let It Fall and Put It Back, no `aria-pressed`; a polite status
+  says what happened. `z-index: 1` keeps the button above the pile. Under
+  reduced motion the blocks move at once; in print they stand still. Hidden
+  without JavaScript and not on talk decks (`tests/let-it-fall.spec.ts`).
 - the motto, `site.motto` (a `div` with its `lang`, not a heading), as display
   type on a gold band, the `aria-hidden` mascot standing on its last letter
 
