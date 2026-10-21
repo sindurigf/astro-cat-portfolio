@@ -386,18 +386,15 @@ Setup: Firefox, 1280px, `/404` (preview serves it with 200;
 
 - [ ] Reading from the top, it is soon clear the address was wrong. → SC 1.3.1
 - [ ] `Orca+Slash` reads the window title, which includes "Page Not Found". → SC 2.4.2
-- [ ] One heading, the `h1`. Its name starts with a hidden "Page Not Found:"
-      (`hiddenPrefix` in `404.astro`), so the phrase is heard in the title and
-      again in the heading, then "Which Way From Here?" Judge whether the
-      heading alone makes the reason clear. → SC 1.3.1, 2.4.6
-- [ ] `G` finds no image: the header mark, the roundel and the signpost cat
-      all have `alt=""`. → SC 1.1.1
+- [ ] One heading, the `h1`: "Lost? This Page Is Gone". Judge whether it and
+      the sentence under it make the reason clear. → SC 1.3.1, 2.4.6
+- [ ] `G` finds no image: the header mark, the roundel and the logo cat all
+      have `alt=""`. → SC 1.1.1
 - [ ] "tell me about the broken link" is the first body link. → SC 2.4.4
-- [ ] The "Sections" list: the Cat's sign is pressed and says so in its name.
-      Press `Enter` on another: it is announced, focus stays on it, and the
-      "Down the … Way" list changes. → SC 4.1.3, 4.1.2, 1.4.1
-- [ ] The page link marked "The Cat's pick" names the page the address
-      meant. → SC 2.4.4
+- [ ] On `/blgo/how-i-get-to-know-a-new-ilsand`, "Follow Me to How I Get to
+      Know a New Island" names the page the address meant. → SC 2.4.4
+- [ ] "Or Ask the Cat" is heard as collapsed; `Enter` expands it and the four
+      section links follow. → SC 4.1.2
 
 Heard: `________________________`
 
