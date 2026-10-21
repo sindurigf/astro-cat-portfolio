@@ -132,6 +132,27 @@ for (const width of WIDTHS) {
   });
 }
 
+/* ms: longer than let-it-fall.ts REPEAT_MS, shorter than --fall-time, so the second press lands mid-climb. */
+const PRESS_AGAIN_MS = 400;
+
+test('pressing again while the blocks climb home drops them again', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: HEIGHT });
+  await gotoSettled(page, ROUTE);
+  const button = await press(page);
+  await landed(page);
+  await button.click();
+  await expect(status(page)).toHaveText(RESTORED);
+  const errors: string[] = [];
+  page.on('pageerror', (error) => errors.push(error.message));
+  await page.waitForTimeout(PRESS_AGAIN_MS);
+  await page.getByRole('button', FALL).click();
+  await expect(status(page)).toHaveText(FELL);
+  await expect(fallen(page)).not.toHaveCount(0);
+  expect(errors, 'cutting the climb short threw').toEqual([]);
+});
+
 test('under reduced motion the blocks move at once, never animated', async ({
   page,
 }) => {

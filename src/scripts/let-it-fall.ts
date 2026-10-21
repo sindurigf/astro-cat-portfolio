@@ -75,7 +75,44 @@ const free = (el: Element): boolean => {
   return true;
 };
 
+const FALL_VARS = [
+  '--fall-x',
+  '--fall-y',
+  '--fall-turn',
+  '--fall-ground',
+  '--fall-delay',
+];
+
+/* Home at once: drops the fall's transition, clip and offsets, so a block is measured where it rests. */
+const home = (el: HTMLElement): void => {
+  /* Dropping the transition rule does not stop a running transition; cancelling does. */
+  for (const animation of el.getAnimations()) animation.cancel();
+  el.removeAttribute('data-fall-block');
+  for (const name of FALL_VARS) el.style.removeProperty(name);
+};
+
+/* Once a block has climbed home, it drops its transition, so its own hover and press timing come back. */
+const settle = (el: HTMLElement): void => {
+  void Promise.all(el.getAnimations().map((a) => a.finished)).then(
+    () => {
+      if (!el.hasAttribute('data-fell')) home(el);
+    },
+    /* A new fall cancels the climb on purpose; anything else is a real error. */
+    (error: unknown) => {
+      if (!(error instanceof DOMException && error.name === 'AbortError')) {
+        reportError(error);
+      }
+    },
+  );
+};
+
 const fall = (): void => {
+  /* A press mid-climb: the climbing blocks snap home first, or their clip and transforms would hide them from the next fall. */
+  for (const el of document.querySelectorAll<HTMLElement>(
+    '[data-fall-block]',
+  )) {
+    home(el);
+  }
   const candidates = [...document.querySelectorAll<HTMLElement>(BLOCKS)].filter(
     (el) => onScreen(el) && free(el),
   );
@@ -111,23 +148,6 @@ const fall = (): void => {
   width = innerWidth;
   button.textContent = LABEL_BACK;
   say(FELL);
-};
-
-/* Once a block is home, it drops its transition, so its own hover and press timing come back. */
-const settle = (el: HTMLElement): void => {
-  void Promise.all(el.getAnimations().map((a) => a.finished)).then(() => {
-    if (el.hasAttribute('data-fell')) return;
-    el.removeAttribute('data-fall-block');
-    for (const name of [
-      '--fall-x',
-      '--fall-y',
-      '--fall-turn',
-      '--fall-ground',
-      '--fall-delay',
-    ]) {
-      el.style.removeProperty(name);
-    }
-  });
 };
 
 const restore = (): void => {
