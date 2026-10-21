@@ -45,7 +45,11 @@ for (const width of WIDTHS) {
             return !hit || !(el === hit || el.contains(hit));
           })
           .map(name);
-        const w = wordmark.getBoundingClientRect();
+        /* Below 48rem the name is visually hidden, so the tile is what the controls must not run into. */
+        const drawn = wordmark.getBoundingClientRect().width > 1;
+        const w = (
+          drawn ? wordmark : header.querySelector('.logo-tile')!
+        ).getBoundingClientRect();
         const touching = controls
           .filter((el) => !el.contains(wordmark))
           .filter((el) => {

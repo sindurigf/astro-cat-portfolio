@@ -125,8 +125,8 @@ view (development server only, never published), and forks.
 - **Text size control.** Smaller, Larger and Reset step the reading text
   (lead, standfirst, post teaser, body, label) from 75 to 200 percent. From
   86rem wide it is an "Aa Text Size" button on the right edge that opens a
-  native popover; below that the same group sits in the mobile menu and, from
-  `md`, in the Theme menu. Escape closes the popover and returns focus to its
+  native popover; below that an "Aa Text Size" button in the header opens the same
+  group in a popover below `md`, and from `md` it is in the Theme menu. Escape closes the popover and returns focus to its
   button, a press outside or Tab out closes it, and it slides away while a
   control in the page has keyboard focus (SC 2.4.11). A step that would scroll
   the page sideways is taken back and announced (SC 1.4.10). The browser's own
@@ -482,7 +482,8 @@ Rules this repository follows. Values and reasons:
 - **SVG.** Decorative SVG is `aria-hidden="true" focusable="false"`.
 - **ARIA.** Only where no native element works, with a comment saying why.
   No `aria-label` over visible text, except one that repeats it exactly: the
-  logo link, where a `<wbr>` splits Chromium's computed name. A toggle with
+  logo link, where a `<wbr>` splits Chromium's computed name. Below 48rem the
+  name is not drawn and the `aria-label` is the link's only name. A toggle with
   `aria-expanded` or `aria-pressed` keeps a constant name; the hero's transport
   control is named for its action, "Pause the hero animation" or "Play the
   hero animation".

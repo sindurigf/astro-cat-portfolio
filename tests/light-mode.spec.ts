@@ -190,7 +190,7 @@ test.describe('light mode focus ring stands out from the page, and from the cont
 
 const switchButton = (page: Page) =>
   page.locator('header').getByRole('button', { name: 'Theme', exact: true });
-const headerMenu = (page: Page) => page.locator('header .theme-menu');
+const headerMenu = (page: Page) => page.locator('header #theme-menu');
 const radio = (page: Page, value: string) =>
   headerMenu(page).locator(`input[value="${value}"]`);
 const stored = (page: Page): Promise<string | null> =>
@@ -456,10 +456,10 @@ test.describe('the theme menu', () => {
       }) => {
         await page.setViewportSize({ width, height });
         await gotoSettled(page, route);
-        const button = page.locator(`${scope} .theme-switch`);
+        const button = page.locator(`${scope} .theme-switch:not(.aa-switch)`);
         await button.scrollIntoViewIfNeeded();
         await button.click();
-        const menu = page.locator(`${scope} .theme-menu`);
+        const menu = page.locator(`${scope} .theme-menu:not(#text-menu)`);
         await expect(menu).toBeVisible();
         const box = await menu.boundingBox();
         const anchor = await button.boundingBox();
@@ -600,7 +600,7 @@ test.describe('without JavaScript', () => {
 
   test('the page is dark and the switch is not offered', async ({ page }) => {
     await page.goto('/about');
-    await expect(page.locator('.theme-switch')).toBeHidden();
+    await expect(page.locator('.theme-switch:visible')).toHaveCount(0);
     expect(await mainIsLight(page)).toBe(false);
   });
 });

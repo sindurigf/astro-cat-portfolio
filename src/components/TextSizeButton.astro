@@ -1,0 +1,20 @@
+---
+import textSizeFeature from '../scripts/text-size.ts?worker&url';
+import TextSizeGroup from './TextSizeGroup.astro';
+
+/* The phone control: an "Aa" brick beside Theme and Menu. From `md` the group is in the Theme popover. */
+---
+
+{/* Drawn from first paint, like Theme, so the header does not move: `.theme-switch` hides it without `data-theme` or popovers. */}
+<button
+  type="button"
+  class="theme-switch aa-switch md:hidden"
+  popovertarget="text-menu"
+  aria-expanded="false"
+  data-on-demand={textSizeFeature}
+>
+  Aa<span class="sr-only"> Text Size</span>
+</button>
+<div id="text-menu" class="theme-menu" popover tabindex="-1">
+  <TextSizeGroup idPrefix="aa-text-size" />
+</div>

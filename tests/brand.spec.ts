@@ -731,9 +731,9 @@ test.describe('/brand', () => {
     page,
   }) => {
     await gotoSettled(page, BRAND_PATH);
-    const switches = page.locator(`.theme-switch${LIVE}`);
+    const switches = page.locator(`.theme-switch:not(.aa-switch)${LIVE}`);
     await expect(switches).toHaveCount(2);
-    const menus = page.locator(`.theme-menu${LIVE}`);
+    const menus = page.locator(`.theme-menu:not(#text-menu)${LIVE}`);
     const state = () =>
       menus.evaluateAll((all) => ({
         theme: document.documentElement.dataset.theme,

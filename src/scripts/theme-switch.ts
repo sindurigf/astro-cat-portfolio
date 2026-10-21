@@ -143,6 +143,7 @@ const setUp = (button: HTMLButtonElement): void => {
   for (const type of ['scroll', 'resize']) addEventListener(type, follow);
 };
 
+/* Also sets up the Aa brick (TextSizeButton.astro), which carries `.theme-switch` for placement, aria-expanded and Tab out. */
 document.querySelectorAll<HTMLButtonElement>('.theme-switch').forEach(setUp);
 apply(currentChoice());
 
