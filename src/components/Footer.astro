@@ -6,6 +6,7 @@ import {
   SOCIAL_PROFILES,
   profileLinkName,
 } from '../lib/profiles';
+import { TALKS_PATH } from '../lib/paths';
 import { FIRST_PUBLISHED, MOTTO, REPOSITORY_URL, SITE_NAME } from '../lib/site';
 import {
   MARK_HEAD,
@@ -15,6 +16,8 @@ import {
 } from '../lib/brand-mark';
 /* Hashed under /_astro/ and cached once, instead of inline on every page. */
 import socialIcons from '../assets/social-icons.svg?url';
+/* `?worker&url`: a separate file, so no Vite preload helper, loaded by src under Trusted Types. */
+import onDemandRegistry from '../scripts/on-demand.ts?worker&url';
 
 /* Source order is the reading order at every width; no CSS `order`. */
 
@@ -40,6 +43,9 @@ const current = (href: string) => ariaCurrent(Astro.url.pathname, href);
 const AI_DISCLOSURE_HREF = `${REPOSITORY_URL}/blob/main/AI_DISCLOSURE.md`;
 
 /* Not inline: Astro drops the space between two expressions on separate lines. */
+/* A slide deck keeps its script budget for the deck, and gets no footer controls. */
+const onDemand = !Astro.url.pathname.startsWith(TALKS_PATH);
+
 const copyright = `© ${FIRST_PUBLISHED} ${SITE_NAME}`;
 
 /** Mark units the sticker shadow drops, down and right. */
@@ -102,6 +108,10 @@ const SHADOW = 3;
       </div>
 
       <div class="footer-notes">
+        {onDemand && (
+          <script is:inline type="module" src={onDemandRegistry}></script>
+        )}
+
         <small class="footer-copyright">{copyright}</small>
         {/* EU AI Act Art. 50: the one label for the AI-drawn cats and the AI-written sample text. */}
         <small class="footer-ai">
