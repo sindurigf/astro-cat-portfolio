@@ -397,6 +397,8 @@ Setup: Firefox, 1280px, `/404` (preview serves it with 200;
 - [ ] "tell me about the broken link" is the first body link. → SC 2.4.4
 - [ ] On `/blgo/how-i-get-to-know-a-new-ilsand`, "Follow Me to How I Get to
       Know a New Island" names the page the address meant. → SC 2.4.4
+- [ ] The line under Follow Me shows that page's title, and is not read a
+      second time. → SC 1.3.1
 - [ ] "Or Ask the Cat" is heard as collapsed; `Enter` expands it and the four
       section links follow. → SC 4.1.2
 

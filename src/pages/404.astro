@@ -4,6 +4,7 @@ import CatMark from '../components/CatMark.astro';
 import PageHero from '../components/PageHero.astro';
 import { HEADER_LINKS } from '../lib/nav';
 import { CONTACT_PATH } from '../lib/paths';
+import '../styles/components/not-found.css';
 import { sitePages } from '../lib/site-pages';
 
 /*
@@ -57,8 +58,8 @@ const pagesJson = JSON.stringify(
         </div>
         {/*
           Home without JavaScript; src/scripts/follow-cat.ts points it at the
-          page the address meant. The destination is in the name only, so the
-          label keeps its size and nothing below moves (tests/performance.spec.ts).
+          page the address meant. The label keeps its size and the title below
+          has two lines reserved, so nothing moves (tests/performance.spec.ts).
         */}
         <p class="mt-6">
           <a href="/" class="btn-primary" data-follow>
@@ -67,6 +68,10 @@ const pagesJson = JSON.stringify(
               &nbsp;Home
             </span>
           </a>
+        </p>
+        {/* Already in the link's name, so hidden from assistive technology. */}
+        <p class="follow-to line-clamp-2" aria-hidden="true" data-follow-title>
+          Home
         </p>
       </div>
 

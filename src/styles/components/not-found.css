@@ -1,0 +1,17 @@
+@reference '../global.css';
+
+@layer components {
+  /* The page Follow Me leads to, at the reading scale: two lines held open, so a longer title moves nothing below. */
+  .follow-to {
+    --follow-to-size: calc(var(--text-contents) * var(--text-scale, 1));
+
+    min-height: calc(
+      2 * var(--follow-to-size) * var(--text-contents--line-height)
+    );
+    margin-top: --spacing(5);
+    font-size: var(--follow-to-size);
+    line-height: var(--text-contents--line-height);
+
+    @apply text-text;
+  }
+}

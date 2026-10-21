@@ -32,7 +32,7 @@ conventions for this template. Design rules and values are in
   `utilities.css`, `light-mode.css`. Reordering the imports reorders the
   cascade.
 - Page-only partials are not in that list: `slides.css` (the talk page and the
-  presenter) and `about-cats.css` (`/about`) are
+  presenter), `about-cats.css` (`/about`) and `not-found.css` (`/404`) are
   imported by the page that uses them, so each builds as its own sheet, linked
   after the shared one. Each opens with `@reference '../global.css'` so
   `@apply` and the tokens resolve; Tailwind then writes token values as `var()`
