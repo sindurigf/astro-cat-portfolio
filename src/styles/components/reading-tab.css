@@ -73,6 +73,11 @@
     @apply border-l-0 text-label font-black;
   }
 
+  /* Drawn from first paint so the header does not move when the registry runs (CLS); the script-less page draws nothing. */
+  :root:not(.js) .aa-switch {
+    display: none;
+  }
+
   .text-size-button {
     @apply flex min-h-target min-w-target items-center border-4 border-border bg-surface px-3 text-left text-label font-black uppercase tracking-label text-text;
 

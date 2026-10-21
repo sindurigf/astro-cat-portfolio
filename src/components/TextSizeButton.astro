@@ -5,13 +5,12 @@ import TextSizeGroup from './TextSizeGroup.astro';
 /* The phone control: an "Aa" brick beside Theme and Menu. From `md` the group is in the Theme popover. */
 ---
 
-{/* Shown by the on-demand registry: without a script the popover would open empty. */}
+{/* Drawn from first paint, so the header does not move; `:root:not(.js)` hides it without a script. */}
 <button
   type="button"
   class="theme-switch aa-switch md:hidden"
   popovertarget="text-menu"
   aria-expanded="false"
-  hidden
   data-on-demand={textSizeFeature}
 >
   Aa<span class="sr-only"> Text Size</span>
