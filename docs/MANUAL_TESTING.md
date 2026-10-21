@@ -305,7 +305,7 @@ No outcome changes the practice: real case in markup ([case rule](STYLEGUIDE.md#
 **6.4.5 Chrome, other elements.**
 
 - [ ] `/privacy` `h1` ("Privacy"): `________________________`
-- [ ] `/404` "Go to the Homepage" (`.btn-primary`): `________________________`
+- [ ] `/404` "Follow Me" (`.btn-primary`): `________________________`
 - [ ] 6.4.3 again at the other verbosity (`Orca+V`): `________________________`
 
 ### 6.5 Skip link
