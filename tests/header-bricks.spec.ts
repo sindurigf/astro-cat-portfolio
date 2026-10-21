@@ -50,12 +50,15 @@ const readStop = `(() => {
   while (walker.nextNode()) {
     const node = walker.currentNode;
     if (!node.textContent.trim() || node.parentElement.closest('.sr-only')) continue;
+    /* A visually hidden name is a 1px clip box, whatever its text measures. */
+    if (node.parentElement.getBoundingClientRect().width <= 1) continue;
     const range = document.createRange();
     range.selectNodeContents(node);
     text.push(...range.getClientRects());
   }
   const marks = [...text, ...[...el.querySelectorAll('svg, img, .logo-tile')].map((n) => n.getBoundingClientRect())]
-    .filter((r) => r.width > 0 && r.height > 0);
+    /* A visually hidden name is a 1px box, not a mark the ring must clear. */
+    .filter((r) => r.width > 1 && r.height > 1);
   const clear = marks.every((r) => r.left >= inner.left - 0.5 && r.right <= inner.right + 0.5 && r.top >= inner.top - 0.5 && r.bottom <= inner.bottom + 0.5);
   return {
     name: (el.getAttribute('aria-label') || el.textContent || el.tagName).trim().slice(0, 30),

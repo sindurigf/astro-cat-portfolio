@@ -713,7 +713,7 @@ The grid rule in `scripts/check-tokens.mjs` enforces the grid;
   at 320px. At 200% zoom a 1280px window is 640 CSS px. Only photo strips
   and wide tables scroll sideways, each in its own region.
 - **Below 305px:** `below-reflow:` (under 19rem) is for 500% zoom only: words
-  break anywhere and the header name is visually hidden. `stickers-wrap:`
+  break anywhere. `stickers-wrap:`
   (under 17.5rem) wraps the footer stickers. Nothing changes from 305px up.
 - **Short windows:** `short:` (under 30rem of height) makes the header static,
   and in the photo viewer the photo takes the viewer's width, up to the
@@ -908,7 +908,7 @@ text-gold-muted` under the standfirst. Color
 ### Header relation
 
 - The header is a gold bar on the hero's column, 12px below the top, with the
-  logo tile and name at its left end ([Navigation](#navigation)).
+  logo tile at its left end, and from 48rem its name too ([Navigation](#navigation)).
 - The logo tile keeps its `mark` shadow.
 - The sticky header covers the top of the slab on scroll; nothing on the slab
   is fixed.
@@ -1117,8 +1117,9 @@ by `tests/reading-tab.spec.ts`.
   leaves a free gutter beside its 80rem column, and the control is an edge tab
   in it: a `popover` button named "Aa Text Size", fixed to the right at
   mid-height, with the group in its panel; Escape closes it and returns focus
-  to the button; a press outside or Tab out closes it. Narrower, there is no floating control: the group is at the
-  foot of the mobile menu below `md` and in the theme popover from `md`.
+  to the button; a press outside or Tab out closes it. Narrower, below `md` an "Aa" brick beside Theme and Menu opens the group in a
+  popover, and from `md` the group is in the theme popover. Below `md` the
+  header shows only the logo tile, so the four bricks fit at 320px.
   A test asserts the tab covers no link, button or text at rest.
 - While a control in `main` has keyboard focus the tab slides out of the way
   (SC 2.4.11, 2.4.12).
@@ -1175,11 +1176,11 @@ Enforced by `tests/nav-current.spec.ts`, `tests/mobile-menu.spec.ts`,
 
 ### By width
 
-| Width       | Header                                                                                                                              |
-| ----------- | ----------------------------------------------------------------------------------------------------------------------------------- |
-| below 48rem | logo link, the theme switch, and the menu button that opens the menu dialog; without JavaScript, a nav row under the header instead |
-| from 48rem  | logo link, the Primary nav (About, Career, Blog), the theme switch, and the call to action                                          |
-| from 64rem  | the same on a three-track grid, the nav centered, wider gaps                                                                        |
+| Width       | Header                                                                                                                                                                                                    |
+| ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| below 48rem | the logo tile alone (the link keeps its `aria-label`), the theme switch, the "Aa" text size brick, and the menu button that opens the menu dialog; without JavaScript, a nav row under the header instead |
+| from 48rem  | logo link with its name, the Primary nav (About, Career, Blog), the theme switch, and the call to action                                                                                                  |
+| from 64rem  | the same on a three-track grid, the nav centered, wider gaps                                                                                                                                              |
 
 - Links come from `NAV_LINKS` and `CTA` in `src/lib/nav.ts`; the desktop
   header uses `HEADER_LINKS` (no Home; the logo links to `/`).
@@ -1188,8 +1189,8 @@ Enforced by `tests/nav-current.spec.ts`, `tests/mobile-menu.spec.ts`,
   in light mode). 80px tall in a 104px header. Inside it, bricks take
   `block-light` fills and `block-ink` lines; `.site-header` keeps the page's
   values as `--page-*` for the menu dialog.
-- The logo tile and name sit inside the bar with no block, edge or throw of
-  their own. The tile keeps its 8px `mark` shadow; the link pads it inside
+- The logo tile, and from 48rem its name, sit inside the bar with no block, edge
+  or throw of their own. The tile keeps its 8px `mark` shadow; the link pads it inside
   its box (`padding-block-end: var(--lift-mark)`), so the ring at the plain
   4px gap clears it and stays inside the bar, full and slim
   (`tests/header-bricks.spec.ts`).
