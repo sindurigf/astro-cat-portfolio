@@ -122,6 +122,7 @@ test.describe('page weight and stability', () => {
   for (const width of [390, 768, 1024, 1280]) {
     test(`the 404 page for a mistyped address does not shift at ${width}px`, async ({
       page,
+      browser,
     }) => {
       await page.setViewportSize({ width, height: 900 });
       await page.addInitScript(LAYOUT_SHIFT);
@@ -135,6 +136,24 @@ test.describe('page weight and stability', () => {
         shift,
         `${MISTYPED} shifted its layout while loading at ${width}px:\n${sources.join('\n')}`,
       ).toBe(0);
+
+      /* Below the fold a shift scores 0, so the label's size is compared with the page without the script. */
+      const followBox = (on: Page) =>
+        on.locator('a[data-follow]').evaluate((link) => {
+          const { width: w, height: h } = link.getBoundingClientRect();
+          return { w, h };
+        });
+      const before = await browser.newContext({
+        javaScriptEnabled: false,
+        viewport: { width, height: 900 },
+      });
+      const still = await before.newPage();
+      await still.goto(MISTYPED);
+      expect(
+        await followBox(page),
+        'Follow Me changed size once the script named its page',
+      ).toEqual(await followBox(still));
+      await before.close();
     });
   }
 });

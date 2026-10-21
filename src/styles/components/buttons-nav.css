@@ -6,6 +6,11 @@
       shadow-hard-pink-4 wrap-anywhere max-w-full;
   }
 
+  /* A summary styled as a button: older Safari draws its own triangle otherwise. */
+  summary:is(.btn-primary, .btn-secondary)::-webkit-details-marker {
+    display: none;
+  }
+
   /* A light block: quieter than the gold primary, in the same block language. */
   .btn-secondary {
     @apply lift-control inline-block border-4 border-block-ink bg-block-light px-8

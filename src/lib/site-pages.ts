@@ -9,16 +9,12 @@ import {
   categoryHref,
   postHref,
 } from './paths';
+import type { MatchablePage } from './page-match';
 import { CV_PATH } from './profiles';
 import { talkDecks } from './talk-deck';
 
-export interface SitePage {
-  readonly title: string;
-  readonly path: string;
-}
-
 /* The pages a lost visitor may have meant: the 404 page matches the address against these. */
-export const sitePages = async (): Promise<SitePage[]> => {
+export const sitePages = async (): Promise<MatchablePage[]> => {
   const talks = [...(await talkDecks())].map(([deck, slides]) => ({
     title: slides[0]?.slide.data.title ?? deck,
     path: `/talks/${deck}/`,

@@ -2,7 +2,7 @@ import { expect, test } from './test';
 import { gotoSettled } from './settle';
 import { ENGINE_INVARIANT } from './tags';
 
-/* /404 links #not-found and posts link #photos; Made with AI closes the page. */
+/* Posts link #photos; #not-found credits the 404 page; Made with AI closes the page. */
 const SECTIONS = [
   { heading: 'Guides' },
   { heading: 'Photos', id: 'photos' },
