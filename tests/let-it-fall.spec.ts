@@ -2,12 +2,11 @@ import { expect, test, type Page } from './test';
 import { gotoSettled } from './settle';
 import { TALK_ROUTES } from './routes';
 import { ENGINE_INVARIANT } from './tags';
+import { timedScan } from './axe';
 
 /**
- * Let It Fall (src/scripts/let-it-fall.ts): one footer button drops the blocks
- * on screen into a pile and puts them back. The pile never covers the button
- * (SC 2.5.5), each change is announced (SC 4.1.3), Esc and focus entering the
- * page restore it (SC 2.4.11), and reduced motion never animates (SC 2.3.3).
+ * Let It Fall (src/scripts/let-it-fall.ts): the pile never covers the button (SC 2.5.5) or scrolls sideways (1.4.10),
+ * each change is announced (4.1.3), Esc and focus elsewhere restore (2.4.11), reduced motion never animates (2.3.3).
  */
 
 const ROUTE = '/career';
@@ -23,6 +22,11 @@ const BUTTON_FROM_BOTTOM = 120;
 const MAX_INSTANT_MS = 1;
 
 const fallen = (page: Page) => page.locator('[data-fell]');
+/* Every fall and climb back has landed. */
+const landed = (page: Page) =>
+  expect
+    .poll(() => page.evaluate(() => document.getAnimations().length))
+    .toBe(0);
 const status = (page: Page) => page.locator('footer').getByRole('status');
 
 /* The button near the bottom of the screen with the page above it, then one press. */
@@ -53,33 +57,38 @@ for (const width of WIDTHS) {
         fallen(page).first(),
         'a fallen block still takes taps',
       ).toHaveCSS('pointer-events', 'none');
-      await expect
-        .poll(
-          () =>
-            page.evaluate(() => {
-              const target = document.querySelector('[data-let-it-fall]')!;
-              const r = target.getBoundingClientRect();
-              const hit = document.elementFromPoint(
-                r.left + r.width / 2,
-                r.top + r.height / 2,
-              );
-              const covered = [...document.querySelectorAll('[data-fell]')]
-                /* Only blocks that started above the button fall onto it. */
-                .filter(
-                  (el) =>
-                    el.compareDocumentPosition(target) &
-                    Node.DOCUMENT_POSITION_FOLLOWING,
-                )
-                .filter((el) => el.getBoundingClientRect().bottom > r.top + 1);
-              return { hit: hit === target, covered: covered.length };
-            }),
-          { message: 'a fallen block covers the button' },
-        )
-        .toEqual({ hit: true, covered: 0 });
-      /* Once the pile has landed: a block tipped mid-fall is not yet at its widest. */
-      await expect
-        .poll(() => page.evaluate(() => document.getAnimations().length))
-        .toBe(0);
+      await landed(page);
+      const pile = await page.evaluate(() => {
+        const target = document.querySelector('[data-let-it-fall]')!;
+        const r = target.getBoundingClientRect();
+        const hit = document.elementFromPoint(
+          r.left + r.width / 2,
+          r.top + r.height / 2,
+        );
+        const covered = [...document.querySelectorAll('[data-fell]')]
+          /* Only blocks that started above the button fall onto it. */
+          .filter(
+            (el) =>
+              el.compareDocumentPosition(target) &
+              Node.DOCUMENT_POSITION_FOLLOWING,
+          )
+          .filter((el) => el.getBoundingClientRect().bottom > r.top + 1);
+        return { hit: hit === target, covered: covered.length };
+      });
+      expect(pile, 'a fallen block covers the button').toEqual({
+        hit: true,
+        covered: 0,
+      });
+      const { violations } = await timedScan(page, 'fallen /career');
+      expect(
+        violations.map((v) => `${v.id}: ${v.nodes.length} node(s)`),
+        'axe found WCAG 2.2 AA violations in the fallen pile',
+      ).toEqual([]);
+      await button.focus();
+      await expect(
+        fallen(page),
+        'focus on the button itself put the page back',
+      ).not.toHaveCount(0);
       expect(
         await page.evaluate(
           () =>
@@ -93,15 +102,25 @@ for (const width of WIDTHS) {
     test('the same button, Esc, or focus entering the page puts it back', async ({
       page,
     }) => {
-      let button = await press(page);
+      const button = await press(page);
+      await landed(page);
       await button.click();
       await expect(status(page)).toHaveText(RESTORED);
       await expect(page.getByRole('button', FALL)).toBeFocused();
       await expect(fallen(page)).toHaveCount(0);
+      await landed(page);
+      await expect(
+        page.locator('[data-fall-block]'),
+        'a block home again keeps the fall transition',
+      ).toHaveCount(0);
 
-      button = await press(page);
+      await press(page);
+      await landed(page);
       await page.keyboard.press('Escape');
+      await expect(status(page)).toHaveText(RESTORED);
+      await expect(page.getByRole('button', FALL)).toBeFocused();
       await expect(fallen(page)).toHaveCount(0);
+      await landed(page);
 
       await press(page);
       await page.locator('main a').first().focus();

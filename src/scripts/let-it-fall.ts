@@ -1,4 +1,4 @@
-/* Let It Fall: the blocks on screen drop into a pile above the button; the same button, Esc or focus entering the page puts them back. */
+/* Let It Fall: the blocks on screen drop into a pile above the button; the same button, Esc, focus anywhere else or a new window width puts them back. */
 export {};
 
 const LABEL_FALL = 'Let It Fall';
@@ -18,17 +18,15 @@ const PILE_SCATTER = 60;
 const DRIFT = 20;
 const TURN_DEG = 25;
 const STAGGER_MS = 25;
+const HALF_TURN_DEG = 180;
+/* A second press this soon after the first is the same press, as when both wait on the first load. */
+const REPEAT_MS = 300;
 
 const button = document.querySelector<HTMLButtonElement>('[data-let-it-fall]');
-if (!button) {
-  throw new Error('let-it-fall: the page lacks its button.');
+const status = document.querySelector<HTMLElement>('[data-let-it-fall-status]');
+if (!button || !status) {
+  throw new Error('let-it-fall: the footer lacks its button or status.');
 }
-
-const status = Object.assign(document.createElement('p'), {
-  className: 'sr-only',
-});
-status.setAttribute('role', 'status');
-button.after(status);
 
 const say = (text: string): void => {
   status.textContent = '';
@@ -39,16 +37,47 @@ const say = (text: string): void => {
 
 const spread = (range: number): number => (Math.random() - 0.5) * 2 * range;
 
+/* A computed color's fourth number is its alpha; three numbers mean opaque. */
+const RGBA_PARTS = 4;
+const clear = (color: string): boolean => {
+  const parts = color.match(/[\d.]+/g) ?? [];
+  return parts.length === RGBA_PARTS && Number(parts[RGBA_PARTS - 1]) === 0;
+};
+/* The fill a block's text was drawn on, so it keeps its contrast wherever it lands (SC 1.4.3). */
+const ground = (el: Element): string => {
+  for (let at: Element | null = el; at; at = at.parentElement) {
+    const fill = getComputedStyle(at).backgroundColor;
+    if (!clear(fill)) return fill;
+  }
+  return getComputedStyle(document.body).backgroundColor;
+};
+
 let fallen: HTMLElement[] = [];
+let lastPress = -Infinity;
+let width = innerWidth;
 
 const onScreen = (el: Element): boolean => {
   const { top, bottom, height } = el.getBoundingClientRect();
   return height > 0 && bottom > 0 && top < innerHeight;
 };
 
+/* A block already moved by its own transform, or inside a raised or clipping layer, would land above the button or vanish. */
+const free = (el: Element): boolean => {
+  if (getComputedStyle(el).transform !== 'none') return false;
+  for (
+    let up = el.parentElement;
+    up && up !== document.body;
+    up = up.parentElement
+  ) {
+    const style = getComputedStyle(up);
+    if (style.zIndex !== 'auto' || style.overflow !== 'visible') return false;
+  }
+  return true;
+};
+
 const fall = (): void => {
   const candidates = [...document.querySelectorAll<HTMLElement>(BLOCKS)].filter(
-    onScreen,
+    (el) => onScreen(el) && free(el),
   );
   fallen = candidates.filter(
     (el) => !candidates.some((other) => other !== el && other.contains(el)),
@@ -60,35 +89,72 @@ const fall = (): void => {
   const floor =
     Math.min(innerHeight, button.getBoundingClientRect().top) - PILE_GAP;
   fallen.forEach((el, index) => {
-    const drop = Math.max(
-      0,
-      floor - el.getBoundingClientRect().bottom - Math.random() * PILE_SCATTER,
-    );
+    const box = el.getBoundingClientRect();
+    const turn = spread(TURN_DEG);
+    const radians = (Math.abs(turn) * Math.PI) / HALF_TURN_DEG;
+    /* A tilted block reaches lower than its upright box: half its rotated height gain. */
+    const tilt =
+      (box.width * Math.sin(radians) +
+        box.height * Math.cos(radians) -
+        box.height) /
+      2;
+    /* Negative for a block already near the button: it rises just enough to tilt clear of it. */
+    const drop = floor - box.bottom - tilt - Math.random() * PILE_SCATTER;
     el.style.setProperty('--fall-x', `${spread(DRIFT)}px`);
     el.style.setProperty('--fall-y', `${drop}px`);
-    el.style.setProperty('--fall-turn', `${spread(TURN_DEG)}deg`);
+    el.style.setProperty('--fall-turn', `${turn}deg`);
+    el.style.setProperty('--fall-ground', ground(el));
     el.style.setProperty('--fall-delay', `${index * STAGGER_MS}ms`);
     el.setAttribute('data-fall-block', '');
     el.setAttribute('data-fell', '');
   });
+  width = innerWidth;
   button.textContent = LABEL_BACK;
   say(FELL);
 };
 
+/* Once a block is home, it drops its transition, so its own hover and press timing come back. */
+const settle = (el: HTMLElement): void => {
+  void Promise.all(el.getAnimations().map((a) => a.finished)).then(() => {
+    if (el.hasAttribute('data-fell')) return;
+    el.removeAttribute('data-fall-block');
+    for (const name of [
+      '--fall-x',
+      '--fall-y',
+      '--fall-turn',
+      '--fall-ground',
+      '--fall-delay',
+    ]) {
+      el.style.removeProperty(name);
+    }
+  });
+};
+
 const restore = (): void => {
-  for (const el of fallen) el.removeAttribute('data-fell');
+  for (const el of fallen) {
+    el.removeAttribute('data-fell');
+    settle(el);
+  }
   fallen = [];
   button.textContent = LABEL_FALL;
   say(BACK);
 };
 
-button.addEventListener('on-demand', () =>
-  fallen.length ? restore() : fall(),
-);
+button.addEventListener('on-demand', () => {
+  const now = performance.now();
+  if (now - lastPress < REPEAT_MS) return;
+  lastPress = now;
+  if (fallen.length) restore();
+  else fall();
+});
 addEventListener('keydown', (event) => {
   if (event.key === 'Escape' && fallen.length) restore();
 });
 /* SC 2.4.11: a control moved by the fall is never focused out of place. */
 addEventListener('focusin', (event) => {
   if (fallen.length && event.target !== button) restore();
+});
+/* Offsets are measured for one width; a rotated phone or a zoom would leave the pile in the wrong place. */
+addEventListener('resize', () => {
+  if (fallen.length && innerWidth !== width) restore();
 });

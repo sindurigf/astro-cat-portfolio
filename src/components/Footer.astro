@@ -123,6 +123,10 @@ const SHADOW = 3;
             Let It Fall
           </button>
         )}
+        {/* In the page from the start, so its first message is announced (SC 4.1.3). */}
+        {onDemand && (
+          <p class="sr-only" role="status" data-let-it-fall-status />
+        )}
 
         <small class="footer-copyright">{copyright}</small>
         {/* EU AI Act Art. 50: the one label for the AI-drawn cats and the AI-written sample text. */}
