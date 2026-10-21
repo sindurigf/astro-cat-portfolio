@@ -49,6 +49,10 @@ for (const width of WIDTHS) {
       const button = await press(page);
       await expect(button).toBeFocused();
       await expect(fallen(page)).not.toHaveCount(0);
+      await expect(
+        fallen(page).first(),
+        'a fallen block still takes taps',
+      ).toHaveCSS('pointer-events', 'none');
       await expect
         .poll(
           () =>
@@ -72,6 +76,18 @@ for (const width of WIDTHS) {
           { message: 'a fallen block covers the button' },
         )
         .toEqual({ hit: true, covered: 0 });
+      /* Once the pile has landed: a block tipped mid-fall is not yet at its widest. */
+      await expect
+        .poll(() => page.evaluate(() => document.getAnimations().length))
+        .toBe(0);
+      expect(
+        await page.evaluate(
+          () =>
+            document.documentElement.scrollWidth >
+            document.documentElement.clientWidth,
+        ),
+        'the fallen page scrolls sideways (SC 1.4.10)',
+      ).toBe(false);
     });
 
     test('the same button, Esc, or focus entering the page puts it back', async ({

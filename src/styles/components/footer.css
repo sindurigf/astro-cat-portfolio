@@ -205,9 +205,16 @@
   }
 
   /* Moved by src/scripts/let-it-fall.ts; transform only, so the order and the text stay as they are. */
+  /* A fallen pile takes no pointer, so a tap on it never lands on the wrong link; the button puts it back. */
   [data-fell] {
     translate: var(--fall-x) var(--fall-y);
     rotate: var(--fall-turn);
+    pointer-events: none;
+  }
+
+  /* SC 1.4.10: a block tipped past the edge never scrolls the page sideways. Not on body, whose overflow passes to the viewport. */
+  :root:has([data-fell]) :is(main, footer) {
+    overflow-x: clip;
   }
 
   @media (prefers-reduced-motion: no-preference) {
