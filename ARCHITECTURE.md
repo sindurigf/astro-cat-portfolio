@@ -32,7 +32,7 @@ conventions for this template. Design rules and values are in
   `utilities.css`, `light-mode.css`. Reordering the imports reorders the
   cascade.
 - Page-only partials are not in that list: `slides.css` (the talk page and the
-  presenter), `about-cats.css` (`/about`) and `starfield.css` (`/404`) are
+  presenter) and `about-cats.css` (`/about`) are
   imported by the page that uses them, so each builds as its own sheet, linked
   after the shared one. Each opens with `@reference '../global.css'` so
   `@apply` and the tokens resolve; Tailwind then writes token values as `var()`
@@ -694,6 +694,9 @@ An Astro upgrade can change a hash; the island then silently fails to hydrate
 Review findings investigated and rejected. Do not re-raise without new
 evidence.
 
+- **Fix axe's forced-colors `color-contrast` on `.sticker` in a `.card`:** axe
+  reads the authored gold; the computed color there is CanvasText on Canvas,
+  and `tests/forced-colors.spec.ts` passes.
 - **Keep `/brand` swatch colors in forced colors with `forced-color-adjust: none`:**
   `tests/forced-colors.spec.ts` holds the site rule that forced colors replaces
   every color; a swatch there is a bordered box.

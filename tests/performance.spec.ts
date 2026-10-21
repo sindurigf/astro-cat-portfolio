@@ -116,4 +116,25 @@ test.describe('page weight and stability', () => {
       ).toBe(0);
     });
   }
+
+  /* The 404 page's script fills in the page a mistyped address meant, after first paint. */
+  const MISTYPED = '/blgo/how-i-get-to-know-a-new-ilsand';
+  for (const width of [390, 768, 1024, 1280]) {
+    test(`the 404 page for a mistyped address does not shift at ${width}px`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width, height: 900 });
+      await page.addInitScript(LAYOUT_SHIFT);
+      await page.goto(MISTYPED, { waitUntil: 'networkidle' });
+      await page.waitForFunction(
+        () => performance.getEntriesByName('first-contentful-paint').length > 0,
+      );
+
+      const { shift, sources } = await layoutShiftOf(page);
+      expect(
+        shift,
+        `${MISTYPED} shifted its layout while loading at ${width}px:\n${sources.join('\n')}`,
+      ).toBe(0);
+    });
+  }
 });

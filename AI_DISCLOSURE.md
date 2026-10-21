@@ -23,7 +23,8 @@ AI-drawn art, all by Claude:
   (`src/lib/hero-field-poneglyph.ts`), and its stills shown without JavaScript
   (`src/assets/hero-still-*.webp`).
 - The logo cat, a calico head shaped like the logo tile (`src/lib/brand-mark.ts`),
-  shown in the header, on `/about` and peeking over the footer, and its
+  shown in the header, on `/about`, on the 404 page and peeking over the
+  footer, and its
   one-color form in the roundels (`src/assets/mark-dark.png`,
   `artwork/mark-dark.svg`).
 - The favicons and app icons in `public/` and their frames in `artwork/`, drawn

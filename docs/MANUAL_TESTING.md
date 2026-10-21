@@ -390,16 +390,15 @@ Setup: Firefox, 1280px, `/404` (preview serves it with 200;
 
 - [ ] Reading from the top, it is soon clear the address was wrong. → SC 1.3.1
 - [ ] `Orca+Slash` reads the window title, which includes "Page Not Found". → SC 2.4.2
-- [ ] One heading, the `h1`. Its name starts with a hidden "Page Not Found:"
-      (`hiddenPrefix` in `404.astro`), so the phrase is heard in the title and
-      again in the heading, then "These are not the droids you are looking
-      for." Judge whether the heading alone makes the reason clear. → SC 1.3.1, 2.4.6
-- [ ] `G` finds no image: the header mark and the roundel both have
-      `alt=""`. → SC 1.1.1
-- [ ] "Episode 404" reads as text. Record how "404" is spoken.
-- [ ] Four links: "explain the Star Wars lines" and "tell me about the broken
-      link" in the body, then "Go to the Homepage" and "Read the Blog" (a list
-      of two). Judge the two body links hardest. → SC 2.4.4, 1.3.1
+- [ ] One heading, the `h1`: "Lost? This Page Is Gone". Judge whether it and
+      the sentence under it make the reason clear. → SC 1.3.1, 2.4.6
+- [ ] `G` finds no image: the header mark, the roundel and the logo cat all
+      have `alt=""`. → SC 1.1.1
+- [ ] "tell me about the broken link" is the first body link. → SC 2.4.4
+- [ ] On `/blgo/how-i-get-to-know-a-new-ilsand`, "Follow Me to How I Get to
+      Know a New Island" names the page the address meant. → SC 2.4.4
+- [ ] "Or Ask the Cat" is heard as collapsed; `Enter` expands it and the four
+      section links follow. → SC 4.1.2
 
 Heard: `________________________`
 
@@ -646,8 +645,6 @@ nobody listed.
 - [ ] Read `/accessibility`, `/privacy`, `/credits`, `/brand` and `/contact`:
       every word of jargon or idiom is plain, or defined in the sentence where
       it first appears. → SC 3.1.3
-- [ ] On `/404`, the link to the credits explains the Star Wars lines.
-      → SC 3.1.3
 
 ## 10. Exploratory tools
 

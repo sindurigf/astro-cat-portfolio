@@ -2,7 +2,6 @@ import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { expect, test } from './test';
 import { DIST_DIR } from './routes';
-import { gotoSettled } from './settle';
 import { NODE } from './tags';
 import { wranglerConfig } from './source';
 
@@ -12,7 +11,7 @@ import { wranglerConfig } from './source';
  * so the body proves the page is wired; `npm run check:live` covers production.
  */
 
-const NOT_FOUND_HEADING = /these are not the droids you are looking for/i;
+const NOT_FOUND_HEADING = /this page is gone/i;
 const WORKERS_NOT_FOUND_HANDLING = '404-page';
 
 interface WranglerConfig {
@@ -63,54 +62,50 @@ test.describe('unknown paths return 404', () => {
   }
 });
 
-/** Phone, the last width below `lg`, and desktop. */
-const STARFIELD_WIDTHS = [320, 1023, 1280] as const;
+const MISTYPED = '/blgo/how-i-get-to-know-a-new-ilsand';
+const followMe = (page: import('@playwright/test').Page) =>
+  page.getByRole('link', { name: /^Follow Me/ });
 
-for (const width of STARFIELD_WIDTHS) {
-  test.describe(`the 404 starfield at ${width}px`, () => {
-    test.use({ viewport: { width, height: 900 } });
-
-    test('is hidden from assistive technology and shows no star behind text', async ({
-      page,
-    }) => {
-      await gotoSettled(page, '/404');
-      const stars = page.locator('main .plain-slab-stars');
-      await expect(stars).toHaveAttribute('aria-hidden', 'true');
-
-      const exposed = await stars.evaluate((layer) => {
-        const slab = layer.closest('.plain-slab');
-        const ground = slab ? getComputedStyle(slab).backgroundColor : '';
-        const clears = [...(slab?.querySelectorAll('.star-clear') ?? [])];
-        const unclear = [...(slab?.querySelectorAll('p, h1') ?? [])].filter(
-          (text) => !clears.some((clear) => text.contains(clear)),
-        );
-        const uncovered = clears.filter((clear) => {
-          const box = clear.getBoundingClientRect();
-          const top = document.elementFromPoint(
-            box.left + box.width / 2,
-            box.top + box.height / 2,
-          );
-          return (
-            getComputedStyle(clear).backgroundColor !== ground ||
-            !top ||
-            !clear.contains(top)
-          );
-        });
-        return {
-          measured: clears.length,
-          failures: [...unclear, ...uncovered].map((element) =>
-            element.textContent?.trim().slice(0, 40),
-          ),
-        };
-      });
-      expect(
-        exposed.measured,
-        'no .star-clear text in the slab',
-      ).toBeGreaterThan(0);
-      expect(
-        exposed.failures,
-        'slab text without the slab ground above the stars',
-      ).toEqual([]);
-    });
+test.describe('the logo cat and the Cheshire Cat', () => {
+  test('Follow Me leads to the page a mistyped address meant', async ({
+    page,
+  }) => {
+    await page.goto(MISTYPED);
+    await expect(followMe(page)).toHaveAccessibleName(
+      'Follow Me to How I Get to Know a New Island',
+    );
+    await expect(followMe(page)).toHaveAttribute(
+      'href',
+      '/blog/how-i-get-to-know-a-new-island/',
+    );
   });
-}
+
+  test('with no close page, Follow Me leads home', async ({ page }) => {
+    await page.goto(unknownPaths()[0]!);
+    await expect(followMe(page)).toHaveAccessibleName('Follow Me Home');
+    await expect(followMe(page)).toHaveAttribute('href', '/');
+  });
+});
+
+test.describe('without JavaScript', () => {
+  test.use({ javaScriptEnabled: false });
+
+  test('Follow Me leads home and Or Ask the Cat opens the sections', async ({
+    page,
+  }) => {
+    await page.goto(MISTYPED);
+    await expect(followMe(page)).toHaveAttribute('href', '/');
+    const sections = page.getByRole('list', { name: 'Sections' });
+    await expect(
+      sections,
+      'the sections show before the Cat is asked',
+    ).toBeHidden();
+    await page.getByText('Or Ask the Cat').click();
+    await expect(sections.getByRole('link')).toHaveText([
+      'About',
+      'Career',
+      'Blog',
+      'Contact',
+    ]);
+  });
+});

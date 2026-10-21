@@ -563,13 +563,6 @@
    */
   --hero-marks-reserve: clamp(9rem, 14vw, 13rem);
 
-  /* Where each 404 star's gradient stops dead, so no point glows. */
-  --star-small: 1px;
-  --star: 2px;
-  --star-large: 3px;
-  /* Cycled over starfield.css's layers; no two sides share a factor, so no repeat lines up. */
-  --starfield-tiles: 307px 263px, 409px 353px, 509px 443px;
-
   /*
    * Footer profile tiles (48px, 56px from `lg`, each past SC 2.5.5's 44px),
    * icon, edge, and the mascot on the motto. Size tokens, so no utilities are

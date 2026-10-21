@@ -1,58 +1,110 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import CatMark from '../components/CatMark.astro';
 import PageHero from '../components/PageHero.astro';
-import '../styles/components/starfield.css';
-import { BLOG_PATH } from '../lib/paths';
+import { HEADER_LINKS } from '../lib/nav';
+import { CONTACT_PATH } from '../lib/paths';
+import { sitePages } from '../lib/site-pages';
 
 /*
  * Served with status 404 via `not_found_handling: "404-page"` in wrangler.jsonc.
  * noCanonical: it answers every dead URL. noindex: /404 itself is a route that
  * answers 200, and would otherwise be indexable.
  */
+
+/* CSS px: the tile body of the 96px cat beside its line (size-24). */
+const CAT_BODY = 84;
+
+const GUIDE_LINE = '“I know a shortcut. Follow me.”';
+/* Carroll's text, Project Gutenberg #11, chapter VI. */
+const CHESHIRE_LINE =
+  '“That depends a good deal on where you want to get to,” said the Cat.';
+
+const SECTIONS = [...HEADER_LINKS, { href: CONTACT_PATH, label: 'Contact' }];
+
+/* `<` escaped, so no title can close the data block. */
+const pagesJson = JSON.stringify(
+  (await sitePages()).filter((page) => page.path !== '/'),
+).replace(/</g, '\\u003c');
 ---
 
 <BaseLayout
   title="Page Not Found"
-  description="These are not the droids you are looking for: that address does not lead anywhere on this site."
+  description="That address does not lead anywhere on this site. Follow the cat to a page that does."
   noCanonical
   noindex
 >
-  <PageHero
-    title="These are not the droids you are looking for."
-    titleSize="h2"
-    hiddenPrefix="Page Not Found:"
-    slab="none"
-    starfield
-  >
-    <span slot="eyebrow" class="badge">
-      Episode 404
-    </span>
-
-    <p slot="kicker" class="mb-6 text-post-teaser text-text text-pretty">
-      <span class="star-clear">
-        A long time ago, on a website not so far, far away&hellip;
-      </span>
-    </p>
-
+  <PageHero title="Lost? This Page Is Gone" slab="none">
     <p class="standfirst">
-      This page does not exist. It may have moved, or the address has a typo.
-      Nothing is broken on your end, so move along. The credits{' '}
-      <a href="/credits/#not-found">explain the Star Wars lines</a>. If a link
-      on this site brought you here,{' '}
-      <a href="/contact/">tell me about the broken link</a>.
+      This page does not exist, and nothing is broken on your end. If a link on
+      this site brought you here,{' '}
+      <a href={CONTACT_PATH}>tell me about the broken link</a>.
     </p>
-
-    <ul role="list" class="actions mt-head">
-      <li>
-        <a href="/" class="btn-primary">
-          Go to the Homepage
-        </a>
-      </li>
-      <li>
-        <a href={BLOG_PATH} class="btn-secondary">
-          Read the Blog
-        </a>
-      </li>
-    </ul>
   </PageHero>
+
+  <div class="band py-section">
+    <div class="mx-auto flex max-w-page flex-col gap-head">
+      <div class="card relative pt-card lg:max-w-2xl">
+        <span class="sticker absolute top-0 left-8 -translate-y-1/2 -rotate-3">
+          The Logo Cat
+        </span>
+        {/* <div>s: a large bold <p> trips WAVE's "Possible heading" (tests/wave-alerts.spec.ts). */}
+        <div class="flex items-end gap-6">
+          <CatMark body={CAT_BODY} class="size-24 shrink-0" eager />
+          <div class="text-lead font-black text-text text-pretty">
+            {GUIDE_LINE}
+          </div>
+        </div>
+        {/*
+          Home without JavaScript; src/scripts/follow-cat.ts points it at the
+          page the address meant. The destination is in the name only, so the
+          label keeps its size and nothing below moves (tests/performance.spec.ts).
+        */}
+        <p class="mt-6">
+          <a href="/" class="btn-primary" data-follow>
+            Follow Me
+            <span class="sr-only" data-follow-to>
+              &nbsp;Home
+            </span>
+          </a>
+        </p>
+      </div>
+
+      <div class="card relative pt-card lg:ml-auto lg:max-w-2xl">
+        <span class="sticker absolute top-0 right-8 -translate-y-1/2 rotate-3">
+          The Cheshire Cat
+        </span>
+        <div class="text-lead text-text italic text-pretty">
+          {CHESHIRE_LINE}
+        </div>
+        <details class="mt-6">
+          <summary class="btn-secondary cursor-pointer">Or Ask the Cat</summary>
+          <ul
+            role="list"
+            class="mt-6 flex flex-wrap gap-4"
+            aria-label="Sections"
+          >
+            {SECTIONS.map((link) => (
+              <li>
+                <a href={link.href} class="chip">
+                  {link.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </details>
+      </div>
+    </div>
+  </div>
+
+  <script
+    is:inline
+    type="application/json"
+    id="site-pages"
+    set:html={pagesJson}
+  />
 </BaseLayout>
+
+<script>
+  import '../scripts/follow-cat';
+</script>

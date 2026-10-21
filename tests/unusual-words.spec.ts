@@ -105,11 +105,6 @@ const REPLACED: readonly { pattern: RegExp; plain: string }[] = [
   },
 ];
 
-/** /404's idioms are explained on /credits; the link is the definition (G55). */
-const IDIOM_LINK = '/credits/#not-found';
-const IDIOM_ANCHOR = 'id="not-found"';
-const IDIOM_SOURCE = 'Star Wars';
-
 test.describe('unusual words are defined at first use (SC 3.1.3)', () => {
   const routes = [...new Set(DEFINED.map((entry) => entry.route))];
 
@@ -167,23 +162,4 @@ test('functional pages keep jargon written out in plain words', NODE, () => {
     );
   });
   expect(found, 'jargon back on a functional page').toEqual([]);
-});
-
-test('/404 links its idioms to their explanation on /credits', NODE, () => {
-  const pages = builtHtml();
-  expect(
-    pages.get('/404') ?? '',
-    `/404 does not link to ${IDIOM_LINK}.`,
-  ).toContain(`href="${IDIOM_LINK}"`);
-
-  const credits = pages.get('/credits') ?? '';
-  const section = credits.slice(credits.indexOf(IDIOM_ANCHOR));
-  expect(
-    credits,
-    `/credits has no ${IDIOM_ANCHOR} for /404 to link to.`,
-  ).toContain(IDIOM_ANCHOR);
-  expect(
-    section,
-    `/credits#not-found no longer explains the ${IDIOM_SOURCE} lines.`,
-  ).toContain(IDIOM_SOURCE);
 });

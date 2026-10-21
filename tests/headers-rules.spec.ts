@@ -96,7 +96,7 @@ const HSTS_MAX_AGE = 15_552_000;
  * Types `script-src` does not gate, per the HTML "prepare the script element"
  * steps. Not every non-JS type: `importmap` and `speculationrules` are gated.
  */
-const DATA_SCRIPT_TYPES = ['application/ld+json'];
+const DATA_SCRIPT_TYPES = ['application/ld+json', 'application/json'];
 
 const isDataBlock = (attributes: string): boolean => {
   const type = /\btype\s*=\s*["']([^"']+)["']/i.exec(attributes)?.[1];

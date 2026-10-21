@@ -734,7 +734,7 @@ The grid rule in `scripts/check-tokens.mjs` enforces the grid;
 | Blog index             | Hero, Listing, Close                                           |
 | Blog category, tag     | Hero, Listing                                                  |
 | Post                   | Article header, Reading (contents box from 1280px), Tags nav   |
-| 404                    | Hero (starfield) only                                          |
+| 404                    | Hero, then the logo cat and Cheshire Cat cards                 |
 | Brand                  | Hero (full), Facts, Brand (sections list), Close               |
 
 - About's last Open, Sources, is there only while the sample persona is set.
@@ -794,9 +794,6 @@ how important the page is.
   and roundel; the breadcrumb sits above it and everything else under it, on
   the page body's column (the measure on a reading page, the page column on a
   listing).
-- `/404` sets `starfield`: stars across the whole slab on an `aria-hidden`
-  layer; `.star-clear` puts the slab's ground behind the kicker and title, so
-  no star shows behind text. `tests/not-found.spec.ts` checks it.
 
 ### Variants
 
@@ -1043,7 +1040,7 @@ A heading, a sentence, one way on. Enforced by `tests/empty-states.spec.ts`,
 
 | State                   | Where                                   | Heading                                                                             | Sentence                                                         | Action                                 | Announced by                       |
 | ----------------------- | --------------------------------------- | ----------------------------------------------------------------------------------- | ---------------------------------------------------------------- | -------------------------------------- | ---------------------------------- |
-| Not found               | `/404`                                  | `h1` "These are not the droids…"                                                    | the page does not exist, and a link to report a broken one       | homepage (primary), blog (secondary)   | the page load                      |
+| Not found               | `/404`                                  | `h1` "Lost? This Page Is Gone"                                                      | the page does not exist, and a link to report a broken one       | Follow Me (primary), Or Ask the Cat    | the page load                      |
 | Empty category or tag   | not built: pages exist only with a post |                                                                                     |                                                                  |                                        |                                    |
 | Empty blog              | `/blog` with no posts                   | `h2` "No Posts Yet"                                                                 | "Nothing has been published here yet."                           | "Go to the Homepage"                   | the page load                      |
 | Invalid form            | `/contact/send`, 422                    | `h2` "There Is One Problem with This Form" or "There Are N Problems with This Form" | one linked entry per field                                       | each entry moves to its field          | focus on the summary on arrival    |

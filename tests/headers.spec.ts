@@ -262,4 +262,18 @@ test.describe('security headers', () => {
       [],
     );
   });
+
+  test('the 404 cat finds its page under the policy', async ({ page }) => {
+    const violations = await collectViolations(page);
+
+    await page.goto(`${policy().origin}/blgo`);
+    await expect(
+      page.getByRole('link', { name: /^Follow Me/ }),
+      'Follow Me still leads home; the policy may have blocked src/scripts/follow-cat.ts or its data block',
+    ).toHaveAttribute('href', '/blog/');
+
+    expect(violations, 'the browser refused something under the CSP').toEqual(
+      [],
+    );
+  });
 });
