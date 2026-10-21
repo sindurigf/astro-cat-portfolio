@@ -1,4 +1,10 @@
-import { getCategoriesWithPosts, getSortedPosts, categoryLabel } from './blog';
+import {
+  categoryLabel,
+  getCategoriesWithPosts,
+  getPostsByTag,
+  getSortedPosts,
+  tagLabel,
+} from './blog';
 import { BRAND_SECTIONS, BRAND_PATH, brandHref } from './brand-sections';
 import { NAV_LINKS } from './nav';
 import {
@@ -6,8 +12,10 @@ import {
   CONTACT_PATH,
   CREDITS_PATH,
   PRIVACY_PATH,
+  SITE_FEED_PATH,
   categoryHref,
   postHref,
+  tagHref,
 } from './paths';
 import type { MatchablePage } from './page-match';
 import { CV_PATH } from './profiles';
@@ -31,6 +39,11 @@ export const sitePages = async (): Promise<MatchablePage[]> => {
       title: categoryLabel(category),
       path: categoryHref(category),
     })),
+    ...[...(await getPostsByTag()).keys()].map((tag) => ({
+      title: tagLabel(tag),
+      path: tagHref(tag),
+    })),
+    { title: 'RSS Feed', path: SITE_FEED_PATH },
     ...(await getSortedPosts()).map((post) => ({
       title: post.data.title,
       path: postHref(post.id),
