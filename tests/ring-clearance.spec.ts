@@ -1,4 +1,4 @@
-import { expect, test } from './test';
+import { expect, test, type Page } from './test';
 import { gotoSettled } from './settle';
 import { FOCUSABLE_SELECTOR } from './wcag';
 import { SAMPLED_ROUTES } from './routes';
@@ -35,25 +35,89 @@ const SHADOW_REACH = `
 /* WebKit takes 130-250ms per pointer move, so each route's hovers run in stripes, one test each. */
 const RING_CLEARANCE_STRIPES = 3;
 
-/* A third of the 30 s test timeout: a stuck step fails with its control named, not as a bare timeout. */
+/* A third of the 30 s test timeout: a stuck step fails with its control named, with time left to say where. */
 const RING_STEP_LIMIT_MS = 10_000;
+/* Each debugger call on a stuck page gets this long, so naming where never outlasts the test. */
+const PAUSE_WAIT_MS = 3_000;
+const STACK_DEPTH = 8;
 
-const withinStepLimit = async <T>(
+const TIMED_OUT = Symbol('timed out');
+
+const withLimit = async <T>(
   work: Promise<T>,
-  what: string,
-): Promise<T> => {
+  ms: number,
+): Promise<T | typeof TIMED_OUT> => {
   let timer: ReturnType<typeof setTimeout> | undefined;
-  const limit = new Promise<never>((_, reject) => {
-    timer = setTimeout(
-      () => reject(new Error(`${what} took over ${RING_STEP_LIMIT_MS} ms.`)),
-      RING_STEP_LIMIT_MS,
-    );
-  });
   try {
-    return await Promise.race([work, limit]);
+    return await Promise.race([
+      work,
+      new Promise<typeof TIMED_OUT>((resolve) => {
+        timer = setTimeout(() => resolve(TIMED_OUT), ms);
+      }),
+    ]);
   } finally {
     clearTimeout(timer);
   }
+};
+
+/** Names where a stuck page's script is; '' outside Chromium. */
+type WhereStuck = () => Promise<string>;
+
+/*
+ * Chromium only. The debugger is on from the start: enabling it on a busy page
+ * waits for that page, while a pause interrupts the running script.
+ */
+const watchMainThread = async (
+  page: Page,
+  onChromium: boolean,
+): Promise<WhereStuck> => {
+  if (!onChromium) return async () => '';
+  const cdp = await page.context().newCDPSession(page);
+  const urls = new Map<string, string>();
+  cdp.on('Debugger.scriptParsed', (event) =>
+    urls.set(event.scriptId, event.url),
+  );
+  await cdp.send('Debugger.enable');
+  return async () => {
+    const paused = new Promise<string>((resolve) => {
+      cdp.once('Debugger.paused', (event) =>
+        resolve(
+          event.callFrames
+            .slice(0, STACK_DEPTH)
+            .map(
+              ({ functionName, location }) =>
+                `${functionName || '(anonymous)'} ${urls.get(location.scriptId) ?? location.scriptId}:${location.lineNumber + 1}`,
+            )
+            .join('\n  '),
+        ),
+      );
+    });
+    const where = await withLimit(
+      cdp.send('Debugger.pause').then(() => paused),
+      PAUSE_WAIT_MS,
+    );
+    /* Detaching turns the debugger off, which resumes a paused page and cancels a pause still waiting. */
+    const detached = await withLimit(cdp.detach(), PAUSE_WAIT_MS);
+    return (
+      (where === TIMED_OUT
+        ? `\nNo script ran within ${PAUSE_WAIT_MS} ms.`
+        : `\nThe page's main thread was in:\n  ${where}`) +
+      (detached === TIMED_OUT ? '\nThe debugger did not detach.' : '')
+    );
+  };
+};
+
+const withinStepLimit = async <T>(
+  whereStuck: WhereStuck,
+  work: Promise<T>,
+  what: string,
+): Promise<T> => {
+  const outcome = await withLimit(work, RING_STEP_LIMIT_MS);
+  if (outcome !== TIMED_OUT) return outcome;
+  const where = await whereStuck().catch(
+    (error: unknown) => `\nNaming where failed: ${String(error)}`,
+  );
+  throw new Error(`${what} took over ${RING_STEP_LIMIT_MS} ms.${where}`);
 };
 
 /* SC 1.4.11: cyan over a pink shadow is 2.29, so no ring outside its box may start inside the shadows of its own control. */
@@ -65,8 +129,13 @@ for (const colorScheme of SCHEMES) {
       for (let stripe = 0; stripe < RING_CLEARANCE_STRIPES; stripe += 1) {
         test(`${route} clears every focused control's shadow${stripe === 0 ? ' at rest and' : ''} under the pointer, part ${stripe + 1} of ${RING_CLEARANCE_STRIPES}`, async ({
           page,
+          browserName,
         }) => {
           await gotoSettled(page, route);
+          const whereStuck = await watchMainThread(
+            page,
+            browserName === 'chromium',
+          );
           /* Keyboard modality first, so a scripted focus() still matches :focus-visible. */
           await page.keyboard.press('Tab');
           /* Two round trips per control: one to read it and aim at the next, one pointer move. */
@@ -139,10 +208,12 @@ for (const colorScheme of SCHEMES) {
             if (!step.at) break;
             const where = `${route} part ${stripe + 1}, control ${index}`;
             await withinStepLimit(
+              whereStuck,
               page.mouse.move(step.at.x, step.at.y),
               `Moving the pointer to ${where}`,
             );
             step = await withinStepLimit(
+              whereStuck,
               page.evaluate(measure, {
                 selector: FOCUSABLE_SELECTOR,
                 read: [index],
