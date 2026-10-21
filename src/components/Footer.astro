@@ -18,6 +18,7 @@ import {
 import socialIcons from '../assets/social-icons.svg?url';
 /* `?worker&url`: a separate file, so no Vite preload helper, loaded by src under Trusted Types. */
 import onDemandRegistry from '../scripts/on-demand.ts?worker&url';
+import letItFall from '../scripts/let-it-fall.ts?worker&url';
 
 /* Source order is the reading order at every width; no CSS `order`. */
 
@@ -110,6 +111,21 @@ const SHADOW = 3;
       <div class="footer-notes">
         {onDemand && (
           <script is:inline type="module" src={onDemandRegistry}></script>
+        )}
+        {onDemand && (
+          <button
+            type="button"
+            class="btn-secondary let-it-fall"
+            data-on-demand={letItFall}
+            data-let-it-fall
+            hidden
+          >
+            Let It Fall
+          </button>
+        )}
+        {/* In the page from the start, so its first message is announced (SC 4.1.3). */}
+        {onDemand && (
+          <p class="sr-only" role="status" data-let-it-fall-status />
         )}
 
         <small class="footer-copyright">{copyright}</small>

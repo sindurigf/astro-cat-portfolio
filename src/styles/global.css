@@ -582,6 +582,9 @@
   --size-footer-mascot: clamp(72px, 9vw, 120px);
   /* How far the mascot drops below the type's top: the cap gap. */
   --footer-mascot-sink: 0.04em;
+  /* Let It Fall: how long a block takes to drop into the pile or climb back, with an overshoot that lands it. */
+  --fall-time: 900ms;
+  --ease-fall: cubic-bezier(0.3, 2.2, 0.5, 1);
   /*
    * Header row above `md`: equal outer tracks center the nav. A token because
    * components allow no arbitrary values.

@@ -198,6 +198,40 @@
     fill: var(--color-mark);
   }
 
+  /* Let It Fall: above the pile it makes, so a tap always reaches it. */
+  .let-it-fall {
+    position: relative;
+    z-index: 1;
+  }
+
+  /*
+   * Moved by src/scripts/let-it-fall.ts: `transform` stacks on a block's own
+   * `translate` and `rotate`. No pointer, so a tap on the pile reaches what lies
+   * under it; its own ground travels with it, so its text keeps its contrast.
+   */
+  [data-fell] {
+    transform: translate(var(--fall-x), var(--fall-y)) rotate(var(--fall-turn));
+    pointer-events: none;
+    background-color: var(--fall-ground);
+  }
+
+  /* SC 1.4.10: a block tipped past the edge, falling or climbing back, never scrolls the page sideways. Not on body, whose overflow passes to the viewport. */
+  :root:has([data-fall-block]) :is(main, footer) {
+    overflow-x: clip;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    [data-fall-block] {
+      transition: transform var(--fall-time) var(--ease-fall) var(--fall-delay);
+    }
+  }
+
+  @media print {
+    [data-fell] {
+      transform: none;
+    }
+  }
+
   /*
    * Source order is stickers, pages, policies, and reads the same row-major. `space-between` equalizes the gaps; the column gap is a floor,
    * kept small so the row fits at the md breakpoint.
