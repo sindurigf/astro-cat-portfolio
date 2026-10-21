@@ -214,6 +214,11 @@ test.describe('security headers', () => {
     await page.keyboard.press('Escape');
     await page.goto(`${policy().origin}/`);
     await waitForHydration(page);
+    /* Let It Fall loads its script on the first press. */
+    await page.getByRole('button', { name: 'Let It Fall' }).click();
+    await expect(
+      page.getByRole('button', { name: 'Put It Back' }),
+    ).toBeVisible();
     await fontsSettled(page);
 
     expect(violations, 'the browser refused something under the CSP').toEqual(
