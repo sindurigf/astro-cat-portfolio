@@ -1,0 +1,95 @@
+@layer components {
+  /*
+   * Text size control. From the `tab` width the page leaves a free gutter and
+   * the control is a tab on the right edge, at mid-height, with its panel
+   * opening to the left. Narrower, the same group sits in the mobile menu and,
+   * from `md`, in the theme popover. Rings are drawn inside the controls that
+   * touch an edge, where a ring outside would be cut off.
+   */
+  .reading-tab {
+    @apply fixed z-40 hidden;
+
+    inset-block-start: 50%;
+    inset-inline-end: 0;
+    translate: 0 -50%;
+
+    @variant tab {
+      @apply block;
+    }
+
+    @media print {
+      display: none;
+    }
+  }
+
+  /*
+   * Keyboard focus in the page moves the tab out of the way, so it never hides
+   * a focused control (SC 2.4.11, 2.4.12); it is back when focus leaves, and
+   * shown while it or its panel holds focus.
+   */
+  body:has(main :focus-visible) .reading-tab:not(:focus-within) {
+    translate: 100% -50%;
+    visibility: hidden;
+  }
+
+  .reading-tab-button {
+    @apply flex min-h-14 w-target cursor-pointer items-center justify-center border-4 border-e-0 border-border bg-surface text-label font-black text-text;
+
+    &:hover {
+      @apply bg-cyan text-background;
+    }
+
+    &:focus-visible {
+      outline-offset: calc(-1 * (var(--focus-width) + var(--focus-gap)));
+    }
+  }
+
+  /* A popover sits in the top layer, so it is placed against the tab's own width, not its wrapper. */
+  .reading-tab-panel {
+    @apply fixed m-0 max-w-56 border-4 border-border bg-surface p-3 text-text;
+
+    inset: auto;
+    inset-block-start: 50%;
+    inset-inline-end: var(--spacing-target);
+    translate: 0 -50%;
+  }
+
+  /* The group: a label, three buttons and a status in a column. */
+  .text-size-group {
+    @apply flex flex-col gap-2;
+  }
+
+  /* In the theme popover from `md` up to where the edge tab takes over. */
+  .popover-text-size {
+    @apply mt-4 max-md:hidden;
+
+    @variant tab {
+      display: none;
+    }
+  }
+
+  /* At the foot of the mobile menu, above Close. */
+  .menu-text-size {
+    @apply mt-12;
+  }
+
+  .text-size-button {
+    @apply flex min-h-target min-w-target items-center border-4 border-border bg-surface px-3 text-left text-label font-black uppercase tracking-label text-text;
+
+    &:hover:not([aria-disabled='true']) {
+      @apply bg-cyan text-background;
+    }
+
+    &:focus-visible {
+      outline-offset: calc(-1 * (var(--focus-width) + var(--focus-gap)));
+    }
+
+    &[aria-disabled='true'] {
+      @apply border-dashed text-subtle;
+    }
+  }
+
+  .text-size-status {
+    @apply text-label text-subtle;
+  }
+}

@@ -1,12 +1,15 @@
 ---
 import { THEME_CHOICES } from '../lib/theme';
+import TextSizeGroup from './TextSizeGroup.astro';
 
 interface Props {
   /** The popover's id and the radios' name: unique per page. */
   id?: string;
+  /** Adds the text size group below the theme choices: the control where no edge tab fits. */
+  textSize?: boolean;
 }
 
-const { id = 'theme-menu' } = Astro.props;
+const { id = 'theme-menu', textSize = false } = Astro.props;
 ---
 
 {/* Shows the theme in use; hidden without JavaScript or popovers. */}
@@ -58,6 +61,9 @@ const { id = 'theme-menu' } = Astro.props;
       </label>
     ))}
   </fieldset>
+  {textSize && (
+    <TextSizeGroup idPrefix="popover-text-size" class="popover-text-size" />
+  )}
 </div>
 
 <script>

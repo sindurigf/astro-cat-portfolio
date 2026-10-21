@@ -122,6 +122,15 @@ view (development server only, never published), and forks.
 - **Text resize.** Headings other than talk titles reach 2x at 200% zoom
   (talk titles: [gap 7](#7-known-gaps)); other text reaches 2x by
   page zoom in Chromium and Firefox ([Text resize](#text-resize-sc-144)).
+- **Text size control.** Smaller, Larger and Reset step the reading text
+  (lead, standfirst, post teaser, body, label) from 75 to 200 percent. From
+  86rem wide it is an "Aa Text Size" button on the right edge that opens a
+  native popover; below that the same group sits in the mobile menu and, from
+  `md`, in the Theme menu. Escape closes the popover and returns focus to its
+  button, a press outside or Tab out closes it, and it slides away while a
+  control in the page has keyboard focus (SC 2.4.11). A step that would scroll
+  the page sideways is taken back and announced (SC 1.4.10). The browser's own
+  zoom and text-only zoom still work (SC 1.4.4). `tests/reading-tab.spec.ts`.
 - **Target size.** A 44px square centered on every target outside a sentence
   hits only that target, at 305px and 1280px, on every page (listings sampled
   as below) and in the open cat card, photo viewer and menu (SC 2.5.5).
@@ -261,6 +270,7 @@ merge.
 | Check                               | WCAG                                                             | Notes                                                                                                                                                                                                                                                                                                           |
 | ----------------------------------- | ---------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `tests/a11y.spec.ts`                | 2.2 A and AA                                                     | axe on every route, at 320px, menu open, open states; decides `incomplete` contrast                                                                                                                                                                                                                             |
+| `tests/reading-tab.spec.ts`         | 1.4.4, 1.4.10, 1.4.11, 2.1.1, 2.4.3, 2.4.11, 2.5.5, 4.1.2        | Text size control: names and descriptions, 44px targets, axe open in each placement, Escape, outside press and Tab out, forced-colors edges, reduced motion, no sideways scroll at 400% zoom, nothing covered at rest                                                                                           |
 | `tests/light-mode.spec.ts`          | 2.2 A and AA, 1.4.11, 2.1.1, 2.4.7, 2.5.5, 4.1.2                 | axe in light mode on every route and at 320px; control edges at 3:1; Theme menu: its names, keys and Escape, a pick closing it with focus back on the button, choices across a reload, System following the device live, on screen at 320 and 1280px, its ring and forced colors; the theme set before `<body>` |
 | `tests/gold-surface.spec.ts`        | 1.4.3, 1.4.11                                                    | Text on gold and control edges on every gold section; the `/contact` ring at 305px                                                                                                                                                                                                                              |
 | `tests/gold-link.spec.ts`           | 1.4.1, 1.4.3                                                     | Links on gold at rest and under the pointer                                                                                                                                                                                                                                                                     |

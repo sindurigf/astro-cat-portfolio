@@ -1,4 +1,9 @@
 @layer components {
+  /* Without a script nothing marked this works, so nothing marked this shows. */
+  :root:not(.js) .js-only {
+    display: none;
+  }
+
   .label {
     @apply text-label font-black uppercase tracking-label;
   }

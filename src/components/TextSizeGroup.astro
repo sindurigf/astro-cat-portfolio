@@ -1,0 +1,48 @@
+---
+import textSizeFeature from '../scripts/text-size.ts?worker&url';
+
+interface Props {
+  /** Makes the label and hint ids unique: the page holds up to three groups. */
+  idPrefix: string;
+  class?: string;
+  buttonClass?: string;
+}
+
+const { idPrefix, class: className = '', buttonClass = '' } = Astro.props;
+const BUTTONS = [
+  { action: 'smaller', label: 'Smaller', hint: 'Smaller text' },
+  { action: 'larger', label: 'Larger', hint: 'Larger text' },
+  { action: 'reset', label: 'Reset', hint: 'Back to 100 percent' },
+] as const;
+---
+
+{/* Hidden until the on-demand registry unhides it, so a failed script never leaves buttons that do nothing. */}
+<div
+  class:list={['text-size-group', 'js-only', className]}
+  role="group"
+  aria-labelledby={`${idPrefix}-label`}
+  hidden
+  data-text-size
+  data-on-demand={textSizeFeature}
+>
+  <span id={`${idPrefix}-label`} class="label text-subtle">
+    Text Size
+  </span>
+  {BUTTONS.map(({ action, label, hint }) => (
+    <>
+      <button
+        type="button"
+        class:list={['text-size-button', buttonClass]}
+        data-on-demand={textSizeFeature}
+        data-size-action={action}
+        aria-describedby={`${idPrefix}-hint-${action}`}
+      >
+        {label}
+      </button>
+      <span id={`${idPrefix}-hint-${action}`} hidden>
+        {hint}
+      </span>
+    </>
+  ))}
+  <span class="text-size-status" role="status" data-size-status />
+</div>
