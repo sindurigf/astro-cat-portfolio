@@ -908,7 +908,7 @@ text-gold-muted` under the standfirst. Color
 ### Header relation
 
 - The header is a gold bar on the hero's column, 12px below the top, with the
-  logo tile and name at its left end ([Navigation](#navigation)).
+  logo tile at its left end, and from 48rem its name too ([Navigation](#navigation)).
 - The logo tile keeps its `mark` shadow.
 - The sticky header covers the top of the slab on scroll; nothing on the slab
   is fixed.
@@ -1176,8 +1176,8 @@ Enforced by `tests/nav-current.spec.ts`, `tests/mobile-menu.spec.ts`,
   in light mode). 80px tall in a 104px header. Inside it, bricks take
   `block-light` fills and `block-ink` lines; `.site-header` keeps the page's
   values as `--page-*` for the menu dialog.
-- The logo tile and name sit inside the bar with no block, edge or throw of
-  their own. The tile keeps its 8px `mark` shadow; the link pads it inside
+- The logo tile, and from 48rem its name, sit inside the bar with no block, edge
+  or throw of their own. The tile keeps its 8px `mark` shadow; the link pads it inside
   its box (`padding-block-end: var(--lift-mark)`), so the ring at the plain
   4px gap clears it and stays inside the bar, full and slim
   (`tests/header-bricks.spec.ts`).

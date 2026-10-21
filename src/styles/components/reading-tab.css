@@ -73,9 +73,9 @@
     @apply border-l-0 text-label font-black;
   }
 
-  /* Drawn from first paint so the header does not move when the registry runs (CLS); the script-less page draws nothing. */
-  :root:not(.js) .aa-switch {
-    display: none;
+  /* Until the registry unhides the group, an opened popover draws nothing instead of an empty box. */
+  #text-menu:has(> .text-size-group[hidden]) {
+    visibility: hidden;
   }
 
   .text-size-button {

@@ -358,6 +358,24 @@ test.describe('The reading tab: Smaller, Larger and Reset', () => {
     await expect(menu).toBeHidden();
   });
 
+  test('the header holds still when the registry runs: the Aa brick is drawn from first paint (CLS)', async ({
+    browser,
+  }) => {
+    const measure = async (blockRegistry: boolean) => {
+      const context = await browser.newContext({
+        viewport: { width: 390, height: 800 },
+      });
+      const page = await context.newPage();
+      if (blockRegistry)
+        await page.route(/on-demand-[\w-]+\.js/, (route) => route.abort());
+      await gotoSettled(page, '/about/');
+      const box = await page.locator('header div.header-bricks').boundingBox();
+      await context.close();
+      return box;
+    };
+    expect(await measure(false)).toEqual(await measure(true));
+  });
+
   test('the Aa popover closes on an outside press, Escape and Tab out', async ({
     page,
   }) => {

@@ -482,7 +482,8 @@ Rules this repository follows. Values and reasons:
 - **SVG.** Decorative SVG is `aria-hidden="true" focusable="false"`.
 - **ARIA.** Only where no native element works, with a comment saying why.
   No `aria-label` over visible text, except one that repeats it exactly: the
-  logo link, where a `<wbr>` splits Chromium's computed name. A toggle with
+  logo link, where a `<wbr>` splits Chromium's computed name. Below 48rem the
+  name is not drawn and the `aria-label` is the link's only name. A toggle with
   `aria-expanded` or `aria-pressed` keeps a constant name; the hero's transport
   control is named for its action, "Pause the hero animation" or "Play the
   hero animation".

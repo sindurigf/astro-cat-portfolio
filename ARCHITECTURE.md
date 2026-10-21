@@ -357,7 +357,9 @@ it stays out of the per-page script budgets (`tests/performance.spec.ts`).
 - A feature is a `?worker&url` file. `Footer.astro` renders the registry on
   every page except under `/talks/`.
 - A trigger is `[data-on-demand="<feature file URL>"]`, shipped `hidden`; the
-  registry unhides it. Without JavaScript nothing shows.
+  registry unhides it. Without JavaScript nothing shows. A trigger that takes
+  room in the layout is drawn from first paint instead, so nothing moves when
+  the registry runs: the Aa brick, hidden like Theme without `data-theme`.
 - First click imports the file, then dispatches an `on-demand` event on the
   trigger; later clicks only dispatch. A failed import is reported with
   `reportError` and retried on the next click.

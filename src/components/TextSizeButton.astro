@@ -5,7 +5,7 @@ import TextSizeGroup from './TextSizeGroup.astro';
 /* The phone control: an "Aa" brick beside Theme and Menu. From `md` the group is in the Theme popover. */
 ---
 
-{/* Drawn from first paint, so the header does not move; `:root:not(.js)` hides it without a script. */}
+{/* Drawn from first paint, like Theme, so the header does not move: `.theme-switch` hides it without `data-theme` or popovers. */}
 <button
   type="button"
   class="theme-switch aa-switch md:hidden"
