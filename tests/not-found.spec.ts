@@ -71,7 +71,7 @@ test.describe('the logo cat and the Cheshire Cat', () => {
     page,
   }) => {
     await page.goto(MISTYPED);
-    await expect(followMe(page)).toHaveText(
+    await expect(followMe(page)).toHaveAccessibleName(
       'Follow Me to How I Get to Know a New Island',
     );
     await expect(followMe(page)).toHaveAttribute(
@@ -82,7 +82,7 @@ test.describe('the logo cat and the Cheshire Cat', () => {
 
   test('with no close page, Follow Me leads home', async ({ page }) => {
     await page.goto(unknownPaths()[0]!);
-    await expect(followMe(page)).toHaveText('Follow Me Home');
+    await expect(followMe(page)).toHaveAccessibleName('Follow Me Home');
     await expect(followMe(page)).toHaveAttribute('href', '/');
   });
 });

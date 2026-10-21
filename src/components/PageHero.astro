@@ -19,8 +19,6 @@ interface Props {
   imageAlt?: string;
   /* `reading` picks the prose pages' title scale; layout is unchanged. */
   measure?: 'page' | 'reading';
-  /* Read before the title by assistive technology only. */
-  hiddenPrefix?: string;
   /* 3 only for /brand's examples, so the page keeps one h1. */
   headingLevel?: 1 | 3;
 }
@@ -32,7 +30,6 @@ const {
   image,
   imageAlt = '',
   measure = 'page',
-  hiddenPrefix,
   headingLevel = 1,
 } = Astro.props;
 const Title = `h${headingLevel}` as 'h1' | 'h3';
@@ -63,10 +60,7 @@ const titleClass = slab === 'thin' ? 'text-post-title' : fullTitle;
     <div class="plain-slab gold-column relative bg-surface">
       <div class="max-w-page">
         <slot name="kicker" />
-        <Title class:list={[titleClass, 'text-text']}>
-          {hiddenPrefix && <span class="sr-only">{hiddenPrefix} </span>}
-          {title}
-        </Title>
+        <Title class:list={[titleClass, 'text-text']}>{title}</Title>
       </div>
       <div class="hero-roundel">
         <Roundel eager variant="hero" />

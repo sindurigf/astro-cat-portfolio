@@ -692,6 +692,9 @@ An Astro upgrade can change a hash; the island then silently fails to hydrate
 Review findings investigated and rejected. Do not re-raise without new
 evidence.
 
+- **Fix axe's forced-colors `color-contrast` on `.sticker` in a `.card`:** axe
+  reads the authored gold; the computed color there is CanvasText on Canvas,
+  and `tests/forced-colors.spec.ts` passes.
 - **Keep `/brand` swatch colors in forced colors with `forced-color-adjust: none`:**
   `tests/forced-colors.spec.ts` holds the site rule that forced colors replaces
   every color; a swatch there is a bordered box.

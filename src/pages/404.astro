@@ -55,10 +55,17 @@ const pagesJson = JSON.stringify(
             {GUIDE_LINE}
           </div>
         </div>
-        {/* Home without JavaScript; src/scripts/follow-cat.ts points it at the page the address meant. */}
+        {/*
+          Home without JavaScript; src/scripts/follow-cat.ts points it at the
+          page the address meant. The destination is in the name only, so the
+          label keeps its size and nothing below moves (tests/performance.spec.ts).
+        */}
         <p class="mt-6">
           <a href="/" class="btn-primary" data-follow>
-            Follow Me Home
+            Follow Me
+            <span class="sr-only" data-follow-to>
+              &nbsp;Home
+            </span>
           </a>
         </p>
       </div>
