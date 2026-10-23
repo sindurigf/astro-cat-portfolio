@@ -75,7 +75,7 @@ What happens without the `CONTACT_NOTIFY_TO` secret:
 | `npm run publish:talk`        | Print a talk's slideshow to its tagged PDF in `public/talks/`                                                                                         |
 | `npm run og`                  | After a build, render `public/images/og-default.png` and every page's card in `public/images/og/`                                                     |
 | `npm run hero-still`          | After a build, redraws the hero stills in `src/assets/hero-still-*.webp` shown without JavaScript                                                     |
-| `npm run icons`               | Render the favicons, app icons and `src/assets/logo-cat.svg` from `src/lib/brand-mark.ts`                                                             |
+| `npm run icons`               | Render `src/assets/logo-cat.svg` from `src/lib/brand-mark.ts`, and the favicons and app icons from `artwork/cats/minerva-walk.png`                    |
 | `npm run box-cat`             | Render the box cat logo, roundel and footer mascot SVGs in `src/assets/` from `src/lib/box-cat.ts` and the cut-outs in `artwork/cats/`                |
 
 ### WebKit
@@ -320,9 +320,10 @@ and [the favicon set](../ARCHITECTURE.md#the-favicon-set).
 2. Run `npm run box-cat`. It writes `src/assets/box-cat-logo.svg` for the
    header and the 404 page, `box-cat-roundel.svg` for the roundels and
    `box-cat-footer.svg` for the footer mascot.
-3. Run `npm run icons`. It writes `src/assets/logo-cat.svg` for `/about`, the
-   tab icons and `favicon.ico`, and the app icons on a full-bleed `background`
-   square (maskable inside the 80% safe zone).
+3. Run `npm run icons`. It writes `src/assets/logo-cat.svg` for `/about`, and
+   from the cut-out in `ICON_ART` the tab icons and `favicon.ico`, and the app
+   icons on a full-bleed `background` square (maskable inside the 80% safe
+   zone).
 4. A box cat file at a new size: update its `width` and `height` in
    `Header.astro`, `404.astro`, `Roundel.astro` or `Footer.astro`.
 5. Run `npm run build && npm run og` to redraw the sharing images

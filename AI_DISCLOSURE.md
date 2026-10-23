@@ -30,8 +30,9 @@ AI-drawn art, all by Claude:
   - Hela on the footer motto band (`src/assets/box-cat-footer.svg`).
 - The logo cat, a calico head shaped like the logo tile (`src/lib/brand-mark.ts`,
   `src/assets/logo-cat.svg`), on `/about`.
-- The favicons and app icons in `public/` and their frames in `artwork/`, drawn
-  by `scripts/make-icons.mjs` from the logo cat.
+- The favicons and app icons in `public/` and their frames in `artwork/`:
+  Minerva walking, drawn by Canva AI (`artwork/cats/minerva-walk.png`) and set
+  as a die-cut sticker by `scripts/make-icons.mjs`.
 - The sharing images, `public/images/og-default.png` and
   `public/images/og/*.jpg`, drawn by
   `scripts/make-og.mjs` with the logo cat.

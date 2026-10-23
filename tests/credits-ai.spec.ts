@@ -24,7 +24,7 @@ test.describe('/credits Made with AI', () => {
       ).toHaveAttribute('href', '/');
       await expect(
         section.getByRole('link', {
-          name: 'The box cat in the logo, roundels, footer and 404 page, the logo cat, its icons and the sharing images',
+          name: 'The box cat in the logo, roundels, footer and 404 page, the logo cat, the tab and app icons and the sharing images',
         }),
       ).toHaveAttribute('href', '/brand/');
     },
