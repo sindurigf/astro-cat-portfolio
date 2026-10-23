@@ -13,7 +13,7 @@ const SITEMAP_PATH = '/sitemap-index.xml';
 const CONVENTIONAL_SITEMAP_PATH = '/sitemap.xml';
 
 /* A prerendered page, a static asset, and a path run_worker_first sends to the Worker. */
-const RESPONSES = ['/', '/favicon.svg', '/contact/send/'] as const;
+const RESPONSES = ['/', '/favicon-96x96.png', '/contact/send/'] as const;
 
 const CANONICAL_PAGES = ['/', '/about/', '/blog/'] as const;
 

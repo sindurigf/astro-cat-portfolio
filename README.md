@@ -124,7 +124,8 @@ The drawings are code; the cards show a photo.
 - The contact page's list of topics names the cats: `src/pages/contact.astro`.
 - The box cats in the logo, roundels and footer are pictures of the sample
   cats: replace `artwork/cats/*.png` with cut-outs of yours (transparent
-  background) and run `npm run box-cat`.
+  background) and run `npm run box-cat`; the favicon and app icons come from
+  `ICON_ART` in `scripts/make-icons.mjs`: run `npm run icons`.
 - The drawings stay AI-made: keep their lines in `AI_DISCLOSURE.md` and on
   `/credits`.
 

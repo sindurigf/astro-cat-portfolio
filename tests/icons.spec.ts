@@ -1,4 +1,5 @@
 import { existsSync, readFileSync } from 'node:fs';
+import sharp from 'sharp';
 import { join } from 'node:path';
 import { expect, test } from './test';
 import { builtPages, DIST_DIR, ROUTES } from './routes';
@@ -154,6 +155,39 @@ test.describe('the favicon set', NODE, () => {
       ).toContain(wanted);
     }
   });
+});
+
+/** The transparent tab icons: a clipped sticker would show as a cut edge in the tab. */
+const TAB_FRAMES = [
+  'artwork/favicon-16x16.png',
+  'artwork/favicon-32x32.png',
+  'artwork/favicon-48x48.png',
+  'public/favicon-96x96.png',
+] as const;
+
+test.describe('the tab icon frames', NODE, () => {
+  for (const file of TAB_FRAMES) {
+    test(`${file} has a clear border, so nothing of the sticker is cut off`, async () => {
+      const { data, info } = await sharp(file)
+        .ensureAlpha()
+        .raw()
+        .toBuffer({ resolveWithObject: true });
+      const alphaAt = (x: number, y: number) =>
+        data[(y * info.width + x) * info.channels + 3];
+      const border: number[] = [];
+      for (let i = 0; i < info.width; i++)
+        border.push(
+          alphaAt(i, 0),
+          alphaAt(i, info.height - 1),
+          alphaAt(0, i),
+          alphaAt(info.width - 1, i),
+        );
+      expect(
+        border.filter((alpha) => alpha > 0).length,
+        `${file} draws on its outer edge; run npm run icons after widening the margin.`,
+      ).toBe(0);
+    });
+  }
 });
 
 test.describe('the web app manifest', NODE, () => {

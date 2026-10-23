@@ -471,7 +471,7 @@ check_response /speculationrules.json 200
 # Rule 7 for the favicons and feeds, and rule 1 for the noindex on the
 # Markdown copy and every published PDF.
 check_response /favicon.ico 200
-check_response /favicon.svg 200
+check_response /favicon-96x96.png 200
 check_response /rss.xml 200
 [ -z "$POST_PATH" ] || check_response "${POST_PATH%/}.md" 200
 for pdf in $PDFS; do

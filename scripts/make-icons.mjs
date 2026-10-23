@@ -9,6 +9,7 @@
 
 import { readFileSync, writeFileSync } from 'node:fs';
 import { chromium } from '@playwright/test';
+import sharp from 'sharp';
 import { cssColorToken } from '../src/lib/css-token.ts';
 import { MARK_SIZE, markMarkup } from '../src/lib/brand-mark.ts';
 
@@ -19,31 +20,36 @@ const RIM = paint('light-ground');
 const BLOCK = paint('mark');
 
 /* The icon cat, a Canva AI drawing cut out of its background. */
+// TODO(fork): Your cat's cut-out, transparent background.
 const ICON_ART = 'artwork/cats/minerva-walk.png';
-/* Units of the 64-unit icon square: the cat's span and its die-cut layers. */
+/* Units of the 64-unit icon square: the die-cut layers and the clear margin past them. */
 const ICON_SIZE = 64;
-const CAT_SPAN = 50;
 const RIM_WIDTH = 2.4;
 const EDGE_WIDTH = 1.4;
 const BLOCK_DEPTH = 4;
 const BLOCK_STEPS = 4;
+const MARGIN = 1;
+/* How far the ink back edge reaches past the cat on every side. */
+const OUTER = RIM_WIDTH + 2 * EDGE_WIDTH;
 /** Share of a full-bleed app icon the cat spans; maskable stays inside the 80% safe circle. */
 const APP_SPAN = 0.8;
 const MASKABLE_SPAN = 0.6;
-/* The PNG the SVG favicon embeds, px. */
-const SVG_FAVICON_PX = 128;
 
 const svg = (viewBox, inner) =>
   `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${viewBox}">${inner}</svg>`;
 
 /** The cat as a die-cut sticker: white rim, ink edge, pink block falling down-right behind it. */
-const catIcon = () => {
-  const { width, height } = pngSize(ICON_ART);
-  const scale = CAT_SPAN / Math.max(width, height);
+const catIcon = async () => {
+  const { width, height, hasAlpha } = await sharp(ICON_ART).metadata();
+  if (!hasAlpha)
+    throw new Error(`make-icons: ${ICON_ART} has no transparent background.`);
+  /* The cat, its rim, edge and block all inside the square, with a clear margin. */
+  const room = ICON_SIZE - 2 * (OUTER + MARGIN) - BLOCK_DEPTH;
+  const scale = room / Math.max(width, height);
   const w = width * scale;
   const h = height * scale;
-  const x = (ICON_SIZE - BLOCK_DEPTH - w) / 2;
-  const y = (ICON_SIZE - BLOCK_DEPTH - h) / 2;
+  const x = OUTER + MARGIN + (room - w) / 2;
+  const y = OUTER + MARGIN + (room - h) / 2;
   const href = `data:image/png;base64,${readFileSync(ICON_ART).toString('base64')}`;
   const edge = RIM_WIDTH + EDGE_WIDTH;
   const steps = Array.from({ length: BLOCK_STEPS }, (_, i) => {
@@ -73,17 +79,7 @@ const catIcon = () => {
   );
 };
 
-/** Width and height from a PNG's IHDR chunk. */
-function pngSize(file) {
-  const bytes = readFileSync(file);
-  const IHDR_WIDTH = 16;
-  return {
-    width: bytes.readUInt32BE(IHDR_WIDTH),
-    height: bytes.readUInt32BE(IHDR_WIDTH + 4),
-  };
-}
-
-const icon = catIcon();
+const icon = await catIcon();
 
 const browser = await chromium.launch();
 
@@ -99,7 +95,7 @@ const render = async (markup, size, file, { ground, span = 1 } = {}) => {
       '</body></html>',
   );
   const png = await page.screenshot({ omitBackground: !ground });
-  if (file) writeFileSync(file, png);
+  writeFileSync(file, png);
   await page.close();
   return png;
 };
@@ -140,11 +136,6 @@ try {
   }
   writeFileSync('public/favicon.ico', ico(frames));
   await render(icon, 96, 'public/favicon-96x96.png');
-  const embed = await render(icon, SVG_FAVICON_PX, null);
-  writeFileSync(
-    'public/favicon.svg',
-    `${svg(`0 0 ${ICON_SIZE} ${ICON_SIZE}`, `<image width="${ICON_SIZE}" height="${ICON_SIZE}" href="data:image/png;base64,${embed.toString('base64')}"/>`)}\n`,
-  );
 
   await render(icon, 180, 'public/apple-touch-icon.png', {
     ground: GROUND,
