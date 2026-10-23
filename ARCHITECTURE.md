@@ -534,10 +534,10 @@ in `wrangler.jsonc`).
 ### The favicon set
 
 All written by `npm run icons` (`scripts/make-icons.mjs`) from
-`artwork/cats/minerva-walk.png`, a Canva AI drawing, in Chromium with the
-color tokens.
+`artwork/cats/minerva-head.png`, her head cut from the Canva AI drawing
+`artwork/cats/minerva-sit.png`, in Chromium with the color tokens.
 
-- Tab icons (`favicon.*`, `artwork/favicon-*`): Minerva walking as a die-cut
+- Tab icons (`favicon.*`, `artwork/favicon-*`): Minerva's head as a die-cut
   sticker: white rim, ink edge and a pink block behind her, on a transparent
   ground. The ink edge holds 3:1 on a light tab strip and the white rim on a
   dark one (`tests/brand-mark.spec.ts`). Each is scaled down from one 512px
