@@ -540,8 +540,9 @@ color tokens.
 - Tab icons (`favicon.*`, `artwork/favicon-*`): Minerva walking as a die-cut
   sticker: white rim, ink edge and a pink block behind her, on a transparent
   ground. The ink edge holds 3:1 on a light tab strip and the white rim on a
-  dark one (`tests/brand-mark.spec.ts`). No SVG favicon: browsers would
-  scale one render down instead of using the frames drawn at 16, 32 and 48.
+  dark one (`tests/brand-mark.spec.ts`). Each is scaled down from one 512px
+  render with a clear 1px border. No SVG favicon: at tab size Chromium rounds
+  the die-cut filter radii to whole px and clips the sticker.
 - App icons (`apple-touch-icon`, `android-chrome-*`, `maskable-icon`): the same
   sticker on a full-bleed `background` square, the manifest's color.
 

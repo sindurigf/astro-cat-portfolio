@@ -8,6 +8,8 @@
  */
 
 import { readFileSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { chromium } from '@playwright/test';
 import sharp from 'sharp';
 import { cssColorToken } from '../src/lib/css-token.ts';
@@ -34,6 +36,10 @@ const OUTER = RIM_WIDTH + 2 * EDGE_WIDTH;
 /** Share of a full-bleed app icon the cat spans; maskable stays inside the 80% safe circle. */
 const APP_SPAN = 0.8;
 const MASKABLE_SPAN = 0.6;
+/* Tab icons are scaled down from one large render: Chromium rounds filter radii to whole px, which clips a small render. */
+const TAB_MASTER = 512;
+/* Clear px kept round each tab icon; the 64-unit MARGIN is under 1px at 16px. */
+const TAB_BORDER = 1;
 
 const svg = (viewBox, inner) =>
   `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${viewBox}">${inner}</svg>`;
@@ -129,13 +135,31 @@ try {
     `${svg(`0 0 ${MARK_SIZE} ${MARK_SIZE}`, markMarkup(paint, { id: 'logo' }))}\n`,
   );
 
+  const master = await render(
+    icon,
+    TAB_MASTER,
+    join(tmpdir(), 'make-icons-master.png'),
+  );
+  const tab = (size) =>
+    sharp(master)
+      .resize(size - 2 * TAB_BORDER, size - 2 * TAB_BORDER)
+      .extend({
+        top: TAB_BORDER,
+        bottom: TAB_BORDER,
+        left: TAB_BORDER,
+        right: TAB_BORDER,
+        background: { r: 0, g: 0, b: 0, alpha: 0 },
+      })
+      .png()
+      .toBuffer();
   const frames = [];
   for (const size of [16, 32, 48]) {
-    const png = await render(icon, size, `artwork/favicon-${size}x${size}.png`);
+    const png = await tab(size);
+    writeFileSync(`artwork/favicon-${size}x${size}.png`, png);
     frames.push({ size, png });
   }
   writeFileSync('public/favicon.ico', ico(frames));
-  await render(icon, 96, 'public/favicon-96x96.png');
+  writeFileSync('public/favicon-96x96.png', await tab(96));
 
   await render(icon, 180, 'public/apple-touch-icon.png', {
     ground: GROUND,
