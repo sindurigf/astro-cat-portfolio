@@ -37,9 +37,9 @@ const MASKABLE_SPAN = 0.6;
 const TAB_MASTER = 512;
 /* Clear px kept round each tab icon; the 64-unit MARGIN is under 1px at 16px. */
 const TAB_BORDER = 1;
-/* The block is swept in steps of 1px of the 512px render, so no step shows. */
 /* The block starts this many units behind the edge, so none of it shows past the cat's near side. */
 const BLOCK_FROM = 1;
+/* The block is swept in steps of 1px of the 512px render, so no step shows. */
 const BLOCK_STEPS = Math.ceil((BLOCK_DEPTH * TAB_MASTER) / ICON_SIZE);
 
 const svg = (viewBox, inner) =>
