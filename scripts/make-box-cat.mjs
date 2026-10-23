@@ -53,7 +53,7 @@ const SPOTS = [
     h: 104,
     /* Footer.astro MASCOT_SIZE, drawn at most at its own size. */
     drawn: 1,
-    cat: { art: 'artwork/cats/hela-sit.png', h: 70, y: 4 },
+    cat: { art: 'artwork/cats/hela-sit.png', h: 65, y: 9 },
     box: { x: 11, y: 56, w: 98, h: 42, throwBy: 5, edge: 4 },
   },
 ];
