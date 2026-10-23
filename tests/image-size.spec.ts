@@ -51,7 +51,11 @@ const measureImages = (page: Page) =>
         /<image\b[^>]*width="([\d.]+)" height="([\d.]+)" href="(data:[^"]+)"/.exec(
           text,
         );
-      if (!box || !picture) return null;
+      if (!/<image\b[^>]*href="data:/.test(text)) return null;
+      if (!box || !picture)
+        throw new Error(
+          `${img.currentSrc} holds a picture this check cannot read; update embedded() for its format.`,
+        );
       const file = await filePixels(picture[3]);
       return {
         src: `${img.currentSrc} (its picture)`,
