@@ -23,16 +23,16 @@ AI-drawn art, by Claude or Canva AI:
   (`src/lib/hero-field-poneglyph.ts`), and its stills shown without JavaScript
   (`src/assets/hero-still-*.webp`).
 - The box cat: an open cardboard box (`src/lib/box-cat.ts`, by Claude) with a
-  cat sitting in it, drawn by Canva AI (`artwork/cats/*.png`) and set in the
-  box by `scripts/make-box-cat.mjs`:
+  cat sitting in it, drawn by Canva AI (`artwork/cats/*-sit.png`) and set in
+  the box by `scripts/make-box-cat.mjs`:
   - Minerva in the header logo and the 404 page (`src/assets/box-cat-logo.svg`).
   - Rudra in every roundel (`src/assets/box-cat-roundel.svg`).
   - Hela on the footer motto band (`src/assets/box-cat-footer.svg`).
 - The logo cat, a calico head shaped like the logo tile (`src/lib/brand-mark.ts`,
   `src/assets/logo-cat.svg`), on `/about`.
 - The favicons and app icons in `public/` and their frames in `artwork/`:
-  Minerva walking, drawn by Canva AI (`artwork/cats/minerva-walk.png`) and set
-  as a die-cut sticker by `scripts/make-icons.mjs`.
+  Minerva's head (`artwork/cats/minerva-head.png`), cut from her Canva AI
+  drawing (`artwork/cats/minerva-sit.png`) and set as a die-cut sticker by `scripts/make-icons.mjs`.
 - The sharing images, `public/images/og-default.png` and
   `public/images/og/*.jpg`, drawn by
   `scripts/make-og.mjs` with the logo cat.

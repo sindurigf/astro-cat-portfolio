@@ -8,8 +8,6 @@
  */
 
 import { readFileSync, writeFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
-import { join } from 'node:path';
 import { chromium } from '@playwright/test';
 import sharp from 'sharp';
 import { cssColorToken } from '../src/lib/css-token.ts';
@@ -23,11 +21,11 @@ const BLOCK = paint('mark');
 
 /* The icon cat, a Canva AI drawing cut out of its background. */
 // TODO(fork): Your cat's cut-out, transparent background.
-const ICON_ART = 'artwork/cats/minerva-walk.png';
+const ICON_ART = 'artwork/cats/minerva-head.png';
 /* Units of the 64-unit icon square: the die-cut layers and the clear margin past them. */
 const ICON_SIZE = 64;
 const RIM_WIDTH = 2.4;
-const EDGE_WIDTH = 1.4;
+const EDGE_WIDTH = 2;
 const BLOCK_DEPTH = 4;
 const BLOCK_STEPS = 4;
 const MARGIN = 1;
@@ -89,7 +87,7 @@ const icon = await catIcon();
 
 const browser = await chromium.launch();
 
-/** `markup` drawn `span` of a `size` square on `ground`, or on transparency. */
+/** `markup` drawn `span` of a `size` square on `ground`, or on transparency; written to `file` when one is given. */
 const render = async (markup, size, file, { ground, span = 1 } = {}) => {
   const page = await browser.newPage({
     viewport: { width: size, height: size },
@@ -101,7 +99,7 @@ const render = async (markup, size, file, { ground, span = 1 } = {}) => {
       '</body></html>',
   );
   const png = await page.screenshot({ omitBackground: !ground });
-  writeFileSync(file, png);
+  if (file) writeFileSync(file, png);
   await page.close();
   return png;
 };
@@ -135,11 +133,7 @@ try {
     `${svg(`0 0 ${MARK_SIZE} ${MARK_SIZE}`, markMarkup(paint, { id: 'logo' }))}\n`,
   );
 
-  const master = await render(
-    icon,
-    TAB_MASTER,
-    join(tmpdir(), 'make-icons-master.png'),
-  );
+  const master = await render(icon, TAB_MASTER, null);
   const tab = (size) =>
     sharp(master)
       .resize(size - 2 * TAB_BORDER, size - 2 * TAB_BORDER)

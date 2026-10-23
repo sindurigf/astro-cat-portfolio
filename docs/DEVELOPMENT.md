@@ -75,7 +75,7 @@ What happens without the `CONTACT_NOTIFY_TO` secret:
 | `npm run publish:talk`        | Print a talk's slideshow to its tagged PDF in `public/talks/`                                                                                         |
 | `npm run og`                  | After a build, render `public/images/og-default.png` and every page's card in `public/images/og/`                                                     |
 | `npm run hero-still`          | After a build, redraws the hero stills in `src/assets/hero-still-*.webp` shown without JavaScript                                                     |
-| `npm run icons`               | Render `src/assets/logo-cat.svg` from `src/lib/brand-mark.ts`, and the favicons and app icons from `artwork/cats/minerva-walk.png`                    |
+| `npm run icons`               | Render `src/assets/logo-cat.svg` from `src/lib/brand-mark.ts`, and the favicons and app icons from `artwork/cats/minerva-head.png`                    |
 | `npm run box-cat`             | Render the box cat logo, roundel and footer mascot SVGs in `src/assets/` from `src/lib/box-cat.ts` and the cut-outs in `artwork/cats/`                |
 
 ### WebKit
