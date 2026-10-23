@@ -458,9 +458,9 @@ in `wrangler.jsonc`).
   a page's first photo, the name or the tagline, and commit `public/images/`.
   Not part of `npm run build`: the Cloudflare build has no Chromium.
 - `src/lib/brand-mark.ts`: the logo cat, an eared tile in Hela's calico with
-  happy eyes; the source for `npm run icons` (which writes `logo-cat.svg` for
-  the `/about` tile in `CatMark.astro`, the favicons and the app icons) and
-  `npm run og`.
+  happy eyes; the source for `logo-cat.svg` (written by `npm run icons`, for
+  the `/about` tile in `CatMark.astro`) and `npm run og`. The favicons and
+  app icons come from a cut-out cat, [the favicon set](#the-favicon-set).
 - `src/lib/box-cat.ts`: the box cat's cardboard box (`cat-cardboard`, ink edge,
   pink throw, flaps). `npm run box-cat`
   (`scripts/make-box-cat.mjs`) sets a cut-out cat from `artwork/cats/` in it,
@@ -534,24 +534,25 @@ in `wrangler.jsonc`).
 ### The favicon set
 
 All written by `npm run icons` (`scripts/make-icons.mjs`) from
-`src/lib/brand-mark.ts`, in Chromium with the color tokens.
+`artwork/cats/minerva-walk.png`, a Canva AI drawing, in Chromium with the
+color tokens.
 
-- Tab icons (`favicon.*`, `artwork/favicon-*`): the cat's head, coat, orange
-  patch and bold happy eyes, blue edge and an ink rim, on a transparent
-  ground. The blue edge is 2.93:1 on Chrome's light tab strip; the rim is
-  14.17:1 there (`tests/brand-mark.spec.ts`).
-- App icons (`apple-touch-icon`, `android-chrome-*`, `maskable-icon`): the full
-  cat with its pink shadow on a full-bleed `background` square, the
-  manifest's color.
+- Tab icons (`favicon.*`, `artwork/favicon-*`): Minerva walking as a die-cut
+  sticker: white rim, ink edge and a pink block behind her, on a transparent
+  ground. The ink edge holds 3:1 on a light tab strip and the white rim on a
+  dark one (`tests/brand-mark.spec.ts`). Each is scaled down from one 512px
+  render with a clear 1px border. No SVG favicon: at tab size Chromium rounds
+  the die-cut filter radii to whole px and clips the sticker.
+- App icons (`apple-touch-icon`, `android-chrome-*`, `maskable-icon`): the same
+  sticker on a full-bleed `background` square, the manifest's color.
 
 | Path                                | Size         | Notes                                             |
 | ----------------------------------- | ------------ | ------------------------------------------------- |
-| `public/favicon.svg`                | vector       | Primary icon for modern browsers                  |
 | `public/favicon.ico`                | 16 / 32 / 48 | Legacy fallback, three PNG frames                 |
 | `artwork/favicon-16x16.png`         | 16           | `favicon.ico` frame                               |
 | `artwork/favicon-32x32.png`         | 32           | `favicon.ico` frame                               |
 | `artwork/favicon-48x48.png`         | 48           | `favicon.ico` frame                               |
-| `public/favicon-96x96.png`          | 96           | The full face with the rim, linked from the head  |
+| `public/favicon-96x96.png`          | 96           | The sticker, linked from the head                 |
 | `public/apple-touch-icon.png`       | 180          | Full-bleed; iOS rounds it, do not pre-round       |
 | `public/android-chrome-192x192.png` | 192          | PWA icon, from the manifest                       |
 | `public/android-chrome-512x512.png` | 512          | PWA icon, from the manifest                       |

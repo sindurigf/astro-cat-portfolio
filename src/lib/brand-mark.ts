@@ -1,7 +1,7 @@
 /**
  * The logo cat: an eared tile drawn as a calico cat with happy eyes. One source
- * for the About tile, the favicons and the app icons (scripts/make-icons.mjs)
- * and the share cards (scripts/make-og.mjs). Units are a 64-unit square; the tile body
+ * for the About tile (scripts/make-icons.mjs) and the share cards
+ * (scripts/make-og.mjs). Units are a 64-unit square; the tile body
  * spans 4 to 60, so a tile `n` px wide draws the square at `n * 64 / 56`.
  */
 
@@ -23,50 +23,29 @@ const EAR_RIGHT = 'M54 15.5V12.5Q54 10.5 52 11.6L45 16Q50 18 54 20Z';
 const PATCH_ORANGE = 'M0 0H31Q34 14 28 24Q20 31 0 31Z';
 const PATCH_BLACK = 'M49 16Q58 14 64 20V40Q55 43 50 36Q46 26 49 16Z';
 const HAPPY_EYES = 'M17.5 37L22 32L26.5 37M37.5 37L42 32L46.5 37';
-const SMALL_EYES = 'M14 40L21 31L28 40M36 40L43 31L50 40';
 const NOSE =
   'M28.5 43.5H35.5Q37 43.5 36 45L33.2 48Q32 49.2 30.8 48L28 45Q27 43.5 28.5 43.5Z';
 const WHISKERS = 'M16 45.5L8.5 44M16 50L9 51M48 45.5L55.5 44M48 50L55 51';
 
 const EYE_WIDTH = 3.6;
-const SMALL_EYE_WIDTH = 6.5;
 const WHISKER_WIDTH = 1.7;
-/** Ink outside the blue edge on small icons: the edge is 2.93:1 on a light tab strip. */
-const RIM_WIDTH = 3;
 
 interface MarkOptions {
-  /** The orange patch and bold eyes only: the 16 to 48px tab icons. */
-  small?: boolean;
-  /** An ink rim outside the blue edge, for icons on unknown grounds. */
-  rim?: boolean;
   /** A unique suffix for the clip path id, one per mark on a page. */
   id: string;
 }
 
 /** The mark's inner SVG markup, in a 0 0 64 64 viewBox. */
-export const markMarkup = (
-  paint: Paint,
-  { small = false, rim: withRim = small, id }: MarkOptions,
-): string => {
+export const markMarkup = (paint: Paint, { id }: MarkOptions): string => {
   const clip = `cat-mark-clip-${id}`;
-  const rim = withRim
-    ? `<path d="${MARK_HEAD}" fill="none" stroke="${paint('gold-text')}" stroke-width="${MARK_EDGE + 2 * RIM_WIDTH}" stroke-linejoin="round"/>`
-    : '';
-  const ears = small
-    ? ''
-    : `<path d="${EAR_LEFT}" fill="${paint('cat-cardboard')}"/><path d="${EAR_RIGHT}" fill="${paint('cat-hela-far')}"/>`;
-  /* At tab size the black patch runs into the right eye. */
-  const blackPatch = small
-    ? ''
-    : `<path d="${PATCH_BLACK}" fill="${paint('cat-hela-black')}"/>`;
-  const face = small
-    ? `<path d="${SMALL_EYES}" fill="none" stroke="${paint('gold-text')}" stroke-width="${SMALL_EYE_WIDTH}" stroke-linecap="round" stroke-linejoin="round"/>`
-    : `<path d="${HAPPY_EYES}" fill="none" stroke="${paint('gold-text')}" stroke-width="${EYE_WIDTH}" stroke-linecap="round" stroke-linejoin="round"/>` +
-      `<path d="${NOSE}" fill="${paint('mark')}"/>` +
-      `<path d="${WHISKERS}" fill="none" stroke="${paint('gold-text')}" stroke-width="${WHISKER_WIDTH}" stroke-linecap="round"/>`;
+  const ears = `<path d="${EAR_LEFT}" fill="${paint('cat-cardboard')}"/><path d="${EAR_RIGHT}" fill="${paint('cat-hela-far')}"/>`;
+  const blackPatch = `<path d="${PATCH_BLACK}" fill="${paint('cat-hela-black')}"/>`;
+  const face =
+    `<path d="${HAPPY_EYES}" fill="none" stroke="${paint('gold-text')}" stroke-width="${EYE_WIDTH}" stroke-linecap="round" stroke-linejoin="round"/>` +
+    `<path d="${NOSE}" fill="${paint('mark')}"/>` +
+    `<path d="${WHISKERS}" fill="none" stroke="${paint('gold-text')}" stroke-width="${WHISKER_WIDTH}" stroke-linecap="round"/>`;
   return (
     `<defs><clipPath id="${clip}"><path d="${MARK_HEAD}"/></clipPath></defs>` +
-    rim +
     `<path d="${MARK_HEAD}" fill="${paint('cat-hela')}"/>` +
     `<g clip-path="url(#${clip})"><path d="${PATCH_ORANGE}" fill="${paint('cat-hela-orange')}"/>${blackPatch}</g>` +
     ears +
