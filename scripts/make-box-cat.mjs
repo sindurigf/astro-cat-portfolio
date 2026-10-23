@@ -8,7 +8,7 @@
  *   npm run box-cat
  */
 
-import { writeFileSync } from 'node:fs';
+import { existsSync, writeFileSync } from 'node:fs';
 import sharp from 'sharp';
 import { cssColorToken } from '../src/lib/css-token.ts';
 import { boxFlaps, boxFront } from '../src/lib/box-cat.ts';
@@ -16,11 +16,14 @@ import { boxFlaps, boxFront } from '../src/lib/box-cat.ts';
 const paint = (token) => cssColorToken(`--color-${token}`);
 /* The die-cut rim around the cat, in px of each file. */
 const RIM = 1.6;
-/* Pixels per px of the file the cat is embedded at, for sharp 3x screens. */
+/* Pixels per px of the file the cat is embedded at: 3 where the art allows, never upscaled. */
 const DENSITY = 3;
+/* Below this the cat blurs on a 2x screen; the art needs redrawing larger. */
+const MIN_DENSITY = 2;
 const WEBP_QUALITY = 90;
 
 /** Every file: its size in px, the cat and its height, and the box front over it. */
+// TODO(fork): Your cats' cut-outs in artwork/cats/, one per spot.
 const SPOTS = [
   {
     file: 'src/assets/box-cat-logo.svg',
@@ -47,16 +50,30 @@ const SPOTS = [
 
 const rimFilter = `<filter id="rim" x="-20%" y="-20%" width="140%" height="140%"><feMorphology in="SourceAlpha" operator="dilate" radius="${RIM}" result="rim"/><feFlood flood-color="${paint('light-ground')}"/><feComposite in2="rim" operator="in"/><feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge></filter>`;
 
+/** Fails before writing anything if a cut-out is missing, opaque or too small for its spot. */
+async function checkArt({ art, h }) {
+  if (!existsSync(art)) throw new Error(`make-box-cat: ${art} is missing.`);
+  const { height, hasAlpha } = await sharp(art).metadata();
+  if (!hasAlpha)
+    throw new Error(`make-box-cat: ${art} has no transparent background.`);
+  if (height < h * MIN_DENSITY)
+    throw new Error(
+      `make-box-cat: ${art} is ${height}px tall; its spot needs at least ${h * MIN_DENSITY}px.`,
+    );
+}
+
 /** The cut-out as a WebP data URL, sized for its spot, and its width in px. */
 async function catImage({ art, h }) {
   const { width, height } = await sharp(art).metadata();
   const w = (h * width) / height;
   const data = await sharp(art)
-    .resize({ height: Math.round(h * DENSITY) })
+    .resize({ height: Math.round(h * DENSITY), withoutEnlargement: true })
     .webp({ quality: WEBP_QUALITY, alphaQuality: 100 })
     .toBuffer();
   return { w, href: `data:image/webp;base64,${data.toString('base64')}` };
 }
+
+for (const spot of SPOTS) await checkArt(spot.cat);
 
 for (const spot of SPOTS) {
   const { w, href } = await catImage(spot.cat);

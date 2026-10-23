@@ -19,10 +19,10 @@ const ROUNDING_PX = 1;
 // TODO(fork): Name your own talk here, or remove it once your talk shows a picture.
 const NO_IMAGE_ROUTES: Readonly<Record<string, string>> = {
   '/talks/sample-talk':
-    'the sample deck is text slides; the logo is a vector image, which the size check skips',
+    'the sample deck is text slides; the logo is an SVG, which the size check skips',
 };
 
-/** `<img>` tags in built HTML that are not vector files, which the size check skips. */
+/** `<img>` tags in built HTML that are not SVG files, which the size check skips. */
 const rasterImages = (html: string): number =>
   (html.match(/<img\b[^>]*>/g) ?? []).filter(
     (tag) => !/\bsrc="[^"]+\.svg"/.test(tag),
@@ -48,7 +48,7 @@ const measureImages = (page: Page) =>
       await probe.decode();
       return { width: probe.naturalWidth, height: probe.naturalHeight };
     };
-    /* A vector file is honest at any size. */
+    /* An SVG sets its own resolution; scripts/make-box-cat.mjs checks the pictures inside. */
     const drawn = all.filter(
       (img) =>
         img.offsetWidth > 0 &&

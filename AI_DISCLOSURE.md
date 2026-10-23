@@ -16,7 +16,7 @@ current once the site is yours.
 | Editorial | The sample persona's text: every page, every post, the talk and its slides                |
 | Art       | Drawn by Claude as SVG and canvas code, or by Canva AI; see below                         |
 
-AI-drawn art, all by Claude:
+AI-drawn art, by Claude or Canva AI:
 
 - The animated About cats, their sleep, wake and trick-list icons (`src/components/ui/AboutCats.vue`) and their trick icons (`src/lib/about-cats-tricks.json`).
 - The poneglyph and its lighting script in the homepage field
