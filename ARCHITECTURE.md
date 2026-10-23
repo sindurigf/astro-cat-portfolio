@@ -706,6 +706,10 @@ evidence.
 - **Keep `/brand` swatch colors in forced colors with `forced-color-adjust: none`:**
   `tests/forced-colors.spec.ts` holds the site rule that forced colors replaces
   every color; a swatch there is a bordered box.
+- **Allow `img-src data:` so a box cat SVG opened on its own shows its cat:**
+  the files are only ever drawn by an `<img>`, where the page's CSP does not
+  reach the picture inside; widening the CSP for a direct visit adds risk for
+  no reader.
 - **Delete the video byte-range pipeline as dead code:** the next
   published video would not play in Safari and iOS, which need `206`.
 - **Route `/llms.txt` through `getSortedPosts`:** it drops placeholder
