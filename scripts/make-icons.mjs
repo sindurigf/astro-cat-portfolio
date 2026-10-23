@@ -27,7 +27,6 @@ const ICON_SIZE = 64;
 const RIM_WIDTH = 2.4;
 const EDGE_WIDTH = 2;
 const BLOCK_DEPTH = 4;
-const BLOCK_STEPS = 4;
 const MARGIN = 1;
 /* How far the ink back edge reaches past the cat on every side. */
 const OUTER = RIM_WIDTH + 2 * EDGE_WIDTH;
@@ -38,6 +37,10 @@ const MASKABLE_SPAN = 0.6;
 const TAB_MASTER = 512;
 /* Clear px kept round each tab icon; the 64-unit MARGIN is under 1px at 16px. */
 const TAB_BORDER = 1;
+/* The block is swept in steps of 1px of the 512px render, so no step shows. */
+/* The block starts this many units behind the edge, so none of it shows past the cat's near side. */
+const BLOCK_FROM = 1;
+const BLOCK_STEPS = Math.ceil((BLOCK_DEPTH * TAB_MASTER) / ICON_SIZE);
 
 const svg = (viewBox, inner) =>
   `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${viewBox}">${inner}</svg>`;
@@ -60,17 +63,21 @@ const catIcon = async () => {
     const d = (BLOCK_DEPTH * (i + 1)) / BLOCK_STEPS;
     return `<feOffset in="edge" dx="${d}" dy="${d}" result="b${i}"/>`;
   }).join('');
-  const blockMerge = Array.from(
-    { length: BLOCK_STEPS },
-    (_, i) => `<feMergeNode in="b${i}"/>`,
-  ).join('');
+  const merge = (from) =>
+    Array.from({ length: BLOCK_STEPS }, (_, k) => k)
+      .filter((k) => (BLOCK_DEPTH * (k + 1)) / BLOCK_STEPS >= from)
+      .map((k) => `<feMergeNode in="b${k}"/>`)
+      .join('');
+  const blockMerge = merge(BLOCK_FROM);
+  /* The ink back edge outlines only the block's far side, so it adds nothing round the cat's own edge. */
+  const backMerge = merge(EDGE_WIDTH);
   const filter =
     `<filter id="cut" x="-30%" y="-30%" width="160%" height="160%" color-interpolation-filters="sRGB">` +
     `<feMorphology in="SourceAlpha" operator="dilate" radius="${RIM_WIDTH}" result="rim"/>` +
     `<feMorphology in="SourceAlpha" operator="dilate" radius="${edge}" result="edge"/>` +
-    `<feMorphology in="SourceAlpha" operator="dilate" radius="${edge + EDGE_WIDTH}"/>` +
-    `<feOffset dx="${BLOCK_DEPTH}" dy="${BLOCK_DEPTH}" result="back"/>` +
     `${steps}<feMerge result="block">${blockMerge}</feMerge>` +
+    `<feMerge result="far">${backMerge}</feMerge>` +
+    `<feMorphology in="far" operator="dilate" radius="${EDGE_WIDTH}" result="back"/>` +
     `<feFlood flood-color="${INK}"/><feComposite in2="back" operator="in" result="backInk"/>` +
     `<feFlood flood-color="${BLOCK}"/><feComposite in2="block" operator="in" result="blockPink"/>` +
     `<feFlood flood-color="${INK}"/><feComposite in2="edge" operator="in" result="edgeInk"/>` +
