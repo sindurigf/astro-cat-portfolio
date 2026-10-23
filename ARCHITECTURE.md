@@ -463,14 +463,14 @@ in `wrangler.jsonc`).
   `npm run og`.
 - `src/lib/box-cat.ts`: the box cat's cardboard box (`cat-cardboard`, ink edge,
   pink throw, flaps). `npm run box-cat`
-  (`scripts/make-box-cat.mjs`) sets an About cat from `src/lib/about-cats-rig.ts`
-  in it, with a white die-cut rim, and writes:
+  (`scripts/make-box-cat.mjs`) sets a cut-out cat from `artwork/cats/` in it,
+  with a white die-cut rim, and writes:
 
-| Path                             | Cat   | Used by                                        |
-| -------------------------------- | ----- | ---------------------------------------------- |
-| `src/assets/box-cat-logo.svg`    | Hela  | `Header.astro` logo, `404.astro` guide (84x96) |
-| `src/assets/box-cat-roundel.svg` | Rudra | `Roundel.astro`, 112x112                       |
-| `src/assets/box-cat-footer.svg`  | Hela  | `Footer.astro` mascot on the motto band        |
+| Path                             | Cat     | Used by                                        |
+| -------------------------------- | ------- | ---------------------------------------------- |
+| `src/assets/box-cat-logo.svg`    | Minerva | `Header.astro` logo, `404.astro` guide (84x96) |
+| `src/assets/box-cat-roundel.svg` | Rudra   | `Roundel.astro`, 112x112                       |
+| `src/assets/box-cat-footer.svg`  | Hela    | `Footer.astro` mascot on the motto band        |
 
 - The marks, icons, sharing image and hero poneglyph are drawn by AI
   ([AI_DISCLOSURE.md](AI_DISCLOSURE.md)).

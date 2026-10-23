@@ -549,7 +549,7 @@ with a comment beside it.
   shape, with rounded ears and corners, its 4px `tile-edge` edge and 3deg tilt
   (`src/lib/brand-mark.ts`, `CatMark.astro`). It is a mark, not a radius: the
   rule above does not apply to it, and its shadow is a `drop-shadow-*`.
-- The header's logo tile holds the box cat: Hela sitting in an open cardboard
+- The header's logo tile holds the box cat: Minerva sitting in an open cardboard
   box (`src/assets/box-cat-logo.svg`), tilted 3deg, its `mark` shadow a drop
   shadow that follows the box and the cat.
 

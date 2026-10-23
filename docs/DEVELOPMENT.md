@@ -76,7 +76,7 @@ What happens without the `CONTACT_NOTIFY_TO` secret:
 | `npm run og`                  | After a build, render `public/images/og-default.png` and every page's card in `public/images/og/`                                                     |
 | `npm run hero-still`          | After a build, redraws the hero stills in `src/assets/hero-still-*.webp` shown without JavaScript                                                     |
 | `npm run icons`               | Render the favicons, app icons and `src/assets/logo-cat.svg` from `src/lib/brand-mark.ts`                                                             |
-| `npm run box-cat`             | Render the box cat logo, roundel and footer mascot SVGs in `src/assets/` from `src/lib/box-cat.ts` and the About cats' rig                            |
+| `npm run box-cat`             | Render the box cat logo, roundel and footer mascot SVGs in `src/assets/` from `src/lib/box-cat.ts` and the cut-outs in `artwork/cats/`                |
 
 ### WebKit
 
@@ -315,7 +315,8 @@ and [the favicon set](../ARCHITECTURE.md#the-favicon-set).
 
 1. Redraw the box in `src/lib/box-cat.ts` (the box and its flaps) and the logo cat in `src/lib/brand-mark.ts` (the head path, patches,
    ears and face, in a 64-unit square), painted only with color tokens. The
-   cat in each box file is set in `SPOTS` in `scripts/make-box-cat.mjs`.
+   cat in each box file is a cut-out PNG in `artwork/cats/`, placed in `SPOTS`
+   in `scripts/make-box-cat.mjs`.
 2. Run `npm run box-cat`. It writes `src/assets/box-cat-logo.svg` for the
    header and the 404 page, `box-cat-roundel.svg` for the roundels and
    `box-cat-footer.svg` for the footer mascot.
