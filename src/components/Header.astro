@@ -20,7 +20,7 @@ const [wordmarkHead, wordmarkTail] =
     ? [SITE_NAME, undefined]
     : [SITE_NAME.slice(0, dot + 1), SITE_NAME.slice(dot + 1)];
 
-/* The logo file's 56:64 at 48px tall: the ring around the link stays on the bar (tests/header-bricks.spec.ts). */
+/* 48px tall keeps the link's ring on the bar; the 44px-wide tile keeps its target (SC 2.5.5). */
 const LOGO_SIZE = { width: 42, height: 48 } as const;
 
 const currentPath = Astro.url.pathname;
@@ -46,7 +46,7 @@ const current = (href: string) => ariaCurrent(currentPath, href);
       aria-current={current(HOME_HREF)}
       class="logo-link flex min-w-0 items-center gap-4 max-xs:gap-2 lg:justify-self-start"
     >
-      <span class="logo-tile flex shrink-0 rotate-3">
+      <span class="logo-tile flex w-11 shrink-0 justify-center rotate-3">
         {/* alt="": the link's aria-label names it. */}
         <img
           src={boxCatLogo}
