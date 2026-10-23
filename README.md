@@ -122,6 +122,9 @@ The drawings are code; the cards show a photo.
   `tests/failed-images.spec.ts` and `tests/analytics.spec.ts`. The About
   tests fail until these match the page.
 - The contact page's list of topics names the cats: `src/pages/contact.astro`.
+- The box cats in the logo, roundels and footer are pictures of the sample
+  cats: replace `artwork/cats/*.png` with cut-outs of yours (transparent
+  background) and run `npm run box-cat`.
 - The drawings stay AI-made: keep their lines in `AI_DISCLOSURE.md` and on
   `/credits`.
 

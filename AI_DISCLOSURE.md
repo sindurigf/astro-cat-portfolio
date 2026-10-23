@@ -14,19 +14,22 @@ current once the site is yours.
 | Code      | Components, scripts, design tokens, tests and docs, written with Claude Code and reviewed |
 | Microcopy | Functional microcopy (labels, errors, alt text, empty states) and the policy pages        |
 | Editorial | The sample persona's text: every page, every post, the talk and its slides                |
-| Art       | Drawn by Claude as SVG and canvas code, rendered in Chromium; see below                   |
+| Art       | Drawn by Claude as SVG and canvas code, or by Canva AI; see below                         |
 
-AI-drawn art, all by Claude:
+AI-drawn art, by Claude or Canva AI:
 
 - The animated About cats, their sleep, wake and trick-list icons (`src/components/ui/AboutCats.vue`) and their trick icons (`src/lib/about-cats-tricks.json`).
 - The poneglyph and its lighting script in the homepage field
   (`src/lib/hero-field-poneglyph.ts`), and its stills shown without JavaScript
   (`src/assets/hero-still-*.webp`).
-- The logo cat, a calico head shaped like the logo tile (`src/lib/brand-mark.ts`),
-  shown in the header, on `/about`, on the 404 page and peeking over the
-  footer, and its
-  one-color form in the roundels (`src/assets/mark-dark.png`,
-  `artwork/mark-dark.svg`).
+- The box cat: an open cardboard box (`src/lib/box-cat.ts`, by Claude) with a
+  cat sitting in it, drawn by Canva AI (`artwork/cats/*.png`) and set in the
+  box by `scripts/make-box-cat.mjs`:
+  - Minerva in the header logo and the 404 page (`src/assets/box-cat-logo.svg`).
+  - Rudra in every roundel (`src/assets/box-cat-roundel.svg`).
+  - Hela on the footer motto band (`src/assets/box-cat-footer.svg`).
+- The logo cat, a calico head shaped like the logo tile (`src/lib/brand-mark.ts`,
+  `src/assets/logo-cat.svg`), on `/about`.
 - The favicons and app icons in `public/` and their frames in `artwork/`, drawn
   by `scripts/make-icons.mjs` from the logo cat.
 - The sharing images, `public/images/og-default.png` and

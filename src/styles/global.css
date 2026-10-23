@@ -601,7 +601,6 @@
    * tests/page-hero.spec.ts fails if it covers any text.
    */
   --spacing-roundel: clamp(3.5rem, 16vw - 3.5rem, 8rem);
-  --spacing-roundel-mark: clamp(1.75rem, 8vw - 1.75rem, 4rem);
   /* Heading to content, and content to the actions under it. */
   --spacing-head: clamp(32px, 4vw, 48px);
   /*

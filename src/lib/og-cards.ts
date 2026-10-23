@@ -42,8 +42,8 @@ export interface FirstPhoto {
 
 const MAIN = /<main\b[\s\S]*?<\/main>/;
 const IMG = /<img\b[^>]*>/g;
-/* The logo cat and its one-color roundel form are the logo, never a page's photo. */
-const LOGO_ART = /\/(?:logo-cat|mark-dark)\./;
+/* The logo cat and the box cat are the logo, never a page's photo. */
+const LOGO_ART = /\/(?:logo-cat|box-cat-\w+)\./;
 
 /** The entities Astro writes into attributes, decoded. */
 export const decodeEntities = (text: string): string =>

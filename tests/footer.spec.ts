@@ -159,7 +159,9 @@ for (const width of WIDTHS) {
       page,
     }) => {
       const m = await page.evaluate(() => {
-        const mascot = document.querySelector('.footer-mascot') as SVGElement;
+        const mascot = document.querySelector(
+          '.footer-mascot',
+        ) as HTMLImageElement;
         const box = mascot.getBoundingClientRect();
         const overlapping = [
           ...document.querySelectorAll('footer a, .footer-copyright'),
@@ -175,13 +177,13 @@ for (const width of WIDTHS) {
           })
           .map((el) => el.textContent?.trim() || el.outerHTML.slice(0, 60));
         return {
-          hidden: mascot.getAttribute('aria-hidden'),
+          alt: mascot.getAttribute('alt'),
           focusable: mascot.querySelectorAll('[tabindex], a').length,
           overlapping,
         };
       });
 
-      expect(m.hidden, '.footer-mascot must be aria-hidden').toBe('true');
+      expect(m.alt, '.footer-mascot must have an empty alt').toBe('');
       expect(m.focusable, 'something focusable inside the mascot').toBe(0);
       expect(m.overlapping, 'text the mascot is drawn over').toEqual([]);
     });

@@ -16,11 +16,8 @@ const OVERSIZE_LIMIT = 1.5;
 const ROUNDING_PX = 1;
 
 /** Routes that draw no `<img>`, each with why; any other route must draw one, so the check cannot pass on nothing. */
-// TODO(fork): Name your own talk here, or remove it once your talk shows a picture.
-const NO_IMAGE_ROUTES: Readonly<Record<string, string>> = {
-  '/talks/sample-talk':
-    'the sample deck is text slides; the logo is a vector image, which the size check skips',
-};
+// TODO(fork): Name any route of yours that draws no image here, with why.
+const NO_IMAGE_ROUTES: Readonly<Record<string, string>> = {};
 
 const DIMENSIONS = [
   { drawn: 'width', natural: 'naturalWidth' },
@@ -42,27 +39,54 @@ const measureImages = (page: Page) =>
       await probe.decode();
       return { width: probe.naturalWidth, height: probe.naturalHeight };
     };
-    /* A vector file is honest at any size. */
+    /*
+     * An SVG with a picture inside (the box cats) is measured by that picture:
+     * its pixels against the size it is drawn at on the page. A pure vector
+     * SVG is honest at any size.
+     */
+    const embedded = async (img: HTMLImageElement) => {
+      const text = await (await fetch(img.currentSrc)).text();
+      const box = /viewBox="0 0 ([\d.]+) ([\d.]+)"/.exec(text);
+      const picture =
+        /<image\b[^>]*width="([\d.]+)" height="([\d.]+)" href="(data:[^"]+)"/.exec(
+          text,
+        );
+      if (!/<image\b[^>]*href="data:/.test(text)) return null;
+      if (!box || !picture)
+        throw new Error(
+          `${img.currentSrc} holds a picture this check cannot read; update embedded() for its format.`,
+        );
+      const file = await filePixels(picture[3]);
+      return {
+        src: `${img.currentSrc} (its picture)`,
+        embedded: true,
+        naturalWidth: file.width,
+        naturalHeight: file.height,
+        width: (img.offsetWidth * Number(picture[1])) / Number(box[1]),
+        height: (img.offsetHeight * Number(picture[2])) / Number(box[2]),
+      };
+    };
     const drawn = all.filter(
-      (img) =>
-        img.offsetWidth > 0 &&
-        img.offsetHeight > 0 &&
-        !new URL(img.currentSrc).pathname.endsWith('.svg'),
+      (img) => img.offsetWidth > 0 && img.offsetHeight > 0,
+    );
+    const measured = await Promise.all(
+      drawn.map(async (img) => {
+        if (new URL(img.currentSrc).pathname.endsWith('.svg'))
+          return embedded(img);
+        const file = await filePixels(img.currentSrc);
+        return {
+          src: img.currentSrc,
+          embedded: false,
+          naturalWidth: file.width,
+          naturalHeight: file.height,
+          width: img.offsetWidth,
+          height: img.offsetHeight,
+        };
+      }),
     );
     return {
       ratio: window.devicePixelRatio,
-      images: await Promise.all(
-        drawn.map(async (img) => {
-          const file = await filePixels(img.currentSrc);
-          return {
-            src: img.currentSrc,
-            naturalWidth: file.width,
-            naturalHeight: file.height,
-            width: img.offsetWidth,
-            height: img.offsetHeight,
-          };
-        }),
-      ),
+      images: measured.filter((image) => image !== null),
     };
   });
 
@@ -79,6 +103,9 @@ const expectServedAtDrawnSize = (image: MeasuredImage, ratio: number): void => {
     expect
       .soft(image[natural] + ROUNDING_PX, `${where}, so it is being stretched.`)
       .toBeGreaterThanOrEqual(image[drawn]);
+
+    /* A picture inside an SVG serves every screen from one file, sized by make-box-cat.mjs. */
+    if (image.embedded) continue;
 
     expect
       .soft(

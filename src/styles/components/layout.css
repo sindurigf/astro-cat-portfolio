@@ -101,7 +101,7 @@
 
   /*
    * Thin at the top only. The bottom stays --spacing-section, the only padding
-   * that clears the roundel (half the disc, its lift and 24px: 92px at 1280).
+   * that clears the roundel (half its box, its lift and 24px: 92px at 1280).
    */
   .page-hero-thin,
   .post-slab {
