@@ -8,12 +8,7 @@ import {
 } from '../lib/profiles';
 import { TALKS_PATH } from '../lib/paths';
 import { FIRST_PUBLISHED, MOTTO, REPOSITORY_URL, SITE_NAME } from '../lib/site';
-import {
-  MARK_HEAD,
-  MARK_SIZE,
-  markMarkup,
-  tokenPaint,
-} from '../lib/brand-mark';
+import boxCatFooter from '../assets/box-cat-footer.svg?url';
 /* Hashed under /_astro/ and cached once, instead of inline on every page. */
 import socialIcons from '../assets/social-icons.svg?url';
 /* `?worker&url`: a separate file, so no Vite preload helper, loaded by src under Trusted Types. */
@@ -49,8 +44,8 @@ const onDemand = !Astro.url.pathname.startsWith(TALKS_PATH);
 
 const copyright = `© ${FIRST_PUBLISHED} ${SITE_NAME}`;
 
-/** Mark units the sticker shadow drops, down and right. */
-const SHADOW = 3;
+/* The mascot file's size; the CSS draws it --size-footer-mascot wide. */
+const MASCOT_SIZE = { width: 120, height: 104 } as const;
 ---
 
 <footer class="page-gutter bg-background">
@@ -142,19 +137,15 @@ const SHADOW = 3;
     <div class="footer-name" lang={MOTTO.lang}>
       <span class="footer-name-text">
         {MOTTO.text}
-        <svg
+        <img
+          src={boxCatFooter}
+          alt=""
+          width={MASCOT_SIZE.width}
+          height={MASCOT_SIZE.height}
+          decoding="async"
+          loading="lazy"
           class="footer-mascot"
-          viewBox={`0 0 ${MARK_SIZE + SHADOW} ${MARK_SIZE + SHADOW}`}
-          aria-hidden="true"
-          focusable="false"
-        >
-          <path
-            class="mascot-shadow"
-            d={MARK_HEAD}
-            transform={`translate(${SHADOW} ${SHADOW})`}
-          ></path>
-          <g set:html={markMarkup(tokenPaint, { id: 'footer' })} />
-        </svg>
+        />
       </span>
     </div>
   </div>

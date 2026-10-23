@@ -1,7 +1,7 @@
 /**
- * The logo: an eared tile drawn as a calico cat with happy eyes. One source
- * for the header and About tiles, the footer head, the favicons and the app
- * icons (scripts/make-icons.mjs). Units are a 64-unit square; the tile body
+ * The logo cat: an eared tile drawn as a calico cat with happy eyes. One source
+ * for the About tile, the favicons and the app icons (scripts/make-icons.mjs)
+ * and the share cards (scripts/make-og.mjs). Units are a 64-unit square; the tile body
  * spans 4 to 60, so a tile `n` px wide draws the square at `n * 64 / 56`.
  */
 
@@ -75,21 +75,6 @@ export const markMarkup = (
   );
 };
 
-/** The head alone, filled: a hard shadow or a one-color mark. */
+/** The head alone, filled: its hard shadow. */
 export const markSilhouette = (fill: string): string =>
   `<path d="${MARK_HEAD}" fill="${fill}"/>`;
-
-/** The one-color mark: the head in `ink` with the happy eyes and nose cut out. */
-export const markOneColor = (ink: string, id: string): string => {
-  const mask = `cat-mark-cut-${id}`;
-  return (
-    `<defs><mask id="${mask}" maskUnits="userSpaceOnUse" x="0" y="0" width="${MARK_SIZE}" height="${MARK_SIZE}">` +
-    `<rect width="${MARK_SIZE}" height="${MARK_SIZE}" fill="white"/>` +
-    `<path d="${HAPPY_EYES}" fill="none" stroke="black" stroke-width="${EYE_WIDTH + 1}" stroke-linecap="round" stroke-linejoin="round"/>` +
-    `<path d="${NOSE}" fill="black"/></mask></defs>` +
-    `<path d="${MARK_HEAD}" fill="${ink}" mask="url(#${mask})"/>`
-  );
-};
-
-/** Paint from the CSS tokens, for markup the site renders. */
-export const tokenPaint: Paint = (token) => `var(--color-${token})`;

@@ -20,9 +20,16 @@ const TALKS = join(ROOT, 'src/content/talks');
  */
 const SERVED_AS_IS = new Map([
   [
-    'mark-dark.png',
-    'the runtime image endpoint reads it for /contact/send/, the one route ' +
-      'rendered on demand.',
+    'box-cat-logo.svg',
+    'Header.astro and 404.astro import it with `?url`: a vector file, cached once for every page.',
+  ],
+  [
+    'box-cat-roundel.svg',
+    'Roundel.astro imports it with `?url`: a vector file, cached once for every page.',
+  ],
+  [
+    'box-cat-footer.svg',
+    'Footer.astro imports it with `?url`: a vector file, cached once for every page.',
   ],
   [
     'logo-cat.svg',

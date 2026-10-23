@@ -189,13 +189,8 @@
     right: 0;
     bottom: calc(100% - var(--footer-mascot-sink));
     width: var(--size-footer-mascot);
-    height: var(--size-footer-mascot);
-    overflow: visible;
+    height: auto;
     pointer-events: none;
-  }
-
-  .footer-mascot .mascot-shadow {
-    fill: var(--color-mark);
   }
 
   /* Let It Fall: above the pile it makes, so a tap always reaches it. */
@@ -302,20 +297,14 @@
   /*
    * Forced colors: SVGs back to `auto` from Chromium's `preserve-parent-color`
    * (tests/forced-colors.spec.ts); icons get LinkText because `auto` does not
-   * force `fill`. The mascot drops its shadow.
+   * force `fill`.
    */
-  .footer-mascot,
-  .footer-mascot *,
   .footer-sticker svg,
   .footer-sticker svg * {
     forced-color-adjust: auto;
   }
 
   @media (forced-colors: active) {
-    .footer-mascot .mascot-shadow {
-      display: none;
-    }
-
     .footer-sticker svg {
       fill: LinkText;
     }

@@ -75,7 +75,8 @@ What happens without the `CONTACT_NOTIFY_TO` secret:
 | `npm run publish:talk`        | Print a talk's slideshow to its tagged PDF in `public/talks/`                                                                                         |
 | `npm run og`                  | After a build, render `public/images/og-default.png` and every page's card in `public/images/og/`                                                     |
 | `npm run hero-still`          | After a build, redraws the hero stills in `src/assets/hero-still-*.webp` shown without JavaScript                                                     |
-| `npm run icons`               | Render the favicons, app icons and one-color mark from `src/lib/brand-mark.ts`                                                                        |
+| `npm run icons`               | Render the favicons, app icons and `src/assets/logo-cat.svg` from `src/lib/brand-mark.ts`                                                             |
+| `npm run box-cat`             | Render the box cat logo, roundel and footer mascot SVGs in `src/assets/` from `src/lib/box-cat.ts` and the About cats' rig                            |
 
 ### WebKit
 
@@ -312,20 +313,20 @@ npm run dev
 Sizes and roles of every file: [ARCHITECTURE.md assets](../ARCHITECTURE.md#assets)
 and [the favicon set](../ARCHITECTURE.md#the-favicon-set).
 
-1. Redraw the cat in `src/lib/brand-mark.ts`: the head path, patches, ears
-   and face, in a 64-unit square, painted only with color tokens. The footer
-   draws it from there; the rest draw the files below.
-2. Run `npm run icons`. It writes `src/assets/logo-cat.svg` for the header
-   and `/about`, the tab icons and `favicon.ico`, the app
-   icons on a full-bleed `background` square (maskable inside the 80% safe
-   zone), and the one-color `artwork/mark-dark.svg` and
-   `src/assets/mark-dark.png` for the roundels.
-3. Keep `mark-dark.png` at 840:900. For another aspect, update `MARK_WIDTHS`
-   and the `sizes` in `src/components/Roundel.astro`;
-   `tests/image-size.spec.ts` fails on drift.
-4. Run `npm run build && npm run og` to redraw the sharing images
+1. Redraw the box in `src/lib/box-cat.ts` (the box and its flaps) and the logo cat in `src/lib/brand-mark.ts` (the head path, patches,
+   ears and face, in a 64-unit square), painted only with color tokens. The
+   cat in each box file is set in `SPOTS` in `scripts/make-box-cat.mjs`.
+2. Run `npm run box-cat`. It writes `src/assets/box-cat-logo.svg` for the
+   header and the 404 page, `box-cat-roundel.svg` for the roundels and
+   `box-cat-footer.svg` for the footer mascot.
+3. Run `npm run icons`. It writes `src/assets/logo-cat.svg` for `/about`, the
+   tab icons and `favicon.ico`, and the app icons on a full-bleed `background`
+   square (maskable inside the 80% safe zone).
+4. A box cat file at a new size: update its `width` and `height` in
+   `Header.astro`, `404.astro`, `Roundel.astro` or `Footer.astro`.
+5. Run `npm run build && npm run og` to redraw the sharing images
    ([the sharing images](#the-sharing-images)).
-5. Update the `alt` in `src/lib/og-image.ts`, which describes the mark, and
+6. Update the `alt` in `src/lib/og-image.ts`, which describes the mark, and
    the mark and icon lines in [AI_DISCLOSURE.md](../AI_DISCLOSURE.md).
 
 Verify:
@@ -339,10 +340,10 @@ npx playwright test tests/icons.spec.ts tests/brand-mark.spec.ts tests/image-siz
 - `tests/icons.spec.ts` fails on a linked icon missing from the build, a
   `sizes` value the file does not match, an `.ico` without 16, 32 and 48, and
   a manifest without exactly one maskable icon.
-- `npm run check:untransformed` fails if `src/assets/mark-dark.png` is renamed:
-  update its entry in `scripts/check-untransformed.mjs`.
+- `npm run check:untransformed` fails if a `box-cat-*.svg` or `logo-cat.svg`
+  is renamed: update its entry in `scripts/check-untransformed.mjs`.
 - `tests/alt-text.spec.ts` and `tests/image-priority.spec.ts` match the file
-  name `mark-dark`; keep it or update both.
+  names `box-cat` and `logo-cat`; keep them or update both.
 
 ## The sharing images
 

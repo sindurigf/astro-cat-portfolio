@@ -41,7 +41,7 @@ blur, uppercase headings, tilted marks.
 | 1b  | Ground, thin slab: `/contact/sent`, every post                                                                                     | 6 routes                               |
 | 1c  | Ground, mid-page: a `Section surface="gold"`, the About quote, `/contact`'s closing band                                           | `/career`, `/about`, `/`, `/contact`   |
 | 2   | The primary action: `.nav-cta`, `.btn-primary`                                                                                     | 11 routes, 4 routes                    |
-| 3   | the logo marks: the roundel, the homepage sticker; the logo cat is Hela's coat, not gold                                           | 9 routes, `/`                          |
+| 3   | the logo marks: the homepage sticker; the box cat and the logo cat are cardboard and the cats' coats, not gold                     | `/`                                    |
 | 4   | Card labels, `.label text-gold`; a form's field labels are `text`                                                                  | `/about`, `/accessibility`, `/contact` |
 | 4a  | A talk slide's label, bold words, part number and lead-in term before a colon; its text links, still underlined                    | `/talks/<deck>/`                       |
 | 5   | Category: the blog label and the homepage glyph tiles, ink-edged on gold                                                           | 3 routes                               |
@@ -101,7 +101,7 @@ blur, uppercase headings, tilted marks.
 | `surface`    | `#1A1A1A` | Inputs and controls off a block                                |
 | `border`     | `#FFC000` | Every boundary on the page: the gold edge                      |
 | `card-edge`  | none      | Card and plain slab edge; `#131313` in light mode              |
-| `fill-edge`  | `#131313` | Edge of a gold or light fill: buttons, roundel                 |
+| `fill-edge`  | `#131313` | Edge of a gold or light fill: buttons                          |
 | `text`       | `#E5E2E1` | Words                                                          |
 | `subtle`     | `#9EB6C7` | Captions, meta, helper text                                    |
 | `gold`       | `#FFC000` | The accent, only where the style guide allows                  |
@@ -504,10 +504,9 @@ with a comment beside it.
 
 - `--spacing-roundel` is `2 × --spacing-section − 56px`: 56px on a phone,
   128px from about 1150px.
-- Derived so the disc keeps at least 24px to the hero's last line and 32px to
-  the next content; it is lifted `--spacing(1)` above the edge to split the
+- Derived so the roundel keeps at least 24px to the hero's last line and 32px
+  to the next content; it is lifted `--spacing(1)` above the edge to split the
   space 24 and 32.
-- `--spacing-roundel-mark` is half the disc.
 - `tests/page-hero.spec.ts` checks the roundel and the photo cover no text at
   320, 640, 768, 1023, 1024 and 1280px.
 
@@ -517,8 +516,7 @@ with a comment beside it.
   panel, popover, form field, gold area, table, topic tile, the
   `/accessibility` fact-strip rules, a prose `hr` and blockquote: the `edge`,
   `edge-t`, `edge-b` and `edge-l` utilities. Photos, controls, chips, the theme
-  switch, stickers and code blocks keep `border-4`. The roundel keeps
-  an 8px edge, a logo mark. No rule between sections.
+  switch, stickers and code blocks keep `border-4`. No rule between sections.
 - The default border color is `border`, set in the base layer (Tailwind 4
   defaults to `currentColor`); `gold-border` inside `.surface-gold`.
 - Each ground has one edge role. Dark page: `border` (gold). A block,
@@ -539,19 +537,21 @@ with a comment beside it.
 | `shadow-hard-cyan-object`   | A hovered linked card, in place of pink; a contact link brick fills cyan instead, its ring inside in ink              |
 | `shadow-hard-gold-border-4` | A card on gold                                                                                                        |
 | `shadow-hard-mark-4`        | `.sticker`, `.btn-gold-primary`                                                                                       |
-| `shadow-hard-mark-8`        | The roundel, the homepage stickers                                                                                    |
-| `drop-shadow-hard-mark-8`   | The logo tile, following its ears                                                                                     |
+| `shadow-hard-mark-8`        | The homepage stickers                                                                                                 |
+| `drop-shadow-hard-mark-8`   | The logo tile on `/about`, following its ears                                                                         |
 | `drop-shadow-hard-mark-12`  | The logo tile's larger copy on `/about`                                                                               |
 
 - `mark` is `pink`'s hex but stays pink in light mode, where `pink` turns
   ink.
 - Anything focusable with a shadow sets its lift: [Focus](#focus).
-- Radius is 0 everywhere (base layer). `rounded-full`: the roundel. No pills;
-  any other rounded corner is a bug.
-- The logo tile is an eared tile: a cat's head in the tile's shape, with
-  rounded ears and corners, its 4px `tile-edge` edge and 3deg tilt
+- Radius is 0 everywhere (base layer). No pills; any rounded corner is a bug.
+- The logo tile on `/about` is an eared tile: a cat's head in the tile's
+  shape, with rounded ears and corners, its 4px `tile-edge` edge and 3deg tilt
   (`src/lib/brand-mark.ts`, `CatMark.astro`). It is a mark, not a radius: the
   rule above does not apply to it, and its shadow is a `drop-shadow-*`.
+- The header's logo tile holds the box cat: Hela sitting in an open cardboard
+  box (`src/assets/box-cat-logo.svg`), tilted 3deg, its `mark` shadow a drop
+  shadow that follows the box and the cat.
 
 ## Components
 
@@ -847,15 +847,16 @@ roundel.**
 - `PageHero` renders the roundel whenever it has no `image`. There is no prop.
 - About and every post with a `cover` have a photo, so no roundel.
 - The homepage is not a PageHero and has no roundel on its window.
-- `variant="hero"`: a gold disc of `--spacing-roundel` with a `gold-text` ring
-  (4px, 8px from `lg`), `mark` 8px shadow, 3deg tilt. The page variant's 8px
-  ring is `fill-edge`, so it holds on a gold band.
+- The roundel is the box cat: Rudra sitting in an open cardboard box, with the
+  box's own ink edge and pink throw, tilted 3deg (`src/assets/box-cat-roundel.svg`).
+- `variant="hero"` is `--spacing-roundel` square; the page variant is 96px,
+  128px from `lg`.
 - Its center sits `--spacing(1)` above the slab's bottom edge; its right side
   on the column's text edge (`.hero-roundel`).
 - On a plain tier it straddles the dark slab's bottom edge too, and is never
-  left off. The slab's bottom padding is half the disc plus 24px; the text
-  under it starts 32px past the disc's lower half.
-- The disc sets a slab's minimum bottom padding: half the disc plus its lift
+  left off. The slab's bottom padding is half the roundel plus 24px; the text
+  under it starts 32px past the roundel's lower half.
+- The roundel sets a slab's minimum bottom padding: half of it plus its lift
   plus 24px, 92px at 1280. Only `--spacing-section` clears it, so a thin slab
   is thin at the top only.
 - `tests/page-hero.spec.ts` lists each route's tier and holds it to the build:
@@ -865,18 +866,17 @@ roundel.**
 
 ### Color roles and ratios
 
-| What                        | Color on ground                 | Ratio | Needs      |
-| --------------------------- | ------------------------------- | ----- | ---------- |
-| Title, standfirst, body     | `gold-text` on gold             | 11.32 | 4.5        |
-| Breadcrumb separators       | `gold-muted` on gold            | 7.88  | 4.5        |
-| Links (breadcrumbs, mailto) | `gold-link` on gold, underlined | 11.38 | 4.5        |
-| Chip fill against the slab  | `surface` on gold               | 10.60 | 3          |
-| Chip label                  | `text` on `surface`             | 13.51 | 4.5        |
-| Focus ring                  | `gold-text` on gold             | 11.32 | 3          |
-| Photo border                | `gold-text` on gold             | 11.32 | decoration |
-| Roundel ring on the slab    | `gold-text` on gold             | 11.32 | decoration |
-| Roundel disc off the slab   | gold on `background`            | 11.99 | decoration |
-| Photo and chip shadows      | pink on gold                    | 2.31  | decoration |
+| What                         | Color on ground                 | Ratio | Needs      |
+| ---------------------------- | ------------------------------- | ----- | ---------- |
+| Title, standfirst, body      | `gold-text` on gold             | 11.32 | 4.5        |
+| Breadcrumb separators        | `gold-muted` on gold            | 7.88  | 4.5        |
+| Links (breadcrumbs, mailto)  | `gold-link` on gold, underlined | 11.38 | 4.5        |
+| Chip fill against the slab   | `surface` on gold               | 10.60 | 3          |
+| Chip label                   | `text` on `surface`             | 13.51 | 4.5        |
+| Focus ring                   | `gold-text` on gold             | 11.32 | 3          |
+| Photo border                 | `gold-text` on gold             | 11.32 | decoration |
+| Roundel box edge on the slab | `gold-text` on gold             | 11.32 | decoration |
+| Photo and chip shadows       | pink on gold                    | 2.31  | decoration |
 
 - Pink never delimits anything on the slab: every control has its fill or a
   `gold-text` border.
@@ -1099,7 +1099,7 @@ Enforced by `tests/footer.spec.ts`.
   print they stand still. Hidden without JavaScript and not on talk decks
   (`tests/let-it-fall.spec.ts`).
 - the motto, `site.motto` (a `div` with its `lang`, not a heading), as display
-  type on a gold band, the `aria-hidden` mascot standing on its last letter
+  type on a gold band, the mascot (the box cat, `alt=""`) standing on its last letter
 
 ### Text size
 

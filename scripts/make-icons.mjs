@@ -1,8 +1,7 @@
 #!/usr/bin/env node
 /*
  * Renders every logo file from src/lib/brand-mark.ts, in Chromium with the
- * site tokens: the logo file, the tab icons, the app icons and the one-color
- * mark. Rerun
+ * site tokens: the logo file, the tab icons and the app icons. Rerun
  * after changing the mark or a color it uses.
  *
  *   npm run icons
@@ -15,13 +14,11 @@ import {
   MARK_SHADOW_OFFSET as SHADOW_OFFSET,
   MARK_SIZE,
   markMarkup,
-  markOneColor,
   markSilhouette,
 } from '../src/lib/brand-mark.ts';
 
 const paint = (token) => cssColorToken(`--color-${token}`);
 const GROUND = paint('background');
-const INK = paint('gold-text');
 const SHADOW = paint('mark');
 
 /* The rim reaches 5.3 units past the head; two more keep it off the edge. */
@@ -30,8 +27,6 @@ const APP_VIEWBOX = `0 0 ${MARK_SIZE + SHADOW_OFFSET} ${MARK_SIZE + SHADOW_OFFSE
 /** Share of a full-bleed app icon the mark spans; maskable stays inside the 80% safe circle. */
 const APP_SPAN = 0.72;
 const MASKABLE_SPAN = 0.5;
-/** `src/assets/mark-dark.png`: Roundel.astro's MARK_WIDTHS assume 840:900. */
-const ONE_COLOR = { width: 840, height: 900 };
 
 const svg = (viewBox, inner) =>
   `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${viewBox}">${inner}</svg>`;
@@ -44,8 +39,6 @@ const app = svg(
   `<g transform="translate(${SHADOW_OFFSET} ${SHADOW_OFFSET})">${markSilhouette(SHADOW)}</g>` +
     markMarkup(paint, { id: 'app' }),
 );
-
-const oneColor = svg(`0 0 ${MARK_SIZE} ${MARK_SIZE}`, markOneColor(INK, 'one'));
 
 const browser = await chromium.launch();
 
@@ -95,7 +88,6 @@ try {
     'src/assets/logo-cat.svg',
     `${svg(`0 0 ${MARK_SIZE} ${MARK_SIZE}`, markMarkup(paint, { id: 'logo' }))}\n`,
   );
-  writeFileSync('artwork/mark-dark.svg', `${oneColor}\n`);
 
   const frames = [];
   for (const size of [16, 32, 48]) {
@@ -126,23 +118,7 @@ try {
     span: MASKABLE_SPAN,
   });
 
-  const page = await browser.newPage({ viewport: ONE_COLOR });
-  await page.setContent(
-    `<!doctype html><html><body style="margin:0;width:${ONE_COLOR.width}px;height:${ONE_COLOR.height}px;display:grid;place-items:center">` +
-      oneColor.replace(
-        '<svg ',
-        /* Square, as the mark is: the 840x900 frame pads it top and bottom. */
-        `<svg width="${ONE_COLOR.width}" height="${ONE_COLOR.width}" `,
-      ) +
-      '</body></html>',
-  );
-  writeFileSync(
-    'src/assets/mark-dark.png',
-    await page.screenshot({ omitBackground: true }),
-  );
-  console.log(
-    'make-icons: favicons, app icons and the one-color mark written.',
-  );
+  console.log('make-icons: the logo file, favicons and app icons written.');
 } finally {
   await browser.close();
 }

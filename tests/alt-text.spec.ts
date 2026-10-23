@@ -9,7 +9,7 @@ import { NODE } from './tags';
  */
 
 /** The one image the site draws for decoration. */
-const DECORATIVE = /mark-dark|logo-cat/;
+const DECORATIVE = /box-cat|logo-cat/;
 
 const SUPPLIED_BY_THE_READER = /\b(image|photo|picture|logo)\b/i;
 const FILENAME = /\.(webp|avif|jpe?g|png|gif|svg)\b/i;
@@ -78,7 +78,7 @@ const FIXTURE = `
   <img src="/_astro/desk.webp" alt="A photo of a desk">
   <img src="/_astro/mascot.webp" alt="mascot.webp">
   <svg viewBox="0 0 24 24"><path d="" /></svg>
-  <img src="/_astro/mark-dark.webp" alt>
+  <img src="/_astro/box-cat-roundel.svg" alt>
   <img src="/_astro/bicycle.webp" alt="A person riding a bicycle down a tree-lined path.">
   <svg aria-hidden="true"><path d="" /></svg>
   <svg role="img"><path d="" /></svg>

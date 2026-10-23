@@ -162,7 +162,7 @@ Setup: `/career`, `/contact`, `/blog`; `/about` (photo) as the control.
 Forced colors (DevTools → Rendering → forced-colors: active, or the OS
 high-contrast theme):
 
-- [ ] The roundel is a disc with a visible edge. → SC 1.4.11
+- [ ] The roundel shows the cat in its box and covers no text; it is decoration. → SC 1.1.1
 - [ ] The bottom of the hero is findable. Say what marks it; "nothing" is a
       finding. → SC 1.4.1
 - [ ] The `h1` and buttons are readable; a focused control shows a ring. → SC 1.4.11, 2.4.7
@@ -392,8 +392,8 @@ Setup: Firefox, 1280px, `/404` (preview serves it with 200;
 - [ ] `Orca+Slash` reads the window title, which includes "Page Not Found". → SC 2.4.2
 - [ ] One heading, the `h1`: "Lost? This Page Is Gone". Judge whether it and
       the sentence under it make the reason clear. → SC 1.3.1, 2.4.6
-- [ ] `G` finds no image: the header mark, the roundel and the logo cat all
-      have `alt=""`. → SC 1.1.1
+- [ ] `G` finds no image: the header logo, the roundel and the box cat beside
+      the guide line all have `alt=""`. → SC 1.1.1
 - [ ] "tell me about the broken link" is the first body link. → SC 2.4.4
 - [ ] On `/blgo/how-i-get-to-know-a-new-ilsand`, "Follow Me to How I Get to
       Know a New Island" names the page the address meant. → SC 2.4.4

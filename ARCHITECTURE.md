@@ -432,12 +432,11 @@ in `wrangler.jsonc`).
 - `artwork/`: source artwork the build never reads (the badge, the
   `favicon.ico` frames). Nothing in it ships.
 
-| Path                           | Artwork   | Goes on              | Used by                                      |
-| ------------------------------ | --------- | -------------------- | -------------------------------------------- |
-| `src/assets/mark-dark.png`     | `#131313` | Gold, light surfaces | `Roundel.astro`                              |
-| `artwork/badge-white.png`      | `#FFFFFF` | Dark surfaces        | Nothing; source artwork                      |
-| `public/images/og-default.png` | Composite | n/a                  | `BaseLayout.astro`, the homepage and the 404 |
-| `public/images/og/*.jpg`       | Composite | n/a                  | `BaseLayout.astro`, every other page         |
+| Path                           | Artwork   | Goes on       | Used by                                      |
+| ------------------------------ | --------- | ------------- | -------------------------------------------- |
+| `artwork/badge-white.png`      | `#FFFFFF` | Dark surfaces | Nothing; source artwork                      |
+| `public/images/og-default.png` | Composite | n/a           | `BaseLayout.astro`, the homepage and the 404 |
+| `public/images/og/*.jpg`       | Composite | n/a           | `BaseLayout.astro`, every other page         |
 
 | Artwork             | on `#0B0B0B` | on `#1A1A1A` | on `#FFFFFF` | on `#FFC000` |
 | ------------------- | ------------ | ------------ | ------------ | ------------ |
@@ -459,23 +458,30 @@ in `wrangler.jsonc`).
   a page's first photo, the name or the tagline, and commit `public/images/`.
   Not part of `npm run build`: the Cloudflare build has no Chromium.
 - `src/lib/brand-mark.ts`: the logo cat, an eared tile in Hela's calico with
-  happy eyes; the one source for the footer head, `npm run icons` (which writes
-  `logo-cat.svg` for `CatMark.astro`) and `npm run og`.
-- `artwork/mark-dark.svg`: the one-color cat for the roundels, written by
-  `npm run icons`.
-- The mark, icons, sharing image and hero poneglyph are drawn by AI
+  happy eyes; the source for `npm run icons` (which writes `logo-cat.svg` for
+  the `/about` tile in `CatMark.astro`, the favicons and the app icons) and
+  `npm run og`.
+- `src/lib/box-cat.ts`: the box cat's cardboard box (`cat-cardboard`, ink edge,
+  pink throw, flaps). `npm run box-cat`
+  (`scripts/make-box-cat.mjs`) sets an About cat from `src/lib/about-cats-rig.ts`
+  in it, with a white die-cut rim, and writes:
+
+| Path                             | Cat   | Used by                                        |
+| -------------------------------- | ----- | ---------------------------------------------- |
+| `src/assets/box-cat-logo.svg`    | Hela  | `Header.astro` logo, `404.astro` guide (84x96) |
+| `src/assets/box-cat-roundel.svg` | Rudra | `Roundel.astro`, 112x112                       |
+| `src/assets/box-cat-footer.svg`  | Hela  | `Footer.astro` mascot on the motto band        |
+
+- The marks, icons, sharing image and hero poneglyph are drawn by AI
   ([AI_DISCLOSURE.md](AI_DISCLOSURE.md)).
-- The header and `/about` draw `src/assets/logo-cat.svg` (written by
-  `npm run icons`) as an `<img alt="">`, cached once for every page; the
-  footer draws the head inline, standing on the motto band, since its shadow
-  takes theme and forced-color CSS. The roundel renders `mark-dark.png` through `<Image>` with `widths` and
-  `sizes`.
+- Every box cat file and `logo-cat.svg` load as an `<img alt="">` imported with
+  `?url`, cached once for every page. The roundel is sized by
+  `size-24 lg:size-32` (page) or `size-roundel` (hero) and tilted 3deg.
 - A `.vue` component cannot reach `astro:assets`: call `getImage()` in Astro
   and pass the result as a prop.
 - Footer links: one sticker tile per profile plus Email (six as shipped), with
   Simple Icons (CC0) paths, one `<symbol>` per link label in
-  `src/assets/social-icons.svg`. The footer mascot is an inline `aria-hidden`
-  SVG colored from `components/footer.css`. The footer runs JavaScript only for features
+  `src/assets/social-icons.svg`. The footer runs JavaScript only for features
   [loaded on demand](#scripts-loaded-on-demand).
 
 ### Photos and video

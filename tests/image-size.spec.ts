@@ -22,6 +22,12 @@ const NO_IMAGE_ROUTES: Readonly<Record<string, string>> = {
     'the sample deck is text slides; the logo is a vector image, which the size check skips',
 };
 
+/** `<img>` tags in built HTML that are not vector files, which the size check skips. */
+const rasterImages = (html: string): number =>
+  (html.match(/<img\b[^>]*>/g) ?? []).filter(
+    (tag) => !/\bsrc="[^"]+\.svg"/.test(tag),
+  ).length;
+
 const DIMENSIONS = [
   { drawn: 'width', natural: 'naturalWidth' },
   { drawn: 'height', natural: 'naturalHeight' },
@@ -93,6 +99,11 @@ for (const route of SAMPLED_ROUTES) {
   test(`every image on ${route} is served at the size it is drawn`, async ({
     page,
   }) => {
+    test.skip(
+      !(route in NO_IMAGE_ROUTES) &&
+        rasterImages(builtHtml().get(route) ?? '') === 0,
+      'only vector images on this route, which the size check skips',
+    );
     await gotoSettled(page, route);
 
     const { ratio, images } = await measureImages(page);

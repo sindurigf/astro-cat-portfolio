@@ -22,11 +22,14 @@ AI-drawn art, all by Claude:
 - The poneglyph and its lighting script in the homepage field
   (`src/lib/hero-field-poneglyph.ts`), and its stills shown without JavaScript
   (`src/assets/hero-still-*.webp`).
-- The logo cat, a calico head shaped like the logo tile (`src/lib/brand-mark.ts`),
-  shown in the header, on `/about`, on the 404 page and peeking over the
-  footer, and its
-  one-color form in the roundels (`src/assets/mark-dark.png`,
-  `artwork/mark-dark.svg`).
+- The box cat: an open cardboard box (`src/lib/box-cat.ts`) with an About cat
+  sitting in it, in poses drawn by the About cats' rig
+  (`src/lib/about-cats-rig.ts`), written by `scripts/make-box-cat.mjs`:
+  - Hela in the header logo and the 404 page (`src/assets/box-cat-logo.svg`).
+  - Rudra in every roundel (`src/assets/box-cat-roundel.svg`).
+  - Hela on the footer motto band (`src/assets/box-cat-footer.svg`).
+- The logo cat, a calico head shaped like the logo tile (`src/lib/brand-mark.ts`,
+  `src/assets/logo-cat.svg`), on `/about`.
 - The favicons and app icons in `public/` and their frames in `artwork/`, drawn
   by `scripts/make-icons.mjs` from the logo cat.
 - The sharing images, `public/images/og-default.png` and

@@ -1,6 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import CatMark from '../components/CatMark.astro';
+import boxCatLogo from '../assets/box-cat-logo.svg?url';
 import PageHero from '../components/PageHero.astro';
 import { HEADER_LINKS } from '../lib/nav';
 import { CONTACT_PATH } from '../lib/paths';
@@ -13,8 +13,8 @@ import { sitePages } from '../lib/site-pages';
  * answers 200, and would otherwise be indexable.
  */
 
-/* CSS px: the tile body of the 96px cat beside its line (size-24). */
-const CAT_BODY = 84;
+/* CSS px: the cat in its box beside its line, at the logo file's 56:64. */
+const GUIDE_SIZE = { width: 84, height: 96 } as const;
 
 const GUIDE_LINE = '“I know a shortcut. Follow me.”';
 /* Carroll's text, Project Gutenberg #11, chapter VI. */
@@ -51,7 +51,15 @@ const pagesJson = JSON.stringify(
         </span>
         {/* <div>s: a large bold <p> trips WAVE's "Possible heading" (tests/wave-alerts.spec.ts). */}
         <div class="flex items-end gap-6">
-          <CatMark body={CAT_BODY} class="size-24 shrink-0" eager />
+          <img
+            src={boxCatLogo}
+            alt=""
+            width={GUIDE_SIZE.width}
+            height={GUIDE_SIZE.height}
+            decoding="async"
+            loading="eager"
+            class="shrink-0"
+          />
           <div class="text-lead font-black text-text text-pretty">
             {GUIDE_LINE}
           </div>
