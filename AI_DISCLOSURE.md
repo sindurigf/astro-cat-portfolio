@@ -31,8 +31,9 @@ AI-drawn art, by Claude or Canva AI:
 - The logo cat, a calico head shaped like the logo tile (`src/lib/brand-mark.ts`,
   `src/assets/logo-cat.svg`), on `/about`.
 - The favicons and app icons in `public/` and their frames in `artwork/`:
-  Minerva's head (`artwork/cats/minerva-head.png`), cut from her Canva AI
-  drawing (`artwork/cats/minerva-sit.png`) and set as a die-cut sticker by `scripts/make-icons.mjs`.
+  Minerva's head (`artwork/cats/minerva-head.png`), cut from the full-size
+  Canva AI drawing behind `artwork/cats/minerva-sit.png`, and set as a die-cut
+  sticker by `scripts/make-icons.mjs`.
 - The sharing images, `public/images/og-default.png` and
   `public/images/og/*.jpg`, drawn by
   `scripts/make-og.mjs` with the logo cat.
