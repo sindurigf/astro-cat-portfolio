@@ -226,11 +226,7 @@ const reach = (el: Element): DOMRect =>
       );
     }, el.getBoundingClientRect());
 
-/*
- * Wide blocks land first in a shuffled order, then small ones, widest first,
- * into the lowest gap. Each takes its tilted box's room, so no two overlap and
- * every target stays whole (SC 2.5.8).
- */
+/* Each block takes its tilted box's room, so no two overlap and every target stays whole (SC 2.5.8). */
 const stack = (
   blocks: HTMLElement[],
   room: Room,
@@ -404,7 +400,7 @@ const surfaceAt = (
   return seen ? { y: seen.y, el: seen.el } : null;
 };
 
-/* Nothing painted, no text and no control, nor another control's ring, inside the mascot's box; `overPage`: the page that stays may lie under it, as under the risen Put It Back. */
+/* Nothing fallen and no control inside the mascot's box, nor painting or text unless `overPage`: the page that stays may lie behind it, as it does over the heap and the risen Put It Back. */
 const roomFor = (
   controls: Guard[],
   left: number,
@@ -423,9 +419,7 @@ const roomFor = (
   }
   /* A control it stands on is under its feet, not in its box. */
   const clash = controls
-    .filter(
-      ({ el }) => !under.some((part) => el.contains(part) || part.contains(el)),
-    )
+    .filter(({ el }) => !under.some((part) => el.contains(part)))
     .map(({ box }) => box)
     .some(
       (c) =>
@@ -462,12 +456,12 @@ const grow = (box: DOMRect, by: number): DOMRect =>
     box.height + 2 * by,
   );
 
+type Guard = { el: Element; box: DOMRect };
+
 /*
  * Every shown control but Put It Back, measured once for the whole search. Their
  * rings never show while fallen: keyboard focus on one puts the page back.
  */
-type Guard = { el: Element; box: DOMRect };
-
 const controlBoxes = (): Guard[] =>
   [...document.querySelectorAll(TARGETS)]
     .filter((el) => el !== button && el.checkVisibility())
@@ -489,7 +483,7 @@ type Hop = {
 };
 /* The mascot shrinks to these to fit, as on a wide screen where the heap reaches the top. */
 const HOP_SCALES = [1, 0.75, 0.5];
-/* px: the mascot's height while it climbs, at most its phone size, so its seat and headroom leave the heap the screen. */
+/* px: the mascot's height while it climbs, at most its phone size (the floor of --size-footer-mascot; the two must agree). */
 const CLIMB_HEIGHT = 96;
 const climbHeight = (): number =>
   Math.min(CLIMB_HEIGHT, mascot?.getBoundingClientRect().height ?? 0);
@@ -510,7 +504,7 @@ const standAt = (
   if (Math.max(...ys) - Math.min(...ys) > LEVEL_SLACK) return null;
   const y = Math.min(...ys) - TOUCH;
   const under = found.map(({ el }) => el);
-  return roomFor(controls, x - wide / 2, y - tall, wide, tall, false, under)
+  return roomFor(controls, x - wide / 2, y - tall, wide, tall, true, under)
     ? y
     : null;
 };
@@ -811,11 +805,27 @@ const shelve = (
   const wideTop = wide.length
     ? Math.min(...under.heap.slice(solid.length).map(({ top }) => top))
     : room.floor;
-  const headroom = climbHeight() + ringReach();
-  const top = Math.max(
-    room.ceiling + headroom,
+  /* Rings of controls in the heap never show while it is down, so a hop's headroom is the mascot and a gap. */
+  const headroom = climbHeight() + room.gap;
+  const highestShelf = room.ceiling + headroom;
+  let top = Math.max(
+    highestShelf,
     Math.min(innerHeight * LEDGE_SHARE, wideTop - room.gap - drawn.height),
   );
+  /* Never over a control that stays: up above it, or no shelf at all. */
+  const blocking = () =>
+    solid.find(
+      (spot) =>
+        drawn.left < spot.right &&
+        spot.left < drawn.right &&
+        top < spot.bottom &&
+        spot.top < top + drawn.height,
+    );
+  for (let over = blocking(); over; over = blocking()) {
+    top = over.top - drawn.height;
+    if (top < highestShelf)
+      return stack([shelf, ...blocks], room, solid).landings;
+  }
   /* Too little room above them for the shelf: the wide blocks move down under it. */
   const drop = Math.max(0, top + drawn.height + room.gap - wideTop);
   const lowered = (spot: Spot): Spot => ({
@@ -897,16 +907,21 @@ const fall = (): void => {
     top: top - SOLID_GAP,
     bottom: bottom + SOLID_GAP,
   });
-  /* Every control that stays is solid: the heap lands on it, never over it. */
-  const solid = [...document.querySelectorAll(TARGETS)]
-    .filter(
-      (el) =>
-        el !== button &&
-        onScreen(el) &&
-        el.checkVisibility() &&
-        !fallen.some((block) => block.contains(el)),
-    )
-    .map((el) => toSpot(el.getBoundingClientRect()));
+  /* Every control that stays, and the mascot waiting at home, are solid: the heap lands on them, never over them. */
+  const solid = [
+    ...[...document.querySelectorAll(TARGETS)]
+      .filter(
+        (el) =>
+          el !== button &&
+          onScreen(el) &&
+          el.checkVisibility() &&
+          !fallen.some((block) => block.contains(el)),
+      )
+      .map((el) => toSpot(el.getBoundingClientRect())),
+    ...(mascot && onScreen(mascot)
+      ? [toSpot(mascot.getBoundingClientRect())]
+      : []),
+  ];
   /*
    * Packed loosely and tilted, then tightly and level; if it still does not fit
    * under Put It Back, the whole heap moves down past the screen's bottom, where scrolling reaches it.

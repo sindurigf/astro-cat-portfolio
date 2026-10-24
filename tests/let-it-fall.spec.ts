@@ -561,24 +561,32 @@ test('nothing but Put It Back is ever drawn over the mascot as the page falls an
     content:
       '.fall-hopper, .fall-hopper *, .footer-mascot { pointer-events: auto !important; }',
   });
-  await press(page);
+  /* Pressed from the page's end, where the mascot waits on screen. */
+  await page.evaluate(() => scrollTo(0, document.documentElement.scrollHeight));
+  await page.getByRole('button', FALL).click();
+  await expect(status(page)).toHaveText(FELL);
   const over = new Set<string>();
   const settled = page.locator('.fall-hopper[data-settled]');
   for (let waited = 0; waited < CLIMB_MS; waited += SAMPLE_MS) {
-    const hit = await page.evaluate(() => {
+    const hits = await page.evaluate(() => {
       const mascot =
         document.querySelector('.fall-hopper img') ??
         document.querySelector('.footer-mascot')!;
       const r = mascot.getBoundingClientRect();
-      const x = r.left + r.width / 2;
-      const y = r.top + r.height / 2;
-      if (x < 0 || y < 0 || x > innerWidth || y > innerHeight) return null;
-      const top = document.elementFromPoint(x, y);
-      if (!top || mascot.contains(top) || top === mascot) return null;
-      if (top.closest('[data-let-it-fall]')) return null;
-      return `${top.tagName}.${top.className}`;
+      const SHARES = [0.25, 0.5, 0.75];
+      return SHARES.flatMap((sx) =>
+        SHARES.map((sy) => {
+          const x = r.left + r.width * sx;
+          const y = r.top + r.height * sy;
+          if (x < 0 || y < 0 || x > innerWidth || y > innerHeight) return null;
+          const top = document.elementFromPoint(x, y);
+          if (!top || mascot.contains(top) || top === mascot) return null;
+          if (top.closest('[data-let-it-fall]')) return null;
+          return `${top.tagName}.${top.className}`;
+        }),
+      );
     });
-    if (hit) over.add(hit);
+    for (const hit of hits) if (hit) over.add(hit);
     if (await settled.count()) break;
     await page.waitForTimeout(SAMPLE_MS);
   }
@@ -619,13 +627,16 @@ test('the menu bar is a shelf in the heap two thirds down, its links uncovered, 
       if (hit && shelf.contains(hit)) return 'menu';
       return hit?.closest('[data-fell]') ? 'heap' : 'nothing';
     });
+    const { a, b } = new DOMMatrix(getComputedStyle(shelf).transform);
     return {
       fell: shelf.hasAttribute('data-fell'),
+      level: Math.abs(Math.atan2(b, a)) < 1e-6,
       share: shelf.getBoundingClientRect().top / innerHeight,
       path,
     };
   });
   expect(found.fell, 'the menu bar stayed up').toBe(true);
+  expect(found.level, 'the menu shelf is tilted').toBe(true);
   expect(
     Math.abs(found.share - SHELF_SHARE) * SHELF_ROOM.height,
     'the menu shelf is not two thirds down',
