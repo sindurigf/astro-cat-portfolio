@@ -330,7 +330,11 @@ test.describe('forced colors', () => {
       page.locator(KEEPS_ITS_COLORS).evaluateAll((swatches) =>
         swatches.map((swatch) => {
           const style = getComputedStyle(swatch);
-          return [style.color, style.backgroundColor];
+          /* A fill swatch has no text, so its inherited color is not part of it. */
+          return swatch instanceof HTMLElement &&
+            swatch.dataset.paint === 'glyph'
+            ? [style.color, style.backgroundColor]
+            : [style.backgroundColor];
         }),
       );
     const authored = await paints();
