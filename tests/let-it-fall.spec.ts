@@ -346,6 +346,31 @@ test('under reduced motion the blocks and the mascot move at once, never animate
   await press(page);
   await expect(fallen(page)).not.toHaveCount(0);
   await expect(page.locator('.footer-mascot')).toHaveAttribute('data-hopped');
+  /* reduced-motion.css leaves a 0.01ms transition, which starts at home. */
+  await expect
+    .poll(() =>
+      page
+        .locator('.footer-mascot')
+        .evaluate((img) => img.getAnimations().length),
+    )
+    .toBe(0);
+  expect(
+    await page.locator('.footer-mascot').evaluate((img) => {
+      const own = img.getBoundingClientRect();
+      const seat = document
+        .querySelector('[data-let-it-fall]')!
+        .getBoundingClientRect();
+      return {
+        on:
+          own.bottom <= seat.top &&
+          own.left < seat.right &&
+          seat.left < own.right,
+        own: [own.left, own.top, own.right, own.bottom].map(Math.round),
+        seat: [seat.left, seat.top, seat.right, seat.bottom].map(Math.round),
+      };
+    }),
+    'under reduced motion the mascot is not on Put It Back',
+  ).toMatchObject({ on: true });
   await expect(
     page.locator('.fall-hopper'),
     'the climbing copy appeared under reduced motion',
@@ -398,6 +423,97 @@ const mascotClear = async (page: Page) => {
     'the mascot is off screen, covers a control, or is announced',
   ).toEqual({ onScreen: true, covers: [], hidden: 'true' });
 };
+
+test("pressed from the keyboard, the mascot sits clear of Put It Back's focus ring (SC 2.4.11)", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: HEIGHT });
+  await gotoSettled(page, ROUTE);
+  const button = page.getByRole('button', FALL);
+  await button.evaluate((el, gap) => {
+    scrollTo(0, el.getBoundingClientRect().top + scrollY - innerHeight + gap);
+  }, BUTTON_FROM_BOTTOM);
+  await button.focus();
+  await page.keyboard.press('Enter');
+  await mascotClear(page);
+  expect(
+    await page.locator('.fall-hopper img').evaluate((frame) => {
+      const own = frame.getBoundingClientRect();
+      const control = document.querySelector('[data-let-it-fall]')!;
+      const style = getComputedStyle(control);
+      const ring =
+        parseFloat(style.outlineOffset) + parseFloat(style.outlineWidth);
+      return {
+        focused: control.matches(':focus-visible'),
+        clear: own.bottom <= control.getBoundingClientRect().top - ring,
+      };
+    }),
+    "the mascot covers Put It Back's focus ring",
+  ).toEqual({ focused: true, clear: true });
+});
+
+/* A seed whose heap at the desktop size has places to land on before Put It Back. */
+const CLIMB_SEED = 2;
+
+test('every place the mascot lands is a painted block or Put It Back, and it ends on Put It Back', async ({
+  page,
+}) => {
+  await seedRandom(page, CLIMB_SEED);
+  await page.setViewportSize({ width: DESKTOP, height: HEIGHT });
+  await gotoSettled(page, ROUTE);
+  await press(page);
+  await mascotClear(page);
+  const landings = await page.locator('.fall-hopper').evaluate((feet) => {
+    const host = feet.parentElement!.getBoundingClientRect();
+    const button = document.querySelector('[data-let-it-fall]')!;
+    const stones: { x: number; y: number }[] = JSON.parse(
+      (feet as HTMLElement).dataset.stones ?? '[]',
+    );
+    /* px below the sticker's edge, inside the surface it rests on. */
+    const INTO_SURFACE = 4;
+    const CLEAR = 'rgba(0, 0, 0, 0)';
+    const groundOf = (el: Element | null): string => {
+      for (let at = el; at; at = at.parentElement) {
+        const fill = getComputedStyle(at).backgroundColor;
+        if (fill !== CLEAR) return fill;
+      }
+      return CLEAR;
+    };
+    return stones.map(({ x, y }) => {
+      const hit = document.elementFromPoint(
+        x + host.left,
+        y + host.top + INTO_SURFACE,
+      );
+      if (!hit) return 'nothing';
+      if (button.contains(hit)) return 'Put It Back';
+      const style = getComputedStyle(hit);
+      const behind = groundOf(hit.parentElement);
+      const shown =
+        style.visibility === 'visible' &&
+        Number(style.opacity) > 0 &&
+        (hit instanceof HTMLImageElement ||
+          (style.backgroundColor !== CLEAR &&
+            style.backgroundColor !== behind) ||
+          (parseFloat(style.borderTopWidth) > 0 &&
+            style.borderTopColor !== CLEAR &&
+            style.borderTopColor !== behind));
+      return hit.closest('[data-fell]') && shown
+        ? 'block'
+        : `nothing (${hit.tagName})`;
+    });
+  });
+  expect(
+    landings.filter((on) => on === 'block').length,
+    'the mascot never landed on the heap, so this test checks nothing',
+  ).toBeGreaterThan(0);
+  expect(
+    landings.filter((on) => on !== 'block' && on !== 'Put It Back'),
+    'the mascot landed on something not shown',
+  ).toEqual([]);
+  expect(landings.at(-1), 'the mascot did not end on Put It Back').toBe(
+    'Put It Back',
+  );
+});
 
 test('the mascot climbs onto the heap, covers no control, and hops home', async ({
   page,
