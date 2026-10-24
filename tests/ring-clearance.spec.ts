@@ -1,3 +1,4 @@
+import { cpus, freemem, loadavg, totalmem } from 'node:os';
 import { expect, test, type Page } from './test';
 import { gotoSettled } from './settle';
 import { FOCUSABLE_SELECTOR } from './wcag';
@@ -40,6 +41,21 @@ const RING_STEP_LIMIT_MS = 10_000;
 /* Each debugger call on a stuck page gets this long, so naming where never outlasts the test. */
 const PAUSE_WAIT_MS = 3_000;
 const STACK_DEPTH = 8;
+/* A stuck step also captures, side by side: process CPU times across a short trace, and a screenshot. */
+const TRACE_MS = 1_500;
+const CAPTURE_WAIT_MS = 2_000;
+const TRACE_CATEGORIES = [
+  'toplevel',
+  'blink',
+  'cc',
+  'gpu',
+  'v8',
+  'renderer.scheduler',
+  'devtools.timeline',
+  'disabled-by-default-devtools.timeline',
+];
+const MS_PER_S = 1000;
+const BYTES_PER_MB = 1024 * 1024;
 
 const TIMED_OUT = Symbol('timed out');
 
@@ -63,6 +79,100 @@ const withLimit = async <T>(
 /** Names where a stuck page's script is; '' outside Chromium. */
 type WhereStuck = () => Promise<string>;
 
+type Process = { type: string; id: number; cpuTime: number };
+
+/* The test runner's machine: whether CI was starved when the page stopped. */
+const runnerLoad = (): string =>
+  `\nRunner: load ${loadavg()
+    .map((avg) => avg.toFixed(2))
+    .join(
+      ' ',
+    )} on ${cpus().length} CPUs, ${Math.round(freemem() / BYTES_PER_MB)} of ${Math.round(totalmem() / BYTES_PER_MB)} MB free.`;
+
+/*
+ * Each browser process's CPU time across a short trace: a renderer that gains
+ * none is blocked or starved, one that gains the whole window is busy.
+ */
+const captureStuck = async (page: Page): Promise<string> => {
+  const browser = page.context().browser();
+  if (!browser) return '';
+  const session = await withLimit(
+    browser.newBrowserCDPSession(),
+    CAPTURE_WAIT_MS,
+  );
+  if (session === TIMED_OUT) return '\nThe browser took no CDP session.';
+  const processes = async () => {
+    const info = await withLimit(
+      session.send('SystemInfo.getProcessInfo'),
+      CAPTURE_WAIT_MS,
+    );
+    return info === TIMED_OUT ? null : (info.processInfo as Process[]);
+  };
+  const trace = async (): Promise<string> => {
+    const done = new Promise<string | undefined>((resolve) =>
+      session.once('Tracing.tracingComplete', (event) => resolve(event.stream)),
+    );
+    await session.send('Tracing.start', {
+      traceConfig: { includedCategories: TRACE_CATEGORIES },
+      transferMode: 'ReturnAsStream',
+    });
+    await new Promise((resolve) => setTimeout(resolve, TRACE_MS));
+    await session.send('Tracing.end');
+    const handle = await done;
+    if (!handle) return '';
+    let text = '';
+    for (;;) {
+      const chunk = await session.send('IO.read', { handle });
+      text += chunk.base64Encoded
+        ? Buffer.from(chunk.data, 'base64').toString()
+        : chunk.data;
+      if (chunk.eof) break;
+    }
+    await session.send('IO.close', { handle });
+    return text;
+  };
+  const before = await processes();
+  const [traced, screen] = await Promise.all([
+    withLimit(trace(), TRACE_MS + CAPTURE_WAIT_MS).catch(
+      (error: unknown) => `failed: ${String(error)}`,
+    ),
+    withLimit(
+      page.screenshot({ timeout: CAPTURE_WAIT_MS }),
+      CAPTURE_WAIT_MS,
+    ).catch(() => TIMED_OUT),
+  ]);
+  const after = await processes();
+  await withLimit(session.detach(), CAPTURE_WAIT_MS);
+  const info = test.info();
+  if (typeof traced === 'string' && traced.startsWith('{')) {
+    await info.attach('stuck-trace.json', {
+      body: traced,
+      contentType: 'application/json',
+    });
+  }
+  if (screen instanceof Buffer) {
+    await info.attach('stuck-screen.png', {
+      body: screen,
+      contentType: 'image/png',
+    });
+  }
+  const gains =
+    before && after
+      ? after
+          .map(({ type, id, cpuTime }) => {
+            const was = before.find((p) => p.id === id)?.cpuTime ?? 0;
+            return `${type} ${id}: +${Math.round((cpuTime - was) * MS_PER_S)} ms CPU`;
+          })
+          .join(', ')
+      : 'no process info';
+  return (
+    `\nOver ${TRACE_MS} ms: ${gains}.` +
+    `\nTrace: ${traced === TIMED_OUT ? 'timed out' : typeof traced === 'string' && traced.startsWith('{') ? 'attached' : traced || 'empty'}.` +
+    ` Screenshot: ${screen instanceof Buffer ? 'attached' : 'none within the wait'}.` +
+    runnerLoad()
+  );
+};
+
 /*
  * Chromium only. The debugger is on from the start: enabling it on a busy page
  * waits for that page, while a pause interrupts the running script.
@@ -79,6 +189,9 @@ const watchMainThread = async (
   );
   await cdp.send('Debugger.enable');
   return async () => {
+    const captured = await captureStuck(page).catch(
+      (error: unknown) => `\nCapturing failed: ${String(error)}`,
+    );
     const paused = new Promise<string>((resolve) => {
       cdp.once('Debugger.paused', (event) =>
         resolve(
@@ -102,7 +215,8 @@ const watchMainThread = async (
       (where === TIMED_OUT
         ? `\nNo script ran within ${PAUSE_WAIT_MS} ms.`
         : `\nThe page's main thread was in:\n  ${where}`) +
-      (detached === TIMED_OUT ? '\nThe debugger did not detach.' : '')
+      (detached === TIMED_OUT ? '\nThe debugger did not detach.' : '') +
+      captured
     );
   };
 };
