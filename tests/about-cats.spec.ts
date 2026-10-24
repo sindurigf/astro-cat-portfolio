@@ -1419,6 +1419,111 @@ test.describe('About cats', () => {
     );
   });
 
+  for (const colorScheme of ['dark', 'light', 'forced colors'] as const)
+    test(`a keyboard-focused cat's ring hugs it, uncut and above the cards, in ${colorScheme === 'forced colors' ? colorScheme : `${colorScheme} mode`} (SC 2.4.7, 2.4.11, 2.4.13)`, async ({
+      page,
+    }) => {
+      await page.emulateMedia(
+        colorScheme === 'forced colors'
+          ? { forcedColors: 'active' }
+          : { colorScheme },
+      );
+      await gotoSettled(page, ROUTE);
+      for (const id of CATS) {
+        await showCat(page, id);
+        await page.keyboard.press('Shift');
+        const svgBox = () =>
+          page.locator(`#cat-spot-${id} .cat-svg`).evaluate((svg) => {
+            const { x, y, width, height } = svg.getBoundingClientRect();
+            return [x, y, width, height].map(Math.round);
+          });
+        const before = await svgBox();
+        await catButton(page, id).focus();
+        await expectMood(
+          page,
+          id,
+          'holding',
+          `${NAMES[id]} kept moving while focused`,
+        );
+        await expect
+          .poll(
+            () =>
+              catButton(page, id).evaluate((button, minTarget) => {
+                const area = button.querySelector('.cat-hit-area');
+                if (!area) return 'no hit box';
+                const box = button.getBoundingClientRect();
+                const hit = area.getBoundingClientRect();
+                const style = getComputedStyle(button);
+                if (style.outlineStyle !== 'solid')
+                  return `ring is ${style.outlineStyle}`;
+                if (hit.width < minTarget || hit.height < minTarget)
+                  return `the hit box is under ${minTarget}px`;
+                const reach =
+                  parseFloat(style.outlineOffset) +
+                  parseFloat(style.outlineWidth);
+                const ring = {
+                  left: box.left - reach,
+                  top: box.top - reach,
+                  right: box.right + reach,
+                  bottom: box.bottom + reach,
+                };
+                const SUBPIXEL = 1;
+                if (
+                  Math.abs(box.left - hit.left) > SUBPIXEL ||
+                  Math.abs(box.top - hit.top) > SUBPIXEL ||
+                  Math.abs(box.width - hit.width) > SUBPIXEL ||
+                  Math.abs(box.height - hit.height) > SUBPIXEL
+                )
+                  return 'the ring does not follow the cat';
+                for (
+                  let node = button.parentElement;
+                  node;
+                  node = node.parentElement
+                ) {
+                  if (getComputedStyle(node).overflow === 'visible') continue;
+                  const clip = node.getBoundingClientRect();
+                  if (
+                    ring.left < clip.left - SUBPIXEL ||
+                    ring.top < clip.top - SUBPIXEL ||
+                    ring.right > clip.right + SUBPIXEL ||
+                    ring.bottom > clip.bottom + SUBPIXEL
+                  )
+                    return `the ring is clipped by ${node.className}`;
+                }
+                const spot = button.closest('.cat-spot');
+                const perch = spot?.closest('.cat-perch');
+                if (!spot || !perch) return 'no band';
+                const lift = Number(getComputedStyle(spot).zIndex) || 0;
+                for (const card of perch.querySelectorAll('.card')) {
+                  const r = card.getBoundingClientRect();
+                  const meets =
+                    r.left < ring.right &&
+                    r.right > ring.left &&
+                    r.top < ring.bottom &&
+                    r.bottom > ring.top;
+                  const under = card.closest('.cat-perch > *');
+                  const below =
+                    Number(under && getComputedStyle(under).zIndex) || 0;
+                  if (meets && below >= lift)
+                    return 'a card is painted over the ring';
+                }
+                return 'ok';
+              }, MIN_TARGET),
+            { message: `${NAMES[id]}'s focus ring does not hug the cat whole` },
+          )
+          .toBe('ok');
+        expect(
+          await svgBox(),
+          `${NAMES[id]}'s drawing moved when the ring hugged her`,
+        ).toEqual(before);
+        await page.keyboard.press('Tab');
+        await expect(
+          catButton(page, id),
+          `${NAMES[id]}'s button still hugs her after focus left`,
+        ).not.toHaveAttribute('data-hug');
+      }
+    });
+
   test('the sleep control stops its cat within 5 s and wakes it again (SC 2.2.2)', async ({
     page,
   }) => {

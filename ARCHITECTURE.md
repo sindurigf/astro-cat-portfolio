@@ -820,9 +820,6 @@ evidence.
 - **Drop the About cat card's "beside its cat, not over it" checks as
   decoration:** the card opens beside its cat by design, so where it opens is
   function; the test name in `tests/about-cats.spec.ts` says so.
-- **Draw the About cat's focus ring round the cat, not its band:** the ring on
-  the band passes SC 2.4.11 (sides and top stay visible), and the cat moves
-  while the band does not.
 - **Let an About cat keep playing while it has keyboard focus:** the hold is a
   rule, with its reason, in [STYLEGUIDE.md](docs/STYLEGUIDE.md#motion).
 - **Size the hero roundel with a fixed 96px disc, a jump to 128px at `lg`, or
