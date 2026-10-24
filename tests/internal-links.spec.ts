@@ -1,6 +1,7 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { expect, test } from './test';
+import { defined } from '../src/lib/defined';
 import { captures } from './captures';
 import { builtHtml, DIST_DIR } from './routes';
 import { NODE } from './tags';
@@ -53,8 +54,11 @@ test(
         if (url.startsWith('//')) continue;
         checked += 1;
 
-        const [pathAndQuery, fragment] = url.split('#') as [string, string?];
-        const path = pathAndQuery.replace(/\?.*$/s, '');
+        const [pathAndQuery, fragment] = url.split('#');
+        const path = defined(pathAndQuery, `path of ${url}`).replace(
+          /\?.*$/s,
+          '',
+        );
         const targetHtml =
           path === ''
             ? html

@@ -1,6 +1,5 @@
 import { expect, test, type Page } from './test';
-import { defined } from '../src/lib/defined';
-import { itemAt } from '../src/lib/defined';
+import { defined, itemAt } from '../src/lib/defined';
 import {
   CTA,
   HOME_HREF,
