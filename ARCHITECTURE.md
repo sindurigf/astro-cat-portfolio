@@ -6,18 +6,18 @@ conventions for this template. Design rules and values are in
 
 ## Stack
 
-| Concern     | Choice                                                                                   |
-| ----------- | ---------------------------------------------------------------------------------------- |
-| Framework   | Astro 7, static output; `/contact/send/` renders on demand in the Worker                 |
-| Interactive | Vue 3 via `@astrojs/vue`, islands only (the homepage canvas hero and the About cats)     |
-| Scripts     | Plain modules for everything that is not an island                                       |
-| Styling     | Tailwind CSS 4 via `@tailwindcss/vite`                                                   |
-| Language    | TypeScript, `astro/tsconfigs/strictest`, checked with `astro check` and `vue-tsc`        |
-| Content     | Astro Content Collections, Markdown in repo, rendered by Sätteri                         |
-| Font        | Lexend, self-hosted through Fontsource                                                   |
-| Hosting     | Cloudflare Workers static assets, D1 (EU), Rate Limiting, Email Routing, Workers Builds  |
-| Tests       | Playwright in Chromium, Firefox and WebKit, with axe-core and AccessLint for WCAG 2.2 AA |
-| Runtime     | Node.js from `.nvmrc`                                                                    |
+| Concern     | Choice                                                                                                                |
+| ----------- | --------------------------------------------------------------------------------------------------------------------- |
+| Framework   | Astro 7, static output; `/contact/send/` renders on demand in the Worker                                              |
+| Interactive | Vue 3 via `@astrojs/vue`, islands only (the homepage canvas hero and the About cats)                                  |
+| Scripts     | Plain modules for everything that is not an island                                                                    |
+| Styling     | Tailwind CSS 4 via `@tailwindcss/vite`                                                                                |
+| Language    | TypeScript, `astro/tsconfigs/strictest`, checked with `astro check` and `vue-tsc`                                     |
+| Content     | Astro Content Collections, Markdown in repo, rendered by Sätteri                                                      |
+| Font        | Lexend, self-hosted through Fontsource                                                                                |
+| Hosting     | Cloudflare Workers static assets, D1 (EU), Rate Limiting, Email Routing, Workers Builds                               |
+| Tests       | Playwright in Chromium, Firefox and WebKit, with axe-core and AccessLint for WCAG 2.2 AA, HTML_CodeSniffer for 2.1 AA |
+| Runtime     | Node.js from `.nvmrc`                                                                                                 |
 
 - Vue runs with `features: { optionsAPI: false }`; every component uses
   `<script setup>`.
