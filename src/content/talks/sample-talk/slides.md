@@ -83,7 +83,7 @@ Most losses are slow, quiet and preventable.
 - Strangers made copies
 - Mistakes were corrected in the margin
 
-**A good model: [Example Project](https://example.net/project/)**
+**A Good Model: [Example Project](https://example.net/project/)**
 
 A public archive that lets anyone copy, read and correct its records, and credits every volunteer by name.
 
@@ -121,7 +121,7 @@ label: 'Habit 1'
 - In more than one place
 - Held by more than one person
 
-**A good model: [Example Foundation](https://example.org/)**
+**A Good Model: [Example Foundation](https://example.org/)**
 
 Copies are made on a schedule and opened once a year, so nobody discovers a broken one during a crisis.
 

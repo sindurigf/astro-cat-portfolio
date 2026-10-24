@@ -119,6 +119,7 @@
     --slide-pad-block: 4cqi;
     --text-slide: var(--text-slide-frame);
     --text-slide-title: var(--text-slide-title-frame);
+    --text-slide-h3: var(--text-slide-h3-frame);
     --text-slide-number: var(--text-slide-number-frame);
   }
 
@@ -275,16 +276,12 @@
     @apply px-6 py-2;
   }
 
-  /* A bold label opens a group: wide gap above, tight below. */
-  .slide-body > p:has(> strong:only-child):not(:first-child) {
-    @apply mt-head;
+  /* A group label (`cardGroups` in src/lib/slides.ts): `.card-title`'s size, in the slide titles' case. */
+  .slide-body h3 {
+    @apply text-h3 font-black text-text normal-case tracking-title;
   }
 
-  .slide-body > p:has(> strong:only-child) + :is(ul, ol, p) {
-    @apply mt-2;
-  }
-
-  .slide-body :is(p, ul, ol, table) {
+  .slide-body :is(p, h3, ul, ol, table) {
     @apply mt-4;
   }
 
@@ -292,9 +289,17 @@
     @apply text-slide;
   }
 
+  :is(.deck:fullscreen, .presenter) .slide-body h3 {
+    @apply text-slide-h3;
+  }
+
   @media print {
     .slide-body :is(p, ul, ol, table) {
       @apply text-slide;
+    }
+
+    .slide-body h3 {
+      @apply text-slide-h3;
     }
   }
 
@@ -326,13 +331,22 @@
   ) {
     @apply mt-8;
 
-    & :is(p, ul, ol) {
+    & :is(p, h3, ul, ol) {
       @apply mt-6;
     }
 
     & li + li {
       @apply mt-3;
     }
+  }
+
+  /* A label opens a group: wide gap above, tight below. `.slide` outranks the rule above. */
+  .slide .slide-body > h3:not(:first-child) {
+    @apply mt-head;
+  }
+
+  .slide .slide-body > h3 + :is(ul, ol, p) {
+    @apply mt-2;
   }
 
   /*
@@ -367,7 +381,7 @@
   }
 
   /* 16px: paragraph spacing 1.5 times the line spacing at body size (SC 1.4.8). */
-  .slide-body .slide-card > p:first-child + * {
+  .slide-body .slide-card > h3:first-child + * {
     @apply mt-4;
   }
 
@@ -387,7 +401,7 @@
     break-inside: avoid;
   }
 
-  .slide-body > p:has(> strong:only-child) {
+  .slide-body > h3 {
     break-after: avoid;
   }
 
