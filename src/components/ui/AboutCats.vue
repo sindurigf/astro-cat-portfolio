@@ -243,10 +243,44 @@ const feedPointer = (): void => {
   pointerAt = null;
 };
 
+/** The cat a keyboard user has focused: its button shrinks to the cat's hit box, so the focus ring hugs the cat. */
+let hugged: CatId | null = null;
+
+const hug = (id: CatId): void => {
+  const svg = svgs.get(id);
+  const button = svg?.parentElement;
+  const area = svg?.querySelector('.cat-hit-area')?.getBoundingClientRect();
+  const spot = svg?.closest('.cat-spot');
+  if (!svg || !button || !area || !spot) return;
+  /* The drawing keeps its own box wherever the button goes. */
+  const drawn = svg.getBoundingClientRect();
+  const band = spot.getBoundingClientRect();
+  const box = {
+    x: area.left - band.left,
+    y: area.top - band.top,
+    w: area.width,
+    h: area.height,
+    'svg-x': drawn.left - area.left,
+    'svg-y': drawn.top - area.top,
+    'svg-w': drawn.width,
+    'svg-h': drawn.height,
+  };
+  for (const [name, px] of Object.entries(box))
+    button.style.setProperty(`--hug-${name}`, `${px}px`);
+  button.dataset.hug = '';
+};
+
+const unhug = (id: CatId): void => {
+  if (hugged === id) hugged = null;
+  delete svgs.get(id)?.parentElement?.dataset.hug;
+};
+
 const tick = (now: number): number => {
   if (!colony) return IDLE;
   feedPointer();
-  return colony.frame(now);
+  const next = colony.frame(now);
+  if (hugged) hug(hugged);
+  return next;
 };
 
 const hold = (id: CatId, reason: Hold, on: boolean): void => {
@@ -267,7 +301,15 @@ const onPointerDown = (): void => {
 };
 
 const onFocus = (id: CatId): void => {
-  if (keyboardLast) hold(id, 'focus', true);
+  if (!keyboardLast) return;
+  hold(id, 'focus', true);
+  hugged = id;
+  hug(id);
+};
+
+const onBlur = (id: CatId): void => {
+  hold(id, 'focus', false);
+  unhug(id);
 };
 
 const spotId = (node: Element): CatId | undefined =>
@@ -331,6 +373,7 @@ const layout = (): void => {
     sizes.set(cat.id, { width, height, ledges });
   }
   colony.layout(sizes);
+  if (hugged) hug(hugged);
 };
 
 const onPointer = (event: PointerEvent): void => {
@@ -579,7 +622,7 @@ onBeforeUnmount(() => {
         aria-haspopup="dialog"
         @click="onCatClick(cat.id)"
         @focus="onFocus(cat.id)"
-        @blur="hold(cat.id, 'focus', false)"
+        @blur="onBlur(cat.id)"
         @pointerenter="hold(cat.id, 'pointer', true)"
         @pointerleave="hold(cat.id, 'pointer', false)"
       >

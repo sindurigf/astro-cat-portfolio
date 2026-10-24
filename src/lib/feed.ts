@@ -1,5 +1,6 @@
 import rss from '@astrojs/rss';
 import { publishedPosts, tagLabel, type BlogPost } from './blog';
+import { feedExcerpt } from './feed-excerpt';
 import { postHref } from './paths';
 import { PERSON_NAME } from './profiles';
 import { requireSite, SITE_NAME } from './site';
@@ -23,6 +24,8 @@ interface Feed {
   /** Site-relative. */
   selfPath: string;
   posts: readonly BlogPost[];
+  /** Describe each post by its opening instead of its teaser, for an aggregator. */
+  opening?: boolean;
 }
 
 const NAMESPACES = {
@@ -57,7 +60,8 @@ export const feedResponse = async (
       title: post.data.title,
       link: new URL(postHref(post.id), site).href,
       pubDate: post.data.date,
-      description: post.data.teaser,
+      description:
+        (feed.opening && feedExcerpt(post.body ?? '')) || post.data.teaser,
       categories: post.data.tags.map(tagLabel),
       customData: `<dc:creator>${PERSON_NAME}</dc:creator>`,
     })),
