@@ -220,7 +220,7 @@ type Block = { text: string; kind: 'label' | 'model' | 'list' | 'other' };
 
 /* Label: a paragraph of one bold run. Model: a label opening an example. */
 const LABEL = /^\*\*[^\n]+\*\*$/;
-const MODEL = /^\*\*(A good model|Example)\b/;
+const MODEL = /^\*\*(A good model|Example)\b/i;
 const LIST = /^(?:[-*+]|\d+\.)\s/;
 
 const blockOf = (text: string): Block => ({
@@ -234,8 +234,17 @@ const blockOf = (text: string): Block => ({
         : 'other',
 });
 
+/* A label heads the list or example after it, so it is a heading under the slide's h2 (SC 1.3.1). */
+const markdownOf = ({ kind, text }: Block): string => {
+  const inner = text.slice(2, -2);
+  const isOneBoldRun = LABEL.test(text) && !inner.includes('**');
+  return (kind === 'label' || kind === 'model') && isOneBoldRun
+    ? `### ${inner}`
+    : text;
+};
+
 const card = (blocks: Block[]) =>
-  `<div class="slide-card">\n\n${blocks.map((b) => b.text).join('\n\n')}\n\n</div>`;
+  `<div class="slide-card">\n\n${blocks.map(markdownOf).join('\n\n')}\n\n</div>`;
 
 /*
  * Wraps examples, and labeled groups when there are two or more, in `<div>`
@@ -294,7 +303,7 @@ export const cardGroups = (body: string): string => {
     if (Array.isArray(unit)) row.push(card(unit));
     else {
       flush();
-      out.push(unit.text);
+      out.push(markdownOf(unit));
     }
   }
   flush();

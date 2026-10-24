@@ -130,9 +130,9 @@ try {
     hidden: [
       ...document.querySelectorAll('.slide [aria-hidden="true"]'),
     ].filter((el) => el.textContent.trim() !== '').length,
-    headings: [...document.querySelectorAll('.slide .slide-title')].map((h) =>
-      h.textContent.replace(/\s+/g, ' ').replace(' :', ':').trim(),
-    ),
+    headings: [
+      ...document.querySelectorAll('.slide :is(.slide-title, .slide-body h3)'),
+    ].map((h) => h.textContent.replace(/\s+/g, ' ').replace(' :', ':').trim()),
     figures: document.querySelectorAll('.slide img[alt]:not([alt=""])').length,
   }));
   writeFileSync(

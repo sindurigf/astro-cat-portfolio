@@ -29,7 +29,8 @@ import {
   createProp,
   reachOf,
   renderCat,
-  settleTail,
+  isStepping,
+  settleFrame,
   type CatRig,
   type PropRig,
 } from './about-cats-rig';
@@ -78,8 +79,6 @@ const FACE_DEADBAND = 20;
 const WATCH_EASE = 0.12;
 const TILT_GAIN = 20;
 const MAX_TILT = 25;
-const BLINK_EVERY_MS = [2500, 5000] as const;
-const BLINK_MS = 160;
 /** The eases are per 60fps frame; other rates scale to it. */
 const FRAME_MS = 1000 / 60;
 /** Longest gap one frame may cover, so a stalled tab does not jump the watcher. */
@@ -88,10 +87,6 @@ const MAX_FRAMES_PER_STEP = 6;
 const SETTLED = 0.01;
 /** ms a prop takes to fade when its move is cut short. */
 const PROP_FADE_MS = 250;
-/** A resting cat's tail swaying with its idle motion peaks at about 0.5; a landing whips it past this, and it is drawn at the quicker rate until it slows. */
-const IDLE_TAIL_WHIP = 1;
-/** Tail segment speed below which the tail counts as at rest. */
-export const TAIL_REST = 0.02;
 
 /** One cat as the page passes it in: names, roles and the dialog photo. */
 export interface CatInfo {
@@ -155,12 +150,10 @@ interface CatState extends CatSpot {
   reportedAsleep: boolean;
   /** When its band left the screen; it is not stepped and its play clock stops meanwhile. */
   hiddenAt?: number;
-  nextBlink: number;
-  blinkUntil: number;
   /** No new move before this; a nap still starts at once. */
   restUntil: number;
   idle: IdleState;
-  /** Resting between moves: breathing, ear flicks and glances are drawn on its pose. */
+  /** Resting between moves: breathing and glances are drawn on its pose. */
   idling: boolean;
   idleDrawnAt: number;
   /** The idle offsets on screen: a move starts from these, not from offsets a frame newer. */
@@ -292,13 +285,11 @@ export const createColony = (
     mood: 'hidden' as CatMood,
     reportedAsleep: false,
     hiddenAt: 0,
-    nextBlink: 0,
-    blinkUntil: 0,
     restUntil: 0,
     idle: createIdle(),
     idling: false,
     idleDrawnAt: 0,
-    idleShown: { ta: 0, bt: 0, ears: 0, hr: 0, tw: 0 },
+    idleShown: { bt: 0, hr: 0 },
   }));
   const watcherId = cats[Math.floor(Math.random() * cats.length)]?.id ?? '';
   const pointerAt = new Map<CatSpot['id'], { x: number; y: number }>();
@@ -351,18 +342,14 @@ export const createColony = (
     updateMood(cat);
   };
 
-  const addIdle = (p: Pose, { ta, bt, ears, hr, tw }: IdleOffsets): void => {
-    p.ta += ta;
+  const addIdle = (p: Pose, { bt, hr }: IdleOffsets): void => {
     p.bt += bt;
-    p.ears = Math.max(p.ears, ears);
     p.hr += hr;
-    p.tw = Math.max(p.tw, tw);
   };
 
   const draw = (cat: CatState, now: number): void => {
     const p = clonePose(cat.pose);
     if (cat.idling) addIdle(p, cat.idleShown);
-    if (now < cat.blinkUntil) p.eyes = 0;
     renderCat(cat.rig, p, now, p.x, cat.groundY);
   };
 
@@ -664,19 +651,16 @@ export const createColony = (
     for (const cat of cats) {
       if (cat.hiddenAt !== undefined) continue;
       const result = step(cat, now, frames);
-      const tailMoving = cat.rig.tailSpeed.some((v) => Math.abs(v) > TAIL_REST);
+      const frameStepping = isStepping(cat.rig, now);
       const resting = result === 'rest';
       /* Timers run only while resting, so each rest starts them afresh. */
       if (resting && !cat.idling) rearmIdle(cat.idle);
       cat.idling = resting;
       if (cat.idling) {
         tickIdle(cat.idle, now);
-        const whipping = cat.rig.tailSpeed.some(
-          (v) => Math.abs(v) > IDLE_TAIL_WHIP,
-        );
-        const gap = idleFrameMs(cat.idle, now, whipping);
+        const gap = idleFrameMs(cat.idle, now, frameStepping);
         const due = now - cat.idleDrawnAt >= gap;
-        /* Next frame: the next idle one, the pause's end, or the nap. The idle sway keeps the tail moving, so it does not hold the loop awake. */
+        /* Next frame: the next idle one, the pause's end, or the nap. */
         wakeAt = Math.min(
           wakeAt,
           cat.restUntil,
@@ -701,12 +685,8 @@ export const createColony = (
                 : Infinity,
           );
         /* A settled or sleeping cat keeps its last drawing. */
-        if (result !== 'draw' && !tailMoving) continue;
+        if (result !== 'draw' && !frameStepping) continue;
         wakeAt = now;
-      }
-      if (!cat.asleep && now > cat.nextBlink) {
-        cat.blinkUntil = now + BLINK_MS;
-        cat.nextBlink = now + rand(...BLINK_EVERY_MS);
       }
       draw(cat, now);
     }
@@ -716,7 +696,6 @@ export const createColony = (
   /** Getting up, then `after` (default: a stretch and a yawn in place, as a cat does on waking). */
   const wakeCat = (cat: CatState, now: number, after?: () => void): void => {
     cat.napAt = now + NAP_AFTER_MS;
-    cat.nextBlink = now + rand(...BLINK_EVERY_MS);
     if (!cat.asleep) return;
     setAsleep(cat, false);
     const facing = Math.sign(cat.pose.face) || 1;
@@ -750,7 +729,7 @@ export const createColony = (
             TRACK_MARGIN +
             (size.width - 2 * TRACK_MARGIN - CONTROL_ROOM) * cat.start;
         onLedge(cat);
-        settleTail(cat.rig);
+        settleFrame(cat.rig);
         draw(cat, performance.now());
       }
     },
@@ -839,7 +818,7 @@ export const createColony = (
         onLedge(cat);
         cat.hiddenAt ??= now;
         updateMood(cat);
-        settleTail(cat.rig);
+        settleFrame(cat.rig);
         draw(cat, now);
       }
     },

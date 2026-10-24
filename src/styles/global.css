@@ -157,23 +157,12 @@
   --color-tile-edge: #5a87a8;
   /* The system color forced-colors mode pairs with the button face; bars on it use `forced-colors:bg-button-text`. */
   --color-button-text: ButtonText;
-  /*
-   * The About cats, read by about-cats.css. Fills are decoration: the sticker
-   * edge (`text`) carries SC 1.4.11, so none of these delimits a control.
-   */
-  /* TODO(fork): Your cats' coat colors; the logo cat uses the second cat's. README "Your cats, or none". */
-  --color-cat-minerva: #a57a4d;
-  --color-cat-minerva-far: #7e5b39;
-  --color-cat-minerva-stripe: #3b2716;
-  --color-cat-minerva-eye: #a4c94a;
+  /* TODO(fork): The logo cat's coat colors. README "Your cats, or none". */
   --color-cat-hela: #f4efe8;
   --color-cat-hela-far: #cfc6ba;
   --color-cat-hela-orange: #d38b45;
   --color-cat-hela-black: #262626;
-  --color-cat-rudra: #211e1d;
-  --color-cat-rudra-far: #3a3431;
-  --color-cat-rudra-eye: #e0a52a;
-  --color-cat-mouth: #4a0f1c;
+  /* The About cats' toy box and scratching post, read by about-cats.css. */
   --color-cat-cardboard: #b0773a;
   --color-cat-cardboard-line: #6b4520;
   /*
@@ -340,6 +329,9 @@
   --text-slide--line-height: 1.35;
   --text-slide-title: clamp(1.625rem, min(4.4vw, 7.8svh), 4.0625rem);
   --text-slide-title--line-height: 1;
+  /* A slide's group label: --text-h3's 22px over --text-body's 18px, kept against --text-slide. */
+  --text-slide-h3: clamp(1.375rem, min(2.32vw, 3.9svh), 2.625rem);
+  --text-slide-h3--line-height: 1.1;
   /*
    * Page-view slide title. The rem floor lets page zoom reach 2x (SC 1.4.4);
    * 24px keeps every title word inside a 305px slide (STYLEGUIDE soft hyphens).
@@ -352,6 +344,7 @@
    */
   --text-slide-frame: clamp(1.0625rem, 3.46cqh, 2.125rem);
   --text-slide-title-frame: clamp(1.625rem, 8.44cqh, 4.0625rem);
+  --text-slide-h3-frame: clamp(1.375rem, 4.23cqh, 2.625rem);
   --text-slide-number-frame: clamp(4.5rem, 17.3cqh, 10rem);
   /* A part opener's number, height-aware like the two above. */
   --text-slide-number: clamp(4.5rem, 16svh, 10rem);
