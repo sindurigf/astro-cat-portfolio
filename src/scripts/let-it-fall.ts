@@ -307,12 +307,13 @@ const stack = (
     const centerX = box.left + box.width / 2;
     const centerY = box.top + box.height / 2;
     const turned = new DOMMatrix().rotate(turn);
-    const corners = [
+    const drawnCorners: readonly (readonly [number, number])[] = [
       [drawn.left, drawn.top],
       [drawn.right, drawn.top],
       [drawn.left, drawn.bottom],
       [drawn.right, drawn.bottom],
-    ].map(([x, y]) =>
+    ];
+    const corners = drawnCorners.map(([x, y]) =>
       turned.transformPoint(new DOMPoint(x - centerX, y - centerY)),
     );
     const minX = Math.min(...corners.map((c) => c.x));
