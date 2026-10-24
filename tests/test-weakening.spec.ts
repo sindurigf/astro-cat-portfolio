@@ -1,13 +1,14 @@
 import { expect, test } from './test';
 import { NODE } from './tags';
 import {
-  fileFindings,
+  changeFindings,
   main,
   ownerApproval,
 } from '../scripts/check-test-weakening.mjs';
 
 /* Trigger text is assembled here so this file never holds a literal the guard flags in tests/. */
 const call = (...parts: string[]): string => `${parts.join('.')}(`;
+const E = 'expect';
 const SKIP = call('test', 'skip');
 const FIXME = call('test', 'describe', 'fixme');
 const FAIL = call('test', 'fail');
@@ -20,25 +21,31 @@ const SPEC = 'tests/example.spec.ts';
 const SCRIPT = 'scripts/check-example.mjs';
 
 const spec = (...lines: string[]): string =>
-  [`import { expect, test } from './test';`, ...lines].join('\n');
+  [`import { ${E}, test } from './test';`, ...lines].join('\n');
 
-const rules = (change: {
+type Change = {
   path: string;
   oldPath?: string;
   oldText: string;
   newText: string;
-}): string[] => fileFindings(change).map(({ rule }) => rule);
+};
+
+const rules = (...changes: Change[]): string[] =>
+  changeFindings(changes).map(({ rule }: { rule: string }) => rule);
 
 const BASE = spec(
   `test('one', () => {`,
-  `  expect(1).toBe(1);`,
-  `  expect(2).toBe(2);`,
+  `  ${E}(1).toBe(1);`,
+  `  ${E}(2).toBe(2);`,
   `});`,
 );
+const withLine = (line: string): string => `${BASE}\n${line}`;
+const inSpec = (newText: string, oldText = BASE): string[] =>
+  rules({ path: SPEC, oldText, newText });
 
 const scalar = (value: string): string => `const ${BUDGET} = ${value};`;
-const map = (value: string): string =>
-  `const ${MAP}: Record<string, number> = {\n  '/': ${value},\n  '/about': 5_000,\n};`;
+const map = (value: string, extra = ''): string =>
+  `const ${MAP}: Record<string, number> = {\n  '/': ${value},\n  '/about': 5_000,${extra}\n};`;
 
 const rejected = (...bullets: string[]): string =>
   ['## Rejected findings', '', ...bullets, '', '## Next'].join('\n');
@@ -48,16 +55,28 @@ test.describe('test-weakening guard', NODE, () => {
     ['a skipped test', `${SKIP}'two', () => {});`],
     ['a fixme describe', `${FIXME}'two', () => {});`],
     ['an expected failure', `${FAIL}'two', () => {});`],
+    ['a skip through test info', `  ${call('testInfo', 'skip')});`],
+    ['a computed test call', `${'test'}[mode]('two', () => {});`],
   ] as const)
     test(`flags ${name}`, () => {
-      expect(
-        rules({ path: SPEC, oldText: BASE, newText: `${BASE}\n${line}` }),
-      ).toEqual([expect.stringContaining('skips or inverts a test')]);
+      expect(inSpec(withLine(line))).toEqual([
+        expect.stringContaining('skips or inverts a test'),
+      ]);
     });
+
+  test('flags describe.configure', () => {
+    expect(
+      inSpec(
+        withLine(`${call('test', 'describe', 'configure')}{ retries: 3 });`),
+      ),
+    ).toEqual([expect.stringContaining('configures how tests run')]);
+  });
 
   for (const [name, line] of [
     ['disabled axe rules', `  .${['disable', 'Rules'].join('')}(['region'])`],
     ['an excluded node', `  ${call('builder', 'exclude')}'.hero')`],
+    ['a rule list', `  ${call('builder', 'withRules')}['region'])`],
+    ['a run-only option', `  .options({ ${'run'}Only: ['wcag2a'] })`],
     [
       'a rule turned off',
       `  rules: { region: { enabled: ${String(false)} } },`,
@@ -65,12 +84,20 @@ test.describe('test-weakening guard', NODE, () => {
     ['filtered violations', `  ${call('violations', 'filter')}(v) => v.id)`],
   ] as const)
     test(`flags ${name}`, () => {
-      expect(
-        rules({ path: SPEC, oldText: BASE, newText: `${BASE}\n${line}` }),
-      ).toEqual([expect.stringContaining('excludes axe rules or nodes')]);
+      expect(inSpec(withLine(line))).toEqual([
+        expect.stringContaining('narrows axe'),
+      ]);
     });
 
-  test('flags a tag dropped from an axe list', () => {
+  test('flags a scan with a narrowed tag list, not a default scan', () => {
+    const scan = (args: string): string => `  await ${'timedScan'}(${args});`;
+    expect(inSpec(withLine(scan(`page, 'home', ['wcag2a']`)))).toEqual([
+      expect.stringContaining('narrows axe tags or rules'),
+    ]);
+    expect(inSpec(withLine(scan(`page, 'home'`)))).toEqual([]);
+  });
+
+  test('flags a tag dropped from an axe list and any change to the axe helper', () => {
     const list = (...tags: string[]): string =>
       `export const AXE_TAGS = [${tags.map((tag) => `'${tag}'`).join(', ')}];`;
     expect(
@@ -80,23 +107,18 @@ test.describe('test-weakening guard', NODE, () => {
         newText: list('wcag2a'),
       }),
     ).toEqual(["drops 'wcag2aa' from AXE_TAGS"]);
+    expect(rules({ path: 'tests/axe.ts', oldText: 'a', newText: 'b' })).toEqual(
+      ['changes the axe helper'],
+    );
   });
 
-  test('flags the net count of removed expect calls, and a deleted spec', () => {
-    const fewer = BASE.replace(`  expect(2).toBe(2);\n`, '');
-    expect(rules({ path: SPEC, oldText: BASE, newText: fewer })).toEqual([
+  test('flags fewer expect calls, commented out, deleted or renamed out of a running spec', () => {
+    const fewer = BASE.replace(`  ${E}(2).toBe(2);\n`, '');
+    expect(inSpec(fewer)).toEqual(['1 fewer expect call (line in base)']);
+    expect(inSpec(BASE.replace(`  ${E}(2)`, `  // ${E}(2)`))).toEqual([
       '1 fewer expect call (line in base)',
     ]);
-    expect(rules({ path: SPEC, oldText: BASE, newText: '' })).toEqual([
-      '2 fewer expect calls (line in base)',
-    ]);
-  });
-
-  test('flags expect calls commented out or moved out of a running spec', () => {
-    const commented = BASE.replace('  expect(2)', '  // expect(2)');
-    expect(rules({ path: SPEC, oldText: BASE, newText: commented })).toEqual([
-      '1 fewer expect call (line in base)',
-    ]);
+    expect(inSpec('')).toEqual(['2 fewer expect calls (line in base)']);
     expect(
       rules({
         path: 'tests/example.spec.ts.off',
@@ -107,32 +129,54 @@ test.describe('test-weakening guard', NODE, () => {
     ).toEqual(['2 fewer expect calls (line in base)']);
   });
 
-  test('flags a widened skip whose first line is unchanged', () => {
-    const skip = (condition: string): string =>
-      `${BASE}\n${SKIP}\n  ${condition},\n  'webkit bug',\n);`;
+  test('flags hollow assertions: no matcher, inside try, an early return, a negation', () => {
+    expect(inSpec(withLine(`  ${E}(3);`))).toEqual([
+      '1 expect with no matcher',
+    ]);
+    expect(
+      inSpec(withLine(`  try {\n    ${E}(3).toBe(3);\n  } catch {}`)),
+    ).toEqual(['puts an expect inside try']);
+    expect(
+      inSpec(BASE.replace(`() => {\n`, `() => {\n  ${'return'};\n`)),
+    ).toEqual(['returns before a test body runs']);
+    expect(inSpec(BASE.replace(`(2).toBe(2)`, `(2).not.toBe(2)`))).toEqual([
+      'negates an assertion',
+    ]);
+  });
+
+  test('flags a changed number in an assertion and a changed test constant', () => {
+    expect(inSpec(BASE.replace(`(2).toBe(2)`, `(2).toBe(1)`))).toEqual([
+      'changes a number in an assertion',
+    ]);
+    const constant = (value: string): string =>
+      `const ${['MIN', 'RING', 'PX'].join('_')} = ${value};`;
     expect(
       rules({
-        path: SPEC,
-        oldText: skip(`browserName === 'webkit'`),
-        newText: skip('true'),
+        path: 'tests/focus.spec.ts',
+        oldText: constant('2'),
+        newText: constant('1'),
       }),
-    ).toEqual([expect.stringContaining('skips or inverts a test')]);
+    ).toEqual(['changes MIN_RING_PX from 2 to 1']);
+  });
+
+  test('flags a widened skip whose first line is unchanged', () => {
+    const skip = (condition: string): string =>
+      withLine(`${SKIP}\n  ${condition},\n  'webkit bug',\n);`);
+    expect(inSpec(skip('true'), skip(`browserName === 'webkit'`))).toEqual([
+      expect.stringContaining('skips or inverts a test'),
+    ]);
   });
 
   test('flags a raised, a removed and a no longer numeric budget or tolerance', () => {
     expect(
       rules({ path: SCRIPT, oldText: scalar('100'), newText: scalar('101') }),
     ).toEqual([`raises ${BUDGET} from 100 to 101`]);
-    expect(
-      rules({ path: SPEC, oldText: map('98_000'), newText: map('99_000') }),
-    ).toEqual([`raises ${MAP}[/] from 98000 to 99000`]);
-    expect(
-      rules({
-        path: SPEC,
-        oldText: map('98_000 // vue'),
-        newText: map('99_000 // vue'),
-      }),
-    ).toEqual([`raises ${MAP}[/] from 98000 to 99000`]);
+    expect(inSpec(map('98_000'), map('97_000'))).toEqual([
+      `raises ${MAP}[/] from 97000 to 98000`,
+    ]);
+    expect(inSpec(map('99_000 // vue'), map('98_000 // vue'))).toEqual([
+      `raises ${MAP}[/] from 98000 to 99000`,
+    ]);
     expect(
       rules({ path: SCRIPT, oldText: scalar('100'), newText: '' }),
     ).toEqual([`removes limit ${BUDGET}`]);
@@ -145,25 +189,30 @@ test.describe('test-weakening guard', NODE, () => {
     ).toEqual([`limit ${BUDGET} is no longer a plain number`]);
     const tolerance = (value: string): string =>
       `const ${['EDGE', 'TOLERANCE'].join('_')} = ${value};`;
-    expect(
-      rules({
-        path: SPEC,
-        oldText: tolerance('0.01'),
-        newText: tolerance('1'),
-      }),
-    ).toEqual([expect.stringContaining('raises EDGE_TOLERANCE')]);
+    expect(inSpec(tolerance('1'), tolerance('0.01'))).toEqual([
+      expect.stringContaining('raises EDGE_TOLERANCE'),
+    ]);
   });
 
-  test('flags any change to a WCAG threshold', () => {
-    const threshold = (value: string): string =>
-      `export const ${['AA', 'TEXT'].join('_')} = ${value};`;
+  test('flags a new budget key above its fallback and a budget scaled where it is used', () => {
+    const fallback = `${scalar('15_500')}\nconst budget = ${MAP}[route] ?? ${BUDGET};`;
     expect(
-      rules({
-        path: 'tests/contrast.ts',
-        oldText: threshold('4.5'),
-        newText: threshold('3'),
-      }),
-    ).toEqual(['changes WCAG threshold AA_TEXT from 4.5 to 3']);
+      inSpec(
+        `${fallback}\n${map('98_000', "\n  '/new': 20_000,")}`,
+        `${fallback}\n${map('98_000')}`,
+      ),
+    ).toEqual([`adds ${MAP}[/new] above its fallback ${BUDGET}`]);
+    expect(
+      inSpec(
+        `${fallback}\n${map('98_000', "\n  '/new': 9_000,")}`,
+        `${fallback}\n${map('98_000')}`,
+      ),
+    ).toEqual([]);
+    const use = (factor: string): string =>
+      `const ok = bytes < ${BUDGET}${factor};`;
+    expect(inSpec(use(' * 2'), use(''))).toEqual([
+      expect.stringContaining('scales a limit where it is used'),
+    ]);
   });
 
   test('flags a new rejected finding, a reused title and a removed heading', () => {
@@ -192,7 +241,7 @@ test.describe('test-weakening guard', NODE, () => {
     ).toEqual(['removes the "Rejected findings" heading']);
   });
 
-  test('flags an edit to the guard, any CI workflow and the runner config', () => {
+  test('flags an edit to the guard, any CI workflow and every file that picks the tests', () => {
     expect(
       rules({
         path: 'scripts/check-test-weakening.mjs',
@@ -207,42 +256,37 @@ test.describe('test-weakening guard', NODE, () => {
         newText: 'name: Test weakening',
       }),
     ).toEqual(['changes a CI workflow']);
-    expect(
-      rules({ path: 'playwright.config.ts', oldText: 'a', newText: 'b' }),
-    ).toEqual(['changes which tests run']);
+    for (const path of [
+      'playwright.config.ts',
+      'playwright.worker.config.ts',
+      'tests/tags.ts',
+      'tests/ports.ts',
+      'scripts/shard-tests.mjs',
+    ])
+      expect(rules({ path, oldText: 'a', newText: 'b' }), path).toEqual([
+        'changes which tests run',
+      ]);
   });
 
   test('passes a new test, an added expect, a lowered budget, a stronger matcher and a moved line', () => {
-    const more = `${BASE}\ntest('two', () => {\n  expect(3).toBe(3);\n});`;
-    expect(rules({ path: SPEC, oldText: BASE, newText: more })).toEqual([]);
+    expect(
+      inSpec(withLine(`test('two', () => {\n  ${E}(3).toBe(3);\n});`)),
+    ).toEqual([]);
     expect(
       rules({ path: SCRIPT, oldText: scalar('100'), newText: scalar('90') }),
     ).toEqual([]);
+    expect(inSpec(map('97_000'), map('98_000'))).toEqual([]);
     expect(
-      rules({ path: SPEC, oldText: map('98_000'), newText: map('97_000') }),
-    ).toEqual([]);
-    const loose = `  expect(list).toEqual([expect.${'stringContaining'}('a')]);`;
-    expect(
-      rules({
-        path: SPEC,
-        oldText: `${BASE}\n${loose}`,
-        newText: `${BASE}\n  expect(list).toEqual(['abc']);`,
-      }),
+      inSpec(
+        withLine(`  ${E}(list).toEqual(['abc']);`),
+        withLine(`  ${E}(list).toEqual([${E}.${'stringContaining'}('a')]);`),
+      ),
     ).toEqual([]);
     const skipped = `${SKIP}cond, 'no feature');`;
-    expect(
-      rules({
-        path: SPEC,
-        oldText: `${BASE}\n${skipped}`,
-        newText: `${skipped}\n${BASE}`,
-      }),
-    ).toEqual([]);
+    expect(inSpec(`${skipped}\n${BASE}`, `${BASE}\n${skipped}`)).toEqual([]);
     expect(
       rules({ path: 'src/pages/index.astro', oldText: BASE, newText: '' }),
     ).toEqual([]);
-  });
-
-  test('passes a renamed spec that keeps its expect calls', () => {
     expect(
       rules({
         path: 'tests/renamed.spec.ts',
@@ -251,6 +295,43 @@ test.describe('test-weakening guard', NODE, () => {
         newText: BASE,
       }),
     ).toEqual([]);
+  });
+
+  test('passes expect calls moved into a helper the spec imports', () => {
+    const helper = `export const ones = () => {\n  ${E}(1).toBe(1);\n  ${E}(2).toBe(2);\n};`;
+    expect(
+      rules(
+        {
+          path: SPEC,
+          oldText: BASE,
+          newText: spec(`import { ones } from './ones';`, `test('one', ones);`),
+        },
+        { path: 'tests/ones.ts', oldText: '', newText: helper },
+      ),
+    ).toEqual([]);
+  });
+
+  test('passes a test constant moved to a helper with its value, and flags one moved with a new value', () => {
+    const name = ['MIN', 'RING', 'PX'].join('_');
+    const constant = (value: string): string =>
+      `export const ${name} = ${value};`;
+    const user = spec(`import { ${name} } from './wcag';`);
+    const moved = (value: string) =>
+      rules(
+        { path: SPEC, oldText: constant('2'), newText: user },
+        { path: 'tests/wcag.ts', oldText: '', newText: constant(value) },
+      );
+    expect(moved('2')).toEqual([]);
+    expect(moved('1')).toEqual([`removes ${name} (2)`]);
+  });
+
+  test('passes edits inside a test that never runs and fail calls that are not Playwright', () => {
+    const skippedTest = (body: string): string =>
+      spec(`${SKIP}'parked', () => {`, body, `});`);
+    expect(inSpec(skippedTest(''), skippedTest(`  ${E}(1).toBe(1);`))).toEqual(
+      [],
+    );
+    expect(inSpec(withLine(`  ${call('photos', 'fail')});`))).toEqual([]);
   });
 
   test("accepts the marker only in the owner's approving review of the tested commit, outside code", () => {

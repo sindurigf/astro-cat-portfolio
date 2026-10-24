@@ -1,8 +1,8 @@
 /*
- * Fails when a change weakens the tests: a skip, an axe exclusion, fewer
- * expect calls, a looser threshold, a new rejected finding, or an edit to this
- * guard. CI runs the default branch's copy (.github/workflows/test-weakening.yml);
- * the owner approves the head commit. See ARCHITECTURE.md.
+ * Fails when a change weakens the tests: a skip, an axe narrowing, fewer or
+ * hollow assertions, a changed threshold, a new rejected finding, or an edit to
+ * the gate itself. CI runs the default branch's copy
+ * (.github/workflows/test-weakening.yml); the owner approves the head commit.
  */
 import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
@@ -23,31 +23,54 @@ const SHA = /^[0-9a-f]{40}$/;
 const SHORT_SHA_LENGTH = 7;
 const MAX_GIT_OUTPUT_BYTES = 64 * 1024 * 1024;
 const MAX_CALL_LINES = 20;
+/* timedScan(page, label, tags, enabledRules): a third argument narrows the tags. */
+const TIMED_SCAN_DEFAULT_ARGS = 2;
 
 const TEST_CODE = /^tests\/.*\.(?:[cm]?[jt]s|tsx?)$/;
 const SPEC_FILE = /^tests\/.*\.spec\.[cm]?[jt]s$/;
 const LIMIT_CODE = /^(?:tests|scripts)\/.*\.(?:[cm]?[jt]s|tsx?)$/;
-const THRESHOLD_FILES = ['tests/contrast.ts', 'tests/wcag.ts'];
-const RUNNER_CONFIGS = ['playwright.config.ts', 'playwright.worker.config.ts'];
+const AXE_HELPER = 'tests/axe.ts';
+/** Files that decide which tests run, in which engines and shards. */
+const RUNNER_FILES = [
+  'playwright.config.ts',
+  'playwright.worker.config.ts',
+  'tests/tags.ts',
+  'tests/ports.ts',
+  'scripts/shard-tests.mjs',
+];
 
-/** Skips or inverts a test: `test.skip`, `test.describe.fixme`, `testInfo.fail(`, `test['skip']`. */
+/** Skips or inverts a test: `test.skip`, `test.describe.fixme`, `testInfo.fail(`, `test[name](`. */
 const SKIP =
-  /\b(?:test|describe|it)(?:\.\w+)*\.(?:skip|fixme|fail)\b|\.(?:skip|fixme|fail)\s*\(|\[\s*['"`](?:skip|fixme|fail)['"`]\s*\]/;
+  /\b(?:test|describe|it)(?:\.\w+)*\.(?:skip|fixme|fail)\b|\b\w*[Ii]nfo(?:\(\))?\.(?:skip|fixme|fail)\s*\(|\b(?:test|describe|it)(?:\.\w+)*\s*\[/;
+
+/** Changes retries, mode or timeout for a group of tests. */
+const CONFIGURE = /\b(?:test|describe)(?:\.\w+)*\.configure\s*\(/;
 
 /** Turns an axe rule off or narrows what a scan or its results cover. */
 const AXE_EXCLUSION =
-  /\bdisableRules\b|\.(?:exclude|include)\s*\(|\benabled\s*:\s*false\b|(?:\b(?:violations|incomplete)|\.nodes)\s*\.\s*filter\s*\(/;
+  /\bdisableRules\b|\.(?:exclude|include|withRules|withTags)\s*\(|\brunOnly\b|\benabled\s*:\s*false\b|(?:\b(?:violations|incomplete)|\.nodes)\s*\.\s*filter\s*\(/;
+const TIMED_SCAN = /\btimedScan\s*\(/;
 
 /** An assertion; asymmetric matchers such as `expect.stringContaining` are values, not calls. */
 const EXPECT_LINE =
   /\bexpect(?!\.(?:any|anything|arrayContaining|closeTo|not|objectContaining|stringContaining|stringMatching)\b)(?:\.\w+)*\s*\(/;
 const EXPECT_CALL = new RegExp(EXPECT_LINE.source, 'g');
+const MATCHER = /\.(?:not\.)?to[A-Z]\w*\s*\(/;
+const NUMBER = /\d[\d_]*(?:\.\d+)?/;
+const NEGATION = /\.not\./;
+const NUMBERS = new RegExp(NUMBER.source, 'g');
+const TRY_BLOCK = /\btry\s*\{/g;
+const EARLY_RETURN = /=>\s*\{\s*return\s*(?:;|\n|\})/g;
+/** `test.skip('title', ...)`: the whole test never runs, so edits inside it change nothing. */
+const SKIPPED_TEST =
+  /\b(?:test|describe|it)(?:\.describe)?\.(?:skip|fixme)\s*\(\s*['"`]/g;
 
 const AXE_LIST =
   /\b(?:const|let|var)\s+(AXE_\w+)\s*(?::[^=]*)?=\s*\[([^\]]*)\]/g;
 const QUOTED = /(['"`])((?:(?!\1).)*)\1/g;
 
 const LIMIT_NAME = String.raw`\w*(?:BUDGET|TOLERANCE)\w*`;
+const LIMIT_ONLY = new RegExp(`^${LIMIT_NAME}$`);
 const SCALAR_LIMIT = new RegExp(
   String.raw`\b(?:const|let|var)\s+(${LIMIT_NAME})\s*(?::[^=;{]*)?=\s*([^;{]+?)\s*;`,
   'g',
@@ -56,34 +79,94 @@ const MAP_LIMIT = new RegExp(
   String.raw`\b(?:const|let|var)\s+(${LIMIT_NAME})\s*(?::[^=;]*)?=\s*\{`,
   'g',
 );
+const SCALED_LIMIT = new RegExp(
+  String.raw`\b${LIMIT_NAME}\b\s*\*|\*\s*\b${LIMIT_NAME}\b`,
+);
 const NUMERIC_CONSTANT =
   /\b(?:const|let|var)\s+([A-Z][A-Z\d_]*)\s*(?::[^=;{]*)?=\s*([^;{]+?)\s*;/g;
 const MAP_ENTRY = /^\s*(['"`]?)([^'"`:]+?)\1\s*:\s*([^,]+?)\s*,?\s*$/;
 const ARITHMETIC = /^[\d_.\s+\-*/()]+$/;
 const TYPE_SUFFIX = /\s+(?:as|satisfies)\s+[\w<>,\s]+$/;
+const RELATIVE_IMPORT = /from\s+['"](\.\.?\/[^'"]+)['"]/g;
+const SCRIPT_EXTENSION = /\.(?:[cm]?[jt]s|tsx?)$/;
+
+const BRACKETS = { '(': ')', '{': '}', '[': ']' };
 
 const normalize = (line) => line.replace(/\s+/g, '');
 
 const lineAt = (text, index) => text.slice(0, index).split('\n').length;
 
-/** The text without `//` and block comments; a quote ends at its line's end, a template literal does not. */
-const withoutComments = (text) => {
+/** Index just past the bracket that closes the one at `open`, or the text's end. */
+const closing = (text, open) => {
+  const opener = text[open];
+  const close = BRACKETS[opener];
+  let depth = 0;
+  for (let index = open; index < text.length; index += 1) {
+    if (text[index] === opener) depth += 1;
+    if (text[index] === close && --depth === 0) return index + 1;
+  }
+  return text.length;
+};
+
+const blank = (part) => part.replace(/[^\n]/g, ' ');
+
+/** A `/` after one of these, or a keyword such as `return`, starts a regex literal, not a division. */
+const REGEX_PRECEDER =
+  /(?:^|[(,=:[!&|?{};+\-*%<>~^]|\b(?:return|typeof|case|in|of))\s*$/;
+
+/** Index just past a regex literal's closing `/` and flags, or its line's end. */
+const regexEnd = (text, start) => {
+  let inClass = false;
+  for (let index = start + 1; index < text.length; index += 1) {
+    const character = text[index];
+    if (character === '\n') return index;
+    if (character === '\\') index += 1;
+    else if (character === '[') inClass = true;
+    else if (character === ']') inClass = false;
+    else if (character === '/' && !inClass) {
+      let end = index + 1;
+      while (/[a-z]/i.test(text[end] ?? '')) end += 1;
+      return end;
+    }
+  }
+  return text.length;
+};
+
+/**
+ * The text with comments blanked to spaces, and string contents too when
+ * `strings` is 'blank'; quotes and newlines stay, so offsets keep their lines.
+ * A quote ends at its line's end, a template literal does not.
+ */
+const blankComments = (text, { strings = 'keep' } = {}) => {
   let kept = '';
   let quote = null;
   for (let index = 0; index < text.length; index += 1) {
     const character = text[index];
     const pair = text.slice(index, index + 2);
     if (quote) {
-      kept += character;
-      if (character === '\\') kept += text[++index] ?? '';
-      else if (character === quote || (character === '\n' && quote !== '`'))
+      const closes =
+        character === quote || (character === '\n' && quote !== '`');
+      if (character === '\\') {
+        const escaped = character + (text[++index] ?? '');
+        kept += strings === 'blank' ? blank(escaped) : escaped;
+      } else if (closes) {
         quote = null;
+        kept += character;
+      } else kept += strings === 'blank' ? blank(character) : character;
     } else if (pair === '//') {
       const lineEnd = text.indexOf('\n', index);
-      index = (lineEnd === -1 ? text.length : lineEnd) - 1;
+      const end = lineEnd === -1 ? text.length : lineEnd;
+      kept += blank(text.slice(index, end));
+      index = end - 1;
     } else if (pair === '/*') {
       const close = text.indexOf('*/', index + 2);
-      index = close === -1 ? text.length : close + 1;
+      const end = close === -1 ? text.length : close + 2;
+      kept += blank(text.slice(index, end));
+      index = end - 1;
+    } else if (character === '/' && REGEX_PRECEDER.test(kept)) {
+      const end = regexEnd(text, index);
+      kept += text.slice(index, end);
+      index = end - 1;
     } else {
       if (`'"\``.includes(character)) quote = character;
       kept += character;
@@ -92,54 +175,98 @@ const withoutComments = (text) => {
   return kept;
 };
 
-/** The line, plus the lines after it until its first `(` closes, so a call's arguments are part of its text. */
-const wholeCall = (lines, index) => {
-  let depth = 0;
-  let opened = false;
-  const parts = [];
-  for (
-    let at = index;
-    at < Math.min(lines.length, index + MAX_CALL_LINES);
-    at += 1
-  ) {
-    parts.push(lines[at]);
-    for (const character of lines[at]) {
-      if (character === '(') [depth, opened] = [depth + 1, true];
-      if (character === ')') depth -= 1;
-    }
-    if (opened && depth <= 0) break;
+/** The code that runs: comments, string contents and the bodies of tests that never run blanked. */
+export const liveCode = (text) =>
+  blankSkipped(blankComments(text, { strings: 'blank' }));
+
+const blankSkipped = (code) => {
+  let result = code;
+  for (const match of code.matchAll(SKIPPED_TEST)) {
+    const open = match.index + match[0].lastIndexOf('(');
+    const end = closing(code, open);
+    result =
+      result.slice(0, open) +
+      blank(result.slice(open, end)) +
+      result.slice(end);
   }
-  return parts.join('\n');
+  return result;
 };
 
-/** Lines of `newText` matching `pattern` beyond those `oldText` already had, compared by whitespace-free text. */
+/** From the first `(` at or after `column` on line `index`, the text up to its closing `)`. */
+const callText = (lines, index, column = 0) => {
+  const text = lines.slice(index, index + MAX_CALL_LINES).join('\n');
+  const open = text.indexOf('(', column);
+  if (open === -1) return lines[index];
+  return text.slice(column, closing(text, open));
+};
+
+/** A key function for `newMatchingLines`: the call that `pattern` starts on that line. */
+const callAt = (pattern) => (lines, index) => {
+  const column = lines[index].search(pattern);
+  return callText(lines, index, Math.max(column, 0));
+};
+
+/** A titled skip is keyed by its line, so edits inside the parked test do not count as a new skip. */
+const skipKey = (lines, index) =>
+  new RegExp(SKIPPED_TEST.source).test(lines[index])
+    ? lines[index]
+    : callAt(SKIP)(lines, index);
+
+/**
+ * Lines of `newText` matching `pattern` beyond those `oldText` already had,
+ * compared by `keyAt`'s whitespace-free text.
+ */
 export const newMatchingLines = (
   oldText,
   newText,
   pattern,
-  textAt = (lines, index) => lines[index],
+  keyAt = (lines, index) => lines[index],
 ) => {
   const remaining = new Map();
   const oldLines = oldText.split('\n');
   oldLines.forEach((line, index) => {
     if (!pattern.test(line)) return;
-    const key = normalize(textAt(oldLines, index));
+    const key = normalize(keyAt(oldLines, index));
     remaining.set(key, (remaining.get(key) ?? 0) + 1);
   });
   const added = [];
   const newLines = newText.split('\n');
   newLines.forEach((line, index) => {
     if (!pattern.test(line)) return;
-    const key = normalize(textAt(newLines, index));
-    const left = remaining.get(key) ?? 0;
-    if (left > 0) remaining.set(key, left - 1);
-    else added.push({ line: index + 1, text: line.trim() });
+    const key = keyAt(newLines, index);
+    const left = remaining.get(normalize(key)) ?? 0;
+    if (left > 0) remaining.set(normalize(key), left - 1);
+    else added.push({ line: index + 1, text: line.trim(), key });
   });
   return added;
 };
 
-const countExpects = (text) =>
-  (withoutComments(text).match(EXPECT_CALL) ?? []).length;
+const countExpects = (code) => (code.match(EXPECT_CALL) ?? []).length;
+
+/** Each expect call in live code with no `.matcher(` after it, as offsets. */
+const hollowExpects = (code) =>
+  [...code.matchAll(EXPECT_CALL)]
+    .filter((match) => {
+      const end = closing(code, match.index + match[0].length - 1);
+      return !/^\s*\./.test(code.slice(end));
+    })
+    .map((match) => match.index);
+
+/** Expect calls in a `try` whose `catch` does not rethrow, so it can swallow their failure. */
+const expectsInTry = (code) =>
+  [...code.matchAll(TRY_BLOCK)].reduce((sum, match) => {
+    const open = match.index + match[0].length - 1;
+    const end = closing(code, open);
+    const handler = code.slice(end).match(/^\s*catch\s*(?:\([^)]*\))?\s*\{/);
+    if (!handler) return sum;
+    const handlerOpen = end + handler[0].length - 1;
+    const rethrows = /\bthrow\b/.test(
+      code.slice(handlerOpen, closing(code, handlerOpen)),
+    );
+    return rethrows ? sum : sum + countExpects(code.slice(open, end));
+  }, 0);
+
+const earlyReturns = (code) => (code.match(EARLY_RETURN) ?? []).length;
 
 /** Evaluates a numeric literal or plain arithmetic of literals; anything else is `null`. */
 export const numericValue = (source) => {
@@ -153,15 +280,6 @@ export const numericValue = (source) => {
   } catch {
     return null;
   }
-};
-
-const closingBrace = (text, open) => {
-  let depth = 0;
-  for (let index = open; index < text.length; index += 1) {
-    if (text[index] === '{') depth += 1;
-    if (text[index] === '}' && --depth === 0) return index;
-  }
-  return text.length;
 };
 
 const scalars = (text, pattern) => {
@@ -180,19 +298,24 @@ export const limits = (text) => {
   const found = scalars(text, SCALAR_LIMIT);
   for (const match of text.matchAll(MAP_LIMIT)) {
     const open = match.index + match[0].length - 1;
-    const body = text.slice(open + 1, closingBrace(text, open));
+    const body = text.slice(open + 1, closing(text, open) - 1);
     const firstLine = lineAt(text, open);
     body.split('\n').forEach((entry, offset) => {
-      const parts = withoutComments(entry).match(MAP_ENTRY);
+      const parts = blankComments(entry).match(MAP_ENTRY);
       if (!parts) return;
       found.set(`${match[1]}[${parts[2]}]`, {
         value: numericValue(parts[3]),
         line: firstLine + offset,
+        map: match[1],
       });
     });
   }
   return found;
 };
+
+/** The scalar a map falls back to, as in `MAP[route] ?? FALLBACK`. */
+const fallbackOf = (text, map) =>
+  text.match(new RegExp(String.raw`\b${map}\s*\[[^\]]*\]\s*\?\?\s*(\w+)`))?.[1];
 
 const axeLists = (text) => {
   const lists = new Map();
@@ -203,6 +326,49 @@ const axeLists = (text) => {
     });
   }
   return lists;
+};
+
+/** Top-level arguments in a call's text, from its first `(`. */
+const argumentCount = (call) => {
+  const open = call.indexOf('(');
+  const inner = call.slice(open + 1, closing(call, open) - 1);
+  if (inner.trim() === '') return 0;
+  let depth = 0;
+  let count = 1;
+  for (const character of inner) {
+    if ('([{'.includes(character)) depth += 1;
+    if (')]}'.includes(character)) depth -= 1;
+    if (character === ',' && depth === 0) count += 1;
+  }
+  return inner.trim().endsWith(',') ? count - 1 : count;
+};
+
+/** Matcher lines only one side has, each with its line number, for pairing edits. */
+const unpairedMatchers = (oldLines, newLines) => {
+  const count = (lines) => {
+    const counts = new Map();
+    for (const line of lines) {
+      if (!MATCHER.test(line)) continue;
+      counts.set(normalize(line), (counts.get(normalize(line)) ?? 0) + 1);
+    }
+    return counts;
+  };
+  const oldCounts = count(oldLines);
+  const newCounts = count(newLines);
+  const removed = [];
+  for (const [key, number] of oldCounts)
+    for (let left = number - (newCounts.get(key) ?? 0); left > 0; left -= 1)
+      removed.push(key);
+  const added = [];
+  const seen = new Map();
+  newLines.forEach((line, index) => {
+    if (!MATCHER.test(line)) return;
+    const key = normalize(line);
+    const used = (seen.get(key) ?? 0) + 1;
+    seen.set(key, used);
+    if (used > (oldCounts.get(key) ?? 0)) added.push({ key, line: index + 1 });
+  });
+  return { removed, added };
 };
 
 /** Each bullet under "Rejected findings", nested ones included, with its continuation lines joined. */
@@ -240,8 +406,11 @@ export const newRejectedFindings = (oldText, newText) => {
   });
 };
 
+const plural = (count, word) => `${count} ${word}${count === 1 ? '' : 's'}`;
+
 /**
- * Findings for one changed file. `oldPath` is the base path (a rename's
+ * Findings for one changed file, apart from fewer expect calls, which
+ * `changeFindings` weighs across files. `oldPath` is the base path (a rename's
  * source); an added file has `oldText` '', a deleted one `newText` ''.
  */
 export const fileFindings = ({ path, oldPath = path, oldText, newText }) => {
@@ -249,28 +418,24 @@ export const fileFindings = ({ path, oldPath = path, oldText, newText }) => {
   const add = (line, rule, file = path) => findings.push({ file, line, rule });
 
   if (TEST_CODE.test(path) || TEST_CODE.test(oldPath)) {
-    const runs =
-      SPEC_FILE.test(oldPath) && !SPEC_FILE.test(path) ? '' : newText;
+    const runs = runningText({ path, oldPath, newText });
+    const oldCode = liveCode(oldText);
+    const newCode = liveCode(runs);
 
-    for (const { line, text } of newMatchingLines(
+    for (const { line, text } of newMatchingLines(oldText, runs, SKIP, skipKey))
+      add(line, `skips or inverts a test: ${text}`);
+    for (const { line, text } of newMatchingLines(oldText, runs, CONFIGURE))
+      add(line, `configures how tests run: ${text}`);
+    for (const { line, text } of newMatchingLines(oldText, runs, AXE_EXCLUSION))
+      add(line, `narrows axe: ${text}`);
+    for (const { line, text, key } of newMatchingLines(
       oldText,
       runs,
-      SKIP,
-      wholeCall,
+      TIMED_SCAN,
+      callAt(TIMED_SCAN),
     ))
-      add(line, `skips or inverts a test: ${text}`);
-    for (const { line, text } of newMatchingLines(oldText, runs, AXE_EXCLUSION))
-      add(line, `excludes axe rules or nodes: ${text}`);
-
-    const removed = countExpects(oldText) - countExpects(runs);
-    if (removed > 0) {
-      const firstGone = newMatchingLines(runs, oldText, EXPECT_LINE)[0];
-      add(
-        firstGone?.line ?? 1,
-        `${removed} fewer expect call${removed === 1 ? '' : 's'} (line in base)`,
-        oldPath,
-      );
-    }
+      if (argumentCount(key) > TIMED_SCAN_DEFAULT_ARGS)
+        add(line, `narrows axe tags or rules: ${text}`);
 
     const newLists = axeLists(runs);
     for (const [name, { entries, line }] of axeLists(oldText)) {
@@ -278,33 +443,87 @@ export const fileFindings = ({ path, oldPath = path, oldText, newText }) => {
       for (const entry of entries.filter((entry) => !kept.includes(entry)))
         add(newLists.get(name)?.line ?? line, `drops '${entry}' from ${name}`);
     }
+
+    const after = scalars(runs, NUMERIC_CONSTANT);
+    for (const [name, before] of scalars(oldText, NUMERIC_CONSTANT)) {
+      if (LIMIT_ONLY.test(name) || before.value === null) continue;
+      const now = after.get(name);
+      if (!now)
+        findings.push({
+          file: path,
+          line: before.line,
+          rule: `removes ${name} (${before.value})`,
+          constant: { name, value: before.value },
+        });
+      else if (now.value !== before.value)
+        add(now.line, `changes ${name} from ${before.value} to ${now.value}`);
+    }
+
+    const { removed, added } = unpairedMatchers(
+      oldCode.split('\n'),
+      newCode.split('\n'),
+    );
+    const pool = (keys) => {
+      const counts = new Map();
+      for (const key of keys) counts.set(key, (counts.get(key) ?? 0) + 1);
+      return (key) => {
+        const left = counts.get(key) ?? 0;
+        if (left > 0) counts.set(key, left - 1);
+        return left > 0;
+      };
+    };
+    const takeExact = pool(removed);
+    const takeShape = pool(removed.map((key) => key.replace(NUMBERS, '#')));
+    for (const { key, line } of added) {
+      if (NEGATION.test(key) && takeExact(key.replace(NEGATION, '.')))
+        add(line, 'negates an assertion');
+      else if (NUMBER.test(key) && takeShape(key.replace(NUMBERS, '#')))
+        add(line, 'changes a number in an assertion');
+    }
+
+    const hollowBefore = hollowExpects(oldCode).length;
+    const hollowNow = hollowExpects(newCode);
+    if (hollowNow.length > hollowBefore)
+      add(
+        lineAt(newCode, hollowNow.at(-1)),
+        `${plural(hollowNow.length - hollowBefore, 'expect')} with no matcher`,
+      );
+    if (expectsInTry(newCode) > expectsInTry(oldCode))
+      add(1, 'puts an expect inside try');
+    if (earlyReturns(newCode) > earlyReturns(oldCode))
+      add(1, 'returns before a test body runs');
   }
+
+  if (oldPath === AXE_HELPER && oldText !== newText)
+    add(1, 'changes the axe helper', oldPath);
 
   if (LIMIT_CODE.test(path) || LIMIT_CODE.test(oldPath)) {
+    const before = limits(oldText);
     const after = limits(newText);
-    for (const [name, before] of limits(oldText)) {
+    for (const [name, was] of before) {
       const now = after.get(name);
-      if (!now) add(before.line, `removes limit ${name}`, oldPath);
-      else if (before.value !== null && now.value === null)
+      if (!now) add(was.line, `removes limit ${name}`, oldPath);
+      else if (was.value !== null && now.value === null)
         add(now.line, `limit ${name} is no longer a plain number`);
-      else if (before.value !== null && now.value > before.value)
-        add(now.line, `raises ${name} from ${before.value} to ${now.value}`);
+      else if (was.value !== null && now.value > was.value)
+        add(now.line, `raises ${name} from ${was.value} to ${now.value}`);
     }
+    for (const [name, now] of after) {
+      if (before.has(name) || !now.map) continue;
+      const fallback = fallbackOf(newText, now.map);
+      const floor = fallback && after.get(fallback)?.value;
+      if (typeof floor === 'number' && now.value > floor)
+        add(now.line, `adds ${name} above its fallback ${fallback}`);
+    }
+    for (const { line, text } of newMatchingLines(
+      liveCode(oldText),
+      liveCode(newText),
+      SCALED_LIMIT,
+    ))
+      add(line, `scales a limit where it is used: ${text}`);
   }
 
-  if (THRESHOLD_FILES.includes(oldPath)) {
-    const after = scalars(newText, NUMERIC_CONSTANT);
-    for (const [name, before] of scalars(oldText, NUMERIC_CONSTANT)) {
-      const now = after.get(name);
-      if (before.value !== null && now?.value !== before.value)
-        add(
-          now?.line ?? before.line,
-          `changes WCAG threshold ${name} from ${before.value} to ${now?.value ?? 'nothing'}`,
-        );
-    }
-  }
-
-  if (RUNNER_CONFIGS.includes(oldPath) && oldText !== newText)
+  if (RUNNER_FILES.includes(oldPath) && oldText !== newText)
     add(1, 'changes which tests run', oldPath);
 
   if (oldPath === ARCHITECTURE) {
@@ -321,6 +540,88 @@ export const fileFindings = ({ path, oldPath = path, oldText, newText }) => {
     add(1, 'changes a CI workflow');
 
   return findings;
+};
+
+/** The text Playwright still runs: none once a spec is renamed out of `*.spec.*`. */
+const runningText = ({ path, oldPath = path, newText }) =>
+  SPEC_FILE.test(oldPath) && !SPEC_FILE.test(path) ? '' : newText;
+
+const importsOf = (path, text) =>
+  [...text.matchAll(RELATIVE_IMPORT)].map(([, specifier]) => {
+    const parts = [...path.split('/').slice(0, -1), ...specifier.split('/')];
+    const resolved = [];
+    for (const part of parts) {
+      if (part === '..') resolved.pop();
+      else if (part !== '.') resolved.push(part);
+    }
+    return resolved.join('/');
+  });
+
+/**
+ * Every finding across a change. A file with fewer expect calls passes when
+ * test helpers it imports gained at least as many: the check moved, not went.
+ */
+export const changeFindings = (files) => {
+  const gained = new Map();
+  const losses = [];
+  for (const file of files) {
+    const { path, oldPath = path, oldText } = file;
+    if (!TEST_CODE.test(path) && !TEST_CODE.test(oldPath)) continue;
+    const delta =
+      countExpects(liveCode(runningText(file))) -
+      countExpects(liveCode(oldText));
+    if (delta > 0) gained.set(path.replace(SCRIPT_EXTENSION, ''), delta);
+    if (delta < 0) losses.push({ ...file, oldPath, removed: -delta });
+  }
+
+  const moved = losses.flatMap(
+    ({ path, oldPath, oldText, newText, removed }) => {
+      const helpers = importsOf(path, newText).reduce(
+        (sum, helper) =>
+          sum + (gained.get(helper.replace(SCRIPT_EXTENSION, '')) ?? 0),
+        0,
+      );
+      if (helpers >= removed) return [];
+      const firstGone = newMatchingLines(newText, oldText, EXPECT_LINE)[0];
+      return [
+        {
+          file: oldPath,
+          line: firstGone?.line ?? 1,
+          rule: `${plural(removed, 'fewer expect call')} (line in base)`,
+        },
+      ];
+    },
+  );
+
+  const defined = files.flatMap((file) =>
+    TEST_CODE.test(file.path)
+      ? [...scalars(file.newText, NUMERIC_CONSTANT)].map(
+          ([name, { value }]) => ({
+            path: file.path,
+            name,
+            value,
+          }),
+        )
+      : [],
+  );
+  const relocated = ({ file, constant }) => {
+    if (!constant) return false;
+    const { name, value } = constant;
+    const elsewhere = defined.filter(
+      (other) => other.name === name && other.path !== file,
+    );
+    if (elsewhere.length > 0)
+      return elsewhere.every((other) => other.value === value);
+    const newText = files.find(({ path }) => path === file)?.newText ?? '';
+    return new RegExp(
+      String.raw`import\s*(?:type\s*)?\{[^}]*\b${name}\b[^}]*\}`,
+    ).test(newText);
+  };
+
+  return [
+    ...files.flatMap(fileFindings).filter((finding) => !relocated(finding)),
+    ...moved,
+  ];
 };
 
 const approvalReason = (body) => {
@@ -454,12 +755,9 @@ export const main = async ({
     base = git('merge-base', `origin/${DEFAULT_BASE}`, 'HEAD').trim();
   }
 
-  const findings = changedFiles({
-    git,
-    base,
-    head,
-    readWorking: readFile,
-  }).flatMap(fileFindings);
+  const findings = changeFindings(
+    changedFiles({ git, base, head, readWorking: readFile }),
+  );
   if (findings.length === 0) {
     log('Test weakening: none.');
     return 0;

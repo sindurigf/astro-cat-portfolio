@@ -413,19 +413,30 @@ Rejected:
 - A count in a comment states its unit.
 - A fact duplicated across Markdown files needs a check that fails when the
   copies disagree; otherwise keep one copy and link.
-- **Test weakening needs the owner, out of band.** The `Test weakening` workflow
-  runs on `pull_request_target`, so the default branch's copy of
+- **Test weakening needs the owner, out of band.** The `Test weakening`
+  workflow runs on `pull_request_target`, so the default branch's copy of
   `scripts/check-test-weakening.mjs` judges each pull request. The head is
-  fetched as git objects; nothing from it is installed or run. It flags a new or
-  widened skip, fixme or fail, an axe exclusion or dropped `AXE_*` entry, net
-  fewer `expect` calls in a running spec, a raised or removed `*BUDGET*` or
-  `*TOLERANCE*`, a changed threshold in `tests/contrast.ts` or `tests/wcag.ts`,
-  a Playwright config change, a new or edited rejected finding, an edit to the
-  guard and any workflow change. A finding passes only with an `APPROVED` review
-  by `GITHUB_REPOSITORY_OWNER` on the head commit carrying
-  `Approved test change: <reason>`, then a re-run; a new push needs a new
-  approval. GitHub blocks approving your own pull request, so this holds only
-  while agents work under their own account. Indirection evades text matching.
+  fetched as git objects; nothing from it is installed or run. It flags:
+  - a new or widened skip, fixme or fail, and `describe.configure`;
+  - axe narrowing: `disableRules`, `exclude`, `include`, `withRules`,
+    `withTags`, `runOnly`, `enabled: false`, filtered results, a `timedScan`
+    tag list, a dropped `AXE_*` entry, any edit to `tests/axe.ts`;
+  - net fewer `expect` calls in a running spec, unless a helper it imports
+    gained them;
+  - an `expect` with no matcher, inside a `try` whose `catch` does not rethrow,
+    or behind an early `return`; a negated or renumbered matcher;
+  - a changed or removed upper-case numeric constant in `tests/`; a raised or
+    removed `*BUDGET*` or `*TOLERANCE*`, a new map key above its fallback, a
+    budget multiplied where it is used;
+  - edits to what picks the tests: the Playwright configs, `tests/tags.ts`,
+    `tests/ports.ts`, `scripts/shard-tests.mjs`;
+  - a new or edited rejected finding, an edit to the guard, any workflow change.
+
+  A finding passes only with an `APPROVED` review by `GITHUB_REPOSITORY_OWNER`
+  on the head commit carrying `Approved test change: <reason>`, then a re-run;
+  a new push needs a new approval. GitHub blocks approving your own pull
+  request, so this holds only while agents work under their own account. It
+  matches text, so indirection evades it.
 
 ### Claims that rest on a platform setting
 
