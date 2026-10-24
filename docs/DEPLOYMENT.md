@@ -250,6 +250,9 @@ Dashboard settings that change what ships without a file change.
   passes. A branch ruleset requires a status by its job `name`, so requiring
   this one covers every job, the test shards included. Rename it in the
   workflow and the ruleset together, or no pull request can merge.
+- CI runs on pushes to `main` and on every pull request, whatever its base
+  branch, so a stacked pull request gets the full gate. Its commits are checked
+  against its own base branch, not `main`.
 - Turn on Dependabot alerts, automated security fixes and private
   vulnerability reporting ([SECURITY.md](../SECURITY.md)).
 - Optional Actions secret `CLOUDFLARE_API_TOKEN` and variable
