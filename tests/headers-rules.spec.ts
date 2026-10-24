@@ -491,6 +491,14 @@ test.describe('security headers as declared and served', NODE, () => {
     expect((await request.get(`${policy().origin}/`)).status()).toBe(200);
   });
 
+  test('a // path is refused, and the server keeps serving', async ({
+    request,
+  }) => {
+    const doubled = await request.get(`${policy().origin}//`);
+    expect(doubled.status(), 'a // path should get 400').toBe(400);
+    expect((await request.get(`${policy().origin}/`)).status()).toBe(200);
+  });
+
   test('the 404 response carries the headers too', async ({ request }) => {
     const response = await request.get(
       `${policy().origin}/no-such-path-${Date.now()}`,
