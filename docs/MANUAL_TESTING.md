@@ -411,7 +411,135 @@ Needs Windows and Apple hardware. Open in ACCESSIBILITY.md §7 gap 2.
 - [ ] NVDA: §6 in Chrome and Firefox, plus browse and focus mode in the dialog. → needs Windows
 - [ ] VoiceOver on a Mac: Safari (`Cmd+F5`, rotor `Ctrl+Opt+U`). → needs a Mac
 
-#### 6.10.1 VoiceOver on iPhone
+#### 6.10.1 TalkBack on Android
+
+About 20 minutes, Chrome on an Android phone, your site. Turn TalkBack on in
+Settings, Accessibility, TalkBack, or hold both volume keys for a few seconds
+once the shortcut is set
+([Google](https://support.google.com/accessibility/android/answer/6007100)).
+Swipe right for the next item, left for the previous one, double-tap to
+activate, two fingers to scroll. Reading controls change what a swipe up or
+down moves by (Headings, Links, Controls): a three-finger swipe up or down, or
+one finger up then down
+([gestures](https://support.google.com/accessibility/android/answer/6151827),
+[reading controls](https://support.google.com/accessibility/android/answer/6007066)).
+Record the phone, Android, TalkBack and Chrome versions and the date.
+
+Each reader orders name, role and state its own way, and versions change the
+words: the steps give the words that must be there, not their order. Neither
+Google nor GNOME documents the exact phrases, so fail a step only when a name,
+role or state is missing or wrong. The results, with the device, versions and
+date, are human-confirmed evidence for ACCESSIBILITY.md §6.
+
+Header:
+
+- [ ] Open your site in Chrome. Touch the top left of the page, then swipe right through the header. Expect: your site name, then “link”, with no separate image announced for the mark. → SC 1.1.1, 4.1.2
+- [ ] Keep swiping right. Expect: “Theme”, “Aa Text Size” and “Menu”, each with “button” and “collapsed”. → SC 4.1.2
+
+Menu:
+
+- [ ] Double-tap Menu. Expect: The menu opens and TalkBack says “Menu” and “dialog”, or moves into it. → SC 4.1.2
+- [ ] Swipe right through the menu. Expect: “Home”, “About”, “Career”, “Blog” and “Get in Touch”, each a link, then “Close”, a button, and nothing from the page behind it. → SC 2.4.3
+- [ ] Double-tap Close. Expect: Focus lands back on Menu, now “collapsed”. → SC 2.4.3, 4.1.2
+
+Text Size:
+
+- [ ] Double-tap “Aa Text Size”, then swipe right. Expect: “expanded”, then “Text Size”, then “Drink Me, Smaller text”, “Eat Me, Larger text” and “Just Right, Back to 100 percent”, each a button. Just Right says “disabled” at 100%. → SC 4.1.2
+- [ ] Double-tap Eat Me. Expect: “Text is 125%.” and the text grows. → SC 4.1.3, 1.4.4
+- [ ] Double-tap Just Right. Expect: “Text is 100%.” and the text is back to normal. → SC 4.1.3
+
+Theme:
+
+- [ ] Double-tap Theme, then swipe right. Expect: “expanded”, then “Theme”, then System, Light and Dark as radio buttons, the current one “checked”. → SC 4.1.2
+- [ ] Double-tap the theme that is not selected now, Light or Dark. Expect: The page changes theme and that radio button now says “checked”. → SC 4.1.2
+
+Let It Fall:
+
+- [ ] Scroll to the footer with a two-finger swipe up, then swipe to “Let It Fall”. Expect: “Let It Fall”, then “button”. → SC 4.1.2
+- [ ] Double-tap it. Expect: “The page fell down. Press Put It Back to rebuild it.” and the button now reads “Put It Back”. → SC 4.1.3
+- [ ] Double-tap Put It Back. Expect: “The page is back in place.” and everything is where it was. → SC 4.1.3
+
+Contact Form:
+
+- [ ] Open /contact and swipe to the form. Expect: “Name (required)”, an edit box, then “Email (required)” with “Used to reply, and nothing else.”, then “Message (required)” with “Between 10 and 5000 characters.” → SC 1.3.1, 3.3.2
+- [ ] Leave every field empty and double-tap Send Message. Expect: The page reloads and TalkBack starts at “There Are 3 Problems with This Form”, a heading, with a link for each problem. → SC 3.3.1, 2.4.3
+- [ ] Double-tap the first problem link. Expect: Focus moves into the Name field, and its error is read with it. → SC 3.3.1
+
+404 Follow Me:
+
+- [ ] Open your site/blgo/how-i-get-to-know-a-new-ilsand (the typos are on purpose). Set reading controls to Headings, then swipe down. Expect: The first heading is “I’m Late! This Page Is Gone”, heading level 1. No image is announced. → SC 1.3.1, 1.1.1
+- [ ] Swipe right to the White Rabbit's link. Expect: “Follow Me to How I Get to Know a New Island”, a link: it names the page the address meant. → SC 2.4.4
+- [ ] Double-tap it. Expect: The How I Get to Know a New Island post opens and its title is read. → SC 2.1.1
+
+Heard: `________________________`
+
+#### 6.10.2 Orca on Linux
+
+About 20 minutes, Firefox or Chrome on Linux, your site. Super+Alt+S turns
+Orca on and off
+([Orca](https://help.gnome.org/orca/commands_controlling_orca.html)). The Orca
+key is Insert on the desktop layout and Caps Lock on the laptop layout
+([modifier](https://help.gnome.org/users/orca/stable/howto_the_orca_modifier.html)).
+Orca+H starts Learn Mode, which names each key you press; Esc leaves it
+([learn mode](https://help.gnome.org/users/orca/stable/howto_learn_modes.html)).
+Web pages open in browse mode, where arrows read and H, K, B, F and 1 jump by
+heading, link, button, form field and level 1 heading; Orca+A switches between
+browse and focus mode
+([forms](https://help.gnome.org/users/orca/stable/howto_forms.html),
+[structural navigation](https://help.gnome.org/orca/commands_structural_navigation.html)).
+Tab moves between controls in either mode. Record the distribution, Orca and
+browser versions and the date.
+
+The Menu button shows below 768px: zoom in until it appears, the layout the
+site uses at high zoom.
+
+Wording and recording work as in §6.10.1.
+
+Header:
+
+- [ ] Open your site in Firefox. Press Ctrl+Home, then Down Arrow through the header. Expect: your site name and “link”, with no separate image announced for the mark. → SC 1.1.1, 4.1.2
+- [ ] Zoom in with Ctrl and + until the Menu button shows (about 250 to 300%), then press Tab through the header. Expect: “Theme”, “Aa Text Size” and “Menu”, each with “button” and “collapsed”. → SC 4.1.2
+
+Menu:
+
+- [ ] Press Enter on Menu. Expect: The menu opens and Orca says “Menu dialog”, or moves into it. → SC 4.1.2
+- [ ] Press Tab through the menu. Expect: “Home”, “About”, “Career”, “Blog” and “Get in Touch”, each a link, then “Close”, a button, and Tab never leaves the menu. → SC 2.4.3
+- [ ] Press Enter on Close. Expect: Focus lands back on Menu, now “collapsed”. → SC 2.4.3, 4.1.2
+
+Text Size:
+
+- [ ] Press Enter on “Aa Text Size”, then Tab. Expect: “expanded”, then “Text Size”, then “Drink Me, Smaller text”, “Eat Me, Larger text” and “Just Right, Back to 100 percent”, each a button. Just Right says “grayed” or “unavailable” at 100%. → SC 4.1.2
+- [ ] Press Enter on Eat Me. Expect: “Text is 125%.” and the text grows. → SC 4.1.3, 1.4.4
+- [ ] Press Enter on Just Right. Expect: “Text is 100%.” and the text is back to normal. → SC 4.1.3
+
+Theme:
+
+- [ ] Press Enter on Theme, then Tab. Expect: “expanded”, then “Theme”, then a radio button for the current theme with “checked” or “selected”; Up and Down Arrow move between System, Light and Dark. → SC 4.1.2
+- [ ] Press Space on the theme that is not selected now, Light or Dark. Expect: The page changes theme and that radio button is now “checked” or “selected”. → SC 4.1.2
+
+Let It Fall:
+
+- [ ] Press B until you reach “Let It Fall”. (B moves to the next button in browse mode.) Expect: “Let It Fall push button”. → SC 4.1.2
+- [ ] Press Enter on it. Expect: “The page fell down. Press Put It Back to rebuild it.” and the button now reads “Put It Back”. → SC 4.1.3
+- [ ] Press Enter on Put It Back. Expect: “The page is back in place.” and everything is where it was. → SC 4.1.3
+
+Contact Form:
+
+- [ ] Open /contact and press F to reach the first field, then Tab. Expect: “Name (required)”, an entry, then “Email (required)” with “Used to reply, and nothing else.”, then “Message (required)” with “Between 10 and 5000 characters.” → SC 1.3.1, 3.3.2
+- [ ] Leave every field empty, Tab to Send Message and press Enter. Expect: The page reloads and Orca starts at “There Are 3 Problems with This Form”, a heading, with a link for each problem. → SC 3.3.1, 2.4.3
+- [ ] Press Enter on the first problem link. Expect: Focus moves into the Name field, and its error is read with it. → SC 3.3.1
+
+404 Follow Me:
+
+- [ ] Open your site/blgo/how-i-get-to-know-a-new-ilsand (the typos are on purpose), then press 1. Expect: “I’m Late! This Page Is Gone heading level 1”. No image is announced. → SC 1.3.1, 1.1.1
+- [ ] Press K until the White Rabbit's link. Expect: “Follow Me to How I Get to Know a New Island link”: it names the page the address meant. → SC 2.4.4
+- [ ] Press Enter on it. Expect: The How I Get to Know a New Island post opens and its title is read. → SC 2.1.1
+
+Heard: `________________________`
+
+#### 6.10.3 VoiceOver on iPhone (optional)
+
+For anyone with an iPhone; the same 19 steps in Safari.
 
 About 20 minutes, Safari on an iPhone, your site. VoiceOver is in Settings,
 Accessibility, VoiceOver: swipe right for the next item, double-tap to
