@@ -238,6 +238,24 @@ test.describe('the opening feed', () => {
       );
     });
 
+    test('decodes entities, dropping soft hyphens, so the feed never shows them', () => {
+      expect(
+        feedExcerpt(
+          'Pone&shy;glyphs&nbsp;matter &amp; it&#8217;s &#x201C;hard&#x201D;.',
+        ),
+      ).toBe('Poneglyphs matter & it’s “hard”.');
+      expect(() => feedExcerpt('A &bogus; entity.')).toThrow(/&bogus;/);
+    });
+
+    test('keeps titles and initials inside their sentence', () => {
+      expect(
+        feedExcerpt('I met Dr. Clover in the W.B. archive. It went well.', 40),
+      ).toBe('I met Dr. Clover in the W.B. archive.');
+      expect(feedExcerpt('Version 5.5 shipped. Then more.', 25)).toBe(
+        'Version 5.5 shipped.',
+      );
+    });
+
     test('gives nothing when the first sentence is over the cap', () => {
       expect(feedExcerpt('A very long sentence indeed.', 10)).toBeUndefined();
     });
