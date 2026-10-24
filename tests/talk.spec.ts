@@ -1,6 +1,7 @@
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { expect, test } from './test';
+import { defined } from '../src/lib/defined';
 import { builtPages, deckOf, DIST_DIR, TALK_ROUTES, TALKS_DIR } from './routes';
 import { cardGroups, DECK_FILE, splitDeck } from '../src/lib/slides';
 import { NODE } from './tags';
@@ -31,7 +32,7 @@ const decode = (html: string): string =>
 /* A line match suffices: the loader's schema allows only flat strings. */
 const setting = (yaml: string | undefined, key: string): string | undefined => {
   const match = new RegExp(`^${key}:\\s*(.+)$`, 'm').exec(yaml ?? '');
-  return match?.[1].trim().replace(/^'(.*)'$/, '$1');
+  return match?.[1]?.trim().replace(/^'(.*)'$/, '$1');
 };
 
 /** The cover is an h1; every other slide an h2 with its label, a part opener's with its part number. */
@@ -62,12 +63,16 @@ const builtSlides = (route: string): Slide[] => {
     ...main.matchAll(
       /<section\b([^>]*)>[\s\S]*?<h([1-6])[^>]*>([\s\S]*?)<\/h\2>/g,
     ),
-  ].map(([, attributes, level, inner]) => ({
-    id: /\bid="([^"]*)"/.exec(attributes)?.[1] ?? '',
-    level: Number(level),
-    text: decode(inner).replace(/ :/, ':'),
-    part: decode(/\bdata-part="([^"]*)"/.exec(attributes)?.[1] ?? ''),
-  }));
+  ].map(([section, attributesMatch, level, innerMatch]) => {
+    const attributes = defined(attributesMatch, `attributes of ${section}`);
+    const inner = defined(innerMatch, `heading of ${section}`);
+    return {
+      id: /\bid="([^"]*)"/.exec(attributes)?.[1] ?? '',
+      level: Number(level),
+      text: decode(inner).replace(/ :/, ':'),
+      part: decode(/\bdata-part="([^"]*)"/.exec(attributes)?.[1] ?? ''),
+    };
+  });
 };
 
 const describeSlide = ({ id, level, text, part }: Slide): string =>
@@ -88,18 +93,21 @@ test.describe('a talk slideshow', NODE, () => {
       const expected = expectedSlides(readFileSync(file, 'utf8'), file);
       const actual = builtSlides(route);
 
-      const first = expected.findIndex(
-        (slide, i) =>
-          actual[i] === undefined ||
-          describeSlide(slide) !== describeSlide(actual[i]),
-      );
+      const first = expected.findIndex((slide, i) => {
+        const built = actual[i];
+        return (
+          built === undefined || describeSlide(slide) !== describeSlide(built)
+        );
+      });
+      const wanted = expected[first];
+      const found = actual[first];
       expect(
         first,
-        first === -1
+        wanted === undefined
           ? ''
           : `${route} departs from ${file} at slide ${first + 1}: expected ` +
-              `${describeSlide(expected[first])}, found ` +
-              `${actual[first] ? describeSlide(actual[first]) : 'nothing'}.`,
+              `${describeSlide(wanted)}, found ` +
+              `${found ? describeSlide(found) : 'nothing'}.`,
       ).toBe(-1);
       expect(
         actual.length,
@@ -141,24 +149,24 @@ test.describe('splitDeck', NODE, () => {
   test('a --- inside an HTML comment does not end the slide', () => {
     const slides = split('# Noted\n\nText\n\n<!--\nline\n---\nline\n-->\n');
     expect(slides.map((s) => s.title)).toEqual(['Cover', 'Noted']);
-    expect(slides[1].note).toBe('line\n---\nline');
+    expect(slides[1]?.note).toBe('line\n---\nline');
   });
 
   test("a slide's trailing comment is its note, not its body", () => {
     const [, slide] = split('# Noted\n\nText\n\n<!-- say this -->\n');
-    expect(slide.note).toBe('say this');
-    expect(slide.body).toBe('Text');
+    expect(slide?.note).toBe('say this');
+    expect(slide?.body).toBe('Text');
   });
 
   test('a ```yaml block at the top of a slide is its settings', () => {
     const [, slide] = split("```yaml\npart: 'Part 1'\n```\n\n# Titled\n");
-    expect(slide.frontmatter).toBe("part: 'Part 1'");
-    expect(slide.title).toBe('Titled');
+    expect(slide?.frontmatter).toBe("part: 'Part 1'");
+    expect(slide?.title).toBe('Titled');
   });
 
   test('the opening frontmatter belongs to slide 1', () => {
     const [cover] = split('# Next\n');
-    expect(cover.frontmatter).toBe('layout: cover');
+    expect(cover?.frontmatter).toBe('layout: cover');
   });
 
   const refusals: Array<[string, string, RegExp]> = [

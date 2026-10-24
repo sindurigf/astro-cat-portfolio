@@ -95,7 +95,7 @@ test.describe('replaced elements', () => {
         .map((shape, i) => ({
           alt: shape.alt,
           loaded: Number(shape.ratio.toFixed(PLACES)),
-          failed: Number(failed[i].ratio.toFixed(PLACES)),
+          failed: Number(failed[i]?.ratio.toFixed(PLACES)),
         }))
         .filter(({ loaded, failed }) => loaded !== failed);
       expect(changed, 'a failed image drew a different shape').toEqual([]);

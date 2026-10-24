@@ -23,7 +23,7 @@ test(
       expect.soft(html, `${route} was not built.`).toBeDefined();
       const links = [
         ...footerOf(html ?? '').matchAll(/<a\b([^>]*)>([^<]*)<\/a>/g),
-      ].filter(([, , text]) => text.trim() === LABEL);
+      ].filter(([, , text]) => text?.trim() === LABEL);
 
       expect
         .soft(links, `${route}'s footer does not say "${LABEL}".`)

@@ -270,7 +270,7 @@ test('a focused chip ring stays clear of the chips beside it', async ({
         .filter((layer) => !layer.includes('inset'))
         .map((layer) => layer.match(/(-?\d+)px (-?\d+)px 0px 0px/))
         .filter((m): m is RegExpMatchArray => m !== null)
-        .map((m) => [Number(m[1]), Number(m[2])]);
+        .map((m): [number, number] => [Number(m[1]), Number(m[2])]);
       const [dx, dy] = offsets.at(-1) ?? [0, 0];
       return {
         l: r.left,

@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { expect, test, type Page } from './test';
+import { defined } from '../src/lib/defined';
 import { gotoSettled, setViewportSettled } from './settle';
 import { NODE } from './tags';
 
@@ -17,7 +18,7 @@ const GLOBAL_CSS = readFileSync(
 /** Text tokens whose size follows the viewport; rem-only tokens scale 1:1. */
 const VIEWPORT_TEXT_TOKENS = [
   ...GLOBAL_CSS.matchAll(/^\s*(--text-[a-z0-9-]+):[^;]*\b[\d.]+(?:vw|svh)\b/gm),
-].map((match) => match[1]);
+].map(([declaration, token]) => defined(token, `token in ${declaration}`));
 
 /** Phone, small laptop, laptop, desktop; heights set the svh terms. */
 const WINDOWS = [
@@ -105,11 +106,15 @@ for (const { width, height } of WINDOWS) {
     const zoomed = await tokenSizes(page, PLAIN_ZOOM_TOKENS);
 
     expect(
-      PLAIN_ZOOM_TOKENS.flatMap((token, i) =>
-        zoomed[i] * PLAIN_ZOOM < TARGET_SCALE * base[i] - ROUNDING_TOLERANCE
-          ? [`${token}: ${base[i]}px, ${zoomed[i]}px at 200%`]
-          : [],
-      ),
+      PLAIN_ZOOM_TOKENS.flatMap((token, i) => {
+        const before = base[i];
+        const after = zoomed[i];
+        if (before === undefined || after === undefined)
+          return [`${token}: not measured`];
+        return after * PLAIN_ZOOM < TARGET_SCALE * before - ROUNDING_TOLERANCE
+          ? [`${token}: ${before}px, ${after}px at 200%`]
+          : [];
+      }),
       `heading text under 2x at 200% zoom at ${width}px`,
     ).toEqual([]);
   });
@@ -134,19 +139,21 @@ for (const { width, height } of WINDOWS) {
       });
       const zoomed = await tokenSizes(page);
       zoomed.forEach((size, i) => {
+        const before = base[i];
         if (
+          before !== undefined &&
           lowest[i] === null &&
-          size * zoom >= TARGET_SCALE * base[i] - ROUNDING_TOLERANCE
+          size * zoom >= TARGET_SCALE * before - ROUNDING_TOLERANCE
         ) {
           lowest[i] = zoom;
         }
       });
     }
 
-    const report = VIEWPORT_TEXT_TOKENS.map(
-      (token, i) =>
-        `${token}: ${base[i]}px, 2x at ${lowest[i] === null ? 'none' : `${Math.round(lowest[i] * 100)}%`}`,
-    );
+    const report = VIEWPORT_TEXT_TOKENS.map((token, i) => {
+      const level = lowest[i] ?? null;
+      return `${token}: ${base[i]}px, 2x at ${level === null ? 'none' : `${Math.round(level * 100)}%`}`;
+    });
     testInfo.annotations.push({
       type: 'lowest zoom reaching 2x',
       description: report.join('; '),
@@ -157,7 +164,7 @@ for (const { width, height } of WINDOWS) {
 
     expect(
       report.filter((line) => line.endsWith('none')),
-      `text that never reaches 2x by ${Math.round(levels.at(-1)! * 100)}% zoom at ${width}px`,
+      `text that never reaches 2x by ${Math.round(Math.max(...levels) * 100)}% zoom at ${width}px`,
     ).toEqual([]);
   });
 }

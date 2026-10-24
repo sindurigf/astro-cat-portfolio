@@ -337,8 +337,10 @@ const ledgesUnder = (spot: Element): Ledge[] => {
     (a, b) => a - b,
   );
   const ledges: Ledge[] = [];
-  xs.slice(1).forEach((right, i) => {
-    const mid = (xs[i] + right) / 2;
+  xs.forEach((left, i) => {
+    const right = xs[i + 1];
+    if (right === undefined) return;
+    const mid = (left + right) / 2;
     const tops = bricks
       .filter((r) => r.left <= mid && mid < r.right)
       .map((r) => r.top);
@@ -347,7 +349,7 @@ const ledgesUnder = (spot: Element): Ledge[] => {
     const last = ledges.at(-1);
     if (last && Math.abs(last.drop - drop) <= SAME_FLOOR)
       last.x1 = right - band.left;
-    else ledges.push({ x0: xs[i] - band.left, x1: right - band.left, drop });
+    else ledges.push({ x0: left - band.left, x1: right - band.left, drop });
   });
   return ledges.length > 1 ? ledges : [];
 };

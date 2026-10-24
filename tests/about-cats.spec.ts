@@ -45,6 +45,7 @@ import {
   planMove,
 } from '../src/lib/about-cats';
 import { climbMove } from '../src/lib/about-cats-climb';
+import { itemAt } from '../src/lib/defined';
 
 /**
  * The About cats (src/components/ui/AboutCats.vue): each cat opens its photo,
@@ -55,6 +56,8 @@ const ROUTE = '/about/';
 // TODO(fork): Your cats' names in the list just below, the same as on the About page. README "Your cats, or none".
 const CATS = ['minerva', 'hela', 'rudra'] as const;
 const NAMES = { minerva: 'Minerva', hela: 'Hela', rudra: 'Rudra' } as const;
+
+const startPose = (move: Move) => itemAt(move.steps, 0).pose;
 
 /** Long enough for several frames of any move; a still cat changes nothing in it. */
 const STILL_WINDOW_MS = 800;
@@ -284,7 +287,7 @@ test('no move lifts any part of a cat above its band', NODE, () => {
   ];
   const tooHigh: string[] = [];
   for (const [name, move] of moves) {
-    const start = move.steps[0].pose;
+    const start = startPose(move);
     for (let t = 0; t <= duration(move); t += FRAME_MS) {
       const p = poseAt(move, start, t);
       const height = highestPoint(p);
@@ -324,7 +327,7 @@ test(
     for (const h of STEP_HEIGHTS)
       for (const rising of [true, false]) {
         const move = climbMove(rising, h);
-        const start = move.steps[0].pose;
+        const start = startPose(move);
         for (let t = 0; t <= duration(move); t += FRAME_MS) {
           const height = highestPoint(poseAt(move, start, t));
           /* A climb plays on the lower brick, whose band top is the step's height further up. */
@@ -369,7 +372,7 @@ test(
           for (const facing of [1, -1]) {
             const plan = planMove(name, x, facing, min, max);
             if (!plan) continue;
-            const start = plan.move.steps[0].pose;
+            const start = startPose(plan.move);
             for (let t = 0; t <= duration(plan.move); t += FRAME_MS) {
               const at = x + plan.dir * poseAt(plan.move, start, t).x;
               if (
@@ -440,7 +443,7 @@ test(
       for (let i = 0; i <= TRACK_STEPS; i += 1) {
         const x = min + ((max - min) * i) / TRACK_STEPS;
         const push = cupPush(x);
-        const start = push.steps[0].pose;
+        const start = startPose(push);
         let nearest = x;
         let farthest = x;
         for (let t = 0; t <= duration(push); t += FRAME_MS) {
@@ -556,9 +559,14 @@ test(
       const { width, height, channels } = info;
       const at = (x: number, y: number) => (y * width + x) * channels;
       const solid = (x: number, y: number) =>
-        x >= 0 && y >= 0 && x < width && y < height && data[at(x, y) + 3] > 200;
+        x >= 0 &&
+        y >= 0 &&
+        x < width &&
+        y < height &&
+        data.readUInt8(at(x, y) + 3) > 200;
       const white = (x: number, y: number) =>
-        solid(x, y) && [0, 1, 2].every((c) => data[at(x, y) + c] >= RIM_WHITE);
+        solid(x, y) &&
+        [0, 1, 2].every((c) => data.readUInt8(at(x, y) + c) >= RIM_WHITE);
       let far = 0;
       for (let y = 0; y < height; y += 1)
         for (let x = 0; x < width; x += 1) {
@@ -615,7 +623,7 @@ test(
       for (const name of names) {
         listed.add(name);
         expect(
-          ICONS[TRICKS[name].icon].length,
+          ICONS[TRICKS[name].icon]?.length,
           `${name} has no icon`,
         ).toBeGreaterThan(0);
       }
@@ -643,21 +651,20 @@ test(
       isTricksData(tricksData),
       'the shipped JSON fails its own guard',
     ).toBe(true);
-    const without = (key: string) => {
-      const copy = structuredClone(tricksData) as Record<
-        string,
-        Record<string, unknown>
-      >;
-      delete copy.tricks[key];
-      return copy;
-    };
+    const without = (key: string) => ({
+      ...tricksData,
+      tricks: Object.fromEntries(
+        Object.entries(tricksData.tricks).filter(([name]) => name !== key),
+      ),
+    });
     expect(isTricksData(without('random')), 'a missing Random').toBe(false);
     expect(isTricksData(without('fly')), 'a missing move').toBe(false);
-    const noIcon = structuredClone(tricksData) as Record<
-      string,
-      Record<string, unknown>
-    >;
-    delete noIcon.icons.fly;
+    const noIcon = {
+      ...tricksData,
+      icons: Object.fromEntries(
+        Object.entries(tricksData.icons).filter(([name]) => name !== 'fly'),
+      ),
+    };
     expect(isTricksData(noIcon), 'a trick whose icon is not drawn').toBe(false);
     for (const body of [null, 'Not found', [], {}, { tricks: {}, icons: {} }])
       expect(isTricksData(body), `accepted ${JSON.stringify(body)}`).toBe(
@@ -970,13 +977,12 @@ const rudraFloor = (page: Page) =>
   page.evaluate((gap) => {
     const spot = document.getElementById('cat-spot-rudra')!;
     const band = spot.getBoundingClientRect();
-    const [x, y] = (
-      /translate\(([-\d.]+) ([-\d.]+)\)/.exec(
-        spot.querySelector('.cat-hit')?.getAttribute('transform') ?? '',
-      ) ?? []
-    )
-      .slice(1)
-      .map(Number);
+    const translate = /translate\(([-\d.]+) ([-\d.]+)\)/.exec(
+      spot.querySelector('.cat-hit')?.getAttribute('transform') ?? '',
+    );
+    if (!translate) throw new Error('Rudra has no translate on .cat-hit.');
+    const x = Number(translate[1]);
+    const y = Number(translate[2]);
     const brickAt = (dy: number) =>
       Boolean(
         document
@@ -2604,6 +2610,7 @@ test.describe('About cats', () => {
           const box = svg?.getAttribute('viewBox');
           if (!spot || !svg || !box) throw new Error(`${id} has no drawing.`);
           const [x, y, width, height] = box.split(' ').map(Number);
+          if (y === undefined) throw new Error(`${id} has no viewBox y.`);
           for (let offset = 0; offset <= sweep; offset += step) {
             window.scrollTo(
               0,

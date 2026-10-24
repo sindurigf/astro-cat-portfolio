@@ -50,11 +50,11 @@ const fieldFingerprint = (page: Page) =>
     const { data } = ctx.getImageData(0, top, canvas.width, rows);
     let ink = 0;
     let signature = 0;
-    for (let i = 0; i < data.length; i += 4) {
-      const alpha = data[i + 3];
+    const alphas = data.filter((_, i) => i % 4 === 3);
+    for (const [pixel, alpha] of alphas.entries()) {
       ink += alpha;
       /* Position-weighted, so ink that merely moved still registers. */
-      signature = (signature + alpha * ((i >> 2) % 7919)) % 2147483647;
+      signature = (signature + alpha * (pixel % 7919)) % 2147483647;
     }
     return { ink, signature };
   });
@@ -98,15 +98,17 @@ const countDrawnFrames = (page: Page) =>
       const pump = (window as unknown as { pumpFrame: (now: number) => void })
         .pumpFrame;
       const canvas =
-        document.querySelectorAll<HTMLCanvasElement>('.hero-field-layer')[1]!;
+        document.querySelectorAll<HTMLCanvasElement>('.hero-field-layer')[1];
+      if (!canvas) throw new Error('The hero field has no middle layer.');
       const ctx = canvas.getContext('2d')!;
       const top = Math.floor(canvas.height * 0.55);
       const rows = Math.min(48, canvas.height - top);
       const signature = (): number => {
         const { data } = ctx.getImageData(0, top, canvas.width, rows);
         let sum = 0;
-        for (let i = 0; i < data.length; i += 4) {
-          sum = (sum + data[i + 3] * ((i >> 2) % 7919)) % 2147483647;
+        const alphas = data.filter((_, i) => i % 4 === 3);
+        for (const [pixel, alpha] of alphas.entries()) {
+          sum = (sum + alpha * (pixel % 7919)) % 2147483647;
         }
         return sum;
       };
@@ -365,11 +367,12 @@ test.describe('the hero field on /', () => {
     const ink = await page.evaluate(() => {
       const mid =
         document.querySelectorAll<HTMLCanvasElement>('.hero-field-layer')[1];
+      if (!mid) throw new Error('The hero field has no middle layer.');
       const { data } = mid
         .getContext('2d')!
         .getImageData(0, 0, mid.width, mid.height);
       let total = 0;
-      for (let i = 3; i < data.length; i += 4) total += data[i];
+      for (const alpha of data.filter((_, i) => i % 4 === 3)) total += alpha;
       return total;
     });
     expect(

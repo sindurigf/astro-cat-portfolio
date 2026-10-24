@@ -1,5 +1,6 @@
 /* Pure. Picks the Canva AI frame that draws a cat's pose, and how tall each frame is drawn. */
 import type { CatId, Pose } from './about-cats-types';
+import { itemAt } from './defined';
 
 export const FRAMES = [
   'sit',
@@ -226,6 +227,7 @@ export const frameFor = (
     .map((name) => ({ name, d: poseDistance(p, named[name]) }))
     .sort((a, b) => a.d - b.d);
   const [near, next] = ranked;
+  if (!near || !next) throw new Error('frameFor needs two named poses');
 
   /* A low hop from sitting, such as a turn on the spot, keeps the sitting frame: jump frames would flash a leap. */
   const sitHop = near.name === 'sit' && motion.lift <= HIGH;
@@ -241,7 +243,10 @@ export const frameFor = (
   if (motion.moving && (near.name === 'stand' || near.name === 'crouch'))
     return near.name === 'crouch'
       ? 'crouch'
-      : WALK[Math.floor(motion.travelled / WALK_FRAME_PX) % WALK.length]!;
+      : itemAt(
+          WALK,
+          Math.floor(motion.travelled / WALK_FRAME_PX) % WALK.length,
+        );
 
   if (between) return between;
   if (near.name === 'sit' && Math.abs(p.hr) > LOOK_BACK) return 'look';

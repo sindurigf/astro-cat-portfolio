@@ -13,8 +13,7 @@ const SITE = SITE_NAME;
 
 // Safe to match directly: tests/seo.spec.ts keeps comments out of the build.
 const titleOf = (html: string): string | null => {
-  const match = html.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
-  return match ? match[1].trim() : null;
+  return html.match(/<title[^>]*>([\s\S]*?)<\/title>/i)?.[1]?.trim() ?? null;
 };
 
 const builtTitles = (): Map<string, string | null> => {

@@ -32,7 +32,7 @@ test.describe('/licenses.txt', () => {
   test('names a package from every source the collector reads', NODE, () => {
     const headings = readFileSync(LICENSES, 'utf8')
       .split('\n\n\n')
-      .map((entry) => entry.split('\n')[0]);
+      .map((entry) => entry.replace(/\n[\s\S]*$/, ''));
     for (const name of SHIPPED) {
       expect(
         headings.some((line) => line === name || line.startsWith(`${name} `)),

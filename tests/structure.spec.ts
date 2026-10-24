@@ -46,15 +46,17 @@ const readTree = async (page: Page): Promise<Node[]> => {
   const nodes: Node[] = [];
   const stack: Node[] = [];
   for (const line of (await page.locator('body').ariaSnapshot()).split('\n')) {
-    const entry = ENTRY_LINE.exec(line);
-    const match = entry && NODE_TEXT.exec(unquote(entry[2]));
-    if (!entry || !match) continue;
-    const depth = entry[1].length / INDENT;
-    while (stack.length && stack[stack.length - 1].depth >= depth) stack.pop();
+    const [, indent, text] = ENTRY_LINE.exec(line) ?? [];
+    const [, role, name, rest] =
+      (text === undefined ? null : NODE_TEXT.exec(unquote(text))) ?? [];
+    if (indent === undefined || role === undefined || rest === undefined)
+      continue;
+    const depth = indent.length / INDENT;
+    while ((stack.at(-1)?.depth ?? -Infinity) >= depth) stack.pop();
     const node: Node = {
-      role: match[1],
-      name: (match[2] ?? '').replace(/\\"/g, '"'),
-      level: Number(LEVEL.exec(match[3])?.[1] ?? 0),
+      role,
+      name: (name ?? '').replace(/\\"/g, '"'),
+      level: Number(LEVEL.exec(rest)?.[1] ?? 0),
       depth,
       parents: stack.map((parent) => parent.role),
     };
@@ -137,10 +139,10 @@ for (const route of SAMPLED_ROUTES) {
         inMain[0]?.level,
         `${route}: main's first heading is not the h1`,
       ).toBe(1);
-      const skips = headings.filter(
-        (node, index) =>
-          index > 0 && node.level > headings[index - 1].level + 1,
-      );
+      const skips = headings.filter((node, index) => {
+        const previous = headings[index - 1];
+        return previous !== undefined && node.level > previous.level + 1;
+      });
       expect(skips.map(label), `${route} skips a heading level`).toEqual([]);
 
       const regions = tree

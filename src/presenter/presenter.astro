@@ -36,7 +36,11 @@ const notes = new Map(
   ]),
 );
 const notesFor = (number: number): string[] => notes.get(number) ?? [];
-const title = slides[0].slide.data.title;
+const [cover] = slides;
+if (!cover) {
+  return new Response(`No slides in ${deck}.`, { status: 404 });
+}
+const title = cover.slide.data.title;
 ---
 
 <html lang={SITE_LANGUAGE}>

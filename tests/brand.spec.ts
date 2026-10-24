@@ -1,4 +1,5 @@
 import { expect, test, type Locator, type Page } from './test';
+import { defined } from '../src/lib/defined';
 import { gotoSettled } from './settle';
 import { PAGE_HELPERS } from './contrast';
 import { contrastRows, ratio } from '../scripts/contrast-table.mjs';
@@ -73,8 +74,11 @@ const resolveTokens = (half: Locator, tokens: string[]) =>
         ).map(Number);
         return [
           name,
-          probe.style.color && r !== undefined
-            ? `#${[r, g, b].map((v) => v!.toString(16).padStart(2, '0')).join('')}`.toUpperCase()
+          probe.style.color &&
+          r !== undefined &&
+          g !== undefined &&
+          b !== undefined
+            ? `#${[r, g, b].map((v) => v.toString(16).padStart(2, '0')).join('')}`.toUpperCase()
             : null,
         ];
       }),
@@ -153,10 +157,12 @@ test.describe('/brand', () => {
               '[aria-hidden="true"]',
             );
             const style = sample && getComputedStyle(sample);
+            if (fg === undefined || bg === undefined || ratio === undefined)
+              throw new Error('A pairings row lacks its tokens or ratio.');
             return {
-              fg: fg!,
-              bg: bg!,
-              stated: /^\d+\.\d+/.exec(ratio!.textContent!.trim())?.[0] ?? '',
+              fg,
+              bg,
+              stated: /^\d+\.\d+/.exec(ratio.textContent!.trim())?.[0] ?? '',
               sample: style && {
                 fg:
                   tr.dataset.sample === 'text'
@@ -185,8 +191,10 @@ test.describe('/brand', () => {
           }));
         })()`)) as { tokens: string; sample: string | null }[];
         const wrong = rows.flatMap((row, i) => {
-          const { tokens: fromTokens, sample } = measured[i]!;
           const name = `${row.fg} on ${row.bg}`;
+          const reading = measured[i];
+          if (!reading) return [`${name}: not measured`];
+          const { tokens: fromTokens, sample } = reading;
           return [
             ...(fromTokens === row.stated
               ? []
@@ -280,7 +288,10 @@ test.describe('/brand', () => {
             verdict: p.querySelector('.role-verdict')?.textContent ?? '',
           }));
           const pair = await resolveTokens(shown, [read.fg, read.bg]);
-          const value = ratio(pair[read.fg]!, pair[read.bg]!) as number;
+          const value = ratio(
+            defined(pair[read.fg], read.fg),
+            defined(pair[read.bg], read.bg),
+          ) as number;
           const text = read.kind === 'text';
           expect(
             read.stated,
@@ -577,7 +588,12 @@ test.describe('/brand', () => {
           halves.length,
           'the page shows no dark or light block',
         ).toBeGreaterThan(0);
-        const ground = `rgb(${[1, 3, 5].map((i) => parseInt(tokens.background!.slice(i, i + 2), 16)).join(', ')})`;
+        const { background, border } = tokens;
+        if (!background || !border)
+          throw new Error(
+            '--color-background or --color-border did not resolve.',
+          );
+        const ground = `rgb(${[1, 3, 5].map((i) => parseInt(background.slice(i, i + 2), 16)).join(', ')})`;
         const measured = (await page.evaluate(`(() => {
           ${PAGE_HELPERS}
           const ground = ${JSON.stringify(ground)};
@@ -587,14 +603,16 @@ test.describe('/brand', () => {
           ...(half.width === blockEdge
             ? []
             : [`block ${i}: edge is ${half.width}px, not ${blockEdge}px`]),
-          ...(toHex(half.color) === tokens.border!.toUpperCase()
+          ...(toHex(half.color) === border.toUpperCase()
             ? []
             : [
                 `block ${i}: edge is ${toHex(half.color)}, not the border token ${tokens.border}`,
               ]),
-          ...(measured[i]! >= 3
+          ...((measured[i] ?? 0) >= 3
             ? []
-            : [`block ${i}: edge is ${measured[i]!.toFixed(2)}:1 on the page`]),
+            : [
+                `block ${i}: edge is ${measured[i]?.toFixed(2) ?? 'unmeasured'}:1 on the page`,
+              ]),
         ]);
         expect(
           wrong,

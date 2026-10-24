@@ -45,8 +45,8 @@ const icoSizes = (file: string): Size[] => {
   return Array.from({ length: count }, (_, index) => {
     const at = FIRST + index * ENTRY;
     return {
-      width: buffer[at] === 0 ? 256 : buffer[at]!,
-      height: buffer[at + 1] === 0 ? 256 : buffer[at + 1]!,
+      width: buffer.readUInt8(at) || 256,
+      height: buffer.readUInt8(at + 1) || 256,
     };
   });
 };
@@ -173,7 +173,7 @@ test.describe('the tab icon frames', NODE, () => {
         .raw()
         .toBuffer({ resolveWithObject: true });
       const alphaAt = (x: number, y: number) =>
-        data[(y * info.width + x) * info.channels + 3];
+        data.readUInt8((y * info.width + x) * info.channels + 3);
       const border: number[] = [];
       for (let i = 0; i < info.width; i++)
         border.push(

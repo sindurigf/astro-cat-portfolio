@@ -5,6 +5,8 @@
  * failed start sets `data-deck-failed`, which shows them all.
  */
 
+import { itemAt } from '../lib/defined';
+
 const SLIDE_ID = /^#slide-(\d+)$/;
 
 const NEXT_KEYS = new Set(['ArrowRight', 'PageDown']);
@@ -113,8 +115,10 @@ const wire = (deck: HTMLElement): void => {
     index: number,
     { focus, address = true }: { focus: boolean; address?: boolean },
   ): boolean => {
-    const target = slides[index];
-    const focusWasInside = slides[current].contains(document.activeElement);
+    const target = itemAt(slides, index);
+    const focusWasInside = itemAt(slides, current).contains(
+      document.activeElement,
+    );
     current = index;
     /* go() sets it again; any other turn must not leave the last slide's name behind (SC 4.1.3). */
     status.textContent = '';
@@ -129,8 +133,9 @@ const wire = (deck: HTMLElement): void => {
       );
     });
     if (upcoming) {
-      upcoming.textContent = slides[index + 1]
-        ? titleOf(slides[index + 1])
+      const following = slides[index + 1];
+      upcoming.textContent = following
+        ? titleOf(following)
         : 'The end of the talk.';
     }
     count.textContent = `${index + 1} / ${slides.length}`;
@@ -165,11 +170,12 @@ const wire = (deck: HTMLElement): void => {
   const go = (index: number, { tell = true } = {}): void => {
     if (index < 0 || index >= slides.length || index === current) return;
     /* A focused heading is announced, so the live region would say it twice. */
+    const target = itemAt(slides, index);
     const announced = show(index, { focus: false });
     status.textContent = announced
       ? ''
-      : `Slide ${index + 1} of ${slides.length}: ${titleOf(slides[index])}`;
-    if (tell) channel?.postMessage({ slide: slides[index].id });
+      : `Slide ${index + 1} of ${slides.length}: ${titleOf(target)}`;
+    if (tell) channel?.postMessage({ slide: target.id });
   };
 
   channel?.addEventListener('message', (event: MessageEvent<unknown>) => {
@@ -187,7 +193,7 @@ const wire = (deck: HTMLElement): void => {
 
   /* Scroll-first keys scroll a slide taller than the screen, as at 400% zoom, before they turn it. */
   const slideRunsPast = (forward: boolean): boolean => {
-    const slide = slides[current];
+    const slide = itemAt(slides, current);
     if (scrollsInside(slide)) {
       return forward
         ? slide.scrollTop + slide.clientHeight < slide.scrollHeight - 1
@@ -198,7 +204,7 @@ const wire = (deck: HTMLElement): void => {
   };
 
   const scrollSlide = (forward: boolean): void => {
-    const slide = slides[current];
+    const slide = itemAt(slides, current);
     const direction = forward ? 1 : -1;
     const scroller = scrollsInside(slide) ? slide : window;
     const height = scrollsInside(slide)
@@ -304,7 +310,7 @@ const wire = (deck: HTMLElement): void => {
   /* The browser scrolled to a linked slide before the others were hidden. */
   const linked = indexOf(location.hash) !== undefined;
   show(current, { focus: false, address: linked });
-  if (linked) slides[current].scrollIntoView({ block: 'start' });
+  if (linked) itemAt(slides, current).scrollIntoView({ block: 'start' });
 };
 
 const deck = document.querySelector<HTMLElement>('[data-deck]');

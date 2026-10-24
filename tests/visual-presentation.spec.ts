@@ -85,8 +85,7 @@ const measure = (page: Page, scope: string): Promise<Measured> =>
         const counts: number[] = [];
         let previous = -Infinity;
         for (const center of centers.sort((a, b) => a - b)) {
-          if (center - previous > gap) counts.push(0);
-          counts[counts.length - 1] += 1;
+          counts.push(center - previous > gap ? 1 : (counts.pop() ?? 0) + 1);
           previous = center;
         }
         return counts;

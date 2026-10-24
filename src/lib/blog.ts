@@ -75,8 +75,8 @@ export const headingLabel = (label: string): string =>
     .map((word) => {
       const broken = SOFT_BREAKS[word.toLowerCase()];
       if (!broken) return word;
-      return word[0] === word[0].toUpperCase()
-        ? broken[0].toUpperCase() + broken.slice(1)
+      return word.charAt(0) === word.charAt(0).toUpperCase()
+        ? broken.charAt(0).toUpperCase() + broken.slice(1)
         : broken;
     })
     .join(' ');

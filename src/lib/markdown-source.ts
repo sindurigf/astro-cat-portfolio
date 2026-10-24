@@ -3,6 +3,7 @@ import { isoDate } from './time';
 import { getImage } from 'astro:assets';
 import type { BlogPost } from './blog';
 import { postHref } from './paths';
+import { defined } from './defined';
 
 /*
  * /blog/<slug>.md per llmstxt.org. Image paths become built WebP URLs and
@@ -60,7 +61,10 @@ const rewriteBody = async (
   let out = body;
   for (const match of body.matchAll(IMAGE)) {
     const [whole, alt, path, title] = match;
-    const url = await builtImageUrl(path, site);
+    const url = await builtImageUrl(
+      defined(path, `${id} image path in "${whole}"`),
+      site,
+    );
     /* A function replacer: a `$` in alt text is not a replacement pattern. */
     out = out.replace(whole, () => `![${alt}](${url}${title})`);
   }

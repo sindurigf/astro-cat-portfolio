@@ -203,8 +203,9 @@ test.describe('a press on the edge still clicks', () => {
       /* The pointer is on the control before the press, so a miss is the press's. */
       expect(
         await el.evaluate(
-          (node, [px, py]) => node.contains(document.elementFromPoint(px, py)),
-          [x, y],
+          (node, point) =>
+            node.contains(document.elementFromPoint(point.x, point.y)),
+          { x, y },
         ),
       ).toBe(true);
       await page.mouse.down();

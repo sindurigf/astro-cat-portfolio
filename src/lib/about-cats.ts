@@ -4,6 +4,7 @@
  * AboutCats.vue owns the DOM, the frame loop and the dialog.
  */
 import { LOOK_BACK } from './about-cats-frames';
+import { itemAt } from './defined';
 import {
   MOVES,
   CAT_WEIGHTS,
@@ -173,7 +174,9 @@ const pickWeighted = (weights: Partial<Record<MoveName, number>>): MoveName => {
     roll -= w;
     if (roll <= 0) return name;
   }
-  return entries[0][0];
+  const [first] = entries;
+  if (!first) throw new Error('pickWeighted needs at least one move');
+  return first[0];
 };
 
 const poseGap = (a: Pose, b: Pose): number =>
@@ -461,12 +464,17 @@ export const createColony = (
   /** Walks to the step beside its brick and climbs it; false on a flat band. */
   const climb = (cat: CatState, now: number): boolean => {
     const i = ledgeIndex(cat, cat.pose.x);
-    const sides = [i - 1, i + 1].filter((j) => i >= 0 && cat.ledges[j]);
+    const here = cat.ledges[i];
+    if (!here) return false;
+    const sides = [i - 1, i + 1].flatMap((j) => {
+      const ledge = cat.ledges[j];
+      return ledge ? [{ j, ledge }] : [];
+    });
     if (sides.length === 0) return false;
-    const j = sides[Math.floor(Math.random() * sides.length)];
-    const dir = j > i ? 1 : -1;
-    const edge = dir > 0 ? cat.ledges[i].x1 : cat.ledges[i].x0;
-    const h = cat.ledges[i].drop - cat.ledges[j].drop;
+    const side = itemAt(sides, Math.floor(Math.random() * sides.length));
+    const dir = side.j > i ? 1 : -1;
+    const edge = dir > 0 ? here.x1 : here.x0;
+    const h = here.drop - side.ledge.drop;
     const rising = h > 0;
     const start = edge - dir * CLIMB_START[rising ? 'up' : 'down'];
     const walk = withApproach(
@@ -642,8 +650,7 @@ export const createColony = (
     const frames = clamp((now - lastFrame) / FRAME_MS, 0, MAX_FRAMES_PER_STEP);
     lastFrame = now;
     let wakeAt = Infinity;
-    for (let i = fading.length - 1; i >= 0; i -= 1) {
-      const { prop, shown, t0 } = fading[i];
+    for (const [i, { prop, shown, t0 }] of [...fading.entries()].reverse()) {
       const k = (now - t0) / PROP_FADE_MS;
       if (k >= 1) {
         prop.remove();

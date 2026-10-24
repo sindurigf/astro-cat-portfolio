@@ -4,6 +4,8 @@
  * brick by brick, and stacked rows step their right edge in, at most twice.
  */
 
+import { itemAt } from './defined';
+
 export type Breakpoint = 'base' | 'sm' | 'lg';
 
 /** Brick indices per row; a brick spanning rows is listed in each. */
@@ -38,14 +40,16 @@ const FULL = 2;
 /** Rows for bricks of the given spans packed into `columns` tracks. */
 export const packRows = (spans: readonly number[], columns: number): Rows => {
   const rows: number[][] = [];
-  let used = columns;
+  let row: number[] | undefined;
+  let used = 0;
   spans.forEach((span, index) => {
     const width = Math.min(span, columns);
-    if (used + width > columns) {
-      rows.push([]);
+    if (!row || used + width > columns) {
+      row = [];
+      rows.push(row);
       used = 0;
     }
-    rows[rows.length - 1].push(index);
+    row.push(index);
     used += width;
   });
   return rows;
@@ -61,16 +65,18 @@ export const wallSteps = (
 ): { rise: number[]; step: number[] } => {
   const rise = Array<number>(count).fill(NONE);
   const step = Array<number>(count).fill(0);
-  if (rows.length === 1 && count > 1) {
-    rows[0].forEach((brick, position) => {
+  const [only, ...others] = rows;
+  if (only && others.length === 0 && count > 1) {
+    only.forEach((brick, position) => {
       if (position === 0) return;
-      rise[brick] = position === 1 && rows[0].length > 2 ? HALF : FULL;
+      rise[brick] = position === 1 && only.length > 2 ? HALF : FULL;
     });
     return { rise, step };
   }
   rows.forEach((row, index) => {
-    const last = row[row.length - 1];
-    step[last] = Math.max(step[last], Math.min(index, MAX_STEP));
+    const last = row.at(-1);
+    if (last === undefined) return;
+    step[last] = Math.max(itemAt(step, last), Math.min(index, MAX_STEP));
   });
   return { rise, step };
 };
@@ -96,12 +102,14 @@ export const wallClasses = (
     const room = rise.some((value) => value !== NONE);
     if (room !== previous.room)
       wall.push(ROOM_CLASSES[breakpoint][room ? 1 : 0]);
-    for (let brick = 0; brick < count; brick += 1) {
-      if (rise[brick] !== previous.rise[brick])
-        bricks[brick].push(RISE_CLASSES[breakpoint][rise[brick]]);
-      if (step[brick] !== previous.step[brick])
-        bricks[brick].push(STEP_CLASSES[breakpoint][step[brick]]);
-    }
+    bricks.forEach((classes, brick) => {
+      const brickRise = itemAt(rise, brick);
+      const brickStep = itemAt(step, brick);
+      if (brickRise !== previous.rise[brick])
+        classes.push(itemAt(RISE_CLASSES[breakpoint], brickRise));
+      if (brickStep !== previous.step[brick])
+        classes.push(itemAt(STEP_CLASSES[breakpoint], brickStep));
+    });
     previous = { rise, step, room };
   }
   return {

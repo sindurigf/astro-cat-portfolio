@@ -56,9 +56,22 @@ test.describe('the logo cat', NODE, () => {
       y >= 0 &&
       x < info.width &&
       y < info.height &&
-      data[at(x, y) + 3] > 200;
+      data.readUInt8(at(x, y) + 3) > 200;
     const hex = (i: number) =>
-      `#${[0, 1, 2].map((c) => data[i + c].toString(16).padStart(2, '0')).join('')}`;
+      `#${[0, 1, 2]
+        .map((c) =>
+          data
+            .readUInt8(i + c)
+            .toString(16)
+            .padStart(2, '0'),
+        )
+        .join('')}`;
+    const neighbors: readonly (readonly [number, number])[] = [
+      [1, 0],
+      [-1, 0],
+      [0, 1],
+      [0, -1],
+    ];
     let outline = 0;
     let dark = 0;
     let white = 0;
@@ -67,12 +80,7 @@ test.describe('the logo cat', NODE, () => {
         if (!opaque(x, y)) continue;
         const colour = hex(at(x, y));
         if (ratio(colour, tokens['light-ground']) < 1.2) white += 1;
-        const edge = [
-          [1, 0],
-          [-1, 0],
-          [0, 1],
-          [0, -1],
-        ].some(([dx, dy]) => !opaque(x + dx, y + dy));
+        const edge = neighbors.some(([dx, dy]) => !opaque(x + dx, y + dy));
         if (!edge) continue;
         outline += 1;
         if (ratio(colour, LIGHT_TAB_STRIP) >= NON_TEXT) dark += 1;

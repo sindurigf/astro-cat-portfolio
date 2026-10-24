@@ -443,13 +443,10 @@ test.describe('the theme menu', () => {
     }
   });
 
-  for (const [width, height] of [
-    [REFLOW_VIEWPORT.width, REFLOW_VIEWPORT.height],
-    [DESKTOP_VIEWPORT.width, DESKTOP_VIEWPORT.height],
-  ]) {
-    for (const [route, scope] of [
-      ['/about', 'header'],
-      ['/brand', `#controls [data-example]`],
+  for (const { width, height } of [REFLOW_VIEWPORT, DESKTOP_VIEWPORT]) {
+    for (const { route, scope } of [
+      { route: '/about', scope: 'header' },
+      { route: '/brand', scope: `#controls [data-example]` },
     ]) {
       test(`opens whole inside a ${width}px viewport, below its button (${route} ${scope})`, async ({
         page,

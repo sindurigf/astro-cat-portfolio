@@ -38,8 +38,8 @@ for (const colorScheme of ['dark', 'light'] as const) {
               );
             })
             .map(({ element, style }) => {
-              const lum = (color: string) =>
-                (color.match(/[\d.]+/g) ?? [])
+              const lum = (color: string) => {
+                const [r = 0, g = 0, b = 0] = (color.match(/[\d.]+/g) ?? [])
                   .slice(0, 3)
                   .map(Number)
                   .map((v) => {
@@ -47,18 +47,17 @@ for (const colorScheme of ['dark', 'light'] as const) {
                     return c <= 0.04045
                       ? c / 12.92
                       : ((c + 0.055) / 1.055) ** 2.4;
-                  })
-                  .reduce(
-                    (sum, c, i) => sum + c * [0.2126, 0.7152, 0.0722][i],
-                    0,
-                  );
+                  });
+                return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+              };
               const ratio = (a: string, b: string) => {
-                const [hi, lo] = [lum(a), lum(b)].sort((x, y) => y - x);
+                const hi = Math.max(lum(a), lum(b));
+                const lo = Math.min(lum(a), lum(b));
                 return (hi + 0.05) / (lo + 0.05);
               };
               const alpha = (color: string) => {
                 const parts = color.match(/[\d.]+/g)?.map(Number) ?? [];
-                return parts.length > 3 ? parts[3] : parts.length ? 1 : 0;
+                return parts[3] ?? (parts.length ? 1 : 0);
               };
               return {
                 what: `${element.tagName.toLowerCase()}.${[...element.classList].slice(0, 3).join('.')}`,
