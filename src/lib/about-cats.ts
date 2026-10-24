@@ -129,12 +129,12 @@ interface Playing {
   length: number;
   origin: number;
   dir: number;
-  prop?: PropRig;
+  prop: PropRig | undefined;
   /** The prop as last drawn, so a dropped move can fade it out from there. */
   shown?: PropState;
   /** Lying down and getting up play out even while the cat is held. */
   settle: boolean;
-  then?: () => void;
+  then: (() => void) | undefined;
 }
 
 interface CatState extends CatSpot {
@@ -146,7 +146,7 @@ interface CatState extends CatSpot {
   min: number;
   max: number;
   pose: Pose;
-  playing: Playing | undefined;
+  playing?: Playing | undefined;
   asleep: boolean;
   napAt: number;
   holds: Set<Hold>;
@@ -283,7 +283,6 @@ export const createColony = (
     min: 0,
     max: 0,
     pose: pose('sit', { face: spot.facing }),
-    playing: undefined,
     asleep: false,
     napAt: Infinity,
     holds: new Set<Hold>(),
@@ -424,9 +423,9 @@ export const createColony = (
       length: duration(move),
       origin,
       dir,
-      ...(prop && { prop }),
+      prop,
       settle,
-      ...(then && { then }),
+      then,
     };
   };
 
