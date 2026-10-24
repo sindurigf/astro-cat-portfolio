@@ -1,4 +1,6 @@
 import { expect, test, type Page } from './test';
+import { defined } from '../src/lib/defined';
+import { itemAt } from '../src/lib/defined';
 import {
   CTA,
   HOME_HREF,
@@ -170,12 +172,13 @@ test.describe('the current page, as the navigation reports it', () => {
             's',
           ).exec(pages.get(route) ?? '')?.[1];
           expect(nav, `${route} has no "${name}" navigation`).toBeTruthy();
-          for (const [link, href] of nav!.matchAll(
-            /<a href="([^"]+)"[^>]*>/g,
-          )) {
+          for (const [link, href] of defined(
+            nav,
+            `${route} "${name}" navigation`,
+          ).matchAll(/<a href="([^"]+)"[^>]*>/g)) {
             const said = /aria-current="([^"]+)"/.exec(link)?.[1];
             if (said) marked += 1;
-            if (said !== ariaCurrent(path, href!)) {
+            if (said !== ariaCurrent(path, defined(href, `href in ${link}`))) {
               wrong.push(`${route} "${name}" ${href}: ${said ?? 'unmarked'}`);
             }
           }
@@ -363,7 +366,8 @@ test.describe('the current page, as the navigation reports it', () => {
     test.skip(POST_ROUTES.length === 0, NO_POST);
     const blog = '/blog/';
     await page.setViewportSize(DESKTOP_VIEWPORT);
-    await gotoSettled(page, POST_ROUTES[0]!);
+    const post = itemAt(POST_ROUTES, 0);
+    await gotoSettled(page, post);
 
     for (const selector of [
       `${HEADER_NAV} a[href="${blog}"]`,
@@ -372,7 +376,7 @@ test.describe('the current page, as the navigation reports it', () => {
     ]) {
       await expect(
         page.locator(selector),
-        `${selector} announces ${POST_ROUTES[0]} as the Blog page itself.`,
+        `${selector} announces ${post} as the Blog page itself.`,
       ).toHaveAttribute('aria-current', 'true');
     }
 

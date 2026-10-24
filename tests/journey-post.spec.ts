@@ -1,4 +1,5 @@
 import { expect, test } from './test';
+import { defined } from '../src/lib/defined';
 import {
   builtHtml,
   frontmatterField,
@@ -22,7 +23,10 @@ const ENTITIES: Record<string, string> = {
 };
 
 const decode = (text: string): string =>
-  text.replace(/&(?:amp|quot|#39|lt|gt);/g, (entity) => ENTITIES[entity]!);
+  text.replace(
+    /&(?:amp|quot|#39|lt|gt);/g,
+    (entity) => ENTITIES[entity] ?? entity,
+  );
 
 /** The close row's eyebrow, and its links in order, from a page's built HTML. */
 const closeRow = (html: string, route: string) => {
@@ -30,9 +34,17 @@ const closeRow = (html: string, route: string) => {
   expect(start, `${route} has no close row`).toBeGreaterThan(-1);
   const row = html.slice(start, html.indexOf('</div>', start));
   return {
-    eyebrow: decode(/^[^>]*>([^<]*)</.exec(row)![1]!.trim()),
+    eyebrow: decode(
+      defined(
+        /^[^>]*>([^<]*)</.exec(row)?.[1],
+        `${route} close row eyebrow`,
+      ).trim(),
+    ),
     links: [...row.matchAll(/<a href="([^"]+)"[^>]*>([^<]*)</g)].map(
-      ([, href, text]) => ({ href, text: decode(text!.trim()) }),
+      ([link, href, text]) => ({
+        href,
+        text: decode(defined(text, `text of ${link}`).trim()),
+      }),
     ),
   };
 };
@@ -70,7 +82,7 @@ test.describe('the journey post, unset', NODE, () => {
       expect(eyebrow, `${route} close row eyebrow`).toBe('Next');
       expect(links, `${route} close row links`).toHaveLength(1);
       expect(
-        links[0]!.href,
+        links[0]?.href,
         `${route} close row links a post with no journey post set`,
       ).not.toMatch(/^\/blog\//);
       expect(html, `${route} still prompts to continue reading`).not.toContain(

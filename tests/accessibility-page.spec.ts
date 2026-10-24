@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { expect, test } from './test';
+import { defined } from '../src/lib/defined';
 import { builtPages, pagesNotLinking } from './routes';
 import { NODE } from './tags';
 import { formatPostDate } from '../src/lib/post-date';
@@ -28,7 +29,7 @@ const tableValue = (field: string): string => {
     readFileSync(RECORD, 'utf8'),
   );
   expect(match, `${RECORD} has no "${field}" row`).not.toBeNull();
-  return match![1]!
+  return defined(match?.[1], `${RECORD} "${field}" row`)
     .trim()
     .replace(/\*\*/g, '')
     .replace(/^<(.*)>$/, '$1');

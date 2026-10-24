@@ -48,7 +48,7 @@ for (const colorScheme of ['dark', 'light'] as const) {
       const current = chips.filter((chip) => chip.current);
       expect(current, 'exactly one chip is current').toHaveLength(1);
       expect(
-        current[0]!.markerRatio,
+        current[0]?.markerRatio,
         `the current chip's marker should reach ${NON_TEXT}:1 against its fill`,
       ).toBeGreaterThanOrEqual(NON_TEXT);
       for (const chip of chips) {

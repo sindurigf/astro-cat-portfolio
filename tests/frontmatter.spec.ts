@@ -33,7 +33,7 @@ test.describe('the frontmatter bound', NODE, () => {
     expect(frontmatter).toBe('title: Real\ndate: 2026-07-10');
 
     for (const line of BODY_KEYS) {
-      const key = line.split(':')[0]!;
+      const key = line.replace(/:.*$/s, '');
       expect(
         new RegExp(`^${key}:`, 'm').test(frontmatter),
         `"${line}" is in the body, so ${key} must read as absent`,

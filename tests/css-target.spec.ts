@@ -1,6 +1,7 @@
 import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { expect, test } from './test';
+import { captures } from './captures';
 import { DIST_DIR } from './routes';
 import { NODE } from './tags';
 
@@ -95,7 +96,7 @@ test.describe('the pinned CSS target', NODE, () => {
   test('the floor is the one ARCHITECTURE.md states', () => {
     const config = readFileSync('astro.config.mjs', 'utf8');
     const listed = /const CSS_TARGET = \[([\s\S]*?)\]/.exec(config)?.[1] ?? '';
-    const targets = [...listed.matchAll(/'([^']+)'/g)].map((m) => m[1]!).sort();
+    const targets = captures(listed, /'([^']+)'/g).sort();
 
     expect(
       targets,

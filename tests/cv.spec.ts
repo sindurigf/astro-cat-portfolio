@@ -96,7 +96,7 @@ test.describe('the CV file', () => {
   });
 
   test('declares the language its text is actually written in', NODE, () => {
-    const language = SITE_LANGUAGE.split('-')[0]!;
+    const language = SITE_LANGUAGE.replace(/-.*$/s, '');
     expect(
       new RegExp(`/Lang\\s*\\(${language}\\b`, 'i').test(cvBytes()),
       `${CV_PATH} does not declare /Lang (${language}), the site's language (SC 3.1.1).`,

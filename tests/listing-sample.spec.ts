@@ -1,4 +1,5 @@
 import { expect, test } from './test';
+import { captures } from './captures';
 import {
   builtHtml,
   listingPosts,
@@ -25,9 +26,9 @@ test(
       const main = page.slice(page.indexOf('<main'), page.indexOf('</main>'));
       const shown = [
         ...new Set(
-          [...main.matchAll(/href="(\/blog\/[^"/]+)\/"/g)]
-            .map((m) => m[1]!)
-            .filter((href) => posts.has(href)),
+          captures(main, /href="(\/blog\/[^"/]+)\/"/g).filter((href) =>
+            posts.has(href),
+          ),
         ),
       ]
         .map((href) => href.replace('/blog/', ''))

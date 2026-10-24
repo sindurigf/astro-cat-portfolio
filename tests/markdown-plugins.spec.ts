@@ -3,6 +3,7 @@ import { tmpdir } from 'node:os';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { dirname, join, relative, resolve } from 'node:path';
 import { expect, test } from './test';
+import { itemAt } from '../src/lib/defined';
 import { linkListItem } from '../src/plugins/link-list-item.mjs';
 import { captionChildren, postFigure } from '../src/plugins/post-figure.mjs';
 import {
@@ -21,6 +22,9 @@ type Node = {
   properties?: Record<string, unknown>;
   children?: Node[];
 };
+
+const childAt = (node: Node, index: number): Node =>
+  itemAt(node.children ?? [], index);
 
 const el = (tagName: string, children: Node[] = [], properties = {}): Node => ({
   type: 'element',
@@ -111,7 +115,7 @@ test.describe('post-figure', NODE, () => {
     const p = el('p', [img]);
     const root = el('root', [p]);
     await postFigure().element.visit(img, contextFor(root, POST_URL));
-    const figure = root.children![0]!;
+    const figure = childAt(root, 0);
     expect(figure.tagName).toBe('figure');
     const caption = figure.children!.find((c) => c.tagName === 'figcaption');
     expect(caption, 'the title became no caption').toBeDefined();
@@ -129,7 +133,7 @@ test.describe('post-figure', NODE, () => {
       });
       const root = el('root', [el('p', [img])]);
       await postFigure().element.visit(img, contextFor(root, POST_URL));
-      const caption = root.children![0]!.children!.find(
+      const caption = childAt(root, 0).children!.find(
         (c) => c.tagName === 'figcaption',
       )!;
       const anchor = caption.children!.find((c) => c.tagName === 'a');
@@ -167,11 +171,13 @@ test.describe('post-figure', NODE, () => {
     expect(name?.properties?.href, 'the name does not link the photo').toBe(
       photo.source,
     );
-    expect(textOf(name!)).toBe(photo.photographer);
+    if (!name) throw new Error('The caption has no photographer link.');
+    expect(textOf(name)).toBe(photo.photographer);
     expect(license?.properties?.href, 'the license is not linked').toBe(
       photo.licenseHref,
     );
-    expect(textOf(license!), 'the license link is not its short name').toBe(
+    if (!license) throw new Error('The caption has no license link.');
+    expect(textOf(license), 'the license link is not its short name').toBe(
       photo.licenseShort,
     );
     for (const dropped of [photo.title, photo.sourceName, photo.changes]) {
@@ -257,7 +263,7 @@ test.describe('post-figure', NODE, () => {
     });
     const root = el('root', [el('p', [img])]);
     await postFigure().element.visit(img, contextFor(root, POST_URL));
-    const caption = root.children![0]!.children!.find(
+    const caption = childAt(root, 0).children!.find(
       (c) => c.tagName === 'figcaption',
     )!;
     expect(
@@ -270,7 +276,7 @@ test.describe('post-figure', NODE, () => {
     const img = el('img', [], { src: PHOTO, alt: 'Two friends' });
     const root = el('root', [el('p', [img])]);
     await postFigure().element.visit(img, contextFor(root, POST_URL));
-    const figure = root.children![0]!;
+    const figure = childAt(root, 0);
     expect(figure.tagName).toBe('figure');
     expect(
       figure.children!.some((c) => c.tagName === 'figcaption'),
@@ -283,10 +289,10 @@ test.describe('post-figure', NODE, () => {
       const img = el('img', [], { src, alt: 'x', title: 'Photo: Someone' });
       const root = el('root', [el('p', [img])]);
       await postFigure().element.visit(img, contextFor(root, POST_URL));
-      return root.children![0]!;
+      return childAt(root, 0);
     };
     const sizesOf = (figure: Awaited<ReturnType<typeof figureFor>>) =>
-      String(figure.children![0]!.children![1]!.properties?.sizes);
+      String(childAt(childAt(figure, 0), 1).properties?.sizes);
     const portrait = await figureFor(PORTRAIT_PHOTO);
     const landscape = await figureFor(PHOTO);
     expect(portrait.properties?.className).toEqual(['figure-portrait']);

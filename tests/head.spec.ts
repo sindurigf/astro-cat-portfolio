@@ -39,9 +39,10 @@ const expectOneFontPreload = (route: string, html: string): void => {
     .soft(fonts.length, `${route} preloads ${fonts.length} fonts, not one.`)
     .toBe(1);
 
-  if (fonts.length !== 1) return;
+  const [font] = fonts;
+  if (fonts.length !== 1 || font === undefined) return;
 
-  const href = /href=["']([^"']+)["']/i.exec(fonts[0]!)?.[1];
+  const href = /href=["']([^"']+)["']/i.exec(font)?.[1];
   expect.soft(href, `${route} has a font preload with no href`).toBeTruthy();
 
   if (href) {
@@ -55,7 +56,7 @@ const expectOneFontPreload = (route: string, html: string): void => {
 
   expect
     .soft(
-      /\bcrossorigin\b/i.test(fonts[0]!),
+      /\bcrossorigin\b/i.test(font),
       `${route} preloads a font without \`crossorigin\`, so it is fetched twice.`,
     )
     .toBe(true);

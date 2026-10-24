@@ -42,9 +42,9 @@ export const parseHeadersFile = (source: string): Rule[] => {
       throw new Error(`_headers has a header line before any pattern: ${raw}`);
     }
 
-    const detach = DETACH.exec(line);
-    if (detach) {
-      rule.detached.add(detach[1]!.toLowerCase());
+    const detached = DETACH.exec(line)?.[1];
+    if (detached !== undefined) {
+      rule.detached.add(detached.toLowerCase());
       continue;
     }
 

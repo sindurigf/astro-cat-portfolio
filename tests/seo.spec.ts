@@ -144,7 +144,7 @@ const imageSize = (bytes: Buffer): string | null => {
   let offset = JPEG_FIRST_SEGMENT;
   while (offset + JPEG_SOF_WIDTH_OFFSET + 1 < bytes.length) {
     if (bytes[offset] !== JPEG_MARKER_PREFIX) return null;
-    const marker = bytes[offset + 1]!;
+    const marker = bytes.readUInt8(offset + 1);
     if (JPEG_SOF_MARKERS.has(marker)) {
       return `${bytes.readUInt16BE(offset + JPEG_SOF_WIDTH_OFFSET)}x${bytes.readUInt16BE(offset + JPEG_SOF_HEIGHT_OFFSET)}`;
     }

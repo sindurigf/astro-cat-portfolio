@@ -1,4 +1,6 @@
 import { test, expect } from './test';
+import { captures } from './captures';
+import { defined } from '../src/lib/defined';
 import { configuredSite } from './source';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -18,10 +20,12 @@ const linkTargets = (): Map<string, string> => {
   const rules = parseHeadersFile(readFileSync(HEADERS_FILE, 'utf8'));
   const link = headersFor(rules, '/').get('link') ?? '';
   return new Map(
-    [...link.matchAll(/<([^>]+)>;\s*rel="([^"]+)"/g)].map((match) => [
-      match[2]!,
-      match[1]!,
-    ]),
+    [...link.matchAll(/<([^>]+)>;\s*rel="([^"]+)"/g)].map(
+      ([header, target, rel]) => [
+        defined(rel, `rel in ${header}`),
+        defined(target, `target in ${header}`),
+      ],
+    ),
   );
 };
 
@@ -79,9 +83,7 @@ test.describe('agent readiness', NODE, () => {
         `${route}: a root-relative link has no origin in a file read as text`,
       ).toEqual([]);
 
-      const images = [...source.matchAll(/!\[[^\]]*\]\(([^)\s]+)/g)].map(
-        (m) => m[1]!,
-      );
+      const images = captures(source, /!\[[^\]]*\]\(([^)\s]+)/g);
       for (const url of images) {
         const path = url.replace(SITE, '');
         expect(

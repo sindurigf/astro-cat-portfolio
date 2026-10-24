@@ -24,7 +24,9 @@ const backStore = (page: Page) =>
       Math.max(1, Math.floor(height * 0.1)),
     ).data;
     let ink = 0;
-    for (let i = 3; i < (strip?.length ?? 0); i += 4) ink += strip![i]!;
+    strip?.forEach((value, i) => {
+      if (i % 4 === 3) ink += value;
+    });
     return {
       width,
       cssWidth: canvas.clientWidth,

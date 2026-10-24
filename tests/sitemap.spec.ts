@@ -1,6 +1,8 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { expect, test } from './test';
+import { defined } from '../src/lib/defined';
+import { captures } from './captures';
 import {
   frontmatterDay,
   postFrontmatter,
@@ -43,9 +45,7 @@ const sitemapPaths = (origin: string): string[] => {
 
   // Follow the index, not sitemap-0.xml, so a second file is covered.
   const indexXml = readFileSync(index, 'utf8');
-  const parts = [...indexXml.matchAll(/<loc>([^<]+)<\/loc>/g)].map(
-    (match) => match[1]!,
-  );
+  const parts = captures(indexXml, /<loc>([^<]+)<\/loc>/g);
 
   expect(parts.length, `${index} names no sitemap files`).toBeGreaterThan(0);
 
@@ -58,11 +58,10 @@ const sitemapPaths = (origin: string): string[] => {
       `the sitemap index names ${part}, which the build did not write`,
     ).toBe(true);
 
-    for (const match of readFileSync(file, 'utf8').matchAll(
+    for (const loc of captures(
+      readFileSync(file, 'utf8'),
       /<loc>([^<]+)<\/loc>/g,
     )) {
-      const loc = match[1]!;
-
       expect(
         loc.startsWith(`${origin}/`),
         `${loc} is not an absolute URL under ${origin}.`,
@@ -96,7 +95,7 @@ test.describe('robots.txt and the sitemap', NODE, () => {
     const sitemapLine = /^Sitemap:\s*(\S+)$/m.exec(robots);
     expect(sitemapLine, 'robots.txt has no Sitemap line.').not.toBeNull();
 
-    const declared = sitemapLine![1]!;
+    const declared = defined(sitemapLine?.[1], 'robots.txt Sitemap URL');
 
     // Crawlers skip a relative Sitemap line: robots.txt gives it no base.
     expect(

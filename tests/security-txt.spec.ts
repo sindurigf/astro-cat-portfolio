@@ -44,8 +44,9 @@ const contactEmail = (): string => CONTACT_EMAIL;
 
 /** One field's value, by name. RFC 9116 fields are `Name: value` lines. */
 const field = (source: string, name: string): string | null => {
-  const match = new RegExp(`^${name}:\\s*(.+)$`, 'im').exec(source);
-  return match ? match[1]!.trim() : null;
+  return (
+    new RegExp(`^${name}:\\s*(.+)$`, 'im').exec(source)?.[1]?.trim() ?? null
+  );
 };
 
 test.describe('security.txt', NODE, () => {

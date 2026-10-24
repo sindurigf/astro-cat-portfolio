@@ -1,6 +1,7 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { expect, test } from './test';
+import { captures } from './captures';
 import { builtHtml, DIST_DIR } from './routes';
 import { NODE } from './tags';
 
@@ -12,7 +13,7 @@ const REDIRECT_SOURCES = new Set(
     .split('\n')
     .map((line) => line.trim())
     .filter((line) => line !== '' && !line.startsWith('#'))
-    .map((line) => line.split(/\s+/)[0]!),
+    .map((line) => line.replace(/\s.*$/s, '')),
 );
 
 /* The file a same-origin path is served from, or null when none is. */
@@ -25,14 +26,16 @@ const fileFor = (path: string): string | null => {
 
 /* Every same-origin URL a page links to or loads, from href, src and srcset. */
 const urlsIn = (html: string): string[] => [
-  ...[...html.matchAll(/\s(?:href|src)="([^"]+)"/g)].map((m) => m[1]!),
-  ...[...html.matchAll(/\ssrcset="([^"]+)"/g)].flatMap((m) =>
-    m[1]!.split(',').map((candidate) => candidate.trim().split(/\s+/)[0]!),
+  ...captures(html, /\s(?:href|src)="([^"]+)"/g),
+  ...captures(html, /\ssrcset="([^"]+)"/g).flatMap((srcset) =>
+    srcset
+      .split(',')
+      .map((candidate) => candidate.trim().replace(/\s.*$/s, '')),
   ),
 ];
 
 const idsIn = (html: string): Set<string> =>
-  new Set([...html.matchAll(/\sid="([^"]+)"/g)].map((m) => m[1]!));
+  new Set(captures(html, /\sid="([^"]+)"/g));
 
 test(
   'every internal link, source and fragment in the build resolves',
@@ -51,7 +54,7 @@ test(
         checked += 1;
 
         const [pathAndQuery, fragment] = url.split('#') as [string, string?];
-        const path = pathAndQuery.split('?')[0]!;
+        const path = pathAndQuery.replace(/\?.*$/s, '');
         const targetHtml =
           path === ''
             ? html

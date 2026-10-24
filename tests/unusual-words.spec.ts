@@ -1,6 +1,7 @@
 import { ANALYTICS_ON } from '../src/lib/analytics-site';
 import { CONTACT_FORM_ON } from '../src/lib/contact';
 import { expect, test } from './test';
+import { captures } from './captures';
 import { FUNCTIONAL_ROUTES, firstUse, mainText } from './first-use';
 import { builtHtml } from './routes';
 import { gotoSettled } from './settle';
@@ -145,8 +146,8 @@ test('every <dfn> on a functional page is listed in DEFINED', NODE, () => {
         (entry) => entry.term,
       ),
     );
-    return [...html.matchAll(/<dfn\b[^>]*>([^<]+)<\/dfn>/g)]
-      .map((match) => match[1]!.trim())
+    return captures(html, /<dfn\b[^>]*>([^<]+)<\/dfn>/g)
+      .map((term) => term.trim())
       .filter((term) => !listed.has(term))
       .map((term) => `${route}: ${term}`);
   });
