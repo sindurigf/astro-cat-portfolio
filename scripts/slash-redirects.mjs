@@ -1,7 +1,6 @@
 /*
- * Appends a 301 from each built page's unslashed path to its slashed one to
- * dist/client/_redirects, which Workers applies before `html_handling` and its
- * 307. One exact line per page, no splat, so /llms.txt and /rss.xml stay put.
+ * Appends `/path /path/ 301` per built page to dist/client/_redirects, which
+ * Workers applies before `html_handling` and its 307. No splat: files stay put.
  */
 import { appendFileSync, globSync, readFileSync } from 'node:fs';
 import { join, sep } from 'node:path';
