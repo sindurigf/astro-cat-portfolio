@@ -363,9 +363,11 @@ copyright and contents list are fixed, and `text-code` is `max(1rem, 0.92em)`,
 | `text-slide`              | 17     | 34     | 1.35        | 400    | Slide text: full screen, print        |
 | `text-slide-title`        | 26     | 65     | 1           | 900    | Talk slide title, its own case        |
 | `text-slide-title-page`   | 24     | 56     | 1           | 900    | Slide title on the page               |
+| `text-slide-h3`           | 22     | 42     | 1.1         | 900    | Slide group label: full screen, print |
 | `text-slide-number`       | 72     | 160    | 1           | 900    | Talk part number                      |
 | `text-slide-frame`        | 17     | 34     | 1.35        | 400    | Slide text in full screen, by frame   |
 | `text-slide-title-frame`  | 26     | 65     | 1           | 900    | Slide title in full screen, by frame  |
+| `text-slide-h3-frame`     | 22     | 42     | 1.1         | 900    | Slide label in full screen, by frame  |
 | `text-slide-number-frame` | 72     | 160    | 1           | 900    | Part number in full screen, by frame  |
 | `text-copyright`          | 20     | 20     | 1.2         | 900    | Footer copyright                      |
 | `text-footer-name`        | fills  | fills  | 0.82        | 900    | Footer motto band, sized to its width |

@@ -236,6 +236,27 @@ test.describe('cardGroups', NODE, () => {
     expect(out.endsWith('</div>\n\nFor both.')).toBe(true);
   });
 
+  test('a label and an example title become h3 headings (SC 1.3.1)', () => {
+    const out = cardGroups(
+      '**Left**\n\n- a\n\n**Right**\n\n- b\n\n**A good model: [Rust](https://r)**\n\nText.',
+    );
+    expect(out).toContain('### Left\n');
+    expect(out).toContain('### Right\n');
+    expect(out).toContain('### A good model: [Rust](https://r)\n');
+    expect(out).not.toContain('**');
+  });
+
+  test('a lone label is an h3 too', () => {
+    expect(
+      cardGroups('- Point\n\n**Reality check**\n\n- No quick fix'),
+    ).toContain('\n\n### Reality check\n\n');
+  });
+
+  test('a paragraph of several bold runs stays a paragraph', () => {
+    const body = '**One** and **two**';
+    expect(cardGroups(body)).toBe(body);
+  });
+
   test('a body with a code fence is left alone', () => {
     const body = '**One**\n\n```\ncode\n\nmore\n```\n\n**Two**\n\n- b';
     expect(cardGroups(body)).toBe(body);
