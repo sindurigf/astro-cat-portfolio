@@ -52,6 +52,31 @@
     height: calc(100% + var(--cat-below, 0px));
   }
 
+  /* Above the card for the focused cat, so the ring's foot is never hidden under it. */
+  .cat-spot:has(> .cat-button[data-hug]) {
+    @apply z-2;
+  }
+
+  /* A keyboard-focused cat's button takes its hit box, so the ring hugs the cat (SC 2.4.11, 2.4.13); the drawing keeps the band's box. */
+  .cat-button[data-hug] {
+    inset: auto;
+    left: var(--hug-x);
+    top: var(--hug-y);
+    width: var(--hug-w);
+    height: var(--hug-h);
+    /* The ring marks it; a forced-colors border would shift the drawing inside. */
+    border-width: 0;
+
+    & > .cat-svg {
+      @apply absolute;
+
+      left: var(--hug-svg-x);
+      top: var(--hug-svg-y);
+      width: var(--hug-svg-w);
+      height: var(--hug-svg-h);
+    }
+  }
+
   /*
    * Chromium defaults inline SVG to `preserve-parent-color`, and forced colors
    * drop the transparent button's edge (tests/forced-colors.spec.ts).

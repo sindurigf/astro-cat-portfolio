@@ -1301,6 +1301,8 @@ Enforced by `tests/nav-current.spec.ts`, `tests/mobile-menu.spec.ts`,
 - Pointing at a cat, or keyboard focus on it, holds it in place, so a target
   being aimed at never moves: a focused target that never moves suits keyboard
   and magnifier users.
+- A keyboard-focused cat's button takes the cat's hit box, so the focus ring
+  hugs the cat; its band rises above the cards so the ring is never covered.
 - A drawing may reach `MAX_OVERHANG` (the phone gutter) past its band's end,
   never over text or a control (`src/lib/about-cats.ts`). A cat about to lie
   down near an end turns to face the band first.
