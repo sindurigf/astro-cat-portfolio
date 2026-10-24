@@ -1,5 +1,5 @@
-import { createHash } from 'node:crypto';
 import { readFileSync, readdirSync } from 'node:fs';
+import { hashesFor, inlineBlocks } from '../scripts/csp-hashes.mjs';
 import { extname, join, relative, sep } from 'node:path';
 import { expect, test } from './test';
 import { builtPages, DIST_DIR, PUBLISHED_POST_ROUTES } from './routes';
@@ -92,21 +92,6 @@ const DENIED_FEATURES = [
 /** 180 days, pinned exactly: browsers remember HSTS for `max-age`. */
 const HSTS_MAX_AGE = 15_552_000;
 
-/**
- * Types `script-src` does not gate, per the HTML "prepare the script element"
- * steps. Not every non-JS type: `importmap` and `speculationrules` are gated.
- */
-const DATA_SCRIPT_TYPES = ['application/ld+json', 'application/json'];
-
-const isDataBlock = (attributes: string): boolean => {
-  const type = /\btype\s*=\s*["']([^"']+)["']/i.exec(attributes)?.[1];
-  return type !== undefined && DATA_SCRIPT_TYPES.includes(type.toLowerCase());
-};
-
-/** sha256-base64 of a string, in the form a CSP source expression takes. */
-const cspHash = (body: string): string =>
-  `'sha256-${createHash('sha256').update(body, 'utf8').digest('base64')}'`;
-
 const htmlFiles = (): string[] => builtPages().map(({ file }) => file);
 
 /** The URL path a built file is served at: `about/index.html` is `/about/`. */
@@ -120,31 +105,6 @@ const builtFiles = (dir: string): string[] =>
     const full = join(dir, entry.name);
     return entry.isDirectory() ? builtFiles(full) : [full];
   });
-
-/** Every distinct inline <script> and <style> body across the whole build. */
-const inlineBlocks = (): { scripts: Set<string>; styles: Set<string> } => {
-  const scripts = new Set<string>();
-  const styles = new Set<string>();
-
-  for (const file of htmlFiles()) {
-    const html = readFileSync(file, 'utf8');
-
-    for (const match of html.matchAll(
-      /<script\b([^>]*)>([\s\S]*?)<\/script>/g,
-    )) {
-      const attributes = match[1] ?? '';
-      if (/\bsrc\s*=/.test(attributes)) continue;
-      if (isDataBlock(attributes)) continue;
-      scripts.add(match[2] ?? '');
-    }
-
-    for (const match of html.matchAll(/<style\b[^>]*>([\s\S]*?)<\/style>/g)) {
-      styles.add(match[1] ?? '');
-    }
-  }
-
-  return { scripts, styles };
-};
 
 const directive = (csp: string, name: string): string => {
   const found = csp
@@ -480,10 +440,10 @@ test.describe('security headers as declared and served', NODE, () => {
   /** Both directions: a stale hash hides what is allowed; a missing one blocks a script. */
   test('the csp allows exactly the inline blocks the build emits', () => {
     const csp = headers.get('content-security-policy') as string;
-    const { scripts, styles } = inlineBlocks();
+    const { scripts, styles } = inlineBlocks(DIST_DIR);
 
     const check = (name: string, bodies: Set<string>, source: string): void => {
-      const expected = [...bodies].map(cspHash).sort();
+      const expected = hashesFor(bodies);
       const listed = (source.match(/'sha256-[A-Za-z0-9+/=]+'/g) ?? []).sort();
 
       expect(
