@@ -5,7 +5,8 @@
 #   2. `cdn-cgi` anywhere in the body, escaped or not
 #   3. `__cf_email__` or `email-protection` in the body
 #   4. a fetching element pointing at another origin, each srcset candidate too
-#   5. an inline <script>/<style> whose sha256 is not in the CSP (not JSON-LD)
+#   5. an inline <script>/<style> whose sha256 is not in the CSP (not a data
+#      block: DATA_SCRIPT_TYPES in scripts/csp-hashes.mjs)
 #   6. an unexpected status
 #   7. CSS or JS under /_astro/ or /vendor/, a favicon or a feed, without
 #      Content-Encoding
@@ -79,6 +80,12 @@ STALE_STATEMENT=$(node --input-type=module -e "const { SITE_CONFIG } = await imp
 
 TARGET=${1:-$SITE}
 TARGET=${TARGET%/}
+
+# Script types the CSP does not gate, from the list the build's hashes skip.
+DATA_SCRIPT_TYPES=$(node --input-type=module -e \
+  "import { DATA_SCRIPT_TYPES } from './scripts/csp-hashes.mjs'; console.log(DATA_SCRIPT_TYPES.join(' '))") ||
+  die "could not read DATA_SCRIPT_TYPES from scripts/csp-hashes.mjs"
+[ -n "$DATA_SCRIPT_TYPES" ] || die "scripts/csp-hashes.mjs lists no DATA_SCRIPT_TYPES"
 case "$TARGET" in
   https://*/*) die "pass an origin, not a URL with a path: $TARGET" ;;
   https://?*) ;;
@@ -375,7 +382,9 @@ check_elements() {
     fi
 
     inlines=$((inlines + 1))
-    [ "$value" = application/ld+json ] && continue
+    if [ "$tag" = script ]; then
+      case " $DATA_SCRIPT_TYPES " in *" $value "*) continue ;; esac
+    fi
     check_inline "$1" "$2.$tag.$key.body" "$tag"
   done < "$2.index"
 
