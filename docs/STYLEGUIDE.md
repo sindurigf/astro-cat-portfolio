@@ -445,8 +445,9 @@ longest word fits there; `tests/reflow.spec.ts` holds them.
   each part of a hyphenated compound counts as a word ("One-Keeper Problem").
   `npm run check:title-case` scans the built headings, titles and summaries,
   and the visible label of every button and button-styled link; an email or
-  web address keeps its own case. It does not read `.label` or `.badge`
-  elements, which this rule puts in sentence case.
+  web address keeps its own case. It does not scan `.label` or `.badge`
+  text, which is sentence case, except where the element is a heading or a
+  button: those stay title case.
   It cannot see server-rendered `/contact/send` or the dev-only presenter;
   check their headings and buttons by hand.
 - `.label`, `.badge`, the buttons and every heading apply

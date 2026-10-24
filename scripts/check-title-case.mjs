@@ -10,6 +10,7 @@ import { existsSync } from 'node:fs';
 import { glob, readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { assertBuildCurrent } from './build-fingerprint.mjs';
+import { visibleMarkup } from './visible-markup.mjs';
 import { titleCaseMiss } from '../src/lib/labels.ts';
 import { SITE_CONFIG } from '../src/site.config.ts';
 
@@ -72,13 +73,6 @@ const textOf = (html) =>
     .replace(/\s+/g, ' ')
     .trim();
 
-/* `.label` and `.badge` are sentence case (STYLEGUIDE#uppercase), so not read here. */
-const SENTENCE_CASE_CLASS = /\bclass="(?:[^"]*\s)?(?:label|badge)(?:\s[^"]*)?"/;
-
-/* A label's visible words: screen-reader-only text and hidden marks are not on show. */
-const HIDDEN =
-  /<(\w+)\b[^>]*\b(?:class="[^"]*\bsr-only\b[^"]*"|aria-hidden="true")[^>]*>[\s\S]*?<\/\1>/g;
-
 const routeOf = (file) =>
   file
     .slice(DIST.length)
@@ -108,10 +102,8 @@ const run = async () => {
     const html = await readFile(file, 'utf8');
     for (const { kind, pattern, group, visible } of KINDS) {
       for (const match of html.matchAll(pattern)) {
-        if (SENTENCE_CASE_CLASS.test(match[0].slice(0, match[0].indexOf('>'))))
-          continue;
         const markup = match[group];
-        let text = textOf(visible ? markup.replace(HIDDEN, ' ') : markup);
+        let text = textOf(visible ? visibleMarkup(markup) : markup);
         if (kind === 'title' || kind === 'og:title') {
           if (text.endsWith(TITLE_SITE_SUFFIX)) {
             text = text.slice(0, -TITLE_SITE_SUFFIX.length);
