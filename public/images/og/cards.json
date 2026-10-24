@@ -1,7 +1,7 @@
 {
   "/about": {
     "title": "About",
-    "photo": "/_astro/calico-cushion.CitSThD9_Z1gRF8r.webp",
+    "photo": "/_astro/calico-cushion.CitSThD9_ZlmV2Q.webp",
     "alt": "About, example.com, beside a photo: A calico cat asleep, curled against a gray cushion."
   },
   "/accessibility": {
@@ -11,7 +11,7 @@
   },
   "/blog": {
     "title": "Blog",
-    "photo": "/_astro/cover.Bfe_KnKq_Z2c40q7.webp",
+    "photo": "/_astro/cover.Bfe_KnKq_Z1tOTuO.webp",
     "alt": "Blog, example.com, beside a photo: A tabby cat resting its chin on the edge of a cat bed, one paw stretched out."
   },
   "/blog/how-i-get-to-know-a-new-island": {
@@ -41,7 +41,7 @@
   },
   "/blog/sample-post": {
     "title": "What Ohara Taught Me",
-    "photo": "/_astro/cover.Bfe_KnKq_Z2c40q7.webp",
+    "photo": "/_astro/cover.Bfe_KnKq_Z1tOTuO.webp",
     "alt": "What Ohara Taught Me, example.com, beside a photo: A tabby cat resting its chin on the edge of a cat bed, one paw stretched out."
   },
   "/blog/sample-talk": {
