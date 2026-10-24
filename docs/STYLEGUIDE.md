@@ -1292,9 +1292,9 @@ Enforced by `tests/nav-current.spec.ts`, `tests/mobile-menu.spec.ts`,
   card's top right corner. No control there is named Full Screen. They show on
   a pointer move or a tap, hide with the pointer once it rests, and stay while
   the pointer is on one or one has keyboard focus. No transition. The foot row
-  sits over the margin under the slide and the slide's foot padding, ✕ inside
-  the card's border by `--focus-gap`, in its corner padding: clear of slide
-  content on 16:9 and 4:3 screens. Exit is first in the DOM, so Tab goes from
+  sits in a row reserved under the slide (`--deck-bar-room`), clear of the
+  slide and its focus ring; ✕ sits inside the card's border by `--focus-gap`,
+  in its corner padding, clear of slide content on 16:9 and 4:3 screens. Exit is first in the DOM, so Tab goes from
   the top down.
 - A cat naps after `NAP_AFTER_MS` of on-screen play (`src/lib/about-cats.ts`).
   Lying down, and the "z" after it, end within 5 s, then the cat is

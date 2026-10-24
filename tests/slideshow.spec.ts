@@ -603,6 +603,26 @@ test.describe('the talk slideshow in full screen', () => {
             exit.bottom <= card.bottom;
           if (style.outlineStyle !== 'solid' || reach < 0 || !within)
             return true;
+          const ring = {
+            left: card.left - reach,
+            right: card.right + reach,
+            top: card.top - reach,
+            bottom: card.bottom + reach,
+          };
+          const inCard = (box: DOMRect) =>
+            box.left >= card.left &&
+            box.right <= card.right &&
+            box.top >= card.top &&
+            box.bottom <= card.bottom;
+          const onRing = boxes.some(
+            (box) =>
+              !inCard(box) &&
+              ring.left < box.right &&
+              box.left < ring.right &&
+              ring.top < box.bottom &&
+              box.top < ring.bottom,
+          );
+          if (onRing) return true;
           const content = [...slide.children].map((child) =>
             child.getBoundingClientRect(),
           );
