@@ -390,8 +390,9 @@ template ships with none of it run; record your own results. Not automated:
    screen reader. SC 3.3.7 and 3.3.8 do not apply.
 2. **No screen reader testing.** No NVDA, JAWS, VoiceOver or Orca run.
    [MANUAL_TESTING.md](docs/MANUAL_TESTING.md) §6 is an Orca pass in Firefox,
-   with §6.4 in Chrome for the uppercase question. An Orca pass narrows this
-   gap; it does not close it.
+   with §6.4 in Chrome for the uppercase question; §6.10.1 and §6.10.2 are 19
+   widget steps for TalkBack on Android and Orca. A pass narrows this gap; it
+   does not close it.
 3. **The gold surface has been measured, not looked at.**
    `tests/gold-surface.spec.ts` measures every route at desktop width, and
    the `/contact` button at 305px:
