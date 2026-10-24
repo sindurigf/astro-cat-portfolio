@@ -809,7 +809,10 @@ export const createColony = (
       if (on) cat.holds.add(reason);
       else cat.holds.delete(reason);
       /* The look ends with the card, not after the rest that follows it. */
-      if (reason === 'card' && !on) cat.pose.hr = 0;
+      if (reason === 'card' && !on && !cat.asleep) {
+        cat.pose.hr = 0;
+        draw(cat, performance.now());
+      }
       updateMood(cat);
     },
     still: () => {
