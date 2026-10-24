@@ -73,8 +73,9 @@
     }
   }
 
+  /* Only the hit box takes the pointer: the frame window's whole-sheet image would widen the cat's box (SC 2.5.8). */
   .cat-hit {
-    @apply pointer-events-auto cursor-pointer;
+    @apply pointer-events-none cursor-pointer;
   }
 
   /* Each cat's SC 2.2.2 control, in the band's corner, which the cat's track stops short of. */
@@ -183,45 +184,6 @@
     pointer-events: all;
   }
 
-  .cat-button[data-cat='minerva'] {
-    --cat-fur: var(--color-cat-minerva);
-    --cat-far: var(--color-cat-minerva-far);
-    --cat-mark: var(--color-cat-minerva-stripe);
-    --cat-patch: var(--color-cat-minerva);
-    --cat-eye: var(--color-cat-minerva-eye);
-    --cat-lid: var(--color-gold-text);
-  }
-
-  .cat-button[data-cat='hela'] {
-    --cat-fur: var(--color-cat-hela);
-    --cat-far: var(--color-cat-hela-far);
-    --cat-mark: var(--color-cat-hela-black);
-    --cat-patch: var(--color-cat-hela-orange);
-    --cat-eye: var(--color-gold-text);
-    --cat-lid: var(--color-gold-text);
-  }
-
-  /* Closed eyes are light lines, since Rudra's fur is near black. */
-  .cat-button[data-cat='rudra'] {
-    --cat-fur: var(--color-cat-rudra);
-    --cat-far: var(--color-cat-rudra-far);
-    --cat-mark: transparent;
-    --cat-patch: var(--color-cat-rudra);
-    --cat-eye: var(--color-cat-rudra-eye);
-    --cat-lid: var(--color-cat-hela);
-  }
-
-  /* Shadow and edge follow the site's depth and ink, so light mode turns both ink. */
-  .cat-shadow {
-    fill: var(--color-pink);
-    stroke: var(--color-pink);
-  }
-
-  .cat-edge {
-    fill: var(--color-text);
-    stroke: var(--color-text);
-  }
-
   .cat-svg
     :is(
       [class^='cat-line-'],
@@ -233,52 +195,6 @@
     fill: none;
   }
 
-  .cat-fill .cat-solid-fur {
-    fill: var(--cat-fur);
-  }
-
-  .cat-fill .cat-line-fur {
-    stroke: var(--cat-fur);
-  }
-
-  .cat-fill .cat-solid-far {
-    fill: var(--cat-far);
-  }
-
-  .cat-fill .cat-line-patch {
-    stroke: var(--cat-patch);
-  }
-
-  .cat-line-mark {
-    stroke: var(--cat-mark);
-  }
-
-  .cat-solid-mark {
-    fill: var(--cat-mark);
-  }
-
-  .cat-solid-patch {
-    fill: var(--cat-patch);
-  }
-
-  .cat-solid-eye {
-    fill: var(--cat-eye);
-  }
-
-  /* The same near-black in dark and light mode. */
-  .cat-solid-pupil {
-    fill: var(--color-gold-text);
-  }
-
-  .cat-line-lid {
-    stroke: var(--cat-lid);
-  }
-
-  .cat-solid-mouth {
-    fill: var(--color-cat-mouth);
-  }
-
-  .cat-line-whisker,
   .cat-line-z {
     stroke: var(--color-text);
   }

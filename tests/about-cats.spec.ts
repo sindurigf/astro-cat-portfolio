@@ -1,3 +1,4 @@
+import sharp from 'sharp';
 import { expect, test, type Browser, type Page } from './test';
 import { gotoSettled, setViewportSettled } from './settle';
 import { settleFocusScroll } from './tab-walk';
@@ -9,6 +10,7 @@ import {
   PHONE_VIEWPORT,
 } from './wcag';
 import { AA_TEXT, NON_TEXT, PAGE_HELPERS } from './contrast';
+import { cssColorToken } from './source';
 import { NODE } from './tags';
 import { readFileSync } from 'node:fs';
 import {
@@ -25,16 +27,12 @@ import {
   HIT_HALF_WIDTH,
   POST_HEIGHT,
   highestPoint,
+  hitBox,
+  isStepping,
   reachOf,
-  stepTail,
 } from '../src/lib/about-cats-rig';
-import {
-  createIdle,
-  idleFrameMs,
-  idleOffsets,
-  rearmIdle,
-  tickIdle,
-} from '../src/lib/about-cats-idle';
+import { FRAMES } from '../src/lib/about-cats-frames';
+import { createIdle, idleFrameMs, tickIdle } from '../src/lib/about-cats-idle';
 import { isTricksData, tricksOf } from '../src/lib/about-cats-tricks';
 import tricksData from '../src/lib/about-cats-tricks.json' with { type: 'json' };
 import {
@@ -42,7 +40,6 @@ import {
   MAX_OVERHANG,
   NAP_AFTER_MS,
   POINTER_IDLE_MS,
-  TAIL_REST,
   TRACK_MARGIN,
   cupPush,
   planMove,
@@ -184,11 +181,11 @@ const ICONS: Record<string, unknown[]> = tricksData.icons;
 const catButton = (page: Page, id: (typeof CATS)[number]) =>
   page.locator(`#cat-spot-${id} .cat-button`);
 
-/** Where the cat stands, not how it is posed: a held cat still blinks. */
+/** Where the cat stands, not how it is posed: a held cat still breathes. */
 const place = (page: Page, id: (typeof CATS)[number]) =>
   page.locator(`#cat-spot-${id} .cat-hit`).getAttribute('transform');
 
-/** Every drawn attribute of one cat but its blinks, so any movement changes the string. */
+/** Every drawn attribute of one cat but its frame window's box and visibility, so any movement changes the string. */
 const drawing = (page: Page, id: (typeof CATS)[number]) =>
   page
     .locator(`#cat-spot-${id} .cat-hit`)
@@ -250,6 +247,10 @@ const expectStill = async (
   id: (typeof CATS)[number],
   why: string,
 ) => {
+  /* The frames load as the band nears view; the load is not motion. */
+  await expect(
+    page.locator(`#cat-spot-${id} image[href]`).first(),
+  ).toBeAttached();
   const before = await drawing(page, id);
   await page.waitForTimeout(STILL_WINDOW_MS);
   expect(await drawing(page, id), why).toBe(before);
@@ -489,30 +490,6 @@ test(
   },
 );
 
-test(
-  "the pounce's and the stalk's leap spans the air and the landing, so the paws touch down as the arc ends",
-  NODE,
-  () => {
-    for (const name of ['pounce', 'stalk'] as const) {
-      const move = MOVES[name]();
-      const air = move.steps.findIndex(
-        (s) =>
-          JSON.stringify(s.pose) ===
-          JSON.stringify(pose('air', { x: s.pose.x })),
-      );
-      expect(air, `${name} has no leap`).toBeGreaterThan(0);
-      const airFrom = move.steps
-        .slice(0, air)
-        .reduce((sum, s) => sum + s.ms, 0);
-      const landed = airFrom + move.steps[air].ms + move.steps[air + 1].ms;
-      expect(
-        move.mods.some((m) => m.from === airFrom && m.to === landed),
-        `${name}'s arc does not run from take-off to touchdown`,
-      ).toBe(true);
-    }
-  },
-);
-
 /** How far any pose value may sit from the plain sit pose at a move's end. */
 const SIT_TOLERANCE = 0.01;
 
@@ -540,37 +517,87 @@ test(
   },
 );
 
-/** Frames this far apart, as a loaded device drew them in CI; the tail must still settle in time. */
+/** Frames this far apart, as a loaded device drew them in CI. */
 const SLOW_FRAME_MS = 530;
-/** Frames a slow device may still draw after a move ends: the move's last, and the tail's. */
+/** Frames a slow device may still draw after a move ends: the move's last, and its arrival step. */
 const SLOW_FRAMES_SPARE = 2;
-/** A tail swung this far, in degrees per segment, then left to settle. */
-const TAIL_SWING = 40;
-const TAIL_SEGMENTS = 8;
 
 test(
-  'a tail settles in real time even at two frames a second, so a sleeping cat is still within 5 s (SC 2.2.2)',
+  'every frame of every cat is a click box at least 44 by 44px (SC 2.5.5)',
   NODE,
   () => {
-    const tail = {
-      tailAngle: [] as number[],
-      tailSpeed: [] as number[],
-      physAt: 0,
-    };
-    stepTail(tail, Array(TAIL_SEGMENTS).fill(0), 0);
-    const swung = Array(TAIL_SEGMENTS).fill(TAIL_SWING);
-    let now = 0;
-    do {
-      now += SLOW_FRAME_MS;
-      stepTail(tail, swung, now);
-    } while (
-      now < SC_2_2_2_MS &&
-      tail.tailSpeed.some((v) => Math.abs(v) > TAIL_REST)
-    );
+    for (const id of CATS)
+      for (const frame of FRAMES) {
+        const { half, tall } = hitBox(id, frame);
+        expect(2 * half, `${id} ${frame} width`).toBeGreaterThanOrEqual(
+          MIN_TARGET,
+        );
+        expect(tall, `${id} ${frame} height`).toBeGreaterThanOrEqual(
+          MIN_TARGET,
+        );
+      }
+  },
+);
+
+/** Device px from any point of a frame's outer edge to its white rim: the ink edge and the pink block lie between. */
+const RIM_WITHIN = 12;
+/** A channel this bright is the white rim, not the coat. */
+const RIM_WHITE = 240;
+
+test(
+  'every frame is outlined by a white rim right inside its edge, the boundary on a dark band (SC 1.4.11)',
+  NODE,
+  async () => {
+    for (const id of CATS) {
+      const { data, info } = await sharp(`src/assets/about-cats-${id}.avif`)
+        .ensureAlpha()
+        .raw()
+        .toBuffer({ resolveWithObject: true });
+      const { width, height, channels } = info;
+      const at = (x: number, y: number) => (y * width + x) * channels;
+      const solid = (x: number, y: number) =>
+        x >= 0 && y >= 0 && x < width && y < height && data[at(x, y) + 3] > 200;
+      const white = (x: number, y: number) =>
+        solid(x, y) && [0, 1, 2].every((c) => data[at(x, y) + c] >= RIM_WHITE);
+      let far = 0;
+      for (let y = 0; y < height; y += 1)
+        for (let x = 0; x < width; x += 1) {
+          if (!solid(x, y)) continue;
+          if (
+            solid(x + 1, y) &&
+            solid(x - 1, y) &&
+            solid(x, y + 1) &&
+            solid(x, y - 1)
+          )
+            continue;
+          let near = false;
+          for (let dy = -RIM_WITHIN; dy <= RIM_WITHIN && !near; dy += 1)
+            for (let dx = -RIM_WITHIN; dx <= RIM_WITHIN && !near; dx += 1)
+              near = white(x + dx, y + dy);
+          if (!near) far += 1;
+        }
+      expect(far, `${id}: edge pixels with no white rim near them`).toBe(0);
+    }
+  },
+);
+
+test(
+  'a new frame finishes its step well within 5 s, so a still cat stops redrawing (SC 2.2.2)',
+  NODE,
+  () => {
+    const rig = { shownAt: 0, pending: false };
     expect(
-      now,
-      'the tail was still swinging 5 s after it was left to settle',
-    ).toBeLessThan(SC_2_2_2_MS);
+      isStepping(rig, 1),
+      'a frame shown 1 ms ago has not held its step',
+    ).toBe(true);
+    expect(
+      isStepping(rig, SC_2_2_2_MS),
+      'a frame shown 5 s ago is still stepping',
+    ).toBe(false);
+    expect(
+      isStepping({ shownAt: 0, pending: true }, SC_2_2_2_MS),
+      'a frame waiting its turn keeps the loop drawing',
+    ).toBe(true);
   },
 );
 
@@ -640,102 +667,10 @@ test(
 );
 
 test(
-  'a resting cat idles in small offsets: breath, glance, ear and tail stay in range, and each really moves',
-  NODE,
-  () => {
-    const MAX = { bt: 4, hr: 30, ears: 1, ta: 16 };
-    const SPAN_MS = 120_000;
-    const STEP_MS = 50;
-    for (const roll of [() => 0, () => 0.9, () => 1, Math.random]) {
-      const idle = createIdle();
-      const seen = { bt: 0, hr: 0, ears: 0, tw: 0 };
-      const outOfRange: string[] = [];
-      for (let now = 0; now < SPAN_MS; now += STEP_MS) {
-        tickIdle(idle, now, roll);
-        const o = idleOffsets(idle, now);
-        if (Math.abs(o.bt) > MAX.bt) outOfRange.push(`chest ${o.bt} at ${now}`);
-        if (Math.abs(o.hr) > MAX.hr) outOfRange.push(`head ${o.hr} at ${now}`);
-        if (Math.abs(o.ta) > MAX.ta) outOfRange.push(`tail ${o.ta} at ${now}`);
-        if (o.ears < 0 || o.ears > MAX.ears)
-          outOfRange.push(`ear ${o.ears} at ${now}`);
-        seen.bt = Math.max(seen.bt, Math.abs(o.bt));
-        seen.hr = Math.max(seen.hr, Math.abs(o.hr));
-        seen.ears = Math.max(seen.ears, o.ears);
-        seen.tw = Math.max(seen.tw, o.tw);
-      }
-      expect(outOfRange.slice(0, 3), 'an idle offset left its range').toEqual(
-        [],
-      );
-      expect(seen.bt, 'the chest never moved').toBeGreaterThan(0);
-      expect(seen.ears, 'no ear ever flicked').toBeGreaterThan(0);
-      expect(seen.tw, 'the tail tip never twitched').toBeGreaterThan(0);
-    }
-    const glancing = createIdle();
-    let turned = 0;
-    for (let now = 0; now < SPAN_MS; now += STEP_MS) {
-      tickIdle(glancing, now, () => 0.9);
-      turned = Math.max(turned, Math.abs(idleOffsets(glancing, now).hr));
-    }
-    expect(turned, 'the head never turned').toBeGreaterThan(0);
-  },
-);
-
-test(
-  'after a move, resting cats start their timers again and do not flick, glance or twitch together',
+  'a resting cat redraws at the slow idle rate while only its breath moves, and faster during a glance',
   NODE,
   () => {
     const START_MS = 10_000;
-    const MOVE_MS = 30_000;
-    const resumeAt = START_MS + MOVE_MS;
-    const cats = [0.1, 0.5, 0.9].map((fixed) => {
-      const idle = createIdle();
-      tickIdle(idle, START_MS, () => fixed);
-      return { idle, fixed };
-    });
-    for (const { idle, fixed } of cats) {
-      rearmIdle(idle);
-      tickIdle(idle, resumeAt, () => fixed);
-      const first = idleOffsets(idle, resumeAt);
-      expect(
-        [first.ears, first.hr, first.tw],
-        'a cat flicked, glanced or twitched on its first frame after a move',
-      ).toEqual([0, 0, 0]);
-    }
-    const firstFlick = cats.map(({ idle, fixed }) => {
-      for (let now = resumeAt; now < resumeAt + 20_000; now += 50) {
-        tickIdle(idle, now, () => fixed);
-        if (idleOffsets(idle, now).ears > 0) return now;
-      }
-      return Infinity;
-    });
-    expect(
-      new Set(firstFlick).size,
-      `cats flicked an ear together after a move: ${firstFlick.join(', ')}`,
-    ).toBe(firstFlick.length);
-  },
-);
-
-test(
-  'resting cats do not flick, glance or twitch together, and idle frames slow down while only the breath moves',
-  NODE,
-  () => {
-    const START_MS = 10_000;
-    const firstFlick = [0.1, 0.5, 0.9].map((fixed) => {
-      const idle = createIdle();
-      for (let now = START_MS; now < START_MS + 20_000; now += 50) {
-        tickIdle(idle, now, () => fixed);
-        if (idleOffsets(idle, now).ears > 0) return now;
-      }
-      return Infinity;
-    });
-    expect(
-      new Set(firstFlick).size,
-      `cats flicked an ear together: ${firstFlick.join(', ')}`,
-    ).toBe(firstFlick.length);
-    expect(
-      Math.min(...firstFlick),
-      'a cat flicked on its first idle frame',
-    ).toBeGreaterThan(START_MS);
     const idle = createIdle();
     tickIdle(idle, START_MS, () => 0.5);
     const calm = idleFrameMs(idle, START_MS);
@@ -746,30 +681,17 @@ test(
     }
     expect(
       idleFrameMs(createIdle(), 0),
-      'a cat that has not yet had an event draws at the busy rate',
+      'a cat that has not yet glanced draws faster than its breath needs',
     ).toBe(calm);
-    expect(
-      busy,
-      'a flick or glance drew no faster than the breath',
-    ).toBeLessThan(calm);
+    expect(busy, 'a glance drew no faster than the breath').toBeLessThan(calm);
   },
 );
 
-/** A head turned at least this far, in degrees, has turned to the pointer; under this, it is level again. */
-const HEAD_TURNED_DEG = 5;
-const HEAD_LEVEL_DEG = 1;
-/** How far a cat's head is turned, in degrees, read from its drawn transform. */
-const headTurn = (page: Page, id: (typeof CATS)[number]) =>
-  page.locator(`#cat-spot-${id} .cat-fill`).evaluate((fill) => {
-    /* The head is the one part placed with a translate and a single-argument rotate. */
-    for (const part of fill.querySelectorAll('[transform]')) {
-      const turn = /translate\([^)]*\) rotate\(([-\d.]+)\)/.exec(
-        part.getAttribute('transform') ?? '',
-      );
-      if (turn) return Math.abs(Number(turn[1]));
-    }
-    throw new Error('The cat has no head turn to read.');
-  });
+/** The frame a cat is drawn with, as its rig reports it. */
+const frameOf = (page: Page, id: (typeof CATS)[number]) =>
+  page.locator(`#cat-spot-${id} .cat-hit`).getAttribute('data-frame');
+/** Frames drawn with the head turned. */
+const TURNED = /^(headturn|look)$/;
 
 /* Window for counting animation frames: none in it means the renderer, not the cat loop, has stopped. */
 const FRAME_COUNT_MS = 500;
@@ -803,7 +725,7 @@ const catState = async (page: Page, id: (typeof CATS)[number]) => {
         }),
       [`cat-spot-${id}`, FRAME_COUNT_MS] as const,
     );
-    return JSON.stringify({ ...state, headTurn: await headTurn(page, id) });
+    return JSON.stringify({ ...state, frame: await frameOf(page, id) });
   } catch (error) {
     return `the page state could not be read: ${String(error)}`;
   }
@@ -994,18 +916,18 @@ const expectHeldHeadRelaxes = async (page: Page) => {
   ).toBe(true);
   await pointAt(page, 'minerva');
   await expect
-    .poll(() => headTurn(page, 'minerva'), {
+    .poll(() => frameOf(page, 'minerva'), {
       message: 'a held cat never turned its head to the pointer',
       timeout: POINTER_IDLE_MS,
     })
-    .toBeGreaterThan(HEAD_TURNED_DEG);
+    .toMatch(TURNED);
   try {
     await expect
-      .poll(() => headTurn(page, 'minerva'), {
+      .poll(() => frameOf(page, 'minerva'), {
         message: 'a held cat kept its head turned to an idle pointer',
         timeout: POINTER_IDLE_MS + SC_2_2_2_MS,
       })
-      .toBeLessThan(HEAD_LEVEL_DEG);
+      .not.toMatch(TURNED);
   } catch (error) {
     if (error instanceof Error) {
       error.message += `\nCat state: ${await catState(page, 'minerva')}`;
@@ -2612,6 +2534,25 @@ test.describe('About cats', () => {
     await context.close();
   });
 
+  test('switching to reduced motion mid-move shows the frame it reports, fully drawn and alone', async ({
+    page,
+  }) => {
+    await gotoSettled(page, ROUTE);
+    await page.locator('#cat-spot-minerva').scrollIntoViewIfNeeded();
+    await showCat(page, 'minerva');
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await expect
+      .poll(() =>
+        page.locator('#cat-spot-minerva .cat-hit').evaluate((cat) => {
+          const shown = [...cat.querySelectorAll('svg')].filter(
+            (view) => view.getAttribute('visibility') !== 'hidden',
+          );
+          return shown.map((view) => getComputedStyle(view).opacity);
+        }),
+      )
+      .toEqual(['1']);
+  });
+
   test('a drawn cat is at least 44 by 44px (SC 2.5.5)', async ({ page }) => {
     await gotoSettled(page, ROUTE);
     for (const id of CATS) {
@@ -2629,25 +2570,32 @@ test.describe('About cats', () => {
   });
 
   for (const colorScheme of ['dark', 'light'] as const) {
-    test(`the sticker edge is at least 3:1 against the page in ${colorScheme} mode (SC 1.4.11)`, async ({
+    test(`the sticker outline is at least 3:1 against the page in ${colorScheme} mode: the ink edge or the white rim inside it (SC 1.4.11)`, async ({
       browser,
     }) => {
       const context = await browser.newContext({ colorScheme });
       const page = await context.newPage();
       await gotoSettled(page, ROUTE);
+      /* scripts/make-about-cats.mjs bakes these two tokens into every frame's outline. */
+      const outline = [
+        cssColorToken('--color-gold-text'),
+        cssColorToken('--color-light-ground'),
+      ].map((hex) => {
+        const n = parseInt(hex.slice(1), 16);
+        return `rgb(${n >> 16}, ${(n >> 8) & 255}, ${n & 255})`;
+      });
       const ratios = await page.evaluate(`(() => {
         ${PAGE_HELPERS}
+        const outline = ${JSON.stringify(outline)}.map(parse);
         return [...document.querySelectorAll('.cat-spot')].map((spot) => {
-          const edge = spot.querySelector('.cat-edge');
-          const fill = edge ? parse(getComputedStyle(edge).fill) : null;
           const ground = effectiveBackground(spot);
-          return fill && ground ? ratio(fill, ground) : 0;
+          return ground ? Math.max(...outline.map((c) => ratio(c, ground))) : 0;
         });
       })()`);
       for (const value of ratios as number[]) {
         expect(
           value,
-          'the cat edge fails SC 1.4.11 against its ground',
+          'neither outline layer reaches 3:1 against the band',
         ).toBeGreaterThanOrEqual(NON_TEXT);
       }
       await context.close();
