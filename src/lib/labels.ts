@@ -37,10 +37,13 @@ export const categoryLabel = (category: string): string => {
 
 const EDGE_PUNCTUATION = /^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu;
 
+/* An email address or web address keeps its own case, like a brand. */
+const ADDRESS = /@|^https?:\/\//;
+
 /**
  * The first word of `text` that breaks Chicago title case, or undefined. A
- * hyphenated compound counts each part as a word; `exempt` tokens keep their
- * own case.
+ * hyphenated compound counts each part as a word; `exempt` tokens and
+ * addresses keep their own case.
  */
 export const titleCaseMiss = (
   text: string,
@@ -49,6 +52,7 @@ export const titleCaseMiss = (
   const words = text
     .split(' ')
     .map((token) => token.replace(EDGE_PUNCTUATION, ''))
+    .filter((token) => !ADDRESS.test(token))
     .flatMap((token) => (exempt.has(token) ? [token] : token.split('-')))
     .map((word) => word.replace(EDGE_PUNCTUATION, ''))
     .filter((word) => /\p{L}/u.test(word));

@@ -1,6 +1,6 @@
 /*
- * Fails if a built heading, title, summary or og:title is not in Chicago title
- * case: the first and last word are capitalized, and a word between is lower
+ * Fails if a built heading, title, summary, og:title, button or button-styled
+ * link is not in Chicago title case: the first and last word are capitalized, and a word between is lower
  * case only if it is in TITLE_CASE_SMALL_WORDS (shared with categoryLabel).
  * Each part of a hyphenated compound counts as a word.
  * The site name and short name in src/site.config.ts are exempt, in their own case.
@@ -20,12 +20,18 @@ const HEADING = /<h([1-6])\b[^>]*>([\s\S]*?)<\/h\1>/g;
 const TITLE = /<title>([\s\S]*?)<\/title>/g;
 const SUMMARY = /<summary\b[^>]*>([\s\S]*?)<\/summary>/g;
 const OG_TITLE = /<meta property="og:title" content="([^"]*)"/g;
+/* An action's visible label: a button, or a link drawn as one (STYLEGUIDE#uppercase). */
+const BUTTON = /<button\b[^>]*>([\s\S]*?)<\/button>/g;
+const ACTION =
+  /<a\b[^>]*\bclass="[^"]*\b(?:btn-[a-z-]+|nav-cta|nav-sticker|chip)\b[^"]*"[^>]*>([\s\S]*?)<\/a>/g;
 
 const KINDS = [
   { kind: 'heading', pattern: HEADING, group: 2 },
   { kind: 'title', pattern: TITLE, group: 1 },
   { kind: 'summary', pattern: SUMMARY, group: 1 },
   { kind: 'og:title', pattern: OG_TITLE, group: 1 },
+  { kind: 'button', pattern: BUTTON, group: 1, visible: true },
+  { kind: 'action', pattern: ACTION, group: 1, visible: true },
 ];
 
 /* The site name closes every <title> as "Page | name", in the name's own case. */
@@ -66,6 +72,10 @@ const textOf = (html) =>
     .replace(/\s+/g, ' ')
     .trim();
 
+/* A label's visible words: screen-reader-only text and hidden marks are not on show. */
+const HIDDEN =
+  /<(\w+)\b[^>]*\b(?:class="[^"]*\bsr-only\b[^"]*"|aria-hidden="true")[^>]*>[\s\S]*?<\/\1>/g;
+
 const routeOf = (file) =>
   file
     .slice(DIST.length)
@@ -93,9 +103,10 @@ const run = async () => {
     const file = join(entry.parentPath, entry.name);
     const route = routeOf(file);
     const html = await readFile(file, 'utf8');
-    for (const { kind, pattern, group } of KINDS) {
+    for (const { kind, pattern, group, visible } of KINDS) {
       for (const match of html.matchAll(pattern)) {
-        let text = textOf(match[group]);
+        const markup = match[group];
+        let text = textOf(visible ? markup.replace(HIDDEN, ' ') : markup);
         if (kind === 'title' || kind === 'og:title') {
           if (text.endsWith(TITLE_SITE_SUFFIX)) {
             text = text.slice(0, -TITLE_SITE_SUFFIX.length);
@@ -116,7 +127,9 @@ const run = async () => {
   }
 
   if (scanned === 0) {
-    console.error('Title case: no heading, title or summary found to check.');
+    console.error(
+      'Title case: no heading, title, summary or label found to check.',
+    );
     process.exit(1);
   }
 
@@ -130,8 +143,8 @@ const run = async () => {
 
   if (misses.length > 0) {
     console.error(
-      `Title case: ${misses.length} built heading(s), title(s) or summary ` +
-        'text(s) are not in Chicago title case:',
+      `Title case: ${misses.length} built heading(s), title(s), summaries or ` +
+        'label(s) are not in Chicago title case:',
     );
     for (const { route, kind, text, word } of misses) {
       console.error(`  ${route} ${kind}: "${text}" ("${word}")`);
@@ -144,7 +157,7 @@ const run = async () => {
   if (misses.length > 0 || stale.length > 0) process.exit(1);
 
   console.log(
-    `Title case: ${scanned} headings, titles and summaries are in Chicago ` +
+    `Title case: ${scanned} headings, titles, summaries and labels are in Chicago ` +
       `title case; ${ALLOWED.length} allowed as written.`,
   );
 };

@@ -438,7 +438,9 @@ longest word fits there; `tests/reflow.spec.ts` holds them.
   case. The lower-case words are in `TITLE_CASE_SMALL_WORDS`
   (`src/lib/labels.ts`); the first and last word are always capitalized, and
   each part of a hyphenated compound counts as a word ("One-Keeper Problem").
-  `npm run check:title-case` scans the built headings, titles and summaries.
+  `npm run check:title-case` scans the built headings, titles and summaries,
+  and the visible label of every button and button-styled link; an email or
+  web address keeps its own case.
   It cannot see server-rendered `/contact/send` or the dev-only presenter;
   check their headings and buttons by hand.
 - `.label`, `.badge`, the buttons and every heading apply
