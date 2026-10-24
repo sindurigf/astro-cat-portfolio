@@ -146,9 +146,9 @@ Until agents work under their own account, the owner cannot approve:
   their coverage is in
   [ACCESSIBILITY.md](../ACCESSIBILITY.md#4-what-the-site-supports). A false
   positive goes in `ACCESSLINT_FALSE_POSITIVES` (`tests/accesslint.ts`) or
-  `HTMLCS_FALSE_POSITIVES` (`tests/htmlcs.ts`) with its selector, a reason the
-  page checks and a route where it occurs, and in ARCHITECTURE.md "Rejected
-  findings".
+  `HTMLCS_FALSE_POSITIVES` (`tests/htmlcs.ts`) with its selector and a route
+  where it occurs, and in ARCHITECTURE.md "Rejected findings". An AccessLint
+  entry also names a reason the page checks.
 - `test:coverage` writes `coverage/` (`index.html`, `lcov.info`). It covers
   browser JavaScript only (the Vue islands and page scripts). It builds with source
   maps: run a plain `npm run build` before anything else reads `dist/`.

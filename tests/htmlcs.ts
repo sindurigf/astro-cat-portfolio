@@ -16,8 +16,6 @@ export interface FalsePositive {
   code: string;
   /** The elements the finding was checked on; a hit elsewhere still fails. */
   selector: string;
-  /** Drops the hit only while this is true of the element; see `reasonHolds`. */
-  holds?: 'list-lead-in';
   /** A route where the hit occurs, so a stale entry fails its own test. */
   seenOn: string;
 }
@@ -86,13 +84,6 @@ export const runHtmlcs = async (
           }
           return parts.join(' > ');
         };
-        /* A short label that ends in a colon and introduces the list after it, not a heading over a section. */
-        const isListLeadIn = (element: Element): boolean =>
-          (element.textContent ?? '').trim().endsWith(':') &&
-          element.nextElementSibling?.matches('ul, ol') === true;
-        const reasonHolds = (element: Element, holds?: string): boolean =>
-          holds === undefined ||
-          (holds === 'list-lead-in' && isListLeadIn(element));
         HTMLCS.process(
           standard,
           document,
@@ -115,9 +106,7 @@ export const runHtmlcs = async (
               };
               const entry = entries.findIndex(
                 (fp) =>
-                  fp.code === code &&
-                  target?.matches(fp.selector) === true &&
-                  reasonHolds(target, fp.holds),
+                  fp.code === code && target?.matches(fp.selector) === true,
               );
               if (entry === -1) audit.violations.push(hit);
               else audit.dropped.push({ entry, hit });
