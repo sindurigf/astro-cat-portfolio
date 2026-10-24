@@ -647,7 +647,7 @@ test.describe('the talk slideshow in full screen', () => {
   }
 
   for (const theme of ['dark', 'light'] as const) {
-    test(`in ${theme} mode Exit Full Screen has an edge at least 3:1 against the ground it sits on (SC 1.4.11)`, async ({
+    test(`in ${theme} mode Exit Full Screen has a fill or edge at least 3:1 against the ground it sits on (SC 1.4.11)`, async ({
       browser,
     }) => {
       const context = await browser.newContext({
@@ -661,13 +661,16 @@ test.describe('the talk slideshow in full screen', () => {
       const edge = await page.evaluate(`(() => {
         ${PAGE_HELPERS}
         const button = document.querySelector('[data-deck-exit]');
-        const border = parse(getComputedStyle(button).borderTopColor);
+        const style = getComputedStyle(button);
+        const border = parse(style.borderTopColor);
+        const fill = parse(style.backgroundColor);
         const ground = effectiveBackground(document.querySelector('.slide[data-current]'));
-        return border && ground ? ratio(border, ground) : 0;
+        if (!ground) return 0;
+        return Math.max(border ? ratio(border, ground) : 0, fill ? ratio(fill, ground) : 0);
       })()`);
       expect(
         edge,
-        'the edge of Exit Full Screen is under 3:1',
+        'Exit Full Screen has neither a fill nor an edge at 3:1 on its slide',
       ).toBeGreaterThanOrEqual(NON_TEXT);
       await context.close();
     });
