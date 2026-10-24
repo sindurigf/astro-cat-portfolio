@@ -40,6 +40,7 @@
     "publish:talk": "node scripts/publish-talk.mjs",
     "og": "node scripts/make-og.mjs",
     "hero-still": "node scripts/make-hero-still.mjs",
+    "about-cats": "node scripts/make-about-cats.mjs",
     "icons": "node scripts/make-icons.mjs",
     "box-cat": "node scripts/make-box-cat.mjs",
     "check": "npm run check:tokens && npm run check:links && npm run check:pins && npm run check:classes && npm run check:csp && npm run check:untransformed && npm run check:title-case && npm run check:exif && npm run format:check && npm run check:commits && npm run check:leaks && npm run check:fork"

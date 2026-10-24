@@ -1,54 +1,42 @@
 /*
- * Draws one About cat as a jointed SVG sticker. Poses and moves are in
- * about-cats-moves.ts; AboutCats.vue owns the frame loop. Units are CSS px,
- * y down, the ground at y = 0 under the cat's origin.
+ * Draws one About cat from its frames, die-cut stickers packed in one sheet per
+ * cat (scripts/make-about-cats.mjs), and the toys it plays with. Poses and
+ * moves are in about-cats-moves.ts; AboutCats.vue owns the frame loop. Units
+ * are CSS px, y down, the ground at y = 0 under the cat's origin.
  */
+import { PAD, SHEET } from './about-cats-sheet';
+import {
+  POSE_FRAME,
+  bridges,
+  WALK,
+  frameFor,
+  type Frame,
+  type Motion,
+  type NamedPose,
+} from './about-cats-frames';
+import { BREATH_DEPTH } from './about-cats-idle';
+import { pose } from './about-cats-moves';
 import type { CatId, Pose, PropKind, PropState } from './about-cats-types';
 
 const NS = 'http://www.w3.org/2000/svg';
 const D = Math.PI / 180;
 
-/** Sticker edge and its offset shadow, as on the site's cards. */
-const EDGE = 5;
-const SHADOW = 3;
-const LEG_W = 7.5;
-/** Half a front leg's width at the shoulder, elbow, wrist and paw. */
-const FRONT_R = [LEG_W / 2, 3.2, 2.5, 2.25];
-/** Half a hind leg's width at the hip, knee, heel, paw and toes: a thigh that tapers to the knee, a thin shank and foot. */
-const HIND_R = [7.2, 4.8, 2.9, 2.5, 2.3];
-const TAIL_W = 7;
-const TAIL_SEGS = 8;
-const TAIL_SEG = 4.2;
-const BODY_LEN = 30;
-const HEAD_RX = 13;
-const HEAD_RY = 11.5;
-const DETAIL = 0.9;
-
-/** Near-critical spring: the tail follows through once and settles, never swings. */
-const TAIL_STIFFNESS = 0.12;
-const TAIL_DAMPING = 0.62;
-const PHYS_STEP_MS = 1000 / 60;
-/* Catches up to half a second per frame, so the tail keeps real time on a slow device; a longer stall resets it. */
-const PHYS_MAX_STEPS = 30;
-
-const EARS = 'M-11 -4L-12 -19.5L-2 -10.5ZM2 -10.5L10.5 -19.5L11 -4Z';
-/** Hela's orange front ear, inset from the ear's edge. */
-const FRONT_EAR_PATCH = 'M2.6 -11L10 -18.4L10.4 -5.2Z';
-const EYE_CENTERS: readonly (readonly [number, number])[] = [
-  [-1, -1],
-  [7, -1.5],
-];
-/** Eye radius and pupil radius in px: Minerva's green eyes and Rudra's big amber ones have pupils. */
-const EYES: Record<CatId, { r: number; pupil: number }> = {
-  minerva: { r: 2.1, pupil: 0.9 },
-  hela: { r: 1.8, pupil: 0 },
-  rudra: { r: 3, pupil: 1.3 },
-};
-/** The pupils sit a little forward in the eye, so the cat looks where it faces. */
-const PUPIL_AHEAD = 0.4;
-const WHISKERS = 'M11 3l9 -3M11 4.4l10 0.5M11 5.8l9 3.5';
-/** Where Minerva's back stripes cross the body, as fractions of its length. */
-const STRIPES = [0.3, 0.5, 0.7];
+/** One step of the flip-book: 12 a second. A new frame waits until the last has shown this long, so every in-between is seen. */
+export const TICK_MS = 1000 / 12;
+/** A frame wanted for less than this is a passing blip of the pose blend, not a pose: one 60Hz frame is 16.7ms. */
+const BLIP_MS = 25;
+/** Walk frames a fast gait may step at once: 2 of 8 keeps the 4 phases (contact and passing, each side). */
+const MAX_WALK_STEP = 2;
+/** The squash a cat lands in for one step when it arrives in a still pose. */
+const ARRIVE_SQUASH = 0.96;
+/** How much a held pose grows at the top of a breath, as a share of its height. */
+const BREATH_SCALE = 0.025;
+/** ms a cat must stand still before it stops walking. */
+const STILL_MS = 120;
+/** Where the head is in a frame, as shares of its width ahead of center and its height up. */
+const HEAD_AT = { ahead: 1 / 3, up: 0.8 };
+/** The white rim and ink edge round each frame, in px: part of the drawing. */
+const OUTLINE = 3;
 /** The feather's string hangs from just under the band's top: --spacing-cat-band (140px) must stay above it. */
 const STRING_TOP = -136;
 /** The scratching post's height in px, cap aside; with it, it stays under the band. */
@@ -58,19 +46,16 @@ const ROPE_TURNS = [-86, -78, -70, -62, -54, -46, -38, -30, -22, -14];
 /** A small and a larger "z", drawn from the lower left of the small one. */
 const ZZ = 'M0 0h4l-4 5h4M6 -9h6l-6 7h6';
 const ZZ_HEIGHT = 14;
-/** Where the "z" rests from the head center, and how far it rises to get there. */
-const ZZ_AHEAD = 14;
-const ZZ_ABOVE = 24;
+const ZZ_WIDTH = 12;
+/** How far the "z" sits past the sleeping cat's head, and how far it rises to get there. */
+const ZZ_AHEAD = 6;
 const ZZ_RISE = 10;
-/** Half the click box's width: the whole cat either way it faces, over 44px (SC 2.5.5). */
+/** Half the click box's least width: over 44px (SC 2.5.5), wider for a wider frame. */
 export const HIT_HALF_WIDTH = 48;
+/** The click box's least height: a curled-up cat is still a 44px target (SC 2.5.5). */
+export const HIT_MIN_HEIGHT = 44;
 const WING_BEAT_MS = 16;
 
-interface Point {
-  x: number;
-  y: number;
-}
-const pt = (x: number, y: number): Point => ({ x, y });
 const f = (n: number): string => n.toFixed(2);
 export const clamp = (v: number, lo: number, hi: number): number =>
   Math.max(lo, Math.min(hi, v));
@@ -79,9 +64,6 @@ type Attrs = Record<string, string | number>;
 
 const set = (node: Element, name: string, value: string | number): void => {
   node.setAttribute(name, String(value));
-};
-const show = (node: Element, shown: boolean): void => {
-  set(node, 'visibility', shown ? 'visible' : 'hidden');
 };
 const translate = (x: number, y: number): string =>
   `translate(${f(x)} ${f(y)})`;
@@ -104,48 +86,64 @@ const line = (part: string, width: number): Attrs => ({
   'stroke-linecap': 'round',
 });
 
-/** Inverse kinematics for two bones of one length; `sign` picks which way the joint bends. */
-const ik = (a: Point, t: Point, sign: number, bone: number): [Point, Point] => {
-  const dx = t.x - a.x;
-  const dy = t.y - a.y;
-  const d = Math.hypot(dx, dy) || 0.001;
-  const reach = clamp(d, 0.5, 2 * bone - 0.01);
-  const ux = dx / d;
-  const uy = dy / d;
-  const bend = Math.acos(reach / (2 * bone)) * sign;
-  const joint = pt(
-    a.x + bone * (ux * Math.cos(bend) - uy * Math.sin(bend)),
-    a.y + bone * (ux * Math.sin(bend) + uy * Math.cos(bend)),
+const NAMED = Object.fromEntries(
+  (Object.keys(POSE_FRAME) as NamedPose[]).map((name) => [name, pose(name)]),
+) as Record<NamedPose, Pose>;
+
+const STILL: Motion = {
+  travelled: 0,
+  moving: false,
+  lift: 0,
+  lastLift: 0,
+};
+
+/** A frame's drawn size and the cat's own size inside it, in px. */
+const sizeOf = (id: CatId, frame: Frame) => {
+  const [, , , , dw, dh, w, h] = SHEET[id][frame];
+  return { dw, dh, w, h };
+};
+
+/** The frame a pose is drawn as, standing still. */
+export const stillFrame = (p: Pose): Frame =>
+  frameFor(grounded(p), NAMED, { ...STILL, lift: p.y, lastLift: p.y });
+
+const CAT_IDS = Object.keys(SHEET) as CatId[];
+
+/** Height of a pose's highest drawn point above the ground, outline included, for the tallest cat. */
+export const highestPoint = (p: Pose): number => {
+  const frame = stillFrame(p);
+  return (
+    Math.max(...CAT_IDS.map((id) => sizeOf(id, frame).h)) +
+    OUTLINE +
+    liftOf(p) +
+    (p.zz > 0 ? ZZ_HEIGHT : 0)
   );
-  return [joint, pt(a.x + ux * reach, a.y + uy * reach)];
 };
 
-const smoothClosed = (pts: Point[]): string => {
-  const n = pts.length;
-  let d = `M${f(pts[0].x)} ${f(pts[0].y)}`;
-  for (let i = 0; i < n; i += 1) {
-    const p0 = pts[(i - 1 + n) % n];
-    const p1 = pts[i];
-    const p2 = pts[(i + 1) % n];
-    const p3 = pts[(i + 2) % n];
-    d += `C${f(p1.x + (p2.x - p0.x) / 6)} ${f(p1.y + (p2.y - p0.y) / 6)} ${f(p2.x - (p3.x - p1.x) / 6)} ${f(p2.y - (p3.y - p1.y) / 6)} ${f(p2.x)} ${f(p2.y)}`;
-  }
-  return `${d}Z`;
+/** How far a pose's drawing reaches left and right of its origin, outline included, for the widest cat. */
+export const reachOf = (p: Pose): [number, number] => {
+  const half =
+    Math.max(...CAT_IDS.map((id) => sizeOf(id, stillFrame(p)).w)) / 2 + OUTLINE;
+  const zz = p.zz > 0 ? ZZ_AHEAD + ZZ_WIDTH : 0;
+  return p.face < 0 ? [-half - zz, half] : [-half, half + zz];
 };
 
+/** One frame of the sheet, shown through a window cut to its size. */
 interface Layer {
-  group: SVGGElement;
-  farLegs: [SVGPathElement, SVGPathElement];
-  tail: SVGPathElement;
-  body: SVGPathElement;
-  haunch: SVGEllipseElement;
-  legs: [SVGPathElement, SVGPathElement];
-  head: SVGGElement;
-  ears: SVGPathElement;
+  view: SVGSVGElement;
+  image: SVGImageElement;
+}
+
+/** A cat's frame sheet as imported: its URL and size in px. */
+export interface Sheet {
+  src: string;
+  width: number;
+  height: number;
 }
 
 export interface CatRig {
   id: CatId;
+  sheet: Sheet;
   /** Behind the cat, and over it (a box's front). */
   props: SVGGElement;
   propsFront: SVGGElement;
@@ -153,154 +151,53 @@ export interface CatRig {
   hit: SVGRectElement;
   zz: SVGPathElement;
   flip: SVGGElement;
-  layers: Layer[];
-  bodyClip: SVGPathElement;
-  /** Minerva's tabby stripes and Hela's patch; none for Rudra. */
-  stripes: SVGPathElement[];
-  patch: SVGEllipseElement | null;
-  tailMarks: SVGPathElement;
-  eyesOpen: SVGGElement;
-  eyesShut: SVGPathElement;
-  earPatch: SVGPathElement | null;
-  mouth: SVGEllipseElement;
-  tailAngle: number[];
-  tailSpeed: number[];
-  physAt: number;
+  /** The window the current frame shows through. */
+  layer: Layer;
+  frame: Frame | null;
+  shownAt: number;
+  /** A frame waiting for the current one's step to end. */
+  pending: boolean;
+  /** The next frame cuts in without the arrival squash: a resize or reduced motion. */
+  cut: boolean;
+  /** The frame the pose last asked for, and since when. */
+  wanted: Frame | null;
+  wantedAt: number;
+  lastX: number;
+  /** Where the cat was drawn when its walk frame last changed: a walk moves only with the frame. */
+  stepX: number;
+  lastLift: number;
+  movedAt: number;
+  travelled: number;
   /** Head center in the svg's coordinates, for the pointer-watcher. */
-  head: Point;
+  head: { x: number; y: number };
 }
 
-let uid = 0;
-
-/*
- * Colors are classes, not attributes: the stylesheet maps them to tokens per
- * cat and per theme, and the CSP refuses `style` attributes.
- */
-export const createCatRig = (svg: SVGSVGElement, id: CatId): CatRig => {
-  uid += 1;
-  const key = `cat${uid}`;
-  const defs = el('defs', {}, svg);
-  const bodyClip = el('path', {}, el('clipPath', { id: `${key}-b` }, defs));
-  el(
-    'ellipse',
-    { rx: HEAD_RX, ry: HEAD_RY },
-    el('clipPath', { id: `${key}-h` }, defs),
-  );
+export const createCatRig = (
+  svg: SVGSVGElement,
+  id: CatId,
+  sheet: Sheet,
+): CatRig => {
   /* Props behind the cat, then the cat, then props in front of it. */
   const props = el('g', {}, svg);
   const root = el('g', { class: 'cat-hit' }, svg);
-  const hit = el(
-    'rect',
-    { class: 'cat-hit-area', x: -HIT_HALF_WIDTH, width: 2 * HIT_HALF_WIDTH },
-    root,
-  );
+  const hit = el('rect', { class: 'cat-hit-area' }, root);
   const flip = el('g', {}, root);
-
-  const layer = (tone: 'shadow' | 'edge' | 'fill', extra: number): Layer => {
-    const group = el(
-      'g',
+  /* Hidden until a frame is drawn: an empty window shows the whole sheet, and takes clicks. */
+  const makeLayer = (): Layer => {
+    const view = el(
+      'svg',
       {
-        class: `cat-${tone}`,
-        ...(tone === 'shadow' && {
-          transform: `translate(${SHADOW} ${SHADOW})`,
-        }),
+        overflow: 'hidden',
+        'aria-hidden': 'true',
+        focusable: 'false',
+        visibility: 'hidden',
       },
       flip,
     );
-    const solid = (part: string): Attrs => ({
-      class: `cat-solid-${part}`,
-      'stroke-width': extra,
-      'stroke-linejoin': 'round',
-    });
-    const farLegs: [SVGPathElement, SVGPathElement] = [
-      el('path', solid('far'), group),
-      el('path', solid('far'), group),
-    ];
-    const tail = el(
-      'path',
-      {
-        ...line(id === 'hela' ? 'patch' : 'fur', TAIL_W + extra),
-        'stroke-linejoin': 'round',
-      },
-      group,
-    );
-    const body = el('path', solid('fur'), group);
-    const haunch = el('ellipse', solid('fur'), group);
-    const legs: [SVGPathElement, SVGPathElement] = [
-      el('path', solid('fur'), group),
-      el('path', solid('fur'), group),
-    ];
-    const head = el('g', {}, group);
-    const ears = el('path', { d: EARS, ...solid('fur') }, head);
-    el('ellipse', { rx: HEAD_RX, ry: HEAD_RY, ...solid('fur') }, head);
-    return { group, farLegs, tail, body, haunch, legs, head, ears };
+    const image = el('image', {}, view);
+    return { view, image };
   };
-
-  const layers = [layer('shadow', EDGE), layer('edge', EDGE), layer('fill', 0)];
-  const top = layers[2];
-
-  const marks = el('g', { 'clip-path': `url(#${key}-b)` }, top.group);
-  top.group.insertBefore(marks, top.haunch);
-  /* Made once and moved each frame; building them per frame was most of a draw. */
-  const stripes =
-    id === 'minerva'
-      ? STRIPES.map(() => el('path', line('mark', 2.4), marks))
-      : [];
-  const patch =
-    id === 'hela'
-      ? el('ellipse', { rx: 9, ry: 6.5, class: 'cat-solid-patch' }, marks)
-      : null;
-  const tailMarks = el(
-    'path',
-    {
-      class: 'cat-line-mark',
-      'stroke-width': TAIL_W,
-      'stroke-dasharray': id === 'hela' ? '4 5' : '3 4',
-    },
-    top.group,
-  );
-  top.group.insertBefore(tailMarks, top.body);
-
-  const headMarks = el('g', { 'clip-path': `url(#${key}-h)` }, top.head);
-  if (id === 'minerva') {
-    el(
-      'path',
-      { d: 'M-4 -10l1.5 -4M0 -11v-4', ...line('mark', 2.2) },
-      headMarks,
-    );
-  }
-  if (id === 'hela')
-    el('circle', { cx: 6, cy: -8, r: 7, class: 'cat-solid-mark' }, headMarks);
-
-  /* Hela's front ear is orange, as in her photos; it turns with the ears. */
-  const earPatch =
-    id === 'hela'
-      ? el('path', { d: FRONT_EAR_PATCH, class: 'cat-solid-patch' }, top.head)
-      : null;
-  if (earPatch) top.head.insertBefore(earPatch, top.ears.nextSibling);
-
-  const eye = EYES[id];
-  const eyesOpen = el('g', {}, top.head);
-  for (const [cx, cy] of EYE_CENTERS) {
-    el('circle', { cx, cy, r: eye.r, class: 'cat-solid-eye' }, eyesOpen);
-    if (eye.pupil > 0)
-      el(
-        'circle',
-        { cx: cx + PUPIL_AHEAD, cy, r: eye.pupil, class: 'cat-solid-pupil' },
-        eyesOpen,
-      );
-  }
-  const eyesShut = el(
-    'path',
-    { d: 'M-3 -1q2 1.8 4 0M5 -1.5q2 1.8 4 0', ...line('lid', 1.1) },
-    top.head,
-  );
-  const mouth = el(
-    'ellipse',
-    { cx: 9, cy: 5, rx: 2.3, ry: 0, class: 'cat-solid-mouth' },
-    top.head,
-  );
-  el('path', { d: WHISKERS, ...line('whisker', DETAIL) }, top.head);
+  const layer = makeLayer();
   /* Outside the flip, so the letter never reads backwards. */
   const zz = el(
     'path',
@@ -312,317 +209,147 @@ export const createCatRig = (svg: SVGSVGElement, id: CatId): CatRig => {
     },
     root,
   );
-
   const propsFront = el('g', {}, svg);
-
   return {
     id,
+    sheet,
     props,
     propsFront,
     root,
     hit,
     zz,
     flip,
-    layers,
-    bodyClip,
-    stripes,
-    patch,
-    tailMarks,
-    eyesOpen,
-    eyesShut,
-    earPatch,
-    mouth,
-    tailAngle: [],
-    tailSpeed: [],
-    physAt: 0,
-    head: pt(0, 0),
+    layer,
+    frame: null,
+    shownAt: -Infinity,
+    pending: false,
+    cut: true,
+    wanted: null,
+    wantedAt: 0,
+    lastX: NaN,
+    stepX: 0,
+    lastLift: 0,
+    movedAt: -Infinity,
+    travelled: 0,
+    head: { x: 0, y: 0 },
   };
 };
 
-export const stepTail = (
-  rig: Pick<CatRig, 'tailAngle' | 'tailSpeed' | 'physAt'>,
-  targets: number[],
+/** Half the click box's width and its height above the cat's feet, for a frame. */
+export const hitBox = (id: CatId, frame: Frame) => {
+  const { w, h } = sizeOf(id, frame);
+  return {
+    half: Math.max(HIT_HALF_WIDTH, w / 2 + OUTLINE),
+    tall: Math.max(HIT_MIN_HEIGHT, h + OUTLINE),
+  };
+};
+
+/** Loads the cat's frames, once: called when its band first comes into view, so an unseen cat costs no download. */
+export const loadSheet = (rig: CatRig): void => {
+  const { image } = rig.layer;
+  if (!image.hasAttribute('href')) set(image, 'href', rig.sheet.src);
+};
+
+/** Shows `frame` in `layer`, its ground line at y = 0 and centered on x = 0. */
+const drawFrame = (rig: CatRig, layer: Layer, frame: Frame): void => {
+  const [sx, sy, sw, sh, dw, dh, , h] = SHEET[rig.id][frame];
+  const { width, height } = rig.sheet;
+  set(layer.view, 'x', f(-dw / 2));
+  set(layer.view, 'y', f(-(PAD + h)));
+  set(layer.view, 'width', dw);
+  set(layer.view, 'height', dh);
+  set(layer.view, 'viewBox', `${sx} ${sy} ${sw} ${sh}`);
+  set(layer.image, 'width', width);
+  set(layer.image, 'height', height);
+};
+
+/** What stepFrame keeps between frames. */
+export type FrameStep = Pick<
+  CatRig,
+  'frame' | 'shownAt' | 'pending' | 'cut' | 'stepX' | 'wanted' | 'wantedAt'
+>;
+
+/**
+ * Moves `s` toward the frame `wanted`, returning true when the frame changes.
+ * Frames cut, never fade: a fade doubles the legs. Each holds a full step, so a
+ * quick move still shows its in-between, and a walk advances one frame at a time.
+ */
+export const stepFrame = (
+  s: FrameStep,
+  wanted: Frame,
   now: number,
-): void => {
-  if (rig.tailAngle.length === 0) {
-    rig.tailAngle = [...targets];
-    rig.tailSpeed = targets.map(() => 0);
-    rig.physAt = now;
-    return;
+  x: number,
+): boolean => {
+  if (wanted !== s.wanted) {
+    s.wanted = wanted;
+    s.wantedAt = now;
   }
-  let steps = Math.min(
-    PHYS_MAX_STEPS,
-    Math.floor((now - rig.physAt) / PHYS_STEP_MS),
-  );
-  rig.physAt += steps * PHYS_STEP_MS;
-  if (now - rig.physAt > PHYS_STEP_MS * PHYS_MAX_STEPS) rig.physAt = now;
-  while (steps > 0) {
-    steps -= 1;
-    for (let i = 0; i < TAIL_SEGS; i += 1) {
-      const want =
-        i === 0
-          ? targets[0]
-          : rig.tailAngle[i - 1] + (targets[i] - targets[i - 1]);
-      rig.tailSpeed[i] +=
-        (want - rig.tailAngle[i]) * TAIL_STIFFNESS -
-        rig.tailSpeed[i] * TAIL_DAMPING;
-      rig.tailAngle[i] += rig.tailSpeed[i];
-    }
+  const at = s.frame === null ? -1 : WALK.indexOf(s.frame);
+  const to = WALK.indexOf(wanted);
+  const blip =
+    !s.cut &&
+    to < 0 &&
+    !(s.frame && bridges(s.frame, wanted)) &&
+    now - s.wantedAt < BLIP_MS;
+  if (blip) {
+    s.pending = wanted !== s.frame;
+    return false;
   }
+  const ahead = (to - at + WALK.length) % WALK.length;
+  /* Within a walk: hold while the body is still, else step toward `wanted` without skipping a phase. */
+  const next =
+    at >= 0 && to >= 0
+      ? x === s.stepX
+        ? s.frame!
+        : WALK[(at + Math.min(ahead, MAX_WALK_STEP)) % WALK.length]!
+      : wanted;
+  s.pending = next !== s.frame && now - s.shownAt < TICK_MS;
+  if (next === s.frame) s.cut = false;
+  if (next === s.frame || s.pending) return false;
+  /* A cut counts as a full step already shown: no squash, and the next frame need not wait. */
+  s.shownAt = s.cut ? now - TICK_MS : now;
+  s.cut = false;
+  s.stepX = x;
+  s.frame = next;
+  return true;
 };
 
-/** Resets the tail so a jump cut (resize, reduced motion) does not swing it. */
-export const settleTail = (rig: CatRig): void => {
-  rig.tailAngle = [];
+/** Where the cat is drawn: while a walk frame shows, where that frame began, so a planted paw never slides. */
+export const drawnXOf = (
+  s: Pick<FrameStep, 'frame' | 'stepX'>,
+  x: number,
+): number => (s.frame?.startsWith('walk') ? s.stepX : x);
+
+/** True while a frame waits its turn or the arrival squash shows: the loop draws until both end. */
+export const isStepping = (
+  rig: Pick<CatRig, 'shownAt' | 'pending'>,
+  now: number,
+): boolean => rig.pending || now - rig.shownAt < TICK_MS;
+
+/** Makes the next frame show at once, with no squash: a jump cut (resize, reduced motion). */
+export const settleFrame = (rig: CatRig): void => {
+  rig.shownAt = -Infinity;
+  rig.pending = false;
+  rig.cut = true;
 };
 
-interface Skeleton {
-  center: Point;
-  length: number;
-  half: number;
-  hip: Point;
-  shoulder: Point;
-  head: Point;
-  at: (u: number, v: number) => Point;
-}
+/** The named pose each still frame draws, for its resting chest thickness: the first one listed wins. */
+const RESTING_POSE = new Map<Frame, NamedPose>();
+for (const name of Object.keys(POSE_FRAME) as NamedPose[])
+  if (!RESTING_POSE.has(POSE_FRAME[name]))
+    RESTING_POSE.set(POSE_FRAME[name], name);
 
-const skeleton = (p: Pose): Skeleton => {
-  const b = p.ba * D;
-  const along = pt(Math.cos(b), -Math.sin(b));
-  const up = pt(-Math.sin(b), -Math.cos(b));
-  const center = pt(0, -p.by - p.y);
-  const length = BODY_LEN * (2 - p.sq);
-  const half = (p.bt * p.sq) / 2;
-  const hip = pt(
-    center.x - (along.x * length) / 2,
-    center.y - (along.y * length) / 2,
-  );
-  const shoulder = pt(
-    center.x + (along.x * length) / 2,
-    center.y + (along.y * length) / 2,
-  );
-  const at = (u: number, v: number): Point =>
-    pt(hip.x + along.x * u + up.x * v, hip.y + along.y * u + up.y * v);
-  return {
-    center,
-    length,
-    half,
-    hip,
-    shoulder,
-    head: pt(shoulder.x + p.hx, shoulder.y + p.hy),
-    at,
-  };
-};
+/** px the paws stand above the ground: a climb raises the whole cat onto the upper brick. */
+const feetUp = (p: Pose): number =>
+  p.rot === 0
+    ? Math.max(0, p.by - Math.max(p.fN[1], p.fF[1], p.hN[1], p.hF[1]))
+    : 0;
 
-const tailTargets = (p: Pose, seconds: number): number[] =>
-  Array.from(
-    { length: TAIL_SEGS },
-    (_, i) =>
-      p.ta -
-      p.ba +
-      p.tc * i +
-      p.tw * Math.sin(seconds * 9 - i * 0.8) * Math.max(0, (i - 4) / 3),
-  );
+/** px the drawing is raised: a jump's lift and a climb's height. */
+export const liftOf = (p: Pose): number => Math.max(0, p.y) + feetUp(p);
 
-const rotateAbout = (q: Point, c: Point, degrees: number): Point => {
-  const a = degrees * D;
-  const dx = q.x - c.x;
-  const dy = q.y - c.y;
-  return pt(
-    c.x + dx * Math.cos(a) - dy * Math.sin(a),
-    c.y + dx * Math.sin(a) + dy * Math.cos(a),
-  );
-};
-
-/** The "z"'s lower left in the cat's ground coordinates, rising as `zz` goes to 1. */
-const zzAt = (p: Pose, head: Point): Point =>
-  pt(p.face * (head.x + ZZ_AHEAD), head.y - ZZ_ABOVE + ZZ_RISE * (1 - p.zz));
-
-type Paw = 'fN' | 'fF' | 'hN' | 'hF';
-
-/*
- * Cats stand on their toes: below the elbow and knee each leg has a wrist or
- * hock, the hind one high and pointing back. Lengths in px before the leg
- * scale, angles in degrees from the ground, forward positive.
- */
-const LEG = 19;
-const WRIST = 2.5;
-const HOCK = 7.5;
-const FRONT_BONE = (LEG - WRIST) / 2;
-/** Thigh and shank: together longer than the hip stands high, so a standing leg bends. */
-const HIND_BONE = 8.2;
-const HIND_TOES = 2.4;
-/** The paw height by which the toes hang in line with the foot. */
-const TOES_HANG_AT = 5;
-const HOCK_STAND = 62;
-const HOCK_FLAT = 14;
-/** A hind foot lies flat with the paw this near the hip, as a share of LEG, and stands upright this much farther out. */
-const HOCK_FLAT_AT = 0.45;
-const HOCK_RISE = 0.5;
-/*
- * The wrist angle by paw height: a stepping paw flicks back sole up, and from
- * WRIST_HANG_FROM px a paw raised to swat comes to hang curled from the wrist.
- * Degrees, and degrees per px of lift.
- */
-const WRIST_STAND = 80;
-const WRIST_FLICK = 130;
-const WRIST_HANG = 100;
-const WRIST_FLICK_RATE = 10;
-const WRIST_HANG_FROM = 9;
-const WRIST_HANG_RATE = 30 / 7;
-/** How far a lifted hind paw hangs more upright under the hock, per px of lift. */
-const HOCK_FOLD = 7;
-const HOCK_FOLD_MAX = 40;
-
-/** How far towards flat a folding hind foot has come when its heel is under the hip, as a share. */
-const HEEL_UNDER_AT = 2 / 3;
-
-/** A chain of tapered segments with round joints, as one filled path. */
-const limb = (pts: Point[], r: number[]): string => {
-  let d = '';
-  pts.forEach((q, i) => {
-    const half = `a${r[i]} ${r[i]} 0 1 0 `;
-    d += `M${f(q.x - r[i])} ${f(q.y)}${half}${f(2 * r[i])} 0${half}${f(-2 * r[i])} 0Z`;
-    if (i === 0) return;
-    const a = pts[i - 1];
-    const len = Math.hypot(q.x - a.x, q.y - a.y) || 1;
-    const nx = (a.y - q.y) / len;
-    const ny = (q.x - a.x) / len;
-    const side = (c: Point, w: number): string =>
-      `${f(c.x + nx * w)} ${f(c.y + ny * w)}`;
-    d += `M${side(a, r[i - 1])}L${side(q, r[i])}L${side(q, -r[i])}L${side(a, -r[i - 1])}Z`;
-  });
-  return d;
-};
-
-const wristAngle = (lift: number): number =>
-  Math.min(
-    WRIST_STAND + WRIST_FLICK_RATE * lift,
-    WRIST_FLICK,
-    Math.max(
-      WRIST_HANG,
-      WRIST_FLICK - WRIST_HANG_RATE * (lift - WRIST_HANG_FROM),
-    ),
-  );
-
-/** Each leg's hip or shoulder, knee or elbow, hock or wrist, and paw, as drawn; a hind leg's toes follow. */
-const legBones = (p: Pose): Record<Paw, Point[]> => {
-  const { center, length, half, at } = skeleton(p);
-  const front = at(length - 3, -half * 0.3);
-  const hind = at(3, -half * 0.3);
-  const bone = (from: Point, k: Paw, sign: number): Point[] => {
-    const isFront = k[0] === 'f';
-    const scale = isFront ? p.fl : p.hl;
-    const paw = pt(center.x + p[k][0], center.y + p[k][1]);
-    /* A paw on the higher side of a step stands on it: its lift counts from there. */
-    const floor = p[k][0] >= p.sx === p.sh > 0 ? Math.abs(p.sh) : 0;
-    const lift = Math.max(0, -paw.y - floor);
-    const room = Math.hypot(paw.x - from.x, paw.y - from.y) / (LEG * scale);
-    /* Up from the paw to the wrist or hock: angle from the ground, measured backwards. */
-    const angle = isFront
-      ? wristAngle(lift)
-      : HOCK_FLAT +
-        (HOCK_STAND - HOCK_FLAT) *
-          clamp((room - HOCK_FLAT_AT) / HOCK_RISE, 0, 1) +
-        Math.min(HOCK_FOLD_MAX, lift * HOCK_FOLD);
-    const seg = (isFront ? WRIST : HOCK) * scale;
-    const cos = Math.cos(angle * D);
-    const sin = Math.sin(angle * D);
-    /* A folded hind leg rests on the whole foot: it slides forward so the heel, not the toes, comes under the hip. */
-    if (!isFront)
-      paw.x +=
-        seg *
-        cos *
-        clamp(
-          (HOCK_STAND - angle) / ((HOCK_STAND - HOCK_FLAT) * HEEL_UNDER_AT),
-          0,
-          1,
-        );
-    const lower = pt(paw.x - seg * cos, paw.y - seg * sin);
-    const [joint, reached] = ik(
-      from,
-      lower,
-      sign,
-      (isFront ? FRONT_BONE : HIND_BONE) * scale,
-    );
-    /* A paw its leg cannot reach stops short with it. */
-    const end = pt(paw.x + reached.x - lower.x, paw.y + reached.y - lower.y);
-    const bones = [from, joint, reached, end];
-    if (isFront) return bones;
-    /* Toes lie forward on the ground, and hang in line with the foot once it lifts. */
-    const hang = clamp((-end.y - floor) / TOES_HANG_AT, 0, 1);
-    const tx = 1 - hang + hang * cos;
-    const ty = hang * sin;
-    const reach = HIND_TOES / (Math.hypot(tx, ty) || 1);
-    return [...bones, pt(end.x + tx * reach, end.y + ty * reach)];
-  };
-  return {
-    fN: bone(front, 'fN', 1),
-    fF: bone(pt(front.x - 3, front.y), 'fF', 1),
-    hN: bone(hind, 'hN', -1),
-    hF: bone(pt(hind.x + 3, hind.y), 'hF', -1),
-  };
-};
-
-/** Past its highest point a pose's drawing reaches this much more, kept as the band's headroom rule. */
-const STROKE_REACH = EDGE + LEG_W / 2;
-/** Half the widest edge stroke, a leg's: how far a drawing reaches past a point sideways. */
-const SIDE_REACH = (LEG_W + EDGE) / 2;
-/** The "z" glyph's width, drawn right from its lower left whichever way the cat faces. */
-const ZZ_WIDTH = 12;
-
-/*
- * A pose's outermost drawn points, facing right, before its edge.
- * The tail is taken straight at its targets; the spring only lags behind them.
- */
-const outline = (p: Pose): Point[] => {
-  const { center, half, at, length, head } = skeleton(p);
-  const headPoint = (q: Point): Point => {
-    const turned = rotateAbout(q, pt(0, 0), p.hr);
-    return pt(head.x + turned.x, head.y + turned.y);
-  };
-  const ears = [pt(-12, -19.5), pt(10.5, -19.5)].map((tip) =>
-    rotateAbout(tip, pt(0, -8), -30 * p.ears),
-  );
-  const points: Point[] = [
-    at(length * 0.5, half * 1.05),
-    at(-2, half),
-    at(length + 2, half * 0.95),
-    at(-6, 0),
-    at(length + 7, 0),
-    headPoint(pt(0, -HEAD_RY)),
-    headPoint(pt(HEAD_RX, 0)),
-    headPoint(pt(-HEAD_RX, 0)),
-    ...ears.map(headPoint),
-    ...Object.values(legBones(p)).map((bones) => bones[3]),
-  ];
-  let q = at(-4, 0);
-  for (const angle of tailTargets(p, 0)) {
-    q = pt(
-      q.x + TAIL_SEG * Math.cos(angle * D),
-      q.y + TAIL_SEG * Math.sin(angle * D),
-    );
-    points.push(q);
-  }
-  return points.map((point) => rotateAbout(point, center, p.rot));
-};
-
-/** Height of a pose's highest drawn point above the ground, edge included. */
-export const highestPoint = (p: Pose): number => {
-  const tops = outline(p).map((q) => q.y);
-  if (p.zz > 0) tops.push(zzAt(p, skeleton(p).head).y - ZZ_HEIGHT);
-  return -Math.min(...tops) + STROKE_REACH;
-};
-
-/** How far a pose's drawing reaches left and right of its origin, edge included. */
-export const reachOf = (p: Pose): [number, number] => {
-  const xs = outline(p).map((q) => p.face * q.x);
-  if (p.zz > 0) {
-    const z = zzAt(p, skeleton(p).head);
-    xs.push(z.x, z.x + ZZ_WIDTH);
-  }
-  return [Math.min(...xs) - SIDE_REACH, Math.max(...xs) + SIDE_REACH];
-};
+/** The pose as if its paws were on the ground, to compare with the named poses. */
+const grounded = (p: Pose): Pose => ({ ...p, by: p.by - feetUp(p) });
 
 export const renderCat = (
   rig: CatRig,
@@ -631,106 +358,65 @@ export const renderCat = (
   x: number,
   groundY: number,
 ): void => {
-  const { center, length, half, hip, shoulder, head, at } = skeleton(p);
-  const body = smoothClosed([
-    at(-6, half * 0.2),
-    at(-2, half),
-    at(length * 0.5, half * 1.05),
-    at(length + 2, half * 0.95),
-    at(length + 7, 0),
-    at(length + 3, -half * 0.95),
-    at(length * 0.5, -half),
-    at(-2, -half * 0.95),
-    at(-6.5, -half * 0.3),
-  ]);
-  set(rig.bodyClip, 'd', body);
-
-  const bones = legBones(p);
-  const leg = (k: Paw): string =>
-    limb(bones[k], k[0] === 'f' ? FRONT_R : HIND_R);
-  const legs = { fN: leg('fN'), fF: leg('fF'), hN: leg('hN'), hF: leg('hF') };
-
-  const targets = tailTargets(p, now / 1000);
-  stepTail(rig, targets, now);
-  const tp: Point[] = [at(-4, 0)];
-  for (let i = 0; i < TAIL_SEGS; i += 1) {
-    const a = rig.tailAngle[i] * D;
-    const q = tp[i];
-    tp.push(
-      pt(
-        q.x + TAIL_SEG * Math.cos(a),
-        Math.min(q.y + TAIL_SEG * Math.sin(a), -TAIL_W / 2),
-      ),
-    );
-  }
-  let tail = `M${f(tp[0].x)} ${f(tp[0].y)}`;
-  for (let i = 1; i < tp.length - 1; i += 1) {
-    tail += `Q${f(tp[i].x)} ${f(tp[i].y)} ${f((tp[i].x + tp[i + 1].x) / 2)} ${f((tp[i].y + tp[i + 1].y) / 2)}`;
-  }
-  tail += `L${f(tp[tp.length - 1].x)} ${f(tp[tp.length - 1].y)}`;
-
-  const haunch = pt(
-    hip.x + (shoulder.x - hip.x) * 0.1,
-    hip.y + (shoulder.y - hip.y) * 0.1 + 2,
-  );
-  const haunchR = Math.max(0.01, p.haunch);
-
-  const earTurn = `rotate(${f(-30 * p.ears)} 0 -8)`;
-
-  for (const layer of rig.layers) {
-    set(layer.body, 'd', body);
-    set(layer.farLegs[0], 'd', legs.fF);
-    set(layer.farLegs[1], 'd', legs.hF);
-    set(layer.legs[0], 'd', legs.hN);
-    set(layer.legs[1], 'd', legs.fN);
-    set(layer.tail, 'd', tail);
-    set(layer.haunch, 'cx', f(haunch.x));
-    set(layer.haunch, 'cy', f(haunch.y));
-    set(layer.haunch, 'rx', f(haunchR));
-    set(layer.haunch, 'ry', f(haunchR * 1.05));
-    set(
-      layer.head,
-      'transform',
-      `${translate(head.x, head.y)} rotate(${f(p.hr)})`,
-    );
-    set(layer.ears, 'transform', earTurn);
-  }
-  set(rig.tailMarks, 'd', tail);
-  if (rig.earPatch) set(rig.earPatch, 'transform', earTurn);
-
-  rig.stripes.forEach((stripe, i) => {
-    const k = STRIPES[i];
-    const a = at(length * k, -half - 2);
-    const z = at(length * k - 1, -half + 8);
-    set(stripe, 'd', `M${f(a.x)} ${f(a.y)}L${f(z.x)} ${f(z.y)}`);
+  const step = Number.isNaN(rig.lastX) ? 0 : Math.abs(x - rig.lastX);
+  rig.lastX = x;
+  if (step > 0) rig.movedAt = now;
+  /* A frame drawn too soon after the last moves the cat too little to tell: walking lasts until it has stood still a while. */
+  const moving = now - rig.movedAt < STILL_MS;
+  rig.travelled = moving ? rig.travelled + step : 0;
+  const wanted = frameFor(grounded(p), NAMED, {
+    travelled: rig.travelled,
+    moving,
+    lift: p.y,
+    lastLift: rig.lastLift,
   });
-  if (rig.patch) {
-    const o = at(length * 0.35, -half * 0.35);
-    set(rig.patch, 'cx', f(o.x));
-    set(rig.patch, 'cy', f(o.y));
-  }
+  rig.lastLift = p.y;
 
-  const open = p.eyes > 0.5;
-  show(rig.eyesOpen, open);
-  show(rig.eyesShut, !open);
-  set(rig.mouth, 'ry', f(3 * p.mouth));
-  show(rig.zz, p.zz > 0);
-  if (p.zz > 0) {
-    const z = zzAt(p, head);
-    set(rig.zz, 'transform', translate(z.x, z.y));
+  const arrived = rig.frame !== null && !rig.cut;
+  if (stepFrame(rig, wanted, now, x)) {
+    drawFrame(rig, rig.layer, rig.frame!);
+    set(rig.layer.view, 'visibility', 'visible');
+    set(rig.root, 'data-frame', rig.frame!);
+  }
+  const shown = rig.frame ?? wanted;
+
+  const { w, h } = sizeOf(rig.id, shown);
+  const lift = liftOf(p);
+  const { half, tall } = hitBox(rig.id, shown);
+  set(rig.hit, 'x', f(-half));
+  set(rig.hit, 'width', f(2 * half));
+  set(rig.hit, 'y', f(-(tall + lift)));
+  set(rig.hit, 'height', f(tall + lift));
+
+  const sleeping = p.zz > 0;
+  set(rig.zz, 'visibility', sleeping ? 'visible' : 'hidden');
+  if (sleeping) {
+    const zx = p.face * (w / 2 + ZZ_AHEAD) - (p.face < 0 ? ZZ_WIDTH : 0);
+    set(rig.zz, 'transform', translate(zx, -h - lift + ZZ_RISE * (1 - p.zz)));
     set(rig.zz, 'opacity', f(Math.min(1, 2 * p.zz)));
   }
 
-  const height = highestPoint(p);
-  set(rig.hit, 'y', f(-height));
-  set(rig.hit, 'height', f(height));
-  set(rig.root, 'transform', translate(x, groundY));
+  const drawnX = drawnXOf(rig, x);
+  set(rig.root, 'transform', translate(drawnX, groundY));
+  /* A still frame breathes with the pose's chest, and lands in a squash for one step. */
+  const still = RESTING_POSE.has(shown) && !moving;
+  const resting = still ? RESTING_POSE.get(shown) : undefined;
+  const breath = resting
+    ? clamp((p.bt - NAMED[resting].bt) / BREATH_DEPTH, -1, 1) * BREATH_SCALE
+    : 0;
+  const squash =
+    still && arrived && now - rig.shownAt < TICK_MS ? ARRIVE_SQUASH : 1;
+  const sq = p.sq * squash;
+  /* The drawings face left; a squash flattens the cat onto its feet. */
   set(
     rig.flip,
     'transform',
-    `scale(${f(p.face)} 1) rotate(${f(p.rot)} 0 ${f(center.y)})`,
+    `translate(0 ${f(-lift)}) scale(${f(-p.face * (2 - sq))} ${f(sq * (1 + breath))})`,
   );
-  rig.head = pt(x + p.face * head.x, groundY + head.y);
+  rig.head = {
+    x: drawnX + p.face * w * HEAD_AT.ahead,
+    y: groundY - lift - h * HEAD_AT.up,
+  };
 };
 
 export interface PropRig {

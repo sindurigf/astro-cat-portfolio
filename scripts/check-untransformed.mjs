@@ -19,6 +19,10 @@ const TALKS = join(ROOT, 'src/content/talks');
  * fails.
  */
 const SERVED_AS_IS = new Map([
+  ...['minerva', 'rudra', 'hela'].map((cat) => [
+    `about-cats-${cat}.avif`,
+    'the About cats draw their frames from it with SVG <image>; it is an AVIF atlas already.',
+  ]),
   [
     'box-cat-logo.svg',
     'Header.astro and 404.astro import it with `?url`: one file with its picture inside, cached once for every page.',
