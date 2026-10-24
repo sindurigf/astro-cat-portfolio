@@ -258,6 +258,11 @@ Dashboard settings that change what ships without a file change.
   Require status checks to pass, Add checks, type `Test weakening`, pick the
   GitHub Actions source, Save. The name is offered once the check has run on
   a pull request opened after this workflow reached `main`.
+- Once agents work under their own account: add `.github/CODEOWNERS` naming
+  the owner for `/.github/` and `/scripts/check-test-weakening.mjs`, and turn
+  on Require review from Code Owners in the `main` ruleset. A workflow could
+  report a job also named `Test weakening`; this keeps such a change from
+  merging whatever that job reports.
 - Turn on Dependabot alerts, automated security fixes and private
   vulnerability reporting ([SECURITY.md](../SECURITY.md)).
 - Optional Actions secret `CLOUDFLARE_API_TOKEN` and variable

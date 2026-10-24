@@ -12,7 +12,7 @@ export const APPROVAL_MARKER = /^Approved test change: *(\S.*)$/;
 const PLACEHOLDER_REASON = '<reason>';
 const FENCE = /^\s*(?:```|~~~)/;
 const GUARD_SCRIPT = 'scripts/check-test-weakening.mjs';
-const WORKFLOWS = /^\.github\/workflows\//;
+const CI_CONFIG = /^\.github\/(?:workflows|actions)\//;
 const ARCHITECTURE = 'ARCHITECTURE.md';
 const REJECTED_HEADING = '## Rejected findings';
 const REJECTED_TITLE = REJECTED_HEADING.replace(/^#+ /, '');
@@ -35,6 +35,7 @@ const RUNNER_FILES = [
   'playwright.config.ts',
   'playwright.worker.config.ts',
   'tests/tags.ts',
+  'tests/test.ts',
   'tests/ports.ts',
   'scripts/shard-tests.mjs',
 ];
@@ -53,14 +54,24 @@ const TIMED_SCAN = /\btimedScan\s*\(/;
 
 /** An assertion; asymmetric matchers such as `expect.stringContaining` are values, not calls. */
 const EXPECT_LINE =
-  /\bexpect(?!\.(?:any|anything|arrayContaining|closeTo|not|objectContaining|stringContaining|stringMatching)\b)(?:\.\w+)*\s*\(/;
+  /\bexpect(?!\s*\.\s*(?:any|anything|arrayContaining|closeTo|not|objectContaining|stringContaining|stringMatching)\b)(?:\s*\.\s*\w+)*\s*\(/;
 const EXPECT_CALL = new RegExp(EXPECT_LINE.source, 'g');
 const MATCHER = /\.(?:not\.)?to[A-Z]\w*\s*\(/;
 const NUMBER = /\d[\d_]*(?:\.\d+)?/;
 const NEGATION = /\.not\./;
 const NUMBERS = new RegExp(NUMBER.source, 'g');
 const TRY_BLOCK = /\btry\s*\{/g;
-const EARLY_RETURN = /=>\s*\{\s*return\s*(?:;|\n|\})/g;
+/** An expect that returns a promise: a locator, the page, or `expect.poll`. */
+const ASYNC_EXPECT =
+  /\bexpect\s*(?:\.\s*poll\b|\(\s*(?:page\s*\)|[\w.$]*(?:[Ll]ocator|getBy\w+)\b))/g;
+const AWAITED = /(?:\bawait|\breturn|=>)\s*$/;
+/** A return behind an engine, device or environment test: the usual way to skip a test quietly. */
+const GUARDED_RETURN =
+  /\bif\s*\([^)]*\b(?:browserName|isMobile|channel|project|process\.env|testInfo)\b[^)]*\)\s*\{?\s*return\b/g;
+const ENGINE_INVARIANT = /\bENGINE_INVARIANT\b/;
+const TEST_CALL = /\b(?:test|describe)(?:\.describe)?\s*\(/g;
+const GATE_SCRIPT = /^(?:pre|post)?(?:test|check|build)\b/;
+const GATE_HOOK = /^(?:pre|post)(?:test|check|build)\b/;
 /** `test.skip('title', ...)`: the whole test never runs, so edits inside it change nothing. */
 const SKIPPED_TEST =
   /\b(?:test|describe|it)(?:\.describe)?\.(?:skip|fixme)\s*\(\s*['"`]/g;
@@ -243,14 +254,65 @@ export const newMatchingLines = (
 
 const countExpects = (code) => (code.match(EXPECT_CALL) ?? []).length;
 
-/** Each expect call in live code with no `.matcher(` after it, as offsets. */
+/** The names chained after each expect call in live code: `.not.toBe(1)` gives ['not', 'toBe']. */
+const expectChains = (code) =>
+  [...code.matchAll(EXPECT_CALL)].map((match) => {
+    let at = closing(code, match.index + match[0].length - 1);
+    const names = [];
+    for (;;) {
+      const link = code.slice(at).match(/^\s*\.\s*(\w+)\s*/);
+      if (!link) break;
+      names.push(link[1]);
+      at += link[0].length;
+      if (code[at] === '(') at = closing(code, at);
+    }
+    return { index: match.index, names };
+  });
+
+/** Expect calls with no matcher after them, as offsets. */
 const hollowExpects = (code) =>
-  [...code.matchAll(EXPECT_CALL)]
-    .filter((match) => {
-      const end = closing(code, match.index + match[0].length - 1);
-      return !/^\s*\./.test(code.slice(end));
-    })
+  expectChains(code)
+    .filter(({ names }) => names.length === 0)
+    .map(({ index }) => index);
+
+/** Promise-returning expects with no `await` or `return` in front, as offsets. */
+const unawaitedExpects = (code) =>
+  [...code.matchAll(ASYNC_EXPECT)]
+    .filter((match) => !AWAITED.test(code.slice(0, match.index)))
     .map((match) => match.index);
+
+/** Each test or describe call: its title text, line, and whether its header carries ENGINE_INVARIANT. */
+const testHeaders = (text, code) =>
+  [...code.matchAll(TEST_CALL)].map((match) => {
+    const open = match.index + match[0].length - 1;
+    const end = closing(code, open);
+    const arrow = code.indexOf('=>', open);
+    const headerEnd = arrow === -1 || arrow > end ? end : arrow;
+    let depth = 0;
+    let comma = headerEnd;
+    for (let index = open + 1; index < headerEnd; index += 1) {
+      const character = code[index];
+      if ('([{'.includes(character)) depth += 1;
+      if (')]}'.includes(character)) depth -= 1;
+      if (character === ',' && depth === 0) {
+        comma = index;
+        break;
+      }
+    }
+    return {
+      line: lineAt(code, match.index),
+      title: {
+        key: normalize(text.slice(open + 1, comma)),
+        tagged: ENGINE_INVARIANT.test(text.slice(open, headerEnd)),
+      },
+    };
+  });
+
+/** Expect calls whose failure a chained `.catch(` swallows, as offsets. */
+const caughtExpects = (code) =>
+  expectChains(code)
+    .filter(({ names }) => names.includes('catch'))
+    .map(({ index }) => index);
 
 /** Expect calls in a `try` whose `catch` does not rethrow, so it can swallow their failure. */
 const expectsInTry = (code) =>
@@ -265,8 +327,6 @@ const expectsInTry = (code) =>
     );
     return rethrows ? sum : sum + countExpects(code.slice(open, end));
   }, 0);
-
-const earlyReturns = (code) => (code.match(EARLY_RETURN) ?? []).length;
 
 /** Evaluates a numeric literal or plain arithmetic of literals; anything else is `null`. */
 export const numericValue = (source) => {
@@ -343,14 +403,25 @@ const argumentCount = (call) => {
   return inner.trim().endsWith(',') ? count - 1 : count;
 };
 
-/** Matcher lines only one side has, each with its line number, for pairing edits. */
+/** A matcher line through its matcher's closing `)`, so a number wrapped onto the next line counts. */
+const matcherKey = (lines, index) => {
+  const text = lines.slice(index, index + MAX_CALL_LINES).join('\n');
+  const open = text.indexOf('(', text.search(MATCHER));
+  return normalize(text.slice(0, closing(text, open)));
+};
+
+/** Matchers only one side has, each with its line number, for pairing edits. */
 const unpairedMatchers = (oldLines, newLines) => {
+  const keysOf = (lines) =>
+    lines.flatMap((line, index) =>
+      MATCHER.test(line)
+        ? [{ key: matcherKey(lines, index), line: index + 1 }]
+        : [],
+    );
   const count = (lines) => {
     const counts = new Map();
-    for (const line of lines) {
-      if (!MATCHER.test(line)) continue;
-      counts.set(normalize(line), (counts.get(normalize(line)) ?? 0) + 1);
-    }
+    for (const { key } of keysOf(lines))
+      counts.set(key, (counts.get(key) ?? 0) + 1);
     return counts;
   };
   const oldCounts = count(oldLines);
@@ -361,13 +432,11 @@ const unpairedMatchers = (oldLines, newLines) => {
       removed.push(key);
   const added = [];
   const seen = new Map();
-  newLines.forEach((line, index) => {
-    if (!MATCHER.test(line)) return;
-    const key = normalize(line);
+  for (const { key, line } of keysOf(newLines)) {
     const used = (seen.get(key) ?? 0) + 1;
     seen.set(key, used);
-    if (used > (oldCounts.get(key) ?? 0)) added.push({ key, line: index + 1 });
-  });
+    if (used > (oldCounts.get(key) ?? 0)) added.push({ key, line });
+  }
   return { removed, added };
 };
 
@@ -490,8 +559,30 @@ export const fileFindings = ({ path, oldPath = path, oldText, newText }) => {
       );
     if (expectsInTry(newCode) > expectsInTry(oldCode))
       add(1, 'puts an expect inside try');
-    if (earlyReturns(newCode) > earlyReturns(oldCode))
-      add(1, 'returns before a test body runs');
+    const caughtBefore = caughtExpects(oldCode).length;
+    const caughtNow = caughtExpects(newCode);
+    if (caughtNow.length > caughtBefore)
+      add(lineAt(newCode, caughtNow.at(-1)), 'catches an expect failure');
+    const unawaitedBefore = unawaitedExpects(oldCode).length;
+    const unawaitedNow = unawaitedExpects(newCode);
+    if (unawaitedNow.length > unawaitedBefore)
+      add(
+        lineAt(newCode, unawaitedNow.at(-1)),
+        `leaves ${plural(unawaitedNow.length - unawaitedBefore, 'async expect')} unawaited`,
+      );
+    const returnsBefore = [...oldCode.matchAll(GUARDED_RETURN)].length;
+    const returnsNow = [...newCode.matchAll(GUARDED_RETURN)];
+    if (returnsNow.length > returnsBefore)
+      add(
+        lineAt(newCode, returnsNow.at(-1).index),
+        'returns early behind an engine or environment test',
+      );
+    const headersBefore = testHeaders(oldText, oldCode);
+    for (const { title, line } of testHeaders(runs, newCode)) {
+      const was = headersBefore.find(({ title: old }) => old.key === title.key);
+      if (title.tagged && was && !was.title.tagged)
+        add(line, 'runs an existing test in fewer engines');
+    }
   }
 
   if (oldPath === AXE_HELPER && oldText !== newText)
@@ -536,8 +627,23 @@ export const fileFindings = ({ path, oldPath = path, oldText, newText }) => {
   if (oldPath === GUARD_SCRIPT && oldText !== '' && oldText !== newText)
     add(1, 'changes the test-weakening guard', oldPath);
 
-  if (WORKFLOWS.test(path) || WORKFLOWS.test(oldPath))
-    add(1, 'changes a CI workflow');
+  if (CI_CONFIG.test(path) || CI_CONFIG.test(oldPath))
+    add(1, 'changes a CI workflow or action');
+
+  if (oldPath === 'package.json' && oldText !== '') {
+    const before = JSON.parse(oldText).scripts ?? {};
+    const after = JSON.parse(newText || '{}').scripts ?? {};
+    const steps = (command) => (command ?? '').split(/\s*&&\s*/);
+    for (const [name, command] of Object.entries(before)) {
+      if (!GATE_SCRIPT.test(name)) continue;
+      const kept = steps(after[name]);
+      if (steps(command).some((step) => !kept.includes(step)))
+        add(1, `changes the ${name} script`);
+    }
+    for (const name of Object.keys(after))
+      if (!(name in before) && GATE_HOOK.test(name))
+        add(1, `adds the ${name} hook`);
+  }
 
   return findings;
 };
@@ -576,12 +682,14 @@ export const changeFindings = (files) => {
 
   const moved = losses.flatMap(
     ({ path, oldPath, oldText, newText, removed }) => {
-      const helpers = importsOf(path, newText).reduce(
-        (sum, helper) =>
-          sum + (gained.get(helper.replace(SCRIPT_EXTENSION, '')) ?? 0),
-        0,
-      );
-      if (helpers >= removed) return [];
+      let missing = removed;
+      for (const helper of importsOf(path, newText)) {
+        const key = helper.replace(SCRIPT_EXTENSION, '');
+        const used = Math.min(gained.get(key) ?? 0, missing);
+        gained.set(key, (gained.get(key) ?? 0) - used);
+        missing -= used;
+      }
+      if (missing === 0) return [];
       const firstGone = newMatchingLines(newText, oldText, EXPECT_LINE)[0];
       return [
         {
@@ -614,7 +722,7 @@ export const changeFindings = (files) => {
       return elsewhere.every((other) => other.value === value);
     const newText = files.find(({ path }) => path === file)?.newText ?? '';
     return new RegExp(
-      String.raw`import\s*(?:type\s*)?\{[^}]*\b${name}\b[^}]*\}`,
+      String.raw`import\s*(?:type\s*)?\{[^}]*(?<!\bas\s+)\b${name}\b(?!\s+as\b)[^}]*\}`,
     ).test(newText);
   };
 
@@ -635,12 +743,23 @@ const approvalReason = (body) => {
   return null;
 };
 
-/** The reason from the owner's approving review of `headSha` that carries the marker; `null` otherwise. */
+const DECIDING_STATES = new Set([APPROVED, 'CHANGES_REQUESTED', 'DISMISSED']);
+
+/**
+ * The reason from the owner's approving review of `headSha` that carries the
+ * marker, unless her latest deciding review of it is not an approval or someone
+ * else last edited it; `null` otherwise. Reviews come oldest first.
+ */
 export const ownerApproval = (reviews, owner, headSha) => {
-  const ownerLogin = owner.toLowerCase();
-  for (const { login, state, body, commitId } of reviews) {
-    if ((login ?? '').toLowerCase() !== ownerLogin) continue;
-    if (state !== APPROVED || commitId !== headSha) continue;
+  const isOwner = (login) =>
+    (login ?? '').toLowerCase() === owner.toLowerCase();
+  const hers = reviews.filter(
+    ({ login, commitId }) => isOwner(login) && commitId === headSha,
+  );
+  const deciding = hers.filter(({ state }) => DECIDING_STATES.has(state));
+  if (deciding.at(-1)?.state !== APPROVED) return null;
+  for (const { state, body, editor } of hers) {
+    if (state !== APPROVED || (editor && !isOwner(editor))) continue;
     const reason = approvalReason(body);
     if (reason) return reason;
   }
@@ -682,40 +801,53 @@ export const changedFiles = ({ git, base, head, readWorking }) => {
   return files;
 };
 
-const fetchAll = async (fetchImpl, url, token) => {
-  const items = [];
-  for (let page = 1; ; page += 1) {
-    const response = await fetchImpl(
-      `${url}?per_page=${API_PAGE_SIZE}&page=${page}`,
-      {
-        headers: {
-          Accept: 'application/vnd.github+json',
-          Authorization: `Bearer ${token}`,
-          'User-Agent': 'check-test-weakening',
-        },
+const REVIEWS_QUERY = `query ($owner: String!, $name: String!, $number: Int!, $after: String) {
+  repository(owner: $owner, name: $name) {
+    pullRequest(number: $number) {
+      reviews(first: ${API_PAGE_SIZE}, after: $after) {
+        pageInfo { hasNextPage endCursor }
+        nodes { author { login } editor { login } state body commit { oid } }
+      }
+    }
+  }
+}`;
+
+/** Every review of the pull request, oldest first, with who last edited it: REST does not say. */
+const pullRequestReviews = async (fetchImpl, repository, number, token) => {
+  const [owner, name] = repository.split('/');
+  const reviews = [];
+  for (let after = null; ;) {
+    const response = await fetchImpl('https://api.github.com/graphql', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+        'User-Agent': 'check-test-weakening',
       },
-    );
+      body: JSON.stringify({
+        query: REVIEWS_QUERY,
+        variables: { owner, name, number, after },
+      }),
+    });
     if (!response.ok)
-      throw new Error(`GitHub API ${url} answered ${response.status}.`);
-    const batch = await response.json();
-    items.push(...batch);
-    if (batch.length < API_PAGE_SIZE) return items;
+      throw new Error(`GitHub GraphQL answered ${response.status}.`);
+    const { data, errors } = await response.json();
+    if (errors?.length) throw new Error(`GitHub GraphQL: ${errors[0].message}`);
+    const page = data?.repository?.pullRequest?.reviews;
+    if (!page) throw new Error('GitHub GraphQL returned no reviews.');
+    reviews.push(
+      ...page.nodes.map((review) => ({
+        login: review.author?.login,
+        editor: review.editor?.login ?? null,
+        state: review.state,
+        body: review.body,
+        commitId: review.commit?.oid,
+      })),
+    );
+    if (!page.pageInfo.hasNextPage) return reviews;
+    after = page.pageInfo.endCursor;
   }
 };
-
-const pullRequestReviews = async (fetchImpl, repository, number, token) =>
-  (
-    await fetchAll(
-      fetchImpl,
-      `https://api.github.com/repos/${repository}/pulls/${number}/reviews`,
-      token,
-    )
-  ).map((review) => ({
-    login: review.user?.login,
-    state: review.state,
-    body: review.body,
-    commitId: review.commit_id,
-  }));
 
 const requireEnv = (env, name) => {
   const value = env[name];

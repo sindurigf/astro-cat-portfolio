@@ -82,6 +82,16 @@ test.describe('test-weakening guard', NODE, () => {
       `  rules: { region: { enabled: ${String(false)} } },`,
     ],
     ['filtered violations', `  ${call('violations', 'filter')}(v) => v.id)`],
+    [
+      'filtered incomplete results',
+      `  ${call('incomplete', 'filter')}(v) => v.id)`,
+    ],
+    ['filtered nodes', `  ${call('v.nodes', 'filter')}(n) => n)`],
+    ['an included region', `  ${call('builder', 'include')}'main')`],
+    [
+      'a tag list on the builder',
+      `  ${call('builder', 'withTags')}['wcag2a'])`,
+    ],
   ] as const)
     test(`flags ${name}`, () => {
       expect(inSpec(withLine(line))).toEqual([
@@ -129,19 +139,57 @@ test.describe('test-weakening guard', NODE, () => {
     ).toEqual(['2 fewer expect calls (line in base)']);
   });
 
-  test('flags hollow assertions: no matcher, inside try, an early return, a negation', () => {
-    expect(inSpec(withLine(`  ${E}(3);`))).toEqual([
-      '1 expect with no matcher',
-    ]);
+  test('flags hollow assertions: no matcher, swallowed, unawaited, a bare return, a negation', () => {
+    expect(
+      changeFindings([
+        { path: SPEC, oldText: BASE, newText: withLine(`  ${E}(3);`) },
+      ]),
+    ).toEqual([{ file: SPEC, line: 6, rule: '1 expect with no matcher' }]);
     expect(
       inSpec(withLine(`  try {\n    ${E}(3).toBe(3);\n  } catch {}`)),
     ).toEqual(['puts an expect inside try']);
     expect(
-      inSpec(BASE.replace(`() => {\n`, `() => {\n  ${'return'};\n`)),
-    ).toEqual(['returns before a test body runs']);
+      inSpec(withLine(`  await ${E}(3).toBe(3).${'catch'}(() => {});`)),
+    ).toEqual(['catches an expect failure']);
+    const awaited = withLine(`  await ${E}(page).toHaveTitle('a');`);
+    expect(inSpec(awaited.replace('await ', ''), awaited)).toEqual([
+      'leaves 1 async expect unawaited',
+    ]);
+    expect(
+      inSpec(
+        BASE.replace(
+          `  ${E}(2)`,
+          `  if (browserName === 'webkit') ${'return'};\n  ${E}(2)`,
+        ),
+      ),
+    ).toEqual(['returns early behind an engine or environment test']);
     expect(inSpec(BASE.replace(`(2).toBe(2)`, `(2).not.toBe(2)`))).toEqual([
       'negates an assertion',
     ]);
+  });
+
+  test('counts a wrapped expect chain and flags a number changed on a wrapped matcher', () => {
+    const wrapped = withLine(
+      `  await ${E}\n    .poll(() => count())\n    .toBeGreaterThanOrEqual(\n      4.5,\n    );`,
+    );
+    expect(inSpec(BASE, wrapped)).toEqual([
+      '1 fewer expect call (line in base)',
+    ]);
+    expect(inSpec(wrapped.replace('4.5', '1'), wrapped)).toEqual([
+      'changes a number in an assertion',
+    ]);
+  });
+
+  test('flags an existing test moved to fewer engines, not a new one', () => {
+    const tag = ['ENGINE', 'INVARIANT'].join('_');
+    expect(
+      inSpec(
+        BASE.replace(`test('one', () => {`, `test('one', ${tag}, () => {`),
+      ),
+    ).toEqual(['runs an existing test in fewer engines']);
+    expect(
+      inSpec(withLine(`test('two', ${tag}, () => {\n  ${E}(3).toBe(3);\n});`)),
+    ).toEqual([]);
   });
 
   test('flags a changed number in an assertion and a changed test constant', () => {
@@ -255,11 +303,35 @@ test.describe('test-weakening guard', NODE, () => {
         oldText: '',
         newText: 'name: Test weakening',
       }),
-    ).toEqual(['changes a CI workflow']);
+    ).toEqual(['changes a CI workflow or action']);
+    expect(
+      rules({
+        path: '.github/actions/install-browser-deps/action.yml',
+        oldText: 'a',
+        newText: 'b',
+      }),
+    ).toEqual(['changes a CI workflow or action']);
+    const pkg = (scripts: Record<string, string>): string =>
+      JSON.stringify({ scripts });
+    const gate = { check: 'npm run check:links && npm run check:csp' };
+    const change = (scripts: Record<string, string>) =>
+      rules({
+        path: 'package.json',
+        oldText: pkg(gate),
+        newText: pkg(scripts),
+      });
+    expect(change({ check: 'npm run check:links' })).toEqual([
+      'changes the check script',
+    ]);
+    expect(change({ ...gate, precheck: 'exit 0' })).toEqual([
+      'adds the precheck hook',
+    ]);
+    expect(change({ check: `${gate.check} && npm run check:new` })).toEqual([]);
     for (const path of [
       'playwright.config.ts',
       'playwright.worker.config.ts',
       'tests/tags.ts',
+      'tests/test.ts',
       'tests/ports.ts',
       'scripts/shard-tests.mjs',
     ])
@@ -325,6 +397,29 @@ test.describe('test-weakening guard', NODE, () => {
     expect(moved('1')).toEqual([`removes ${name} (2)`]);
   });
 
+  test("counts a helper's gained expect calls once, across the specs that import it", () => {
+    const helper = `export const ones = () => {\n  ${E}(1).toBe(1);\n  ${E}(2).toBe(2);\n};`;
+    const user = spec(`import { ones } from './ones';`, `test('one', ones);`);
+    expect(
+      rules(
+        { path: SPEC, oldText: BASE, newText: user },
+        { path: 'tests/other.spec.ts', oldText: BASE, newText: user },
+        { path: 'tests/ones.ts', oldText: '', newText: helper },
+      ),
+    ).toEqual(['2 fewer expect calls (line in base)']);
+  });
+
+  test('flags a test constant replaced by an aliased import', () => {
+    const name = ['MIN', 'RING', 'PX'].join('_');
+    expect(
+      rules({
+        path: SPEC,
+        oldText: `export const ${name} = 2;`,
+        newText: spec(`import { LOW as ${name} } from './wcag';`),
+      }),
+    ).toEqual([`removes ${name} (2)`]);
+  });
+
   test('passes edits inside a test that never runs and fail calls that are not Playwright', () => {
     const skippedTest = (body: string): string =>
       spec(`${SKIP}'parked', () => {`, body, `});`);
@@ -339,8 +434,12 @@ test.describe('test-weakening guard', NODE, () => {
     const review = (
       login: string,
       body: string,
-      { commitId = HEAD, state = 'APPROVED' } = {},
-    ) => ({ login, body, commitId, state });
+      {
+        commitId = HEAD,
+        state = 'APPROVED',
+        editor = null as string | null,
+      } = {},
+    ) => ({ login, body, commitId, state, editor });
     const approve = (...reviews: ReturnType<typeof review>[]) =>
       ownerApproval(reviews, OWNER, HEAD);
 
@@ -348,6 +447,13 @@ test.describe('test-weakening guard', NODE, () => {
     expect(approve(review(OWNER, MARKER, { commitId: 'older1' }))).toBeNull();
     expect(approve(review(OWNER, MARKER, { state: 'COMMENTED' }))).toBeNull();
     expect(approve(review(OWNER, MARKER, { state: 'DISMISSED' }))).toBeNull();
+    expect(approve(review(OWNER, MARKER, { editor: 'agent-bot' }))).toBeNull();
+    expect(
+      approve(
+        review(OWNER, MARKER),
+        review(OWNER, 'One more thing.', { state: 'CHANGES_REQUESTED' }),
+      ),
+    ).toBeNull();
     expect(approve(review(OWNER, 'Looks fine.'))).toBeNull();
     expect(approve(review(OWNER, 'Approved test change:'))).toBeNull();
     expect(approve(review(OWNER, 'Approved test change: <reason>'))).toBeNull();
@@ -408,7 +514,18 @@ test.describe('test-weakening guard in CI', NODE, () => {
       fetchImpl: async () =>
         reviews === 'error'
           ? new Response('', { status: 502 })
-          : Response.json(reviews),
+          : Response.json({
+              data: {
+                repository: {
+                  pullRequest: {
+                    reviews: {
+                      pageInfo: { hasNextPage: false, endCursor: null },
+                      nodes: reviews,
+                    },
+                  },
+                },
+              },
+            }),
       log: (line: string) => lines.push(line),
     });
     return { code, output: lines.join('\n') };
@@ -421,9 +538,10 @@ test.describe('test-weakening guard in CI', NODE, () => {
     const approved = await run({
       reviews: [
         {
-          user: { login: OWNER },
+          author: { login: OWNER },
+          editor: null,
           state: 'APPROVED',
-          commit_id: HEAD,
+          commit: { oid: HEAD },
           body: MARKER,
         },
       ],
