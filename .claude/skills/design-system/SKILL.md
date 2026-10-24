@@ -52,6 +52,8 @@ before changing anything it covers.
   [Heading floors](../../../docs/STYLEGUIDE.md#heading-floors),
   [Uppercase](../../../docs/STYLEGUIDE.md#uppercase),
   [Soft hyphens](../../../docs/STYLEGUIDE.md#soft-hyphens).
+- Case: headings, page titles and buttons in Chicago title case; `.label` and
+  `.badge` text in sentence case ([Uppercase](../../../docs/STYLEGUIDE.md#uppercase)).
 - Spacing and layout: [Spacing scale](../../../docs/STYLEGUIDE.md#spacing-scale),
   [Gutter and column](../../../docs/STYLEGUIDE.md#gutter-and-column).
 - Borders, shadows, radius:

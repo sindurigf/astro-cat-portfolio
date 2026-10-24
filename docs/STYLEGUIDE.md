@@ -434,13 +434,19 @@ longest word fits there; `tests/reflow.spec.ts` holds them.
 
 ### Uppercase
 
-- Write headings and labels in Chicago title case and sentences in sentence
-  case. The lower-case words are in `TITLE_CASE_SMALL_WORDS`
+- Write headings, page titles and action labels (buttons, button-styled links,
+  chips) in Chicago title case. Write `.label` and `.badge` text, like
+  sentences, in sentence case: short descriptive tags read as phrases, as
+  [GOV.UK](https://guidance.publishing.service.gov.uk/writing-to-gov-uk-standards/style-guides/a-to-z-style-guide/)
+  and [Carbon](https://carbondesignsystem.com/guidelines/content/writing-style/)
+  advise; both use sentence case for headings too, which this site does not.
+  The lower-case words are in `TITLE_CASE_SMALL_WORDS`
   (`src/lib/labels.ts`); the first and last word are always capitalized, and
   each part of a hyphenated compound counts as a word ("One-Keeper Problem").
   `npm run check:title-case` scans the built headings, titles and summaries,
   and the visible label of every button and button-styled link; an email or
-  web address keeps its own case.
+  web address keeps its own case. It does not read `.label` or `.badge`
+  elements, which this rule puts in sentence case.
   It cannot see server-rendered `/contact/send` or the dev-only presenter;
   check their headings and buttons by hand.
 - `.label`, `.badge`, the buttons and every heading apply

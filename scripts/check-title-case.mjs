@@ -72,6 +72,9 @@ const textOf = (html) =>
     .replace(/\s+/g, ' ')
     .trim();
 
+/* `.label` and `.badge` are sentence case (STYLEGUIDE#uppercase), so not read here. */
+const SENTENCE_CASE_CLASS = /\bclass="(?:[^"]*\s)?(?:label|badge)(?:\s[^"]*)?"/;
+
 /* A label's visible words: screen-reader-only text and hidden marks are not on show. */
 const HIDDEN =
   /<(\w+)\b[^>]*\b(?:class="[^"]*\bsr-only\b[^"]*"|aria-hidden="true")[^>]*>[\s\S]*?<\/\1>/g;
@@ -105,6 +108,8 @@ const run = async () => {
     const html = await readFile(file, 'utf8');
     for (const { kind, pattern, group, visible } of KINDS) {
       for (const match of html.matchAll(pattern)) {
+        if (SENTENCE_CASE_CLASS.test(match[0].slice(0, match[0].indexOf('>'))))
+          continue;
         const markup = match[group];
         let text = textOf(visible ? markup.replace(HIDDEN, ' ') : markup);
         if (kind === 'title' || kind === 'og:title') {
@@ -128,7 +133,7 @@ const run = async () => {
 
   if (scanned === 0) {
     console.error(
-      'Title case: no heading, title, summary or label found to check.',
+      'Title case: no heading, title, summary or button found to check.',
     );
     process.exit(1);
   }
@@ -144,7 +149,7 @@ const run = async () => {
   if (misses.length > 0) {
     console.error(
       `Title case: ${misses.length} built heading(s), title(s), summaries or ` +
-        'label(s) are not in Chicago title case:',
+        'button(s) are not in Chicago title case:',
     );
     for (const { route, kind, text, word } of misses) {
       console.error(`  ${route} ${kind}: "${text}" ("${word}")`);
@@ -157,7 +162,7 @@ const run = async () => {
   if (misses.length > 0 || stale.length > 0) process.exit(1);
 
   console.log(
-    `Title case: ${scanned} headings, titles, summaries and labels are in Chicago ` +
+    `Title case: ${scanned} headings, titles, summaries and buttons are in Chicago ` +
       `title case; ${ALLOWED.length} allowed as written.`,
   );
 };
