@@ -1090,16 +1090,20 @@ Enforced by `tests/footer.spec.ts`.
   in a shuffled order, then small ones drop into the lowest gaps. Each takes
   its tilted box's room, labels set over its edge included, so nothing
   overlaps and every link and button stays whole and clickable (SC 2.5.8).
-  Long blocks tilt less. Put It Back and any control that stays are solid:
-  the heap lands beside or on them, never over them. A block taller than 60%
-  of the screen stays and the blocks inside it fall; a footer row falls as
-  its link alone.
+  Any control that stays is solid: the heap lands beside or on it, never
+  over it. A block taller than 60% of the screen stays and the blocks inside
+  it fall; a footer row falls as its link alone.
+- Put It Back rises to the top of the screen, centered, over every fallen
+  block, with room above it for the mascot and a 24px gap below it that the
+  heap never enters. If the heap does not fit under it, it packs tight and
+  level; if it still does not fit, its floor sinks below the screen and the
+  page scrolls to it.
 - Then the footer mascot climbs (`src/scripts/let-it-fall-mascot.ts`, its own
   drawing): it crouches with a squash, leaps on an eased arc with a stretch,
   tipped toward the way it travels, and lands with a squash. It is never
-  mirrored, so its pink throw stays bottom right. It ends sitting on top of
-  Put It Back, clear of its label, and above its focus ring while keyboard
-  focus shows it; the heap keeps that seat free. Where it lands is read from
+  mirrored, so its pink throw stays bottom right. It hops up the heap, then
+  leaps onto the risen Put It Back and sits on its top edge, clear of its
+  label, and above its focus ring while keyboard focus shows it. Where it lands is read from
   the landed page: only the top edge of a painted, fallen surface (a fill or
   edge unlike its ground, or an image) or of Put It Back, level under its
   middle, with nothing painted, no text and no other control or its ring in

@@ -193,10 +193,19 @@
     pointer-events: none;
   }
 
-  /* Let It Fall: the heap lands around it, never over it. */
+  /* Let It Fall, above the copyright. */
   .let-it-fall {
     position: relative;
     z-index: 1;
+  }
+
+  /* Risen to the top of the screen while the page lies in a heap below it; over every fallen block. */
+  .let-it-fall[data-floating] {
+    z-index: 3;
+    transform: translate(
+      var(--float-x),
+      calc(var(--float-y) + env(safe-area-inset-top, 0px))
+    );
   }
 
   /*
@@ -265,7 +274,7 @@
   }
 
   @media print {
-    :is([data-fell], .footer-mascot[data-hopped]) {
+    :is([data-fell], .footer-mascot[data-hopped], .let-it-fall[data-floating]) {
       transform: none;
     }
   }

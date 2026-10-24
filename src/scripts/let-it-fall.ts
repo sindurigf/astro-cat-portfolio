@@ -23,8 +23,12 @@ const TARGETS = 'a[href], button, input, select, textarea, summary';
 /* px: the room kept around a control that did not fall, the space between stacked blocks, and the heap's margin. */
 const SOLID_GAP = 12;
 const STACK_GAP = 4;
-/* A block the heap cannot fit on screen stays, solid, and the rest stack again, at most this often. */
+/* px between blocks when the heap packs tight to fit under Put It Back. */
+const TIGHT_GAP = 1;
+/* Stacking tries: loose, then tight, then with the floor sunk to fit. */
 const MAX_PASSES = 4;
+/* px kept clear under the risen Put It Back, its focus ring's reach and more. */
+const FLOAT_GAP = 24;
 const EDGE = 16;
 /* A block narrower than this share of the screen is small: it tilts more and drops into the lowest gap. */
 const SMALL_SHARE = 0.4;
@@ -151,27 +155,29 @@ type Landing = {
 /*
  * The lowest bottom edge, at or above the floor, where a box of this span and
  * height fits clear of every spot, resting on the floor or a spot's top. Above
- * the screen only when no such place is on it.
+ * the ceiling only when no such place is below it.
  */
+/* The heap's bounds and packing: its floor and ceiling, the space between blocks, and whether blocks tilt. */
+type Room = { floor: number; ceiling: number; gap: number; tilt: boolean };
+
 const lowestFit = (
   heap: Spot[],
   left: number,
   right: number,
   tall: number,
-  floor: number,
+  room: Room,
 ): number => {
+  const { floor, ceiling, gap } = room;
   const column = heap.filter(
-    (spot) => left < spot.right + STACK_GAP && spot.left - STACK_GAP < right,
+    (spot) => left < spot.right + gap && spot.left - gap < right,
   );
-  const grounds = [floor, ...column.map((spot) => spot.top - STACK_GAP)]
+  const grounds = [floor, ...column.map((spot) => spot.top - gap)]
     .filter((g) => g <= floor)
     .sort((a, b) => b - a);
   const free = (g: number) =>
-    !column.some(
-      (spot) => g - tall < spot.bottom + STACK_GAP && spot.top - STACK_GAP < g,
-    );
+    !column.some((spot) => g - tall < spot.bottom + gap && spot.top - gap < g);
   const fits = grounds.filter(free);
-  return fits.find((g) => g - tall >= 0) ?? fits.at(-1) ?? floor;
+  return fits.find((g) => g - tall >= ceiling) ?? fits.at(-1) ?? floor;
 };
 
 /* A block's box joined with every visible part it draws past it, as a label set over its card's edge; 1px screen reader labels aside. */
@@ -196,11 +202,7 @@ const reach = (el: Element): DOMRect =>
  * into the lowest gap. Each takes its tilted box's room, so no two overlap and
  * every target stays whole (SC 2.5.8).
  */
-const stack = (
-  blocks: HTMLElement[],
-  floor: number,
-  solid: Spot[],
-): Landing[] => {
+const stack = (blocks: HTMLElement[], room: Room, solid: Spot[]): Landing[] => {
   const screen = document.documentElement.clientWidth;
   const sized = blocks.map((el) => {
     const box = el.getBoundingClientRect();
@@ -218,7 +220,7 @@ const stack = (
   ];
   const heap = [...solid];
   const landings = order.map(({ el, box, reach: drawn, small }, rank) => {
-    const turn = spread(small ? SMALL_TURN_DEG : WIDE_TURN_DEG);
+    const turn = room.tilt ? spread(small ? SMALL_TURN_DEG : WIDE_TURN_DEG) : 0;
     /* What the block draws, turned about its own center as the transform turns it. */
     const centerX = box.left + box.width / 2;
     const centerY = box.top + box.height / 2;
@@ -242,16 +244,16 @@ const stack = (
     if (small) {
       let best = -Infinity;
       for (let x = lo; x <= hi; x += SLOT_STEP) {
-        const room =
-          lowestFit(heap, x, x + wide, tall, floor) +
+        const ground =
+          lowestFit(heap, x, x + wide, tall, room) +
           Math.random() * SLOT_JITTER;
-        if (room > best) {
-          best = room;
+        if (ground > best) {
+          best = ground;
           left = x;
         }
       }
     }
-    const bottom = lowestFit(heap, left, left + wide, tall, floor);
+    const bottom = lowestFit(heap, left, left + wide, tall, room);
     heap.push({ left, right: left + wide, top: bottom - tall, bottom });
     return {
       el,
@@ -356,13 +358,14 @@ const surfaceAt = (edges: Edge[], x: number): number | null => {
   return seen ? seen.y : null;
 };
 
-/* Nothing painted, no text and no control, nor another control's ring, inside the mascot's box. */
+/* Nothing painted, no text and no control, nor another control's ring, inside the mascot's box; `overPage`: the page that stays may lie under it, as under the risen Put It Back. */
 const roomFor = (
   controls: DOMRect[],
   left: number,
   top: number,
   wide: number,
   tall: number,
+  overPage = false,
 ): boolean => {
   if (
     top < 0 ||
@@ -390,12 +393,8 @@ const roomFor = (
       const text = [...hit.childNodes].some(
         (node) => node.nodeType === Node.TEXT_NODE && node.textContent?.trim(),
       );
-      if (
-        painted(hit) ||
-        text ||
-        hit.closest('[data-fell]') ||
-        hit.closest(TARGETS)
-      ) {
+      const page = !overPage && (painted(hit) || text);
+      if (page || hit.closest('[data-fell]') || hit.closest(TARGETS)) {
         return false;
       }
     }
@@ -470,7 +469,7 @@ const perch = (edges: Edge[], controls: DOMRect[]): Hop | null => {
     const tall = box.height * scale;
     const middle = own.left + own.width / 2;
     const y = seat();
-    if (roomFor(controls, middle - wide / 2, y - tall, wide, tall)) {
+    if (roomFor(controls, middle - wide / 2, y - tall, wide, tall, true)) {
       return hop(middle, y, scale, wide, tall);
     }
   }
@@ -593,6 +592,62 @@ const drop = ({ el, x, y, turn, rank }: Landing): Animation | null => {
   );
 };
 
+const FLOAT_VARS = ['--float-x', '--float-y'];
+
+/*
+ * Put It Back rises to the top of the screen, centered, with room above it for
+ * the mascot and below any header still stuck there; returns where it ends up.
+ */
+const floatButton = (): DOMRect => {
+  for (const animation of button.getAnimations()) animation.cancel();
+  button.removeAttribute('data-floating');
+  const own = button.getBoundingClientRect();
+  const stuck =
+    header &&
+    !fallen.some((el) => header.contains(el)) &&
+    getComputedStyle(header).position === 'sticky'
+      ? header.getBoundingClientRect().bottom
+      : 0;
+  const seat = (mascot?.getBoundingClientRect().height ?? 0) + ringReach();
+  const top = Math.max(0, stuck) + EDGE + seat;
+  const left = (document.documentElement.clientWidth - own.width) / 2;
+  button.style.setProperty('--float-x', `${left - own.left}px`);
+  button.style.setProperty('--float-y', `${top - own.top}px`);
+  button.setAttribute('data-floating', '');
+  /* Measured at rest, before the rise plays. */
+  const risen = button.getBoundingClientRect();
+  const end = getComputedStyle(button).transform;
+  if (motion.matches) {
+    button.animate([{ transform: 'none' }, { transform: end }], {
+      duration: fallTime(),
+      easing: token('--ease-fall'),
+    });
+  }
+  return risen;
+};
+
+/* Put It Back goes home with the page. */
+const sinkButton = (): void => {
+  const from = getComputedStyle(button).transform;
+  for (const animation of button.getAnimations()) animation.cancel();
+  button.removeAttribute('data-floating');
+  const clean = () => {
+    for (const name of FLOAT_VARS) button.style.removeProperty(name);
+  };
+  if (!motion.matches) {
+    clean();
+    return;
+  }
+  void button
+    .animate([{ transform: from }, { transform: 'none' }], {
+      duration: fallTime(),
+      easing: token('--ease-fall'),
+    })
+    .finished.then(() => {
+      if (!button.hasAttribute('data-floating')) clean();
+    }, ignoreCancel);
+};
+
 const fall = (): void => {
   /* A press mid-climb: the climbing blocks snap home first, or their clip and transforms would hide them from the next fall. */
   for (const el of document.querySelectorAll<HTMLElement>(
@@ -619,48 +674,44 @@ const fall = (): void => {
   }
   /* Marked before measuring: a falling footer row shrinks to its link. */
   for (const el of fallen) el.setAttribute('data-fall-block', '');
-  const floor = innerHeight - EDGE;
+  /* Put It Back rises first: the heap fills the screen below it. */
+  const lifted = floatButton();
   const toSpot = ({ left, right, top, bottom }: DOMRect): Spot => ({
     left: left - SOLID_GAP,
     right: right + SOLID_GAP,
     top: top - SOLID_GAP,
     bottom: bottom + SOLID_GAP,
   });
-  /* The mascot's seat on Put It Back is kept clear, its focus ring's reach included: the heap lands around it. */
-  const perchRoom = (): Spot => {
-    const own = button.getBoundingClientRect();
-    const tall = (mascot?.getBoundingClientRect().height ?? 0) + ringReach();
-    return toSpot(
-      new DOMRect(own.left, own.top - tall, own.width, own.height + tall),
-    );
+  /* Every control that stays is solid: the heap lands on it, never over it. */
+  const solid = [...document.querySelectorAll(TARGETS)]
+    .filter(
+      (el) =>
+        el !== button &&
+        onScreen(el) &&
+        el.checkVisibility() &&
+        !fallen.some((block) => block.contains(el)),
+    )
+    .map((el) => toSpot(el.getBoundingClientRect()));
+  /*
+   * Under Put It Back's gap: packed loosely and tilted, then tightly and level,
+   * and if it still does not fit, the floor sinks below the screen and the page scrolls to it.
+   */
+  const ceiling = lifted.bottom + FLOAT_GAP;
+  let room: Room = {
+    floor: innerHeight - EDGE,
+    ceiling,
+    gap: STACK_GAP,
+    tilt: true,
   };
-  /* Put It Back, every control that stays and every block that stays are solid: the heap lands on them, never over them. */
-  const solidBeside = (falling: HTMLElement[], stays: HTMLElement[]) => [
-    ...[...document.querySelectorAll(TARGETS)]
-      .filter(
-        (el) =>
-          onScreen(el) &&
-          el.checkVisibility() &&
-          !falling.some((block) => block.contains(el)),
-      )
-      .map((el) => toSpot(el.getBoundingClientRect())),
-    ...stays.map((el) => toSpot(reach(el))),
-    perchRoom(),
-  ];
-  let stays: HTMLElement[] = [];
-  let landings = stack(fallen, floor, solidBeside(fallen, stays));
+  let landings = stack(fallen, room, solid);
   for (let pass = 1; pass < MAX_PASSES; pass++) {
-    const over = landings.filter(({ top }) => top < 0).map(({ el }) => el);
-    if (!over.length) break;
-    for (const el of over) el.removeAttribute('data-fall-block');
-    stays = [...stays, ...over];
-    fallen = fallen.filter((el) => !stays.includes(el));
-    landings = stack(fallen, floor, solidBeside(fallen, stays));
-  }
-  if (!fallen.some((el) => header?.contains(el))) unpin();
-  if (!fallen.length) {
-    say(NOTHING);
-    return;
+    const highest = Math.min(...landings.map(({ top }) => top));
+    if (highest >= ceiling) break;
+    room =
+      pass === 1
+        ? { ...room, gap: TIGHT_GAP, tilt: false }
+        : { ...room, floor: room.floor + (ceiling - highest) };
+    landings = stack(fallen, room, solid);
   }
   const moves = landings
     .map(drop)
@@ -723,6 +774,7 @@ const restore = (): void => {
   const shift = (header?.getBoundingClientRect().top ?? 0) - before;
   if (mascot?.hasAttribute('data-hopped')) hopTo(null);
   void hopper?.goHome().catch(ignoreCancel);
+  sinkButton();
   for (const el of fallen) {
     const lies = getComputedStyle(el).transform;
     const from =

@@ -452,8 +452,50 @@ test("pressed from the keyboard, the mascot sits clear of Put It Back's focus ri
   ).toEqual({ focused: true, clear: true });
 });
 
+/* px: let-it-fall.ts FLOAT_GAP, kept clear under the risen Put It Back. */
+const FLOAT_GAP = 24;
+
+for (const [width, height] of [
+  [390, HEIGHT],
+  [DESKTOP, 700],
+] as const) {
+  test(`at ${width}×${height} Put It Back rises over the heap, whole, with no block above its gap`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width, height });
+    await gotoSettled(page, ROUTE);
+    const button = await press(page);
+    await landed(page);
+    await expect
+      .poll(() => button.evaluate((el) => el.getAnimations().length))
+      .toBe(0);
+    const found = await button.evaluate((el, gap) => {
+      const own = el.getBoundingClientRect();
+      const SHARES = [0.1, 0.5, 0.9];
+      const covered = SHARES.some((x) =>
+        SHARES.some((y) => {
+          const hit = document.elementFromPoint(
+            own.left + own.width * x,
+            own.top + own.height * y,
+          );
+          return !hit || !el.contains(hit);
+        }),
+      );
+      const ceiling = own.bottom + gap;
+      const above = [...document.querySelectorAll('[data-fell]')]
+        .filter((block) => block.getBoundingClientRect().top < ceiling - 1)
+        .map((block) => block.textContent?.trim().slice(0, 30));
+      return { onScreen: own.top >= 0, covered, above };
+    }, FLOAT_GAP);
+    expect(
+      found,
+      'Put It Back is off screen or covered, or a block lies above its gap',
+    ).toEqual({ onScreen: true, covered: false, above: [] });
+  });
+}
+
 /* A seed whose heap at the desktop size has places to land on before Put It Back. */
-const CLIMB_SEED = 2;
+const CLIMB_SEED = 6;
 
 test('every place the mascot lands is a painted block or Put It Back, and it ends on Put It Back', async ({
   page,
