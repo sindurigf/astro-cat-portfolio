@@ -372,8 +372,9 @@ it stays out of the per-page script budgets (`tests/performance.spec.ts`).
   trigger; later clicks only dispatch. A failed import is reported with
   `reportError` and retried on the next click.
 - A feature file finds its trigger and listens at top level:
-  `trigger.addEventListener('on-demand', ...)`, and ends with `export {};` so
-  TypeScript treats it as a module.
+  `trigger.addEventListener('on-demand', ...)`. One with no imports ends with
+  `export {};` so TypeScript treats it as a module; its imports are inlined,
+  as the build is one IIFE.
 
 Rejected:
 

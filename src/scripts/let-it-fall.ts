@@ -1,5 +1,13 @@
-/* Let It Fall: the blocks on screen drop into a pile above the button; the same button, Esc, focus anywhere else or a new window width puts them back. */
-export {};
+/*
+ * Let It Fall: everything on screen drops and stacks into a heap, and the footer mascot climbs onto the button.
+ * The same button, Esc, keyboard focus elsewhere or a new window width puts it back.
+ */
+import {
+  createHopper,
+  ignoreCancel,
+  type Foot,
+  type Hopper,
+} from './let-it-fall-mascot';
 
 const LABEL_FALL = 'Let It Fall';
 const LABEL_BACK = 'Put It Back';
@@ -8,25 +16,70 @@ const BACK = 'The page is back in place.';
 const NOTHING = 'Nothing on screen to drop. Scroll up and try again.';
 /* Outermost of these move; their contents ride along. */
 const BLOCKS = [
-  'main :is(h1, h2, h3, p, ul, ol, figure, img, blockquote, table, pre, .card, .btn-primary, .btn-secondary, .badge)',
+  '.header-slab',
+  '.hero-window',
+  'main :is(h1, h2, h3, p, ul, ol, figure, img, blockquote, table, pre, .card, .btn-primary, .btn-secondary, .badge, form > *)',
   /* The footer too: at the button on a phone, it is most of the screen. */
   'footer :is(.footer-stickers > li, nav li, .footer-copyright, .footer-ai)',
 ].join(', ');
-/* px: how far the pile stops short of the button, and the scatter of its blocks. */
-const PILE_GAP = 12;
-const PILE_SCATTER = 60;
-const DRIFT = 20;
-const TURN_DEG = 25;
-const STAGGER_MS = 25;
-const HALF_TURN_DEG = 180;
+const TARGETS = 'a[href], button, input, select, textarea, summary';
+/* px: the room kept around a control that did not fall, the space between stacked blocks, and the heap's margin. */
+const SOLID_GAP = 12;
+const STACK_GAP = 4;
+/* px between blocks when the heap packs tight to fit under Put It Back. */
+const TIGHT_GAP = 1;
+/* Rises without overshoot, so it never passes the top of the screen. */
+const RISE_EASING = 'cubic-bezier(0.2, 0.8, 0.2, 1)';
+/* The main menu bar: a shelf in the heap about two thirds down, and the mascot's ledge on its climb. */
+const LEDGE = '.header-slab';
+const LEDGE_SHARE = 2 / 3;
+const EDGE = 16;
+/* A block narrower than this share of the screen is small: it tilts more and drops into the lowest gap. */
+const SMALL_SHARE = 0.4;
+/* A block taller than this share of the screen stays, and the blocks inside it fall. */
+const TALLEST_SHARE = 0.6;
+const WIDE_DRIFT = 14;
+const WIDE_TURN_DEG = 2;
+const SMALL_TURN_DEG = 8;
+/* px: where a small block or the mascot may land is tried at this step, with this much random lean. */
+const SLOT_STEP = 6;
+const SLOT_JITTER = 10;
+/* px: the bounce on landing and the mascot's hop height; ms between landings; the hop's share of --fall-time. */
+const BOUNCE = 14;
+const HOP_HEIGHT = 70;
+const LAND_STAGGER_MS = 55;
+const HOP_SHARE = 0.7;
+const FALL_EASING = 'cubic-bezier(0.55, 0, 1, 0.45)';
+const LAND_AT = 0.72;
+const BOUNCE_AT = 0.86;
 /* A second press this soon after the first is the same press, as when both wait on the first load. */
 const REPEAT_MS = 300;
 
 const button = document.querySelector<HTMLButtonElement>('[data-let-it-fall]');
+const header = document.querySelector<HTMLElement>('.site-header');
+const mascot = document.querySelector<HTMLImageElement>('.footer-mascot');
+let hopper: Hopper | null = null;
 const status = document.querySelector<HTMLElement>('[data-let-it-fall-status]');
 if (!button || !status) {
   throw new Error('let-it-fall: the footer lacks its button or status.');
 }
+
+const motion = matchMedia('(prefers-reduced-motion: no-preference)');
+const token = (name: string): string =>
+  getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+const MS_PER_S = 1000;
+/* Minified CSS may write the time in seconds, as `.9s`. */
+const fallTime = (): number => {
+  const time = token('--fall-time');
+  return parseFloat(time) * (time.endsWith('ms') ? 1 : MS_PER_S);
+};
+
+/* reduced-motion.css gives every property a 0.01ms transition, which reads as the old value until it ends: end it before measuring. */
+const settleNow = (el: Element): void => {
+  for (const animation of el.getAnimations()) {
+    if (animation instanceof CSSTransition) animation.finish();
+  }
+};
 
 const say = (text: string): void => {
   status.textContent = '';
@@ -43,13 +96,24 @@ const clear = (color: string): boolean => {
   const parts = color.match(/[\d.]+/g) ?? [];
   return parts.length === RGBA_PARTS && Number(parts[RGBA_PARTS - 1]) === 0;
 };
-/* The fill a block's text was drawn on, so it keeps its contrast wherever it lands (SC 1.4.3). */
-const ground = (el: Element): string => {
-  for (let at: Element | null = el; at; at = at.parentElement) {
-    const fill = getComputedStyle(at).backgroundColor;
-    if (!clear(fill)) return fill;
+/* The fill a block's text was drawn on, so it keeps its contrast wherever it lands (SC 1.4.3); `known` saves each one read. */
+type Grounds = Map<Element, string>;
+const ground = (el: Element, known: Grounds = new Map()): string => {
+  const walked: Element[] = [];
+  let fill = '';
+  for (let at: Element | null = el; at && !fill; at = at.parentElement) {
+    const seen = known.get(at);
+    if (seen !== undefined) {
+      fill = seen;
+      break;
+    }
+    walked.push(at);
+    const own = getComputedStyle(at).backgroundColor;
+    if (!clear(own)) fill = own;
   }
-  return getComputedStyle(document.body).backgroundColor;
+  fill ||= getComputedStyle(document.body).backgroundColor;
+  for (const at of walked) known.set(at, fill);
+  return fill;
 };
 
 let fallen: HTMLElement[] = [];
@@ -64,6 +128,15 @@ const onScreen = (el: Element): boolean => {
 /* A block already moved by its own transform, or inside a raised or clipping layer, would land above the button or vanish. */
 const free = (el: Element): boolean => {
   if (getComputedStyle(el).transform !== 'none') return false;
+  /* A moved block would become the containing block of a sticker placed against its card; a 1px screen reader label does not count. */
+  const anchoredOutside = [...el.querySelectorAll<HTMLElement>('*')].some(
+    (inner) =>
+      /absolute|fixed/.test(getComputedStyle(inner).position) &&
+      !el.contains(inner.offsetParent) &&
+      inner.checkVisibility() &&
+      inner.getBoundingClientRect().width > 1,
+  );
+  if (anchoredOutside) return false;
   for (
     let up = el.parentElement;
     up && up !== document.body;
@@ -75,35 +148,940 @@ const free = (el: Element): boolean => {
   return true;
 };
 
-const FALL_VARS = [
-  '--fall-x',
-  '--fall-y',
-  '--fall-turn',
-  '--fall-ground',
-  '--fall-delay',
+/*
+ * A sticky header's heap would stay on screen as the page scrolls. Held in flow
+ * where it is now, it scrolls with the rest, and drops below the button's layer.
+ */
+const PINNED = [
+  'position',
+  'z-index',
+  'top',
+  'pointer-events',
+  'background-color',
 ];
-
-/* Home at once: drops the fall's transition, clip and offsets, so a block is measured where it rests. */
-const home = (el: HTMLElement): void => {
-  /* Dropping the transition rule does not stop a running transition; cancelling does. */
-  for (const animation of el.getAnimations()) animation.cancel();
-  el.removeAttribute('data-fall-block');
-  for (const name of FALL_VARS) el.style.removeProperty(name);
+/* Its bar has fallen: the empty box left behind neither hides nor blocks the page that stays under it. */
+const empty = (): void => {
+  header?.style.setProperty('pointer-events', 'none');
+  header?.style.setProperty('background-color', 'transparent');
+};
+const pin = (): void => {
+  if (!header) return;
+  /* A short screen's static header keeps its z-index, a raised layer its bar would not leave. */
+  if (getComputedStyle(header).position !== 'sticky') {
+    header.style.setProperty('z-index', 'auto');
+    empty();
+    settleNow(header);
+    return;
+  }
+  const stuck = header.getBoundingClientRect().top;
+  header.style.setProperty('position', 'relative');
+  header.style.setProperty('z-index', 'auto');
+  header.style.setProperty(
+    'top',
+    `${stuck - header.getBoundingClientRect().top}px`,
+  );
+  empty();
+  settleNow(header);
+};
+const unpin = (): void => {
+  for (const name of PINNED) header?.style.removeProperty(name);
 };
 
-/* Once a block has climbed home, it drops its transition, so its own hover and press timing come back. */
-const settle = (el: HTMLElement): void => {
-  void Promise.all(el.getAnimations().map((a) => a.finished)).then(
-    () => {
-      if (!el.hasAttribute('data-fell')) home(el);
-    },
-    /* A new fall cancels the climb on purpose; anything else is a real error. */
-    (error: unknown) => {
-      if (!(error instanceof DOMException && error.name === 'AbortError')) {
-        reportError(error);
-      }
-    },
+/* `bare`: nothing rests on it, as the mascot's clear stretch on the menu shelf. */
+type Spot = {
+  left: number;
+  right: number;
+  top: number;
+  bottom: number;
+  bare?: boolean;
+};
+type Landing = {
+  el: HTMLElement;
+  x: number;
+  y: number;
+  turn: number;
+  top: number;
+  rank: number;
+};
+
+/* The heap's bounds and packing: its floor and ceiling, the space between blocks, and whether blocks tilt. */
+type Room = { floor: number; ceiling: number; gap: number; tilt: boolean };
+
+/*
+ * The lowest bottom edge, at or above the floor, where a box of this span and
+ * height fits clear of every spot, resting on the floor or a spot's top. Above
+ * the ceiling only when no such place is below it.
+ */
+const lowestFit = (
+  heap: Spot[],
+  left: number,
+  right: number,
+  tall: number,
+  room: Room,
+): number => {
+  const { floor, ceiling, gap } = room;
+  const column = heap.filter(
+    (spot) => left < spot.right + gap && spot.left - gap < right,
   );
+  const grounds = [
+    floor,
+    ...column.filter((spot) => !spot.bare).map((spot) => spot.top - gap),
+  ]
+    .filter((g) => g <= floor)
+    .sort((a, b) => b - a);
+  const clearAt = (g: number) =>
+    !column.some((spot) => g - tall < spot.bottom + gap && spot.top - gap < g);
+  const fits = grounds.filter(clearAt);
+  /* Nowhere free: on top of everything in its column. */
+  const over = Math.min(floor, ...column.map((spot) => spot.top - gap));
+  return fits.find((g) => g - tall >= ceiling) ?? fits.at(-1) ?? over;
+};
+
+/* A block's box joined with every visible part it draws past it, as a label set over its card's edge; 1px screen reader labels aside. */
+const reach = (el: Element): DOMRect =>
+  [...el.querySelectorAll('*')]
+    .filter((inner) => inner.checkVisibility())
+    .map((inner) => inner.getBoundingClientRect())
+    .filter((r) => r.width > 1 && r.height > 1)
+    .reduce((all, r) => {
+      const left = Math.min(all.left, r.left);
+      const top = Math.min(all.top, r.top);
+      return new DOMRect(
+        left,
+        top,
+        Math.max(all.right, r.right) - left,
+        Math.max(all.bottom, r.bottom) - top,
+      );
+    }, el.getBoundingClientRect());
+
+/* A block's box, everything it draws, and whether any part of it is painted: read once per fall, before anything moves. */
+type Size = { box: DOMRect; drawn: DOMRect; shows: boolean };
+type Sizes = Map<Element, Size>;
+const measure = (blocks: HTMLElement[], known: Grounds): Sizes =>
+  new Map(
+    blocks.map((el) => [
+      el,
+      {
+        box: el.getBoundingClientRect(),
+        drawn: reach(el),
+        shows: [el, ...el.querySelectorAll('*')].some((part) =>
+          painted(part, known),
+        ),
+      },
+    ]),
+  );
+
+/* Each block takes its tilted box's room, so no two overlap and every target stays whole (SC 2.5.8). */
+const stack = (
+  blocks: HTMLElement[],
+  room: Room,
+  solid: Spot[],
+  sizes: Sizes,
+): { landings: Landing[]; heap: Spot[] } => {
+  const screen = document.documentElement.clientWidth;
+  const sized = blocks.map((el) => {
+    const size = sizes.get(el)!;
+    return {
+      el,
+      ...size,
+      small: size.box.width < screen * SMALL_SHARE,
+      key: Math.random(),
+    };
+  });
+  /*
+   * Wide blocks first, shuffled; then small ones, widest first, into the lowest gaps.
+   * Bare labels go before painted ones, so painted blocks the mascot can climb top the heap.
+   */
+  const small = sized
+    .filter((b) => b.small)
+    .sort((a, b) => b.box.width - a.box.width);
+  const order = [
+    ...sized.filter((b) => !b.small).sort((a, b) => a.key - b.key),
+    ...small.filter((b) => !b.shows),
+    ...small.filter((b) => b.shows),
+  ];
+  const heap = [...solid];
+  const landings = order.map(({ el, box, drawn, small }, rank) => {
+    const turn = room.tilt ? spread(small ? SMALL_TURN_DEG : WIDE_TURN_DEG) : 0;
+    /* What the block draws, turned about its own center as the transform turns it. */
+    const centerX = box.left + box.width / 2;
+    const centerY = box.top + box.height / 2;
+    const turned = new DOMMatrix().rotate(turn);
+    const corners = [
+      [drawn.left, drawn.top],
+      [drawn.right, drawn.top],
+      [drawn.left, drawn.bottom],
+      [drawn.right, drawn.bottom],
+    ].map(([x, y]) =>
+      turned.transformPoint(new DOMPoint(x - centerX, y - centerY)),
+    );
+    const minX = Math.min(...corners.map((c) => c.x));
+    const minY = Math.min(...corners.map((c) => c.y));
+    const wide = Math.max(...corners.map((c) => c.x)) - minX;
+    const tall = Math.max(...corners.map((c) => c.y)) - minY;
+    const lo = EDGE;
+    const hi = Math.max(lo, screen - EDGE - wide);
+    const home = centerX + minX;
+    let left = Math.min(hi, Math.max(lo, home + spread(WIDE_DRIFT)));
+    if (small) {
+      let best = -Infinity;
+      for (let x = lo; x <= hi; x += SLOT_STEP) {
+        const floorAt =
+          lowestFit(heap, x, x + wide, tall, room) +
+          Math.random() * SLOT_JITTER;
+        if (floorAt > best) {
+          best = floorAt;
+          left = x;
+        }
+      }
+    }
+    const bottom = lowestFit(heap, left, left + wide, tall, room);
+    heap.push({ left, right: left + wide, top: bottom - tall, bottom });
+    return {
+      el,
+      x: left - minX - centerX,
+      y: bottom - tall - minY - centerY,
+      turn,
+      top: bottom - tall,
+      rank,
+    };
+  });
+  return { landings, heap };
+};
+
+/*
+ * Where the mascot may stand is read from the landed page, not the plan: the top
+ * edge of a painted, fallen surface (a fill or edge unlike its ground, or an image), or of Put It Back.
+ */
+const FEET_SHARE = 0.5;
+/* px: how far apart the surfaces under its feet may be. */
+const LEVEL_SLACK = 6;
+/* px a focus ring reaches past its control, as the press rule draws it; tests/let-it-fall.spec.ts floatGap reads the same tokens. */
+const ringReach = (): number =>
+  ['--focus-width', '--focus-gap', '--lift-control']
+    .map((name) => parseFloat(token(name)))
+    .reduce((sum, px) => sum + px, 0);
+/* px kept clear under the risen Put It Back: its focus ring's reach, and as much again before the heap. */
+const floatGap = (): number => 2 * ringReach();
+/* px between its sticker's edge and the surface, so it rests on it without overlapping. */
+const TOUCH = 1;
+/* Points per side checked inside the mascot's box, which must be empty. */
+const ROOM_PROBES = 4;
+
+/* Seen against what lies behind it: an image, or a fill or edge unlike the ground its parent stands on. */
+const painted = (el: Element, known?: Grounds): boolean => {
+  const style = getComputedStyle(el);
+  if (style.visibility !== 'visible' || Number(style.opacity) === 0) {
+    return false;
+  }
+  if (el instanceof HTMLImageElement || el instanceof SVGSVGElement) {
+    return true;
+  }
+  const behind = el.parentElement ? ground(el.parentElement, known) : '';
+  const fill =
+    !clear(style.backgroundColor) && style.backgroundColor !== behind;
+  const edge =
+    parseFloat(style.borderTopWidth) > 0 &&
+    !clear(style.borderTopColor) &&
+    style.borderTopColor !== behind;
+  return fill || edge;
+};
+
+type Edge = { el: Element; a: DOMPoint; b: DOMPoint };
+
+/*
+ * ms of planning before the page gets a turn, so a slow phone never stalls on it.
+ * Planning reads screen coordinates: a scroll or resize between turns starts it over once scrolling rests.
+ */
+const SLICE_MS = 8;
+const SCROLL_REST_MS = 150;
+const SCROLLED = new Error(
+  'let-it-fall: the page scrolled while the climb was planned.',
+);
+type Breathe = () => Promise<void>;
+const scrollRest = (): Promise<void> =>
+  new Promise((resolve) => {
+    let timer = 0;
+    const wait = () => {
+      clearTimeout(timer);
+      timer = window.setTimeout(() => {
+        removeEventListener('scroll', wait);
+        resolve();
+      }, SCROLL_REST_MS);
+    };
+    addEventListener('scroll', wait, { passive: true });
+    wait();
+  });
+const planner = (pile: HTMLElement[]): Breathe => {
+  const view = `${scrollX} ${scrollY} ${innerHeight}`;
+  let slice = performance.now();
+  return async () => {
+    if (performance.now() - slice < SLICE_MS) return;
+    await new Promise((resolve) => setTimeout(resolve));
+    if (fallen !== pile) {
+      throw new DOMException('The page was put back.', 'AbortError');
+    }
+    if (`${scrollX} ${scrollY} ${innerHeight}` !== view) throw SCROLLED;
+    slice = performance.now();
+  };
+};
+
+/* The top edges of every painted part of the heap, turned as their block is turned, and Put It Back's. */
+const topEdges = async (breathe: Breathe): Promise<Edge[]> => {
+  const known: Grounds = new Map();
+  const edges: Edge[] = [];
+  for (const block of fallen) {
+    await breathe();
+    const turn = new DOMMatrix(getComputedStyle(block).transform);
+    const angle = Math.atan2(turn.b, turn.a);
+    for (const el of [block, ...block.querySelectorAll('*')]) {
+      if (!(el instanceof HTMLElement) || !painted(el, known)) continue;
+      const box = el.getBoundingClientRect();
+      const half = { w: el.offsetWidth / 2, h: el.offsetHeight / 2 };
+      const cx = box.left + box.width / 2;
+      const cy = box.top + box.height / 2;
+      const corner = (dx: number, dy: number) =>
+        new DOMPoint(
+          cx + dx * Math.cos(angle) - dy * Math.sin(angle),
+          cy + dx * Math.sin(angle) + dy * Math.cos(angle),
+        );
+      const a = corner(-half.w, -half.h);
+      const b = corner(half.w, -half.h);
+      if (Math.abs(b.x - a.x) > 1) edges.push({ el, a, b });
+    }
+  }
+  const own = button.getBoundingClientRect();
+  edges.push({
+    el: button,
+    a: new DOMPoint(own.left, own.top),
+    b: new DOMPoint(own.right, own.top),
+  });
+  return edges;
+};
+
+/*
+ * Nothing fallen and no control inside the mascot's box, nor painting or text unless `overPage`.
+ * With `overPage`, the page that stays may lie behind it, as it does over the heap and the risen Put It Back.
+ */
+const roomFor = (
+  controls: Guard[],
+  left: number,
+  top: number,
+  wide: number,
+  tall: number,
+  overPage = false,
+  under: Element[] = [],
+): boolean => {
+  if (
+    top < 0 ||
+    left < 0 ||
+    left + wide > document.documentElement.clientWidth
+  ) {
+    return false;
+  }
+  /* A control it stands on is under its feet, not in its box. */
+  const clash = controls
+    .filter(({ el }) => !under.some((part) => el.contains(part)))
+    .map(({ box }) => box)
+    .some(
+      (c) =>
+        left < c.right &&
+        c.left < left + wide &&
+        top < c.bottom &&
+        c.top < top + tall,
+    );
+  if (clash) return false;
+  for (let i = 0; i < ROOM_PROBES; i++) {
+    for (let j = 0; j < ROOM_PROBES; j++) {
+      const hit = document.elementFromPoint(
+        left + (wide * (i + 0.5)) / ROOM_PROBES,
+        top + (tall * (j + 0.5)) / ROOM_PROBES,
+      );
+      if (!hit) continue;
+      const text = [...hit.childNodes].some(
+        (node) => node.nodeType === Node.TEXT_NODE && node.textContent?.trim(),
+      );
+      const page = !overPage && (painted(hit) || text);
+      if (page || hit.closest('[data-fell]') || hit.closest(TARGETS)) {
+        return false;
+      }
+    }
+  }
+  return true;
+};
+
+const grow = (box: DOMRect, by: number): DOMRect =>
+  new DOMRect(
+    box.left - by,
+    box.top - by,
+    box.width + 2 * by,
+    box.height + 2 * by,
+  );
+
+type Guard = { el: Element; box: DOMRect };
+
+/*
+ * Every shown control but Put It Back, measured once for the whole search. Their
+ * rings never show while fallen: keyboard focus on one puts the page back.
+ */
+const controlBoxes = (): Guard[] =>
+  [...document.querySelectorAll(TARGETS)]
+    .filter((el) => el !== button && el.checkVisibility())
+    .map((el) => ({ el, box: grow(el.getBoundingClientRect(), TOUCH) }));
+
+/* Put It Back with its focus ring's reach: kept clear wherever the mascot stands but on it. */
+const buttonGuard = (): Guard => ({
+  el: button,
+  box: grow(button.getBoundingClientRect(), ringReach()),
+});
+
+type Hop = {
+  x: number;
+  y: number;
+  scale: number;
+  foot: Foot;
+  wide: number;
+  tall: number;
+};
+/* The mascot shrinks to these to fit, as on a wide screen where the heap reaches the top. */
+const HOP_SCALES = [1, 0.75, 0.5];
+/* px: the mascot's height while it climbs, at most its phone size (the floor of --size-footer-mascot; the two must agree). */
+const CLIMB_HEIGHT = 96;
+const climbHeight = (): number =>
+  Math.min(CLIMB_HEIGHT, mascot?.getBoundingClientRect().height ?? 0);
+
+/* On Put It Back, its seat: on the edge, or above the focus ring while keyboard focus shows it (SC 2.4.11). */
+const seat = (): number =>
+  button.getBoundingClientRect().top -
+  (button.matches(':focus-visible') ? ringReach() : 0) -
+  TOUCH;
+
+type Surface = { y: number; el: Element };
+/*
+ * The highest top edge of `keep` straight down at x that nothing covers there.
+ * Each whole px of x is read once for every search: its edges in order, and whether each is seen.
+ */
+const surfaceFinder = (edges: Edge[]) => {
+  const columns = new Map<number, (Surface & { seen?: boolean })[]>();
+  return (x: number, keep: Set<Element>): Surface | null => {
+    const key = Math.round(x);
+    let column = columns.get(key);
+    if (!column) {
+      column = edges
+        .filter(
+          ({ a, b }) => key >= Math.min(a.x, b.x) && key <= Math.max(a.x, b.x),
+        )
+        .map(({ el, a, b }) => ({
+          el,
+          y: a.y + ((b.y - a.y) * (key - a.x)) / (b.x - a.x),
+        }))
+        .filter(({ y }) => y >= 0 && y < innerHeight)
+        .sort((p, q) => p.y - q.y);
+      columns.set(key, column);
+    }
+    for (const part of column) {
+      if (!keep.has(part.el)) continue;
+      if (part.seen === undefined) {
+        const hit = document.elementFromPoint(key, part.y + LEVEL_SLACK / 2);
+        part.seen = hit !== null && part.el.contains(hit);
+      }
+      if (part.seen) return { y: part.y, el: part.el };
+    }
+    return null;
+  };
+};
+type SurfaceFinder = ReturnType<typeof surfaceFinder>;
+
+/* A place the mascot could stand, its middle at x, on the parts under its feet. */
+type Footing = Foot & { under: Element[] };
+
+/*
+ * Places on these edges for a mascot this wide, its feet level: its middle at the
+ * middle of every edge it fits on and as near each end as its feet allow.
+ */
+const footings = async (
+  pick: Edge[],
+  surface: SurfaceFinder,
+  wide: number,
+  breathe: Breathe,
+): Promise<Footing[]> => {
+  const screen = document.documentElement.clientWidth;
+  const feet = (wide * FEET_SHARE) / 2;
+  const lo = EDGE + wide / 2;
+  const hi = screen - EDGE - wide / 2;
+  const xs = new Set<number>();
+  for (const { a, b } of pick) {
+    const left = Math.min(a.x, b.x);
+    const right = Math.max(a.x, b.x);
+    /* Each end, standing across onto a level neighbor; then along the edge a mascot's width apart. */
+    const along = [left, right, (left + right) / 2];
+    for (let x = left + feet; x <= right - feet; x += wide) along.push(x);
+    if (right - left >= 2 * feet) along.push(right - feet);
+    for (const x of along) xs.add(Math.round(Math.min(hi, Math.max(lo, x))));
+  }
+  const keep = new Set(pick.map(({ el }) => el));
+  const found: Footing[] = [];
+  for (const x of xs) {
+    await breathe();
+    const steps = [x - feet, x, x + feet].map((at) => surface(at, keep));
+    if (steps.some((step) => !step)) continue;
+    const ys = (steps as Surface[]).map(({ y }) => y);
+    if (Math.max(...ys) - Math.min(...ys) > LEVEL_SLACK) continue;
+    found.push({
+      x,
+      y: Math.min(...ys) - TOUCH,
+      under: (steps as Surface[]).map(({ el }) => el),
+    });
+  }
+  return found;
+};
+
+/* The first place, in `rank` order, with room for the mascot's box above it. */
+const firstWithRoom = async (
+  places: Footing[],
+  guards: Guard[],
+  wide: number,
+  tall: number,
+  rank: (place: Footing) => number,
+  breathe: Breathe,
+): Promise<Footing | null> => {
+  for (const place of [...places].sort((p, q) => rank(p) - rank(q))) {
+    await breathe();
+    const { x, y, under } = place;
+    if (roomFor(guards, x - wide / 2, y - tall, wide, tall, true, under)) {
+      return place;
+    }
+  }
+  return null;
+};
+
+const highestFirst = ({ y }: Foot): number => y;
+
+/* On top of Put It Back, clear of its label; else the highest place on the heap. At the largest size that fits. */
+const perch = async (
+  edges: Edge[],
+  controls: Guard[],
+  surface: SurfaceFinder,
+  breathe: Breathe,
+): Promise<Hop | null> => {
+  if (!mascot) return null;
+  const box = mascot.getBoundingClientRect();
+  if (!box.width) return null;
+  const ratio = box.width / box.height;
+  const own = button.getBoundingClientRect();
+  const hop = ({ x, y }: Foot, wide: number, tall: number): Hop => ({
+    x: x - wide / 2 - box.left,
+    y: y - tall - box.top,
+    scale: tall / box.height,
+    foot: { x, y },
+    wide,
+    tall,
+  });
+  const sizes = HOP_SCALES.map((scale) => {
+    const tall = climbHeight() * scale;
+    return { tall, wide: tall * ratio };
+  });
+  for (const { wide, tall } of sizes) {
+    const middle = own.left + own.width / 2;
+    const y = seat();
+    if (roomFor(controls, middle - wide / 2, y - tall, wide, tall, true)) {
+      return hop({ x: middle, y }, wide, tall);
+    }
+  }
+  const guards = [...controls, buttonGuard()];
+  for (const { wide, tall } of sizes) {
+    const places = await footings(edges, surface, wide, breathe);
+    const best = await firstWithRoom(
+      places,
+      guards,
+      wide,
+      tall,
+      highestFirst,
+      breathe,
+    );
+    if (best) return hop(best, wide, tall);
+  }
+  return null;
+};
+
+/*
+ * Visible places to land on the way from the footer: up the heap, onto the menu
+ * shelf, higher up the heap, then the perch.
+ */
+const stones = async (
+  edges: Edge[],
+  controls: Guard[],
+  spot: Hop,
+  ledge: Element | undefined,
+  surface: SurfaceFinder,
+  breathe: Breathe,
+): Promise<Foot[]> => {
+  if (!mascot) return [];
+  const guards = [...controls, buttonGuard()];
+  const { wide, tall } = spot;
+  const roomy = (places: Footing[], rank: (place: Footing) => number) =>
+    firstWithRoom(places, guards, wide, tall, rank, breathe);
+  const onLedge = edges.filter(({ el }) => ledge?.contains(el));
+  const heap = edges.filter(({ el }) => !ledge?.contains(el) && el !== button);
+  /* On the menu shelf, as near its clear stretch in the middle as it has room. */
+  const middle = document.documentElement.clientWidth / 2;
+  const ledgeStone = await roomy(
+    await footings(onLedge, surface, wide, breathe),
+    ({ x }) => Math.abs(x - middle),
+  );
+  const shelfTop =
+    ledge?.getBoundingClientRect().top ?? mascot.getBoundingClientRect().bottom;
+  const places = await footings(heap, surface, wide, breathe);
+  /* Below the shelf: the highest place with headroom, if any. */
+  const lower = await roomy(
+    places.filter(({ y }) => y > shelfTop),
+    highestFirst,
+  );
+  /* Above it: the highest place, and one about halfway up from the shelf. */
+  const upper = places.filter(({ y }) => y <= shelfTop);
+  const highest = await roomy(upper, highestFirst);
+  const halfway = highest
+    ? await roomy(
+        upper.filter(({ y }) => y > highest.y + tall / 2),
+        ({ y }) => Math.abs(y - (shelfTop + highest.y) / 2),
+      )
+    : null;
+  return [lower, ledgeStone, halfway, highest, spot.foot]
+    .filter((place): place is Foot => place !== null)
+    .map(({ x, y }) => ({ x, y }));
+};
+
+/* The mascot's perch and, for the posed climb, its stones, read from the landed heap in slices; a scroll starts it over. */
+const planClimb = async (
+  pile: HTMLElement[],
+  posed: boolean,
+): Promise<{ spot: Hop; path: Foot[] } | null> => {
+  for (;;) {
+    const breathe = planner(pile);
+    try {
+      const edges = await topEdges(breathe);
+      const controls = controlBoxes();
+      const surface = surfaceFinder(edges);
+      const spot = await perch(edges, controls, surface, breathe);
+      if (!spot) return null;
+      const ledge = pile.find((el) => el.matches(LEDGE));
+      const path = posed
+        ? await stones(edges, controls, spot, ledge, surface, breathe)
+        : [];
+      return { spot, path };
+    } catch (error) {
+      if (error !== SCROLLED) throw error;
+      await scrollRest();
+      if (fallen !== pile) return null;
+    }
+  }
+};
+
+const HOP_VARS = ['--hop-x', '--hop-y', '--hop-scale'];
+
+/* The mascot leaps on an arc to the spot, or home for null; under reduced motion it is simply there. */
+const hopTo = (spot: Hop | null): void => {
+  if (!mascot) return;
+  const from = getComputedStyle(mascot).transform;
+  for (const animation of mascot.getAnimations()) animation.cancel();
+  if (spot) {
+    mascot.style.setProperty('--hop-x', `${spot.x}px`);
+    mascot.style.setProperty('--hop-y', `${spot.y}px`);
+    mascot.style.setProperty('--hop-scale', String(spot.scale));
+    mascot.setAttribute('data-hopped', '');
+  } else {
+    mascot.removeAttribute('data-hopped');
+    for (const name of HOP_VARS) mascot.style.removeProperty(name);
+  }
+  if (!motion.matches) return;
+  const start = from === 'none' ? new DOMMatrix() : new DOMMatrix(from);
+  const end = spot
+    ? new DOMMatrix().translate(spot.x, spot.y).scale(spot.scale)
+    : new DOMMatrix();
+  const high = Math.min(start.f, end.f) - HOP_HEIGHT;
+  mascot.animate(
+    [
+      { transform: start.toString() },
+      {
+        transform: `translate(${(start.e + end.e) / 2}px, ${high}px) scale(${(start.a + end.a) / 2})`,
+        offset: 0.5,
+      },
+      { transform: end.toString() },
+    ],
+    { duration: fallTime() * HOP_SHARE, easing: 'ease-in-out' },
+  );
+};
+
+const FALL_VARS = ['--fall-x', '--fall-y', '--fall-turn', '--fall-ground'];
+
+/* Home at once: drops the clip and offsets, so a block is measured where it rests. */
+const home = (el: HTMLElement): void => {
+  for (const animation of el.getAnimations()) animation.cancel();
+  el.removeAttribute('data-fall-block');
+  el.removeAttribute('data-fall-raised');
+  for (const name of FALL_VARS) el.style.removeProperty(name);
+  if (header?.contains(el)) unpin();
+  if (!document.querySelector('[data-fall-block]')) {
+    document.documentElement.style.removeProperty('overflow-anchor');
+  }
+};
+
+/*
+ * Read for every block before any moves, so the page lays out once: the fill it keeps, and
+ * its raise above content that stays, as a tall card or the footer band, which would paint over the heap.
+ */
+type Look = { fill: string; raise: string | null };
+const look = (el: HTMLElement, known: Grounds): Look => {
+  const style = getComputedStyle(el);
+  const raise =
+    style.zIndex !== 'auto'
+      ? null
+      : style.position === 'static'
+        ? 'static'
+        : '';
+  return { fill: ground(el, known), raise };
+};
+
+const drop = (
+  { el, x, y, turn, rank }: Landing,
+  { fill, raise }: Look,
+  duration: number,
+): Animation | null => {
+  el.style.setProperty('--fall-x', `${x}px`);
+  el.style.setProperty('--fall-y', `${y}px`);
+  el.style.setProperty('--fall-turn', `${turn}deg`);
+  el.style.setProperty('--fall-ground', fill);
+  el.setAttribute('data-fall-block', '');
+  el.setAttribute('data-fell', '');
+  if (raise !== null) el.setAttribute('data-fall-raised', raise);
+  if (!motion.matches) return null;
+  const at = (lift: number) =>
+    `translate(${x}px, ${y - lift}px) rotate(${turn}deg)`;
+  return el.animate(
+    [
+      { transform: 'none', easing: FALL_EASING },
+      { transform: at(0), offset: LAND_AT, easing: 'ease-out' },
+      { transform: at(BOUNCE), offset: BOUNCE_AT, easing: 'ease-in' },
+      { transform: at(0) },
+    ],
+    { duration, delay: rank * LAND_STAGGER_MS, fill: 'backwards' },
+  );
+};
+
+const FLOAT_VARS = ['--float-x', '--float-y'];
+
+/*
+ * Put It Back rises to the top of the screen, centered, with room above it for
+ * the mascot and below any header still stuck there; returns where it ends up.
+ */
+const floatButton = (): DOMRect => {
+  const from = getComputedStyle(button).transform;
+  for (const animation of button.getAnimations()) animation.cancel();
+  button.removeAttribute('data-floating');
+  /* Its place in the layout: the box less its own hover or press `translate`. */
+  const box = button.getBoundingClientRect();
+  const { translate } = getComputedStyle(button);
+  const lift =
+    translate === 'none'
+      ? new DOMMatrix()
+      : new DOMMatrix(`translate(${translate.split(' ').join(', ')})`);
+  const own = new DOMRect(
+    box.left - lift.e,
+    box.top - lift.f,
+    box.width,
+    box.height,
+  );
+  const stuck =
+    header &&
+    !fallen.some((el) => header.contains(el)) &&
+    getComputedStyle(header).position === 'sticky'
+      ? header.getBoundingClientRect().bottom
+      : 0;
+  const perchRoom = climbHeight() + ringReach();
+  const top = Math.max(0, stuck) + EDGE + perchRoom;
+  const left = (document.documentElement.clientWidth - own.width) / 2;
+  button.style.setProperty('--float-x', `${left - own.left}px`);
+  button.style.setProperty('--float-y', `${top - own.top}px`);
+  button.setAttribute('data-floating', '');
+  settleNow(button);
+  /* Where it rests once risen, the safe-area inset included: its own `transform`, measured from the layout box. */
+  const shift = new DOMMatrix(getComputedStyle(button).transform);
+  const risen = new DOMRect(
+    own.left + shift.e,
+    own.top + shift.f,
+    own.width,
+    own.height,
+  );
+  if (motion.matches) {
+    button.animate([{ transform: from }, { transform: shift.toString() }], {
+      duration: fallTime(),
+      easing: RISE_EASING,
+    });
+  }
+  return risen;
+};
+
+/* Put It Back goes home with the page. */
+const sinkButton = (): void => {
+  const from = getComputedStyle(button).transform;
+  for (const animation of button.getAnimations()) animation.cancel();
+  button.removeAttribute('data-floating');
+  const clean = () => {
+    for (const name of FLOAT_VARS) button.style.removeProperty(name);
+  };
+  if (!motion.matches) {
+    clean();
+    return;
+  }
+  void button
+    .animate([{ transform: from }, { transform: 'none' }], {
+      duration: fallTime(),
+      easing: token('--ease-fall'),
+    })
+    .finished.then(() => {
+      if (!button.hasAttribute('data-floating')) clean();
+    }, ignoreCancel);
+};
+
+/*
+ * The header bar as a shelf about two thirds down: the wide blocks land under
+ * it, it sits on them as low as that allows, and the small blocks fill the gaps
+ * and land on it, around a clear stretch kept for the mascot.
+ */
+const shelve = (
+  shelf: HTMLElement,
+  blocks: HTMLElement[],
+  room: Room,
+  solid: Spot[],
+  sizes: Sizes,
+): Landing[] => {
+  const screen = document.documentElement.clientWidth;
+  const wide = blocks.filter(
+    (el) => sizes.get(el)!.box.width >= screen * SMALL_SHARE,
+  );
+  const small = blocks.filter((el) => !wide.includes(el));
+  const under = stack(wide, room, solid, sizes);
+  const { drawn } = sizes.get(shelf)!;
+  const wideTop = wide.length
+    ? Math.min(...under.heap.slice(solid.length).map(({ top }) => top))
+    : room.floor;
+  /* Rings of controls in the heap never show while it is down, so a hop's headroom is the mascot and a gap. */
+  const headroom = climbHeight() + room.gap;
+  const highestShelf = room.ceiling + headroom;
+  let top = Math.max(
+    highestShelf,
+    Math.min(innerHeight * LEDGE_SHARE, wideTop - room.gap - drawn.height),
+  );
+  /* Never over a control that stays: up above it, or no shelf at all. */
+  const blocking = () =>
+    solid.find(
+      (spot) =>
+        drawn.left < spot.right &&
+        spot.left < drawn.right &&
+        top < spot.bottom &&
+        spot.top < top + drawn.height,
+    );
+  for (let over = blocking(); over; over = blocking()) {
+    top = over.top - drawn.height;
+    if (top < highestShelf)
+      return stack([shelf, ...blocks], room, solid, sizes).landings;
+  }
+  /* Too little room above them for the shelf: the wide blocks move down under it. */
+  const lowerBy = Math.max(0, top + drawn.height + room.gap - wideTop);
+  const lowered = (spot: Spot): Spot => ({
+    ...spot,
+    top: spot.top + lowerBy,
+    bottom: spot.bottom + lowerBy,
+  });
+  const below = under.heap.slice(solid.length).map(lowered);
+  const middle = screen / 2;
+  const stretch = climbHeight() + 2 * SLOT_STEP;
+  const spots: Spot[] = [
+    ...solid,
+    ...below,
+    { left: drawn.left, right: drawn.right, top, bottom: top + drawn.height },
+    {
+      left: middle - stretch / 2,
+      right: middle + stretch / 2,
+      top: top - headroom,
+      bottom: top,
+      bare: true,
+    },
+  ];
+  /* A hop's headroom kept under Put It Back too, so the mascot can stand on top of the heap. */
+  const above = stack(
+    small,
+    { ...room, ceiling: room.ceiling + headroom },
+    spots,
+    sizes,
+  ).landings;
+  return [
+    { el: shelf, x: 0, y: top - drawn.top, turn: 0, top, rank: 0 },
+    ...under.landings.map((landing) => ({
+      ...landing,
+      y: landing.y + lowerBy,
+      top: landing.top + lowerBy,
+      rank: landing.rank + 1,
+    })),
+    ...above.map((landing) => ({
+      ...landing,
+      rank: landing.rank + under.landings.length + 1,
+    })),
+  ];
+};
+
+/* The pile whose mascot has finished its posed climb, so a switch to reduced motion can hand the perch to the sticker. */
+let climbed: HTMLElement[] | null = null;
+
+/* The footer sticker itself takes the perch: under reduced motion, or when its drawing fails to load. */
+const perchSticker = async (pile: HTMLElement[]): Promise<void> => {
+  if (!mascot) return;
+  /* Lazy below the fold; it must be drawn before it is shown on the perch. */
+  mascot.loading = 'eager';
+  await mascot.decode();
+  if (fallen !== pile) return;
+  const plan = await planClimb(pile, false);
+  if (plan && fallen === pile) hopTo(plan.spot);
+};
+
+/* Once every block and its own transitions have landed, the mascot climbs, or the sticker takes the perch. */
+const settle = async (
+  pile: HTMLElement[],
+  moves: Promise<Animation>[],
+): Promise<void> => {
+  await Promise.all(moves);
+  if (!mascot || fallen !== pile) return;
+  /* A block's own transitions, as a card's lift, start a frame later and must end before the heap is read. */
+  await new Promise((resolve) => requestAnimationFrame(resolve));
+  const settling = pile.flatMap((el) => el.getAnimations({ subtree: true }));
+  /* One cut short, as by a hover, has settled just the same. */
+  await Promise.allSettled(settling.map((a) => a.finished));
+  if (fallen !== pile) return;
+  const climber = hopper;
+  if (motion.matches && climber) {
+    const plan = await planClimb(pile, true);
+    if (fallen !== pile) return;
+    if (plan && motion.matches) {
+      try {
+        await climber.climb(plan.path.map(climber.local), plan.spot.scale);
+      } catch (error) {
+        if (error instanceof DOMException && error.name === 'AbortError') {
+          return;
+        }
+        /* The drawing failed to load: the sticker takes the perch instead, and the next press tries again. */
+        reportError(error);
+        climber.stop();
+        if (hopper === climber) hopper = null;
+      }
+      if (fallen !== pile) return;
+      if (motion.matches && hopper === climber) {
+        climbed = pile;
+        return;
+      }
+    }
+    climber.stop();
+  }
+  await perchSticker(pile);
 };
 
 const fall = (): void => {
@@ -113,49 +1091,136 @@ const fall = (): void => {
   )) {
     home(el);
   }
+  /* A mascot still hopping home is measured from home, not mid-air. */
+  for (const animation of mascot?.getAnimations() ?? []) animation.cancel();
+  hopper?.stop();
+  /*
+   * WebKit scroll anchoring follows a fallen block's transform and scrolls the page away from the heap.
+   * Set on the root before the next layout picks an anchor; WebKit ignores it on the anchor itself.
+   */
+  document.documentElement.style.setProperty('overflow-anchor', 'none');
+  pin();
+  const tallest = innerHeight * TALLEST_SHARE;
   const candidates = [...document.querySelectorAll<HTMLElement>(BLOCKS)].filter(
-    (el) => onScreen(el) && free(el),
+    (el) =>
+      onScreen(el) && free(el) && el.getBoundingClientRect().height <= tallest,
   );
   fallen = candidates.filter(
     (el) => !candidates.some((other) => other !== el && other.contains(el)),
   );
+  if (!fallen.some((el) => header?.contains(el))) unpin();
   if (!fallen.length) {
+    document.documentElement.style.removeProperty('overflow-anchor');
     say(NOTHING);
     return;
   }
-  const floor =
-    Math.min(innerHeight, button.getBoundingClientRect().top) - PILE_GAP;
-  fallen.forEach((el, index) => {
-    const box = el.getBoundingClientRect();
-    const turn = spread(TURN_DEG);
-    const radians = (Math.abs(turn) * Math.PI) / HALF_TURN_DEG;
-    /* A tilted block reaches lower than its upright box: half its rotated height gain. */
-    const tilt =
-      (box.width * Math.sin(radians) +
-        box.height * Math.cos(radians) -
-        box.height) /
-      2;
-    /* Negative for a block already near the button: it rises just enough to tilt clear of it. */
-    const drop = floor - box.bottom - tilt - Math.random() * PILE_SCATTER;
-    el.style.setProperty('--fall-x', `${spread(DRIFT)}px`);
-    el.style.setProperty('--fall-y', `${drop}px`);
-    el.style.setProperty('--fall-turn', `${turn}deg`);
-    el.style.setProperty('--fall-ground', ground(el));
-    el.style.setProperty('--fall-delay', `${index * STAGGER_MS}ms`);
-    el.setAttribute('data-fall-block', '');
-    el.setAttribute('data-fell', '');
-  });
-  width = innerWidth;
+  /* Marked before measuring: a falling footer row shrinks to its link. */
+  for (const el of fallen) el.setAttribute('data-fall-block', '');
+  for (const el of fallen) settleNow(el);
+  /* Put It Back rises first, centered at its new label's width: the heap fills the screen below it. */
   button.textContent = LABEL_BACK;
+  const lifted = floatButton();
+  const toSpot = ({ left, right, top, bottom }: DOMRect): Spot => ({
+    left: left - SOLID_GAP,
+    right: right + SOLID_GAP,
+    top: top - SOLID_GAP,
+    bottom: bottom + SOLID_GAP,
+  });
+  /* Every control that stays, and the mascot waiting at home, are solid: the heap lands on them, never over them. */
+  const solid = [
+    ...[...document.querySelectorAll(TARGETS)]
+      .filter(
+        (el) =>
+          el !== button &&
+          onScreen(el) &&
+          el.checkVisibility() &&
+          !fallen.some((block) => block.contains(el)),
+      )
+      .map((el) => toSpot(el.getBoundingClientRect())),
+    ...(mascot && onScreen(mascot)
+      ? [toSpot(mascot.getBoundingClientRect())]
+      : []),
+  ];
+  /*
+   * Packed loosely and tilted, then tightly and level. If it still does not fit under
+   * Put It Back, the whole heap moves down past the screen's bottom, where scrolling reaches it.
+   */
+  const ceiling = lifted.bottom + floatGap();
+  const loose: Room = {
+    floor: innerHeight - EDGE,
+    ceiling,
+    gap: STACK_GAP,
+    tilt: true,
+  };
+  const tight: Room = { ...loose, gap: TIGHT_GAP, tilt: false };
+  const topOf = (all: Landing[]) => Math.min(...all.map(({ top }) => top));
+  const ledge = fallen.find((el) => el.matches(LEDGE));
+  const heaped = fallen.filter((el) => el !== ledge);
+  const known: Grounds = new Map();
+  const sizes = measure(fallen, known);
+  const looks = new Map(fallen.map((el) => [el, look(el, known)]));
+  const duration = fallTime();
+  const plan = (room: Room): Landing[] =>
+    ledge
+      ? shelve(ledge, heaped, room, solid, sizes)
+      : stack(heaped, room, solid, sizes).landings;
+  let landings = plan(loose);
+  if (topOf(landings) < ceiling) landings = plan(tight);
+  const sink = Math.max(0, ceiling - topOf(landings));
+  const moves = landings
+    .map((landing) =>
+      drop(
+        { ...landing, y: landing.y + sink, top: landing.top + sink },
+        looks.get(landing.el)!,
+        duration,
+      ),
+    )
+    .filter((a): a is Animation => a !== null)
+    .map((a) => a.finished);
+  if (motion.matches && mascot) hopper ??= createHopper(mascot);
+  void settle(fallen, moves).catch(ignoreCancel);
+  width = innerWidth;
   say(FELL);
 };
 
 const restore = (): void => {
+  /* The page may have scrolled since the fall: home for the header is where it sticks now, and its blocks climb from where they lie. */
+  const before = header?.getBoundingClientRect().top ?? 0;
+  if (header?.style.position) {
+    unpin();
+    pin();
+  }
+  /* Its bar climbs home now: the header takes the pointer again, so the bar works on the way. */
+  header?.style.removeProperty('pointer-events');
+  const shift = (header?.getBoundingClientRect().top ?? 0) - before;
+  if (mascot?.hasAttribute('data-hopped')) hopTo(null);
+  void hopper?.goHome().catch(ignoreCancel);
+  sinkButton();
   for (const el of fallen) {
+    const lies = getComputedStyle(el).transform;
+    const from =
+      shift && header?.contains(el)
+        ? new DOMMatrix()
+            .translate(0, -shift)
+            .multiply(new DOMMatrix(lies === 'none' ? undefined : lies))
+            .toString()
+        : lies;
     el.removeAttribute('data-fell');
-    settle(el);
+    if (!motion.matches) {
+      home(el);
+      continue;
+    }
+    for (const animation of el.getAnimations()) animation.cancel();
+    const climb = el.animate([{ transform: from }, { transform: 'none' }], {
+      duration: fallTime(),
+      easing: token('--ease-fall'),
+    });
+    void climb.finished.then(() => {
+      if (!el.hasAttribute('data-fell')) home(el);
+    }, ignoreCancel);
   }
   fallen = [];
+  climbed = null;
   button.textContent = LABEL_FALL;
   say(BACK);
 };
@@ -167,14 +1232,40 @@ button.addEventListener('on-demand', () => {
   if (fallen.length) restore();
   else fall();
 });
+/* Reduced motion switched on mid-fall or mid-climb: everything is where it ends at once, and the sticker takes the perch. */
+motion.addEventListener('change', () => {
+  if (motion.matches) return;
+  for (const el of [
+    button,
+    ...document.querySelectorAll('[data-fall-block]'),
+  ]) {
+    for (const animation of el.getAnimations()) animation.finish();
+  }
+  hopper?.stop();
+  if (fallen.length && climbed === fallen) {
+    climbed = null;
+    void perchSticker(fallen).catch(ignoreCancel);
+  }
+});
 addEventListener('keydown', (event) => {
   if (event.key === 'Escape' && fallen.length) restore();
 });
-/* SC 2.4.11: a control moved by the fall is never focused out of place. */
+/*
+ * SC 2.4.11: keyboard focus never lands on a block out of place. A click or tap on a link or button
+ * in the heap focuses without :focus-visible, so it still works; a text field puts the page back.
+ */
 addEventListener('focusin', (event) => {
-  if (fallen.length && event.target !== button) restore();
+  const target = event.target;
+  if (
+    fallen.length &&
+    target !== button &&
+    target instanceof Element &&
+    target.matches(':focus-visible')
+  ) {
+    restore();
+  }
 });
-/* Offsets are measured for one width; a rotated phone or a zoom would leave the pile in the wrong place. */
+/* Offsets are measured for one width; a rotated phone or a zoom would leave the heap in the wrong place. */
 addEventListener('resize', () => {
   if (fallen.length && innerWidth !== width) restore();
 });

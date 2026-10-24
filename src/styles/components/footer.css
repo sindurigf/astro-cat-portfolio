@@ -193,36 +193,98 @@
     pointer-events: none;
   }
 
-  /* Let It Fall: above the pile it makes, so a tap always reaches it. */
+  /* Let It Fall, above the copyright. */
   .let-it-fall {
     position: relative;
     z-index: 1;
   }
 
+  /* Risen to the top of the screen while the page lies in a heap below it; over every fallen block. */
+  .let-it-fall[data-floating] {
+    z-index: 3;
+    transform: translate(
+      var(--float-x),
+      calc(var(--float-y) + env(safe-area-inset-top, 0px))
+    );
+  }
+
   /*
-   * Moved by src/scripts/let-it-fall.ts: `transform` stacks on a block's own
-   * `translate` and `rotate`. No pointer, so a tap on the pile reaches what lies
-   * under it; its own ground travels with it, so its text keeps its contrast.
+   * Where src/scripts/let-it-fall.ts lands a block in the heap; its animations
+   * play the drop and climb. `transform` stacks on a block's own `translate` and
+   * `rotate`. Its own ground travels with it, so its text keeps its contrast.
    */
   [data-fell] {
     transform: translate(var(--fall-x), var(--fall-y)) rotate(var(--fall-turn));
-    pointer-events: none;
     background-color: var(--fall-ground);
   }
 
-  /* SC 1.4.10: a block tipped past the edge, falling or climbing back, never scrolls the page sideways. Not on body, whose overflow passes to the viewport. */
-  :root:has([data-fall-block]) :is(main, footer) {
-    overflow-x: clip;
-  }
+  /* A footer row falls as its link alone, a --spacing-target tall, so the heap fits the screen. */
+  :is(.footer-pages, .footer-policies) li[data-fall-block] {
+    width: fit-content;
 
-  @media (prefers-reduced-motion: no-preference) {
-    [data-fall-block] {
-      transition: transform var(--fall-time) var(--ease-fall) var(--fall-delay);
+    & > a {
+      display: inline-flex;
     }
   }
 
+  /* The mascot on top of the heap, clear of every control; scaled from its top left, as the script measures. */
+  .footer-mascot {
+    transform-origin: 0 0;
+  }
+
+  /* Over every fallen block while the page is down, as the hopping copy is. */
+  :root:has([data-fall-block]) .footer-mascot {
+    z-index: 2;
+  }
+
+  /* While its hopping copy climbs the heap in its place. */
+  .footer-mascot[data-away] {
+    visibility: hidden;
+  }
+
+  /* The hopping mascot: a point at its feet, the drawing above it. */
+  .fall-hopper {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 2;
+    pointer-events: none;
+
+    & > span {
+      position: absolute;
+      transform-origin: 0 0;
+    }
+
+    & img {
+      position: absolute;
+      max-width: none;
+    }
+  }
+
+  .footer-mascot[data-hopped] {
+    transform: translate(var(--hop-x), var(--hop-y)) scale(var(--hop-scale));
+  }
+
+  [data-fall-raised] {
+    z-index: 1;
+  }
+
+  /* The fallen bar takes the pointer back from the header box that let-it-fall.ts empties. */
+  .site-header [data-fell] {
+    pointer-events: auto;
+  }
+
+  [data-fall-raised='static'] {
+    position: relative;
+  }
+
+  /* SC 1.4.10: a block tipped past the edge, falling or climbing back, never scrolls the page sideways. Not on body, whose overflow passes to the viewport. */
+  :root:has([data-fall-block]) :is(.site-header, main, footer) {
+    overflow-x: clip;
+  }
+
   @media print {
-    [data-fell] {
+    :is([data-fell], .footer-mascot[data-hopped], .let-it-fall[data-floating]) {
       transform: none;
     }
   }
