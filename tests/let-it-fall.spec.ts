@@ -35,21 +35,28 @@ const landed = (page: Page) =>
       ),
     )
     .toBe(0);
-/* Targets in the heap above the screen, or covered by something else at any of nine points across their face. */
+/*
+ * Targets in the heap above the page's top, or covered by something else at any of nine points across their face.
+ * One below the screen, in a heap too tall for it, is scrolled to and checked there.
+ */
 const coveredTargets = (page: Page) =>
   page.evaluate(() => {
     const SHARES = [0.25, 0.5, 0.75];
-    return [
+    const start = scrollY;
+    const covered = [
       ...document.querySelectorAll(
         '[data-fell] :is(a[href], button), [data-fell]:is(a[href], button)',
       ),
     ]
       .filter((el) => el.checkVisibility())
       .filter((el) => {
+        if (el.getBoundingClientRect().top + scrollY < 0) return true;
+        scrollTo({ top: start, behavior: 'instant' });
+        const below = el.getBoundingClientRect().bottom - innerHeight;
+        if (below > 0) {
+          scrollTo({ top: start + below, behavior: 'instant' });
+        }
         const r = el.getBoundingClientRect();
-        if (r.top < 0) return true;
-        /* Below the screen: a heap too tall for it, which scrolling reaches (tested with Put It Back). */
-        if (r.bottom > innerHeight) return false;
         /* Points across the target's own face, turned with its fallen block: its upright box's corners lie outside it. */
         const block = el.closest('[data-fell]')!;
         const { a, b } = new DOMMatrix(getComputedStyle(block).transform);
@@ -70,6 +77,8 @@ const coveredTargets = (page: Page) =>
         );
       })
       .map((el) => el.textContent?.trim() || el.getAttribute('aria-label'));
+    scrollTo({ top: start, behavior: 'instant' });
+    return covered;
   });
 /* What animates on the fallen blocks and the mascot for longer than an instant; reduced-motion.css cuts transitions to 0.01ms. */
 const moving = (page: Page) =>
@@ -356,29 +365,40 @@ test('every control that stays on screen stays uncovered while the page is down'
   await gotoSettled(page, '/contact');
   await press(page);
   await landed(page);
-  const covered = await page.evaluate(() =>
-    [...document.querySelectorAll('a[href], button, input, textarea, select')]
-      .filter(
-        (el) =>
-          el.checkVisibility() &&
-          !el.closest('[data-fell]') &&
-          !el.closest('[data-let-it-fall]'),
-      )
-      .filter((el) => {
-        const r = el.getBoundingClientRect();
-        if (r.bottom <= 0 || r.top >= innerHeight || !r.width) return false;
-        const hit = document.elementFromPoint(
-          r.left + r.width / 2,
-          Math.max(0, r.top) +
-            (Math.min(innerHeight, r.bottom) - Math.max(0, r.top)) / 2,
-        );
-        return !hit || !el.contains(hit);
-      })
-      .map(
-        (el) =>
-          el.textContent?.trim().slice(0, 30) || el.getAttribute('aria-label'),
-      ),
-  );
+  const { checked, covered } = await page.evaluate(() => {
+    const staying = [
+      ...document.querySelectorAll('a[href], button, input, textarea, select'),
+    ].filter((el) => {
+      const r = el.getBoundingClientRect();
+      return (
+        el.checkVisibility() &&
+        !el.closest('[data-fell]') &&
+        !el.closest('[data-let-it-fall]') &&
+        r.bottom > 0 &&
+        r.top < innerHeight &&
+        r.width > 0
+      );
+    });
+    return {
+      checked: staying.length,
+      covered: staying
+        .filter((el) => {
+          const r = el.getBoundingClientRect();
+          const hit = document.elementFromPoint(
+            r.left + r.width / 2,
+            Math.max(0, r.top) +
+              (Math.min(innerHeight, r.bottom) - Math.max(0, r.top)) / 2,
+          );
+          return !hit || !el.contains(hit);
+        })
+        .map(
+          (el) =>
+            el.textContent?.trim().slice(0, 30) ||
+            el.getAttribute('aria-label'),
+        ),
+    };
+  });
+  expect(checked, 'no control stays on screen to check').toBeGreaterThan(0);
   expect(
     covered,
     'a control that stays is covered while the page is down',
@@ -461,6 +481,71 @@ test('under reduced motion the blocks and the mascot move at once, never animate
   ).toEqual([]);
 });
 
+/* The footer sticker itself sits on Put It Back, shown and still, with no climbing copy left. */
+const stickerOnButton = async (page: Page, message: string) => {
+  const sticker = page.locator('.footer-mascot');
+  await expect(sticker).toHaveAttribute('data-hopped', '', {
+    timeout: CLIMB_MS,
+  });
+  await expect(sticker).not.toHaveAttribute('data-away');
+  await expect(page.locator('.fall-hopper')).toHaveCount(0);
+  await expect
+    .poll(() => sticker.evaluate((img) => img.getAnimations().length))
+    .toBe(0);
+  expect(
+    await sticker.evaluate((img) => {
+      const own = img.getBoundingClientRect();
+      const seat = document
+        .querySelector('[data-let-it-fall]')!
+        .getBoundingClientRect();
+      return (
+        own.bottom <= seat.top && own.left < seat.right && seat.left < own.right
+      );
+    }),
+    message,
+  ).toBe(true);
+};
+
+for (const when of ['as the page falls', 'once the heap has landed'] as const) {
+  test(`reduced motion switched on ${when} ends every move at once and puts the sticker on Put It Back`, async ({
+    page,
+  }) => {
+    await seedRandom(page, HEAP_SEED);
+    await page.setViewportSize({ width: 390, height: HEIGHT });
+    await gotoSettled(page, ROUTE);
+    await press(page);
+    if (when === 'once the heap has landed') await landed(page);
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await stickerOnButton(
+      page,
+      'the sticker is not on Put It Back after reduced motion switched on',
+    );
+    await expect
+      .poll(() => moving(page), {
+        message: 'something still animates after reduced motion switched on',
+      })
+      .toEqual([]);
+  });
+}
+
+test('the menu bar takes the pointer while it climbs home', async ({
+  page,
+}) => {
+  await seedRandom(page, HEAP_SEED);
+  await page.setViewportSize({ width: 390, height: HEIGHT });
+  await gotoSettled(page, ROUTE);
+  const back = await press(page);
+  await landed(page);
+  await back.click();
+  expect(
+    await page.locator('.header-slab').evaluate((slab) => ({
+      climbing: slab.getAnimations().length > 0,
+      pointer: getComputedStyle(slab).pointerEvents,
+    })),
+    'the climbing menu bar takes no pointer',
+  ).toEqual({ climbing: true, pointer: 'auto' });
+});
+
 /* ms: the climb is a few hops of about 0.8s and two glances; the wait allows for a slow runner. */
 const CLIMB_MS = 20_000;
 
@@ -524,8 +609,61 @@ test("pressed from the keyboard, the mascot sits clear of Put It Back's focus ri
   ).toEqual({ focused: true, clear: true });
 });
 
-/* px: let-it-fall.ts FLOAT_GAP, kept clear under the risen Put It Back; the two must agree. */
-const FLOAT_GAP = 24;
+/* CPU slowdown standing in for a low-end phone, and the longest task allowed while the heap settles and the mascot's climb is planned. */
+const PHONE_CPU_SLOWDOWN = 4;
+const LONG_TASK_MS = 50;
+
+for (const width of [390, DESKTOP] as const) {
+  test(`at ${width}px on a slow phone CPU, no task runs over ${LONG_TASK_MS}ms while the heap settles and the climb is planned`, async ({
+    page,
+    browserName,
+  }) => {
+    test.skip(
+      browserName !== 'chromium',
+      'CPU throttling and long-task timing are Chromium-only',
+    );
+    await seedRandom(page, HEAP_SEED);
+    await page.setViewportSize({ width, height: HEIGHT });
+    await gotoSettled(page, ROUTE);
+    const cdp = await page.context().newCDPSession(page);
+    await press(page);
+    await page.evaluate(() => {
+      const seen: number[] = [];
+      (window as unknown as { longTasks: number[] }).longTasks = seen;
+      new PerformanceObserver((list) => {
+        for (const entry of list.getEntries()) seen.push(entry.duration);
+      }).observe({ type: 'longtask' });
+    });
+    await cdp.send('Emulation.setCPUThrottlingRate', {
+      rate: PHONE_CPU_SLOWDOWN,
+    });
+    await expect(page.locator('.fall-hopper[data-settled]')).toBeAttached({
+      timeout: CLIMB_MS,
+    });
+    await cdp.send('Emulation.setCPUThrottlingRate', { rate: 1 });
+    const tasks = await page.evaluate(
+      () => (window as unknown as { longTasks: number[] }).longTasks,
+    );
+    expect(
+      tasks.filter((ms) => ms > LONG_TASK_MS).map(Math.round),
+      'a task blocks the page while the heap settles and the climb is planned',
+    ).toEqual([]);
+  });
+}
+
+/* px kept clear under the risen Put It Back: twice its focus ring's reach, from the tokens let-it-fall.ts ringReach reads; the two must agree. */
+const floatGap = (page: Page) =>
+  page.evaluate(
+    () =>
+      2 *
+      ['--focus-width', '--focus-gap', '--lift-control']
+        .map((name) =>
+          parseFloat(
+            getComputedStyle(document.documentElement).getPropertyValue(name),
+          ),
+        )
+        .reduce((sum, px) => sum + px, 0),
+  );
 
 /* Short enough on /blog that the heap does not fit under Put It Back and moves down past the screen. */
 const SINKING = { route: '/blog', width: DESKTOP, height: 500 } as const;
@@ -548,39 +686,66 @@ for (const [route, width, height, motion] of [
     await expect
       .poll(() => button.evaluate((el) => el.getAnimations().length))
       .toBe(0);
-    const found = await button.evaluate((el, gap) => {
-      const own = el.getBoundingClientRect();
-      const SHARES = [0.1, 0.5, 0.9];
-      const covered = SHARES.some((x) =>
-        SHARES.some((y) => {
-          const hit = document.elementFromPoint(
-            own.left + own.width * x,
-            own.top + own.height * y,
-          );
-          return !hit || !el.contains(hit);
-        }),
-      );
-      const ceiling = own.bottom + gap;
-      const blocks = [...document.querySelectorAll('[data-fell]')].map(
-        (block) => block.getBoundingClientRect(),
-      );
-      const above = blocks.filter(({ top }) => top < ceiling - 1).length;
-      /* The heap shows on screen, and scrolling reaches all of it. */
-      const shown = blocks.some(({ top }) => top < innerHeight);
-      const lowest = Math.max(...blocks.map(({ bottom }) => bottom)) + scrollY;
-      const reachable = lowest <= document.documentElement.scrollHeight + 1;
-      return { onScreen: own.top >= 0, covered, above, shown, reachable };
-    }, FLOAT_GAP);
+    const found = await button.evaluate(
+      (el, gap) => {
+        const own = el.getBoundingClientRect();
+        const SHARES = [0.1, 0.5, 0.9];
+        const covered = SHARES.some((x) =>
+          SHARES.some((y) => {
+            const hit = document.elementFromPoint(
+              own.left + own.width * x,
+              own.top + own.height * y,
+            );
+            return !hit || !el.contains(hit);
+          }),
+        );
+        const ceiling = own.bottom + gap;
+        const blocks = [...document.querySelectorAll('[data-fell]')].map(
+          (block) => block.getBoundingClientRect(),
+        );
+        const above = blocks.filter(({ top }) => top < ceiling - 1).length;
+        /* The heap shows on screen, and scrolling reaches all of it. */
+        const shown = blocks.some(({ top }) => top < innerHeight);
+        const sank = blocks.some(({ bottom }) => bottom > innerHeight);
+        /* Scrolled to the page's end, the heap's lowest block is on screen. */
+        const start = scrollY;
+        scrollTo({
+          top: document.documentElement.scrollHeight,
+          behavior: 'instant',
+        });
+        const lowest = Math.max(
+          ...[...document.querySelectorAll('[data-fell]')].map(
+            (block) => block.getBoundingClientRect().bottom,
+          ),
+        );
+        scrollTo({ top: start, behavior: 'instant' });
+        const reachable = lowest <= innerHeight + 1;
+        return {
+          onScreen: own.top >= 0,
+          covered,
+          above,
+          shown,
+          reachable,
+          sank,
+        };
+      },
+      await floatGap(page),
+    );
     expect(
       found,
-      'Put It Back is off screen or covered, a block lies above its gap, or the heap is out of reach',
+      'Put It Back is off screen or covered, a block lies above its gap, the heap is out of reach, or it sank on a screen it fits',
     ).toEqual({
       onScreen: true,
       covered: false,
       above: 0,
       shown: true,
       reachable: true,
+      sank: route === SINKING.route,
     });
+    expect(
+      await coveredTargets(page),
+      'a target in the heap is above the page or partly covered (SC 2.5.8)',
+    ).toEqual([]);
   });
 }
 
@@ -770,11 +935,8 @@ test('the mascot climbs onto the heap, covers no control, and hops home', async 
   );
 });
 
-test('without JavaScript there is no button', async ({ browser, baseURL }) => {
-  const context = await browser.newContext({
-    baseURL,
-    javaScriptEnabled: false,
-  });
+test('without JavaScript there is no button', async ({ browser }) => {
+  const context = await browser.newContext({ javaScriptEnabled: false });
   const page = await context.newPage();
   await page.goto(ROUTE);
   await expect(page.getByRole('button', FALL)).toHaveCount(0);

@@ -1,4 +1,7 @@
-/* Let It Fall: everything on screen drops and stacks into a heap, and the footer mascot climbs onto the button; the same button, Esc, keyboard focus elsewhere or a new window width puts it back. */
+/*
+ * Let It Fall: everything on screen drops and stacks into a heap, and the footer mascot climbs onto the button.
+ * The same button, Esc, keyboard focus elsewhere or a new window width puts it back.
+ */
 import {
   createHopper,
   ignoreCancel,
@@ -25,8 +28,6 @@ const SOLID_GAP = 12;
 const STACK_GAP = 4;
 /* px between blocks when the heap packs tight to fit under Put It Back. */
 const TIGHT_GAP = 1;
-/* px kept clear under the risen Put It Back: its focus ring's reach, 12px, twice over. Matches tests/let-it-fall.spec.ts. */
-const FLOAT_GAP = 24;
 /* Rises without overshoot, so it never passes the top of the screen. */
 const RISE_EASING = 'cubic-bezier(0.2, 0.8, 0.2, 1)';
 /* The main menu bar: a shelf in the heap about two thirds down, and the mascot's ledge on its climb. */
@@ -95,13 +96,24 @@ const clear = (color: string): boolean => {
   const parts = color.match(/[\d.]+/g) ?? [];
   return parts.length === RGBA_PARTS && Number(parts[RGBA_PARTS - 1]) === 0;
 };
-/* The fill a block's text was drawn on, so it keeps its contrast wherever it lands (SC 1.4.3). */
-const ground = (el: Element): string => {
-  for (let at: Element | null = el; at; at = at.parentElement) {
-    const fill = getComputedStyle(at).backgroundColor;
-    if (!clear(fill)) return fill;
+/* The fill a block's text was drawn on, so it keeps its contrast wherever it lands (SC 1.4.3); `known` saves each one read. */
+type Grounds = Map<Element, string>;
+const ground = (el: Element, known: Grounds = new Map()): string => {
+  const walked: Element[] = [];
+  let fill = '';
+  for (let at: Element | null = el; at && !fill; at = at.parentElement) {
+    const seen = known.get(at);
+    if (seen !== undefined) {
+      fill = seen;
+      break;
+    }
+    walked.push(at);
+    const own = getComputedStyle(at).backgroundColor;
+    if (!clear(own)) fill = own;
   }
-  return getComputedStyle(document.body).backgroundColor;
+  fill ||= getComputedStyle(document.body).backgroundColor;
+  for (const at of walked) known.set(at, fill);
+  return fill;
 };
 
 let fallen: HTMLElement[] = [];
@@ -136,7 +148,10 @@ const free = (el: Element): boolean => {
   return true;
 };
 
-/* A sticky header's heap would stay on screen as the page scrolls: held in flow where it is now, it scrolls with the rest, and drops below the button's layer. */
+/*
+ * A sticky header's heap would stay on screen as the page scrolls. Held in flow
+ * where it is now, it scrolls with the rest, and drops below the button's layer.
+ */
 const PINNED = [
   'position',
   'z-index',
@@ -214,9 +229,9 @@ const lowestFit = (
   ]
     .filter((g) => g <= floor)
     .sort((a, b) => b - a);
-  const free = (g: number) =>
+  const clearAt = (g: number) =>
     !column.some((spot) => g - tall < spot.bottom + gap && spot.top - gap < g);
-  const fits = grounds.filter(free);
+  const fits = grounds.filter(clearAt);
   /* Nowhere free: on top of everything in its column. */
   const over = Math.min(floor, ...column.map((spot) => spot.top - gap));
   return fits.find((g) => g - tall >= ceiling) ?? fits.at(-1) ?? over;
@@ -239,39 +254,54 @@ const reach = (el: Element): DOMRect =>
       );
     }, el.getBoundingClientRect());
 
+/* A block's box, everything it draws, and whether any part of it is painted: read once per fall, before anything moves. */
+type Size = { box: DOMRect; drawn: DOMRect; shows: boolean };
+type Sizes = Map<Element, Size>;
+const measure = (blocks: HTMLElement[], known: Grounds): Sizes =>
+  new Map(
+    blocks.map((el) => [
+      el,
+      {
+        box: el.getBoundingClientRect(),
+        drawn: reach(el),
+        shows: [el, ...el.querySelectorAll('*')].some((part) =>
+          painted(part, known),
+        ),
+      },
+    ]),
+  );
+
 /* Each block takes its tilted box's room, so no two overlap and every target stays whole (SC 2.5.8). */
 const stack = (
   blocks: HTMLElement[],
   room: Room,
   solid: Spot[],
+  sizes: Sizes,
 ): { landings: Landing[]; heap: Spot[] } => {
   const screen = document.documentElement.clientWidth;
   const sized = blocks.map((el) => {
-    const box = el.getBoundingClientRect();
+    const size = sizes.get(el)!;
     return {
       el,
-      box,
-      reach: reach(el),
-      small: box.width < screen * SMALL_SHARE,
+      ...size,
+      small: size.box.width < screen * SMALL_SHARE,
       key: Math.random(),
     };
   });
   /*
-   * Wide blocks first, shuffled; then small ones, widest first, into the lowest
-   * gaps, bare labels before painted ones, so painted blocks the mascot can climb top the heap.
+   * Wide blocks first, shuffled; then small ones, widest first, into the lowest gaps.
+   * Bare labels go before painted ones, so painted blocks the mascot can climb top the heap.
    */
-  const shows = (el: Element) =>
-    [el, ...el.querySelectorAll('*')].some((part) => painted(part));
   const small = sized
     .filter((b) => b.small)
     .sort((a, b) => b.box.width - a.box.width);
   const order = [
     ...sized.filter((b) => !b.small).sort((a, b) => a.key - b.key),
-    ...small.filter((b) => !shows(b.el)),
-    ...small.filter((b) => shows(b.el)),
+    ...small.filter((b) => !b.shows),
+    ...small.filter((b) => b.shows),
   ];
   const heap = [...solid];
-  const landings = order.map(({ el, box, reach: drawn, small }, rank) => {
+  const landings = order.map(({ el, box, drawn, small }, rank) => {
     const turn = room.tilt ? spread(small ? SMALL_TURN_DEG : WIDE_TURN_DEG) : 0;
     /* What the block draws, turned about its own center as the transform turns it. */
     const centerX = box.left + box.width / 2;
@@ -296,11 +326,11 @@ const stack = (
     if (small) {
       let best = -Infinity;
       for (let x = lo; x <= hi; x += SLOT_STEP) {
-        const ground =
+        const floorAt =
           lowestFit(heap, x, x + wide, tall, room) +
           Math.random() * SLOT_JITTER;
-        if (ground > best) {
-          best = ground;
+        if (floorAt > best) {
+          best = floorAt;
           left = x;
         }
       }
@@ -326,18 +356,20 @@ const stack = (
 const FEET_SHARE = 0.5;
 /* px: how far apart the surfaces under its feet may be. */
 const LEVEL_SLACK = 6;
-/* px a focus ring reaches past its control: --focus-width + --focus-gap + --lift-control, as the press rule draws it. */
+/* px a focus ring reaches past its control, as the press rule draws it; tests/let-it-fall.spec.ts floatGap reads the same tokens. */
 const ringReach = (): number =>
   ['--focus-width', '--focus-gap', '--lift-control']
     .map((name) => parseFloat(token(name)))
     .reduce((sum, px) => sum + px, 0);
+/* px kept clear under the risen Put It Back: its focus ring's reach, and as much again before the heap. */
+const floatGap = (): number => 2 * ringReach();
 /* px between its sticker's edge and the surface, so it rests on it without overlapping. */
 const TOUCH = 1;
 /* Points per side checked inside the mascot's box, which must be empty. */
 const ROOM_PROBES = 4;
 
 /* Seen against what lies behind it: an image, or a fill or edge unlike the ground its parent stands on. */
-const painted = (el: Element): boolean => {
+const painted = (el: Element, known?: Grounds): boolean => {
   const style = getComputedStyle(el);
   if (style.visibility !== 'visible' || Number(style.opacity) === 0) {
     return false;
@@ -345,7 +377,7 @@ const painted = (el: Element): boolean => {
   if (el instanceof HTMLImageElement || el instanceof SVGSVGElement) {
     return true;
   }
-  const behind = el.parentElement ? ground(el.parentElement) : '';
+  const behind = el.parentElement ? ground(el.parentElement, known) : '';
   const fill =
     !clear(style.backgroundColor) && style.backgroundColor !== behind;
   const edge =
@@ -357,21 +389,55 @@ const painted = (el: Element): boolean => {
 
 type Edge = { el: Element; a: DOMPoint; b: DOMPoint };
 
+/*
+ * ms of planning before the page gets a turn, so a slow phone never stalls on it.
+ * Planning reads screen coordinates: a scroll or resize between turns starts it over once scrolling rests.
+ */
+const SLICE_MS = 8;
+const SCROLL_REST_MS = 150;
+const SCROLLED = new Error(
+  'let-it-fall: the page scrolled while the climb was planned.',
+);
+type Breathe = () => Promise<void>;
+const scrollRest = (): Promise<void> =>
+  new Promise((resolve) => {
+    let timer = 0;
+    const wait = () => {
+      clearTimeout(timer);
+      timer = window.setTimeout(() => {
+        removeEventListener('scroll', wait);
+        resolve();
+      }, SCROLL_REST_MS);
+    };
+    addEventListener('scroll', wait, { passive: true });
+    wait();
+  });
+const planner = (pile: HTMLElement[]): Breathe => {
+  const view = `${scrollX} ${scrollY} ${innerHeight}`;
+  let slice = performance.now();
+  return async () => {
+    if (performance.now() - slice < SLICE_MS) return;
+    await new Promise((resolve) => setTimeout(resolve));
+    if (fallen !== pile) {
+      throw new DOMException('The page was put back.', 'AbortError');
+    }
+    if (`${scrollX} ${scrollY} ${innerHeight}` !== view) throw SCROLLED;
+    slice = performance.now();
+  };
+};
+
 /* The top edges of every painted part of the heap, turned as their block is turned, and Put It Back's. */
-const topEdges = (): Edge[] => {
-  const parts = fallen.flatMap((block) =>
-    [block, ...block.querySelectorAll('*')].map((el) => ({ el, block })),
-  );
-  const edges = parts
-    .filter(({ el }) => el instanceof HTMLElement && painted(el))
-    .map(({ el, block }) => {
+const topEdges = async (breathe: Breathe): Promise<Edge[]> => {
+  const known: Grounds = new Map();
+  const edges: Edge[] = [];
+  for (const block of fallen) {
+    await breathe();
+    const turn = new DOMMatrix(getComputedStyle(block).transform);
+    const angle = Math.atan2(turn.b, turn.a);
+    for (const el of [block, ...block.querySelectorAll('*')]) {
+      if (!(el instanceof HTMLElement) || !painted(el, known)) continue;
       const box = el.getBoundingClientRect();
-      const turn = new DOMMatrix(getComputedStyle(block).transform);
-      const angle = Math.atan2(turn.b, turn.a);
-      const half = {
-        w: (el as HTMLElement).offsetWidth / 2,
-        h: (el as HTMLElement).offsetHeight / 2,
-      };
+      const half = { w: el.offsetWidth / 2, h: el.offsetHeight / 2 };
       const cx = box.left + box.width / 2;
       const cy = box.top + box.height / 2;
       const corner = (dx: number, dy: number) =>
@@ -379,41 +445,24 @@ const topEdges = (): Edge[] => {
           cx + dx * Math.cos(angle) - dy * Math.sin(angle),
           cy + dx * Math.sin(angle) + dy * Math.cos(angle),
         );
-      return { el, a: corner(-half.w, -half.h), b: corner(half.w, -half.h) };
-    })
-    .filter(({ a, b }) => Math.abs(b.x - a.x) > 1);
+      const a = corner(-half.w, -half.h);
+      const b = corner(half.w, -half.h);
+      if (Math.abs(b.x - a.x) > 1) edges.push({ el, a, b });
+    }
+  }
   const own = button.getBoundingClientRect();
-  return [
-    ...edges,
-    {
-      el: button,
-      a: new DOMPoint(own.left, own.top),
-      b: new DOMPoint(own.right, own.top),
-    },
-  ];
-};
-
-/* y of the highest visible top edge straight down at x: one nothing covers there. */
-const surfaceAt = (
-  edges: Edge[],
-  x: number,
-): { y: number; el: Element } | null => {
-  const under = edges
-    .filter(({ a, b }) => x >= Math.min(a.x, b.x) && x <= Math.max(a.x, b.x))
-    .map(({ el, a, b }) => ({
-      el,
-      y: a.y + ((b.y - a.y) * (x - a.x)) / (b.x - a.x),
-    }))
-    .filter(({ y }) => y >= 0 && y < innerHeight)
-    .sort((p, q) => p.y - q.y);
-  const seen = under.find(({ el, y }) => {
-    const hit = document.elementFromPoint(x, y + LEVEL_SLACK / 2);
-    return hit !== null && el.contains(hit);
+  edges.push({
+    el: button,
+    a: new DOMPoint(own.left, own.top),
+    b: new DOMPoint(own.right, own.top),
   });
-  return seen ? { y: seen.y, el: seen.el } : null;
+  return edges;
 };
 
-/* Nothing fallen and no control inside the mascot's box, nor painting or text unless `overPage`: the page that stays may lie behind it, as it does over the heap and the risen Put It Back. */
+/*
+ * Nothing fallen and no control inside the mascot's box, nor painting or text unless `overPage`.
+ * With `overPage`, the page that stays may lie behind it, as it does over the heap and the risen Put It Back.
+ */
 const roomFor = (
   controls: Guard[],
   left: number,
@@ -501,146 +550,231 @@ const CLIMB_HEIGHT = 96;
 const climbHeight = (): number =>
   Math.min(CLIMB_HEIGHT, mascot?.getBoundingClientRect().height ?? 0);
 
-/* Where the mascot could stand with its middle at x: on the surfaces under its feet, level enough, with room above. */
-const standAt = (
-  edges: Edge[],
-  controls: Guard[],
-  x: number,
-  wide: number,
-  tall: number,
-): number | null => {
-  const reach = (wide * FEET_SHARE) / 2;
-  const levels = [x - reach, x, x + reach].map((at) => surfaceAt(edges, at));
-  if (levels.some((level) => level === null)) return null;
-  const found = levels as { y: number; el: Element }[];
-  const ys = found.map(({ y }) => y);
-  if (Math.max(...ys) - Math.min(...ys) > LEVEL_SLACK) return null;
-  const y = Math.min(...ys) - TOUCH;
-  const under = found.map(({ el }) => el);
-  return roomFor(controls, x - wide / 2, y - tall, wide, tall, true, under)
-    ? y
-    : null;
-};
-
 /* On Put It Back, its seat: on the edge, or above the focus ring while keyboard focus shows it (SC 2.4.11). */
 const seat = (): number =>
   button.getBoundingClientRect().top -
   (button.matches(':focus-visible') ? ringReach() : 0) -
   TOUCH;
 
+type Surface = { y: number; el: Element };
+/*
+ * The highest top edge of `keep` straight down at x that nothing covers there.
+ * Each whole px of x is read once for every search: its edges in order, and whether each is seen.
+ */
+const surfaceFinder = (edges: Edge[]) => {
+  const columns = new Map<number, (Surface & { seen?: boolean })[]>();
+  return (x: number, keep: Set<Element>): Surface | null => {
+    const key = Math.round(x);
+    let column = columns.get(key);
+    if (!column) {
+      column = edges
+        .filter(
+          ({ a, b }) => key >= Math.min(a.x, b.x) && key <= Math.max(a.x, b.x),
+        )
+        .map(({ el, a, b }) => ({
+          el,
+          y: a.y + ((b.y - a.y) * (key - a.x)) / (b.x - a.x),
+        }))
+        .filter(({ y }) => y >= 0 && y < innerHeight)
+        .sort((p, q) => p.y - q.y);
+      columns.set(key, column);
+    }
+    for (const part of column) {
+      if (!keep.has(part.el)) continue;
+      if (part.seen === undefined) {
+        const hit = document.elementFromPoint(key, part.y + LEVEL_SLACK / 2);
+        part.seen = hit !== null && part.el.contains(hit);
+      }
+      if (part.seen) return { y: part.y, el: part.el };
+    }
+    return null;
+  };
+};
+type SurfaceFinder = ReturnType<typeof surfaceFinder>;
+
+/* A place the mascot could stand, its middle at x, on the parts under its feet. */
+type Footing = Foot & { under: Element[] };
+
+/*
+ * Places on these edges for a mascot this wide, its feet level: its middle at the
+ * middle of every edge it fits on and as near each end as its feet allow.
+ */
+const footings = async (
+  pick: Edge[],
+  surface: SurfaceFinder,
+  wide: number,
+  breathe: Breathe,
+): Promise<Footing[]> => {
+  const screen = document.documentElement.clientWidth;
+  const feet = (wide * FEET_SHARE) / 2;
+  const lo = EDGE + wide / 2;
+  const hi = screen - EDGE - wide / 2;
+  const xs = new Set<number>();
+  for (const { a, b } of pick) {
+    const left = Math.min(a.x, b.x);
+    const right = Math.max(a.x, b.x);
+    /* Each end, standing across onto a level neighbor; then along the edge a mascot's width apart. */
+    const along = [left, right, (left + right) / 2];
+    for (let x = left + feet; x <= right - feet; x += wide) along.push(x);
+    if (right - left >= 2 * feet) along.push(right - feet);
+    for (const x of along) xs.add(Math.round(Math.min(hi, Math.max(lo, x))));
+  }
+  const keep = new Set(pick.map(({ el }) => el));
+  const found: Footing[] = [];
+  for (const x of xs) {
+    await breathe();
+    const steps = [x - feet, x, x + feet].map((at) => surface(at, keep));
+    if (steps.some((step) => !step)) continue;
+    const ys = (steps as Surface[]).map(({ y }) => y);
+    if (Math.max(...ys) - Math.min(...ys) > LEVEL_SLACK) continue;
+    found.push({
+      x,
+      y: Math.min(...ys) - TOUCH,
+      under: (steps as Surface[]).map(({ el }) => el),
+    });
+  }
+  return found;
+};
+
+/* The first place, in `rank` order, with room for the mascot's box above it. */
+const firstWithRoom = async (
+  places: Footing[],
+  guards: Guard[],
+  wide: number,
+  tall: number,
+  rank: (place: Footing) => number,
+  breathe: Breathe,
+): Promise<Footing | null> => {
+  for (const place of [...places].sort((p, q) => rank(p) - rank(q))) {
+    await breathe();
+    const { x, y, under } = place;
+    if (roomFor(guards, x - wide / 2, y - tall, wide, tall, true, under)) {
+      return place;
+    }
+  }
+  return null;
+};
+
+const highestFirst = ({ y }: Foot): number => y;
+
 /* On top of Put It Back, clear of its label; else the highest place on the heap. At the largest size that fits. */
-const perch = (edges: Edge[], controls: Guard[]): Hop | null => {
+const perch = async (
+  edges: Edge[],
+  controls: Guard[],
+  surface: SurfaceFinder,
+  breathe: Breathe,
+): Promise<Hop | null> => {
   if (!mascot) return null;
   const box = mascot.getBoundingClientRect();
   if (!box.width) return null;
   const ratio = box.width / box.height;
-  const screen = document.documentElement.clientWidth;
   const own = button.getBoundingClientRect();
-  const hop = (
-    x: number,
-    y: number,
-    scale: number,
-    wide: number,
-    tall: number,
-  ): Hop => ({
+  const hop = ({ x, y }: Foot, wide: number, tall: number): Hop => ({
     x: x - wide / 2 - box.left,
     y: y - tall - box.top,
-    scale,
+    scale: tall / box.height,
     foot: { x, y },
     wide,
     tall,
   });
-  for (const scale of HOP_SCALES) {
+  const sizes = HOP_SCALES.map((scale) => {
     const tall = climbHeight() * scale;
-    const wide = tall * ratio;
+    return { tall, wide: tall * ratio };
+  });
+  for (const { wide, tall } of sizes) {
     const middle = own.left + own.width / 2;
     const y = seat();
     if (roomFor(controls, middle - wide / 2, y - tall, wide, tall, true)) {
-      return hop(middle, y, tall / box.height, wide, tall);
+      return hop({ x: middle, y }, wide, tall);
     }
   }
-  for (const scale of HOP_SCALES) {
-    const tall = climbHeight() * scale;
-    const wide = tall * ratio;
-    let best: { x: number; y: number } | null = null;
-    for (
-      let x = EDGE + wide / 2;
-      x + wide / 2 <= screen - EDGE;
-      x += SLOT_STEP
-    ) {
-      const y = standAt(edges, [...controls, buttonGuard()], x, wide, tall);
-      if (y !== null && (!best || y < best.y)) best = { x, y };
-    }
-    if (best) return hop(best.x, best.y, tall / box.height, wide, tall);
+  const guards = [...controls, buttonGuard()];
+  for (const { wide, tall } of sizes) {
+    const places = await footings(edges, surface, wide, breathe);
+    const best = await firstWithRoom(
+      places,
+      guards,
+      wide,
+      tall,
+      highestFirst,
+      breathe,
+    );
+    if (best) return hop(best, wide, tall);
   }
   return null;
 };
 
 /*
- * Visible places to land on the way from the footer: up the heap, onto the ledge
- * beside Put It Back when there is one, then the perch.
+ * Visible places to land on the way from the footer: up the heap, onto the menu
+ * shelf, higher up the heap, then the perch.
  */
-const stones = (
+const stones = async (
   edges: Edge[],
   controls: Guard[],
   spot: Hop,
   ledge: Element | undefined,
-): Foot[] => {
+  surface: SurfaceFinder,
+  breathe: Breathe,
+): Promise<Foot[]> => {
   if (!mascot) return [];
-  const guard = [...controls, buttonGuard()];
-  const box = mascot.getBoundingClientRect();
+  const guards = [...controls, buttonGuard()];
+  const { wide, tall } = spot;
+  const roomy = (places: Footing[], rank: (place: Footing) => number) =>
+    firstWithRoom(places, guards, wide, tall, rank, breathe);
   const onLedge = edges.filter(({ el }) => ledge?.contains(el));
   const heap = edges.filter(({ el }) => !ledge?.contains(el) && el !== button);
   /* On the menu shelf, as near its clear stretch in the middle as it has room. */
-  const screen = document.documentElement.clientWidth;
-  const middle = screen / 2;
-  const across = (pick: Edge[]): Foot[] => {
-    const found: Foot[] = [];
-    for (
-      let x = EDGE + spot.wide / 2;
-      x + spot.wide / 2 <= screen - EDGE;
-      x += SLOT_STEP
-    ) {
-      const y = standAt(pick, guard, x, spot.wide, spot.tall);
-      if (y !== null) found.push({ x, y });
-    }
-    return found;
-  };
-  const nearest = (all: Foot[], x: number) =>
-    all.reduce<Foot | null>(
-      (best, place) =>
-        !best || Math.abs(place.x - x) < Math.abs(best.x - x) ? place : best,
-      null,
-    );
-  const highestOf = (all: Foot[]) =>
-    all.reduce<Foot | null>(
-      (best, place) => (!best || place.y < best.y ? place : best),
-      null,
-    );
-  const ledgeStone = nearest(across(onLedge), middle);
-  const shelfTop = ledge?.getBoundingClientRect().top ?? box.bottom;
-  const places = across(heap);
-  /* Below the shelf: the highest place with headroom, if any. */
-  const lower = highestOf(places.filter(({ y }) => y > shelfTop));
-  /* Above it: the highest place, and one about halfway up from the shelf. */
-  const upperPlaces = places.filter(({ y }) => y <= shelfTop);
-  const highest = highestOf(upperPlaces);
-  const halfway = highest
-    ? upperPlaces
-        .filter(({ y }) => y > highest.y + spot.tall / 2)
-        .reduce<Foot | null>(
-          (best, place) =>
-            !best ||
-            Math.abs(place.y - (shelfTop + highest.y) / 2) <
-              Math.abs(best.y - (shelfTop + highest.y) / 2)
-              ? place
-              : best,
-          null,
-        )
-    : null;
-  return [lower, ledgeStone, halfway, highest, spot.foot].filter(
-    (place): place is Foot => place !== null,
+  const middle = document.documentElement.clientWidth / 2;
+  const ledgeStone = await roomy(
+    await footings(onLedge, surface, wide, breathe),
+    ({ x }) => Math.abs(x - middle),
   );
+  const shelfTop =
+    ledge?.getBoundingClientRect().top ?? mascot.getBoundingClientRect().bottom;
+  const places = await footings(heap, surface, wide, breathe);
+  /* Below the shelf: the highest place with headroom, if any. */
+  const lower = await roomy(
+    places.filter(({ y }) => y > shelfTop),
+    highestFirst,
+  );
+  /* Above it: the highest place, and one about halfway up from the shelf. */
+  const upper = places.filter(({ y }) => y <= shelfTop);
+  const highest = await roomy(upper, highestFirst);
+  const halfway = highest
+    ? await roomy(
+        upper.filter(({ y }) => y > highest.y + tall / 2),
+        ({ y }) => Math.abs(y - (shelfTop + highest.y) / 2),
+      )
+    : null;
+  return [lower, ledgeStone, halfway, highest, spot.foot]
+    .filter((place): place is Foot => place !== null)
+    .map(({ x, y }) => ({ x, y }));
+};
+
+/* The mascot's perch and, for the posed climb, its stones, read from the landed heap in slices; a scroll starts it over. */
+const planClimb = async (
+  pile: HTMLElement[],
+  posed: boolean,
+): Promise<{ spot: Hop; path: Foot[] } | null> => {
+  for (;;) {
+    const breathe = planner(pile);
+    try {
+      const edges = await topEdges(breathe);
+      const controls = controlBoxes();
+      const surface = surfaceFinder(edges);
+      const spot = await perch(edges, controls, surface, breathe);
+      if (!spot) return null;
+      const ledge = pile.find((el) => el.matches(LEDGE));
+      const path = posed
+        ? await stones(edges, controls, spot, ledge, surface, breathe)
+        : [];
+      return { spot, path };
+    } catch (error) {
+      if (error !== SCROLLED) throw error;
+      await scrollRest();
+      if (fallen !== pile) return null;
+    }
+  }
 };
 
 const HOP_VARS = ['--hop-x', '--hop-y', '--hop-scale'];
@@ -692,21 +826,34 @@ const home = (el: HTMLElement): void => {
   }
 };
 
-const drop = ({ el, x, y, turn, rank }: Landing): Animation | null => {
+/*
+ * Read for every block before any moves, so the page lays out once: the fill it keeps, and
+ * its raise above content that stays, as a tall card or the footer band, which would paint over the heap.
+ */
+type Look = { fill: string; raise: string | null };
+const look = (el: HTMLElement, known: Grounds): Look => {
+  const style = getComputedStyle(el);
+  const raise =
+    style.zIndex !== 'auto'
+      ? null
+      : style.position === 'static'
+        ? 'static'
+        : '';
+  return { fill: ground(el, known), raise };
+};
+
+const drop = (
+  { el, x, y, turn, rank }: Landing,
+  { fill, raise }: Look,
+  duration: number,
+): Animation | null => {
   el.style.setProperty('--fall-x', `${x}px`);
   el.style.setProperty('--fall-y', `${y}px`);
   el.style.setProperty('--fall-turn', `${turn}deg`);
-  el.style.setProperty('--fall-ground', ground(el));
+  el.style.setProperty('--fall-ground', fill);
   el.setAttribute('data-fall-block', '');
   el.setAttribute('data-fell', '');
-  /* Above content that stays, as a tall card or the footer band: it comes later and would paint over the heap. */
-  const style = getComputedStyle(el);
-  if (style.zIndex === 'auto') {
-    el.setAttribute(
-      'data-fall-raised',
-      style.position === 'static' ? 'static' : '',
-    );
-  }
+  if (raise !== null) el.setAttribute('data-fall-raised', raise);
   if (!motion.matches) return null;
   const at = (lift: number) =>
     `translate(${x}px, ${y - lift}px) rotate(${turn}deg)`;
@@ -717,11 +864,7 @@ const drop = ({ el, x, y, turn, rank }: Landing): Animation | null => {
       { transform: at(BOUNCE), offset: BOUNCE_AT, easing: 'ease-in' },
       { transform: at(0) },
     ],
-    {
-      duration: fallTime(),
-      delay: rank * LAND_STAGGER_MS,
-      fill: 'backwards',
-    },
+    { duration, delay: rank * LAND_STAGGER_MS, fill: 'backwards' },
   );
 };
 
@@ -754,8 +897,8 @@ const floatButton = (): DOMRect => {
     getComputedStyle(header).position === 'sticky'
       ? header.getBoundingClientRect().bottom
       : 0;
-  const seat = climbHeight() + ringReach();
-  const top = Math.max(0, stuck) + EDGE + seat;
+  const perchRoom = climbHeight() + ringReach();
+  const top = Math.max(0, stuck) + EDGE + perchRoom;
   const left = (document.documentElement.clientWidth - own.width) / 2;
   button.style.setProperty('--float-x', `${left - own.left}px`);
   button.style.setProperty('--float-y', `${top - own.top}px`);
@@ -810,14 +953,15 @@ const shelve = (
   blocks: HTMLElement[],
   room: Room,
   solid: Spot[],
+  sizes: Sizes,
 ): Landing[] => {
   const screen = document.documentElement.clientWidth;
   const wide = blocks.filter(
-    (el) => el.getBoundingClientRect().width >= screen * SMALL_SHARE,
+    (el) => sizes.get(el)!.box.width >= screen * SMALL_SHARE,
   );
   const small = blocks.filter((el) => !wide.includes(el));
-  const under = stack(wide, room, solid);
-  const drawn = reach(shelf);
+  const under = stack(wide, room, solid, sizes);
+  const { drawn } = sizes.get(shelf)!;
   const wideTop = wide.length
     ? Math.min(...under.heap.slice(solid.length).map(({ top }) => top))
     : room.floor;
@@ -840,14 +984,14 @@ const shelve = (
   for (let over = blocking(); over; over = blocking()) {
     top = over.top - drawn.height;
     if (top < highestShelf)
-      return stack([shelf, ...blocks], room, solid).landings;
+      return stack([shelf, ...blocks], room, solid, sizes).landings;
   }
   /* Too little room above them for the shelf: the wide blocks move down under it. */
-  const drop = Math.max(0, top + drawn.height + room.gap - wideTop);
+  const lowerBy = Math.max(0, top + drawn.height + room.gap - wideTop);
   const lowered = (spot: Spot): Spot => ({
     ...spot,
-    top: spot.top + drop,
-    bottom: spot.bottom + drop,
+    top: spot.top + lowerBy,
+    bottom: spot.bottom + lowerBy,
   });
   const below = under.heap.slice(solid.length).map(lowered);
   const middle = screen / 2;
@@ -869,13 +1013,14 @@ const shelve = (
     small,
     { ...room, ceiling: room.ceiling + headroom },
     spots,
+    sizes,
   ).landings;
   return [
     { el: shelf, x: 0, y: top - drawn.top, turn: 0, top, rank: 0 },
     ...under.landings.map((landing) => ({
       ...landing,
-      y: landing.y + drop,
-      top: landing.top + drop,
+      y: landing.y + lowerBy,
+      top: landing.top + lowerBy,
       rank: landing.rank + 1,
     })),
     ...above.map((landing) => ({
@@ -883,6 +1028,60 @@ const shelve = (
       rank: landing.rank + under.landings.length + 1,
     })),
   ];
+};
+
+/* The pile whose mascot has finished its posed climb, so a switch to reduced motion can hand the perch to the sticker. */
+let climbed: HTMLElement[] | null = null;
+
+/* The footer sticker itself takes the perch: under reduced motion, or when its drawing fails to load. */
+const perchSticker = async (pile: HTMLElement[]): Promise<void> => {
+  if (!mascot) return;
+  /* Lazy below the fold; it must be drawn before it is shown on the perch. */
+  mascot.loading = 'eager';
+  await mascot.decode();
+  if (fallen !== pile) return;
+  const plan = await planClimb(pile, false);
+  if (plan && fallen === pile) hopTo(plan.spot);
+};
+
+/* Once every block and its own transitions have landed, the mascot climbs, or the sticker takes the perch. */
+const settle = async (
+  pile: HTMLElement[],
+  moves: Promise<Animation>[],
+): Promise<void> => {
+  await Promise.all(moves);
+  if (!mascot || fallen !== pile) return;
+  /* A block's own transitions, as a card's lift, start a frame later and must end before the heap is read. */
+  await new Promise((resolve) => requestAnimationFrame(resolve));
+  const settling = pile.flatMap((el) => el.getAnimations({ subtree: true }));
+  /* One cut short, as by a hover, has settled just the same. */
+  await Promise.allSettled(settling.map((a) => a.finished));
+  if (fallen !== pile) return;
+  const climber = hopper;
+  if (motion.matches && climber) {
+    const plan = await planClimb(pile, true);
+    if (fallen !== pile) return;
+    if (plan && motion.matches) {
+      try {
+        await climber.climb(plan.path.map(climber.local), plan.spot.scale);
+      } catch (error) {
+        if (error instanceof DOMException && error.name === 'AbortError') {
+          return;
+        }
+        /* The drawing failed to load: the sticker takes the perch instead, and the next press tries again. */
+        reportError(error);
+        climber.stop();
+        if (hopper === climber) hopper = null;
+      }
+      if (fallen !== pile) return;
+      if (motion.matches && hopper === climber) {
+        climbed = pile;
+        return;
+      }
+    }
+    climber.stop();
+  }
+  await perchSticker(pile);
 };
 
 const fall = (): void => {
@@ -895,7 +1094,10 @@ const fall = (): void => {
   /* A mascot still hopping home is measured from home, not mid-air. */
   for (const animation of mascot?.getAnimations() ?? []) animation.cancel();
   hopper?.stop();
-  /* WebKit scroll anchoring follows a fallen block's transform and scrolls the page away from the heap. Set on the root before the next layout picks an anchor; WebKit ignores it on the anchor itself. */
+  /*
+   * WebKit scroll anchoring follows a fallen block's transform and scrolls the page away from the heap.
+   * Set on the root before the next layout picks an anchor; WebKit ignores it on the anchor itself.
+   */
   document.documentElement.style.setProperty('overflow-anchor', 'none');
   pin();
   const tallest = innerHeight * TALLEST_SHARE;
@@ -913,10 +1115,8 @@ const fall = (): void => {
     return;
   }
   /* Marked before measuring: a falling footer row shrinks to its link. */
-  for (const el of fallen) {
-    el.setAttribute('data-fall-block', '');
-    settleNow(el);
-  }
+  for (const el of fallen) el.setAttribute('data-fall-block', '');
+  for (const el of fallen) settleNow(el);
   /* Put It Back rises first, centered at its new label's width: the heap fills the screen below it. */
   button.textContent = LABEL_BACK;
   const lifted = floatButton();
@@ -942,10 +1142,10 @@ const fall = (): void => {
       : []),
   ];
   /*
-   * Packed loosely and tilted, then tightly and level; if it still does not fit
-   * under Put It Back, the whole heap moves down past the screen's bottom, where scrolling reaches it.
+   * Packed loosely and tilted, then tightly and level. If it still does not fit under
+   * Put It Back, the whole heap moves down past the screen's bottom, where scrolling reaches it.
    */
-  const ceiling = lifted.bottom + FLOAT_GAP;
+  const ceiling = lifted.bottom + floatGap();
   const loose: Room = {
     floor: innerHeight - EDGE,
     ceiling,
@@ -953,69 +1153,33 @@ const fall = (): void => {
     tilt: true,
   };
   const tight: Room = { ...loose, gap: TIGHT_GAP, tilt: false };
-  const highestOf = (all: Landing[]) => Math.min(...all.map(({ top }) => top));
+  const topOf = (all: Landing[]) => Math.min(...all.map(({ top }) => top));
   const ledge = fallen.find((el) => el.matches(LEDGE));
   const heaped = fallen.filter((el) => el !== ledge);
+  const known: Grounds = new Map();
+  const sizes = measure(fallen, known);
+  const looks = new Map(fallen.map((el) => [el, look(el, known)]));
+  const duration = fallTime();
   const plan = (room: Room): Landing[] =>
     ledge
-      ? shelve(ledge, heaped, room, solid)
-      : stack(heaped, room, solid).landings;
+      ? shelve(ledge, heaped, room, solid, sizes)
+      : stack(heaped, room, solid, sizes).landings;
   let landings = plan(loose);
-  if (highestOf(landings) < ceiling) landings = plan(tight);
-  const sink = Math.max(0, ceiling - highestOf(landings));
-  landings = landings.map((landing) => ({
-    ...landing,
-    y: landing.y + sink,
-    top: landing.top + sink,
-  }));
+  if (topOf(landings) < ceiling) landings = plan(tight);
+  const sink = Math.max(0, ceiling - topOf(landings));
   const moves = landings
-    .map(drop)
+    .map((landing) =>
+      drop(
+        { ...landing, y: landing.y + sink, top: landing.top + sink },
+        looks.get(landing.el)!,
+        duration,
+      ),
+    )
     .filter((a): a is Animation => a !== null)
     .map((a) => a.finished);
   if (motion.matches && mascot) hopper ??= createHopper(mascot);
-  const pile = fallen;
-  void Promise.all(moves)
-    .then(async () => {
-      if (!mascot || fallen !== pile) return;
-      /* A block's own transitions, as a card's lift, start a frame later and must end before the heap is read. */
-      await new Promise((resolve) => requestAnimationFrame(resolve));
-      const settling = pile.flatMap((el) =>
-        el.getAnimations({ subtree: true }),
-      );
-      /* One cut short, as by a hover, has settled just the same. */
-      await Promise.allSettled(settling.map((a) => a.finished));
-      if (fallen !== pile) return;
-      /* Read from the landed heap, so every landing is on something seen. */
-      const edges = topEdges();
-      const controls = controlBoxes();
-      const spot = perch(edges, controls);
-      if (!spot) return;
-      if (hopper && motion.matches) {
-        try {
-          await hopper.climb(
-            stones(edges, controls, spot, ledge).map(hopper.local),
-            spot.scale,
-          );
-          return;
-        } catch (error) {
-          if (error instanceof DOMException && error.name === 'AbortError') {
-            return;
-          }
-          /* The drawing failed to load: the mascot stays home, and the next press tries again. */
-          reportError(error);
-          hopper.stop();
-          hopper = null;
-          return;
-        }
-      }
-      /* Lazy below the fold; it must be drawn before it is shown on the perch. */
-      mascot.loading = 'eager';
-      await mascot.decode();
-      if (fallen === pile) hopTo(spot);
-    })
-    .catch(ignoreCancel);
+  void settle(fallen, moves).catch(ignoreCancel);
   width = innerWidth;
-  button.textContent = LABEL_BACK;
   say(FELL);
 };
 
@@ -1026,6 +1190,8 @@ const restore = (): void => {
     unpin();
     pin();
   }
+  /* Its bar climbs home now: the header takes the pointer again, so the bar works on the way. */
+  header?.style.removeProperty('pointer-events');
   const shift = (header?.getBoundingClientRect().top ?? 0) - before;
   if (mascot?.hasAttribute('data-hopped')) hopTo(null);
   void hopper?.goHome().catch(ignoreCancel);
@@ -1054,6 +1220,7 @@ const restore = (): void => {
     }, ignoreCancel);
   }
   fallen = [];
+  climbed = null;
   button.textContent = LABEL_FALL;
   say(BACK);
 };
@@ -1065,14 +1232,28 @@ button.addEventListener('on-demand', () => {
   if (fallen.length) restore();
   else fall();
 });
-/* Reduced motion switched on mid-climb: the mascot is home at once. */
+/* Reduced motion switched on mid-fall or mid-climb: everything is where it ends at once, and the sticker takes the perch. */
 motion.addEventListener('change', () => {
-  if (!motion.matches) hopper?.stop();
+  if (motion.matches) return;
+  for (const el of [
+    button,
+    ...document.querySelectorAll('[data-fall-block]'),
+  ]) {
+    for (const animation of el.getAnimations()) animation.finish();
+  }
+  hopper?.stop();
+  if (fallen.length && climbed === fallen) {
+    climbed = null;
+    void perchSticker(fallen).catch(ignoreCancel);
+  }
 });
 addEventListener('keydown', (event) => {
   if (event.key === 'Escape' && fallen.length) restore();
 });
-/* SC 2.4.11: keyboard focus never lands on a block out of place. A click or tap on a link or button in the heap focuses without :focus-visible, so it still works; a text field puts the page back. */
+/*
+ * SC 2.4.11: keyboard focus never lands on a block out of place. A click or tap on a link or button
+ * in the heap focuses without :focus-visible, so it still works; a text field puts the page back.
+ */
 addEventListener('focusin', (event) => {
   const target = event.target;
   if (
