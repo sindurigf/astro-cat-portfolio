@@ -163,6 +163,7 @@ WEBKIT_CPUS=8 npm run test:webkit
 | `CI`                            | unset                    | Adds the WebKit project and one retry; set by CI               |
 | `TRUST_DEPENDABOT`              | unset                    | `1` skips `check:commits` for Dependabot's commits             |
 | `APPROVED_TEST_CHANGE`          | unset                    | Any value passes `check:test-weakening` locally; CI ignores it |
+| `GITHUB_BASE_REF`               | unset                    | `check:commits` checks from `origin/<it>`, else `main`         |
 | `COVERAGE`                      | unset                    | `1` builds source maps; set by `test:coverage`                 |
 | `WORKERS_CI`                    | unset                    | `1` skips the build fingerprint, set in Workers Builds         |
 

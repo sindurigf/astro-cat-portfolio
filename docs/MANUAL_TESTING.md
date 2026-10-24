@@ -409,8 +409,58 @@ Heard: `________________________`
 Needs Windows and Apple hardware. Open in ACCESSIBILITY.md §7 gap 2.
 
 - [ ] NVDA: §6 in Chrome and Firefox, plus browse and focus mode in the dialog. → needs Windows
-- [ ] VoiceOver: Safari (`Cmd+F5`, rotor `Ctrl+Opt+U`) and iOS on the mobile
-      menu. → needs a Mac and an iPhone
+- [ ] VoiceOver on a Mac: Safari (`Cmd+F5`, rotor `Ctrl+Opt+U`). → needs a Mac
+
+#### 6.10.1 VoiceOver on iPhone
+
+About 20 minutes, Safari on an iPhone, your site. VoiceOver is in Settings,
+Accessibility, VoiceOver: swipe right for the next item, double-tap to
+activate, three fingers up to scroll. Record the iPhone model, iOS version and
+date; the results are human-confirmed evidence for ACCESSIBILITY.md §6.
+Wording varies between iOS versions: fail a step only when the meaning is
+missing or wrong.
+
+Header:
+
+- [ ] Open your site in Safari. Touch the top left of the page, then swipe right through the header. Expect: your site name, “link”, with no separate image announced for the mark. → SC 1.1.1, 4.1.2
+- [ ] Keep swiping right. Expect: “Theme, collapsed, button”, then “Aa Text Size, collapsed, button”, then “Menu, collapsed, button”. → SC 4.1.2
+
+Menu:
+
+- [ ] Double-tap Menu. Expect: The menu opens and VoiceOver says “Menu” and “dialog”, or moves into it. → SC 4.1.2
+- [ ] Swipe right through the menu. Expect: “Home, link”, “About, link”, “Career, link”, “Blog, link”, “Get in Touch, link”, “Close, button”, and nothing from the page behind it. → SC 2.4.3
+- [ ] Double-tap Close. Expect: Focus lands back on “Menu, collapsed, button”. → SC 2.4.3, 4.1.2
+
+Text size:
+
+- [ ] Double-tap “Aa Text Size”, then swipe right. Expect: It says “expanded”, then “Text Size”, “Drink Me, button, Smaller text”, “Eat Me, button, Larger text”, “Just Right, button, Back to 100 percent” (Just Right dimmed at 100%). → SC 4.1.2
+- [ ] Double-tap Eat Me. Expect: It says “Text is 125%.” and the text grows. → SC 4.1.3, 1.4.4
+- [ ] Double-tap Just Right. Expect: It says “Text is 100%.” and the text is back to normal. → SC 4.1.3
+
+Theme:
+
+- [ ] Double-tap Theme, then swipe right. Expect: It says “expanded”, then “Theme”, then three radio buttons: System, Light, Dark, with the current one “selected”. → SC 4.1.2
+- [ ] Double-tap the theme that is not selected now, Light or Dark. Expect: The page changes theme and that radio button now says “selected”. → SC 4.1.2
+
+Let It Fall:
+
+- [ ] Scroll to the footer (three-finger swipe up), then find “Let It Fall, button”. Expect: “Let It Fall, button”. → SC 4.1.2
+- [ ] Double-tap it. Expect: It says “The page fell down. Press Put It Back to rebuild it.” and the button now reads “Put It Back”. → SC 4.1.3
+- [ ] Double-tap Put It Back. Expect: It says “The page is back in place.” and everything is where it was. → SC 4.1.3
+
+Contact form:
+
+- [ ] Open /contact and swipe to the form. Expect: “Name (required), text field”, then “Email (required), text field”, with “Used to reply, and nothing else.”, then “Message (required)”, with “Between 10 and 5000 characters.” → SC 1.3.1, 3.3.2
+- [ ] Leave every field empty and double-tap Send Message. Expect: The page reloads and VoiceOver starts at “There Are 3 Problems with This Form, heading”, with a link for each problem. → SC 3.3.1, 2.4.3
+- [ ] Double-tap the first problem link. Expect: Focus moves into the Name field, and its error is read with it. → SC 3.3.1
+
+404 Follow Me:
+
+- [ ] Open your site/blgo/how-i-get-to-know-a-new-ilsand (the typos are on purpose). Expect: The first heading is “I’m Late! This Page Is Gone, heading level 1”. No image is announced. → SC 1.3.1, 1.1.1
+- [ ] Swipe right to the White Rabbit's link. Expect: “Follow Me to How I Get to Know a New Island, link”: it names the page the address meant. → SC 2.4.4
+- [ ] Double-tap it. Expect: The How I Get to Know a New Island post opens and its title is read. → SC 2.1.1
+
+Heard: `________________________`
 
 ### 6.11 What to do with the results
 

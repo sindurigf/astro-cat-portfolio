@@ -3,11 +3,12 @@ name: CI
 on:
   push:
     branches: [main]
+  # Every base branch, so a stacked pull request gets the full gate too.
   pull_request:
-    branches: [main]
 
-# A newer push to a pull request makes its in-flight run pointless. On main every
-# commit keeps its own result, so a red commit can still be found.
+# A newer push to a pull request makes its in-flight run pointless; a pull
+# request's ref is refs/pull/<n>/merge, so stacked ones never cancel each other.
+# On main every commit keeps its own result, so a red commit can still be found.
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
@@ -40,10 +41,9 @@ jobs:
           node-version-file: '.nvmrc'
           cache: npm
 
-      # A pull request's commits are checked by `npm run check`, whose
-      # origin/main..HEAD is the pull request here. A push needs its own range.
-      # `before` is all zeros on a branch's first push, and absent from history
-      # after a force push; then only the pushed commit is checked.
+      # `npm run check` covers a pull request's commits. A push needs its own
+      # range; `before` is all zeros on a branch's first push and absent after a
+      # force push, so then only the pushed commit is checked.
       - name: Verify pushed commit messages
         if: ${{ github.event_name == 'push' }}
         env:
