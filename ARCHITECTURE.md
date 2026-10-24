@@ -40,9 +40,11 @@ conventions for this template. Design rules and values are in
   `tests/head.spec.ts` holds the link order, which sets the layer order, and
   `check:classes` fails a page that uses a class from a sheet it does not link.
 - `@astrojs/tailwind` peers at `astro ^3 || ^4 || ^5` and cannot be used.
-- `overrides.sharp` in `package.json` lifts miniflare's exact `sharp@0.35.4`
-  pin to 0.35.5, the fix for GHSA-wq5f-xc86-pv6w. Drop it once miniflare
-  depends on 0.35.5 or later.
+- `overrides.miniflare.undici` lifts miniflare's exact `undici@7.29.1` pin to
+  7.30.1, the fix for GHSA-xjj6-f33q-929c, GHSA-4qv8-2p9j-2685 and
+  GHSA-f72v-6w45-q472. miniflare runs only locally (dev, preview, `wrangler`,
+  `test:worker`); the deployed Worker bundles no undici. Drop it once miniflare
+  depends on 7.30.1 or later.
 - Collection config is `src/content.config.ts` with `glob()` loaders.
 
 ## Site config
