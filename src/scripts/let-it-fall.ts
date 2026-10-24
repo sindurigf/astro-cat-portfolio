@@ -137,12 +137,24 @@ const free = (el: Element): boolean => {
 };
 
 /* A sticky header's heap would stay on screen as the page scrolls: held in flow where it is now, it scrolls with the rest, and drops below the button's layer. */
-const PINNED = ['position', 'z-index', 'top'];
+const PINNED = [
+  'position',
+  'z-index',
+  'top',
+  'pointer-events',
+  'background-color',
+];
+/* Its bar has fallen: the empty box left behind neither hides nor blocks the page that stays under it. */
+const empty = (): void => {
+  header?.style.setProperty('pointer-events', 'none');
+  header?.style.setProperty('background-color', 'transparent');
+};
 const pin = (): void => {
   if (!header) return;
   /* A short screen's static header keeps its z-index, a raised layer its bar would not leave. */
   if (getComputedStyle(header).position !== 'sticky') {
     header.style.setProperty('z-index', 'auto');
+    empty();
     settleNow(header);
     return;
   }
@@ -153,6 +165,7 @@ const pin = (): void => {
     'top',
     `${stuck - header.getBoundingClientRect().top}px`,
   );
+  empty();
   settleNow(header);
 };
 const unpin = (): void => {

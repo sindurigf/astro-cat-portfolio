@@ -269,6 +269,11 @@
     z-index: 1;
   }
 
+  /* The fallen bar takes the pointer back from the header box that let-it-fall.ts empties. */
+  .site-header [data-fell] {
+    pointer-events: auto;
+  }
+
   [data-fall-raised='static'] {
     position: relative;
   }

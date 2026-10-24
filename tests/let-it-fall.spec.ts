@@ -348,6 +348,43 @@ test('on a short screen the static header falls with the page and gets its layer
   );
 });
 
+test('every control that stays on screen stays uncovered while the page is down', async ({
+  page,
+}) => {
+  /* /contact's "More About Me" stays, under where the sticky header was. */
+  await page.setViewportSize({ width: 390, height: 844 });
+  await gotoSettled(page, '/contact');
+  await press(page);
+  await landed(page);
+  const covered = await page.evaluate(() =>
+    [...document.querySelectorAll('a[href], button, input, textarea, select')]
+      .filter(
+        (el) =>
+          el.checkVisibility() &&
+          !el.closest('[data-fell]') &&
+          !el.closest('[data-let-it-fall]'),
+      )
+      .filter((el) => {
+        const r = el.getBoundingClientRect();
+        if (r.bottom <= 0 || r.top >= innerHeight || !r.width) return false;
+        const hit = document.elementFromPoint(
+          r.left + r.width / 2,
+          Math.max(0, r.top) +
+            (Math.min(innerHeight, r.bottom) - Math.max(0, r.top)) / 2,
+        );
+        return !hit || !el.contains(hit);
+      })
+      .map(
+        (el) =>
+          el.textContent?.trim().slice(0, 30) || el.getAttribute('aria-label'),
+      ),
+  );
+  expect(
+    covered,
+    'a control that stays is covered while the page is down',
+  ).toEqual([]);
+});
+
 /* ms: longer than let-it-fall.ts REPEAT_MS, shorter than --fall-time, so the second press lands mid-climb. */
 const PRESS_AGAIN_MS = 400;
 
