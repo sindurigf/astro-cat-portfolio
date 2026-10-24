@@ -26,12 +26,18 @@
   .deck:not(.presenter):fullscreen {
     @apply grid h-full place-content-center overflow-hidden;
     container-type: size;
+    /* The bar's row under the stage: its offset, a target and its throw, a gap, then the slide's ring (SC 2.4.11). */
+    --deck-bar-room: calc(
+      --spacing(2) + var(--spacing-target) + var(--lift-object) + --spacing(2) +
+        var(--focus-width) + var(--focus-gap) + var(--lift-object)
+    );
+    padding-bottom: var(--deck-bar-room);
   }
 
   /*
    * Full screen keeps small controls for pointer and touch: arrows and the
-   * count at the foot, over the margin and the slide's own foot padding, and a
-   * way out in the card's top right corner. No slide puts content under either.
+   * count in a row reserved under the stage, so they never cover a slide or
+   * its focus ring, and a way out in the card's top right corner.
    * Not centered by a transform: that would hold the way out inside the bar.
    */
   :fullscreen:not(.presenter) .deck-bar {
