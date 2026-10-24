@@ -316,7 +316,7 @@ presenter view and a PDF. Authoring rules:
   Slidev's `packages/parser/src/core.ts`), then `renderMarkdown` runs the
   visitors above, with a strict schema
   ([what fails the build](docs/DEVELOPMENT.md#writing-a-talk)).
-- **Slideshow.** Every slide is a `.card` in `<section id="slide-N">`, all in
+- **Slideshow.** Every slide is a `.slide` on the page's ground in `<section id="slide-N">`, all in
   the HTML. `DeckBar.astro` holds the controls and a polite live region;
   `src/scripts/slideshow.ts` wires them and the keys. Hidden slides use
   `data-current`, not `hidden`: Tailwind's `[hidden]` `!important` would stop

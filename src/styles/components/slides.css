@@ -50,8 +50,6 @@
    */
   :fullscreen:not(.presenter) button.deck-exit {
     @apply fixed;
-    /* It sits on the gold slide, where the page's gold edge is 1.00. */
-    border-color: var(--color-block-ink);
     top: calc(max(0px, 50cqh - 100cqw * 9 / 32) + --spacing(9));
     right: calc(max(0px, 50cqw - 100cqh * 8 / 9) + --spacing(15));
   }
@@ -179,8 +177,11 @@
    * the card's own padding.
    */
   /* Juts left by the Step's `--step-x` on the page; translate, so the track never widens. Full screen fills the screen. */
+  /* The page's own ground, not a gold block: gold stays on labels, bold words and edges. */
   .slide {
-    @apply flex flex-col justify-center;
+    @apply relative flex min-w-0 flex-col justify-center border-border bg-background
+      shadow-hard-pink-object;
+    border-width: var(--block-edge);
     translate: calc(var(--step-x) * -1) 0;
     --deck-chrome: calc(var(--spacing-deck-bar) + --spacing(20));
     --slide-pad-inline: var(--spacing-card-tight);
