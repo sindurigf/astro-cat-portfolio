@@ -127,15 +127,8 @@ The `Test weakening` check
 2. Open the failed `Test weakening` check and choose Re-run jobs. A review
    does not start it, and a new push needs a new approval.
 
-GitHub blocks approving your own pull request, so agents need their own
-account. Once, the owner:
-
-1. Creates a machine account for agents and adds it as a collaborator with
-   write access to both repositories.
-2. Gives the agents a fine-grained token for it, scoped to these two
-   repositories with Contents and Pull requests set to read and write.
-3. Removes her own token from the agents' `gh` keyring, so only she can
-   approve.
+Until agents work under their own account, the owner cannot approve:
+[setup](DEPLOYMENT.md#repository-settings).
 
 ### Other notes
 
