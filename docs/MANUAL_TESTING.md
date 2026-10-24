@@ -63,6 +63,8 @@ Setup: Chrome, 1280px, `/`, focus in the address bar.
 - [ ] Enter on Let It Fall: the blocks drop, focus stays on the button, now
       Put It Back; Enter again or Escape puts them back. Shift+Tab from Put
       It Back while fallen also puts them back. → SC 2.1.1, 2.4.11
+- [ ] With a mouse, click any link in the heap: it opens its page. The
+      mascot on top covers no link. → SC 2.5.8
 - [ ] Every stop shows a cyan ring with a visible gap. → SC 2.4.7
 - [ ] Shift+Tab back out: the order reverses exactly. → SC 2.1.2
 - [ ] No stop swallows Tab, Escape or arrow keys. → SC 2.1.2

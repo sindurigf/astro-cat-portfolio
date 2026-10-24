@@ -365,8 +365,9 @@ it stays out of the per-page script budgets (`tests/performance.spec.ts`).
   trigger; later clicks only dispatch. A failed import is reported with
   `reportError` and retried on the next click.
 - A feature file finds its trigger and listens at top level:
-  `trigger.addEventListener('on-demand', ...)`, and ends with `export {};` so
-  TypeScript treats it as a module.
+  `trigger.addEventListener('on-demand', ...)`. One with no imports ends with
+  `export {};` so TypeScript treats it as a module; its imports are inlined,
+  as the build is one IIFE.
 
 Rejected:
 
@@ -881,6 +882,9 @@ evidence.
   foot row crosses the bottom of the focused slide's ring while both show.
   The row shows only while the pointer moves or one of its buttons has focus,
   and inside the card it would sit over slide content at some widths.
+- **Let It Fall should drop the static header on short screens:** under 30rem
+  the header and the footer button never share the screen on any page, so the
+  header is never on screen to fall.
 
 ## Content notes
 
