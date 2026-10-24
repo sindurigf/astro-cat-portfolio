@@ -329,6 +329,9 @@
   --text-slide--line-height: 1.35;
   --text-slide-title: clamp(1.625rem, min(4.4vw, 7.8svh), 4.0625rem);
   --text-slide-title--line-height: 1;
+  /* A slide's group label: --text-h3's 22px over --text-body's 18px, kept against --text-slide. */
+  --text-slide-h3: clamp(1.375rem, min(2.32vw, 3.9svh), 2.625rem);
+  --text-slide-h3--line-height: 1.1;
   /*
    * Page-view slide title. The rem floor lets page zoom reach 2x (SC 1.4.4);
    * 24px keeps every title word inside a 305px slide (STYLEGUIDE soft hyphens).
@@ -341,6 +344,7 @@
    */
   --text-slide-frame: clamp(1.0625rem, 3.46cqh, 2.125rem);
   --text-slide-title-frame: clamp(1.625rem, 8.44cqh, 4.0625rem);
+  --text-slide-h3-frame: clamp(1.375rem, 4.23cqh, 2.625rem);
   --text-slide-number-frame: clamp(4.5rem, 17.3cqh, 10rem);
   /* A part opener's number, height-aware like the two above. */
   --text-slide-number: clamp(4.5rem, 16svh, 10rem);
