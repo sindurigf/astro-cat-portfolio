@@ -435,6 +435,12 @@ Rejected:
   - an `expect` with no matcher, with a `.catch(`, inside a `try` whose
     `catch` does not rethrow, or a locator `expect` left unawaited; a negated
     or renumbered matcher;
+  - an `if` that exits (`return`, `continue`) on `.matches` or `.closest` of
+    a selector held in a name, or a filter that drops such a match, the shape
+    that exempts elements; and a new `const`, `let` or `var` whose upper-case
+    name has an exemption word between underscores (`ALLOW`, `EXEMPT`,
+    `EXCEPT`, `KEEPS`, `SKIP`, `IGNORE`, `WHITELIST`, `FALSE_POSITIVES`) in
+    `tests/`;
   - a changed or removed upper-case numeric constant in `tests/`; a raised or
     removed `*BUDGET*` or `*TOLERANCE*`, a new map key above its fallback, a
     budget multiplied where it is used;
