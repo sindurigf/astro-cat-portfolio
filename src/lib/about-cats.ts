@@ -129,12 +129,12 @@ interface Playing {
   length: number;
   origin: number;
   dir: number;
-  prop?: PropRig;
+  prop: PropRig | undefined;
   /** The prop as last drawn, so a dropped move can fade it out from there. */
   shown?: PropState;
   /** Lying down and getting up play out even while the cat is held. */
   settle: boolean;
-  then?: () => void;
+  then: (() => void) | undefined;
 }
 
 interface CatState extends CatSpot {
@@ -146,14 +146,14 @@ interface CatState extends CatSpot {
   min: number;
   max: number;
   pose: Pose;
-  playing?: Playing;
+  playing?: Playing | undefined;
   asleep: boolean;
   napAt: number;
   holds: Set<Hold>;
   mood: CatMood;
   reportedAsleep: boolean;
   /** When its band left the screen; it is not stepped and its play clock stops meanwhile. */
-  hiddenAt?: number;
+  hiddenAt: number | undefined;
   /** No new move before this; a nap still starts at once. */
   restUntil: number;
   idle: IdleState;

@@ -52,6 +52,8 @@ before changing anything it covers.
   [Heading floors](../../../docs/STYLEGUIDE.md#heading-floors),
   [Uppercase](../../../docs/STYLEGUIDE.md#uppercase),
   [Soft hyphens](../../../docs/STYLEGUIDE.md#soft-hyphens).
+- Case: headings, page titles and buttons in Chicago title case; `.label` and
+  `.badge` text in sentence case ([Uppercase](../../../docs/STYLEGUIDE.md#uppercase)).
 - Spacing and layout: [Spacing scale](../../../docs/STYLEGUIDE.md#spacing-scale),
   [Gutter and column](../../../docs/STYLEGUIDE.md#gutter-and-column).
 - Borders, shadows, radius:
@@ -77,6 +79,6 @@ before changing anything it covers.
 
 - Run the commands in `AGENTS.md`.
 - Tab the page, zoom to 400% and toggle reduced motion.
-- Never suppress an axe or AccessLint rule; a false positive is handled as
-  [DEVELOPMENT.md](../../../docs/DEVELOPMENT.md#other-notes) says.
+- Never suppress an axe, AccessLint or HTML_CodeSniffer rule; a false positive
+  is handled as [DEVELOPMENT.md](../../../docs/DEVELOPMENT.md#other-notes) says.
 - A new color, animation or control usually needs a new assertion.

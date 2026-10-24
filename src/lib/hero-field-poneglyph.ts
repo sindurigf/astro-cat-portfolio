@@ -19,8 +19,18 @@ export const PONEGLYPH = {
 /* Ink over the ground per plane, and the outline's alpha; light falls from the left. */
 const TONE = { face: 0.06, top: 0.02, side: 0.32, plinth: 0.14 } as const;
 const OUTLINE_ALPHA = 0.85;
-/* Cast to the right along the ground, eye heights, and its ink. */
-const SHADOW = { reach: 0.63, alpha: 0.12 } as const;
+/* Cast to the right along the ground, eye heights, and its ink; `tip` and `foot` are shares of the rise and reach. */
+const SHADOW = { reach: 0.63, alpha: 0.12, tip: 0.5, foot: 0.6 } as const;
+/* Contact shadow: shift and lift as shares of the side and rise; disc radii as shares of `rx`. */
+const CONTACT = {
+  shift: 0.5,
+  lift: 0.3,
+  flatten: 0.16,
+  alpha: 0.05,
+  discs: 6,
+  outer: 1.25,
+  step: 0.13,
+} as const;
 
 /* An invented script on a 3 by 3 grid; strokes as flat [x, y, x, y, ...] runs. */
 const GLYPHS: readonly (readonly number[])[] = [
@@ -35,8 +45,14 @@ const GLYPHS: readonly (readonly number[])[] = [
 ];
 /* Columns across the face, the share of the face the script fills, and a glyph's share of its cell. */
 const SCRIPT = { columns: 7, fill: 0.8, glyph: 0.3 } as const;
+/* Scramble which glyph fills each cell. */
+const GLYPH_PICK = { row: 7, column: 3, mix: 5 } as const;
 /* Cut, not drawn: a lit lip below each stroke, the groove above it. */
 const CUT = { lip: 0.8, groove: 0.7 } as const;
+/* The lit lip's shift down and right, in lip widths. */
+const LIP_SHIFT = { x: 0.4, y: 0.8 } as const;
+/* A fully lit glyph's added rim and its glow, in groove widths. */
+const LIT = { rim: 2.6, glow: 1.5 } as const;
 /* Line widths as shares of one eye height in pixels. */
 const LINE = { outline: 0.008, groove: 0.0045, lip: 0.006 } as const;
 
@@ -178,7 +194,13 @@ const script = (
     for (let c = 0; c < SCRIPT.columns; c += 1) {
       const strokes = new Path2D();
       glyphs.push(strokes);
-      const glyph = GLYPHS[(r * 7 + c * 3 + ((r * c) % 5)) % GLYPHS.length]!;
+      const glyph =
+        GLYPHS[
+          (r * GLYPH_PICK.row +
+            c * GLYPH_PICK.column +
+            ((r * c) % GLYPH_PICK.mix)) %
+            GLYPHS.length
+        ]!;
       const cx = x0 + (c + 0.5) * cell;
       const cy = y0 + (r + 0.5) * cell;
       for (let k = 0; k < glyph.length; k += 2) {
@@ -196,7 +218,7 @@ const script = (
   }
   ctx.lineCap = 'round';
   ctx.save();
-  ctx.translate(LINE.lip * unit * 0.4, LINE.lip * unit * 0.8);
+  ctx.translate(LINE.lip * unit * LIP_SHIFT.x, LINE.lip * unit * LIP_SHIFT.y);
   ctx.globalAlpha = CUT.lip;
   ctx.strokeStyle = palette.background;
   ctx.lineWidth = LINE.lip * unit;
@@ -215,10 +237,10 @@ const script = (
     if (light <= 0) return;
     ctx.globalAlpha = 1;
     ctx.strokeStyle = palette.border;
-    ctx.lineWidth = LINE.groove * unit * (1 + 2.6 * light);
+    ctx.lineWidth = LINE.groove * unit * (1 + LIT.rim * light);
     ctx.stroke(strokes);
     ctx.strokeStyle = palette.glow;
-    ctx.lineWidth = LINE.groove * unit * 1.5 * light;
+    ctx.lineWidth = LINE.groove * unit * LIT.glow * light;
     ctx.stroke(strokes);
   });
 };
@@ -237,24 +259,24 @@ export const drawPoneglyph = (
   polygon(ctx, [
     [left - margin, root],
     [right + margin + PONEGLYPH.side * unit, root - PONEGLYPH.rise * unit],
-    [right + margin + reach, root - PONEGLYPH.rise * unit * 0.5],
-    [right + margin + reach * 0.6, root],
+    [right + margin + reach, root - PONEGLYPH.rise * unit * SHADOW.tip],
+    [right + margin + reach * SHADOW.foot, root],
   ]);
   ctx.globalAlpha = SHADOW.alpha;
   ctx.fillStyle = palette.border;
   ctx.fill();
   /* A soft contact shadow, so the base sits on the ground rather than over it. */
-  const cx = (left + right) / 2 + PONEGLYPH.side * unit * 0.5;
+  const cx = (left + right) / 2 + PONEGLYPH.side * unit * CONTACT.shift;
   const rx = (right - left) / 2 + margin + PONEGLYPH.side * unit;
   ctx.save();
-  ctx.translate(cx, root - PONEGLYPH.rise * unit * 0.3);
-  ctx.scale(1, 0.16);
+  ctx.translate(cx, root - PONEGLYPH.rise * unit * CONTACT.lift);
+  ctx.scale(1, CONTACT.flatten);
   /* Stacked translucent discs, ink only: a gradient to the ground would veil stems behind. */
   ctx.fillStyle = palette.border;
-  ctx.globalAlpha = 0.05;
-  for (let k = 0; k < 6; k += 1) {
+  ctx.globalAlpha = CONTACT.alpha;
+  for (let k = 0; k < CONTACT.discs; k += 1) {
     ctx.beginPath();
-    ctx.arc(0, 0, rx * (1.25 - k * 0.13), 0, Math.PI * 2);
+    ctx.arc(0, 0, rx * (CONTACT.outer - k * CONTACT.step), 0, Math.PI * 2);
     ctx.fill();
   }
   ctx.restore();

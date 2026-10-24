@@ -136,8 +136,8 @@ const EMPTY_BLOG = {
           <BlogCard
             {...cardProps(post)}
             feature={feature}
-            cover={post.data.cover}
-            coverAlt={post.data.coverAlt}
+            {...(post.data.cover ? { cover: post.data.cover } : {})}
+            {...(post.data.coverAlt ? { coverAlt: post.data.coverAlt } : {})}
             headingLevel={2}
             class:list={['w-full', fillsRow && 'card-wide']}
           />

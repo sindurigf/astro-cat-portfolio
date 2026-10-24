@@ -5,11 +5,12 @@
 #   2. `cdn-cgi` anywhere in the body, escaped or not
 #   3. `__cf_email__` or `email-protection` in the body
 #   4. a fetching element pointing at another origin, each srcset candidate too
-#   5. an inline <script>/<style> whose sha256 is not in the CSP (not JSON-LD)
+#   5. an inline <script>/<style> whose sha256 is not in the CSP (not a data
+#      block: DATA_SCRIPT_TYPES in scripts/csp-hashes.mjs)
 #   6. an unexpected status
 #   7. CSS or JS under /_astro/ or /vendor/, a favicon or a feed, without
 #      Content-Encoding
-#   8. /sitemap.xml not 301 to /sitemap-index.xml
+#   8. /sitemap.xml not 301 to /sitemap-index.xml, or /about not 301 to /about/
 #   9. a public/_headers pattern no request below exercises
 #  10. an unsent contact email over an hour old (production D1; needs
 #      `npx wrangler login`, or CLOUDFLARE_API_TOKEN with CLOUDFLARE_ACCOUNT_ID;
@@ -79,6 +80,12 @@ STALE_STATEMENT=$(node --input-type=module -e "const { SITE_CONFIG } = await imp
 
 TARGET=${1:-$SITE}
 TARGET=${TARGET%/}
+
+# Script types the CSP does not gate, from the list the build's hashes skip.
+DATA_SCRIPT_TYPES=$(node --input-type=module -e \
+  "import { DATA_SCRIPT_TYPES } from './scripts/csp-hashes.mjs'; console.log(DATA_SCRIPT_TYPES.join(' '))") ||
+  die "could not read DATA_SCRIPT_TYPES from scripts/csp-hashes.mjs"
+[ -n "$DATA_SCRIPT_TYPES" ] || die "scripts/csp-hashes.mjs lists no DATA_SCRIPT_TYPES"
 case "$TARGET" in
   https://*/*) die "pass an origin, not a URL with a path: $TARGET" ;;
   https://?*) ;;
@@ -375,7 +382,9 @@ check_elements() {
     fi
 
     inlines=$((inlines + 1))
-    [ "$value" = application/ld+json ] && continue
+    if [ "$tag" = script ]; then
+      case " $DATA_SCRIPT_TYPES " in *" $value "*) continue ;; esac
+    fi
     check_inline "$1" "$2.$tag.$key.body" "$tag"
   done < "$2.index"
 
@@ -480,23 +489,26 @@ done
 
 check_response "$UNKNOWN_PATH" 404
 
-# The test suite's static server ignores public/_redirects; only checked here.
-SITEMAP_ALIAS=/sitemap.xml
-SITEMAP_TARGET=/sitemap-index.xml
+# Rule 8. The test suites ignore the /sitemap.xml alias; tests/served-types.spec.ts
+# checks the page redirects locally.
 REDIRECT_STATUS=301
-RESPONSES=$((RESPONSES + 1))
-alias_result=$(curl --silent --show-error --max-time "$TIMEOUT_SECONDS" \
-  --user-agent "$USER_AGENT" --output /dev/null \
-  --write-out '%{http_code} %{redirect_url}' "$TARGET$SITEMAP_ALIAS") ||
-  die "could not fetch $TARGET$SITEMAP_ALIAS"
-alias_status=${alias_result%% *}
-alias_location=${alias_result#* }
-if [ "$alias_status" != "$REDIRECT_STATUS" ] ||
-  [ "$alias_location" != "$TARGET$SITEMAP_TARGET" ]; then
-  fail "$SITEMAP_ALIAS" "expected $REDIRECT_STATUS to $TARGET$SITEMAP_TARGET, got $alias_status to ${alias_location:-nothing}"
-else
-  printf 'ok    %s\n' "$SITEMAP_ALIAS"
-fi
+check_redirect() {
+  RESPONSES=$((RESPONSES + 1))
+  redirect_result=$(curl --silent --show-error --max-time "$TIMEOUT_SECONDS" \
+    --user-agent "$USER_AGENT" --output /dev/null \
+    --write-out '%{http_code} %{redirect_url}' "$TARGET$1") ||
+    die "could not fetch $TARGET$1"
+  redirect_status=${redirect_result%% *}
+  redirect_location=${redirect_result#* }
+  if [ "$redirect_status" != "$REDIRECT_STATUS" ] ||
+    [ "$redirect_location" != "$TARGET$2" ]; then
+    fail "$1" "expected $REDIRECT_STATUS to $TARGET$2, got $redirect_status to ${redirect_location:-nothing}"
+  else
+    printf 'ok    %s\n' "$1"
+  fi
+}
+check_redirect /sitemap.xml /sitemap-index.xml
+check_redirect /about /about/
 
 # Rule 11. Hotlink Protection refuses png/jpg/gif/ico referred by another
 # host, which breaks link previews and feed readers; docs/DEPLOYMENT.md.

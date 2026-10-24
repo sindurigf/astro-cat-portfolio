@@ -104,11 +104,9 @@ const heading = outcome ? HEADING[outcome.kind] : TOO_LONG_HEADING;
             errors={outcome.errors}
             values={outcome.values}
             summaryHeading="h2"
-            notSent={
-              outcome.kind === 'limited' || outcome.kind === 'failed'
-                ? outcome.kind
-                : undefined
-            }
+            {...(outcome.kind === 'limited' || outcome.kind === 'failed'
+              ? { notSent: outcome.kind }
+              : {})}
           />
         </div>
       ) : (

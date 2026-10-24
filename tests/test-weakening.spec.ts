@@ -207,6 +207,66 @@ test.describe('test-weakening guard', NODE, () => {
     ).toEqual(['changes MIN_RING_PX from 2 to 1']);
   });
 
+  test('flags an exit that exempts elements from an assertion and a list named as an exemption', () => {
+    const scan = (...body: string[]) =>
+      spec(
+        `const marked = (page) => page.evaluate((keeps) =>`,
+        `  [...document.querySelectorAll('*')].filter((element) => {`,
+        ...body,
+        `    return getComputedStyle(element).forcedColorAdjust !== 'auto';`,
+        `  }), KEEPS_ITS_COLORS);`,
+      );
+    const found = rules({
+      path: SPEC,
+      oldText: scan(),
+      newText: [
+        `const KEEPS_ITS_COLORS = '.role-token > .role-swatch';`,
+        scan(`    if (element.matches(keeps)) return false;`),
+      ].join('\n'),
+    });
+    expect(
+      found.some((rule) =>
+        rule.startsWith('exempts elements from an assertion'),
+      ),
+      'the exempting exit went unflagged',
+    ).toBe(true);
+    expect(
+      found.some((rule) => rule.startsWith('names an exemption list')),
+      'the exemption list went unflagged',
+    ).toBe(true);
+    expect(
+      rules({
+        path: SPEC,
+        oldText: scan(),
+        newText: scan(
+          `    if (`,
+          `      element.matches(keeps)`,
+          `    ) {`,
+          `      return false;`,
+          `    }`,
+        ),
+      }).filter((rule) => rule.startsWith('exempts elements')),
+      'an exempting exit wrapped over lines went unflagged',
+    ).toHaveLength(1);
+  });
+
+  test('passes an exit on a literal selector and a constant not named as an exemption', () => {
+    expect(
+      rules({
+        path: SPEC,
+        oldText: BASE,
+        newText: [
+          `const TIMEOUT_MS = 5000;`,
+          BASE,
+          `for (const el of document.querySelectorAll('a')) {`,
+          `  if (el.closest('.sr-only')) continue;`,
+          `}`,
+        ].join('\n'),
+      }).filter((rule) => /exempt/.test(rule)),
+      'a literal selector or a plain constant was flagged',
+    ).toEqual([]);
+  });
+
   test('flags a widened skip whose first line is unchanged', () => {
     const skip = (condition: string): string =>
       withLine(`${SKIP}\n  ${condition},\n  'webkit bug',\n);`);

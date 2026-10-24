@@ -300,22 +300,24 @@ test.describe('body figures', () => {
 });
 
 /* A photographer is credited in the date line, linked when the site knows them. */
+const CREDITED = POSTS.flatMap(({ route, hasCover, coverCredit }) =>
+  hasCover && coverCredit ? [{ route, credit: coverCredit }] : [],
+);
+
 test.describe('the cover credit', () => {
-  for (const post of POSTS.filter((p) => p.hasCover && p.coverCredit)) {
-    test(`${post.route} credits ${post.coverCredit} in its date line`, async ({
-      page,
-    }) => {
-      await gotoSettled(page, post.route);
+  for (const { route, credit } of CREDITED) {
+    test(`${route} credits ${credit} in its date line`, async ({ page }) => {
+      await gotoSettled(page, route);
       const caption = page.locator(
         'main article .post-slab [data-cover-credit]',
       );
       await expect(caption, 'the cover has no credit').toHaveText(
-        `Photo: ${post.coverCredit}`,
+        `Photo: ${credit}`,
       );
-      const href = (PHOTOGRAPHERS as Record<string, string>)[post.coverCredit!];
+      const href = (PHOTOGRAPHERS as Record<string, string>)[credit];
       if (href) {
         await expect(
-          caption.getByRole('link', { name: post.coverCredit }),
+          caption.getByRole('link', { name: credit }),
           'a known photographer is not linked',
         ).toHaveAttribute('href', href);
       }

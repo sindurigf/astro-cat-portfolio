@@ -1,17 +1,19 @@
 #!/bin/sh
 # Subject format and AI attribution per AGENTS.md, CI's counterpart to .githooks.
 # Skips merges, and Dependabot only with CI's TRUST_DEPENDABOT=1: anyone can set an email.
-# Usage: sh scripts/check-commits.sh [range]     (default origin/$GITHUB_BASE_REF..HEAD, origin/main outside CI, else HEAD)
+# Usage: sh scripts/check-commits.sh [range]     (default origin/$GITHUB_BASE_REF..HEAD, origin/main outside CI, else the last commit)
 
 set -eu
 
 BASE=origin/${GITHUB_BASE_REF:-main}
 
-# A clone with no base ref yet, like a new repository, checks all of HEAD.
+# With no base ref, checks the last commit: older history may predate these rules.
 if [ -n "${1:-}" ]; then
   RANGE=$1
 elif git rev-parse --verify --quiet "$BASE" >/dev/null; then
   RANGE=$BASE..HEAD
+elif git rev-parse --verify --quiet 'HEAD^' >/dev/null; then
+  RANGE='HEAD^!'
 else
   RANGE=HEAD
 fi
