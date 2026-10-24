@@ -26,6 +26,7 @@
     "check:pins": "node scripts/check-pins.mjs",
     "check:pdf": "node scripts/check-pdf.mjs",
     "check:classes": "node scripts/check-classes.mjs",
+    "check:csp": "node scripts/check-csp.mjs",
     "check:untransformed": "node scripts/check-untransformed.mjs",
     "check:title-case": "node scripts/check-title-case.mjs",
     "check:commits": "sh scripts/check-commits.sh",
@@ -41,7 +42,7 @@
     "hero-still": "node scripts/make-hero-still.mjs",
     "icons": "node scripts/make-icons.mjs",
     "box-cat": "node scripts/make-box-cat.mjs",
-    "check": "npm run check:tokens && npm run check:links && npm run check:pins && npm run check:classes && npm run check:untransformed && npm run check:title-case && npm run check:exif && npm run format:check && npm run check:commits && npm run check:leaks && npm run check:fork && npm run check:test-weakening"
+    "check": "npm run check:tokens && npm run check:links && npm run check:pins && npm run check:classes && npm run check:csp && npm run check:untransformed && npm run check:title-case && npm run check:exif && npm run format:check && npm run check:commits && npm run check:leaks && npm run check:fork && npm run check:test-weakening"
   },
   "dependencies": {
     "@astrojs/cloudflare": "^14.4.0",

@@ -130,7 +130,8 @@ Dark is the default. Colors and rules:
   saved choice or `prefers-color-scheme` before the body parses, and adds the
   `js` class the slideshow's pre-hide keys on. After `DECK_READY_TIMEOUT_MS` it
   sets `data-deck-failed` on a deck that is not ready, and the deck then shows
-  every slide. Its hash is in `script-src`.
+  every slide. Its hash is in `script-src`; `npm run check:csp` fails when a
+  build changes any inline block, and `-- --write` updates the hashes.
   It sits in `<head>`, not beside the switch, so nothing paints in the wrong
   theme first.
 - Three choices: System (the default, nothing stored), Light and Dark (stored
