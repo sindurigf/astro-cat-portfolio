@@ -42,10 +42,10 @@ const resolve = async (path, search) => {
   const asHtml = await fileAt(join(ROOT, `${path}.html`));
   if (asHtml) return { status: 200, type: HTML, file: asHtml };
 
-  /* As Workers does. */
+  /* As Workers does, from the _redirects lines scripts/slash-redirects.mjs writes. */
   const index = await fileAt(join(ROOT, path, 'index.html'));
   if (index && !path.endsWith('/')) {
-    return { status: 307, location: `${path}/${search}` };
+    return { status: 301, location: `${path}/${search}` };
   }
   if (index) return { status: 200, type: HTML, file: index };
 

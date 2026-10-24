@@ -132,18 +132,27 @@ const listUnbounded = (unbounded: Unbounded[]): string =>
     .map((c) => `  <${c.tag} display:${c.display}> ${JSON.stringify(c.text)}`)
     .join('\n');
 
+/*
+ * Only a named /brand color swatch keeps its colors: the color is its content
+ * (https://blogs.windows.com/msedgedev/2020/09/17/styling-for-windows-high-contrast-with-new-standards-for-forced-colors/).
+ */
+const KEEPS_ITS_COLORS = '.role-token > .role-swatch';
+
 const optedOutElements = (page: Page): Promise<string[]> =>
-  page.evaluate(() =>
-    [...document.querySelectorAll('*')]
-      .filter((element) => {
-        const value = getComputedStyle(element).forcedColorAdjust;
-        return Boolean(value) && value !== 'auto';
-      })
-      .map(
-        (element) =>
-          `<${element.tagName.toLowerCase()} class="${element.getAttribute('class') ?? ''}">`,
-      )
-      .slice(0, 10),
+  page.evaluate(
+    (keeps) =>
+      [...document.querySelectorAll('*')]
+        .filter((element) => {
+          if (element.matches(keeps)) return false;
+          const value = getComputedStyle(element).forcedColorAdjust;
+          return Boolean(value) && value !== 'auto';
+        })
+        .map(
+          (element) =>
+            `<${element.tagName.toLowerCase()} class="${element.getAttribute('class') ?? ''}">`,
+        )
+        .slice(0, 10),
+    KEEPS_ITS_COLORS,
   );
 
 const contentLinkColors = (page: Page) =>
@@ -311,6 +320,57 @@ test.describe('forced colors', () => {
       await tile.evaluate((el) => getComputedStyle(el).filter),
       'the hovered logo paints its offset in forced colors',
     ).toBe('none');
+  });
+
+  test('/brand color swatches keep their colors in forced colors, edged in CanvasText, each named beside it (SC 1.4.1, 1.4.11)', async ({
+    page,
+  }) => {
+    await gotoSettled(page, '/brand');
+    const paints = () =>
+      page.locator(KEEPS_ITS_COLORS).evaluateAll((swatches) =>
+        swatches.map((swatch) => {
+          const style = getComputedStyle(swatch);
+          /* A fill swatch has no text, so its inherited color is not part of it. */
+          return swatch instanceof HTMLElement &&
+            swatch.dataset.paint === 'glyph'
+            ? [style.color, style.backgroundColor]
+            : [style.backgroundColor];
+        }),
+      );
+    const authored = await paints();
+    expect(authored.length, '/brand shows no color swatch').toBeGreaterThan(0);
+    await forceColors(page, '/brand');
+    expect(
+      await paints(),
+      'a /brand swatch lost its color in forced colors',
+    ).toEqual(authored);
+    const edges = await page
+      .locator(KEEPS_ITS_COLORS)
+      .evaluateAll((swatches) => {
+        const probe = document.createElement('span');
+        probe.style.color = 'CanvasText';
+        document.body.append(probe);
+        const canvasText = getComputedStyle(probe).color;
+        probe.remove();
+        return swatches.map((swatch) => {
+          const row = swatch.closest('.role-token');
+          const name = row?.querySelector('code')?.textContent?.trim() ?? '';
+          const named = row?.querySelector('code')?.checkVisibility() ?? false;
+          return {
+            edge: getComputedStyle(swatch).borderTopColor === canvasText,
+            named: name !== '' && named,
+            token: name || swatch.className,
+          };
+        });
+      });
+    expect(
+      edges.filter((s) => !s.edge).map((s) => s.token),
+      'a /brand swatch has no CanvasText edge in forced colors',
+    ).toEqual([]);
+    expect(
+      edges.filter((s) => !s.named).map((s) => s.token),
+      'a /brand swatch has no visible token name beside it',
+    ).toEqual([]);
   });
 
   // Every stop: box-shadow paints nothing here, so a shadow ring disappears.

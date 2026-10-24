@@ -17,6 +17,7 @@ import { MARKDOWN_WIDTHS } from './src/lib/image-densities.ts';
 import { cssColorToken } from './src/lib/css-token.ts';
 import { recordFingerprint } from './scripts/build-fingerprint.mjs';
 import { licenses } from './scripts/licenses.mjs';
+import { slashRedirects } from './scripts/slash-redirects.mjs';
 import { presenter } from './src/presenter/integration.mjs';
 import { SITE_CONFIG } from './src/site.config.ts';
 import { BUILD_ENV, BUILD_ENV_NAMES } from './src/lib/build-env.ts';
@@ -111,6 +112,7 @@ export default defineConfig({
     placeholderSite(SITE_CONFIG.site.url),
     recordFingerprint(),
     licenses(),
+    slashRedirects(),
     presenter(),
     staleStatementGuard(SITE_CONFIG.site.url, SITE_CONFIG.site.repository),
     /* Every component uses <script setup>. */
