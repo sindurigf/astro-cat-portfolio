@@ -1102,9 +1102,9 @@ Enforced by `tests/footer.spec.ts`.
   It Back. If it does not fit, it packs tight and level; if it still does not
   fit, it moves down past the screen's bottom, where scrolling reaches it. Bare
   labels land before painted blocks, so painted ones top the heap.
-- Then the footer mascot climbs (`src/scripts/let-it-fall-mascot.ts`, its own
+- Once the heap has settled and after a short beat, the footer mascot climbs (`src/scripts/let-it-fall-mascot.ts`, its own
   drawing): it crouches with a squash, leaps on an eased arc with a stretch,
-  tipped toward the way it travels, and lands with a squash. It is never
+  tipped toward the way it travels, and lands with a squash, pausing between hops. It is never
   mirrored, so its pink throw stays bottom right. It hops onto the menu
   shelf's clear stretch, up the blocks on top of it, then onto the risen Put
   It Back and sits on its top edge, clear of its label, and above its focus
@@ -1113,8 +1113,8 @@ Enforced by `tests/footer.spec.ts`.
   the landed page: only the top edge of a painted, fallen surface (a fill or
   edge unlike its ground, or an image) or of Put It Back, level under its
   middle, with nothing painted, no text and no other control or its ring in
-  its box. Five hops at most, 70px apart at least; on the button it tips left
-  and right to look around. If the seat has no room, it takes the highest such
+  its box. Five hops at most, 70px apart at least; on the button it holds,
+  then tips left and right to look around. If the seat has no room, it takes the highest such
   place on the heap, shrinking to fit. On Put It Back it leaps home at once.
   It is `aria-hidden` and takes no pointer; under reduced motion the footer
   sticker is simply on the button and back.

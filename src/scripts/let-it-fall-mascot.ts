@@ -5,18 +5,23 @@
  */
 export type Foot = { x: number; y: number };
 
-/* ms: a hop's flight, its crouches, the breath between hops and each glance on top. */
-const HOP_MS = 400;
-const CROUCH_MS = 110;
-const LAND_MS = 90;
-const BREATH_MS = 120;
-const LOOK_MS = 520;
+/*
+ * ms: the beat before the first hop so the eye finds the mascot, a hop's crouch, flight
+ * and landing (about 630 in all), the pause between hops, the hold on top and each glance.
+ */
+const BEAT_MS = 300;
+const CROUCH_MS = 150;
+const HOP_MS = 380;
+const LAND_MS = 50;
+const BREATH_MS = 250;
+const HOLD_MS = 400;
+const LOOK_MS = 260;
 const GLANCES = 2;
 /* deg the box tips to each side for a glance, toward the way it hops in the air. */
 const GLANCE_TIP = 6;
 const HOP_TIP = 4;
 /* px of arc above the higher end of a hop, plus this share of the climb. */
-const ARC = 46;
+const ARC = 64;
 const CLIMB_ARC_SHARE = 0.35;
 /* Squash at takeoff and landing, stretch in the air, as scale x and y. */
 const CROUCH_SQUASH = [1.08, 0.86];
@@ -156,11 +161,16 @@ export const createHopper = (sticker: HTMLImageElement) => {
       feet.dataset.stones = JSON.stringify(stones);
       host.append(feet);
       sticker.setAttribute('data-away', '');
-      for (const stone of stones) {
-        await hop(stone, mine);
+      await wait(BEAT_MS);
+      for (const [index, stone] of stones.entries()) {
         if (mine !== run) return;
-        await wait(BREATH_MS);
+        if (index) await wait(BREATH_MS);
+        if (mine !== run) return;
+        await hop(stone, mine);
       }
+      if (mine !== run) return;
+      await wait(HOLD_MS);
+      if (mine !== run) return;
       await lookAround(mine);
       if (mine === run) feet.setAttribute('data-settled', '');
     },
