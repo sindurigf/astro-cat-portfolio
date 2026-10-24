@@ -346,7 +346,7 @@ test.describe('internal links', NODE, () => {
     }
     expect(
       [...unslashed].map(([href, count]) => `${href} (${count} links)`),
-      'internal link(s) without a trailing slash, each a 307 in production',
+      'internal link(s) without a trailing slash, each a 301 in production',
     ).toEqual([]);
   });
 });
