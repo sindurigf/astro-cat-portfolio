@@ -25,10 +25,10 @@ const SOLID_GAP = 12;
 const STACK_GAP = 4;
 /* px between blocks when the heap packs tight to fit under Put It Back. */
 const TIGHT_GAP = 1;
-/* Stacking tries: loose, then tight, then with the floor sunk to fit. */
-const MAX_PASSES = 4;
-/* px kept clear under the risen Put It Back, its focus ring's reach and more. */
+/* px kept clear under the risen Put It Back: its focus ring's reach, 12px, twice over. Matches tests/let-it-fall.spec.ts. */
 const FLOAT_GAP = 24;
+/* Rises without overshoot, so it never passes the top of the screen. */
+const RISE_EASING = 'cubic-bezier(0.2, 0.8, 0.2, 1)';
 const EDGE = 16;
 /* A block narrower than this share of the screen is small: it tilts more and drops into the lowest gap. */
 const SMALL_SHARE = 0.4;
@@ -68,6 +68,13 @@ const MS_PER_S = 1000;
 const fallTime = (): number => {
   const time = token('--fall-time');
   return parseFloat(time) * (time.endsWith('ms') ? 1 : MS_PER_S);
+};
+
+/* reduced-motion.css gives every property a 0.01ms transition, which reads as the old value until it ends: end it before measuring. */
+const settleNow = (el: Element): void => {
+  for (const animation of el.getAnimations()) {
+    if (animation instanceof CSSTransition) animation.finish();
+  }
 };
 
 const say = (text: string): void => {
@@ -137,6 +144,7 @@ const pin = (): void => {
     'top',
     `${stuck - header.getBoundingClientRect().top}px`,
   );
+  settleNow(header);
 };
 const unpin = (): void => {
   for (const name of PINNED) header?.style.removeProperty(name);
@@ -152,14 +160,14 @@ type Landing = {
   rank: number;
 };
 
+/* The heap's bounds and packing: its floor and ceiling, the space between blocks, and whether blocks tilt. */
+type Room = { floor: number; ceiling: number; gap: number; tilt: boolean };
+
 /*
  * The lowest bottom edge, at or above the floor, where a box of this span and
  * height fits clear of every spot, resting on the floor or a spot's top. Above
  * the ceiling only when no such place is below it.
  */
-/* The heap's bounds and packing: its floor and ceiling, the space between blocks, and whether blocks tilt. */
-type Room = { floor: number; ceiling: number; gap: number; tilt: boolean };
-
 const lowestFit = (
   heap: Spot[],
   left: number,
@@ -599,9 +607,22 @@ const FLOAT_VARS = ['--float-x', '--float-y'];
  * the mascot and below any header still stuck there; returns where it ends up.
  */
 const floatButton = (): DOMRect => {
+  const from = getComputedStyle(button).transform;
   for (const animation of button.getAnimations()) animation.cancel();
   button.removeAttribute('data-floating');
-  const own = button.getBoundingClientRect();
+  /* Its place in the layout: the box less its own hover or press `translate`. */
+  const box = button.getBoundingClientRect();
+  const { translate } = getComputedStyle(button);
+  const lift =
+    translate === 'none'
+      ? new DOMMatrix()
+      : new DOMMatrix(`translate(${translate.split(' ').join(', ')})`);
+  const own = new DOMRect(
+    box.left - lift.e,
+    box.top - lift.f,
+    box.width,
+    box.height,
+  );
   const stuck =
     header &&
     !fallen.some((el) => header.contains(el)) &&
@@ -614,13 +635,19 @@ const floatButton = (): DOMRect => {
   button.style.setProperty('--float-x', `${left - own.left}px`);
   button.style.setProperty('--float-y', `${top - own.top}px`);
   button.setAttribute('data-floating', '');
-  /* Measured at rest, before the rise plays. */
-  const risen = button.getBoundingClientRect();
-  const end = getComputedStyle(button).transform;
+  settleNow(button);
+  /* Where it rests once risen, the safe-area inset included: its own `transform`, measured from the layout box. */
+  const shift = new DOMMatrix(getComputedStyle(button).transform);
+  const risen = new DOMRect(
+    own.left + shift.e,
+    own.top + shift.f,
+    own.width,
+    own.height,
+  );
   if (motion.matches) {
-    button.animate([{ transform: 'none' }, { transform: end }], {
+    button.animate([{ transform: from }, { transform: shift.toString() }], {
       duration: fallTime(),
-      easing: token('--ease-fall'),
+      easing: RISE_EASING,
     });
   }
   return risen;
@@ -673,8 +700,12 @@ const fall = (): void => {
     return;
   }
   /* Marked before measuring: a falling footer row shrinks to its link. */
-  for (const el of fallen) el.setAttribute('data-fall-block', '');
-  /* Put It Back rises first: the heap fills the screen below it. */
+  for (const el of fallen) {
+    el.setAttribute('data-fall-block', '');
+    settleNow(el);
+  }
+  /* Put It Back rises first, centered at its new label's width: the heap fills the screen below it. */
+  button.textContent = LABEL_BACK;
   const lifted = floatButton();
   const toSpot = ({ left, right, top, bottom }: DOMRect): Spot => ({
     left: left - SOLID_GAP,
@@ -694,7 +725,7 @@ const fall = (): void => {
     .map((el) => toSpot(el.getBoundingClientRect()));
   /*
    * Under Put It Back's gap: packed loosely and tilted, then tightly and level,
-   * and if it still does not fit, the floor sinks below the screen and the page scrolls to it.
+   * and if it still does not fit, moved down past the screen's bottom, where scrolling reaches it.
    */
   const ceiling = lifted.bottom + FLOAT_GAP;
   let room: Room = {
@@ -703,16 +734,19 @@ const fall = (): void => {
     gap: STACK_GAP,
     tilt: true,
   };
+  const highestOf = (all: Landing[]) => Math.min(...all.map(({ top }) => top));
   let landings = stack(fallen, room, solid);
-  for (let pass = 1; pass < MAX_PASSES; pass++) {
-    const highest = Math.min(...landings.map(({ top }) => top));
-    if (highest >= ceiling) break;
-    room =
-      pass === 1
-        ? { ...room, gap: TIGHT_GAP, tilt: false }
-        : { ...room, floor: room.floor + (ceiling - highest) };
+  if (highestOf(landings) < ceiling) {
+    room = { ...room, gap: TIGHT_GAP, tilt: false };
     landings = stack(fallen, room, solid);
   }
+  /* Still too tall: the whole heap moves down by the overflow, below the screen's bottom edge. */
+  const sink = Math.max(0, ceiling - highestOf(landings));
+  landings = landings.map((landing) => ({
+    ...landing,
+    y: landing.y + sink,
+    top: landing.top + sink,
+  }));
   const moves = landings
     .map(drop)
     .filter((a): a is Animation => a !== null)

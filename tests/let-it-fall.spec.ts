@@ -73,7 +73,11 @@ const coveredTargets = (page: Page) =>
 const moving = (page: Page) =>
   page.evaluate(
     (instant) =>
-      [...document.querySelectorAll('[data-fall-block], .footer-mascot')]
+      [
+        ...document.querySelectorAll(
+          '[data-fall-block], .footer-mascot, [data-let-it-fall]',
+        ),
+      ]
         .flatMap((el) => el.getAnimations())
         .filter((a) => Number(a.effect?.getComputedTiming().duration) > instant)
         .map((a) => {
@@ -105,7 +109,7 @@ for (const width of WIDTHS) {
       await gotoSettled(page, ROUTE);
     });
 
-    test('blocks fall into a heap above the button, which keeps focus, and every target stays whole', async ({
+    test('blocks fall into a heap below the risen button, which keeps focus, and every target stays whole', async ({
       page,
     }) => {
       const button = await press(page);
@@ -452,18 +456,25 @@ test("pressed from the keyboard, the mascot sits clear of Put It Back's focus ri
   ).toEqual({ focused: true, clear: true });
 });
 
-/* px: let-it-fall.ts FLOAT_GAP, kept clear under the risen Put It Back. */
+/* px: let-it-fall.ts FLOAT_GAP, kept clear under the risen Put It Back; the two must agree. */
 const FLOAT_GAP = 24;
 
-for (const [width, height] of [
-  [390, HEIGHT],
-  [DESKTOP, 700],
+/* Short enough on /blog that the heap does not fit under Put It Back and moves down past the screen. */
+const SINKING = { route: '/blog', width: DESKTOP, height: 500 } as const;
+
+for (const [route, width, height, motion] of [
+  [ROUTE, 390, HEIGHT, 'no-preference'],
+  [ROUTE, DESKTOP, 700, 'no-preference'],
+  [ROUTE, 390, HEIGHT, 'reduce'],
+  [SINKING.route, SINKING.width, SINKING.height, 'no-preference'],
 ] as const) {
-  test(`at ${width}×${height} Put It Back rises over the heap, whole, with no block above its gap`, async ({
+  test(`${route} at ${width}×${height}, motion ${motion}: Put It Back rises over the heap, whole, with no block above its gap`, async ({
     page,
   }) => {
+    await seedRandom(page, HEAP_SEED);
+    await page.emulateMedia({ reducedMotion: motion });
     await page.setViewportSize({ width, height });
-    await gotoSettled(page, ROUTE);
+    await gotoSettled(page, route);
     const button = await press(page);
     await landed(page);
     await expect
@@ -482,15 +493,26 @@ for (const [width, height] of [
         }),
       );
       const ceiling = own.bottom + gap;
-      const above = [...document.querySelectorAll('[data-fell]')]
-        .filter((block) => block.getBoundingClientRect().top < ceiling - 1)
-        .map((block) => block.textContent?.trim().slice(0, 30));
-      return { onScreen: own.top >= 0, covered, above };
+      const blocks = [...document.querySelectorAll('[data-fell]')].map(
+        (block) => block.getBoundingClientRect(),
+      );
+      const above = blocks.filter(({ top }) => top < ceiling - 1).length;
+      /* The heap shows on screen, and scrolling reaches all of it. */
+      const shown = blocks.some(({ top }) => top < innerHeight);
+      const lowest = Math.max(...blocks.map(({ bottom }) => bottom)) + scrollY;
+      const reachable = lowest <= document.documentElement.scrollHeight + 1;
+      return { onScreen: own.top >= 0, covered, above, shown, reachable };
     }, FLOAT_GAP);
     expect(
       found,
-      'Put It Back is off screen or covered, or a block lies above its gap',
-    ).toEqual({ onScreen: true, covered: false, above: [] });
+      'Put It Back is off screen or covered, a block lies above its gap, or the heap is out of reach',
+    ).toEqual({
+      onScreen: true,
+      covered: false,
+      above: 0,
+      shown: true,
+      reachable: true,
+    });
   });
 }
 

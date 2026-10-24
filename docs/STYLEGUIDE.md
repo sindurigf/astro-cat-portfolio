@@ -1096,8 +1096,8 @@ Enforced by `tests/footer.spec.ts`.
 - Put It Back rises to the top of the screen, centered, over every fallen
   block, with room above it for the mascot and a 24px gap below it that the
   heap never enters. If the heap does not fit under it, it packs tight and
-  level; if it still does not fit, its floor sinks below the screen and the
-  page scrolls to it.
+  level; if it still does not fit, it moves down past the screen's bottom,
+  where scrolling reaches it.
 - Then the footer mascot climbs (`src/scripts/let-it-fall-mascot.ts`, its own
   drawing): it crouches with a squash, leaps on an eased arc with a stretch,
   tipped toward the way it travels, and lands with a squash. It is never
