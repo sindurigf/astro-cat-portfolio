@@ -1,7 +1,7 @@
 /*
  * The footer mascot's climb onto the Let It Fall heap: its own drawing crouches
- * (squash), leaps on an arc (stretch), lands (squash) and turns to look around.
- * Decorative and aria-hidden; let-it-fall.ts picks each landing.
+ * (squash), leaps on an arc (stretch), lands (squash) and tips to look around.
+ * Never mirrored, so its pink throw stays bottom right. Decorative and aria-hidden.
  */
 export type Foot = { x: number; y: number };
 
@@ -12,6 +12,9 @@ const LAND_MS = 90;
 const BREATH_MS = 120;
 const LOOK_MS = 520;
 const GLANCES = 2;
+/* deg the box tips to each side for a glance, toward the way it hops in the air. */
+const GLANCE_TIP = 6;
+const HOP_TIP = 4;
 /* px of arc above the higher end of a hop, plus this share of the climb. */
 const ARC = 46;
 const CLIMB_ARC_SHARE = 0.35;
@@ -52,7 +55,7 @@ export const createHopper = (sticker: HTMLImageElement) => {
   let at: Foot = { x: 0, y: 0 };
   /* Where it is drawn now, mid-flight included. */
   let shown: Foot = { x: 0, y: 0 };
-  let mirrored = false;
+  let tip = 0;
 
   /* Viewport points to the host's own coordinates, which scroll with the page. */
   const local = ({ x, y }: Foot): Foot => {
@@ -63,7 +66,7 @@ export const createHopper = (sticker: HTMLImageElement) => {
     shown = { x, y };
     feet.style.setProperty(
       'transform',
-      `translate(${x}px, ${y}px) scaleX(${mirrored ? -1 : 1})`,
+      `translate(${x}px, ${y}px) rotate(${tip}deg)`,
     );
   };
   /* Held in its style once played, so no finished animation lingers. */
@@ -91,16 +94,16 @@ export const createHopper = (sticker: HTMLImageElement) => {
     });
 
   const hop = async (to: Foot, mine: number) => {
-    /* The drawing faces left; it turns to face the way it hops. */
-    if (to.x !== at.x) mirrored = to.x > at.x;
     place(at);
     await squashTo(CROUCH_SQUASH, CROUCH_MS);
     if (mine !== run) return;
     squashTo(AIR_STRETCH, HOP_MS * AIR_STRETCH_SHARE).catch(ignoreCancel);
+    tip = Math.sign(to.x - at.x) * HOP_TIP;
     const climb = Math.max(0, at.y - to.y);
     await flight(at, to, ARC + climb * CLIMB_ARC_SHARE, mine);
     if (mine !== run) return;
     at = to;
+    tip = 0;
     place(at);
     await squashTo(LAND_SQUASH, LAND_MS);
     if (mine !== run) return;
@@ -109,11 +112,12 @@ export const createHopper = (sticker: HTMLImageElement) => {
 
   const lookAround = async (mine: number) => {
     for (let glance = 0; glance < GLANCES && mine === run; glance++) {
-      await wait(LOOK_MS);
-      if (mine !== run) return;
-      mirrored = !mirrored;
+      tip = glance % 2 === 0 ? -GLANCE_TIP : GLANCE_TIP;
       place(at);
+      await wait(LOOK_MS);
     }
+    tip = 0;
+    if (mine === run) place(at);
   };
 
   const home = (): Foot => {
@@ -146,7 +150,7 @@ export const createHopper = (sticker: HTMLImageElement) => {
       drawing.style.setProperty('left', `${-wide / 2}px`);
       drawing.style.setProperty('top', `${-tall}px`);
       at = home();
-      mirrored = false;
+      tip = 0;
       place(at);
       host.append(feet);
       sticker.setAttribute('data-away', '');

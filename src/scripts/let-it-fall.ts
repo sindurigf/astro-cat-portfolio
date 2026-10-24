@@ -33,9 +33,7 @@ const TALLEST_SHARE = 0.6;
 const WIDE_DRIFT = 14;
 const WIDE_TURN_DEG = 2;
 const SMALL_TURN_DEG = 8;
-/* px: a long block tilts less, so its ends rise no more than this and a thin link stays under its own label. */
-const MAX_TILT_RISE = 24;
-const DEG_PER_RAD = 180 / Math.PI;
+
 /* px: where a small block or the mascot may land is tried at this step, with this much random lean. */
 const SLOT_STEP = 6;
 const SLOT_JITTER = 10;
@@ -222,11 +220,7 @@ const stack = (
   ];
   const heap = [...solid];
   const landings = order.map(({ el, box, reach: drawn, small }, rank) => {
-    const tiltCap =
-      Math.asin(Math.min(1, MAX_TILT_RISE / box.width)) * DEG_PER_RAD;
-    const turn = spread(
-      Math.min(small ? SMALL_TURN_DEG : WIDE_TURN_DEG, tiltCap),
-    );
+    const turn = spread(small ? SMALL_TURN_DEG : WIDE_TURN_DEG);
     /* What the block draws, turned about its own center as the transform turns it. */
     const centerX = box.left + box.width / 2;
     const centerY = box.top + box.height / 2;

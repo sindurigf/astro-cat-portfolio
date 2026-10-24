@@ -35,7 +35,7 @@ const landed = (page: Page) =>
       ),
     )
     .toBe(0);
-/* Targets in the heap off screen, or covered by something else at any of nine points across them. */
+/* Targets in the heap off screen, or covered by something else at any of nine points across their face. */
 const coveredTargets = (page: Page) =>
   page.evaluate(() => {
     const SHARES = [0.25, 0.5, 0.75];
@@ -48,11 +48,20 @@ const coveredTargets = (page: Page) =>
       .filter((el) => {
         const r = el.getBoundingClientRect();
         if (r.top < 0 || r.bottom > innerHeight) return true;
+        /* Points across the target's own face, turned with its fallen block: its upright box's corners lie outside it. */
+        const block = el.closest('[data-fell]')!;
+        const { a, b } = new DOMMatrix(getComputedStyle(block).transform);
+        const turn = Math.atan2(b, a);
+        const own = el as HTMLElement;
+        const cx = r.left + r.width / 2;
+        const cy = r.top + r.height / 2;
         return SHARES.some((x) =>
           SHARES.some((y) => {
+            const dx = (x - 0.5) * own.offsetWidth;
+            const dy = (y - 0.5) * own.offsetHeight;
             const hit = document.elementFromPoint(
-              r.left + r.width * x,
-              r.top + r.height * y,
+              cx + dx * Math.cos(turn) - dy * Math.sin(turn),
+              cy + dx * Math.sin(turn) + dy * Math.cos(turn),
             );
             return !hit || !el.contains(hit);
           }),
@@ -303,6 +312,10 @@ test('under reduced motion the blocks and the mascot move at once, never animate
   await press(page);
   await expect(fallen(page)).not.toHaveCount(0);
   await expect(page.locator('.footer-mascot')).toHaveAttribute('data-hopped');
+  await expect(
+    page.locator('.fall-hopper'),
+    'the climbing copy appeared under reduced motion',
+  ).toHaveCount(0);
   expect(await moving(page), 'something animates under reduced motion').toEqual(
     [],
   );

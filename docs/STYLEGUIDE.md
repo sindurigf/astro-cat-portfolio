@@ -1097,12 +1097,13 @@ Enforced by `tests/footer.spec.ts`.
   its link alone.
 - Then the footer mascot climbs the heap (`src/scripts/let-it-fall-mascot.ts`,
   its own drawing): it crouches with a squash, leaps on an eased arc with a
-  stretch, lands with a squash, facing the way it travels. One leap up onto
+  stretch, tipped toward the way it travels, and lands with a squash. It is
+  never mirrored, so its pink throw stays bottom right. One leap up onto
   the heap, then hops along its top, five hops in all at most and 70px apart
   at least, to the highest spot clear of every control with support under
-  its middle; there it turns to look around twice. It shrinks to fit a wide
-  screen. On Put It Back it leaps home at once, as the heap climbs home under
-  it. It is `aria-hidden` and takes no pointer; under reduced motion the
+  its middle; there it tips left and right to look around. It shrinks to fit
+  a wide screen. On Put It Back it leaps home at once, as the heap climbs home
+  under it. It is `aria-hidden` and takes no pointer; under reduced motion the
   footer sticker is simply on the heap and back.
 - The same button (now Put It Back), Esc, keyboard focus moving anywhere else
   or a new window width puts it all back. A click or tap on a link or button
