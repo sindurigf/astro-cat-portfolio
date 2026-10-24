@@ -345,8 +345,8 @@ Commits, copy rules and process: [AGENTS.md](AGENTS.md).
 
 - Comment `.astro` templates with `{/* … */}`. Authored `<!-- -->` ships
   verbatim. `tests/seo.spec.ts` fails on any in the build.
-- Internal links end with `/`; production 307s the unslashed form.
-  `tests/seo.spec.ts`.
+- Internal links end with `/`; `tests/seo.spec.ts`. The unslashed form gets
+  a 301 from a `_redirects` line per page (`scripts/slash-redirects.mjs`).
 
 ### Text size
 
@@ -875,10 +875,6 @@ evidence.
   site name, and the hero roundel is decoration, so `alt=""` is right
   ([H67](https://www.w3.org/WAI/WCAG22/Techniques/html/H67)). Text there would
   be announced twice.
-- **Answer the unslashed URL with a 301, not a 307:** the status is the
-  platform's (`html_handling` in `wrangler.jsonc`). Every internal link,
-  canonical, sitemap and feed URL ends in `/`, so only a typed or outside link
-  meets it; the alternative is one `_redirects` line per route.
 - **AccessLint engine hits, each checked against the live DOM:**
   `color-contrast` on the homepage name is read against a gold ancestor the
   text does not sit on; `landmark-unique` counts the no-JavaScript nav, which

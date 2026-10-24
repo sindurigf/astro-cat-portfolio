@@ -88,7 +88,8 @@
     // Workers does not serve 404.html by default: tests/not-found.spec.ts.
     "not_found_handling": "404-page",
 
-    // The default: /about redirects to /about/ with a 307.
+    // Serves /about/ from about/index.html. Its 307 from /about never runs:
+    // _redirects answers first with a 301, from scripts/slash-redirects.mjs.
     "html_handling": "auto-trailing-slash",
   },
 
