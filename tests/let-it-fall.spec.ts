@@ -185,6 +185,40 @@ for (const width of WIDTHS) {
   });
 }
 
+/* deg and px: a long, thin link at the heap's small-block tilt, whose upright box's corners lie outside it. */
+const PROBE_TURN_DEG = 8;
+const PROBE_LINK = { width: 320, height: 44 } as const;
+
+test('the cover probe passes a whole link tilted in the heap', async ({
+  page,
+}) => {
+  await gotoSettled(page, ROUTE);
+  await page.evaluate(
+    ({ turn, size }) => {
+      const block = document.createElement('div');
+      block.setAttribute('data-fell', '');
+      block.style.setProperty('position', 'fixed');
+      block.style.setProperty('top', '40%');
+      block.style.setProperty('left', '10%');
+      block.style.setProperty('z-index', '9');
+      block.style.setProperty('transform', `rotate(${turn}deg)`);
+      const link = document.createElement('a');
+      link.href = '/';
+      link.textContent = 'Tilted';
+      link.style.setProperty('display', 'block');
+      link.style.setProperty('width', `${size.width}px`);
+      link.style.setProperty('height', `${size.height}px`);
+      block.append(link);
+      document.body.append(block);
+    },
+    { turn: PROBE_TURN_DEG, size: PROBE_LINK },
+  );
+  expect(
+    await coveredTargets(page),
+    'the probe counts a whole tilted link as covered',
+  ).toEqual([]);
+});
+
 /* px: a desktop window short enough that the footer band shares the screen with the heap. */
 const BAND_HEIGHT = 800;
 const DESKTOP = 1280;
