@@ -191,7 +191,7 @@ const ON_SIDE = 25;
 const ON_BACK = 135;
 /** Head turn in degrees that reads as a glance, and as a look back. */
 const GLANCE = 5;
-const LOOK_BACK = 20;
+export const LOOK_BACK = 20;
 /** px off the ground that reads as a jump, and as the top of one. */
 const AIRBORNE = 3;
 const HIGH = 14;
