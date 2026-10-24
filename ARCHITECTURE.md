@@ -888,9 +888,6 @@ evidence.
   foot row crosses the bottom of the focused slide's ring while both show.
   The row shows only while the pointer moves or one of its buttons has focus,
   and inside the card it would sit over slide content at some widths.
-- **Let It Fall should drop the static header on short screens:** under 30rem
-  the header and the footer button never share the screen on any page, so the
-  header is never on screen to fall.
 
 ## Content notes
 

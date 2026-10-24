@@ -136,7 +136,13 @@ const free = (el: Element): boolean => {
 /* A sticky header's heap would stay on screen as the page scrolls: held in flow where it is now, it scrolls with the rest, and drops below the button's layer. */
 const PINNED = ['position', 'z-index', 'top'];
 const pin = (): void => {
-  if (!header || getComputedStyle(header).position !== 'sticky') return;
+  if (!header) return;
+  /* A short screen's static header keeps its z-index, a raised layer its bar would not leave. */
+  if (getComputedStyle(header).position !== 'sticky') {
+    header.style.setProperty('z-index', 'auto');
+    settleNow(header);
+    return;
+  }
   const stuck = header.getBoundingClientRect().top;
   header.style.setProperty('position', 'relative');
   header.style.setProperty('z-index', 'auto');

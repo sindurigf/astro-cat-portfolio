@@ -317,6 +317,35 @@ test('the fallen header scrolls with the page and is sticky again once back', as
   ).toBe(true);
 });
 
+/* px: under the `short` variant's 30rem, where the header is static. */
+const SHORT_HEIGHT = 400;
+
+test('on a short screen the static header falls with the page and gets its layer back', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: SHORT_HEIGHT });
+  await gotoSettled(page, ROUTE);
+  const header = page.locator('.site-header');
+  await expect(header).toHaveCSS('position', 'static');
+  /* The header and the button never share a short screen, so the button is pressed from the top of the page. */
+  await page.evaluate(() => scrollTo(0, 0));
+  await page.getByRole('button', FALL).evaluate((el) => {
+    (el as HTMLButtonElement).click();
+  });
+  await expect(status(page)).toHaveText(FELL);
+  await expect(
+    page.locator('.header-slab'),
+    'the static header stayed up',
+  ).toHaveAttribute('data-fell');
+  await page.keyboard.press('Escape');
+  await expect(status(page)).toHaveText(RESTORED);
+  await landed(page);
+  await expect(header, "the header kept the fall's style").not.toHaveAttribute(
+    'style',
+    /./,
+  );
+});
+
 /* ms: longer than let-it-fall.ts REPEAT_MS, shorter than --fall-time, so the second press lands mid-climb. */
 const PRESS_AGAIN_MS = 400;
 
