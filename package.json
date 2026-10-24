@@ -30,6 +30,7 @@
     "check:untransformed": "node scripts/check-untransformed.mjs",
     "check:title-case": "node scripts/check-title-case.mjs",
     "check:commits": "sh scripts/check-commits.sh",
+    "check:test-weakening": "node scripts/check-test-weakening.mjs",
     "check:exif": "node scripts/check-exif.mjs",
     "check:leaks": "node scripts/check-leaks.mjs",
     "check:fork": "node scripts/check-fork.mjs",
