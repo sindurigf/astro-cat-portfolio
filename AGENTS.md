@@ -8,14 +8,16 @@ system and conventions: [ARCHITECTURE.md](ARCHITECTURE.md).
 ```sh
 npm run build
 npm run typecheck
-npm run check        # tokens, links, pins, classes, csp, images, title-case, format, commits, leaks, test-weakening
+npm run check        # tokens, links, pins, classes, csp, images, title-case, format, commits, leaks
 npm run test:a11y    # Chromium, Firefox; WebKit in CI or with WEBKIT=1
 npm run test:webkit  # test:a11y in WebKit via Docker
 npm run test:worker  # WORKER_SPECS through the Worker
 npm run test:demo    # DEMO_SPECS against a NOINDEX demo build
 ```
 
-- CI runs all of it; `Required checks` is the one required status.
+- CI runs all of it; `Required checks` is the one required status, and
+  `Test weakening` once the ruleset lists it
+  ([DEPLOYMENT.md](docs/DEPLOYMENT.md#repository-settings)).
 - A suite passed only if its summary total matches `npx playwright test --list`.
 - Green means the steps ran, not that the tests assert the right things.
 - Report and fix every warning, hint, error and flaky test, pre-existing or
@@ -36,9 +38,9 @@ security and privacy, or build correctness. "Looks as designed" is not one.
   accessibility: SC 1.4.3, 1.4.11, 1.4.1.
 - Assert the property ("at least 4.5:1 and differs from rest"), not the value
   (`rgb(0, 255, 255)`).
-- A skip, an axe exclusion, fewer `expect` calls, a looser threshold or a new
-  rejected finding needs the owner's review of the head commit with the line
-  `Approved test change: <reason>` (`check:test-weakening`). Agents never
+- A skip, an axe exclusion, fewer `expect` calls, a changed threshold or a new
+  rejected finding fails the `Test weakening` check until the owner approves
+  the head commit with the line `Approved test change: <reason>`. Agents never
   write it.
 
 ### Which suites to run

@@ -2,6 +2,7 @@ import { expect, test } from './test';
 import { NODE } from './tags';
 import {
   fileFindings,
+  main,
   ownerApproval,
 } from '../scripts/check-test-weakening.mjs';
 
@@ -191,7 +192,7 @@ test.describe('test-weakening guard', NODE, () => {
     ).toEqual(['removes the "Rejected findings" heading']);
   });
 
-  test('flags an edit to the guard, the scripts that run it, CI and the runner config', () => {
+  test('flags an edit to the guard, any CI workflow and the runner config', () => {
     expect(
       rules({
         path: 'scripts/check-test-weakening.mjs',
@@ -199,43 +200,13 @@ test.describe('test-weakening guard', NODE, () => {
         newText: 'b',
       }),
     ).toEqual(['changes the test-weakening guard']);
-    const guard = 'node scripts/check-test-weakening.mjs';
-    const tail = 'npm run check:commits && npm run check:test-weakening';
-    const pkg = (check: string, script = guard): string =>
-      JSON.stringify({ scripts: { check, 'check:test-weakening': script } });
     expect(
       rules({
-        path: 'package.json',
-        oldText: pkg(tail),
-        newText: pkg(`${tail} || true`),
+        path: '.github/workflows/spoof.yml',
+        oldText: '',
+        newText: 'name: Test weakening',
       }),
-    ).toEqual(['npm run check no longer ends with check:test-weakening']);
-    expect(
-      rules({
-        path: 'package.json',
-        oldText: pkg(tail),
-        newText: pkg(tail, 'true'),
-      }),
-    ).toEqual(['changes the check:test-weakening script']);
-    const step = (extra: string): string =>
-      `      - name: Conventions and formatting\n${extra}        run: npm run check\n      - name: Typecheck`;
-    const workflow = '.github/workflows/a11y.yml';
-    expect(
-      rules({
-        path: workflow,
-        oldText: step(''),
-        newText: step('').replace('check', 'build'),
-      }),
-    ).toEqual(['drops npm run check from CI']);
-    expect(
-      rules({
-        path: workflow,
-        oldText: step(''),
-        newText: step('        continue-on-error: true\n'),
-      }),
-    ).toEqual([
-      'adds continue-on-error: to the CI step that runs npm run check',
-    ]);
+    ).toEqual(['changes a CI workflow']);
     expect(
       rules({ path: 'playwright.config.ts', oldText: 'a', newText: 'b' }),
     ).toEqual(['changes which tests run']);
@@ -282,18 +253,20 @@ test.describe('test-weakening guard', NODE, () => {
     ).toEqual([]);
   });
 
-  test('accepts the marker only from the owner, on the tested commit, outside code', () => {
+  test("accepts the marker only in the owner's approving review of the tested commit, outside code", () => {
     const HEAD = 'abc123';
-    const review = (login: string, body: string, commitId = HEAD) => ({
-      login,
-      body,
-      commitId,
-    });
+    const review = (
+      login: string,
+      body: string,
+      { commitId = HEAD, state = 'APPROVED' } = {},
+    ) => ({ login, body, commitId, state });
     const approve = (...reviews: ReturnType<typeof review>[]) =>
       ownerApproval(reviews, OWNER, HEAD);
 
     expect(approve(review('coordinator-bot', MARKER))).toBeNull();
-    expect(approve(review(OWNER, MARKER, 'older1'))).toBeNull();
+    expect(approve(review(OWNER, MARKER, { commitId: 'older1' }))).toBeNull();
+    expect(approve(review(OWNER, MARKER, { state: 'COMMENTED' }))).toBeNull();
+    expect(approve(review(OWNER, MARKER, { state: 'DISMISSED' }))).toBeNull();
     expect(approve(review(OWNER, 'Looks fine.'))).toBeNull();
     expect(approve(review(OWNER, 'Approved test change:'))).toBeNull();
     expect(approve(review(OWNER, 'Approved test change: <reason>'))).toBeNull();
@@ -305,5 +278,107 @@ test.describe('test-weakening guard', NODE, () => {
         review('Site-Owner', `Reviewed.\r\n${MARKER}`),
       ),
     ).toBe('the old check measured decoration.');
+  });
+});
+
+test.describe('test-weakening guard in CI', NODE, () => {
+  const HEAD = 'a'.repeat(40);
+  const BASE_SHA = 'b'.repeat(40);
+  const EVENT = '/event.json';
+  const CI_ENV = {
+    GITHUB_EVENT_PATH: EVENT,
+    GITHUB_REPOSITORY: 'owner/site',
+    GITHUB_REPOSITORY_OWNER: OWNER,
+    GITHUB_TOKEN: 'token',
+  };
+  const pullRequest = {
+    pull_request: { number: 7, head: { sha: HEAD }, base: { sha: BASE_SHA } },
+  };
+  const weakened = BASE.replace(`  expect(2).toBe(2);\n`, '');
+
+  /** A fake git holding one spec that loses an expect between the merge base and the head. */
+  const fakeGit =
+    ({ mergeBase = 'm'.repeat(40) } = {}) =>
+    (...args: string[]): string => {
+      if (args[0] === 'merge-base') {
+        if (!mergeBase) throw new Error('fatal: no merge base');
+        return `${mergeBase}\n`;
+      }
+      if (args[0] === 'diff') return `M\0${SPEC}\0`;
+      if (args[0] === 'show')
+        return args[1]?.startsWith(HEAD) ? weakened : BASE;
+      throw new Error(`unexpected git ${args.join(' ')}`);
+    };
+
+  const run = async (
+    overrides: {
+      env?: Record<string, string>;
+      event?: object;
+      reviews?: object[] | 'error';
+      git?: (...args: string[]) => string;
+    } = {},
+  ) => {
+    const lines: string[] = [];
+    const reviews = overrides.reviews ?? [];
+    const code: number = await main({
+      env: overrides.env ?? CI_ENV,
+      git: overrides.git ?? fakeGit(),
+      readFile: () => JSON.stringify(overrides.event ?? pullRequest),
+      fetchImpl: async () =>
+        reviews === 'error'
+          ? new Response('', { status: 502 })
+          : Response.json(reviews),
+      log: (line: string) => lines.push(line),
+    });
+    return { code, output: lines.join('\n') };
+  };
+
+  test("fails a finding without approval and passes it with the owner's approving review", async () => {
+    const unapproved = await run();
+    expect(unapproved.code).toBe(1);
+    expect(unapproved.output).toContain(`${SPEC}:`);
+    const approved = await run({
+      reviews: [
+        {
+          user: { login: OWNER },
+          state: 'APPROVED',
+          commit_id: HEAD,
+          body: MARKER,
+        },
+      ],
+    });
+    expect(approved).toEqual(expect.objectContaining({ code: 0 }));
+  });
+
+  test('ignores APPROVED_TEST_CHANGE in CI', async () => {
+    expect(
+      (await run({ env: { ...CI_ENV, APPROVED_TEST_CHANGE: '1' } })).code,
+    ).toBe(1);
+  });
+
+  test('fails a run that is not for a pull request', async () => {
+    expect((await run({ event: { ref: 'refs/heads/main' } })).code).toBe(1);
+  });
+
+  test('throws on a missing variable, a failed API call or no merge base', async () => {
+    const { GITHUB_TOKEN: _token, ...noToken } = CI_ENV;
+    await expect(run({ env: noToken })).rejects.toThrow(
+      'GITHUB_TOKEN is not set.',
+    );
+    await expect(run({ reviews: 'error' })).rejects.toThrow('answered 502');
+    await expect(run({ git: fakeGit({ mergeBase: '' }) })).rejects.toThrow(
+      'no merge base',
+    );
+    await expect(
+      run({
+        event: {
+          pull_request: {
+            number: 7,
+            head: { sha: 'HEAD' },
+            base: { sha: BASE_SHA },
+          },
+        },
+      }),
+    ).rejects.toThrow('pull_request.head.sha is not a commit SHA.');
   });
 });

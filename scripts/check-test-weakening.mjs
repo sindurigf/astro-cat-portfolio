@@ -1,24 +1,27 @@
 /*
  * Fails when a change weakens the tests: a skip, an axe exclusion, fewer
  * expect calls, a looser threshold, a new rejected finding, or an edit to this
- * guard. The owner approves in a review of the tested commit; see ARCHITECTURE.md.
+ * guard. CI runs the default branch's copy (.github/workflows/test-weakening.yml);
+ * the owner approves the head commit. See ARCHITECTURE.md.
  */
 import { execFileSync } from 'node:child_process';
-import { existsSync, readFileSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 
 export const APPROVAL_MARKER = /^Approved test change: *(\S.*)$/;
 const PLACEHOLDER_REASON = '<reason>';
 const FENCE = /^\s*(?:```|~~~)/;
 const GUARD_SCRIPT = 'scripts/check-test-weakening.mjs';
-const GUARD_COMMAND = 'check:test-weakening';
-const GUARD_TAIL = `&& npm run ${GUARD_COMMAND}`;
-const WORKFLOW = '.github/workflows/a11y.yml';
-const CHECK_STEP = '- name: Conventions and formatting';
+const WORKFLOWS = /^\.github\/workflows\//;
 const ARCHITECTURE = 'ARCHITECTURE.md';
 const REJECTED_HEADING = '## Rejected findings';
+const REJECTED_TITLE = REJECTED_HEADING.replace(/^#+ /, '');
 const DEFAULT_BASE = 'main';
 const API_PAGE_SIZE = 100;
+const APPROVED = 'APPROVED';
+const SHA = /^[0-9a-f]{40}$/;
+const SHORT_SHA_LENGTH = 7;
+const MAX_GIT_OUTPUT_BYTES = 64 * 1024 * 1024;
 const MAX_CALL_LINES = 20;
 
 const TEST_CODE = /^tests\/.*\.(?:[cm]?[jt]s|tsx?)$/;
@@ -237,24 +240,6 @@ export const newRejectedFindings = (oldText, newText) => {
   });
 };
 
-const checkStep = (text) => {
-  const lines = text.split('\n');
-  const start = lines.findIndex((line) => line.trim() === CHECK_STEP);
-  if (start === -1) return null;
-  const end = lines.findIndex(
-    (line, index) => index > start && /^\s*- name:/.test(line),
-  );
-  return lines.slice(start, end === -1 ? undefined : end).join('\n');
-};
-
-const packageScripts = (text) => {
-  try {
-    return JSON.parse(text).scripts ?? {};
-  } catch {
-    return {};
-  }
-};
-
 /**
  * Findings for one changed file. `oldPath` is the base path (a rename's
  * source); an added file has `oldText` '', a deleted one `newText` ''.
@@ -324,7 +309,7 @@ export const fileFindings = ({ path, oldPath = path, oldText, newText }) => {
 
   if (oldPath === ARCHITECTURE) {
     if (rejectedSection(oldText) !== null && rejectedSection(newText) === null)
-      add(1, `removes the "${REJECTED_HEADING.slice(3)}" heading`);
+      add(1, `removes the "${REJECTED_TITLE}" heading`);
     for (const { line, text } of newRejectedFindings(oldText, newText))
       add(line, `adds a rejected finding: ${findingTitle(text)}`);
   }
@@ -332,32 +317,8 @@ export const fileFindings = ({ path, oldPath = path, oldText, newText }) => {
   if (oldPath === GUARD_SCRIPT && oldText !== '' && oldText !== newText)
     add(1, 'changes the test-weakening guard', oldPath);
 
-  if (oldPath === 'package.json') {
-    const before = packageScripts(oldText);
-    const after = packageScripts(newText);
-    if (
-      before[GUARD_COMMAND] !== undefined &&
-      before[GUARD_COMMAND] !== after[GUARD_COMMAND]
-    )
-      add(1, `changes the ${GUARD_COMMAND} script`);
-    if (
-      (before.check ?? '').endsWith(GUARD_TAIL) &&
-      !(after.check ?? '').endsWith(GUARD_TAIL)
-    )
-      add(1, `npm run check no longer ends with ${GUARD_COMMAND}`);
-  }
-
-  if (oldPath === WORKFLOW) {
-    const before = checkStep(oldText);
-    const after = checkStep(newText) ?? '';
-    if (before?.includes('run: npm run check')) {
-      if (!after.includes('run: npm run check'))
-        add(1, 'drops npm run check from CI', oldPath);
-      for (const key of ['continue-on-error:', 'if:'])
-        if (!before.includes(key) && after.includes(key))
-          add(1, `adds ${key} to the CI step that runs npm run check`);
-    }
-  }
+  if (WORKFLOWS.test(path) || WORKFLOWS.test(oldPath))
+    add(1, 'changes a CI workflow');
 
   return findings;
 };
@@ -373,38 +334,31 @@ const approvalReason = (body) => {
   return null;
 };
 
-/** The reason from the owner's first review of `headSha` that carries the marker; `null` otherwise. */
+/** The reason from the owner's approving review of `headSha` that carries the marker; `null` otherwise. */
 export const ownerApproval = (reviews, owner, headSha) => {
   const ownerLogin = owner.toLowerCase();
-  for (const { login, body, commitId } of reviews) {
+  for (const { login, state, body, commitId } of reviews) {
     if ((login ?? '').toLowerCase() !== ownerLogin) continue;
-    if (commitId !== headSha) continue;
+    if (state !== APPROVED || commitId !== headSha) continue;
     const reason = approvalReason(body);
     if (reason) return reason;
   }
   return null;
 };
 
-const git = (...args) =>
+export const runGit = (...args) =>
   execFileSync('git', args, {
     encoding: 'utf8',
-    maxBuffer: 64 * 1024 * 1024,
+    maxBuffer: MAX_GIT_OUTPUT_BYTES,
   });
 
-const baseText = (base, path) => {
-  try {
-    return git('show', `${base}:${path}`);
-  } catch {
-    return '';
-  }
-};
-
-const workingText = (path) =>
-  existsSync(path) ? readFileSync(path, 'utf8') : '';
-
-/** `git diff -z --name-status` output: a status, then one path, or two for a rename or copy. */
-const changedFiles = (base) => {
-  const fields = git('diff', '-z', '--name-status', '-M', base).split('\0');
+/**
+ * Each file `git diff -z --name-status` lists between `base` and `head`, or the
+ * working tree when `head` is null, with its text on both sides.
+ */
+export const changedFiles = ({ git, base, head, readWorking }) => {
+  const range = head ? [base, head] : [base];
+  const fields = git('diff', '-z', '--name-status', '-M', ...range).split('\0');
   const files = [];
   for (let index = 0; index < fields.length - 1;) {
     const status = fields[index];
@@ -415,17 +369,22 @@ const changedFiles = (base) => {
     files.push({
       path,
       oldPath,
-      oldText: status === 'A' ? '' : baseText(base, oldPath),
-      newText: status === 'D' ? '' : workingText(path),
+      oldText: status === 'A' ? '' : git('show', `${base}:${oldPath}`),
+      newText:
+        status === 'D'
+          ? ''
+          : head
+            ? git('show', `${head}:${path}`)
+            : readWorking(path),
     });
   }
   return files;
 };
 
-const fetchAll = async (url, token) => {
+const fetchAll = async (fetchImpl, url, token) => {
   const items = [];
   for (let page = 1; ; page += 1) {
-    const response = await fetch(
+    const response = await fetchImpl(
       `${url}?per_page=${API_PAGE_SIZE}&page=${page}`,
       {
         headers: {
@@ -443,77 +402,99 @@ const fetchAll = async (url, token) => {
   }
 };
 
-const pullRequestReviews = async (repository, number, token) =>
+const pullRequestReviews = async (fetchImpl, repository, number, token) =>
   (
     await fetchAll(
+      fetchImpl,
       `https://api.github.com/repos/${repository}/pulls/${number}/reviews`,
       token,
     )
   ).map((review) => ({
     login: review.user?.login,
+    state: review.state,
     body: review.body,
     commitId: review.commit_id,
   }));
 
-const requireEnv = (name) => {
-  const value = process.env[name];
+const requireEnv = (env, name) => {
+  const value = env[name];
   if (!value) throw new Error(`${name} is not set.`);
   return value;
 };
 
-const main = async () => {
-  const eventPath = process.env.GITHUB_EVENT_PATH;
-  const inCI = Boolean(eventPath) || process.env.GITHUB_ACTIONS === 'true';
-  const event = eventPath ? JSON.parse(readFileSync(eventPath, 'utf8')) : {};
-  const pullRequest = event.pull_request;
-  const baseRef =
-    process.env.GITHUB_BASE_REF || pullRequest?.base?.ref || DEFAULT_BASE;
-  const base = git('merge-base', `origin/${baseRef}`, 'HEAD').trim();
+const requireSha = (value, name) => {
+  if (!SHA.test(value ?? '')) throw new Error(`${name} is not a commit SHA.`);
+  return value;
+};
 
-  const findings = changedFiles(base).flatMap(fileFindings);
+/** Runs the guard; returns the exit code and throws on anything it cannot check. */
+export const main = async ({
+  env = process.env,
+  git = runGit,
+  readFile = (path) => readFileSync(path, 'utf8'),
+  fetchImpl = fetch,
+  log = console.log,
+} = {}) => {
+  const inCI = Boolean(env.GITHUB_EVENT_PATH) || env.GITHUB_ACTIONS === 'true';
+  let pullRequest = null;
+  let base;
+  let head = null;
+
+  if (inCI) {
+    const event = JSON.parse(readFile(requireEnv(env, 'GITHUB_EVENT_PATH')));
+    pullRequest = event.pull_request ?? null;
+    if (!pullRequest) {
+      log('Test weakening: not a pull request, so nothing can approve it.');
+      return 1;
+    }
+    head = requireSha(pullRequest.head?.sha, 'pull_request.head.sha');
+    const baseSha = requireSha(pullRequest.base?.sha, 'pull_request.base.sha');
+    base = git('merge-base', baseSha, head).trim();
+  } else {
+    base = git('merge-base', `origin/${DEFAULT_BASE}`, 'HEAD').trim();
+  }
+
+  const findings = changedFiles({
+    git,
+    base,
+    head,
+    readWorking: readFile,
+  }).flatMap(fileFindings);
   if (findings.length === 0) {
-    console.log(`Test weakening: none against origin/${baseRef}.`);
+    log('Test weakening: none.');
     return 0;
   }
 
-  for (const { file, line, rule } of findings)
-    console.log(`${file}:${line}  ${rule}`);
+  for (const { file, line, rule } of findings) log(`${file}:${line}  ${rule}`);
 
   if (!inCI) {
-    if (process.env.APPROVED_TEST_CHANGE) {
-      console.log('\nTest weakening: allowed locally by APPROVED_TEST_CHANGE.');
+    if (env.APPROVED_TEST_CHANGE) {
+      log('\nTest weakening: allowed locally by APPROVED_TEST_CHANGE.');
       return 0;
     }
-    console.log(
+    log(
       '\nTest weakening: the owner approves in the pull request. Set APPROVED_TEST_CHANGE to pass locally.',
     );
     return 1;
   }
 
-  if (!pullRequest) {
-    console.log(
-      '\nTest weakening: not a pull request, so nothing can approve it.',
-    );
-    return 1;
-  }
-
-  const owner = requireEnv('GITHUB_REPOSITORY_OWNER');
-  const headSha = pullRequest.head.sha;
+  const owner = requireEnv(env, 'GITHUB_REPOSITORY_OWNER');
   const reason = ownerApproval(
     await pullRequestReviews(
-      requireEnv('GITHUB_REPOSITORY'),
+      fetchImpl,
+      requireEnv(env, 'GITHUB_REPOSITORY'),
       pullRequest.number,
-      requireEnv('GITHUB_TOKEN'),
+      requireEnv(env, 'GITHUB_TOKEN'),
     ),
     owner,
-    headSha,
+    head,
   );
   if (reason) {
-    console.log(`\nTest weakening: approved by ${owner}: ${reason}`);
+    log(`\nTest weakening: approved by ${owner}: ${reason}`);
     return 0;
   }
-  console.log(
-    `\nTest weakening: needs a review by ${owner} of ${headSha.slice(0, 7)} with the line "Approved test change: <reason>", then a re-run of this job.`,
+  log(
+    `\nTest weakening: needs ${owner}'s approving review of ${head.slice(0, SHORT_SHA_LENGTH)} with the line "Approved test change: <reason>", then a re-run of this job.`,
   );
   return 1;
 };
