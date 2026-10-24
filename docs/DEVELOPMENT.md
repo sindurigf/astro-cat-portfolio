@@ -160,6 +160,7 @@ WEBKIT_CPUS=8 npm run test:webkit
 | `CHECK_LIVE_SKIP_D1`            | unset                    | `1` skips that D1 count                                  |
 | `CI`                            | unset                    | Adds the WebKit project and one retry; set by CI         |
 | `TRUST_DEPENDABOT`              | unset                    | `1` skips `check:commits` for Dependabot's commits       |
+| `GITHUB_BASE_REF`               | unset                    | `check:commits` checks from `origin/<it>`, else `main`   |
 | `COVERAGE`                      | unset                    | `1` builds source maps; set by `test:coverage`           |
 | `WORKERS_CI`                    | unset                    | `1` skips the build fingerprint, set in Workers Builds   |
 
