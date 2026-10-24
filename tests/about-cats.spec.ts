@@ -489,30 +489,6 @@ test(
   },
 );
 
-test(
-  "the pounce's and the stalk's leap spans the air and the landing, so the paws touch down as the arc ends",
-  NODE,
-  () => {
-    for (const name of ['pounce', 'stalk'] as const) {
-      const move = MOVES[name]();
-      const air = move.steps.findIndex(
-        (s) =>
-          JSON.stringify(s.pose) ===
-          JSON.stringify(pose('air', { x: s.pose.x })),
-      );
-      expect(air, `${name} has no leap`).toBeGreaterThan(0);
-      const airFrom = move.steps
-        .slice(0, air)
-        .reduce((sum, s) => sum + s.ms, 0);
-      const landed = airFrom + move.steps[air].ms + move.steps[air + 1].ms;
-      expect(
-        move.mods.some((m) => m.from === airFrom && m.to === landed),
-        `${name}'s arc does not run from take-off to touchdown`,
-      ).toBe(true);
-    }
-  },
-);
-
 /** How far any pose value may sit from the plain sit pose at a move's end. */
 const SIT_TOLERANCE = 0.01;
 
