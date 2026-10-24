@@ -128,7 +128,7 @@ test.describe('readBuildEnv', NODE, () => {
 test.describe('noindexHeaders', NODE, () => {
   test('adds noindex to the global rule and drops only the sitemap link', () => {
     const rewritten = noindexHeaders(HEADERS);
-    const global = rewritten.split('\n/_astro/*')[0]!;
+    const global = rewritten.replace(/\n\/_astro\/\*[\s\S]*$/, '');
 
     expect(global, 'the global rule has no noindex.').toMatch(
       /^\/\*\n {2}X-Robots-Tag: noindex$/m,

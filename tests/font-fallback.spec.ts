@@ -37,8 +37,10 @@ const fontFaces = (css: string): ReadonlyMap<string, string>[] =>
         (body ?? '')
           .split(';')
           .map((declaration) => declaration.split(/:(.*)/s))
-          .filter(([name]) => name?.trim())
-          .map(([name, value]) => [name!.trim(), unquoted(value ?? '')]),
+          .flatMap(([name, value]): [string, string][] => {
+            const property = name?.trim();
+            return property ? [[property, unquoted(value ?? '')]] : [];
+          }),
       ),
   );
 

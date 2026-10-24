@@ -38,8 +38,11 @@ const lightOf = (() => {
   };
 })();
 
-/** The rows of the first table after `## heading` (or `### heading`), cells trimmed. */
-const tableAfter = (heading: string): string[][] => {
+/** One table row: the trimmed cell at a column index, failing by name past the row's end. */
+type Row = (column: number) => string;
+
+/** The rows of the first table after `## heading` (or `### heading`). */
+const tableAfter = (heading: string): Row[] => {
   const start = guide.search(new RegExp(`^#{2,3} ${heading}$`, 'm'));
   if (start === -1) fail(`${STYLEGUIDE} has no "${heading}" section`);
   const rows = [];
@@ -56,7 +59,15 @@ const tableAfter = (heading: string): string[][] => {
     } else if (inTable || line.startsWith('#')) break;
   }
   /* Header and separator rows first. */
-  return rows.slice(2);
+  return rows
+    .slice(2)
+    .map(
+      (cells) => (column) =>
+        cells[column] ??
+        fail(
+          `${STYLEGUIDE} "${heading}" has a row with no column ${column + 1}`,
+        ),
+    );
 };
 
 const code = (cell: string): string => cell.replace(/^`|`$/g, '');
@@ -65,9 +76,10 @@ const plain = (cell: string): string => cell.replace(/`/g, '');
 
 /** One row per named color token, with its job and its dark and light hex. */
 export const colors = tableAfter('Color tokens')
-  .filter(([, hex]) => /^`#[0-9A-Fa-f]{6}`$/.test(hex))
-  .map(([name, hex, job]) => {
-    const token = code(name);
+  .filter((cell) => /^`#[0-9A-Fa-f]{6}`$/.test(cell(1)))
+  .map((cell) => {
+    const token = code(cell(0));
+    const hex = cell(1);
     if (hexOf(token) !== code(hex).toUpperCase()) {
       fail(
         `${STYLEGUIDE} gives ${token} as ${code(hex)} but ${GLOBAL_CSS} has ${hexOf(token)}`,
@@ -75,7 +87,7 @@ export const colors = tableAfter('Color tokens')
     }
     return {
       token,
-      job: plain(job),
+      job: plain(cell(2)),
       dark: hexOf(token),
       light: lightOf(token),
     };
@@ -95,28 +107,25 @@ export const contrast = contrastRows(tokens).map((row) => ({
  * not a token, so that row has no pair here.
  */
 const LIGHT_GROUND = 'background';
-const lightTable = tableAfter('Light mode').flatMap(([names, , stated]) =>
-  [...names.matchAll(/`([a-z-]+)`/g)].map(([, token]) => ({ token, stated })),
+const lightTable = tableAfter('Light mode').flatMap((cell) =>
+  [...cell(0).matchAll(/`([a-z-]+)`/g)].map(([, token]) => ({
+    token,
+    stated: cell(2),
+  })),
 );
 const lightTokens = Object.fromEntries(
   Object.keys(tokens).map((token) => [token, lightOf(token)]),
 );
-export const lightContrast = contrastRows(lightTokens)
-  .filter(
-    (row) =>
-      row.bg === LIGHT_GROUND &&
-      row.result === 'pass' &&
-      lightTable.some(({ token }) => token === row.fg),
-  )
-  .map((row) => {
-    const stated = lightTable.find(({ token }) => token === row.fg)!.stated;
-    if (stated !== row.ratio) {
-      fail(
-        `${STYLEGUIDE} "Light mode" gives ${row.fg} ${stated} but ${LIGHT_CSS} measures ${row.ratio}`,
-      );
-    }
-    return { ...row, use: plain(row.use) };
-  });
+export const lightContrast = contrastRows(lightTokens).flatMap((row) => {
+  const listed = lightTable.find(({ token }) => token === row.fg);
+  if (row.bg !== LIGHT_GROUND || row.result !== 'pass' || !listed) return [];
+  if (listed.stated !== row.ratio) {
+    fail(
+      `${STYLEGUIDE} "Light mode" gives ${row.fg} ${listed.stated} but ${LIGHT_CSS} measures ${row.ratio}`,
+    );
+  }
+  return [{ ...row, use: plain(row.use) }];
+});
 if (lightContrast.length === 0) {
   fail(`${STYLEGUIDE} "Light mode" gives no pairing on ${LIGHT_GROUND}`);
 }
@@ -133,15 +142,21 @@ const TYPE_STEPS = [
 ] as const;
 
 const typeTable = new Map(
-  tableAfter('Type scale').map((cells) => [code(cells[0]), cells]),
+  tableAfter('Type scale').map((cell) => [code(cell(0)), cell]),
 );
 
 export const type = TYPE_STEPS.map((token) => {
-  const cells =
+  const cell =
     typeTable.get(token) ??
     fail(`${STYLEGUIDE} "Type scale" has no ${token} row`);
-  const [, min, max, lineHeight, weight, use] = cells;
-  return { token, min, max, lineHeight, weight, use: plain(use) };
+  return {
+    token,
+    min: cell(1),
+    max: cell(2),
+    lineHeight: cell(3),
+    weight: cell(4),
+    use: plain(cell(5)),
+  };
 });
 
 /** Spacing tokens with their use, from the "Spacing scale" table. */
@@ -152,20 +167,19 @@ const SPACING_STEPS = [
 ] as const;
 
 const spacingTable = new Map(
-  tableAfter('Spacing scale').map((cells) => [code(cells[0]), cells]),
+  tableAfter('Spacing scale').map((cell) => [code(cell(0)), cell]),
 );
 
 export const spacing = SPACING_STEPS.map((token) => {
-  const cells =
+  const cell =
     spacingTable.get(token) ??
     fail(`${STYLEGUIDE} "Spacing scale" has no ${token} row`);
-  const [, use, phone, wide] = cells;
-  return { token, use: plain(use), phone, wide };
+  return { token, use: plain(cell(1)), phone: cell(2), wide: cell(3) };
 });
 
 /** Each hard shadow and what casts it, from "Borders, shadows and radius". */
 export const shadows = tableAfter('Borders, shadows and radius').map(
-  ([utility, casts]) => ({ utility: code(utility), casts: plain(casts) }),
+  (cell) => ({ utility: code(cell(0)), casts: plain(cell(1)) }),
 );
 if (shadows.length === 0) {
   fail(`${STYLEGUIDE} "Borders, shadows and radius" lists no shadow`);

@@ -57,6 +57,7 @@ const setUpViewer = (viewer: HTMLDialogElement): void => {
   const show = async (next: number): Promise<void> => {
     index = (next + links.length) % links.length;
     const link = links[index];
+    if (!link) return;
     const alt = link.querySelector('img')?.alt ?? '';
     const token = ++request;
 

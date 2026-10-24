@@ -62,8 +62,9 @@ const largest = (tag: string): string | null => {
   const candidates = (attribute(tag, 'srcset') ?? '')
     .split(',')
     .map((entry) => entry.trim().split(/\s+/))
-    .filter(([url, width]) => url && width?.endsWith('w'))
-    .map(([url, width]) => ({ url: url!, width: parseInt(width!, 10) }))
+    .flatMap(([url, width]) =>
+      url && width?.endsWith('w') ? [{ url, width: parseInt(width, 10) }] : [],
+    )
     .sort((a, b) => b.width - a.width);
   return candidates[0]?.url ?? attribute(tag, 'src');
 };
@@ -107,7 +108,7 @@ const IMAGE_MIME: Readonly<Record<string, string>> = {
 
 /** The media type of a photo a card can embed; throws on any other file. */
 export const imageMime = (path: string): string => {
-  const type = IMAGE_MIME[path.split('.').at(-1)!.toLowerCase()];
+  const type = IMAGE_MIME[path.slice(path.lastIndexOf('.') + 1).toLowerCase()];
   if (!type)
     throw new Error(`make-og: ${path} is not a JPEG, PNG, WebP or AVIF.`);
   return type;

@@ -5,7 +5,7 @@
  * form names or paragraphs: the live examples are the parts below the poster.
  */
 import { colors } from '../../lib/brand';
-import { SWATCH } from '../../lib/brand-roles';
+import { swatchOf } from '../../lib/brand-roles';
 
 interface Props {
   /* A slug from src/lib/brand-sections.ts. */
@@ -25,20 +25,23 @@ const { section } = Astro.props;
 )}
 {section === 'color' && (
   <ul role="list" class="flex flex-wrap gap-3">
-    {colors.map(({ token }) => (
-      <li>
-        <span
-          class:list={[
-            'role-swatch',
-            SWATCH[token]!.paint === 'glyph' && 'role-swatch-glyph',
-            SWATCH[token]!.cls,
-          ]}
-          aria-hidden="true"
-        >
-          {SWATCH[token]!.paint === 'glyph' && 'Aa'}
-        </span>
-      </li>
-    ))}
+    {colors.map(({ token }) => {
+      const { paint, cls } = swatchOf(token);
+      return (
+        <li>
+          <span
+            class:list={[
+              'role-swatch',
+              paint === 'glyph' && 'role-swatch-glyph',
+              cls,
+            ]}
+            aria-hidden="true"
+          >
+            {paint === 'glyph' && 'Aa'}
+          </span>
+        </li>
+      );
+    })}
   </ul>
 )}
 {section === 'contrast' && (

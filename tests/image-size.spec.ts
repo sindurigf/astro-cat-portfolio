@@ -52,11 +52,12 @@ const measureImages = (page: Page) =>
           text,
         );
       if (!/<image\b[^>]*href="data:/.test(text)) return null;
-      if (!box || !picture)
+      const pictureData = picture?.[3];
+      if (!box || !picture || pictureData === undefined)
         throw new Error(
           `${img.currentSrc} holds a picture this check cannot read; update embedded() for its format.`,
         );
-      const file = await filePixels(picture[3]);
+      const file = await filePixels(pictureData);
       return {
         src: `${img.currentSrc} (its picture)`,
         embedded: true,
@@ -170,8 +171,8 @@ const measureFluidImages = (page: Page) =>
 
     const resolve = (sizes: string): number => {
       const entry = topLevel(sizes).find((candidate) => {
-        const media = candidate.match(/^(\([^()]*\))\s+/);
-        return media === null || matchMedia(media[1]).matches;
+        const media = candidate.match(/^(\([^()]*\))\s+/)?.[1];
+        return media === undefined || matchMedia(media).matches;
       });
       const probe = document.createElement('div');
       probe.style.width = (entry ?? '100vw').replace(/^\([^()]*\)\s+/, '');

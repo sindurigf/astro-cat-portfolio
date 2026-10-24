@@ -1,6 +1,7 @@
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { expect, test } from './test';
+import { itemAt } from '../src/lib/defined';
 import { DIST_DIR } from './routes';
 import { NODE } from './tags';
 import { wranglerConfig } from './source';
@@ -88,7 +89,7 @@ test.describe('the logo cat and the Cheshire Cat', () => {
   });
 
   test('with no close page, Follow Me leads home', async ({ page }) => {
-    await page.goto(unknownPaths()[0]!);
+    await page.goto(itemAt(unknownPaths(), 0));
     await expect(followMe(page)).toHaveAccessibleName('Follow Me Home');
     await expect(followMe(page)).toHaveAttribute('href', '/');
   });

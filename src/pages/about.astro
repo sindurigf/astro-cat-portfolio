@@ -148,18 +148,21 @@ const panoramaSize = await photoSize(panorama);
  * A `.photo-pair` row from 40rem: the two photos share `min(100vw - 11.5rem,
  * 71.5rem)` in proportion to their ratios, as flex shrinks them to one height.
  */
-const pairSizes = async (images: readonly [ImageMetadata, ImageMetadata]) => {
-  const ratios = await Promise.all(
-    images.map(async (image) => {
-      const { width, height } = await photoSize(image);
-      return width / height;
-    }),
-  );
-  const total = ratios.reduce((sum, ratio) => sum + ratio, 0);
-  return ratios.map((ratio) => {
+const pairSizes = async ([left, right]: readonly [
+  ImageMetadata,
+  ImageMetadata,
+]): Promise<[string, string]> => {
+  const ratioOf = async (image: ImageMetadata) => {
+    const { width, height } = await photoSize(image);
+    return width / height;
+  };
+  const ratios = await Promise.all([ratioOf(left), ratioOf(right)]);
+  const total = ratios[0] + ratios[1];
+  const sizesFor = (ratio: number) => {
     const share = (ratio / total).toFixed(4);
     return `(min-width: 40rem) min(calc((100vw - 11.5rem) * ${share}), calc(71.5rem * ${share})), calc(100vw - 6.5rem)`;
-  });
+  };
+  return [sizesFor(ratios[0]), sizesFor(ratios[1])];
 };
 const [halfBlackSizes, halfTabbySizes] = await pairSizes([
   halfBlack,

@@ -1,6 +1,7 @@
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { expect, test } from './test';
+import { captures } from './captures';
 import { builtPages, DIST_DIR, pagesNotLinking } from './routes';
 import { configuredSite } from './source';
 import { RETENTION_DAYS } from '../src/lib/contact-form';
@@ -71,17 +72,17 @@ const SRCSET = /\bsrcset\s*=\s*["']([^"']+)["']/gi;
 const CSS_URL = /(?:url\(\s*|@import\s+)["']?((?:https?:)?\/\/[^"')\s;]+)/gi;
 
 const absoluteUrls = (text: string, isCss: boolean): string[] => {
-  if (isCss) return [...text.matchAll(CSS_URL)].map((m) => m[1]!);
-  const candidates = [...text.matchAll(SRCSET)].flatMap((m) =>
-    m[1]!
+  if (isCss) return captures(text, CSS_URL);
+  const candidates = captures(text, SRCSET).flatMap((srcset) =>
+    srcset
       .split(',')
-      .map((candidate) => candidate.trim().split(/\s+/)[0]!)
+      .map((candidate) => candidate.trim().replace(/\s.*$/s, ''))
       .filter((url) => /^(?:https?:)?\/\//.test(url)),
   );
   return [
-    ...[...text.matchAll(SUBRESOURCE)].map((m) => m[1]!),
+    ...captures(text, SUBRESOURCE),
     ...candidates,
-    ...[...text.matchAll(CSS_URL)].map((m) => m[1]!),
+    ...captures(text, CSS_URL),
   ];
 };
 
@@ -226,8 +227,8 @@ test.describe('the privacy policy is true', NODE, () => {
 
     // Body only: <meta name="description"> carries claim strings too.
     const body = html.slice(html.indexOf('<body'));
-    const labels = [...body.matchAll(/<strong[^>]*>([^<]+)<\/strong>/g)].map(
-      (match) => match[1]!.trim().replace(/\.$/, '').toLowerCase(),
+    const labels = captures(body, /<strong[^>]*>([^<]+)<\/strong>/g).map(
+      (label) => label.trim().replace(/\.$/, '').toLowerCase(),
     );
 
     for (const claim of CLAIMS) {

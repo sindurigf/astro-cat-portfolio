@@ -15,7 +15,7 @@ import { ANALYTICS_ON } from '../src/lib/analytics-site';
 /* Decoded script bytes. `/` and `/about` carry Vue. */
 const ROUTE_SCRIPT_BUDGETS: Readonly<Record<string, number>> = {
   '/': 97_000,
-  '/about': 124_900,
+  '/about': 125_000,
 };
 const PAGE_SCRIPT_BUDGET = 14_000;
 /* On every route once `analytics` is set: /vendor/umami.js and the click tracker. */

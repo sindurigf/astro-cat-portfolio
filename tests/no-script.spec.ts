@@ -180,6 +180,7 @@ test.describe('navigation without JavaScript', () => {
           'No visible header action bricks.',
         ).toBeGreaterThan(0);
         const [first, ...rest] = edges;
+        if (!first) throw new Error('No visible header action bricks.');
         expect(first.left, 'The first visible brick has no left edge.').toBe(
           first.right,
         );

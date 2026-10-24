@@ -1,4 +1,5 @@
 import { expect, test } from './test';
+import { defined } from '../src/lib/defined';
 import { builtHtml } from './routes';
 import { NODE } from './tags';
 
@@ -30,7 +31,7 @@ const auditImages = (html: string): Problem[] => {
       continue;
     }
 
-    const alt = valued?.[1].trim() ?? '';
+    const alt = valued?.[1]?.trim() ?? '';
     if (alt === '') {
       if (!DECORATIVE.test(source)) {
         problems.push({
@@ -55,7 +56,10 @@ const auditImages = (html: string): Problem[] => {
    * `role="img"` alone is not a name: it tells assistive technology to treat
    * the drawing as one image, which is then announced with no name at all.
    */
-  for (const [svg, tag] of html.matchAll(/(<svg\b[^>]*>)[\s\S]*?<\/svg>/g)) {
+  for (const [svg, opening] of html.matchAll(
+    /(<svg\b[^>]*>)[\s\S]*?<\/svg>/g,
+  )) {
+    const tag = defined(opening, 'svg opening tag');
     const hidden = /\saria-hidden="true"/.test(tag);
     const named =
       /\saria-label="[^"]*\S[^"]*"/.test(tag) ||

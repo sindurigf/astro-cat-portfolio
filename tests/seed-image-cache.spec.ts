@@ -37,7 +37,11 @@ const BYTES: Record<string, Buffer> = {
   '.jpg': JPEG,
   '.png': PNG,
 };
-const bytesFor = (file: string) => BYTES[file.slice(file.lastIndexOf('.'))];
+const bytesFor = (file: string): Buffer => {
+  const bytes = BYTES[file.slice(file.lastIndexOf('.'))];
+  if (!bytes) throw new Error(`No sample bytes for ${file}.`);
+  return bytes;
+};
 
 const writePackage = (root: string, name: string, version: string) => {
   const dir = join(root, 'node_modules', name);
@@ -62,7 +66,7 @@ const checkout = (
   mkdirSync(cache, { recursive: true });
   const settled = (Date.now() - 2 * SETTLED_MS) / 1000;
   for (const entry of cached) {
-    const [file, bytes] =
+    const [file, bytes]: readonly [string, Buffer] =
       typeof entry === 'string' ? [entry, bytesFor(entry)] : entry;
     writeFileSync(join(cache, file), bytes);
     utimesSync(join(cache, file), settled, settled);

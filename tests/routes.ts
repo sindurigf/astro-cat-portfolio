@@ -211,7 +211,8 @@ export const TALK_ROUTES: readonly string[] = existsSync(TALKS_DIR)
 export const NO_TALK = `no deck in ${TALKS_DIR}`;
 
 /** The deck directory a talk route is built from. */
-export const deckOf = (route: string): string => route.split('/').at(-1)!;
+export const deckOf = (route: string): string =>
+  route.slice(route.lastIndexOf('/') + 1);
 
 /** A talk and the post sharing its deck's name that links the talk's PDF. */
 export interface PairedTalk {

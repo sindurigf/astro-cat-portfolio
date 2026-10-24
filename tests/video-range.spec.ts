@@ -192,22 +192,25 @@ test.describe('the Worker serves /videos/* with byte ranges', () => {
   test('the build records every video at its size on disk', () => {
     // A stale __VIDEO_SIZES__ entry would cut a ranged video short or 416 it.
     const entry = readFileSync('dist/server/entry.mjs', 'utf8');
-    const videos = [
+    const videos: (readonly [name: string, path: string])[] = [
       [VIDEO_FIXTURE_NAME, FIXTURE_PATH],
       ...(existsSync(VIDEO_DIR)
-        ? readdirSync(VIDEO_DIR).map((name) => [name, join(VIDEO_DIR, name)])
+        ? readdirSync(VIDEO_DIR).map((name): [string, string] => [
+            name,
+            join(VIDEO_DIR, name),
+          ])
         : []),
     ];
 
     for (const [name, path] of videos) {
       const recorded = new RegExp(
         // The minifier may write 5000 as 5e3, so the whole numeric literal is read.
-        `"/videos/${name!.replaceAll('.', '\\.')}":\\s*([\\d.e+]+)`,
+        `"/videos/${name.replaceAll('.', '\\.')}":\\s*([\\d.e+]+)`,
       ).exec(entry);
       expect(
         Number(recorded?.[1]),
         `${name} is not recorded in the Worker bundle`,
-      ).toBe(statSync(path!).size);
+      ).toBe(statSync(path).size);
     }
   });
 

@@ -1,6 +1,7 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { expect, test } from './test';
+import { defined } from '../src/lib/defined';
 import { builtHtml, DIST_DIR } from './routes';
 import { configuredSite } from './source';
 import { NODE } from './tags';
@@ -42,7 +43,9 @@ test('every redirect in public/_redirects lands on a built file', NODE, () => {
     .split('\n')
     .map((line) => line.trim())
     .filter((line) => line !== '' && !line.startsWith('#'))
-    .map((line) => line.split(/\s+/)[1]!.split('#')[0]!);
+    .map((line) =>
+      defined(line.split(/\s+/)[1], `target in "${line}"`).replace(/#.*$/s, ''),
+    );
   expect(targets.length, 'no redirects read').toBeGreaterThan(0);
   const file = (path: string) =>
     path.endsWith('/') ? `${path}index.html` : path;

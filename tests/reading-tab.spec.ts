@@ -109,8 +109,8 @@ test.describe('The reading tab: Smaller, Larger and Reset', () => {
         page,
       }) => {
         await page.addInitScript(
-          ([key, value]) => localStorage.setItem(key!, value!),
-          [TEXT_SCALE_KEY, String(saved)],
+          ({ key, value }) => localStorage.setItem(key, value),
+          { key: TEXT_SCALE_KEY, value: String(saved) },
         );
         await page.setViewportSize({ width, height: 800 });
         for (const route of WIDE_ROUTES) {
@@ -423,11 +423,13 @@ test.describe('The reading tab: Smaller, Larger and Reset', () => {
         );
       expect(boxes).toHaveLength(4);
       const sorted = [...boxes].sort((a, b) => a.left - b.left);
-      for (let i = 1; i < sorted.length; i += 1) {
+      for (const [i, box] of sorted.entries()) {
+        const previous = sorted[i - 1];
+        if (previous === undefined) continue;
         expect(
-          sorted[i]!.left,
+          box.left,
           `controls overlap at ${width}px`,
-        ).toBeGreaterThanOrEqual(sorted[i - 1]!.right - 0.5);
+        ).toBeGreaterThanOrEqual(previous.right - 0.5);
       }
       for (const box of boxes.slice(1)) {
         expect(Math.min(box.w, box.h)).toBeGreaterThanOrEqual(44);

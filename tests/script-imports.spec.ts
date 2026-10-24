@@ -2,6 +2,7 @@ import { spawnSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { dirname, join, relative } from 'node:path';
 import { expect, test } from './test';
+import { captures } from './captures';
 import { NODE } from './tags';
 
 /**
@@ -21,7 +22,7 @@ const packageScripts = (): string[] => {
   return [
     ...new Set(
       Object.values(scripts).flatMap((command) =>
-        [...command.matchAll(NODE_SCRIPT)].map(([, path]) => path!),
+        captures(command, NODE_SCRIPT),
       ),
     ),
   ];
@@ -34,10 +35,11 @@ const withLocalImports = (
 ): Set<string> => {
   if (seen.has(entry)) return seen;
   seen.add(entry);
-  for (const [, specifier] of readFileSync(entry, 'utf8').matchAll(
+  for (const specifier of captures(
+    readFileSync(entry, 'utf8'),
     LOCAL_SCRIPT_IMPORT,
   )) {
-    withLocalImports(join(dirname(entry), specifier!), seen);
+    withLocalImports(join(dirname(entry), specifier), seen);
   }
   return seen;
 };
@@ -45,9 +47,8 @@ const withLocalImports = (
 const sourceImports = (files: Iterable<string>): string[] => [
   ...new Set(
     [...files].flatMap((file) =>
-      [...readFileSync(file, 'utf8').matchAll(SOURCE_IMPORT)].map(
-        ([, specifier]) =>
-          relative(SCRIPTS_DIR, join(dirname(file), specifier!)),
+      captures(readFileSync(file, 'utf8'), SOURCE_IMPORT).map((specifier) =>
+        relative(SCRIPTS_DIR, join(dirname(file), specifier)),
       ),
     ),
   ),

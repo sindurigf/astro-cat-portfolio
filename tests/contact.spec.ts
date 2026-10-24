@@ -929,10 +929,13 @@ test.describe('the contact error pages in a browser', () => {
   };
 
   /* SC 3.3.6: nothing typed is lost, so a mistake costs one correction. */
-  const expectTypedKept = async (page: Page, typed: Record<string, string>) => {
-    await expect(page.getByLabel('Name')).toHaveValue(typed.name!);
-    await expect(page.getByLabel('Email')).toHaveValue(typed.email!);
-    await expect(page.getByLabel('Message')).toHaveValue(typed.message!);
+  const expectTypedKept = async (
+    page: Page,
+    typed: Record<'name' | 'email' | 'message', string>,
+  ) => {
+    await expect(page.getByLabel('Name')).toHaveValue(typed.name);
+    await expect(page.getByLabel('Email')).toHaveValue(typed.email);
+    await expect(page.getByLabel('Message')).toHaveValue(typed.message);
   };
 
   const expectSummaryFocusedAndClean = async (page: Page, label: string) => {

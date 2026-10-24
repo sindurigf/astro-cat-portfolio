@@ -1,4 +1,6 @@
 import { expect, test } from './test';
+import { captures } from './captures';
+import { defined, itemAt } from '../src/lib/defined';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import {
@@ -30,7 +32,7 @@ const graphOf = (rawHtml: string, route: string): Node[] => {
 
   let parsed: { '@graph'?: Node[] };
   try {
-    parsed = JSON.parse(match![1]!);
+    parsed = JSON.parse(defined(match?.[1], `${route} JSON-LD block`));
   } catch (error) {
     throw new Error(
       `${route} has JSON-LD that is not valid JSON: ${(error as Error).message}`,
@@ -56,7 +58,7 @@ const headingText = (rawHtml: string): string => {
     'the homepage has no <h1> to compare the name against',
   ).not.toBeNull();
 
-  return h1![1]!
+  return defined(h1?.[1], 'the homepage <h1> text')
     .replace(/<[^>]+>/g, ' ')
     .replace(/&[a-z]+;/gi, ' ')
     .replace(/\s+/g, ' ')
@@ -99,7 +101,7 @@ test.describe('JSON-LD structured data', NODE, () => {
       'the ProfilePage node is on the wrong pages.',
     ).toEqual(['/about']);
 
-    const graph = graphOf(profiles[0]![1], '/about');
+    const graph = graphOf(itemAt(profiles, 0)[1], '/about');
     expect(
       nodeOfType(graph, 'ProfilePage')!.mainEntity,
       "/about/'s ProfilePage does not point at the Person.",
@@ -150,11 +152,7 @@ test.describe('JSON-LD structured data', NODE, () => {
       );
       const footer = html.slice(social, html.indexOf('</nav>', social));
       const footerProfiles = [
-        ...new Set(
-          [...footer.matchAll(/href="(https:\/\/[^"]+)"/g)].map(
-            (match) => match[1]!,
-          ),
-        ),
+        ...new Set(captures(footer, /href="(https:\/\/[^"]+)"/g)),
       ].toSorted();
 
       expect(sameAs.length, `${route} has an empty sameAs.`).toBeGreaterThan(0);

@@ -9,6 +9,7 @@ import {
   POSE_FRAME,
   bridges,
   WALK,
+  walkFrame,
   frameFor,
   type Frame,
   type Motion,
@@ -301,7 +302,7 @@ export const stepFrame = (
     at >= 0 && to >= 0
       ? x === s.stepX
         ? s.frame!
-        : WALK[(at + Math.min(ahead, MAX_WALK_STEP)) % WALK.length]!
+        : walkFrame(at + Math.min(ahead, MAX_WALK_STEP))
       : wanted;
   s.pending = next !== s.frame && now - s.shownAt < TICK_MS;
   if (next === s.frame) s.cut = false;

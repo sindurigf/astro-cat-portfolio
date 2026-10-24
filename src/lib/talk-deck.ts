@@ -13,14 +13,14 @@ export const talkDecks = async (): Promise<Map<string, DeckSlide[]>> => {
   return new Map(
     [...decks].map(([deck, entries]) => {
       const ordered = entries.toSorted((a, b) => a.data.number - b.data.number);
-      const parts = ordered.reduce<string[]>(
-        (found, slide, i) => [
+      const withParts = ordered.reduce<DeckSlide[]>(
+        (found, slide) => [
           ...found,
-          slide.data.part ?? (i === 0 ? '' : found.at(-1)!),
+          { slide, part: slide.data.part ?? found.at(-1)?.part ?? '' },
         ],
         [],
       );
-      return [deck, ordered.map((slide, i) => ({ slide, part: parts[i] }))];
+      return [deck, withParts];
     }),
   );
 };

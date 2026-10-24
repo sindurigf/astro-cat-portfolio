@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { expect, test, type Page } from './test';
+import { captures } from './captures';
 import { gotoSettled } from './settle';
 import { AAA_TEXT, NON_TEXT, PAGE_HELPERS } from './contrast';
 import {
@@ -49,9 +50,7 @@ const STEP_WIDTHS = [
 test('no :visited rule exists anywhere in the built CSS', NODE, () => {
   const pages = builtPages().map((page) => readFileSync(page.file, 'utf8'));
   const linked = new Set(
-    pages.flatMap((html) =>
-      [...html.matchAll(/href="([^"]+\.css)"/g)].map((match) => match[1]!),
-    ),
+    pages.flatMap((html) => captures(html, /href="([^"]+\.css)"/g)),
   );
   // An unreadable sheet throws; inline <style> counts, since Astro inlines small CSS.
   const sources = [
@@ -60,9 +59,9 @@ test('no :visited rule exists anywhere in the built CSS', NODE, () => {
       css: readFileSync(`${DIST_DIR}${href}`, 'utf8'),
     })),
     ...pages.flatMap((html, index) =>
-      [...html.matchAll(/<style\b[^>]*>([\s\S]*?)<\/style>/g)].map((match) => ({
+      captures(html, /<style\b[^>]*>([\s\S]*?)<\/style>/g).map((css) => ({
         source: `inline style in page ${index}`,
-        css: match[1]!,
+        css,
       })),
     ),
   ];

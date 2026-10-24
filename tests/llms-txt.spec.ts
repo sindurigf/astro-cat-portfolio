@@ -1,6 +1,7 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { expect, test } from './test';
+import { captures } from './captures';
 import {
   frontmatterField,
   postFrontmatter,
@@ -51,8 +52,7 @@ const postSources = (): PostSource[] =>
       };
     });
 
-const links = (source: string): string[] =>
-  [...source.matchAll(/\]\(([^)]+)\)/g)].map((match) => match[1]!);
+const links = (source: string): string[] => captures(source, /\]\(([^)]+)\)/g);
 
 test.describe('llms.txt', NODE, () => {
   test('says the CV is linked exactly when /career links one', () => {
@@ -100,8 +100,8 @@ test.describe('llms.txt', NODE, () => {
   test('every page in the sitemap outside the blog is listed', () => {
     // Blog listings reorder the posts, which the next test covers.
     const sitemap = readFileSync(join(DIST_DIR, 'sitemap-0.xml'), 'utf8');
-    const pages = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)]
-      .map((match) => new URL(match[1]!).pathname)
+    const pages = captures(sitemap, /<loc>([^<]+)<\/loc>/g)
+      .map((loc) => new URL(loc).pathname)
       .filter((path) => !path.startsWith('/blog/'));
     const listed = new Set(
       links(llmsTxt()).map((link) => new URL(link).pathname),

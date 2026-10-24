@@ -1,6 +1,7 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { expect, test, type Page } from './test';
+import { itemAt } from '../src/lib/defined';
 import { gotoSettled } from './settle';
 import { blogCategories } from './source';
 import {
@@ -170,7 +171,7 @@ test.describe('the category filter', () => {
     const filter = page.getByRole('navigation', {
       name: /filter posts by category/i,
     });
-    const target = CATEGORY_ROUTES[0]!;
+    const target = itemAt(CATEGORY_ROUTES, 0);
     const option = filter.locator(`a[href="${target}/"]`);
 
     await option.focus();
@@ -255,7 +256,7 @@ test.describe('tag listings', () => {
     page,
   }) => {
     test.skip(TAG_ROUTES.length === 0, 'no published post has a tag');
-    await gotoSettled(page, TAG_ROUTES[0]!);
+    await gotoSettled(page, itemAt(TAG_ROUTES, 0));
 
     await expect(
       page

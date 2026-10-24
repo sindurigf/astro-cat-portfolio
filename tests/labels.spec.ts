@@ -1,4 +1,5 @@
 import { expect, test } from './test';
+import { itemAt } from '../src/lib/defined';
 import { categoryLabel, titleCaseMiss } from '../src/lib/labels';
 import { builtHtml } from './routes';
 import { NODE } from './tags';
@@ -27,8 +28,13 @@ test.describe('categoryLabel', NODE, () => {
 
     test(`capitalizes the first and last word of ${slug}`, () => {
       const words = categoryLabel(slug).split(' ');
-      expect(startsUpper(words[0]!), 'first word is lower case.').toBe(true);
-      expect(startsUpper(words.at(-1)!), 'last word is lower case.').toBe(true);
+      expect(startsUpper(itemAt(words, 0)), 'first word is lower case.').toBe(
+        true,
+      );
+      expect(
+        startsUpper(itemAt(words, words.length - 1)),
+        'last word is lower case.',
+      ).toBe(true);
     });
   }
 });

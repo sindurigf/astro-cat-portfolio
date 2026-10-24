@@ -24,6 +24,7 @@ const NEEDS = {
 };
 
 /* The design decision; ratios are computed, never typed. */
+/** @type {readonly (readonly [fg: string, bg: string, job: keyof typeof NEEDS, use: string])[]} */
 const PAIRS = [
   ['text', 'background', 'text', 'Reading text, headings'],
   ['text', 'surface', 'text', 'Text in inputs and controls'],

@@ -1,6 +1,8 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { expect, test } from './test';
+import { captures } from './captures';
+import { itemAt } from '../src/lib/defined';
 import { gotoSettled } from './settle';
 import { codeBlock } from '../src/plugins/code-block.mjs';
 import { builtHtml, DIST_DIR, NO_POST, POST_ROUTES } from './routes';
@@ -104,7 +106,7 @@ test.describe('code in a post, as it renders', () => {
     test(`keeps its overflow to itself at ${width}px`, async ({ page }) => {
       test.skip(POST_ROUTES.length === 0, NO_POST);
       await page.setViewportSize({ width, height: 900 });
-      await gotoSettled(page, POST_ROUTES[0]!);
+      await gotoSettled(page, itemAt(POST_ROUTES, 0));
 
       const measured = await page.evaluate((html) => {
         const prose = document.querySelector('.prose');
@@ -244,10 +246,11 @@ const scriptsOf = (html: string): string[] => {
       visit(`/_astro/${relative}`);
     }
   };
-  for (const [, src] of html.matchAll(
+  for (const src of captures(
+    html,
     /<script\b[^>]*\bsrc="(\/_astro\/[^"]+)"/g,
   )) {
-    visit(src!);
+    visit(src);
   }
   return [...seen.values()];
 };

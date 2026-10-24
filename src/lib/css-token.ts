@@ -16,9 +16,12 @@ const definition = (name: string): RegExp =>
 
 /** Throws unless defined once: CSS takes the last match, a regex the first. */
 export const cssColorToken = (name: string, file = GLOBAL_CSS): string => {
-  const found = [...readFileSync(file, 'utf8').matchAll(definition(name))];
+  const found = [
+    ...readFileSync(file, 'utf8').matchAll(definition(name)),
+  ].flatMap(([, hex]) => hex ?? []);
+  const [hex, ...others] = found;
 
-  if (found.length === 0) {
+  if (hex === undefined) {
     throw new Error(
       `${file} defines no ${name}. The token was renamed or reformatted: ` +
         'src/lib/css-token.ts reads it for the theme-color meta tag and the ' +
@@ -26,7 +29,7 @@ export const cssColorToken = (name: string, file = GLOBAL_CSS): string => {
     );
   }
 
-  if (found.length > 1) {
+  if (others.length > 0) {
     throw new Error(
       `${file} defines ${name} ${found.length} times. A browser takes the ` +
         'last and this would take the first, so the meta tag and the page ' +
@@ -34,5 +37,5 @@ export const cssColorToken = (name: string, file = GLOBAL_CSS): string => {
     );
   }
 
-  return found[0][1];
+  return hex;
 };

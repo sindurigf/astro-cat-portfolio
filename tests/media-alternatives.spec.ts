@@ -1,4 +1,5 @@
 import { expect, test } from './test';
+import { defined } from '../src/lib/defined';
 import { builtHtml } from './routes';
 import { NODE } from './tags';
 
@@ -28,15 +29,17 @@ const hasAlternative = (html: string, id: string, kind: string): boolean =>
 const mediaGaps = (html: string): string[] => {
   const gaps: string[] = [];
 
-  for (const [element, tag, body] of html.matchAll(
+  for (const [element, opening, inside] of html.matchAll(
     /(<video\b[^>]*>)([\s\S]*?)<\/video>/g,
   )) {
-    const id = idOf(tag!);
+    const tag = defined(opening, `opening tag of ${element.slice(0, 60)}`);
+    const body = defined(inside, `body of ${element.slice(0, 60)}`);
+    const id = idOf(tag);
     if (!id) {
       gaps.push(`${element.slice(0, 60)}: no id for its alternatives`);
       continue;
     }
-    if (!/<track\b[^>]*kind=["']captions["']/.test(body!)) {
+    if (!/<track\b[^>]*kind=["']captions["']/.test(body)) {
       gaps.push(`video#${id}: no captions track (SC 1.2.2)`);
     }
     for (const kind of VIDEO_ALTERNATIVES) {
@@ -46,8 +49,9 @@ const mediaGaps = (html: string): string[] => {
     }
   }
 
-  for (const [element, tag] of html.matchAll(/(<audio\b[^>]*>)/g)) {
-    const id = idOf(tag!);
+  for (const [element, opening] of html.matchAll(/(<audio\b[^>]*>)/g)) {
+    const tag = defined(opening, `opening tag of ${element.slice(0, 60)}`);
+    const id = idOf(tag);
     if (!id) {
       gaps.push(`${element.slice(0, 60)}: no id for its alternatives`);
       continue;
@@ -57,7 +61,7 @@ const mediaGaps = (html: string): string[] => {
         gaps.push(`audio#${id}: no ${kind} link`);
       }
     }
-    if (!tag!.includes('data-background-audio-checked')) {
+    if (!tag.includes('data-background-audio-checked')) {
       gaps.push(`audio#${id}: background sound not checked (SC 1.4.7)`);
     }
   }

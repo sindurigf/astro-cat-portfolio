@@ -10,6 +10,7 @@ import {
 import { tmpdir } from 'node:os';
 import { delimiter, join } from 'node:path';
 import { expect, test } from './test';
+import { defined } from '../src/lib/defined';
 import { NODE } from './tags';
 import {
   digest,
@@ -55,7 +56,12 @@ const REPLACED: Readonly<Record<string, string>> = {
 
 const replacing = (fields: readonly string[]): string =>
   fields.reduce(
-    (statement, field) => withRow(statement, field, REPLACED[field]!),
+    (statement, field) =>
+      withRow(
+        statement,
+        field,
+        defined(REPLACED[field], `${field} replacement`),
+      ),
     STATEMENT,
   );
 

@@ -454,6 +454,9 @@ const dozing = (from: number, breaths: number): Mod =>
     p.zz = s >= BREATH_MS * breaths ? 1 : (s % BREATH_MS) / BREATH_MS;
   });
 
+type RoutePoint = readonly [t: number, x: number, y: number];
+type Route = readonly [RoutePoint, ...RoutePoint[]];
+
 /* Arcs in px; with them the tallest move stays under --spacing-cat-band (tests/about-cats.spec.ts). */
 const POUNCE_HEIGHT = 56;
 /** A stalk's steps are full strides taken slowly, so each paw is seen to lift and set down. */
@@ -507,7 +510,7 @@ const POST_GAP = 34;
 const YARN_BOUND_HEIGHT = 38;
 const FLY_HOP_HEIGHT = 40;
 /* The fly's route, [ms, x, y] ahead of the cat: it lands, is missed, circles, and escapes. */
-const FLY_PATH: readonly (readonly [number, number, number])[] = [
+const FLY_PATH: Route = [
   [0, 60, -82],
   [600, 95, -88],
   [1200, 70, -78],
@@ -636,27 +639,23 @@ const wandSwat = (paw: 'fN' | 'fF', backMs: number): Step[] => [
   step(backMs - BAT_PUSH_MS, 'low', WAND_REACH),
 ];
 /** Caught at the top of the leap, the feather comes down ahead of the face and is pinned under a paw. */
-const WAND_PULL: readonly (readonly [number, number, number])[] = [
+const WAND_PULL: Route = [
   [2880, WAND_AHEAD, WAND_HIGH],
   [3100, 52, WAND_HIGH + 30],
   [3380, 40, -5],
 ];
 
 /** A point along a timed route, straight between its points. */
-const along = (
-  route: readonly (readonly [number, number, number])[],
-  t: number,
-): [number, number] => {
-  for (let i = 1; i < route.length; i += 1) {
-    const [t1, x1, y1] = route[i];
-    const [t0, x0, y0] = route[i - 1];
+const along = ([first, ...rest]: Route, t: number): [number, number] => {
+  let [t0, x0, y0] = first;
+  for (const [t1, x1, y1] of rest) {
     if (t <= t1) {
       const k = (t - t0) / (t1 - t0 || 1);
       return [x0 + (x1 - x0) * k, y0 + (y1 - y0) * k];
     }
+    [t0, x0, y0] = [t1, x1, y1];
   }
-  const [, x, y] = route[route.length - 1];
-  return [x, y];
+  return [x0, y0];
 };
 
 /*

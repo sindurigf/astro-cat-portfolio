@@ -46,6 +46,10 @@ export const WALK: readonly Frame[] = [
   'walk8',
 ];
 
+/** The walk frame `step` strides in; steps count up from 0. */
+export const walkFrame = (step: number): Frame =>
+  WALK[step % WALK.length] ?? 'walk';
+
 /** A sitting cat's drawn height in px; Hela is the smallest of the three. */
 export const SIT_HEIGHT: Record<CatId, number> = {
   minerva: 80,
@@ -225,7 +229,8 @@ export const frameFor = (
   const ranked = (Object.keys(named) as NamedPose[])
     .map((name) => ({ name, d: poseDistance(p, named[name]) }))
     .sort((a, b) => a.d - b.d);
-  const [near, next] = ranked;
+  /* `named` holds every pose, so neither default applies. */
+  const [near = { name: 'sit', d: 0 }, next = near] = ranked;
 
   /* A low hop from sitting, such as a turn on the spot, keeps the sitting frame: jump frames would flash a leap. */
   const sitHop = near.name === 'sit' && motion.lift <= HIGH;
@@ -241,7 +246,7 @@ export const frameFor = (
   if (motion.moving && (near.name === 'stand' || near.name === 'crouch'))
     return near.name === 'crouch'
       ? 'crouch'
-      : WALK[Math.floor(motion.travelled / WALK_FRAME_PX) % WALK.length]!;
+      : walkFrame(Math.floor(motion.travelled / WALK_FRAME_PX));
 
   if (between) return between;
   if (near.name === 'sit' && Math.abs(p.hr) > LOOK_BACK) return 'look';

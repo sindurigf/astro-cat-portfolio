@@ -69,16 +69,19 @@ const pdfObject = (bytes: string, num: string): string => {
 const slidesPageCount = (): number => {
   const bytes = readFileSync(builtSlides(), 'latin1');
 
-  const root = /\/Root\s+(\d+)\s+\d+\s*R/.exec(bytes);
-  if (!root) throw new Error('no /Root reference in the trailer');
+  const root = /\/Root\s+(\d+)\s+\d+\s*R/.exec(bytes)?.[1];
+  if (root === undefined) throw new Error('no /Root reference in the trailer');
 
-  const pagesRef = /\/Pages\s+(\d+)\s+\d+\s*R/.exec(pdfObject(bytes, root[1]));
-  if (!pagesRef) throw new Error('the catalog has no /Pages reference');
+  const pagesRef = /\/Pages\s+(\d+)\s+\d+\s*R/.exec(
+    pdfObject(bytes, root),
+  )?.[1];
+  if (pagesRef === undefined)
+    throw new Error('the catalog has no /Pages reference');
 
-  const count = /\/Count\s+(\d+)/.exec(pdfObject(bytes, pagesRef[1]));
-  if (!count) throw new Error('the page tree root has no /Count');
+  const count = /\/Count\s+(\d+)/.exec(pdfObject(bytes, pagesRef))?.[1];
+  if (count === undefined) throw new Error('the page tree root has no /Count');
 
-  return Number(count[1]);
+  return Number(count);
 };
 
 test.describe('the talk slides', NODE, () => {

@@ -50,11 +50,14 @@ test(
       expect(Math.max(...light), `glyph ${glyph} never lights`).toBeGreaterThan(
         0.99,
       );
+      const steps = light.flatMap((value, i) => {
+        const previous = light[i - 1];
+        return previous === undefined ? [] : [value - previous];
+      });
       let turns = 0;
-      for (let i = 2; i < light.length; i += 1) {
-        const before = light[i - 1]! - light[i - 2]!;
-        const now = light[i]! - light[i - 1]!;
-        if (before * now < 0) turns += 1;
+      for (const [i, now] of steps.entries()) {
+        const before = steps[i - 1];
+        if (before !== undefined && before * now < 0) turns += 1;
       }
       expect(
         turns,

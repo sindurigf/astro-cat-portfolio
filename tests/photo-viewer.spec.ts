@@ -362,8 +362,10 @@ test.describe('the photo viewer while a photo loads', () => {
         '#people-photos a[data-photo]',
       );
       const at = (group.indexOf(opener!) + 1) % group.length;
+      const following = group[at];
+      if (!following) throw new Error('The people group has no next photo.');
       return {
-        href: group[at].href,
+        href: following.href,
         position: `${at + 1} of ${group.length}`,
       };
     });
@@ -492,6 +494,7 @@ test.describe('the photo viewer while a photo loads', () => {
         '#people-photos a[data-photo]',
       );
       const next = group[(group.indexOf(opener!) + 1) % group.length];
+      if (!next) throw new Error('The people group has no next photo.');
       return next.querySelector('img')?.alt ?? '';
     });
 

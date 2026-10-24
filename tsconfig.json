@@ -3,7 +3,6 @@
   "include": [".astro/types.d.ts", "**/*"],
   "exclude": ["dist", "design", "tmp", "public/vendor", "coverage"],
   "compilerOptions": {
-    "jsx": "preserve",
-    "noUncheckedIndexedAccess": false
+    "jsx": "preserve"
   }
 }

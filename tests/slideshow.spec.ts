@@ -1,6 +1,7 @@
 import { readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { expect, test, type Browser, type Page } from './test';
+import { itemAt } from '../src/lib/defined';
 import { gotoSettled } from './settle';
 import { deckOf, NO_TALK, TALK_ROUTES, TALKS_DIR } from './routes';
 import {
@@ -33,7 +34,8 @@ const partAt = (slide: number): string | undefined =>
     ?.trim()
     .replace(/^'(.*)'$/, '$1');
 
-const titleAt = (slide: number): string => deckSlides()[slide - 1]!.title;
+const titleAt = (slide: number): string =>
+  itemAt(deckSlides(), slide - 1).title;
 
 const visible = (page: Page) => page.locator('.slide:visible');
 // Counted before "hidden" is asserted, so a renamed nav cannot pass on nothing.

@@ -80,9 +80,11 @@ const scanAdjacentLinks = async (page: Page): Promise<string[]> =>
       return range.toString().trim();
     };
 
-    return links.slice(1).flatMap((link, index) => {
-      const previous = links[index];
-      return previous.href === link.href && textBetween(previous, link) === ''
+    return links.flatMap((link, index) => {
+      const previous = links[index - 1];
+      return previous &&
+        previous.href === link.href &&
+        textBetween(previous, link) === ''
         ? [`"${name(previous)}" then "${name(link)}", both to ${link.href}`]
         : [];
     });

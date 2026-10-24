@@ -33,9 +33,8 @@ const NAMED_ENTITIES: Record<string, string> = {
 const SOFT_HYPHEN = 0xad;
 
 const decodeEntity = (entity: string, name: string): string => {
-  const numeric = /^#(x[0-9a-f]+|\d+)$/i.exec(name);
-  if (numeric) {
-    const digits = numeric[1]!;
+  const digits = /^#(x[0-9a-f]+|\d+)$/i.exec(name)?.[1];
+  if (digits !== undefined) {
     const code =
       digits.startsWith('x') || digits.startsWith('X')
         ? parseInt(digits.slice(1), 16)

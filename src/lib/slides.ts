@@ -106,8 +106,9 @@ const chunks = (source: string, file: string): Chunk[] => {
     start = end + 1;
   }
 
-  for (let i = start; i < lines.length; i++) {
-    const line = lines[i];
+  const bodyStart = start;
+  for (const [offset, line] of lines.slice(bodyStart).entries()) {
+    const i = bodyStart + offset;
     if (fence) {
       if (line.trimStart().startsWith(fence)) fence = undefined;
       continue;
@@ -165,9 +166,9 @@ const toSlide = (chunk: Chunk, number: number, file: string): SourceSlide => {
   /* From the last `<!--`: a lazy match from the start swallows earlier ones. */
   let note: string | undefined;
   const lastOpen = text.lastIndexOf('<!--');
-  const trailing = TRAILING_COMMENT.exec(text.slice(lastOpen));
-  if (lastOpen !== -1 && trailing) {
-    note = trailing[1].trim();
+  const trailing = TRAILING_COMMENT.exec(text.slice(lastOpen))?.[1];
+  if (lastOpen !== -1 && trailing !== undefined) {
+    note = trailing.trim();
     text = text.slice(0, lastOpen).trim();
   }
 
@@ -261,14 +262,17 @@ export const cardGroups = (body: string): string => {
   const grouped = blocks.filter((b) => b.kind === 'label').length >= 2;
 
   const units: Array<Block | Block[]> = [];
-  for (let i = 0; i < blocks.length; i++) {
-    const block = blocks[i];
+  const rest = [...blocks];
+  const takeIf = (kind: Block['kind']): Block | undefined =>
+    rest[0]?.kind === kind ? rest.shift() : undefined;
+  for (let block = rest.shift(); block; block = rest.shift()) {
     if (block.kind === 'model') {
-      const next = blocks[i + 1];
-      units.push(next?.kind === 'other' ? [block, blocks[++i]] : [block]);
+      const other = takeIf('other');
+      units.push(other ? [block, other] : [block]);
     } else if (block.kind === 'label' && grouped) {
       const group = [block];
-      while (blocks[i + 1]?.kind === 'list') group.push(blocks[++i]);
+      for (let item = takeIf('list'); item; item = takeIf('list'))
+        group.push(item);
       units.push(group);
     } else {
       units.push(block);
@@ -276,13 +280,15 @@ export const cardGroups = (body: string): string => {
   }
 
   const groups = units.filter(
-    (unit): unit is Block[] => Array.isArray(unit) && unit[0].kind === 'label',
+    (unit): unit is Block[] => Array.isArray(unit) && unit[0]?.kind === 'label',
   );
   const noteAfter = (group: Block[]) => {
     const next = units[units.indexOf(group) + 1];
     return !Array.isArray(next) && next?.kind === 'other' ? next : undefined;
   };
-  const firstHasNote = groups.length > 0 && noteAfter(groups[0]) !== undefined;
+  const [firstGroup] = groups;
+  const firstHasNote =
+    firstGroup !== undefined && noteAfter(firstGroup) !== undefined;
   groups.forEach((group, i) => {
     const note = noteAfter(group);
     if (note && (i < groups.length - 1 || firstHasNote)) {

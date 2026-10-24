@@ -1,4 +1,5 @@
 import { expect, test } from './test';
+import { captures } from './captures';
 import { gotoSettled } from './settle';
 import { builtHtml, PUBLISHED_POST_ROUTES } from './routes';
 import { ENGINE_INVARIANT, NODE } from './tags';
@@ -84,8 +85,8 @@ test(
     const home = builtHtml().get('/') ?? '';
     expect(home, 'the homepage was not built').toContain('<main');
     expect(
-      [...home.matchAll(/<h2\b[^>]*>([\s\S]*?)<\/h2>/g)].map(([, text]) =>
-        text!.replace(/<[^>]*>/g, '').trim(),
+      captures(home, /<h2\b[^>]*>([\s\S]*?)<\/h2>/g).map((text) =>
+        text.replace(/<[^>]*>/g, '').trim(),
       ),
     ).not.toEqual(
       expect.arrayContaining([

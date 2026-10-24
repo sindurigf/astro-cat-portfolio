@@ -1,4 +1,5 @@
 import { test, expect } from './test';
+import { defined } from '../src/lib/defined';
 import { configuredSite } from './source';
 import {
   CATEGORY_ROUTES,
@@ -37,18 +38,24 @@ const decode = (text: string): string =>
     .trim();
 
 const visibleTrail = (html: string): Crumb[] | null => {
-  const nav = /<nav aria-label="Breadcrumb"[^>]*>([\s\S]*?)<\/nav>/.exec(html);
-  if (!nav) return null;
-  return [...nav[1]!.matchAll(/<a href="([^"]+)"[^>]*>([^<]*)<\/a>/g)].map(
-    (match) => ({ name: decode(match[2]!), item: `${SITE}${match[1]}` }),
+  const nav = /<nav aria-label="Breadcrumb"[^>]*>([\s\S]*?)<\/nav>/.exec(
+    html,
+  )?.[1];
+  if (nav === undefined) return null;
+  return [...nav.matchAll(/<a href="([^"]+)"[^>]*>([^<]*)<\/a>/g)].map(
+    ([link, href, name]) => ({
+      name: decode(defined(name, `crumb text in ${link}`)),
+      item: `${SITE}${href}`,
+    }),
   );
 };
 
 const breadcrumbList = (html: string): Crumb[] | null => {
-  const block = LD_JSON.exec(html);
-  const graph = block
-    ? (JSON.parse(block[1]!)['@graph'] as Record<string, unknown>[])
-    : [];
+  const block = LD_JSON.exec(html)?.[1];
+  const graph =
+    block !== undefined
+      ? (JSON.parse(block)['@graph'] as Record<string, unknown>[])
+      : [];
   const list = graph.find((node) => node['@type'] === 'BreadcrumbList');
   if (!list) return null;
   return (list.itemListElement as Record<string, unknown>[]).map(
@@ -90,7 +97,8 @@ test.describe('breadcrumbs', NODE, () => {
     const pages = builtHtml();
     for (const route of POST_ROUTES) {
       const html = pages.get(route)!;
-      const last = visibleTrail(html)!.at(-1)!;
+      const last = visibleTrail(html)?.at(-1);
+      if (!last) throw new Error(`${route} has no breadcrumb trail.`);
       expect(
         last.item,
         `${route}: the last crumb should be the post's category listing`,

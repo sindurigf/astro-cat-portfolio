@@ -173,7 +173,8 @@ const pickWeighted = (weights: Partial<Record<MoveName, number>>): MoveName => {
     roll -= w;
     if (roll <= 0) return name;
   }
-  return entries[0][0];
+  /* Rounding can leave a sliver of roll; an empty table has the cat look around. */
+  return entries[0]?.[0] ?? 'look';
 };
 
 const poseGap = (a: Pose, b: Pose): number =>
@@ -461,12 +462,15 @@ export const createColony = (
   /** Walks to the step beside its brick and climbs it; false on a flat band. */
   const climb = (cat: CatState, now: number): boolean => {
     const i = ledgeIndex(cat, cat.pose.x);
-    const sides = [i - 1, i + 1].filter((j) => i >= 0 && cat.ledges[j]);
+    const here = cat.ledges[i];
+    const sides = [i - 1, i + 1].filter((j) => here && cat.ledges[j]);
     if (sides.length === 0) return false;
-    const j = sides[Math.floor(Math.random() * sides.length)];
+    const j = sides[Math.floor(Math.random() * sides.length)] ?? i;
+    const there = cat.ledges[j];
+    if (!here || !there) return false;
     const dir = j > i ? 1 : -1;
-    const edge = dir > 0 ? cat.ledges[i].x1 : cat.ledges[i].x0;
-    const h = cat.ledges[i].drop - cat.ledges[j].drop;
+    const edge = dir > 0 ? here.x1 : here.x0;
+    const h = here.drop - there.drop;
     const rising = h > 0;
     const start = edge - dir * CLIMB_START[rising ? 'up' : 'down'];
     const walk = withApproach(
@@ -642,12 +646,12 @@ export const createColony = (
     const frames = clamp((now - lastFrame) / FRAME_MS, 0, MAX_FRAMES_PER_STEP);
     lastFrame = now;
     let wakeAt = Infinity;
-    for (let i = fading.length - 1; i >= 0; i -= 1) {
-      const { prop, shown, t0 } = fading[i];
+    for (const fade of [...fading]) {
+      const { prop, shown, t0 } = fade;
       const k = (now - t0) / PROP_FADE_MS;
       if (k >= 1) {
         prop.remove();
-        fading.splice(i, 1);
+        fading.splice(fading.indexOf(fade), 1);
         continue;
       }
       prop.draw({ ...shown, o: shown.o * (1 - k) }, now);

@@ -1,3 +1,5 @@
+import { defined } from '../../lib/defined';
+
 /*
  * The light half's copy of live markup: inert and hidden, so ids, labels and
  * references go, and headings become divs that keep the heading look.
@@ -40,5 +42,5 @@ export const sourceOf = (html: string): string => {
       return out;
     })
     .join('\n')
-    .replace(/[&<>]/g, (c) => ESCAPES[c]!);
+    .replace(/[&<>]/g, (c) => defined(ESCAPES[c], `an escape for ${c}`));
 };

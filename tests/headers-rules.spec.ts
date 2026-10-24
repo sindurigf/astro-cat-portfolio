@@ -383,7 +383,10 @@ test.describe('security headers as declared and served', NODE, () => {
     const allowlists = new Map(
       (headers.get('permissions-policy') ?? '')
         .split(',')
-        .map((entry) => entry.trim().split('=') as [string, string]),
+        .map((entry): [string | undefined, string | undefined] => {
+          const [name, value] = entry.trim().split('=');
+          return [name, value];
+        }),
     );
     for (const feature of DENIED_FEATURES) {
       expect(
