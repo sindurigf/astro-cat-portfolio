@@ -4,7 +4,6 @@
  * AboutCats.vue owns the DOM, the frame loop and the dialog.
  */
 import { LOOK_BACK } from './about-cats-frames';
-import { itemAt } from './defined';
 import {
   MOVES,
   CAT_WEIGHTS,
@@ -174,9 +173,8 @@ const pickWeighted = (weights: Partial<Record<MoveName, number>>): MoveName => {
     roll -= w;
     if (roll <= 0) return name;
   }
-  const [first] = entries;
-  if (!first) throw new Error('pickWeighted needs at least one move');
-  return first[0];
+  /* Rounding can leave a sliver of roll; an empty table has the cat look around. */
+  return entries[0]?.[0] ?? 'look';
 };
 
 const poseGap = (a: Pose, b: Pose): number =>
@@ -465,16 +463,14 @@ export const createColony = (
   const climb = (cat: CatState, now: number): boolean => {
     const i = ledgeIndex(cat, cat.pose.x);
     const here = cat.ledges[i];
-    if (!here) return false;
-    const sides = [i - 1, i + 1].flatMap((j) => {
-      const ledge = cat.ledges[j];
-      return ledge ? [{ j, ledge }] : [];
-    });
+    const sides = [i - 1, i + 1].filter((j) => here && cat.ledges[j]);
     if (sides.length === 0) return false;
-    const side = itemAt(sides, Math.floor(Math.random() * sides.length));
-    const dir = side.j > i ? 1 : -1;
+    const j = sides[Math.floor(Math.random() * sides.length)] ?? i;
+    const there = cat.ledges[j];
+    if (!here || !there) return false;
+    const dir = j > i ? 1 : -1;
     const edge = dir > 0 ? here.x1 : here.x0;
-    const h = here.drop - side.ledge.drop;
+    const h = here.drop - there.drop;
     const rising = h > 0;
     const start = edge - dir * CLIMB_START[rising ? 'up' : 'down'];
     const walk = withApproach(
@@ -650,11 +646,12 @@ export const createColony = (
     const frames = clamp((now - lastFrame) / FRAME_MS, 0, MAX_FRAMES_PER_STEP);
     lastFrame = now;
     let wakeAt = Infinity;
-    for (const [i, { prop, shown, t0 }] of [...fading.entries()].reverse()) {
+    for (const fade of [...fading]) {
+      const { prop, shown, t0 } = fade;
       const k = (now - t0) / PROP_FADE_MS;
       if (k >= 1) {
         prop.remove();
-        fading.splice(i, 1);
+        fading.splice(fading.indexOf(fade), 1);
         continue;
       }
       prop.draw({ ...shown, o: shown.o * (1 - k) }, now);

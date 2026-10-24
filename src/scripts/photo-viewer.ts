@@ -1,5 +1,4 @@
 /* Progressive: photos are plain links and strips scroll natively. */
-import { itemAt } from '../lib/defined';
 import { reflectFit, SCROLL_ROUNDING_PX } from './scroll-fit';
 
 /** Share of the strip's width. */
@@ -57,7 +56,8 @@ const setUpViewer = (viewer: HTMLDialogElement): void => {
   /* Decode before swapping, so the live region never runs ahead of paint. */
   const show = async (next: number): Promise<void> => {
     index = (next + links.length) % links.length;
-    const link = itemAt(links, index);
+    const link = links[index];
+    if (!link) return;
     const alt = link.querySelector('img')?.alt ?? '';
     const token = ++request;
 

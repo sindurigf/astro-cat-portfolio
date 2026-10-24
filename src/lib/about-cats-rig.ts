@@ -9,13 +9,13 @@ import {
   POSE_FRAME,
   bridges,
   WALK,
+  walkFrame,
   frameFor,
   type Frame,
   type Motion,
   type NamedPose,
 } from './about-cats-frames';
 import { BREATH_DEPTH } from './about-cats-idle';
-import { itemAt } from './defined';
 import { pose } from './about-cats-moves';
 import type { CatId, Pose, PropKind, PropState } from './about-cats-types';
 
@@ -302,7 +302,7 @@ export const stepFrame = (
     at >= 0 && to >= 0
       ? x === s.stepX
         ? s.frame!
-        : itemAt(WALK, (at + Math.min(ahead, MAX_WALK_STEP)) % WALK.length)
+        : walkFrame(at + Math.min(ahead, MAX_WALK_STEP))
       : wanted;
   s.pending = next !== s.frame && now - s.shownAt < TICK_MS;
   if (next === s.frame) s.cut = false;

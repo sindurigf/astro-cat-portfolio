@@ -1,6 +1,5 @@
 /* Pure. Picks the Canva AI frame that draws a cat's pose, and how tall each frame is drawn. */
 import type { CatId, Pose } from './about-cats-types';
-import { itemAt } from './defined';
 
 export const FRAMES = [
   'sit',
@@ -46,6 +45,10 @@ export const WALK: readonly Frame[] = [
   'walk7',
   'walk8',
 ];
+
+/** The walk frame `step` strides in; steps count up from 0. */
+export const walkFrame = (step: number): Frame =>
+  WALK[step % WALK.length] ?? 'walk';
 
 /** A sitting cat's drawn height in px; Hela is the smallest of the three. */
 export const SIT_HEIGHT: Record<CatId, number> = {
@@ -226,8 +229,9 @@ export const frameFor = (
   const ranked = (Object.keys(named) as NamedPose[])
     .map((name) => ({ name, d: poseDistance(p, named[name]) }))
     .sort((a, b) => a.d - b.d);
-  const [near, next] = ranked;
-  if (!near || !next) throw new Error('frameFor needs two named poses');
+  const [near, second] = ranked;
+  if (!near) return 'sit';
+  const next = second ?? near;
 
   /* A low hop from sitting, such as a turn on the spot, keeps the sitting frame: jump frames would flash a leap. */
   const sitHop = near.name === 'sit' && motion.lift <= HIGH;
@@ -243,10 +247,7 @@ export const frameFor = (
   if (motion.moving && (near.name === 'stand' || near.name === 'crouch'))
     return near.name === 'crouch'
       ? 'crouch'
-      : itemAt(
-          WALK,
-          Math.floor(motion.travelled / WALK_FRAME_PX) % WALK.length,
-        );
+      : walkFrame(Math.floor(motion.travelled / WALK_FRAME_PX));
 
   if (between) return between;
   if (near.name === 'sit' && Math.abs(p.hr) > LOOK_BACK) return 'look';
