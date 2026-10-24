@@ -337,20 +337,20 @@ const ledgesUnder = (spot: Element): Ledge[] => {
     (a, b) => a - b,
   );
   const ledges: Ledge[] = [];
-  xs.forEach((left, i) => {
-    const right = xs[i + 1];
-    if (right === undefined) return;
+  /* Seeded left of every brick, so the first pair has no brick between. */
+  xs.reduce((left, right) => {
     const mid = (left + right) / 2;
     const tops = bricks
       .filter((r) => r.left <= mid && mid < r.right)
       .map((r) => r.top);
-    if (tops.length === 0) return;
+    if (tops.length === 0) return right;
     const drop = Math.round(Math.min(...tops) - band.bottom);
     const last = ledges.at(-1);
     if (last && Math.abs(last.drop - drop) <= SAME_FLOOR)
       last.x1 = right - band.left;
     else ledges.push({ x0: left - band.left, x1: right - band.left, drop });
-  });
+    return right;
+  }, -Infinity);
   return ledges.length > 1 ? ledges : [];
 };
 

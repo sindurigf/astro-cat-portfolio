@@ -229,9 +229,8 @@ export const frameFor = (
   const ranked = (Object.keys(named) as NamedPose[])
     .map((name) => ({ name, d: poseDistance(p, named[name]) }))
     .sort((a, b) => a.d - b.d);
-  const [near, second] = ranked;
-  if (!near) return 'sit';
-  const next = second ?? near;
+  /* `named` holds every pose, so neither default applies. */
+  const [near = { name: 'sit', d: 0 }, next = near] = ranked;
 
   /* A low hop from sitting, such as a turn on the spot, keeps the sitting frame: jump frames would flash a leap. */
   const sitHop = near.name === 'sit' && motion.lift <= HIGH;
