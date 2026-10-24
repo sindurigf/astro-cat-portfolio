@@ -347,6 +347,11 @@ Commits, copy rules and process: [AGENTS.md](AGENTS.md).
   verbatim. `tests/seo.spec.ts` fails on any in the build.
 - Internal links end with `/`; `tests/seo.spec.ts`. The unslashed form gets
   a 301 from a `_redirects` line per page (`scripts/slash-redirects.mjs`).
+- Index access is checked (`noUncheckedIndexedAccess`). Handle a value that
+  can be missing; where the code guarantees one, `itemAt` and `defined`
+  (`src/lib/defined.ts`) throw by name, and bundles near their script budget
+  guard inline. No `!` on an index. Tests read regex groups with `captures`
+  (`tests/captures.ts`).
 
 ### Text size
 
