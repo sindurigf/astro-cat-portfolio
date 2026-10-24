@@ -648,6 +648,16 @@ const HAS_TALK = (await getCollection('talks')).length > 0;
             too.
           </p>
           <p>
+            A third checker, HTML_CodeSniffer, runs its WCAG 2.1 AA checks on
+            the same pages at the same sizes. Its errors fail the build, and so
+            does a paragraph that is only bold text, a likely heading. None of
+            its results is dropped.
+          </p>
+          <p>
+            A third free checking tool scans the pages for errors and for bold
+            text that should be a heading.
+          </p>
+          <p>
             Learn more:{' '}
             <a href={`${WAI}/test-evaluate/tools/`}>Evaluation Tools</a>.
           </p>

@@ -110,6 +110,10 @@ view (development server only, never published), and forks.
   320px, listings sampled (`SAMPLED_ROUTES`). Three false positives are
   dropped, each on named elements and only while its reason holds
   ([ARCHITECTURE.md](ARCHITECTURE.md#rejected-findings)).
+- **HTML_CodeSniffer, a third engine.** `@pa11y/html_codesniffer` runs its WCAG
+  2.1 AA sniffs in dark mode at 1280 and 320px on the same routes. Errors fail,
+  and so does H42 (a paragraph that is only bold text, a likely heading); other
+  warnings and notices are prompts for a person. No result is dropped.
 - **Undecided results.** Every `incomplete` result from the WCAG scans is
   decided (`tests/incomplete.ts`): contrast by walking the paint stack, label
   in name (SC 2.5.3) by passing only a control whose visible text is symbols,
@@ -279,6 +283,7 @@ merge.
 | ----------------------------------- | ---------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `tests/a11y.spec.ts`                | 2.2 A and AA                                                     | axe on every route, at 320px, menu open, open states; decides `incomplete` contrast                                                                                                                                                                                                                             |
 | `tests/accesslint.spec.ts`          | 2.2 A and AA                                                     | AccessLint at 1280 and 320px, listings sampled; each dropped false positive must still occur                                                                                                                                                                                                                    |
+| `tests/htmlcs.spec.ts`              | 2.1 AA                                                           | HTML_CodeSniffer at 1280 and 320px, listings sampled; errors and H42 fail; each dropped false positive must still occur                                                                                                                                                                                         |
 | `tests/reading-tab.spec.ts`         | 1.4.4, 1.4.10, 1.4.11, 2.1.1, 2.4.3, 2.4.11, 2.5.5, 4.1.2        | Text size control: names and descriptions, 44px targets, axe open in each placement, Escape, outside press and Tab out, forced-colors edges, reduced motion, no sideways scroll at 400% zoom, nothing covered at rest                                                                                           |
 | `tests/let-it-fall.spec.ts`         | 2.3.3, 2.4.11, 2.5.5, 4.1.3                                      | One press drops the blocks above the button, which stays the hit target and keeps focus; axe on the landed pile; no sideways scroll; the button, Esc or focus elsewhere restores; announced; no animation under reduced motion; no button without JavaScript or on talk decks                                   |
 | `tests/light-mode.spec.ts`          | 2.2 A and AA, 1.4.11, 2.1.1, 2.4.7, 2.5.5, 4.1.2                 | axe in light mode on every route and at 320px; control edges at 3:1; Theme menu: its names, keys and Escape, a pick closing it with focus back on the button, choices across a reload, System following the device live, on screen at 320 and 1280px, its ring and forced colors; the theme set before `<body>` |
