@@ -3,18 +3,18 @@
 /** One `| Field | Value |` row of ACCESSIBILITY.md, without bold markers or autolink brackets. */
 export const statementRow = (source: string, field: string): string => {
   const escaped = field.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const match = new RegExp(`^\\|\\s*${escaped}\\s*\\|([^|]+)\\|`, 'm').exec(
+  const value = new RegExp(`^\\|\\s*${escaped}\\s*\\|([^|]+)\\|`, 'm').exec(
     source,
-  );
+  )?.[1];
 
-  if (!match) {
+  if (value === undefined) {
     throw new Error(
       `ACCESSIBILITY.md has no "${field}" row in its section 1 table; ` +
         'restore it or update src/lib/accessibility-facts.ts.',
     );
   }
 
-  return match[1]!
+  return value
     .trim()
     .replace(/\*\*/g, '')
     .replace(/^<(.*)>$/, '$1');

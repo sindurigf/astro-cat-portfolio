@@ -3,6 +3,7 @@
  * top. Lengths are eye heights (`projection / z` pixels each at depth `z`).
  * A slow light reads down its script, row by row, and wraps to the top.
  */
+import { itemAt } from './defined';
 import type { HeroPalette } from './hero-field-scene';
 
 /** Center as a share of the box, then eye heights; the side recedes up and right. */
@@ -178,12 +179,15 @@ const script = (
     for (let c = 0; c < SCRIPT.columns; c += 1) {
       const strokes = new Path2D();
       glyphs.push(strokes);
-      const glyph = GLYPHS[(r * 7 + c * 3 + ((r * c) % 5)) % GLYPHS.length]!;
+      const glyph = itemAt(
+        GLYPHS,
+        (r * 7 + c * 3 + ((r * c) % 5)) % GLYPHS.length,
+      );
       const cx = x0 + (c + 0.5) * cell;
       const cy = y0 + (r + 0.5) * cell;
       for (let k = 0; k < glyph.length; k += 2) {
-        const x = cx + glyph[k]! * cell * SCRIPT.glyph;
-        const y = cy - glyph[k + 1]! * cell * SCRIPT.glyph;
+        const x = cx + itemAt(glyph, k) * cell * SCRIPT.glyph;
+        const y = cy - itemAt(glyph, k + 1) * cell * SCRIPT.glyph;
         if (k) {
           marks.lineTo(x, y);
           strokes.lineTo(x, y);

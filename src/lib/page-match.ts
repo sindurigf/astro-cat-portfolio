@@ -1,5 +1,7 @@
 /* Pure: ranks the site's pages by how close their address is to a mistyped one. */
 
+import { itemAt } from './defined';
+
 export interface MatchablePage {
   readonly title: string;
   readonly path: string;
@@ -23,21 +25,22 @@ const editDistance = (a: string, b: string): number => {
       i === 0 ? j : j === 0 ? i : 0,
     ),
   );
+  const cell = (i: number, j: number): number => itemAt(itemAt(rows, i), j);
   for (let i = 1; i <= a.length; i += 1) {
     for (let j = 1; j <= b.length; j += 1) {
       const cost = a[i - 1] === b[j - 1] ? 0 : 1;
       let best = Math.min(
-        rows[i - 1]![j]! + 1,
-        rows[i]![j - 1]! + 1,
-        rows[i - 1]![j - 1]! + cost,
+        cell(i - 1, j) + 1,
+        cell(i, j - 1) + 1,
+        cell(i - 1, j - 1) + cost,
       );
       if (i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) {
-        best = Math.min(best, rows[i - 2]![j - 2]! + 1);
+        best = Math.min(best, cell(i - 2, j - 2) + 1);
       }
-      rows[i]![j] = best;
+      itemAt(rows, i)[j] = best;
     }
   }
-  return rows[a.length]![b.length]!;
+  return cell(a.length, b.length);
 };
 
 const closeness = (a: string, b: string): number => {
@@ -49,7 +52,7 @@ const closeness = (a: string, b: string): number => {
 /* Hyphens and underscores dropped, so /opensource meets /open-source. */
 const segments = (path: string): string[] =>
   path
-    .split('#')[0]!
+    .replace(/#.*$/s, '')
     .toLowerCase()
     .split('/')
     .map((part) => part.trim().replace(/[-_]/g, ''))
@@ -76,9 +79,14 @@ const segmentDistance = (
       a === undefined ? MISSING_SEGMENT : b === undefined ? 1 : closeness(a, b);
   }
   /* An address shorter than the page's may name only its last segment (/opensource for /blog/open-source/). */
+  const [only, ...more] = asked;
+  const last = own.at(-1);
   const slugOnly =
-    asked.length === 1 && own.length > 1
-      ? (closeness(asked[0]!, own.at(-1)!) + MISSING_SEGMENT) / 2
+    only !== undefined &&
+    more.length === 0 &&
+    own.length > 1 &&
+    last !== undefined
+      ? (closeness(only, last) + MISSING_SEGMENT) / 2
       : 1;
   return Math.min(total / count, slugOnly);
 };

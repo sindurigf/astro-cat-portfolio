@@ -42,22 +42,26 @@ export const SWATCH: Record<string, Swatch> = {
 };
 
 /* The page's own edge is the token the `bg-border` swatch paints; spelled out, check-tokens would read it as a width. */
-const PAGE_EDGE = Object.keys(SWATCH).find(
-  (t) => SWATCH[t]!.cls === 'bg-border',
-);
+const PAGE_EDGE = Object.entries(SWATCH).find(
+  ([, swatch]) => swatch.cls === 'bg-border',
+)?.[0];
 if (PAGE_EDGE === undefined) {
   throw new Error(
     '/brand: no swatch paints bg-border in src/lib/brand-roles.ts',
   );
 }
 
-for (const { token } of colors) {
-  if (!(token in SWATCH)) {
+export const swatchOf = (token: string): Swatch => {
+  const swatch = SWATCH[token];
+  if (!swatch) {
     throw new Error(
       `/brand: ${token} is in the Color tokens table but has no swatch in src/lib/brand-roles.ts`,
     );
   }
-}
+  return swatch;
+};
+
+for (const { token } of colors) swatchOf(token);
 
 const colorOf = (token: string) => {
   const color = colors.find((c) => c.token === token);
@@ -148,7 +152,7 @@ const role = (
   tokens: tokens.map((token) => ({
     token,
     job: colorOf(token).job,
-    swatch: SWATCH[token]!,
+    swatch: swatchOf(token),
     hex: { dark: hexOf(token, 'dark'), light: hexOf(token, 'light') },
   })),
   read: {

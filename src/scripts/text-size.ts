@@ -1,4 +1,5 @@
 /* Smaller, Larger and Reset: step --text-scale and remember the size. */
+import { itemAt } from '../lib/defined';
 import {
   TEXT_SCALE_DEFAULT,
   TEXT_SCALE_KEY,
@@ -31,7 +32,7 @@ const run = (trigger: HTMLButtonElement): void => {
       ? TEXT_SCALE_STEPS.indexOf(TEXT_SCALE_DEFAULT)
       : Math.min(last, Math.max(0, at + (action === 'larger' ? 1 : -1)));
   const show = (index: number): void => {
-    const percent = TEXT_SCALE_STEPS[index]!;
+    const percent = itemAt(TEXT_SCALE_STEPS, index);
     if (percent === TEXT_SCALE_DEFAULT)
       root.style.removeProperty(TEXT_SCALE_PROPERTY);
     else root.style.setProperty(TEXT_SCALE_PROPERTY, String(percent / PERCENT));
@@ -45,7 +46,7 @@ const run = (trigger: HTMLButtonElement): void => {
     show(index);
   }
   const fits = index === wanted;
-  const percent = TEXT_SCALE_STEPS[index]!;
+  const percent = itemAt(TEXT_SCALE_STEPS, index);
 
   for (const button of group.querySelectorAll<HTMLElement>(
     '[data-size-action]',

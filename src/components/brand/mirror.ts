@@ -40,5 +40,5 @@ export const sourceOf = (html: string): string => {
       return out;
     })
     .join('\n')
-    .replace(/[&<>]/g, (c) => ESCAPES[c]!);
+    .replace(/[&<>]/g, (c) => ESCAPES[c] ?? c);
 };
