@@ -10,7 +10,15 @@ import {
 } from 'vue';
 import { IDLE, useMotionLoop } from '../../composables/use-motion-loop';
 import { markFailed } from '../../scripts/failed-frame';
-import { clamp, createCatRig } from '../../lib/about-cats-rig';
+import {
+  clamp,
+  createCatRig,
+  loadSheet,
+  type Sheet,
+} from '../../lib/about-cats-rig';
+import minervaSheet from '../../assets/about-cats-minerva.avif';
+import rudraSheet from '../../assets/about-cats-rudra.avif';
+import helaSheet from '../../assets/about-cats-hela.avif';
 import type { CatId, Ledge } from '../../lib/about-cats-types';
 import tricksUrl from '../../lib/about-cats-tricks-url';
 import {
@@ -37,6 +45,12 @@ import {
 const props = defineProps<{
   cats: CatInfo[];
 }>();
+
+const SHEETS: Record<CatId, Sheet> = {
+  minerva: minervaSheet,
+  rudra: rudraSheet,
+  hela: helaSheet,
+};
 
 /* Where each cat starts on its card, 0 to 1, and which way it faces. */
 const PLACES: Record<CatId, { start: number; facing: 1 | -1 }> = {
@@ -78,6 +92,9 @@ const svgs = new Map<CatId, SVGSVGElement>();
 let colony: Colony | null = null;
 let pointerAt: { x: number; y: number; time: number } | null = null;
 let resizeObserver: ResizeObserver | null = null;
+let sheetObserver: IntersectionObserver | null = null;
+/* A cat's frames start loading this far before its band scrolls into view. */
+const SHEET_AHEAD = '50% 0px';
 
 const setSvg = (id: CatId, node: unknown): void => {
   if (node instanceof SVGSVGElement) svgs.set(id, node);
@@ -496,7 +513,7 @@ onMounted(async () => {
   for (const cat of props.cats) {
     const svg = svgs.get(cat.id);
     if (!svg) continue;
-    const rig = createCatRig(svg, cat.id);
+    const rig = createCatRig(svg, cat.id, SHEETS[cat.id]);
     catSpots.push({ id: cat.id, rig, ...PLACES[cat.id] });
   }
   colony = createColony(catSpots, (id, mood, isAsleep) => {
@@ -512,6 +529,18 @@ onMounted(async () => {
 
   resizeObserver = new ResizeObserver(layout);
   for (const node of spots()) resizeObserver.observe(node);
+  sheetObserver = new IntersectionObserver(
+    (entries) => {
+      for (const entry of entries) {
+        if (!entry.isIntersecting) continue;
+        const spot = catSpots.find((cat) => cat.id === spotId(entry.target));
+        if (spot) loadSheet(spot.rig);
+        sheetObserver?.unobserve(entry.target);
+      }
+    },
+    { rootMargin: SHEET_AHEAD },
+  );
+  for (const node of spots()) sheetObserver.observe(node);
   loop.observe(spots(), {
     onEntries: (entries) => {
       for (const entry of entries) {
@@ -530,6 +559,7 @@ onBeforeUnmount(() => {
   closeTricks();
   cancelWarm();
   resizeObserver?.disconnect();
+  sheetObserver?.disconnect();
   document.removeEventListener('pointermove', onPointer);
   document.removeEventListener('keydown', onKeyDown, { capture: true });
   document.removeEventListener('pointerdown', onPointerDown, {

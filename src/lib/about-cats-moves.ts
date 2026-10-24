@@ -403,10 +403,6 @@ const wiggle = (from: number, to: number): Mod =>
     p.by -= 1;
     p.tw = 9;
   });
-const blinkAt = (at: number): Mod =>
-  between(at, at + 160, (p) => {
-    p.eyes = 0;
-  });
 /** Degrees the head lags a jump by, up as it takes off and down as it lands, and the tail streams behind. */
 const HEAD_LAG = 14;
 const TAIL_STREAM = 18;
@@ -456,10 +452,6 @@ const breathing = (from: number, breaths: number): Mod =>
 const dozing = (from: number, breaths: number): Mod =>
   between(from, from + BREATH_MS * breaths, (p, s) => {
     p.zz = s >= BREATH_MS * breaths ? 1 : (s % BREATH_MS) / BREATH_MS;
-  });
-const earFlick = (at: number): Mod =>
-  between(at, at + 280, (p, _s, k) => {
-    p.ears = Math.max(p.ears, Math.sin(Math.PI * k) * 0.6);
   });
 
 /* Arcs in px; with them the tallest move stays under --spacing-cat-band (tests/about-cats.spec.ts). */
@@ -705,7 +697,7 @@ export const MOVES = {
       step(1100, 'sit', { hr: 18 }),
       step(800, 'sit'),
     ],
-    mods: [blinkAt(600), earFlick(1500), blinkAt(2500)],
+    mods: [],
   }),
   /* Step, freeze with a front paw held up, step again; then the pounce. */
   stalk: (): Move => {
