@@ -687,6 +687,9 @@ const home = (el: HTMLElement): void => {
   el.removeAttribute('data-fall-raised');
   for (const name of FALL_VARS) el.style.removeProperty(name);
   if (header?.contains(el)) unpin();
+  if (!document.querySelector('[data-fall-block]')) {
+    document.documentElement.style.removeProperty('overflow-anchor');
+  }
 };
 
 const drop = ({ el, x, y, turn, rank }: Landing): Animation | null => {
@@ -892,6 +895,8 @@ const fall = (): void => {
   /* A mascot still hopping home is measured from home, not mid-air. */
   for (const animation of mascot?.getAnimations() ?? []) animation.cancel();
   hopper?.stop();
+  /* WebKit scroll anchoring follows a fallen block's transform and scrolls the page away from the heap. Set on the root before the next layout picks an anchor; WebKit ignores it on the anchor itself. */
+  document.documentElement.style.setProperty('overflow-anchor', 'none');
   pin();
   const tallest = innerHeight * TALLEST_SHARE;
   const candidates = [...document.querySelectorAll<HTMLElement>(BLOCKS)].filter(
@@ -903,6 +908,7 @@ const fall = (): void => {
   );
   if (!fallen.some((el) => header?.contains(el))) unpin();
   if (!fallen.length) {
+    document.documentElement.style.removeProperty('overflow-anchor');
     say(NOTHING);
     return;
   }
