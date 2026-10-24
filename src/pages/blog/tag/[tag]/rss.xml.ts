@@ -1,4 +1,4 @@
-import { SITE_NAME } from '../../../../lib/site';
+import { OPENING_FEED_TAG, SITE_NAME } from '../../../../lib/site';
 import type { APIRoute, GetStaticPaths, InferGetStaticPropsType } from 'astro';
 import { getPostsByTag, tagLabel } from '../../../../lib/blog';
 import { feedResponse, tagFeedTitle } from '../../../../lib/feed';
@@ -21,6 +21,7 @@ export const GET: APIRoute<Props> = ({ props: { tag, posts }, site }) =>
       pagePath: tagHref(tag),
       selfPath: tagFeedPath(tag),
       posts,
+      opening: tag === OPENING_FEED_TAG,
     },
     site,
   );

@@ -71,6 +71,11 @@ export interface SiteConfig {
    * null to end them on their next page only. The build fails on any other slug.
    */
   journeyPost: string | null;
+  /**
+   * Tag whose feed describes each post by its opening (about 300 characters of
+   * whole sentences) instead of its teaser, for an aggregator; null for none.
+   */
+  openingFeedTag: string | null;
   contact: {
     /**
      * `cloudflare-d1`: the form, stored in D1 and mailed by Email Routing.
@@ -130,6 +135,8 @@ const config: SiteConfig = {
   bingSiteVerification: null,
   // TODO(fork): The file name of the post your pages point to for your longer story, or null.
   journeyPost: 'sample-post',
+  // TODO(fork): The tag whose feed a planet-style aggregator reads, or null.
+  openingFeedTag: 'archaeology',
   contact: {
     form: 'cloudflare-d1',
     // TODO(fork): The address the contact form sends from, the same as in wrangler.jsonc.
@@ -201,6 +208,7 @@ export const validateSiteConfig = (value: SiteConfig): SiteConfig => {
     analytics,
     bingSiteVerification,
     journeyPost,
+    openingFeedTag,
     contact,
     accessibility,
   } = value;
@@ -282,6 +290,10 @@ export const validateSiteConfig = (value: SiteConfig): SiteConfig => {
 
   if (journeyPost !== null && !SLUG.test(journeyPost)) {
     invalid('journeyPost', `must be null or a post's slug: ${journeyPost}`);
+  }
+
+  if (openingFeedTag !== null && !SLUG.test(openingFeedTag)) {
+    invalid('openingFeedTag', `must be null or a tag: ${openingFeedTag}`);
   }
 
   if (!CONTACT_FORMS.includes(contact.form)) {
