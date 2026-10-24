@@ -58,11 +58,11 @@ const resolve = async (path, search) => {
 };
 
 const server = createServer(async (req, res) => {
-  const url = new URL(req.url ?? '/', 'http://localhost');
-
-  /* A malformed escape is the request's fault; unhandled, it stops the server. */
+  /* A malformed escape or a `//` path is the request's fault; unhandled, it stops the server. */
+  let url;
   let decoded;
   try {
+    url = new URL(req.url ?? '/', 'http://localhost');
     decoded = decodeURIComponent(url.pathname);
   } catch {
     res.writeHead(400, { 'content-type': 'text/plain; charset=utf-8' });
