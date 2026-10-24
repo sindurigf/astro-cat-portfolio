@@ -254,15 +254,21 @@ Dashboard settings that change what ships without a file change.
   branch, so a stacked pull request gets the full gate. Its commits are checked
   against its own base branch, not `main`.
 - `Test weakening` (`.github/workflows/test-weakening.yml`) is a second
-  status. To require it: Settings, Rules, Rulesets, the `main` ruleset,
-  Require status checks to pass, Add checks, type `Test weakening`, pick the
-  GitHub Actions source, Save. The name is offered once the check has run on
-  a pull request opened after this workflow reached `main`.
-- Once agents work under their own account: add `.github/CODEOWNERS` naming
-  the owner for `/.github/` and `/scripts/check-test-weakening.mjs`, and turn
-  on Require review from Code Owners in the `main` ruleset. A workflow could
-  report a job also named `Test weakening`; this keeps such a change from
-  merging whatever that job reports.
+  status. GitHub blocks approving your own pull request, so the owner sets it
+  up in this order, in both repositories:
+  1. Create a machine account for agents and add it as a collaborator with
+     write access.
+  2. Give the agents a fine-grained token for it, scoped to both repositories
+     with Contents and Pull requests set to read and write. Log the agents'
+     `gh` in with it and remove the owner's token from their keyring.
+  3. Require the status: Settings, Rules, Rulesets, the `main` ruleset,
+     Require status checks to pass, Add checks, type `Test weakening`, pick
+     the GitHub Actions source, Save. The name is offered once the check has
+     run on a pull request. Before step 2, every flagged pull request blocks.
+  4. Add `.github/CODEOWNERS` naming the owner for `/.github/` and
+     `/scripts/check-test-weakening.mjs`, and turn on Require review from Code
+     Owners in the `main` ruleset. A workflow could report a job also named
+     `Test weakening`; this keeps such a change from merging.
 - Turn on Dependabot alerts, automated security fixes and private
   vulnerability reporting ([SECURITY.md](../SECURITY.md)).
 - Optional Actions secret `CLOUDFLARE_API_TOKEN` and variable
