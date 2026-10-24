@@ -282,7 +282,7 @@ export interface Move {
   mods: Mod[];
   prop?: PropKind;
   /** Prop position relative to the cat's starting point, forward positive. */
-  propAt?: (t: number) => PropState;
+  propAt?: ((t: number) => PropState) | undefined;
   /** px the cat ends higher than it starts, a climb; it plays on the lower floor. */
   rise?: number;
 }

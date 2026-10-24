@@ -136,7 +136,9 @@ const loadDeck = async (
       filePath: label,
       digest: context.generateDigest(`${slide.frontmatter}\n${slide.body}`),
       rendered: { ...rendered, html: markLeadIns(rendered.html) },
-      assetImports: rendered.metadata?.imagePaths,
+      ...(rendered.metadata?.imagePaths && {
+        assetImports: rendered.metadata.imagePaths,
+      }),
     });
   }
 

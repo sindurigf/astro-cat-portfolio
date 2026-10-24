@@ -172,11 +172,8 @@ test('under reduced motion the blocks move at once, never animated', async ({
   ).toBeLessThanOrEqual(MAX_INSTANT_MS);
 });
 
-test('without JavaScript there is no button', async ({ browser, baseURL }) => {
-  const context = await browser.newContext({
-    baseURL,
-    javaScriptEnabled: false,
-  });
+test('without JavaScript there is no button', async ({ browser }) => {
+  const context = await browser.newContext({ javaScriptEnabled: false });
   const page = await context.newPage();
   await page.goto(ROUTE);
   await expect(page.getByRole('button', FALL)).toHaveCount(0);

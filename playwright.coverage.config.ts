@@ -9,7 +9,9 @@ import { SITE_CONFIG } from './src/site.config';
  */
 export default defineConfig({
   ...base,
-  projects: base.projects?.filter((project) => project.name === 'chromium'),
+  ...(base.projects && {
+    projects: base.projects.filter((project) => project.name === 'chromium'),
+  }),
   reporter: [
     ['list'],
     [

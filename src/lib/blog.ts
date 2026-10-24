@@ -40,7 +40,9 @@ export const cardProps = (post: BlogPost) => ({
   teaser: post.data.teaser,
   category: post.data.category,
   date: post.data.date,
-  readingTime: post.data.readingTime,
+  ...(post.data.readingTime === undefined
+    ? {}
+    : { readingTime: post.data.readingTime }),
 });
 
 /** `category: null` is the "All Posts" row. */
