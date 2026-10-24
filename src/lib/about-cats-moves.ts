@@ -1056,7 +1056,7 @@ const slower = (move: Move, factor: number): Move => {
       to: mod.to * factor,
       apply: (p, s, k) => mod.apply(p, s / factor, k),
     })),
-    propAt: propAt && ((t) => propAt(t / factor)),
+    ...(propAt && { propAt: (t: number) => propAt(t / factor) }),
   };
 };
 
@@ -1105,16 +1105,16 @@ export const scaleTravel = (move: Move, factor: number): Move => {
       ...s,
       pose: { ...clonePose(s.pose), x: s.pose.x * factor },
     })),
-    propAt:
-      propAt &&
-      ((t) => {
+    ...(propAt && {
+      propAt: (t: number) => {
         const s = propAt(t);
         const cat = sample(move.steps, SCALE_FROM, t).x;
         const ahead = s.x - cat;
         const kept = Math.min(Math.abs(ahead), PROP_KEEP);
         const scaled = Math.max(Math.abs(ahead) * factor, kept);
         return { ...s, x: cat * factor + Math.sign(ahead) * scaled };
-      }),
+      },
+    }),
   };
 };
 /** A scaled travel move brings its prop no nearer the cat than this, in px: clear of the head. */
@@ -1230,7 +1230,9 @@ export const withTurn = (move: Move, from: Pose): Move => {
         to: mod.to + TURN_MS,
       })),
     ],
-    propAt: propAt && ((t) => propAt(Math.max(0, t - TURN_MS))),
+    ...(propAt && {
+      propAt: (t: number) => propAt(Math.max(0, t - TURN_MS)),
+    }),
   };
 };
 
@@ -1290,12 +1292,12 @@ export const withApproach = (
         to: mod.to + lead,
       })),
     ],
-    propAt:
-      propAt &&
-      ((t) => {
+    ...(propAt && {
+      propAt: (t: number) => {
         const s = propAt(Math.max(0, t - lead));
         return { ...s, x: s.x + distance, o: t < lead ? 0 : s.o };
-      }),
+      },
+    }),
   };
 };
 

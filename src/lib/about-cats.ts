@@ -146,14 +146,14 @@ interface CatState extends CatSpot {
   min: number;
   max: number;
   pose: Pose;
-  playing?: Playing;
+  playing: Playing | undefined;
   asleep: boolean;
   napAt: number;
   holds: Set<Hold>;
   mood: CatMood;
   reportedAsleep: boolean;
   /** When its band left the screen; it is not stepped and its play clock stops meanwhile. */
-  hiddenAt?: number;
+  hiddenAt: number | undefined;
   /** No new move before this; a nap still starts at once. */
   restUntil: number;
   idle: IdleState;
@@ -283,6 +283,7 @@ export const createColony = (
     min: 0,
     max: 0,
     pose: pose('sit', { face: spot.facing }),
+    playing: undefined,
     asleep: false,
     napAt: Infinity,
     holds: new Set<Hold>(),
@@ -423,9 +424,9 @@ export const createColony = (
       length: duration(move),
       origin,
       dir,
-      prop,
+      ...(prop && { prop }),
       settle,
-      then,
+      ...(then && { then }),
     };
   };
 

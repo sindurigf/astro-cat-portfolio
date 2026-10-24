@@ -767,10 +767,9 @@ evidence.
 - **Make `/contact`'s "Or Find Me Here" and "Write to Me About" `h2`:** they
   are parts of the "Write to Me" section, other ways to write and what to
   write about, so `h3` is the true outline.
-- **Turn on `noUncheckedIndexedAccess` and `exactOptionalPropertyTypes`:**
-  none of their errors is a bug. Every index is guarded at runtime (an empty
-  deck throws, `Map.groupBy` groups are never empty); every optional-prop
-  error passes `undefined` on purpose. `tsconfig.json` turns both off.
+- **Turn on `noUncheckedIndexedAccess`:** none of its errors is a bug. Every
+  index is guarded at runtime (an empty deck throws, `Map.groupBy` groups are
+  never empty). `tsconfig.json` turns it off.
 - **Replace `contact-env.ts`'s binding types with `wrangler types`:** its
   runtime types redeclare DOM globals (`Element`, `append`), breaking the
   client scripts sharing this program. Env-only output needs

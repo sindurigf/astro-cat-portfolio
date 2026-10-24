@@ -1010,7 +1010,6 @@ const deviceSizes = async (browser: Browser, width: number, zoom: number) => {
       height: Math.round(PAGE_HEIGHT / zoom),
     },
     deviceScaleFactor: zoom,
-    baseURL: test.info().project.use.baseURL,
   });
   try {
     const page = await context.newPage();

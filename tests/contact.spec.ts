@@ -750,41 +750,39 @@ test.describe('the contact endpoint', () => {
     /* `localhost` is IPv6 on CI and IPv4 locally, and Origin must match Host. */
     const served = new URL(baseURL!);
 
-    const sent = await new Promise<{ status: number; length?: string }>(
-      (resolve, reject) => {
-        const outgoing = httpRequest(
-          {
-            host: served.hostname,
-            port: served.port,
-            path: ENDPOINT,
-            method: 'POST',
-            headers: {
-              'content-type': FORM_MEDIA_TYPE,
-              'transfer-encoding': 'chunked',
-              origin: served.origin,
-              'sec-fetch-mode': 'navigate',
-              'sec-fetch-dest': 'document',
-              'sec-fetch-site': 'same-origin',
-              accept: 'text/html',
-            },
+    type Sent = { status: number; length: string | undefined };
+    const sent = await new Promise<Sent>((resolve, reject) => {
+      const outgoing = httpRequest(
+        {
+          host: served.hostname,
+          port: served.port,
+          path: ENDPOINT,
+          method: 'POST',
+          headers: {
+            'content-type': FORM_MEDIA_TYPE,
+            'transfer-encoding': 'chunked',
+            origin: served.origin,
+            'sec-fetch-mode': 'navigate',
+            'sec-fetch-dest': 'document',
+            'sec-fetch-site': 'same-origin',
+            accept: 'text/html',
           },
-          (incoming) => {
-            incoming.resume();
-            resolve({
-              status: incoming.statusCode ?? 0,
-              length: outgoing.getHeader('content-length') as
-                string | undefined,
-            });
-          },
-        );
-        outgoing.on('error', reject);
-        outgoing.write(FIELDS_PREFIX);
-        for (let written = 0; written <= MAX_BODY_BYTES; written += CHUNK) {
-          outgoing.write('x'.repeat(CHUNK));
-        }
-        outgoing.end();
-      },
-    );
+        },
+        (incoming) => {
+          incoming.resume();
+          resolve({
+            status: incoming.statusCode ?? 0,
+            length: outgoing.getHeader('content-length') as string | undefined,
+          });
+        },
+      );
+      outgoing.on('error', reject);
+      outgoing.write(FIELDS_PREFIX);
+      for (let written = 0; written <= MAX_BODY_BYTES; written += CHUNK) {
+        outgoing.write('x'.repeat(CHUNK));
+      }
+      outgoing.end();
+    });
 
     expect(
       sent.length,
