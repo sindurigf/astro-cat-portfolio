@@ -622,7 +622,7 @@ const HAS_TALK = (await getCollection('talks')).length > 0;
             .
           </p>
 
-          <h3>Automated Checker</h3>
+          <h3>Automated Checkers</h3>
           <p>
             axe-core runs on every built page with the tags <code>wcag2a</code>,{' '}
             <code>wcag2aa</code>, <code>wcag21a</code>, <code>wcag21aa</code>{' '}
@@ -635,6 +635,17 @@ const HAS_TALK = (await getCollection('talks')).length > 0;
           <p>
             A free checking tool called axe scans every page in both color modes
             for common problems.
+          </p>
+          <p>
+            A second checker, AccessLint, runs its own WCAG 2.2 A, AA and
+            best-practice rules in dark mode at 1280 and 320px. It scans every
+            page, with category and tag listings sampled to one per group
+            showing the same posts. Three results it gets wrong are dropped,
+            each only on the elements it was checked on.
+          </p>
+          <p>
+            A second free checking tool, with its own rules, scans the pages
+            too.
           </p>
           <p>
             Learn more:{' '}

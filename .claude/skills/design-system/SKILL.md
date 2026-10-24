@@ -77,5 +77,6 @@ before changing anything it covers.
 
 - Run the commands in `AGENTS.md`.
 - Tab the page, zoom to 400% and toggle reduced motion.
-- Never suppress an axe rule.
+- Never suppress an axe or AccessLint rule; a false positive is handled as
+  [DEVELOPMENT.md](../../../docs/DEVELOPMENT.md#other-notes) says.
 - A new color, animation or control usually needs a new assertion.

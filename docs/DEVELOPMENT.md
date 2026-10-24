@@ -127,6 +127,11 @@ WEBKIT_CPUS=8 npm run test:webkit
   `npm audit --omit=dev --audit-level=high`, `check:live`, `check:umami` and
   `tests/security-txt.spec.ts`. After a deploy:
   [DEPLOYMENT.md](DEPLOYMENT.md).
+- Two accessibility engines run: axe (`tests/a11y.spec.ts`) and AccessLint
+  (`tests/accesslint.spec.ts`); their coverage is in
+  [ACCESSIBILITY.md](../ACCESSIBILITY.md#4-what-the-site-supports). An AccessLint false positive goes in `ACCESSLINT_FALSE_POSITIVES`
+  (`tests/accesslint.ts`) with its selector, a reason the page checks and a
+  route where it occurs, and in ARCHITECTURE.md "Rejected findings".
 - `test:coverage` writes `coverage/` (`index.html`, `lcov.info`). It covers
   browser JavaScript only (the Vue islands and page scripts). It builds with source
   maps: run a plain `npm run build` before anything else reads `dist/`.
