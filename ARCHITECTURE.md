@@ -62,6 +62,7 @@ validated on import, so a bad value fails the build and the tests.
 | `person.*`                   | Homepage `<h1>` (one name per line), JSON-LD `Person`, contact address, CV                                                            |
 | `profiles`                   | Footer tiles and JSON-LD `sameAs`; each label needs an icon                                                                           |
 | `journeyPost`                | The close row of `/about`, `/career`, `/contact/sent`; must name a published post, or `null`                                          |
+| `openingFeedTag`             | The tag feed that carries each post's opening, not its teaser ([Feeds](#feeds)); a tag, or `null`                                     |
 | `analytics`                  | `null` loads no tracker; an Umami website id turns it on ([Umami](docs/DEPLOYMENT.md#umami))                                          |
 | `bingSiteVerification`       | `null` adds no tag; a [Bing](docs/DEPLOYMENT.md#bing-webmaster-tools) code adds one to `/`                                            |
 | `contact.form`               | `cloudflare-d1` (the form) or `none` (email only)                                                                                     |
@@ -259,7 +260,10 @@ Headings, alt text, focus rings and axe are checked on the rendered page by
 
 - `/rss.xml` (all published posts) and `/blog/tag/<tag>/rss.xml`, RSS 2.0 from
   `src/lib/feed.ts`, with `atom:link rel="self"` and RFC 822 dates.
-- A tag feed serves aggregators that follow one topic.
+- A tag feed serves aggregators that follow one topic. The `openingFeedTag`
+  feed carries each post's opening, whole sentences up to 300 characters,
+  stopping before a paragraph that ends in a colon (`src/lib/feed-excerpt.ts`),
+  for an aggregator that reads one tag's feed. Every other feed carries the teaser.
 - Placeholders are excluded. `tests/rss.spec.ts`.
 
 ### Markdown visitors

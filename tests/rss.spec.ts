@@ -11,6 +11,11 @@ import {
   PUBLISHED_POST_ROUTES,
 } from './routes';
 import { NODE } from './tags';
+import {
+  FEED_EXCERPT_MAX_CHARACTERS,
+  feedExcerpt,
+} from '../src/lib/feed-excerpt';
+import { SITE_CONFIG } from '../src/site.config';
 
 /*
  * The feeds from src/lib/feed.ts, parsed by the browser's XML parser so
@@ -36,7 +41,13 @@ interface ParsedFeed {
   link: string | null;
   description: string | null;
   self: string | null;
-  items: { link: string; guid: string; pubDate: string; title: string }[];
+  items: {
+    link: string;
+    guid: string;
+    pubDate: string;
+    title: string;
+    description: string;
+  }[];
 }
 
 const parseFeed = async (page: Page, path: string): Promise<ParsedFeed> => {
@@ -69,6 +80,7 @@ const parseFeed = async (page: Page, path: string): Promise<ParsedFeed> => {
           guid: item.querySelector('guid')?.textContent ?? '',
           pubDate: item.querySelector('pubDate')?.textContent ?? '',
           title: item.querySelector('title')?.textContent ?? '',
+          description: item.querySelector('description')?.textContent ?? '',
         }),
       ),
     };
@@ -163,4 +175,71 @@ test.describe('the feeds', () => {
       ).toEqual([]);
     },
   );
+});
+
+test.describe('the opening feed', () => {
+  test('the opening feed tag carries whole sentences from each opening within the cap, and every other tag feed the teaser', async ({
+    page,
+  }) => {
+    const site = await parseFeed(page, SITE_FEED);
+    const teaserOf = (link: string) =>
+      site.items.find((item) => item.link === link)?.description;
+    for (const route of TAG_ROUTES) {
+      const tag = route.split('/').pop();
+      const path = `${route}/rss.xml`;
+      const feed = await parseFeed(page, path);
+      for (const item of feed.items) {
+        if (tag !== SITE_CONFIG.openingFeedTag) {
+          expect(
+            item.description,
+            `${path}: ${item.link} should carry its teaser`,
+          ).toBe(teaserOf(item.link));
+          continue;
+        }
+        expect(
+          item.description.length,
+          `${path}: ${item.link} is over ${FEED_EXCERPT_MAX_CHARACTERS} characters`,
+        ).toBeLessThanOrEqual(FEED_EXCERPT_MAX_CHARACTERS);
+        expect(
+          item.description,
+          `${path}: ${item.link} does not end a sentence`,
+        ).toMatch(/[.!?]["'”’)\]]*$/);
+      }
+    }
+  });
+
+  test.describe('feedExcerpt', NODE, () => {
+    test('stops before a paragraph that leads into a list', () => {
+      const body =
+        'Ruins outlast almost everything we build. You have walked past several of these this week:\n\n- a wall\n- a well\n\nThe uncomfortable part is that few people read them.';
+      expect(feedExcerpt(body)).toBeUndefined();
+      expect(feedExcerpt(`A first sentence.\n\n${body}`)).toBe(
+        'A first sentence.',
+      );
+    });
+
+    test('keeps whole sentences under the cap, across paragraphs', () => {
+      const body = 'One two three. Four five six.\n\nSeven eight nine. Ten.';
+      expect(feedExcerpt(body, 30)).toBe('One two three. Four five six.');
+      expect(feedExcerpt(body, 100)).toBe(
+        'One two three. Four five six. Seven eight nine. Ten.',
+      );
+    });
+
+    test('skips headings and images, and keeps link text', () => {
+      const body =
+        '## Start\n\n![A photo](../assets/a.jpg)\n\nI read [the stone](https://example.com/) in **1522**.';
+      expect(feedExcerpt(body)).toBe('I read the stone in 1522.');
+    });
+
+    test('ends at text after the last full stop of a paragraph', () => {
+      expect(feedExcerpt('Done here. And then\n\nMore later.')).toBe(
+        'Done here.',
+      );
+    });
+
+    test('gives nothing when the first sentence is over the cap', () => {
+      expect(feedExcerpt('A very long sentence indeed.', 10)).toBeUndefined();
+    });
+  });
 });

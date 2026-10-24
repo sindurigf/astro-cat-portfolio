@@ -37,6 +37,9 @@ export const templateUseUrl = (repository: string): string | null => {
 /** Slug of the post /about, /career and /contact/sent end on; null for none. */
 export const JOURNEY_POST = SITE_CONFIG.journeyPost;
 
+/** Tag whose feed carries each post's opening instead of its teaser; null for none. */
+export const OPENING_FEED_TAG = SITE_CONFIG.openingFeedTag;
+
 export const ACCESSIBILITY_RESPONSE_DAYS =
   SITE_CONFIG.accessibility.responseDays;
 
