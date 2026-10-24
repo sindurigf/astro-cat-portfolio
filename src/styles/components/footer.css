@@ -232,6 +232,11 @@
     transform-origin: 0 0;
   }
 
+  /* Over every fallen block while the page is down, as the hopping copy is. */
+  :root:has([data-fall-block]) .footer-mascot {
+    z-index: 2;
+  }
+
   /* While its hopping copy climbs the heap in its place. */
   .footer-mascot[data-away] {
     visibility: hidden;

@@ -29,6 +29,9 @@ const TIGHT_GAP = 1;
 const FLOAT_GAP = 24;
 /* Rises without overshoot, so it never passes the top of the screen. */
 const RISE_EASING = 'cubic-bezier(0.2, 0.8, 0.2, 1)';
+/* The main menu bar: a shelf in the heap about two thirds down, and the mascot's ledge on its climb. */
+const LEDGE = '.header-slab';
+const LEDGE_SHARE = 2 / 3;
 const EDGE = 16;
 /* A block narrower than this share of the screen is small: it tilts more and drops into the lowest gap. */
 const SMALL_SHARE = 0.4;
@@ -156,7 +159,14 @@ const unpin = (): void => {
   for (const name of PINNED) header?.style.removeProperty(name);
 };
 
-type Spot = { left: number; right: number; top: number; bottom: number };
+/* `bare`: nothing rests on it, as the mascot's clear stretch on the menu shelf. */
+type Spot = {
+  left: number;
+  right: number;
+  top: number;
+  bottom: number;
+  bare?: boolean;
+};
 type Landing = {
   el: HTMLElement;
   x: number;
@@ -185,13 +195,18 @@ const lowestFit = (
   const column = heap.filter(
     (spot) => left < spot.right + gap && spot.left - gap < right,
   );
-  const grounds = [floor, ...column.map((spot) => spot.top - gap)]
+  const grounds = [
+    floor,
+    ...column.filter((spot) => !spot.bare).map((spot) => spot.top - gap),
+  ]
     .filter((g) => g <= floor)
     .sort((a, b) => b - a);
   const free = (g: number) =>
     !column.some((spot) => g - tall < spot.bottom + gap && spot.top - gap < g);
   const fits = grounds.filter(free);
-  return fits.find((g) => g - tall >= ceiling) ?? fits.at(-1) ?? floor;
+  /* Nowhere free: on top of everything in its column. */
+  const over = Math.min(floor, ...column.map((spot) => spot.top - gap));
+  return fits.find((g) => g - tall >= ceiling) ?? fits.at(-1) ?? over;
 };
 
 /* A block's box joined with every visible part it draws past it, as a label set over its card's edge; 1px screen reader labels aside. */
@@ -216,7 +231,11 @@ const reach = (el: Element): DOMRect =>
  * into the lowest gap. Each takes its tilted box's room, so no two overlap and
  * every target stays whole (SC 2.5.8).
  */
-const stack = (blocks: HTMLElement[], room: Room, solid: Spot[]): Landing[] => {
+const stack = (
+  blocks: HTMLElement[],
+  room: Room,
+  solid: Spot[],
+): { landings: Landing[]; heap: Spot[] } => {
   const screen = document.documentElement.clientWidth;
   const sized = blocks.map((el) => {
     const box = el.getBoundingClientRect();
@@ -228,9 +247,19 @@ const stack = (blocks: HTMLElement[], room: Room, solid: Spot[]): Landing[] => {
       key: Math.random(),
     };
   });
+  /*
+   * Wide blocks first, shuffled; then small ones, widest first, into the lowest
+   * gaps, bare labels before painted ones, so painted blocks the mascot can climb top the heap.
+   */
+  const shows = (el: Element) =>
+    [el, ...el.querySelectorAll('*')].some((part) => painted(part));
+  const small = sized
+    .filter((b) => b.small)
+    .sort((a, b) => b.box.width - a.box.width);
   const order = [
     ...sized.filter((b) => !b.small).sort((a, b) => a.key - b.key),
-    ...sized.filter((b) => b.small).sort((a, b) => b.box.width - a.box.width),
+    ...small.filter((b) => !shows(b.el)),
+    ...small.filter((b) => shows(b.el)),
   ];
   const heap = [...solid];
   const landings = order.map(({ el, box, reach: drawn, small }, rank) => {
@@ -278,7 +307,7 @@ const stack = (blocks: HTMLElement[], room: Room, solid: Spot[]): Landing[] => {
       rank,
     };
   });
-  return landings;
+  return { landings, heap };
 };
 
 /*
@@ -356,7 +385,10 @@ const topEdges = (): Edge[] => {
 };
 
 /* y of the highest visible top edge straight down at x: one nothing covers there. */
-const surfaceAt = (edges: Edge[], x: number): number | null => {
+const surfaceAt = (
+  edges: Edge[],
+  x: number,
+): { y: number; el: Element } | null => {
   const under = edges
     .filter(({ a, b }) => x >= Math.min(a.x, b.x) && x <= Math.max(a.x, b.x))
     .map(({ el, a, b }) => ({
@@ -369,17 +401,18 @@ const surfaceAt = (edges: Edge[], x: number): number | null => {
     const hit = document.elementFromPoint(x, y + LEVEL_SLACK / 2);
     return hit !== null && el.contains(hit);
   });
-  return seen ? seen.y : null;
+  return seen ? { y: seen.y, el: seen.el } : null;
 };
 
 /* Nothing painted, no text and no control, nor another control's ring, inside the mascot's box; `overPage`: the page that stays may lie under it, as under the risen Put It Back. */
 const roomFor = (
-  controls: DOMRect[],
+  controls: Guard[],
   left: number,
   top: number,
   wide: number,
   tall: number,
   overPage = false,
+  under: Element[] = [],
 ): boolean => {
   if (
     top < 0 ||
@@ -388,14 +421,19 @@ const roomFor = (
   ) {
     return false;
   }
-  const reach = ringReach();
-  const clash = controls.some(
-    (c) =>
-      left < c.right + reach &&
-      c.left - reach < left + wide &&
-      top < c.bottom + reach &&
-      c.top - reach < top + tall,
-  );
+  /* A control it stands on is under its feet, not in its box. */
+  const clash = controls
+    .filter(
+      ({ el }) => !under.some((part) => el.contains(part) || part.contains(el)),
+    )
+    .map(({ box }) => box)
+    .some(
+      (c) =>
+        left < c.right &&
+        c.left < left + wide &&
+        top < c.bottom &&
+        c.top < top + tall,
+    );
   if (clash) return false;
   for (let i = 0; i < ROOM_PROBES; i++) {
     for (let j = 0; j < ROOM_PROBES; j++) {
@@ -416,11 +454,30 @@ const roomFor = (
   return true;
 };
 
-/* Every shown control but Put It Back, measured once for the whole search. */
-const controlBoxes = (): DOMRect[] =>
+const grow = (box: DOMRect, by: number): DOMRect =>
+  new DOMRect(
+    box.left - by,
+    box.top - by,
+    box.width + 2 * by,
+    box.height + 2 * by,
+  );
+
+/*
+ * Every shown control but Put It Back, measured once for the whole search. Their
+ * rings never show while fallen: keyboard focus on one puts the page back.
+ */
+type Guard = { el: Element; box: DOMRect };
+
+const controlBoxes = (): Guard[] =>
   [...document.querySelectorAll(TARGETS)]
     .filter((el) => el !== button && el.checkVisibility())
-    .map((el) => el.getBoundingClientRect());
+    .map((el) => ({ el, box: grow(el.getBoundingClientRect(), TOUCH) }));
+
+/* Put It Back with its focus ring's reach: kept clear wherever the mascot stands but on it. */
+const buttonGuard = (): Guard => ({
+  el: button,
+  box: grow(button.getBoundingClientRect(), ringReach()),
+});
 
 type Hop = {
   x: number;
@@ -432,22 +489,30 @@ type Hop = {
 };
 /* The mascot shrinks to these to fit, as on a wide screen where the heap reaches the top. */
 const HOP_SCALES = [1, 0.75, 0.5];
+/* px: the mascot's height while it climbs, at most its phone size, so its seat and headroom leave the heap the screen. */
+const CLIMB_HEIGHT = 96;
+const climbHeight = (): number =>
+  Math.min(CLIMB_HEIGHT, mascot?.getBoundingClientRect().height ?? 0);
 
 /* Where the mascot could stand with its middle at x: on the surfaces under its feet, level enough, with room above. */
 const standAt = (
   edges: Edge[],
-  controls: DOMRect[],
+  controls: Guard[],
   x: number,
   wide: number,
   tall: number,
 ): number | null => {
   const reach = (wide * FEET_SHARE) / 2;
   const levels = [x - reach, x, x + reach].map((at) => surfaceAt(edges, at));
-  if (levels.some((y) => y === null)) return null;
-  const ys = levels as number[];
+  if (levels.some((level) => level === null)) return null;
+  const found = levels as { y: number; el: Element }[];
+  const ys = found.map(({ y }) => y);
   if (Math.max(...ys) - Math.min(...ys) > LEVEL_SLACK) return null;
   const y = Math.min(...ys) - TOUCH;
-  return roomFor(controls, x - wide / 2, y - tall, wide, tall) ? y : null;
+  const under = found.map(({ el }) => el);
+  return roomFor(controls, x - wide / 2, y - tall, wide, tall, false, under)
+    ? y
+    : null;
 };
 
 /* On Put It Back, its seat: on the edge, or above the focus ring while keyboard focus shows it (SC 2.4.11). */
@@ -457,7 +522,7 @@ const seat = (): number =>
   TOUCH;
 
 /* On top of Put It Back, clear of its label; else the highest place on the heap. At the largest size that fits. */
-const perch = (edges: Edge[], controls: DOMRect[]): Hop | null => {
+const perch = (edges: Edge[], controls: Guard[]): Hop | null => {
   if (!mascot) return null;
   const box = mascot.getBoundingClientRect();
   if (!box.width) return null;
@@ -479,52 +544,96 @@ const perch = (edges: Edge[], controls: DOMRect[]): Hop | null => {
     tall,
   });
   for (const scale of HOP_SCALES) {
-    const wide = box.height * ratio * scale;
-    const tall = box.height * scale;
+    const tall = climbHeight() * scale;
+    const wide = tall * ratio;
     const middle = own.left + own.width / 2;
     const y = seat();
     if (roomFor(controls, middle - wide / 2, y - tall, wide, tall, true)) {
-      return hop(middle, y, scale, wide, tall);
+      return hop(middle, y, tall / box.height, wide, tall);
     }
   }
   for (const scale of HOP_SCALES) {
-    const wide = box.height * ratio * scale;
-    const tall = box.height * scale;
+    const tall = climbHeight() * scale;
+    const wide = tall * ratio;
     let best: { x: number; y: number } | null = null;
     for (
       let x = EDGE + wide / 2;
       x + wide / 2 <= screen - EDGE;
       x += SLOT_STEP
     ) {
-      const y = standAt(edges, controls, x, wide, tall);
+      const y = standAt(edges, [...controls, buttonGuard()], x, wide, tall);
       if (y !== null && (!best || y < best.y)) best = { x, y };
     }
-    if (best) return hop(best.x, best.y, scale, wide, tall);
+    if (best) return hop(best.x, best.y, tall / box.height, wide, tall);
   }
   return null;
 };
 
-/* px between the mascot's hops, at least; longer when more hops than this would be needed. */
-const STRIDE = 70;
-const MAX_HOPS = 5;
-
-/* Visible places to land on the way from the footer to the perch, then the perch. */
-const stones = (edges: Edge[], controls: DOMRect[], spot: Hop): Foot[] => {
+/*
+ * Visible places to land on the way from the footer: up the heap, onto the ledge
+ * beside Put It Back when there is one, then the perch.
+ */
+const stones = (
+  edges: Edge[],
+  controls: Guard[],
+  spot: Hop,
+  ledge: Element | undefined,
+): Foot[] => {
   if (!mascot) return [];
+  const guard = [...controls, buttonGuard()];
   const box = mascot.getBoundingClientRect();
-  const from = box.left + box.width / 2;
-  const toward = Math.sign(spot.foot.x - from);
-  const stride = Math.max(STRIDE, Math.abs(spot.foot.x - from) / MAX_HOPS);
-  const steps: Foot[] = [];
-  for (
-    let x = from + toward * stride;
-    toward !== 0 && (spot.foot.x - x) * toward > stride / 2;
-    x += toward * stride
-  ) {
-    const y = standAt(edges, controls, x, spot.wide, spot.tall);
-    if (y !== null) steps.push({ x, y });
-  }
-  return [...steps, spot.foot];
+  const onLedge = edges.filter(({ el }) => ledge?.contains(el));
+  const heap = edges.filter(({ el }) => !ledge?.contains(el) && el !== button);
+  /* On the menu shelf, as near its clear stretch in the middle as it has room. */
+  const screen = document.documentElement.clientWidth;
+  const middle = screen / 2;
+  const across = (pick: Edge[]): Foot[] => {
+    const found: Foot[] = [];
+    for (
+      let x = EDGE + spot.wide / 2;
+      x + spot.wide / 2 <= screen - EDGE;
+      x += SLOT_STEP
+    ) {
+      const y = standAt(pick, guard, x, spot.wide, spot.tall);
+      if (y !== null) found.push({ x, y });
+    }
+    return found;
+  };
+  const nearest = (all: Foot[], x: number) =>
+    all.reduce<Foot | null>(
+      (best, place) =>
+        !best || Math.abs(place.x - x) < Math.abs(best.x - x) ? place : best,
+      null,
+    );
+  const highestOf = (all: Foot[]) =>
+    all.reduce<Foot | null>(
+      (best, place) => (!best || place.y < best.y ? place : best),
+      null,
+    );
+  const ledgeStone = nearest(across(onLedge), middle);
+  const shelfTop = ledge?.getBoundingClientRect().top ?? box.bottom;
+  const places = across(heap);
+  /* Below the shelf: the highest place with headroom, if any. */
+  const lower = highestOf(places.filter(({ y }) => y > shelfTop));
+  /* Above it: the highest place, and one about halfway up from the shelf. */
+  const upperPlaces = places.filter(({ y }) => y <= shelfTop);
+  const highest = highestOf(upperPlaces);
+  const halfway = highest
+    ? upperPlaces
+        .filter(({ y }) => y > highest.y + spot.tall / 2)
+        .reduce<Foot | null>(
+          (best, place) =>
+            !best ||
+            Math.abs(place.y - (shelfTop + highest.y) / 2) <
+              Math.abs(best.y - (shelfTop + highest.y) / 2)
+              ? place
+              : best,
+          null,
+        )
+    : null;
+  return [lower, ledgeStone, halfway, highest, spot.foot].filter(
+    (place): place is Foot => place !== null,
+  );
 };
 
 const HOP_VARS = ['--hop-x', '--hop-y', '--hop-scale'];
@@ -635,7 +744,7 @@ const floatButton = (): DOMRect => {
     getComputedStyle(header).position === 'sticky'
       ? header.getBoundingClientRect().bottom
       : 0;
-  const seat = (mascot?.getBoundingClientRect().height ?? 0) + ringReach();
+  const seat = climbHeight() + ringReach();
   const top = Math.max(0, stuck) + EDGE + seat;
   const left = (document.documentElement.clientWidth - own.width) / 2;
   button.style.setProperty('--float-x', `${left - own.left}px`);
@@ -679,6 +788,75 @@ const sinkButton = (): void => {
     .finished.then(() => {
       if (!button.hasAttribute('data-floating')) clean();
     }, ignoreCancel);
+};
+
+/*
+ * The header bar as a shelf about two thirds down: the wide blocks land under
+ * it, it sits on them as low as that allows, and the small blocks fill the gaps
+ * and land on it, around a clear stretch kept for the mascot.
+ */
+const shelve = (
+  shelf: HTMLElement,
+  blocks: HTMLElement[],
+  room: Room,
+  solid: Spot[],
+): Landing[] => {
+  const screen = document.documentElement.clientWidth;
+  const wide = blocks.filter(
+    (el) => el.getBoundingClientRect().width >= screen * SMALL_SHARE,
+  );
+  const small = blocks.filter((el) => !wide.includes(el));
+  const under = stack(wide, room, solid);
+  const drawn = reach(shelf);
+  const wideTop = wide.length
+    ? Math.min(...under.heap.slice(solid.length).map(({ top }) => top))
+    : room.floor;
+  const headroom = climbHeight() + ringReach();
+  const top = Math.max(
+    room.ceiling + headroom,
+    Math.min(innerHeight * LEDGE_SHARE, wideTop - room.gap - drawn.height),
+  );
+  /* Too little room above them for the shelf: the wide blocks move down under it. */
+  const drop = Math.max(0, top + drawn.height + room.gap - wideTop);
+  const lowered = (spot: Spot): Spot => ({
+    ...spot,
+    top: spot.top + drop,
+    bottom: spot.bottom + drop,
+  });
+  const below = under.heap.slice(solid.length).map(lowered);
+  const middle = screen / 2;
+  const stretch = climbHeight() + 2 * SLOT_STEP;
+  const spots: Spot[] = [
+    ...solid,
+    ...below,
+    { left: drawn.left, right: drawn.right, top, bottom: top + drawn.height },
+    {
+      left: middle - stretch / 2,
+      right: middle + stretch / 2,
+      top: top - headroom,
+      bottom: top,
+      bare: true,
+    },
+  ];
+  /* A hop's headroom kept under Put It Back too, so the mascot can stand on top of the heap. */
+  const above = stack(
+    small,
+    { ...room, ceiling: room.ceiling + headroom },
+    spots,
+  ).landings;
+  return [
+    { el: shelf, x: 0, y: top - drawn.top, turn: 0, top, rank: 0 },
+    ...under.landings.map((landing) => ({
+      ...landing,
+      y: landing.y + drop,
+      top: landing.top + drop,
+      rank: landing.rank + 1,
+    })),
+    ...above.map((landing) => ({
+      ...landing,
+      rank: landing.rank + under.landings.length + 1,
+    })),
+  ];
 };
 
 const fall = (): void => {
@@ -730,23 +908,26 @@ const fall = (): void => {
     )
     .map((el) => toSpot(el.getBoundingClientRect()));
   /*
-   * Under Put It Back's gap: packed loosely and tilted, then tightly and level,
-   * and if it still does not fit, moved down past the screen's bottom, where scrolling reaches it.
+   * Packed loosely and tilted, then tightly and level; if it still does not fit
+   * under Put It Back, the whole heap moves down past the screen's bottom, where scrolling reaches it.
    */
   const ceiling = lifted.bottom + FLOAT_GAP;
-  let room: Room = {
+  const loose: Room = {
     floor: innerHeight - EDGE,
     ceiling,
     gap: STACK_GAP,
     tilt: true,
   };
+  const tight: Room = { ...loose, gap: TIGHT_GAP, tilt: false };
   const highestOf = (all: Landing[]) => Math.min(...all.map(({ top }) => top));
-  let landings = stack(fallen, room, solid);
-  if (highestOf(landings) < ceiling) {
-    room = { ...room, gap: TIGHT_GAP, tilt: false };
-    landings = stack(fallen, room, solid);
-  }
-  /* Still too tall: the whole heap moves down by the overflow, below the screen's bottom edge. */
+  const ledge = fallen.find((el) => el.matches(LEDGE));
+  const heaped = fallen.filter((el) => el !== ledge);
+  const plan = (room: Room): Landing[] =>
+    ledge
+      ? shelve(ledge, heaped, room, solid)
+      : stack(heaped, room, solid).landings;
+  let landings = plan(loose);
+  if (highestOf(landings) < ceiling) landings = plan(tight);
   const sink = Math.max(0, ceiling - highestOf(landings));
   landings = landings.map((landing) => ({
     ...landing,
@@ -778,7 +959,7 @@ const fall = (): void => {
       if (hopper && motion.matches) {
         try {
           await hopper.climb(
-            stones(edges, controls, spot).map(hopper.local),
+            stones(edges, controls, spot, ledge).map(hopper.local),
             spot.scale,
           );
           return;

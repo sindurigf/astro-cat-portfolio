@@ -1094,16 +1094,22 @@ Enforced by `tests/footer.spec.ts`.
   over it. A block taller than 60% of the screen stays and the blocks inside
   it fall; a footer row falls as its link alone.
 - Put It Back rises to the top of the screen, centered, over every fallen
-  block, with room above it for the mascot and a 24px gap below it that the
-  heap never enters. If the heap does not fit under it, it packs tight and
-  level; if it still does not fit, it moves down past the screen's bottom,
-  where scrolling reaches it.
+  block, with room above it for the mascot. The header bar, the main menu,
+  becomes a shelf in the heap about two thirds down: the wide blocks land under
+  it and it sits on them as low as that allows, at most two thirds down; the
+  small blocks fill the gaps and land on it, around a clear stretch kept for
+  the mascot, and never on its links. The heap keeps a hop's headroom under Put
+  It Back. If it does not fit, it packs tight and level; if it still does not
+  fit, it moves down past the screen's bottom, where scrolling reaches it. Bare
+  labels land before painted blocks, so painted ones top the heap.
 - Then the footer mascot climbs (`src/scripts/let-it-fall-mascot.ts`, its own
   drawing): it crouches with a squash, leaps on an eased arc with a stretch,
   tipped toward the way it travels, and lands with a squash. It is never
-  mirrored, so its pink throw stays bottom right. It hops up the heap, then
-  leaps onto the risen Put It Back and sits on its top edge, clear of its
-  label, and above its focus ring while keyboard focus shows it. Where it lands is read from
+  mirrored, so its pink throw stays bottom right. It hops onto the menu
+  shelf's clear stretch, up the blocks on top of it, then onto the risen Put
+  It Back and sits on its top edge, clear of its label, and above its focus
+  ring while keyboard focus shows it. It is drawn over every fallen block;
+  only Put It Back is drawn over it. Where it lands is read from
   the landed page: only the top edge of a painted, fallen surface (a fill or
   edge unlike its ground, or an image) or of Put It Back, level under its
   middle, with nothing painted, no text and no other control or its ring in
