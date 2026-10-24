@@ -52,8 +52,9 @@ export const titleCaseMiss = (
   const words = text
     .split(' ')
     .map((token) => token.replace(EDGE_PUNCTUATION, ''))
-    .filter((token) => !ADDRESS.test(token))
-    .flatMap((token) => (exempt.has(token) ? [token] : token.split('-')))
+    .flatMap((token) =>
+      exempt.has(token) || ADDRESS.test(token) ? [token] : token.split('-'),
+    )
     .map((word) => word.replace(EDGE_PUNCTUATION, ''))
     .filter((word) => /\p{L}/u.test(word));
   const last = words.length - 1;
@@ -61,6 +62,7 @@ export const titleCaseMiss = (
     (word, index) =>
       /^\p{Ll}/u.test(word) &&
       !exempt.has(word) &&
+      !ADDRESS.test(word) &&
       (index === 0 ||
         index === last ||
         !TITLE_CASE_SMALL_WORDS.has(word.toLowerCase())),
