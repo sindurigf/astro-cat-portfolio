@@ -412,6 +412,17 @@ Rejected:
 - A count in a comment states its unit.
 - A fact duplicated across Markdown files needs a check that fails when the
   copies disagree; otherwise keep one copy and link.
+- **Test weakening needs the owner, out of band.** `check:test-weakening`
+  compares the base with the change and flags a new or widened skip, fixme or
+  fail, an axe exclusion or dropped `AXE_*` entry, net fewer `expect` calls in
+  a running spec, a raised or removed `*BUDGET*` or `*TOLERANCE*` constant, a
+  changed threshold in `tests/contrast.ts` or `tests/wcag.ts`, a Playwright
+  config change, a new or edited rejected finding, and edits to the guard.
+  Agents write code and pull request bodies, so CI accepts only a review by
+  `GITHUB_REPOSITORY_OWNER` on the tested head commit with the line
+  `Approved test change: <reason>`, read via the API; a new push needs a new
+  review. An agent holding the owner's token passes it, and indirection evades
+  text matching.
 
 ### Claims that rest on a platform setting
 

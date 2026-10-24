@@ -8,7 +8,7 @@ system and conventions: [ARCHITECTURE.md](ARCHITECTURE.md).
 ```sh
 npm run build
 npm run typecheck
-npm run check        # tokens, links, pins, classes, images, title-case, format, commits, leaks
+npm run check        # tokens, links, pins, classes, images, title-case, format, commits, leaks, test-weakening
 npm run test:a11y    # Chromium, Firefox; WebKit in CI or with WEBKIT=1
 npm run test:webkit  # test:a11y in WebKit via Docker
 npm run test:worker  # WORKER_SPECS through the Worker
@@ -36,6 +36,10 @@ security and privacy, or build correctness. "Looks as designed" is not one.
   accessibility: SC 1.4.3, 1.4.11, 1.4.1.
 - Assert the property ("at least 4.5:1 and differs from rest"), not the value
   (`rgb(0, 255, 255)`).
+- A skip, an axe exclusion, fewer `expect` calls, a looser threshold or a new
+  rejected finding needs the owner's review of the head commit with the line
+  `Approved test change: <reason>` (`check:test-weakening`). Agents never
+  write it.
 
 ### Which suites to run
 

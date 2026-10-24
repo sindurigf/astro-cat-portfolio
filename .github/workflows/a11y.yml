@@ -21,6 +21,10 @@ jobs:
     name: Conventions, build, typecheck, format and contact endpoint
     runs-on: ubuntu-24.04
     timeout-minutes: 15
+    permissions:
+      contents: read
+      # check:test-weakening reads the owner's approval from the reviews.
+      pull-requests: read
 
     steps:
       - name: Check out
@@ -112,6 +116,7 @@ jobs:
         env:
           # From GitHub's event, which a contributor cannot set, unlike an email.
           TRUST_DEPENDABOT: ${{ github.event.pull_request.user.login == 'dependabot[bot]' && '1' || '' }}
+          GITHUB_TOKEN: ${{ github.token }}
 
       - name: Typecheck
         run: npm run typecheck

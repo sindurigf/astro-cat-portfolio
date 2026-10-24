@@ -101,6 +101,8 @@ view (development server only, never published), and forks.
   The photo viewer open, a post's contents open and the talk past its cover
   are scanned too. The experimental rules in those tags, which axe ships off,
   are turned on (`AXE_EXPERIMENTAL_RULES` in `tests/wcag.ts`).
+  `check:test-weakening` fails a pull request that disables a rule or excludes
+  a node unless the owner approves it.
 - **axe, best practice.** Every route passes `best-practice` in its own block.
 - **Undecided results.** Every `incomplete` result from the WCAG scans is
   decided (`tests/incomplete.ts`): contrast by walking the paint stack, label
