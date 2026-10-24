@@ -16,8 +16,9 @@ import { DESKTOP_VIEWPORT, NARROW_WIDTH, PHONE_VIEWPORT } from './wcag';
  * and the post contents, gold or light with an ink edge. Inside, the color
  * tokens are remapped, so each block is measured as a ground of its own.
  */
+/* A talk slide is no block, but it is an edged ground of its own, held to the same ratios. */
 const BLOCK =
-  ':is(.card, .plain-slab, .post-contents):not(.surface-gold *, :is(.card, .plain-slab, .post-contents) *)';
+  ':is(.card, .plain-slab, .post-contents, .slide):not(.surface-gold *, :is(.card, .plain-slab, .post-contents) *)';
 
 /* Every kind of block: card blocks, a lone card, a hero slab, the contents, slides, a form. */
 const BLOCK_ROUTES = [

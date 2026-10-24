@@ -31,11 +31,7 @@ const coverLines = isCover
 ---
 
 <section
-  class:list={[
-    'card slide',
-    isCover && 'slide-cover',
-    isOpener && 'slide-opener',
-  ]}
+  class:list={['slide', isCover && 'slide-cover', isOpener && 'slide-opener']}
   id={`slide-${number}`}
   data-part={part}
 >
