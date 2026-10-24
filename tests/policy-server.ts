@@ -135,12 +135,13 @@ export const startServer = async (rules: Rule[]): Promise<Server> => {
   };
 
   const server = createServer((req, res) => {
-    const raw = new URL(req.url ?? '/', 'http://localhost').pathname;
     let pathname: string;
     try {
-      pathname = decodeURIComponent(raw);
+      pathname = decodeURIComponent(
+        new URL(req.url ?? '/', 'http://localhost').pathname,
+      );
     } catch {
-      /* A malformed escape would otherwise throw in the handler and stop the server. */
+      /* A malformed escape or a `//` path would otherwise throw in the handler and stop the server. */
       res.writeHead(400);
       res.end();
       return;

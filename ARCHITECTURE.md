@@ -6,18 +6,18 @@ conventions for this template. Design rules and values are in
 
 ## Stack
 
-| Concern     | Choice                                                                                  |
-| ----------- | --------------------------------------------------------------------------------------- |
-| Framework   | Astro 7, static output; `/contact/send/` renders on demand in the Worker                |
-| Interactive | Vue 3 via `@astrojs/vue`, islands only (the homepage canvas hero and the About cats)    |
-| Scripts     | Plain modules for everything that is not an island                                      |
-| Styling     | Tailwind CSS 4 via `@tailwindcss/vite`                                                  |
-| Language    | TypeScript, `astro/tsconfigs/strictest`, checked with `astro check` and `vue-tsc`       |
-| Content     | Astro Content Collections, Markdown in repo, rendered by Sätteri                        |
-| Font        | Lexend, self-hosted through Fontsource                                                  |
-| Hosting     | Cloudflare Workers static assets, D1 (EU), Rate Limiting, Email Routing, Workers Builds |
-| Tests       | Playwright in Chromium, Firefox and WebKit, with axe-core for WCAG 2.2 AA               |
-| Runtime     | Node.js from `.nvmrc`                                                                   |
+| Concern     | Choice                                                                                   |
+| ----------- | ---------------------------------------------------------------------------------------- |
+| Framework   | Astro 7, static output; `/contact/send/` renders on demand in the Worker                 |
+| Interactive | Vue 3 via `@astrojs/vue`, islands only (the homepage canvas hero and the About cats)     |
+| Scripts     | Plain modules for everything that is not an island                                       |
+| Styling     | Tailwind CSS 4 via `@tailwindcss/vite`                                                   |
+| Language    | TypeScript, `astro/tsconfigs/strictest`, checked with `astro check` and `vue-tsc`        |
+| Content     | Astro Content Collections, Markdown in repo, rendered by Sätteri                         |
+| Font        | Lexend, self-hosted through Fontsource                                                   |
+| Hosting     | Cloudflare Workers static assets, D1 (EU), Rate Limiting, Email Routing, Workers Builds  |
+| Tests       | Playwright in Chromium, Firefox and WebKit, with axe-core and AccessLint for WCAG 2.2 AA |
+| Runtime     | Node.js from `.nvmrc`                                                                    |
 
 - Vue runs with `features: { optionsAPI: false }`; every component uses
   `<script setup>`.
@@ -876,8 +876,10 @@ evidence.
 - **AccessLint engine hits, each checked against the live DOM:**
   `color-contrast` on the homepage name is read against a gold ancestor the
   text does not sit on; `landmark-unique` counts the no-JavaScript nav, which
-  is `display: none` with scripts on; `focus-order` flags the photo strips,
-  which are focusable so a keyboard can scroll them.
+  is `display: none` with scripts on; `aria-hidden-focus` flags the controls
+  in `/brand`'s light halves, which are `inert` and so never take focus.
+  `ACCESSLINT_FALSE_POSITIVES` in `tests/accesslint.ts` drops each only on
+  those elements and while its reason holds.
 - **Move the full-screen slide bar inside the card:** on a 16:9 screen the
   foot row crosses the bottom of the focused slide's ring while both show.
   The row shows only while the pointer moves or one of its buttons has focus,
