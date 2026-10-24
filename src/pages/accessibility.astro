@@ -289,12 +289,15 @@ const HAS_TALK = (await getCollection('talks')).length > 0;
             control other than a link keeps a painted edge or an opaque fill,
             and links differ from body text. Every focus stop on the homepage
             keeps an outline, and the menu button's bars take{' '}
-            <code>ButtonText</code>. This supports SC 1.4.11 and 2.4.7 under
+            <code>ButtonText</code>. On the brand page each named color swatch
+            keeps its color, since the color is its content, edged in{' '}
+            <code>CanvasText</code>. This supports SC 1.4.11 and 2.4.7 under
             user colors; it is not a criterion of its own.
           </p>
           <p>
-            If you use a Windows contrast theme, buttons keep their outlines and
-            links stay different from other text.
+            If you use a Windows contrast theme, buttons keep their outlines,
+            links stay different from other text, and the brand page still shows
+            its colors.
           </p>
           <p>
             Learn more:{' '}
