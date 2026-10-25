@@ -1314,8 +1314,9 @@ Enforced by `tests/nav-current.spec.ts`, `tests/mobile-menu.spec.ts`,
   field).
 - `HeroField` loads `client:load`.
 - The About cats (`src/components/AboutCats.astro`, `src/scripts/about-cats.ts`) wake when their band is
-  first on screen, play along it (games like the yarn and the fly carry them,
-  leaps move them on), and sit still under reduced motion. Each cat's button
+  first on screen, play along it in short bursts between long rests (games
+  like the yarn and the fly carry them, leaps move them on), and sit still
+  under reduced motion. Each cat's button
   ("Meet Minerva") opens its card; while it is open the cat sits where it is
   and looks round at you, and under reduced motion it stays as it was.
 - Each cat's SC 2.2.2 control sits in its band's corner: Zz ("Put Minerva to
@@ -1325,7 +1326,7 @@ Enforced by `tests/nav-current.spec.ts`, `tests/mobile-menu.spec.ts`,
   Random first, then its own moves, each an icon and a name
   (`src/lib/about-cats-tricks.ts`, fetched from its JSON after load, so `/about`
   stays within its script budget). A pick plays once, wakes a sleeping cat
-  first, and trots the cat to room if the move needs it; the cat then plays on
+  first, and walks the cat to room if the move needs it; the cat then plays on
   at random. The list leaves out moves that cannot fit the band's width.
 - The list opens under the band, its right edge on the paw's. With no room
   below it opens beside the paw and Zz, never over them, and it closes when
