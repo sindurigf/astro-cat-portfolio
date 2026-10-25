@@ -696,7 +696,8 @@ require-trusted-types-for 'script'; trusted-types vue
   `/_astro/`, the Plausible tracker bundled from npm, no embeds, no `data:`
   URIs, Vue runtime-only build.
 - `connect-src` is `'self'` while analytics is off. With analytics on it also
-  names Plausible's collector, `PLAUSIBLE_ORIGIN` in `src/lib/analytics.ts`;
+  names Plausible's collector URL, `PLAUSIBLE_ENDPOINT` in
+  `src/lib/analytics.ts`;
   `tests/headers-rules.spec.ts` asserts whichever applies. See
   [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md#plausible).
 - `vite.build.assetsInlineLimit: 0` so no script is inlined.

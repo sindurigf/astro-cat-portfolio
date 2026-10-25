@@ -192,7 +192,7 @@ Off by default. To turn it on:
 
 1. Add a site in Plausible Cloud with your domain as its name.
 2. Set `analytics: true` in `src/site.config.ts`.
-3. Add `https://plausible.io` to `connect-src` in `public/_headers`;
+3. Add `https://plausible.io/api/event` to `connect-src` in `public/_headers`;
    `tests/headers-rules.spec.ts` fails until you do.
 4. Check `/privacy`, which now describes the visit counting, and
    `PLAUSIBLE_RETENTION_YEARS` in
@@ -203,16 +203,17 @@ Off by default. To turn it on:
    Hostnames.
 
 - Click props (label, area, target) show only on the Business plan.
-- `filterPayload` in [`src/lib/analytics.ts`](../src/lib/analytics.ts) drops
-  local, test and preview traffic and Do Not Track, and strips query strings
-  and fragments.
+- `canSend` in [`src/lib/analytics.ts`](../src/lib/analytics.ts) keeps the
+  tracker off on local, test and preview hosts and under Do Not Track;
+  `filterPayload` strips query strings and fragments.
 - The npm tracker takes its options from `init()` in
   [`src/scripts/analytics.ts`](../src/scripts/analytics.ts), not from the
   dashboard's tracking toggles.
 - The tracker and the click tracker add about 7.8 KB of script to every
   page. `tests/performance.spec.ts` allows them `ANALYTICS_SCRIPT_BUDGET` on
   top of each route's own budget, which does not change.
-- `@plausible-analytics/tracker` is pinned to an exact version. Before a bump,
+- `@plausible-analytics/tracker` is pinned to an exact version and gets its
+  own Dependabot pull request. Before a bump,
   read its changelog for new fields, storage or hosts:
   `tests/analytics.spec.ts` fails on an undisclosed field and
   `tests/privacy.spec.ts` on a storage write. Update `/privacy` if what is

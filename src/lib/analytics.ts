@@ -4,9 +4,9 @@
  */
 import type { PlausibleRequestPayload } from '@plausible-analytics/tracker';
 
-/* CSP `connect-src` names this origin: tests/headers-rules.spec.ts. */
 export const PLAUSIBLE_ORIGIN = 'https://plausible.io';
 
+/* CSP `connect-src` names this URL: tests/headers-rules.spec.ts. */
 export const PLAUSIBLE_ENDPOINT = `${PLAUSIBLE_ORIGIN}/api/event`;
 
 /* Each name is a goal in the Plausible dashboard; what was clicked goes in the props. */
@@ -47,14 +47,20 @@ export interface SendContext {
   doNotTrack: string | null;
 }
 
-/** The payload to send, or null to send nothing: production only, never under Do Not Track. */
+/** Production only, never under Do Not Track. */
+export const canSend = ({
+  hostname,
+  productionHost,
+  doNotTrack,
+}: SendContext): boolean =>
+  hostname === productionHost && doNotTrack !== DO_NOT_TRACK_ON;
+
+/** The payload to send, or null to send nothing. */
 export const filterPayload = (
   payload: PlausibleRequestPayload,
-  { hostname, productionHost, doNotTrack }: SendContext,
+  context: SendContext,
 ): PlausibleRequestPayload | null => {
-  if (hostname !== productionHost || doNotTrack === DO_NOT_TRACK_ON) {
-    return null;
-  }
+  if (!canSend(context)) return null;
   return {
     ...payload,
     u: withoutQuery(payload.u),

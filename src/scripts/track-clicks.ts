@@ -105,5 +105,7 @@ const send = (event: MouseEvent): void => {
 };
 
 /* Capture phase survives stopPropagation; `auxclick` catches middle clicks; `track` sends with `keepalive`. */
-document.addEventListener('click', send, { capture: true, passive: true });
-document.addEventListener('auxclick', send, { capture: true, passive: true });
+export const trackClicks = (): void => {
+  document.addEventListener('click', send, { capture: true, passive: true });
+  document.addEventListener('auxclick', send, { capture: true, passive: true });
+};

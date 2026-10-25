@@ -161,6 +161,38 @@ const trackersOn = (html: string): string[] =>
     readFileSync(join(DIST_DIR, src), 'utf8').includes(PLAUSIBLE_ENDPOINT),
   );
 
+/* Off production and under Do Not Track the tracker never starts, so there is no probe to send. */
+const expectSilent = async (
+  page: Page,
+  sent: PlausibleSend[],
+): Promise<void> => {
+  const trackerLoaded = await page.evaluate(async (endpoint) => {
+    const sources = [
+      ...document.querySelectorAll<HTMLScriptElement>(
+        'script[type="module"][src]',
+      ),
+    ].map((script) => script.src);
+    const bodies = await Promise.all(
+      sources.map((src) => fetch(src).then((response) => response.text())),
+    );
+    return bodies.some((body) => body.includes(endpoint));
+  }, PLAUSIBLE_ENDPOINT);
+  expect(
+    trackerLoaded,
+    'the page never loaded the tracker, so its silence proves nothing.',
+  ).toBe(true);
+  expect(
+    await page.evaluate(() => 'plausible' in window),
+    'the tracker started where it must stay off.',
+  ).toBe(false);
+
+  const link = 'footer a[href^="/"]';
+  await holdNavigation(page, link);
+  await page.locator(link).first().click();
+  await page.waitForLoadState('networkidle');
+  expect(sent, 'a page view or click was sent.').toEqual([]);
+};
+
 /* Runs after the document-level capture listener under test. */
 const holdNavigation = async (page: Page, selector: string): Promise<void> => {
   await page
@@ -282,12 +314,7 @@ test.describe('analytics', () => {
         .getByRole('link', { name: 'Privacy' })
         .click();
       await page.waitForURL(`${PREVIEW}/privacy/`);
-      await sendProbe(page);
-
-      expect(
-        sent,
-        'the tracker sent from a preview host; filterPayload should stop that.',
-      ).toEqual([]);
+      await expectSilent(page, sent);
     });
 
     test('a page view is sent, with only the fields /privacy lists', async ({
@@ -373,9 +400,7 @@ test.describe('analytics', () => {
         });
       });
       const sent = await openAsProduction(page, '/');
-      await sendProbe(page);
-
-      expect(sent, '/privacy says Do Not Track stops all sending').toEqual([]);
+      await expectSilent(page, sent);
     });
 
     test('a followed internal link is counted and still navigates', async ({

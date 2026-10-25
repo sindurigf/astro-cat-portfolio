@@ -3,7 +3,7 @@ import { hashesFor, inlineBlocks } from '../scripts/csp-hashes.mjs';
 import { extname, join, relative, sep } from 'node:path';
 import { expect, test } from './test';
 import { builtPages, DIST_DIR, PUBLISHED_POST_ROUTES } from './routes';
-import { PLAUSIBLE_ORIGIN } from '../src/lib/analytics';
+import { PLAUSIBLE_ENDPOINT } from '../src/lib/analytics';
 import { ANALYTICS_ON } from '../src/lib/analytics-site';
 import { asServed, headersFor, MIME, type Rule } from './policy-server';
 import { ASSET_CACHE_CONTROL, usePolicyServer } from './headers-fixture';
@@ -124,11 +124,11 @@ const expectOutboundDirectives = (csp: string): void => {
   expect(
     directive(csp, 'connect-src'),
     ANALYTICS_ON
-      ? `connect-src must be 'self' plus PLAUSIBLE_ORIGIN (${PLAUSIBLE_ORIGIN}).`
+      ? `connect-src must be 'self' plus PLAUSIBLE_ENDPOINT (${PLAUSIBLE_ENDPOINT}).`
       : "connect-src must be 'self' alone while analytics is off in src/site.config.ts.",
   ).toBe(
     ANALYTICS_ON
-      ? `connect-src 'self' ${PLAUSIBLE_ORIGIN}`
+      ? `connect-src 'self' ${PLAUSIBLE_ENDPOINT}`
       : "connect-src 'self'",
   );
 
