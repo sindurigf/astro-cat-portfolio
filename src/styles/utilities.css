@@ -90,28 +90,21 @@
   }
 
   /*
-   * A wall: the blocks in a `.card-block` share 4px walls with no gap, and the
-   * wall casts the one throw along its outline, so it shows only on outer
-   * edges. Opt-in, not `:has(.card)`: layout gaps elsewhere feed image `sizes`.
+   * Each joined brick casts the throw and the next covers it: a box-shadow, as a
+   * filter layer stalled Playwright input on an older build. Opt-in, not
+   * `:has(.card)`: layout gaps elsewhere feed image `sizes`.
    */
   .card-block {
     gap: 0;
     padding: 0 0 var(--block-edge) var(--block-edge);
-    filter: drop-shadow(
-      var(--hard-throw) var(--hard-throw) 0 var(--color-pink)
-    );
 
-    & > *,
     & > * > .card {
       box-shadow: none;
     }
 
     & > * {
       margin: 0 0 calc(var(--block-edge) * -1) calc(var(--block-edge) * -1);
-    }
-
-    @media (forced-colors: active) {
-      filter: none;
+      box-shadow: var(--hard-throw) var(--hard-throw) 0 var(--color-pink);
     }
   }
 

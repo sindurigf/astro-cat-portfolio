@@ -34,7 +34,7 @@
     @apply shadow-hard-gold-border-4;
   }
 
-  /* A wall on gold: light blocks with the ink edge; the wall casts the throw. */
+  /* A wall on gold: light blocks with the ink edge; each casts the throw. */
   .surface-gold .card-block > * {
     border-width: var(--block-edge);
     border-color: var(--color-block-ink);

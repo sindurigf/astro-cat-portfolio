@@ -74,12 +74,11 @@
     @apply flex flex-wrap items-center;
 
     padding-left: var(--block-edge);
-    filter: drop-shadow(
-      var(--brick-throw) var(--brick-throw) 0 var(--color-pink)
-    );
 
+    /* Each brick casts the throw and the next covers it, as in a `.card-block`. */
     & > li {
       margin-left: calc(var(--block-edge) * -1);
+      box-shadow: var(--brick-throw) var(--brick-throw) 0 var(--color-pink);
     }
 
     & a.chip {
@@ -105,10 +104,6 @@
       z-index: 1;
       outline-color: var(--color-block-ink);
       outline-offset: calc(-1 * (var(--block-edge) + var(--focus-gap)));
-    }
-
-    @media (forced-colors: active) {
-      filter: none;
     }
   }
 }

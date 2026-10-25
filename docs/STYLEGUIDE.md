@@ -126,8 +126,10 @@ The gold-ground set is in [Gold surface](#gold-surface), light values in
   `text-gold` are ink (11.32 on gold, 14.42 on light), `subtle` is `gold-muted`
   (7.88) or `light-subtle` (7.40), and a badge inverts. Gold fills use
   `block-gold`, which never remaps. `tests/blocks.spec.ts`.
-- Walls: blocks in a `.card-block` share 4px walls with no gap, and the wall
-  casts the one throw along its outline, so it shows on outer edges only.
+- Walls: blocks in a `.card-block` share 4px walls with no gap. Each brick
+  casts the throw as a `box-shadow` and the next brick covers it, so it shows
+  on outer edges only. No `filter` on a wall: filter layers stalled Playwright
+  input on an older build and cost raster time (`tests/filter-layers.spec.ts`).
 - The Step Up: the throw falls down and right, so a wall only climbs right.
   Bricks in one row rise by `--step-y` (48px from 1120px; half for the second
   of three or more); stacked rows bring their right edge in by `--step-x`, at
@@ -575,7 +577,7 @@ file per area.
 | `.card-title`                           | Every card heading, `text-h3` 900                                                                                                                                                                                                                                    |
 | `.card-link`                            | Title link; a short press on the card follows it, text stays selectable (`card-click.ts`); inline-block, 44px min; card hover turns title and shadow cyan                                                                                                            |
 | `.card-solid`                           | A light block outside a `.card-block`, where alternation does not reach it                                                                                                                                                                                           |
-| `.card-block`                           | A wall: blocks share 4px walls, alternate gold and light, and step up to the right (`card-rise-*`, `card-step-*` from `src/lib/wall.ts`); the wall casts the one throw                                                                                               |
+| `.card-block`                           | A wall: blocks share 4px walls, alternate gold and light, and step up to the right (`card-rise-*`, `card-step-*` from `src/lib/wall.ts`); each brick casts the throw, the next covers it                                                                             |
 | `.lead`                                 | Paragraph under a section heading, `text-lead` 400, 24px under it                                                                                                                                                                                                    |
 | `.standfirst`                           | Line beside PageHero's title, `text-standfirst` 400                                                                                                                                                                                                                  |
 | `.bullet-list`                          | Bulleted list, gold markers                                                                                                                                                                                                                                          |
