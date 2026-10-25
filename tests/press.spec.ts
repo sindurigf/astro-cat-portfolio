@@ -73,7 +73,7 @@ const transitionsDone = (page: Page, selector: string) =>
     );
 
 /* A hard shadow layer that is not inset and not the transparent placeholder
- * Tailwind composes `shadow-none` from, or the logo's offset drop shadow. */
+ * Tailwind composes `shadow-none` from, or the logo's offset masked throw layer. */
 const castsShadow = (page: Page, selector: string) =>
   page
     .locator(selector)
@@ -89,8 +89,14 @@ const castsShadow = (page: Page, selector: string) =>
             !layer.startsWith('rgba(0, 0, 0, 0)') &&
             /[1-9]\d*px [1-9]\d*px 0px 0px/.test(layer),
         );
+      const throwLayer = getComputedStyle(el, '::before');
+      const maskedThrow =
+        throwLayer.maskImage !== 'none' &&
+        throwLayer.display !== 'none' &&
+        /^[1-9]\d*px [1-9]\d*px$/.test(throwLayer.translate);
       return (
         boxShadow ||
+        maskedThrow ||
         /drop-shadow\(rgba?\([^)]*\) [1-9]\d*px [1-9]\d*px/.test(style.filter)
       );
     });
@@ -129,7 +135,8 @@ const pressLook = (page: Page, selector: string) =>
     .first()
     .evaluate((el) => {
       const s = getComputedStyle(el);
-      return `${s.translate} | ${s.boxShadow} | ${s.filter}`;
+      const throwLayer = getComputedStyle(el, '::before');
+      return `${s.translate} | ${s.boxShadow} | ${s.filter} | ${throwLayer.translate}`;
     });
 
 test.describe('a press is drawn', () => {

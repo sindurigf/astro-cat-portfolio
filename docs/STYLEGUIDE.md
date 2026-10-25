@@ -321,7 +321,7 @@ The switch and what it scopes: [ARCHITECTURE.md](../ARCHITECTURE.md#light-mode).
 - The footer follows the mode like `<main>`: white in light mode, its words
   7:1 or more and its tiles apart from it (`tests/footer.spec.ts`).
 - Logo marks use `mark`, `tile-edge`, the `cat-hela*` coat and
-  `shadow-hard-mark-*` or `drop-shadow-hard-mark-*`, never `pink` or `border`:
+  `shadow-hard-mark-*` or `mark-throw`, never `pink` or `border`:
   they do not change with the mode.
 - The label on a gold fill is `gold-text`, never `background` (white in
   light).
@@ -548,8 +548,7 @@ with a comment beside it.
 | `shadow-hard-gold-border-4` | A card on gold                                                                                                        |
 | `shadow-hard-mark-4`        | `.sticker`, `.btn-gold-primary`                                                                                       |
 | `shadow-hard-mark-8`        | The homepage stickers                                                                                                 |
-| `drop-shadow-hard-mark-8`   | The logo tile on `/about`, following its ears                                                                         |
-| `drop-shadow-hard-mark-12`  | The logo tile's larger copy on `/about`                                                                               |
+| `mark-throw`                | The logo tile in the header and on `/about`, following its ears; `--lift-mark` (8px), `mark-throw-large` 12px         |
 
 - `mark` is `pink`'s hex but stays pink in light mode, where `pink` turns
   ink.
@@ -558,10 +557,10 @@ with a comment beside it.
 - The logo tile on `/about` is an eared tile: a cat's head in the tile's
   shape, with rounded ears and corners, its 4px `tile-edge` edge and 3deg tilt
   (`src/lib/brand-mark.ts`, `CatMark.astro`). It is a mark, not a radius: the
-  rule above does not apply to it, and its shadow is a `drop-shadow-*`.
+  rule above does not apply to it, and its shadow is `mark-throw`.
 - The header's logo tile holds the box cat: Minerva sitting in an open cardboard
-  box (`src/assets/box-cat-logo.svg`), tilted 3deg, its `mark` shadow a drop
-  shadow that follows the box and the cat.
+  box (`src/assets/box-cat-logo.svg`), tilted 3deg, its `mark-throw` following
+  the box and the cat.
 
 ## Components
 
