@@ -6,6 +6,7 @@
  */
 import { PAD, SHEET } from './about-cats-sheet';
 import {
+  FRAMES_PER_SECOND,
   POSE_FRAME,
   bridges,
   WALK,
@@ -22,8 +23,8 @@ import type { CatId, Pose, PropKind, PropState } from './about-cats-types';
 const NS = 'http://www.w3.org/2000/svg';
 const D = Math.PI / 180;
 
-/** One step of the flip-book: 12 a second. A new frame waits until the last has shown this long, so every in-between is seen. */
-const TICK_MS = 1000 / 12;
+/** One step of the flip-book. A new frame waits until the last has shown this long, so every in-between is seen. */
+const TICK_MS = 1000 / FRAMES_PER_SECOND;
 /** A frame wanted for less than this is a passing blip of the pose blend, not a pose: one 60Hz frame is 16.7ms. */
 const BLIP_MS = 25;
 /** Walk frames a fast gait may step at once: 2 of 8 keeps the 4 phases (contact and passing, each side). */

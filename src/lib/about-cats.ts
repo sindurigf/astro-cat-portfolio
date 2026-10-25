@@ -67,7 +67,7 @@ const FIT_STEPS = 24;
 const LEAP_CHANCE = 0.15;
 /** Chance a cat on a stepped band climbs to the next brick instead. */
 const CLIMB_CHANCE = 0.5;
-/* Ways to get about, one at a time and weighted; there is no walking. */
+/* Ways to move along the band in play, one at a time and weighted. */
 const LEAPS: Partial<Record<MoveName, number>> = {
   pounce: 3,
   stalk: 1,
@@ -206,7 +206,7 @@ export interface Colony {
   playable: (id: CatSpot['id'], name: MoveName) => boolean;
   /**
    * A chosen move, or a random one, now: wakes a sleeping cat first, cuts a move
-   * in progress short, and trots to the track's nearer end if the move needs room.
+   * in progress short, and walks to the track's nearer end if the move needs room.
    */
   trick: (id: CatSpot['id'], name: MoveName | 'random', now: number) => void;
   wake: (id: CatSpot['id'], now: number) => void;
@@ -264,7 +264,7 @@ export const planMove = (
 };
 
 /**
- * The cup push from anywhere on the track, heading left: a trot and a creep to
+ * The cup push from anywhere on the track, heading left: a walk to
  * `edge`, the track's left end, so the cup goes over the card's or the step's edge.
  * Left only: the right end is the sleep control's corner.
  */
@@ -789,11 +789,11 @@ export const createColony = (
         if (begin(cat, name, at)) return;
         /* The list offers only moves that fit somewhere, so a null here is a band that shrank. */
         const x = fitPoint(cat, name) ?? cat.pose.x;
-        const trot = withApproach(
+        const walk = withApproach(
           { steps: [], mods: [] },
           Math.abs(x - cat.pose.x),
         );
-        play(cat, trot, at, Math.sign(x - cat.pose.x) || 1, () =>
+        play(cat, walk, at, Math.sign(x - cat.pose.x) || 1, () =>
           begin(cat, name, performance.now()),
         );
       };

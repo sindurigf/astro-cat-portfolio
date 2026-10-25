@@ -205,6 +205,15 @@ const WALK_STRIDE_PX = 52;
 /** px the body travels per walk frame, so a planted paw stays put. */
 const WALK_FRAME_PX = WALK_STRIDE_PX / WALK.length;
 
+/** Frames the flip-book shows a second. */
+export const FRAMES_PER_SECOND = 12;
+
+/** Share of a frame per step a walk covers: frames change only on a screen refresh, so a walk at a full frame per step falls behind and skips one. */
+const WALK_HEADROOM = 0.85;
+
+/** px per second a cat walks: faster, the walk would skip frames and the paws slide. */
+export const WALK_SPEED = WALK_FRAME_PX * FRAMES_PER_SECOND * WALK_HEADROOM;
+
 export interface Motion {
   /** px travelled along the ground since the cat started walking. */
   travelled: number;

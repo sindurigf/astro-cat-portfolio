@@ -10,6 +10,7 @@ import type {
   PropKind,
   PropState,
 } from './about-cats-types';
+import { WALK_SPEED } from './about-cats-frames';
 
 export type { Pose };
 
@@ -389,16 +390,13 @@ type Route = readonly [RoutePoint, ...RoutePoint[]];
 
 /* Arcs in px; with them the tallest move stays under --spacing-cat-band (tests/about-cats.spec.ts). */
 const POUNCE_HEIGHT = 56;
-/** A stalk's steps are full strides taken slowly, so each paw is seen to lift and set down. */
-const STALK_STRIDE = 1;
 const STALK_STEPS = 5;
 const STALK_STEP_PX = 30;
-const STALK_CROUCH_MS = 400;
+/** ms to stand up before the first step, and to crouch before the spring: long enough to pass through the half crouch. */
+const STALK_READY_MS = 400;
 const STALK_STEP_MS = 700;
-/** Between steps the cat freezes with the near front paw held up, as a stalking cat does. */
-const STALK_PAW_UP: Pair = [20, 9];
-const STALK_PAW_MS = 170;
-const STALK_FREEZE_MS = 620;
+/** Between steps the cat freezes, watching. */
+const STALK_FREEZE_MS = 960;
 const STALK_REACH = 50;
 const POUNCE_REACH = 76;
 /** The pounce crouches, then wiggles until it springs. */
@@ -535,6 +533,8 @@ const YARN_LAND_2 = 308;
 const YARN_BAT_1 = BAT_HIT_MS;
 const YARN_POUNCE_LANDED = 4320;
 const YARN_BAT_2 = YARN_POUNCE_LANDED + BAT_HIT_MS;
+/** ms to stand up after the second bat: the sit, rise and stand frames take that long. */
+const YARN_RISE_MS = 250;
 /** The ball hugged on the back, between the hind paws, from the cat's place. */
 const YARN_HUG = 9;
 const YARN_HUG_Y = -34;
@@ -614,23 +614,24 @@ export const MOVES = {
     ],
     mods: [],
   }),
-  /* Step, freeze with a front paw held up, step again; then the pounce. */
+  /* Step slowly, freeze, step again; then crouch where it stands and pounce. A crouch never travels: no drawing walks crouched. */
   stalk: (): Move => {
-    const steps = [step(STALK_CROUCH_MS, 'crouch')];
+    const steps = [step(STALK_READY_MS, 'stand')];
     const mods: Mod[] = [];
-    let t = STALK_CROUCH_MS;
+    let t = STALK_READY_MS;
     for (let i = 1; i <= STALK_STEPS; i += 1) {
       const x = STALK_STEP_PX * i;
       steps.push(
-        step(STALK_STEP_MS, 'crouch', { x }, 'linear'),
-        step(STALK_PAW_MS, 'crouch', { x, fN: STALK_PAW_UP }, 'out'),
-        step(STALK_FREEZE_MS, 'crouch', { x, fN: STALK_PAW_UP }),
-        step(STALK_PAW_MS, 'crouch', { x }, 'in'),
+        step(STALK_STEP_MS, 'stand', { x }, 'linear'),
+        step(STALK_FREEZE_MS, 'stand', { x }),
       );
-      mods.push(walking(t, t + STALK_STEP_MS, STALK_STRIDE));
-      t += STALK_STEP_MS + 2 * STALK_PAW_MS + STALK_FREEZE_MS;
+      mods.push(walking(t, t + STALK_STEP_MS));
+      t += STALK_STEP_MS + STALK_FREEZE_MS;
     }
-    const jump = pounceFrom(t, STALK_STEP_PX * STALK_STEPS, STALK_REACH);
+    const reach = STALK_STEP_PX * STALK_STEPS;
+    steps.push(step(STALK_READY_MS, 'crouch', { x: reach }));
+    t += STALK_READY_MS;
+    const jump = pounceFrom(t, reach, STALK_REACH);
     return { steps: [...steps, ...jump.steps], mods: [...mods, ...jump.mods] };
   },
   /* Wiggle, leap, land front paws first, hold the catch pinned, then sit up. */
@@ -739,9 +740,9 @@ export const MOVES = {
       step(350, 'air', { x: 50 }, 'linear'),
       step(150, 'crouch', { x: 60, sq: 0.86 }, 'out'),
       step(700, 'crouch', { x: 60, hr: 6 }),
-      step(1000, 'crouch', { x: 72 }, 'linear'),
-      step(600, 'crouch', { x: 72 }),
-      step(140, 'crouch', { x: 72, sq: 0.9 }, 'in'),
+      step(1000, 'crouch', { x: 60 }),
+      step(600, 'crouch', { x: 60 }),
+      step(140, 'crouch', { x: 60, sq: 0.9 }, 'in'),
       step(350, 'air', { x: 100 }, 'linear'),
       step(150, 'crouch', { x: 108, sq: 0.84 }, 'out'),
       step(600, 'sit', { x: 108, hr: -22 }),
@@ -767,7 +768,6 @@ export const MOVES = {
       }),
       wiggle(1200, 1500),
       arc(1620, 2120, FLY_HOP_HEIGHT),
-      walking(2820, 3820, 0.6),
       wiggle(3820, 4420),
       arc(4560, 5060, POUNCE_HEIGHT),
       wiggle(6640, 6940),
@@ -818,14 +818,16 @@ export const MOVES = {
       ...bat([30, 14]),
       step(300 - BAT_PUSH_MS, 'sit'),
       step(300, 'stand'),
-      step(2400, 'stand', { x: 150 }),
+      step(2400, 'stand', { x: 150 }, 'linear'),
       step(300, 'crouch', { x: 150 }),
       step(140, 'crouch', { x: 150, sq: 0.88 }, 'in'),
       step(300, 'air', { x: 198 }, 'linear'),
       step(180, 'crouch', { x: YARN_LAND_1, sq: 0.84 }, 'out'),
       ...bat([30, 14], { x: YARN_LAND_1 }),
       step(150 - BAT_PUSH_MS, 'sit', { x: YARN_LAND_1 }),
-      step(1500, 'stand', { x: 280 }),
+      /* Up on all fours before the run, so the walk starts from the standing frame. */
+      step(YARN_RISE_MS, 'stand', { x: YARN_LAND_1 }),
+      step(1500 - YARN_RISE_MS, 'stand', { x: 280 }, 'linear'),
       step(250, 'crouch', { x: 280 }),
       step(140, 'crouch', { x: 280, sq: 0.88 }, 'in'),
       step(280, 'air', { x: 298 }, 'linear'),
@@ -1117,56 +1119,29 @@ export const withTurn = (move: Move, from: Pose): Move => {
   };
 };
 
-/** px per second of a crouched creep, slower than a trot. */
-const CREEP_SPEED = 45;
-const CREEP_MIN_MS = 300;
-const CREEP_READY_MS = 250;
-const SETTLE_BACK_MS = 400;
-/** Farther than this, a cat trots to the spot first and creeps only the last of it. */
-const CREEP_REACH = 60;
-/** px per second of a purposeful trot, twice the creep. */
-const TROT_SPEED = 110;
-const TROT_READY_MS = 250;
+const WALK_READY_MS = 250;
 
-/** Trots, then creeps, `distance` ahead first, so an edge move starts at the track end from anywhere on it. */
-/*
- * Also shuffles `settleBack` px back once the move is done, so a cat that crept
- * past its track's end finishes on it again.
- */
-export const withApproach = (
-  move: Move,
-  distance: number,
-  settleBack = 0,
-): Move => {
-  const trot = Math.max(0, distance - CREEP_REACH);
-  const trotMs = trot > 0 ? (trot / TROT_SPEED) * 1000 : 0;
-  const trotLead = trot > 0 ? TROT_READY_MS + trotMs : 0;
-  const creep = Math.max(
-    CREEP_MIN_MS,
-    ((distance - trot) / CREEP_SPEED) * 1000,
-  );
-  const last = move.steps.at(-1)?.pose.x ?? 0;
-  const lead = trotLead + CREEP_READY_MS + creep;
+/** Walks `distance` ahead first, at the walk's own speed, so an edge move starts at the track end from anywhere on it. */
+export const withApproach = (move: Move, distance: number): Move => {
+  const walkMs = (distance / WALK_SPEED) * 1000;
+  const lead = distance > 0 ? WALK_READY_MS + walkMs : 0;
   const propAt = move.propAt;
   return {
     ...move,
     steps: [
-      ...(trot > 0
-        ? [step(TROT_READY_MS, 'stand'), step(trotMs, 'stand', { x: trot })]
+      ...(distance > 0
+        ? [
+            step(WALK_READY_MS, 'stand'),
+            step(walkMs, 'stand', { x: distance }, 'linear'),
+          ]
         : []),
-      step(CREEP_READY_MS, 'crouch', { x: trot }),
-      step(creep, 'crouch', { x: distance }),
       ...move.steps.map((s) => ({
         ...s,
         pose: { ...clonePose(s.pose), x: s.pose.x + distance },
       })),
-      ...(settleBack > 0
-        ? [step(SETTLE_BACK_MS, 'sit', { x: distance + last - settleBack })]
-        : []),
     ],
     mods: [
-      ...(trot > 0 ? [walking(TROT_READY_MS, trotLead)] : []),
-      walking(trotLead + CREEP_READY_MS, lead, 0.6),
+      ...(distance > 0 ? [walking(WALK_READY_MS, lead)] : []),
       ...move.mods.map((mod) => ({
         ...mod,
         from: mod.from + lead,
