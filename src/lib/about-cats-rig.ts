@@ -34,8 +34,6 @@ const ARRIVE_SQUASH = 0.96;
 const BREATH_SCALE = 0.025;
 /** ms a cat must stand still before it stops walking. */
 const STILL_MS = 120;
-/** Where the head is in a frame, as shares of its width ahead of center and its height up. */
-const HEAD_AT = { ahead: 1 / 3, up: 0.8 };
 /** The white rim and ink edge round each frame, in px: part of the drawing. */
 const OUTLINE = 3;
 /** The feather's string hangs from just under the band's top: --spacing-cat-band (140px) must stay above it. */
@@ -169,8 +167,6 @@ export interface CatRig {
   lastLift: number;
   movedAt: number;
   travelled: number;
-  /** Head center in the svg's coordinates, for the pointer-watcher. */
-  head: { x: number; y: number };
 }
 
 export const createCatRig = (
@@ -232,7 +228,6 @@ export const createCatRig = (
     lastLift: 0,
     movedAt: -Infinity,
     travelled: 0,
-    head: { x: 0, y: 0 },
   };
 };
 
@@ -414,10 +409,6 @@ export const renderCat = (
     'transform',
     `translate(0 ${f(-lift)}) scale(${f(-p.face * (2 - sq))} ${f(sq * (1 + breath))})`,
   );
-  rig.head = {
-    x: drawnX + p.face * w * HEAD_AT.ahead,
-    y: groundY - lift - h * HEAD_AT.up,
-  };
 };
 
 export interface PropRig {
