@@ -92,6 +92,8 @@
 @source not '../../.claude';
 @source not '../../tests';
 @source not '../../scripts';
+/* Words in script source, not classes: they would ship filter utilities (tests/filter-layers.spec.ts). */
+@source not inline('blur filter');
 
 /*
  * Dark tokens; light mode overrides a subset on <main> at the end of this file.
