@@ -72,7 +72,6 @@ What happens without the `CONTACT_NOTIFY_TO` secret:
 | `npm run test:coverage`        | `test:a11y` in Chromium, with line and branch coverage of `src/`                                                                                          |
 | `npm run check:live`           | Production headers and markup against this repository                                                                                                     |
 | `npm run check:live:console`   | Every production route in a browser, failing on console errors                                                                                            |
-| `npm run check:umami`          | The vendored Umami tracker against the one Umami serves                                                                                                   |
 | `npm run check:pdf`            | Every PDF in `public/` against PDF/UA-1, veraPDF in Docker                                                                                                |
 | `npm run publish:talk`         | Print a talk's slideshow to its tagged PDF in `public/talks/`                                                                                             |
 | `npm run og`                   | After a build, render `public/images/og-default.png` and every page's card in `public/images/og/`                                                         |
@@ -139,7 +138,7 @@ Until agents work under their own account, the owner cannot approve:
   Chromium runs it, Firefox and WebKit skip it. Anything reading computed
   styles, layout, focus, scrolling or role and name stays in every engine.
 - `.github/workflows/scheduled.yml` runs weekly, never on pull requests:
-  `npm audit --omit=dev --audit-level=high`, `check:live`, `check:umami` and
+  `npm audit --omit=dev --audit-level=high`, `check:live` and
   `tests/security-txt.spec.ts`. After a deploy:
   [DEPLOYMENT.md](DEPLOYMENT.md).
 - Three accessibility engines run: axe (`tests/a11y.spec.ts`), AccessLint
@@ -214,7 +213,6 @@ src/
   content.config.ts Content collection schema
   layouts/          BaseLayout: head, header, footer
   lib/              Shared TypeScript
-  licenses/         License texts for vendored scripts
   pages/            File-based routes
   plugins/          Markdown plugins
   presenter/        Dev-only presenter view for talks
@@ -222,7 +220,6 @@ src/
   styles/           global.css (tokens, imports), base, components/, light mode
   worker.ts         Worker entry: Astro's handler and the retention sweep
 public/             Static files served from the site root, including _headers
-                    and the vendored Umami tracker in vendor/
 artwork/            Source artwork the build never reads
 migrations/         D1 schema
 scripts/            Convention and live-site checks, PDF publishing, test helpers

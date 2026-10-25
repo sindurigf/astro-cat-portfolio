@@ -5,7 +5,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import PageHero from '../components/PageHero.astro';
 import { CONTACT_EMAIL, CONTACT_FORM_ON, CONTACT_MAILTO } from '../lib/contact';
 import { RETENTION_DAYS } from '../lib/contact-form';
-import { UMAMI_HOST_URL } from '../lib/analytics';
+import { PLAUSIBLE_ORIGIN } from '../lib/analytics';
 import { formatPostDate } from '../lib/post-date';
 import { ANALYTICS_ON } from '../lib/analytics-site';
 import { SITE_NAME } from '../lib/site';
@@ -13,7 +13,7 @@ import { THEME_STORAGE_KEY } from '../lib/theme';
 import { TEXT_SCALE_KEY } from '../lib/text-scale';
 import {
   D1_RESTORE_WINDOW_DAYS,
-  UMAMI_RETENTION_MONTHS,
+  PLAUSIBLE_RETENTION_YEARS,
   WORKER_LOG_RETENTION_DAYS,
 } from '../lib/platform-facts';
 
@@ -23,20 +23,20 @@ import {
  */
 
 /* Set by hand when the policy text changes; a build date would re-date it on every deploy. */
-const lastUpdated = '2026-10-21';
+const lastUpdated = '2026-10-25';
 
 const CLOUDFLARE_PRIVACY = 'https://www.cloudflare.com/privacypolicy/';
 const CLOUDFLARE_NEL =
   'https://developers.cloudflare.com/network-error-logging/';
 const NEL_REPORT_HOST = 'a.nel.cloudflare.com';
-const UMAMI_PRIVACY = 'https://umami.is/privacy';
-const UMAMI_HOST = new URL(UMAMI_HOST_URL).host;
+const PLAUSIBLE_DATA_POLICY = 'https://plausible.io/data-policy';
+const PLAUSIBLE_HOST = new URL(PLAUSIBLE_ORIGIN).host;
 
 /* SC 3.1.4: the first "IP" on the page depends on which sections render. */
 const FIRST_IP = CONTACT_FORM_ON
   ? 'standfirst'
   : ANALYTICS_ON
-    ? 'umami'
+    ? 'analytics'
     : 'hosting';
 
 const description = ANALYTICS_ON
@@ -49,7 +49,7 @@ const description = ANALYTICS_ON
     <p class="standfirst">
       This site sets no cookies and loads nothing from any other website.{' '}
       {ANALYTICS_ON
-        ? 'It counts visits with Umami, which does not use cookies either.'
+        ? 'It counts visits with Plausible, which does not use cookies either.'
         : 'It counts no visits.'}{' '}
       {CONTACT_FORM_ON && (
         <Fragment>
@@ -93,8 +93,8 @@ const description = ANALYTICS_ON
             {ANALYTICS_ON && (
               <Fragment>
                 The <dfn>analytics script</dfn>, the code that counts visits,
-                reads one local storage setting, named umami.disabled, which is
-                Umami's own off switch, and writes nothing.
+                reads one local storage setting, named plausible_ignore, which
+                is Plausible's own off switch, and writes nothing.
               </Fragment>
             )}
           </li>
@@ -109,7 +109,7 @@ const description = ANALYTICS_ON
             <dfn>security policy</dfn>, a rule your browser enforces, blocks
             every other website.{' '}
             {ANALYTICS_ON &&
-              `The one exception: the analytics script may send visit counts to Umami at ${UMAMI_HOST}.`}{' '}
+              `The one exception: the analytics script may send visit counts to Plausible at ${PLAUSIBLE_HOST}.`}{' '}
             Error reports your browser sends to Cloudflare on its own are
             described under Hosting.
           </li>
@@ -125,25 +125,30 @@ const description = ANALYTICS_ON
             <h2>Visit Counts</h2>
 
             <p>
-              This site counts visits with <a href="https://umami.is/">Umami</a>
-              , an analytics service that uses no cookies and does not follow
-              you from site to site. The script runs from this site, and what it
-              sends goes to Umami at {UMAMI_HOST}, which stores it on servers in
-              the European Union and keeps it for {UMAMI_RETENTION_MONTHS}{' '}
-              months. It is the only place a page here sends anything to.
+              This site counts visits with{' '}
+              <a href="https://plausible.io/">Plausible</a>, an analytics
+              service that uses no cookies and does not follow you from site to
+              site. The script runs from this site, and what it sends goes to
+              Plausible at {PLAUSIBLE_HOST}, which stores it on servers in the
+              European Union and keeps it for up to {PLAUSIBLE_RETENTION_YEARS}{' '}
+              years. It is the only place a page here sends anything to.
             </p>
 
             <p>For each page you open, it sends:</p>
             <ul role="list">
-              <li>the page's address and title</li>
+              <li>the page's address</li>
               <li>
                 the address of the page that linked you here, if your browser
                 shares it
               </li>
-              <li>your screen size</li>
-              <li>your browser's language</li>
             </ul>
             <p>Both addresses are sent without anything after a ? or #.</p>
+
+            <p>
+              When you leave the page or switch away from it, it also sends how
+              far down the page you scrolled and how long you had the page in
+              view.
+            </p>
 
             <p>When you click a link or a button, it also sends:</p>
             <ul role="list">
@@ -158,8 +163,8 @@ const description = ANALYTICS_ON
             </p>
 
             <p>
-              Like any server, Umami receives your{' '}
-              {FIRST_IP === 'umami' ? (
+              Like any server, Plausible receives your{' '}
+              {FIRST_IP === 'analytics' ? (
                 <Fragment>
                   <Abbr short="IP" long="Internet Protocol" /> address, the
                   internet address of your connection,
@@ -167,12 +172,15 @@ const description = ANALYTICS_ON
               ) : (
                 'IP address'
               )}{' '}
-              and your browser's details with each request. Umami says it uses
-              the IP address to work out your country, region and city, and that
-              it does not store the address. It says it uses your browser
-              details to work out your browser, operating system and type of
-              device. How Umami handles that is covered by{' '}
-              <a href={UMAMI_PRIVACY}>Umami's privacy policy</a>.
+              and your browser's details with each request. Plausible says it
+              uses the IP address to work out your country, region and city. It
+              says it uses your browser details to work out your browser,
+              operating system and type of device. To count each visitor once a
+              day, it turns both, with a random value, into an identifier. It
+              deletes the random value every 24 hours. It says it does not store
+              the IP address or the browser details themselves. How Plausible
+              handles them is covered by{' '}
+              <a href={PLAUSIBLE_DATA_POLICY}>Plausible's data policy</a>.
             </p>
 
             <p>

@@ -52,7 +52,7 @@ npm run build && npx wrangler deploy --dry-run
 
 - Run `npm run check:live` and `npm run check:live:console`. The live check
   compares the deployed headers, redirects and dashboard-dependent behavior
-  with this repository. The console check stubs Umami, so it counts no visits.
+  with this repository. The console check stubs Plausible, so it counts no visits.
 - To run `check:live` weekly from `.github/workflows/scheduled.yml`, set the
   repository variable `CHECK_LIVE` to `1`.
 - After a change to the hero or to what a page loads, run Lighthouse (mobile)
@@ -186,31 +186,37 @@ not Build (the runtime never sees Build). Without it, messages are still stored,
 no email is sent, and the endpoint logs whether the binding or the secret is
 missing.
 
-## Umami
+## Plausible
 
 Off by default. To turn it on:
 
-1. Create a website in Umami Cloud (EU region) for your domain.
-2. Set `analytics: { umamiWebsiteId: '<id>' }` in `src/site.config.ts`.
-3. Add `https://gateway.umami.is` to `connect-src` in `public/_headers`;
+1. Add a site in Plausible Cloud with your domain as its name.
+2. Set `analytics: true` in `src/site.config.ts`.
+3. Add `https://plausible.io` to `connect-src` in `public/_headers`;
    `tests/headers-rules.spec.ts` fails until you do.
 4. Check `/privacy`, which now describes the visit counting, and
-   `UMAMI_RETENTION_MONTHS` in
+   `PLAUSIBLE_RETENTION_YEARS` in
    [`src/lib/platform-facts.ts`](../src/lib/platform-facts.ts) against your
    plan.
+5. In Plausible, add a custom event goal for each name in `CLICK_EVENTS`
+   (`src/lib/analytics.ts`), and allow only your hostname under Shields >
+   Hostnames.
 
-- A page view is one event; a click up to four (one per event data property).
-- `data-domains` stops local, test and preview traffic being counted.
-- The tracker and the click tracker add about 6.2 KB of script to every page.
-  `tests/performance.spec.ts` allows them `ANALYTICS_SCRIPT_BUDGET` on top of
-  each route's own budget, which does not change.
-- The tracker is vendored at `public/vendor/umami.js`, so `script-src` stays
-  same-origin. `npm run check:umami` compares it with upstream; exit 0 means
-  it matches, otherwise it writes `tmp/umami-upstream.js` and prints the diff.
-- To update the tracker, in one commit: read the diff for new storage, hosts,
-  data sent or `data-*` settings; copy `tmp/umami-upstream.js` over
-  `public/vendor/umami.js`; update `UMAMI_VENDORED_ON` and, if what is sent
-  changed, `/privacy`; run the suite.
+- Click props (label, area, target) show only on the Business plan.
+- `filterPayload` in [`src/lib/analytics.ts`](../src/lib/analytics.ts) drops
+  local, test and preview traffic and Do Not Track, and strips query strings
+  and fragments.
+- The npm tracker takes its options from `init()` in
+  [`src/scripts/analytics.ts`](../src/scripts/analytics.ts), not from the
+  dashboard's tracking toggles.
+- The tracker and the click tracker add about 7.8 KB of script to every
+  page. `tests/performance.spec.ts` allows them `ANALYTICS_SCRIPT_BUDGET` on
+  top of each route's own budget, which does not change.
+- `@plausible-analytics/tracker` is pinned to an exact version. Before a bump,
+  read its changelog for new fields, storage or hosts:
+  `tests/analytics.spec.ts` fails on an undisclosed field and
+  `tests/privacy.spec.ts` on a storage write. Update `/privacy` if what is
+  sent changed.
 
 ## Bing Webmaster Tools
 

@@ -3,7 +3,7 @@ import { ROUTES } from './routes';
 import { waitForHydration } from './settle';
 import { usePolicyServer } from './headers-fixture';
 import { collectViolations } from './policy-server';
-import { fakeCollector } from './umami';
+import { fakeCollector } from './plausible';
 
 /**
  * Runs under public/_headers via tests/policy-server.ts, since the static server
@@ -48,7 +48,7 @@ test.describe('the browser console', () => {
         }
       });
 
-      /* Keeps live runs out of the Umami numbers while still checking the CSP. */
+      /* Keeps live runs out of the Plausible numbers while still checking the CSP. */
       await fakeCollector(page.context());
       const violations = await collectViolations(page);
 

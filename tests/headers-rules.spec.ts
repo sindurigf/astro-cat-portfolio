@@ -3,7 +3,7 @@ import { hashesFor, inlineBlocks } from '../scripts/csp-hashes.mjs';
 import { extname, join, relative, sep } from 'node:path';
 import { expect, test } from './test';
 import { builtPages, DIST_DIR, PUBLISHED_POST_ROUTES } from './routes';
-import { UMAMI_HOST_URL, UMAMI_SCRIPT_PATH } from '../src/lib/analytics';
+import { PLAUSIBLE_ORIGIN } from '../src/lib/analytics';
 import { ANALYTICS_ON } from '../src/lib/analytics-site';
 import { asServed, headersFor, MIME, type Rule } from './policy-server';
 import { ASSET_CACHE_CONTROL, usePolicyServer } from './headers-fixture';
@@ -37,9 +37,6 @@ const robotsPattern = (rule: string): RegExp => {
 
 /** Blocks Cloudflare JavaScript Detections injection, and compression. */
 const NO_TRANSFORM = 'no-transform';
-
-/* Must match the /vendor/* rule in public/_headers. */
-const VENDOR_CACHE_CONTROL = 'public, max-age=3600';
 
 /** A detach deletes silently: `! Content-Security-Policy` on pages ships no CSP. */
 const DETACHABLE = new Set(['cache-control']);
@@ -127,11 +124,11 @@ const expectOutboundDirectives = (csp: string): void => {
   expect(
     directive(csp, 'connect-src'),
     ANALYTICS_ON
-      ? `connect-src must be 'self' plus UMAMI_HOST_URL (${UMAMI_HOST_URL}).`
+      ? `connect-src must be 'self' plus PLAUSIBLE_ORIGIN (${PLAUSIBLE_ORIGIN}).`
       : "connect-src must be 'self' alone while analytics is off in src/site.config.ts.",
   ).toBe(
     ANALYTICS_ON
-      ? `connect-src 'self' ${UMAMI_HOST_URL}`
+      ? `connect-src 'self' ${PLAUSIBLE_ORIGIN}`
       : "connect-src 'self'",
   );
 
@@ -233,13 +230,10 @@ test.describe('security headers as declared and served', NODE, () => {
     }
   });
 
-  test('favicons, feeds and the vendored script drop no-transform to be compressed', () => {
-    const paths = [
-      ...builtFiles(DIST_DIR)
-        .filter((file) => COMPRESSIBLE.test(file.split(sep).pop() ?? ''))
-        .map(servedPath),
-      UMAMI_SCRIPT_PATH,
-    ];
+  test('favicons and feeds drop no-transform to be compressed', () => {
+    const paths = builtFiles(DIST_DIR)
+      .filter((file) => COMPRESSIBLE.test(file.split(sep).pop() ?? ''))
+      .map(servedPath);
     expect(
       paths.some((path) => path.endsWith('rss.xml')) &&
         paths.some((path) => path.startsWith('/favicon.')),
@@ -254,11 +248,6 @@ test.describe('security headers as declared and served', NODE, () => {
         )
         .not.toMatch(/\bno-transform\b/);
     }
-
-    expect(
-      headersFor(rules, UMAMI_SCRIPT_PATH).get('cache-control'),
-      'the tracker revalidates on every page view without a short max-age.',
-    ).toBe(VENDOR_CACHE_CONTROL);
 
     expect(
       headersFor(rules, '/_astro/BaseLayout.css').get('cache-control'),

@@ -9,7 +9,7 @@ import { NODE } from './tags';
  * value; never widen the interval or move the date without looking.
  */
 
-/** Six months, matching Umami's retention, the longest window /privacy promises. */
+/** Six months: dashboard settings change with no commit here. */
 const RECHECK_AFTER_DAYS = 180;
 
 /** Fails this many days before the deadline, so a recheck never blocks a merge unannounced. */

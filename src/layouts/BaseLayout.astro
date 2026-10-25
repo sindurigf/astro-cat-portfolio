@@ -13,8 +13,7 @@ import {
 import lexendLatin from '@fontsource-variable/lexend/files/lexend-latin-wght-normal.woff2?url';
 import { structuredDataScript, type ArticleMeta } from '../lib/structured-data';
 import type { Trail } from '../lib/breadcrumbs';
-import { UMAMI_HOST_URL, UMAMI_SCRIPT_PATH } from '../lib/analytics';
-import { ANALYTICS_ON, UMAMI_WEBSITE_ID } from '../lib/analytics-site';
+import { ANALYTICS_ON } from '../lib/analytics-site';
 import { pageOgImage } from '../lib/og-image';
 import { personImageUrl } from '../lib/person-image';
 import Header from '../components/Header.astro';
@@ -67,8 +66,6 @@ const site = requireSite(
   'canonical, Open Graph and JSON-LD URLs must be absolute.',
 );
 const canonical = new URL(Astro.url.pathname, site);
-/* Only the production host is counted; localhost and previews send nothing. */
-const analyticsDomain = site.hostname;
 const bingVerification = bingVerificationFor(
   Astro.url.pathname,
   BING_SITE_VERIFICATION,
@@ -249,20 +246,6 @@ const articleData = article && {
         profile: profile ? canonical : undefined,
       })}
     ></script>
-    {/* `is:inline`: the tracker reads `document.currentScript`, which a module lacks. */}
-    {ANALYTICS_ON && (
-      <script
-        is:inline
-        defer
-        src={UMAMI_SCRIPT_PATH}
-        data-website-id={UMAMI_WEBSITE_ID}
-        data-host-url={UMAMI_HOST_URL}
-        data-domains={analyticsDomain}
-        data-do-not-track="true"
-        data-exclude-search="true"
-        data-exclude-hash="true"
-      ></script>
-    )}
     <meta name="generator" content={Astro.generator} />
   </head>
   <body class="flex min-h-screen flex-col">
@@ -278,6 +261,7 @@ const articleData = article && {
     <Footer />
     <ReadingTab />
     {ANALYTICS_ON && <script>
+      import '../scripts/analytics';
       import '../scripts/track-clicks';
     </script>}
     <script>
