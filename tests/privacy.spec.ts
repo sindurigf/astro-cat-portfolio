@@ -5,11 +5,11 @@ import { captures } from './captures';
 import { builtPages, DIST_DIR, pagesNotLinking } from './routes';
 import { configuredSite } from './source';
 import { RETENTION_DAYS } from '../src/lib/contact-form';
-import { UMAMI_HOST_URL, UMAMI_SCRIPT_PATH } from '../src/lib/analytics';
+import { PLAUSIBLE_ORIGIN } from '../src/lib/analytics';
 import { ANALYTICS_ON } from '../src/lib/analytics-site';
 import { CONTACT_FORM_ON } from '../src/lib/contact';
 import {
-  UMAMI_RETENTION_MONTHS,
+  PLAUSIBLE_RETENTION_YEARS,
   WORKER_LOG_RETENTION_DAYS,
 } from '../src/lib/platform-facts';
 import { NODE } from './tags';
@@ -29,13 +29,21 @@ const CLAIMS = [
   'nothing loaded from other websites',
 ];
 
-// Writes, not mentions: the tracker reads `umami.disabled` from localStorage.
+// Writes, not mentions: the tracker reads `plausible_ignore` from localStorage.
 const TRACKER_WRITES = [
   /\.setItem\s*\(/,
   /document\.cookie/,
   /sessionStorage/,
   /indexedDB/,
 ];
+
+/* Bundled into the page script, so the source scan below never sees it. */
+const TRACKER = join(
+  'node_modules',
+  '@plausible-analytics',
+  'tracker',
+  'plausible.js',
+);
 
 const ownHost = (): string => new URL(configuredSite()).host;
 
@@ -179,10 +187,10 @@ test.describe('the privacy policy is true', NODE, () => {
       }
     }
 
-    const tracker = readFileSync(join('public', UMAMI_SCRIPT_PATH), 'utf8');
+    const tracker = readFileSync(TRACKER, 'utf8');
     for (const pattern of TRACKER_WRITES) {
       if (pattern.test(tracker)) {
-        offenders.push(`public${UMAMI_SCRIPT_PATH}: ${pattern.source}`);
+        offenders.push(`${TRACKER}: ${pattern.source}`);
       }
     }
 
@@ -249,7 +257,7 @@ test.describe('the privacy policy is true', NODE, () => {
     expect(
       text,
       '/privacy still describes visit counting while analytics is off.',
-    ).not.toMatch(/Visit Counts|Umami|umami/);
+    ).not.toMatch(/Visit Counts|Plausible|plausible/);
   });
 
   test('the page discloses the visit counting', () => {
@@ -265,18 +273,18 @@ test.describe('the privacy policy is true', NODE, () => {
 
     expect(
       section,
-      `/privacy no longer names ${new URL(UMAMI_HOST_URL).host}.`,
-    ).toContain(new URL(UMAMI_HOST_URL).host);
+      `/privacy no longer names ${new URL(PLAUSIBLE_ORIGIN).host}.`,
+    ).toContain(new URL(PLAUSIBLE_ORIGIN).host);
 
     expect(
       section,
-      '/privacy no longer says Umami stores the counts in the European Union.',
+      '/privacy no longer says Plausible stores the counts in the European Union.',
     ).toContain('European Union');
 
     expect(
       section,
-      `/privacy no longer states Umami's ${UMAMI_RETENTION_MONTHS}-month retention.`,
-    ).toContain(`keeps it for ${UMAMI_RETENTION_MONTHS} months`);
+      `/privacy no longer states Plausible's ${PLAUSIBLE_RETENTION_YEARS}-year retention.`,
+    ).toContain(`keeps it for up to ${PLAUSIBLE_RETENTION_YEARS} years`);
 
     expect(
       section,

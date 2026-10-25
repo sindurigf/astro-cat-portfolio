@@ -65,7 +65,7 @@ validated on import, so a bad value fails the build and the tests.
 | `profiles`                   | Footer tiles and JSON-LD `sameAs`; each label needs an icon                                                                           |
 | `journeyPost`                | The close row of `/about`, `/career`, `/contact/sent`; must name a published post, or `null`                                          |
 | `openingFeedTag`             | The tag feed that carries each post's opening, not its teaser ([Feeds](#feeds)); a tag, or `null`                                     |
-| `analytics`                  | `null` loads no tracker; an Umami website id turns it on ([Umami](docs/DEPLOYMENT.md#umami))                                          |
+| `analytics`                  | `false` loads no tracker; `true` turns on Plausible ([Plausible](docs/DEPLOYMENT.md#plausible))                                       |
 | `bingSiteVerification`       | `null` adds no tag; a [Bing](docs/DEPLOYMENT.md#bing-webmaster-tools) code adds one to `/`                                            |
 | `contact.form`               | `cloudflare-d1` (the form) or `none` (email only)                                                                                     |
 | `contact.notificationSender` | Must equal `allowed_sender_addresses` in `wrangler.jsonc`                                                                             |
@@ -644,9 +644,8 @@ in `public/`.
 - `immutable` for a year on `/_astro/*` only: Vite content-hashes those names.
   An unhashed file there stays stale for a year in every browser that has it.
 - Everything else gets `Cache-Control: no-transform` alone, so browsers
-  revalidate against the ETag. `/vendor/*`, favicons and feeds detach it so
-  Cloudflare compresses them; sitemaps and `llms.txt` would save under 1 KB.
-  `/vendor/*` also caches for an hour: its URL is not hashed.
+  revalidate against the ETag. Favicons and feeds detach it so Cloudflare
+  compresses them; sitemaps and `llms.txt` would save under 1 KB.
 - `no-transform` keeps JavaScript Detections (forced on the Free plan) off
   pages: its inline script carries a per-request token no CSP hash allows, and
   it strips the ETag. The cost is uncompressed HTML, since no pattern
@@ -674,8 +673,8 @@ in `public/`.
 ### Speculation rules
 
 - `Speculation-Rules: "/speculationrules.json"`: a header-named file, so no
-  inline hash. Prefetch on hover only, never prerender (would count Umami
-  visits).
+  inline hash. Prefetch on hover only, never prerender (would fetch and run
+  pages never opened).
 - Excludes `/contact/send/`, `/videos/`, PDFs, downloads.
 - Served as `application/speculationrules+json` or Chromium ignores it.
   `tests/served-types.spec.ts`, `tests/headers.spec.ts`.
@@ -694,12 +693,13 @@ require-trusted-types-for 'script'; trusted-types vue
 ```
 
 - No `'unsafe-inline'`, no `'unsafe-eval'`. Everything is same-origin: fonts in
-  `/_astro/`, Umami vendored under `/vendor/`, no embeds, no `data:` URIs, Vue
-  runtime-only build.
+  `/_astro/`, the Plausible tracker bundled from npm, no embeds, no `data:`
+  URIs, Vue runtime-only build.
 - `connect-src` is `'self'` while analytics is off. With analytics on it also
-  names Umami's collector, `UMAMI_HOST_URL` in `src/lib/analytics.ts`;
+  names Plausible's collector URL, `PLAUSIBLE_ENDPOINT` in
+  `src/lib/analytics.ts`;
   `tests/headers-rules.spec.ts` asserts whichever applies. See
-  [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md#umami).
+  [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md#plausible).
 - `vite.build.assetsInlineLimit: 0` so no script is inlined.
 - `form-action 'self'`, never `'none'`: `'none'` silently blocks the contact
   form. Never `*`. A form posting to a new origin widens it to that exact

@@ -8,7 +8,7 @@
 #   5. an inline <script>/<style> whose sha256 is not in the CSP (not a data
 #      block: DATA_SCRIPT_TYPES in scripts/csp-hashes.mjs)
 #   6. an unexpected status
-#   7. CSS or JS under /_astro/ or /vendor/, a favicon or a feed, without
+#   7. CSS or JS under /_astro/, a favicon or a feed, without
 #      Content-Encoding
 #   8. /sitemap.xml not 301 to /sitemap-index.xml, or /about not 301 to /about/
 #   9. a public/_headers pattern no request below exercises
@@ -399,7 +399,7 @@ check_elements() {
 }
 
 check_encoding() {
-  case "$1" in /_astro/* | /vendor/* | /favicon.* | *rss.xml) ;; *) return 0 ;; esac
+  case "$1" in /_astro/* | /favicon.* | *rss.xml) ;; *) return 0 ;; esac
   case "$3" in
     text/css* | text/javascript* | application/javascript* | image/svg+xml* | \
       image/vnd.microsoft.icon* | image/x-icon* | application/xml* | \
@@ -451,8 +451,6 @@ ASSET=$(grep -o '/_astro/[A-Za-z0-9._-]*\.css' "$LAST_BODY" | head -n 1 || true)
 [ -n "$ASSET" ] ||
   ASSET=$(grep -o '/_astro/[A-Za-z0-9._-]*' "$LAST_BODY" | head -n 1 || true)
 
-VENDOR_SCRIPT=$(grep -o '/vendor/[A-Za-z0-9._-]*\.js' "$LAST_BODY" | head -n 1 || true)
-
 check_response /privacy/ 200
 NO_POST="no published post in $BLOG_DIR"
 if [ -n "$POST_PATH" ]; then
@@ -465,12 +463,6 @@ if [ -n "$ASSET" ]; then
   check_response "$ASSET" 200
 else
   fail / "the homepage references nothing under /_astro/, so no hashed asset was checked"
-fi
-
-if [ -n "$VENDOR_SCRIPT" ]; then
-  check_response "$VENDOR_SCRIPT" 200
-else
-  fail / "the homepage references nothing under /vendor/, so the Umami tracker was not checked"
 fi
 
 # Its Content-Type comes from public/_headers; tests/served-types.spec.ts

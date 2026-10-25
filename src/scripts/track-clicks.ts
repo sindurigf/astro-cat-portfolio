@@ -1,3 +1,4 @@
+import { track } from '@plausible-analytics/tracker';
 import {
   CLICK_EVENTS,
   DOWNLOAD_EXTENSIONS,
@@ -5,17 +6,6 @@ import {
   type ClickEventData,
   type ClickEventName,
 } from '../lib/analytics';
-
-/*
- * Not `data-umami-event`: the tracker blocks navigation on its request with no
- * timeout. `umami.track` uses `keepalive` and honors DNT and `data-domains`.
- */
-
-declare global {
-  interface Window {
-    umami?: { track: (name: string, data?: ClickEventData) => unknown };
-  }
-}
 
 const CLICKABLE =
   'a[href], button, summary, input[type="submit"], input[type="button"]';
@@ -111,9 +101,11 @@ const send = (event: MouseEvent): void => {
   if (event.type === 'auxclick' && event.button !== MIDDLE_BUTTON) return;
 
   const click = describeClick(event.target, window.location.origin);
-  if (click) window.umami?.track(click.name, click.data);
+  if (click) track(click.name, { props: click.data });
 };
 
-/* Capture phase survives stopPropagation; `auxclick` catches middle clicks. */
-document.addEventListener('click', send, { capture: true, passive: true });
-document.addEventListener('auxclick', send, { capture: true, passive: true });
+/* Capture phase survives stopPropagation; `auxclick` catches middle clicks; `track` sends with `keepalive`. */
+export const trackClicks = (): void => {
+  document.addEventListener('click', send, { capture: true, passive: true });
+  document.addEventListener('auxclick', send, { capture: true, passive: true });
+};

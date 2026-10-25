@@ -194,7 +194,7 @@ form answers 503 until its D1 database is created and migrated
 - [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md): requirements, commands, layout,
   posts, talks
 - [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md): Cloudflare, D1, email, contact
-  options, Umami, dashboard and repository settings
+  options, Plausible, dashboard and repository settings
 - [ARCHITECTURE.md](ARCHITECTURE.md): stack, site config, tokens, content,
   assets, headers
 - [docs/STYLEGUIDE.md](docs/STYLEGUIDE.md): visual rules and page patterns
@@ -222,8 +222,8 @@ instead: [SECURITY.md](SECURITY.md). Pull requests use
 | `src/assets/social-icons.svg`                              | Brand icon paths from [Simple Icons](https://simpleicons.org), CC0 1.0 |
 | Lexend                                                     | SIL Open Font License 1.1, copyright 2019 The Lexend Project Authors   |
 
-- The build writes `/licenses.txt` covering every third-party package,
-  vendored script and font sent to a browser (`scripts/licenses.mjs`).
+- The build writes `/licenses.txt` covering every third-party package and font
+  sent to a browser (`scripts/licenses.mjs`).
 - When you replace the photos with your own, update `LICENSE-photos`, or
   remove it and its row.
 - Sample persona based on Nico Robin from One Piece by Eiichiro Oda

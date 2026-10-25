@@ -11,8 +11,8 @@ interface PlatformFact {
   checkedOn: string;
 }
 
-/** Umami Hobby plan. */
-export const UMAMI_RETENTION_MONTHS = 6;
+/** The longest plan, Business and the free trial; /privacy says "up to". Starter and Growth keep 3. */
+export const PLAUSIBLE_RETENTION_YEARS = 5;
 
 /** Workers Free plan. */
 export const WORKER_LOG_RETENTION_DAYS = 3;
@@ -21,15 +21,18 @@ export const WORKER_LOG_RETENTION_DAYS = 3;
 export const D1_RESTORE_WINDOW_DAYS = 7;
 
 export const PLATFORM_FACTS: Readonly<Record<string, PlatformFact>> = {
-  umamiRetention: {
-    claim: `Umami keeps the visit counts for ${UMAMI_RETENTION_MONTHS} months`,
-    check: 'Umami Cloud > Settings > Billing: the data retention of the plan',
-    checkedOn: '2026-09-13',
+  plausibleRetention: {
+    claim: `Plausible keeps the visit counts for up to ${PLAUSIBLE_RETENTION_YEARS} years`,
+    check:
+      'Plausible > Account Settings > Subscription: the plan, and its data ' +
+      'retention on plausible.io/#pricing',
+    checkedOn: '2026-10-25',
   },
-  umamiRegion: {
-    claim: 'Umami stores the visit counts on servers in the European Union',
-    check: 'Umami Cloud > Settings: the region the account is hosted in',
-    checkedOn: '2026-09-19',
+  plausibleRegion: {
+    claim: 'Plausible stores the visit counts on servers in the European Union',
+    check:
+      'plausible.io/data-policy: where visitor data is processed and stored',
+    checkedOn: '2026-10-25',
   },
   workerLogRetention: {
     claim: `Worker logs and traces are deleted after ${WORKER_LOG_RETENTION_DAYS} days`,

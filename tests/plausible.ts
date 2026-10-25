@@ -1,13 +1,13 @@
 import type { BrowserContext } from '@playwright/test';
-import { UMAMI_HOST_URL } from '../src/lib/analytics';
+import { PLAUSIBLE_ENDPOINT } from '../src/lib/analytics';
 
 /**
- * Fake Umami collector, so no test page view reaches the real dashboard.
+ * Fake Plausible collector, so no test event reaches the real dashboard.
  * Answers the CORS preflight too. Routed on the context: a `keepalive` click
  * event outlives the page it was sent from.
  */
 
-export type UmamiSend = { type: string; payload: Record<string, unknown> };
+export type PlausibleSend = Record<string, unknown>;
 
 const CORS_HEADERS = {
   'access-control-allow-origin': '*',
@@ -17,10 +17,10 @@ const CORS_HEADERS = {
 
 export const fakeCollector = async (
   context: BrowserContext,
-): Promise<UmamiSend[]> => {
-  const sent: UmamiSend[] = [];
+): Promise<PlausibleSend[]> => {
+  const sent: PlausibleSend[] = [];
 
-  await context.route(`${UMAMI_HOST_URL}/**`, async (route) => {
+  await context.route(PLAUSIBLE_ENDPOINT, async (route) => {
     const request = route.request();
 
     if (request.method() === 'OPTIONS') {
@@ -28,8 +28,8 @@ export const fakeCollector = async (
       return;
     }
 
-    sent.push(request.postDataJSON() as UmamiSend);
-    await route.fulfill({ status: 200, headers: CORS_HEADERS, json: {} });
+    sent.push(request.postDataJSON() as PlausibleSend);
+    await route.fulfill({ status: 202, headers: CORS_HEADERS, body: 'ok' });
   });
 
   return sent;

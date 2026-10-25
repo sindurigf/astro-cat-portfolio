@@ -1,7 +1,7 @@
 name: Scheduled
 
-# Drift with no commit: the live site, the vendored tracker, a vulnerable
-# dependency, security.txt expiry. Not on pull requests: a network hiccup would
+# Drift with no commit: the live site, a vulnerable dependency, security.txt
+# expiry. Not on pull requests: a network hiccup would
 # fail unrelated work, and the deploy has not run yet.
 on:
   schedule:
@@ -46,10 +46,6 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
           CHECK_LIVE_SKIP_D1: ${{ (secrets.CLOUDFLARE_API_TOKEN == '' || vars.CLOUDFLARE_ACCOUNT_ID == '') && '1' || '' }}
-
-      - name: Compare the vendored tracker with Umami's
-        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
-        run: npm run check:umami
 
       - name: Check security.txt has not lapsed
         if: ${{ !cancelled() && steps.install.outcome == 'success' }}

@@ -62,8 +62,8 @@ export interface SiteConfig {
   };
   /** JSON-LD `sameAs` and the footer, in this order. */
   profiles: ReadonlyArray<{ label: ProfileLabel; href: string }>;
-  /** Umami Cloud; null loads no tracker. */
-  analytics: { umamiWebsiteId: string } | null;
+  /** Plausible Cloud, with the site registered under its hostname; false loads no tracker. */
+  analytics: boolean;
   /** Bing Webmaster Tools' msvalidate.01 code; null adds no tag. */
   bingSiteVerification: string | null;
   /**
@@ -129,8 +129,8 @@ const config: SiteConfig = {
     { label: 'Bluesky', href: 'https://bluesky.example/profile/robin-ohara' },
     { label: 'Mastodon', href: 'https://mastodon.example/@robin-ohara' },
   ],
-  // TODO(fork): Your Umami website id, or leave null for no analytics.
-  analytics: null,
+  // TODO(fork): true once the site's hostname is added in Plausible, or leave false for no analytics.
+  analytics: false,
   // TODO(fork): Your Bing Webmaster Tools code, or leave null.
   bingSiteVerification: null,
   // TODO(fork): The file name of the post your pages point to for your longer story, or null.
@@ -150,7 +150,6 @@ const config: SiteConfig = {
 
 /* A file name in src/content/blog/, as the glob loader turns it into an id. */
 const SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
-const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 const BING_CODE = /^[0-9A-F]{32}$/i;
 const EARLIEST_YEAR = 1991;
 const TAGLINE_MAX_LINES = 2;
@@ -205,7 +204,6 @@ export const validateSiteConfig = (value: SiteConfig): SiteConfig => {
     site,
     person,
     profiles,
-    analytics,
     bingSiteVerification,
     journeyPost,
     openingFeedTag,
@@ -276,10 +274,6 @@ export const validateSiteConfig = (value: SiteConfig): SiteConfig => {
     labels.add(label);
     httpsUrl(`profiles[${index}].href`, href);
   });
-
-  if (analytics !== null && !UUID.test(analytics.umamiWebsiteId)) {
-    invalid('analytics.umamiWebsiteId', 'must be the UUID Umami shows.');
-  }
 
   if (bingSiteVerification !== null && !BING_CODE.test(bingSiteVerification)) {
     invalid(

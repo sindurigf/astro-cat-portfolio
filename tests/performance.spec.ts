@@ -18,8 +18,8 @@ const ROUTE_SCRIPT_BUDGETS: Readonly<Record<string, number>> = {
   '/about': 125_000,
 };
 const PAGE_SCRIPT_BUDGET = 14_000;
-/* On every route once `analytics` is set: /vendor/umami.js and the click tracker. */
-const ANALYTICS_SCRIPT_BUDGET = 6_400;
+/* On every route once `analytics` is set: the Plausible tracker and the click tracker. */
+const ANALYTICS_SCRIPT_BUDGET = 8_000;
 
 const scriptBudget = (route: string): number =>
   (ROUTE_SCRIPT_BUDGETS[route] ?? PAGE_SCRIPT_BUDGET) +

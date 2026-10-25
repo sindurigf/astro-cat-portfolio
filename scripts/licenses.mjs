@@ -1,21 +1,13 @@
 /*
  * Writes /licenses.txt from what the build ships; bundling strips MIT notices.
- * Reads chunks, client/prerender assets, CSS `/*!` banners, the island script,
- * public/vendor/ via src/licenses/. Vite's `build.license` emits nothing under Astro 7.
+ * Reads chunks, client/prerender assets, CSS `/*!` banners and the island script.
+ * Vite's `build.license` emits nothing under Astro 7.
  */
-import {
-  existsSync,
-  globSync,
-  readFileSync,
-  readdirSync,
-  writeFileSync,
-} from 'node:fs';
+import { globSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { isAbsolute, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
-const VENDOR_DIR = join(ROOT, 'public', 'vendor');
-const VENDOR_LICENSES = join(ROOT, 'src', 'licenses');
 const OUTPUT = 'licenses.txt';
 const SHIPPED_ASSET_ENVIRONMENTS = new Set(['client', 'prerender']);
 const LICENSE_FILE = /^(licen[cs]e|copying)(\.(md|txt))?$/i;
@@ -64,18 +56,6 @@ const packagesInPages = (clientDir) => {
   return dirs;
 };
 
-const vendored = () =>
-  existsSync(VENDOR_DIR)
-    ? readdirSync(VENDOR_DIR).map((file) => {
-        const source = join(VENDOR_LICENSES, `${file}.txt`);
-        return {
-          heading: `/vendor/${file}`,
-          text: existsSync(source) ? readFileSync(source, 'utf8').trim() : null,
-          missing: relative(ROOT, source),
-        };
-      })
-    : [];
-
 const render = (entries) =>
   [
     'Licenses for the third-party code and font this site sends to your browser.',
@@ -118,21 +98,19 @@ export const licenses = () => {
         const clientDir = fileURLToPath(dir);
         for (const found of packagesInPages(clientDir)) shippedDirs.add(found);
 
-        const packages = [...shippedDirs]
+        const entries = [...shippedDirs]
           .map((packageDir) => ({
             ...describePackage(packageDir),
             missing: relative(ROOT, packageDir),
           }))
           .sort((a, b) => a.heading.localeCompare(b.heading));
-        const entries = [...packages, ...vendored()];
 
         const missing = entries.filter(({ text }) => text === null);
         if (missing.length > 0) {
           throw new Error(
             `No license text for what ships to the browser: ${missing
               .map(({ missing: where }) => where)
-              .join(', ')}. A package needs a LICENSE file; a file in ` +
-              'public/vendor/ needs its license in src/licenses/<file>.txt.',
+              .join(', ')}. A package needs a LICENSE file.`,
           );
         }
 
