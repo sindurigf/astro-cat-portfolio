@@ -51,7 +51,7 @@ export const walkFrame = (step: number): Frame =>
   WALK[step % WALK.length] ?? 'walk';
 
 /** A sitting cat's drawn height in px; Hela is the smallest of the three. */
-export const SIT_HEIGHT: Record<CatId, number> = {
+const SIT_HEIGHT: Record<CatId, number> = {
   minerva: 80,
   rudra: 80,
   hela: 60,
@@ -161,7 +161,7 @@ export const bridges = (from: Frame, frame: Frame): boolean =>
       between === frame && (POSE_FRAME[a] === from || POSE_FRAME[b] === from),
   );
 
-export const betweenFrame = (a: NamedPose, b: NamedPose): Frame | null =>
+const betweenFrame = (a: NamedPose, b: NamedPose): Frame | null =>
   BETWEEN.find(([x, y]) => (x === a && y === b) || (x === b && y === a))?.[2] ??
   null;
 
@@ -178,7 +178,7 @@ const UNIT = {
 };
 
 /** How far apart two poses look: body angle and height, haunch, front paw, thickness, eyes, sleep. */
-export const poseDistance = (p: Pose, q: Pose): number =>
+const poseDistance = (p: Pose, q: Pose): number =>
   Math.abs(p.ba - q.ba) / UNIT.ba +
   Math.abs(p.by - q.by) / UNIT.by +
   Math.abs(p.haunch - q.haunch) / UNIT.haunch +
@@ -200,10 +200,10 @@ export const LOOK_BACK = 20;
 const AIRBORNE = 3;
 const HIGH = 14;
 /** px the body travels in one stride, the drawn step length of the walk cycle. */
-export const WALK_STRIDE_PX = 52;
+const WALK_STRIDE_PX = 52;
 
 /** px the body travels per walk frame, so a planted paw stays put. */
-export const WALK_FRAME_PX = WALK_STRIDE_PX / WALK.length;
+const WALK_FRAME_PX = WALK_STRIDE_PX / WALK.length;
 
 export interface Motion {
   /** px travelled along the ground since the cat started walking. */

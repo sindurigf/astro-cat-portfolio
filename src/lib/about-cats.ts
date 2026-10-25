@@ -73,7 +73,7 @@ const LEAPS: Partial<Record<MoveName, number>> = {
   stalk: 1,
 };
 /** Where a cat stands from the card's edge to push the cup, the track's end: CUP_AHEAD plus its push takes the cup past the edge. */
-export const CUP_EDGE = TRACK_MARGIN;
+const CUP_EDGE = TRACK_MARGIN;
 /** A pointer that has not moved for this long no longer draws a cat's eye. */
 export const POINTER_IDLE_MS = 4000;
 const FACE_DEADBAND = 20;

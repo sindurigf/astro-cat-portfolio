@@ -24,12 +24,10 @@ const at = (
   name: PoseName,
   x: number,
   y: number,
-  edge: number,
-  h: number,
   paws: Partial<Record<Paw, Pair>> = {},
   over: Partial<Pose> = {},
 ): Pose => {
-  const p = pose(name, { ...over, x, by: y, sx: edge - x, sh: h });
+  const p = pose(name, { ...over, x, by: y });
   for (const k of PAWS) {
     const w = paws[k];
     if (w) p[k] = [w[0] - x, y - w[1]];
@@ -55,23 +53,16 @@ const sizeUp = (from: number, to: number): Move['mods'][number] => ({
 /* Up: look, crouch and size it up, spring from the hind legs, land front paws then hind paws on the top. */
 const up = (h: number): Move => {
   const e = CLIMB_START.up;
-  const s = (
-    name: PoseName,
-    x: number,
-    y: number,
-    paws: Partial<Record<Paw, Pair>>,
-    over: Partial<Pose> = {},
-  ) => at(name, x, y, e, h, paws, over);
   return {
     rise: h,
     mods: [sizeUp(600, 1200)],
     steps: [
-      key(300, s('stand', 0, 26, {}, { hr: -22 })),
-      key(300, s('crouch', -2, 16, {}, { hr: -26, ba: 8, ears: 0 })),
-      key(600, s('crouch', -2, 16, {}, { hr: -26, ba: 8, ears: 0 })),
+      key(300, at('stand', 0, 26, {}, { hr: -22 })),
+      key(300, at('crouch', -2, 16, {}, { hr: -26, ba: 8 })),
+      key(600, at('crouch', -2, 16, {}, { hr: -26, ba: 8 })),
       key(
         150,
-        s(
+        at(
           'stand',
           e - 14,
           34,
@@ -81,13 +72,13 @@ const up = (h: number): Move => {
             hN: [e - 30, 0],
             hF: [e - 27, 0],
           },
-          { ba: 35, sq: 0.9, hl: 1.4, hr: -14 },
+          { ba: 35, sq: 0.9, hr: -14 },
         ),
         'in',
       ),
       key(
         200,
-        s(
+        at(
           'stand',
           e + 4,
           h + 22,
@@ -103,7 +94,7 @@ const up = (h: number): Move => {
       ),
       key(
         110,
-        s(
+        at(
           'stand',
           e + 14,
           h + 20,
@@ -119,7 +110,7 @@ const up = (h: number): Move => {
       ),
       key(
         120,
-        s(
+        at(
           'stand',
           e + 20,
           h + 22,
@@ -128,8 +119,8 @@ const up = (h: number): Move => {
         ),
         'out',
       ),
-      key(300, s('stand', e + CLIMB_CLEAR, h + 26, {})),
-      key(500, s('sit', e + CLIMB_CLEAR, h + 25, {})),
+      key(300, at('stand', e + CLIMB_CLEAR, h + 26, {})),
+      key(500, at('sit', e + CLIMB_CLEAR, h + 25, {})),
     ],
   };
 };
@@ -137,13 +128,6 @@ const up = (h: number): Move => {
 /* Down: peer over, stretch both front paws down the face, hold, let go with the hind legs; front paws land first, then hind. */
 const down = (h: number): Move => {
   const e = CLIMB_START.down;
-  const s = (
-    name: PoseName,
-    x: number,
-    y: number,
-    paws: Partial<Record<Paw, Pair>>,
-    over: Partial<Pose> = {},
-  ) => at(name, x, y, e, -h, paws, over);
   const top: Partial<Record<Paw, Pair>> = { hN: [e - 14, h], hF: [e - 11, h] };
   const reach = {
     fN: [e + 10, h * 0.25] as Pair,
@@ -153,10 +137,10 @@ const down = (h: number): Move => {
     rise: -h,
     mods: [],
     steps: [
-      key(300, s('stand', 0, h + 26, {}, { hr: 22, hx: 9, hy: -8 })),
+      key(300, at('stand', 0, h + 26, {}, { hr: 22 })),
       key(
         400,
-        s(
+        at(
           'crouch',
           e - 14,
           h + 16,
@@ -166,28 +150,28 @@ const down = (h: number): Move => {
       ),
       key(
         450,
-        s(
+        at(
           'stand',
           e - 2,
           h + 2,
           { ...reach, ...top },
-          { ba: -50, sq: 0.85, fl: 1.6, hr: 12, hx: 10, hy: -6 },
+          { ba: -50, sq: 0.85, hr: 12 },
         ),
         'out',
       ),
       key(
         250,
-        s(
+        at(
           'stand',
           e - 2,
           h + 1,
           { ...reach, ...top },
-          { ba: -50, sq: 0.85, fl: 1.6, hr: 12, hx: 10, hy: -6 },
+          { ba: -50, sq: 0.85, hr: 12 },
         ),
       ),
       key(
         180,
-        s(
+        at(
           'stand',
           e + 10,
           h - 6,
@@ -197,13 +181,13 @@ const down = (h: number): Move => {
             hN: [e - 4, h + 2],
             hF: [e - 1, h + 4],
           },
-          { ba: -35, sq: 0.9, fl: 1.4, hx: 10, hy: -8 },
+          { ba: -35, sq: 0.9 },
         ),
         'in',
       ),
       key(
         120,
-        s(
+        at(
           'crouch',
           e + 20,
           22,
@@ -219,7 +203,7 @@ const down = (h: number): Move => {
       ),
       key(
         140,
-        s(
+        at(
           'crouch',
           e + 26,
           22,
@@ -233,8 +217,8 @@ const down = (h: number): Move => {
         ),
         'out',
       ),
-      key(300, s('stand', e + CLIMB_CLEAR, 26, {})),
-      key(500, s('sit', e + CLIMB_CLEAR, 25, {})),
+      key(300, at('stand', e + CLIMB_CLEAR, 26, {})),
+      key(500, at('sit', e + CLIMB_CLEAR, 25, {})),
     ],
   };
 };

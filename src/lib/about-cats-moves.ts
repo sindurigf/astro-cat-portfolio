@@ -26,22 +26,10 @@ const BASE: Pose = {
   fF: [8, 26],
   hN: [-12, 26],
   hF: [-8, 26],
-  /* Standing, the hip and shoulder sit 23px up: legs of 19px would leave the paws short. */
-  fl: 1.22,
-  hl: 1.22,
-  hx: 6,
-  hy: -12,
   hr: 0,
-  ta: 235,
-  tc: 8,
-  tw: 0,
   eyes: 1,
-  ears: 0,
   rot: 0,
-  mouth: 0,
   zz: 0,
-  sx: 0,
-  sh: 0,
 };
 
 export const clonePose = (p: Pose): Pose => ({
@@ -65,11 +53,6 @@ const SIT = derive(BASE, {
   fF: [6, 25],
   hN: [-1, 25],
   hF: [1, 25],
-  fl: 1.82,
-  hx: 4,
-  hy: -13,
-  ta: 165,
-  tc: -22,
 });
 const LOAF = derive(BASE, {
   by: 11,
@@ -79,10 +62,6 @@ const LOAF = derive(BASE, {
   fF: [9, 11],
   hN: [-9, 11],
   hF: [-6, 11],
-  hx: 8,
-  hy: -8,
-  ta: 175,
-  tc: -16,
 });
 
 const POSES = {
@@ -95,11 +74,7 @@ const POSES = {
     fF: [10, -4],
     hN: [5, 23],
     hF: [8, 23],
-    hx: -2,
-    hy: -13,
     hr: -15,
-    ta: 188,
-    tc: 3,
   }),
   stand: BASE,
   sit: SIT,
@@ -109,13 +84,8 @@ const POSES = {
     ba: -4,
     bt: 24,
     sq: 0.86,
-    hx: 13,
-    hy: -4.5,
     hr: 30,
     eyes: 0,
-    ears: 1,
-    ta: 122,
-    tc: -13,
     zz: 1,
   }),
   rear: derive(BASE, {
@@ -126,11 +96,7 @@ const POSES = {
     fF: [8, 0],
     hN: [0, 27],
     hF: [2, 27],
-    hx: 3,
-    hy: -13,
     hr: -15,
-    ta: 160,
-    tc: -18,
   }),
   stretch: derive(BASE, {
     ba: -20,
@@ -139,14 +105,9 @@ const POSES = {
     fF: [23, 21],
     hN: [-11, 21],
     hF: [-8, 21],
-    hx: 13,
-    hy: 3,
     hr: -8,
     eyes: 0,
-    ta: 250,
-    tc: 6,
   }),
-  /* The head turns with the roll, so `hr: 180` keeps the face upright on the back. */
   belly: derive(BASE, {
     rot: 180,
     by: 12,
@@ -155,11 +116,7 @@ const POSES = {
     fF: [6, 26],
     hN: [-12, 24],
     hF: [-6, 26],
-    hx: 8,
-    hy: 3,
     hr: 180,
-    ta: 185,
-    tc: 0,
   }),
   crouch: derive(BASE, {
     ba: -5,
@@ -169,11 +126,6 @@ const POSES = {
     fF: [13, 16],
     hN: [-9, 16],
     hF: [-6, 16],
-    hx: 10,
-    hy: -5,
-    ta: 190,
-    tc: 2,
-    ears: 0.3,
   }),
   air: derive(BASE, {
     ba: 10,
@@ -183,13 +135,8 @@ const POSES = {
     fF: [19, 9],
     hN: [-22, 10],
     hF: [-19, 12],
-    hx: 9,
-    hy: -9,
-    /* Tail streams out behind in a leap, not up: that is the band's headroom. */
-    ta: 182,
-    tc: 1,
   }),
-  /* Straight up after a fly: body upright, front paws high, tail streaming. */
+  /* Straight up after a fly: body upright, front paws high. */
   leap: derive(BASE, {
     ba: 62,
     by: 24,
@@ -198,11 +145,7 @@ const POSES = {
     fF: [21, -15],
     hN: [0, 24],
     hF: [2, 26],
-    hx: 4,
-    hy: -14,
     hr: -24,
-    ta: 150,
-    tc: -6,
   }),
 } satisfies Record<string, Pose>;
 
@@ -327,7 +270,7 @@ const gait = (
   stance: number,
   length: number,
   lift: number,
-  rest: (p: Pose, weight: number, cycle: number) => void,
+  rest?: (p: Pose, weight: number, cycle: number) => void,
 ): Mod =>
   between(from, to, (p, s) => {
     const weight = Math.min(
@@ -344,21 +287,11 @@ const gait = (
         (u < stance ? 1 - (2 * u) / stance : 2 * k * k * (3 - 2 * k) - 1);
       p[leg][1] -= weight * lift * Math.sin(Math.PI * k);
     }
-    rest(p, weight, cycle);
+    rest?.(p, weight, cycle);
   });
 
 const walking = (from: number, to: number, strength = 1): Mod =>
-  gait(
-    from,
-    to,
-    WALK_LEGS,
-    STANCE,
-    STRIDE * strength,
-    STEP_LIFT * strength,
-    (p, weight, cycle) => {
-      p.hy += weight * Math.sin(cycle * 4 * Math.PI) * 0.4;
-    },
-  );
+  gait(from, to, WALK_LEGS, STANCE, STRIDE * strength, STEP_LIFT * strength);
 /** A chasing cat bounds: front paws land together, then hind paws, the back flexing between. px per stride, px of lift and hop, degrees of rock. */
 const BOUND_STRIDE = 44;
 const BOUND_LIFT = 6;
@@ -401,17 +334,14 @@ const wiggle = (from: number, to: number): Mod =>
     p.hN[1] -= TREAD_LIFT * Math.max(0, w);
     p.hF[1] -= TREAD_LIFT * Math.max(0, -w);
     p.by -= 1;
-    p.tw = 9;
   });
-/** Degrees the head lags a jump by, up as it takes off and down as it lands, and the tail streams behind. */
+/** Degrees the head lags a jump by, up as it takes off and down as it lands. */
 const HEAD_LAG = 14;
-const TAIL_STREAM = 18;
 /** A jump's rise and fall; it ends with its landing step, so the paws touch down as the arc does. */
 const arc = (from: number, to: number, height: number): Mod =>
   between(from, to, (p, _s, k) => {
     p.y += Math.sin(Math.PI * k) * height;
     p.hr -= HEAD_LAG * Math.cos(Math.PI * k);
-    p.ta += TAIL_STREAM * Math.sin(Math.PI * k);
   });
 /** Degrees a leaping body pitches per px of arc height: nose up as it takes off, level at the top, nose down to land. */
 const LEAP_PITCH_PER_PX = 0.35;
@@ -546,20 +476,14 @@ const SWAT_MS = 160;
 /** A sitting swat `leadMs` after the last, the head tipped back `hr` degrees and the paw landing at height `y`. */
 const sitSwat = (leadMs: number, hr: number, y: number): Step[] => [
   step(leadMs - WINDUP_MS, 'sit', { hr: -15 }),
-  step(WINDUP_MS, 'sit', { hr, hx: -4, fN: SWAT_RAISED }, 'out'),
+  step(WINDUP_MS, 'sit', { hr, fN: SWAT_RAISED }, 'out'),
   step(SWAT_MS, 'sit', { hr, fN: [34, y] }, 'in'),
 ];
 /** Reared up, both paws swipe down. */
-const REAR_UP: Partial<Pose> = { fl: 1.5 };
 const rearSwat = (leadMs: number): Step[] => [
-  step(leadMs - WINDUP_MS, 'low', REAR_UP),
-  step(
-    WINDUP_MS,
-    'low',
-    { ...REAR_UP, hx: -11, fN: REAR_RAISED, fF: [18, -14] },
-    'out',
-  ),
-  step(SWAT_MS, 'low', { ...REAR_UP, fN: [34, -7], fF: [30, -4] }, 'in'),
+  step(leadMs - WINDUP_MS, 'low'),
+  step(WINDUP_MS, 'low', { fN: REAR_RAISED, fF: [18, -14] }, 'out'),
+  step(SWAT_MS, 'low', { fN: [34, -7], fF: [30, -4] }, 'in'),
 ];
 /** ms at which each swat hits the feather toy. */
 const TOY_HITS = [860, 1520, 2680, 3100, 3760];
@@ -575,7 +499,7 @@ const swung = (
  * A bat at something on the ground: the cat leans in with its head down, lifts
  * the paw curled, hooks it down onto the target and snaps it back.
  */
-const BAT_LEAN: Partial<Pose> = { ba: 46, hr: 24, hx: 7, hy: -9 };
+const BAT_LEAN: Partial<Pose> = { ba: 46, hr: 24 };
 const BAT_RAISED: Pair = [22, 8];
 const BAT_STRIKE_MS = 90;
 /** The paw stays on what it hit and pushes it on this far, so the hit is seen. */
@@ -620,12 +544,9 @@ const WAND_AHEAD = 32;
 const WAND_LEAP_HEIGHT = 22;
 /** Sat back on its haunches, a paw reaches up from the chest to the feather and pushes it on. */
 const WAND_REACH: Partial<Pose> = {
-  hx: -3,
-  hy: -12,
   hr: -26,
   fN: [22, -6],
   fF: [17, 2],
-  fl: 1.7,
 };
 const WAND_HIT: Pair = [32, -28];
 const wandSwat = (paw: 'fN' | 'fF', backMs: number): Step[] => [
@@ -669,16 +590,11 @@ const groundedAt = (name: PoseName, by: number): Partial<Pose> =>
   POSES[name].rot !== 0
     ? {}
     : Object.fromEntries(PAWS.map((k) => [k, [POSES[name][k][0], by]]));
-const flopTo = (
-  from: PoseName,
-  to: PoseName,
-  x = 0,
-  over: Partial<Pose> = {},
-): Step[] => [
+const flopTo = (from: PoseName, to: PoseName, x = 0): Step[] => [
   step(
     200,
     from,
-    { x, by: FLOP_LOW, sq: 0.92, ...groundedAt(from, FLOP_LOW), ...over },
+    { x, by: FLOP_LOW, sq: 0.92, ...groundedAt(from, FLOP_LOW) },
     'in',
   ),
   step(200, to, { x, sq: 0.92 }, 'snap'),
@@ -715,11 +631,6 @@ export const MOVES = {
       t += STALK_STEP_MS + 2 * STALK_PAW_MS + STALK_FREEZE_MS;
     }
     const jump = pounceFrom(t, STALK_STEP_PX * STALK_STEPS, STALK_REACH);
-    mods.push(
-      between(STALK_CROUCH_MS, t, (p) => {
-        p.tw = 3;
-      }),
-    );
     return { steps: [...steps, ...jump.steps], mods: [...mods, ...jump.mods] };
   },
   /* Wiggle, leap, land front paws first, hold the catch pinned, then sit up. */
@@ -740,8 +651,8 @@ export const MOVES = {
       step(700, 'stretch'),
       step(900, 'stretch'),
       step(500, 'stand'),
-      step(500, 'sit', { hr: -25, eyes: 0, mouth: 1, ears: 0.3 }),
-      step(700, 'sit', { hr: -25, eyes: 0, mouth: 1, ears: 0.3 }),
+      step(500, 'sit', { hr: -25, eyes: 0 }),
+      step(700, 'sit', { hr: -25, eyes: 0 }),
       step(400, 'sit'),
     ],
     mods: [],
@@ -814,16 +725,7 @@ export const MOVES = {
       step(400, 'loaf'),
       step(500, 'sit'),
     ],
-    mods: [
-      arc(700, 900, FLOP_HOP),
-      arc(3000, 3200, FLOP_HOP),
-      between(1200, 2800, (p, s) => {
-        p.fN[0] += 4 * Math.sin(s / 90);
-        p.fF[0] -= 4 * Math.sin(s / 90 + 1);
-        p.hN[0] += 5 * Math.sin(s / 70);
-        p.hF[0] -= 5 * Math.sin(s / 70);
-      }),
-    ],
+    mods: [arc(700, 900, FLOP_HOP), arc(3000, 3200, FLOP_HOP)],
   }),
   /*
    * The fly lands; the cat stalks it and pounces, misses, swats at it overhead,
@@ -866,9 +768,6 @@ export const MOVES = {
       wiggle(1200, 1500),
       arc(1620, 2120, FLY_HOP_HEIGHT),
       walking(2820, 3820, 0.6),
-      between(2820, 4420, (p) => {
-        p.tw = 5;
-      }),
       wiggle(3820, 4420),
       arc(4560, 5060, POUNCE_HEIGHT),
       wiggle(6640, 6940),
@@ -923,15 +822,15 @@ export const MOVES = {
       step(300, 'crouch', { x: 150 }),
       step(140, 'crouch', { x: 150, sq: 0.88 }, 'in'),
       step(300, 'air', { x: 198 }, 'linear'),
-      step(180, 'crouch', { x: YARN_LAND_1, sq: 0.84, hy: -12 }, 'out'),
+      step(180, 'crouch', { x: YARN_LAND_1, sq: 0.84 }, 'out'),
       ...bat([30, 14], { x: YARN_LAND_1 }),
       step(150 - BAT_PUSH_MS, 'sit', { x: YARN_LAND_1 }),
       step(1500, 'stand', { x: 280 }),
       step(250, 'crouch', { x: 280 }),
       step(140, 'crouch', { x: 280, sq: 0.88 }, 'in'),
       step(280, 'air', { x: 298 }, 'linear'),
-      step(180, 'crouch', { x: YARN_LAND_2, sq: 0.84, hy: -12 }, 'out'),
-      ...flopTo('crouch', 'belly', YARN_LAND_2, { hy: -17 }),
+      step(180, 'crouch', { x: YARN_LAND_2, sq: 0.84 }, 'out'),
+      ...flopTo('crouch', 'belly', YARN_LAND_2),
       step(1500, 'belly', { x: YARN_LAND_2 }),
       ...flopTo('belly', 'loaf', YARN_LAND_2),
       step(500, 'sit', { x: YARN_LAND_2 }),
@@ -943,10 +842,6 @@ export const MOVES = {
       bounding(4870, 6370),
       wiggle(6370, 6620),
       arc(6760, 7220, YARN_BOUND_HEIGHT),
-      between(7920, 9420, (p, s) => {
-        p.hN[0] += 6 * Math.sin(s / 60);
-        p.hF[0] -= 6 * Math.sin(s / 60);
-      }),
     ],
     prop: 'yarn',
     /* Rolls ahead; a pounce lands paws first and squirts it on; batted again; then hugged in the hind paws. */
@@ -986,19 +881,8 @@ export const MOVES = {
       ...wandSwat('fF', 300),
       step(300, 'crouch', { hr: -20 }),
       step(160, 'crouch', { sq: 0.86, hr: -24 }, 'in'),
-      /* Tail out low behind: raised, it would reach the sleep control at the track's end. */
-      step(
-        300,
-        'leap',
-        { fN: [33, -20], fF: [28, -13], fl: 1.5, hx: -15, ta: 185, tc: 0 },
-        'out',
-      ),
-      step(
-        300,
-        'leap',
-        { fN: [24, -8], fF: [20, -4], hx: -8, ta: 185, tc: 0 },
-        'in',
-      ),
+      step(300, 'leap', { fN: [33, -20], fF: [28, -13] }, 'out'),
+      step(300, 'leap', { fN: [24, -8], fF: [20, -4] }, 'in'),
       step(200, 'crouch', { sq: 0.84 }, 'out'),
       step(900, 'crouch', { fN: [32, 16], hr: 6 }),
       step(600, 'sit'),
