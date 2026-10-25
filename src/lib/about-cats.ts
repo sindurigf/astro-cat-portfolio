@@ -47,8 +47,11 @@ import {
   type IdleState,
 } from './about-cats-idle';
 
-/** The rest after each move, in ms, while the cat idles: cats act in bursts. */
-const PAUSE_MS = [1500, 4500] as const;
+/** The rest after each move, in ms, while the cat idles: cats rest most of the time and play in short bursts. */
+const PAUSE_MS = [8000, 25000] as const;
+/** Chance a cat lies down for its rest after a move, and how long it takes. */
+const LIE_DOWN_CHANCE = 0.5;
+const LIE_DOWN_MS = 600;
 /** What a frame did for a cat: drew it, left it settled, or held it in a pause. */
 type StepResult = 'draw' | 'still' | 'rest';
 
@@ -156,6 +159,8 @@ interface CatState extends CatSpot {
   hiddenAt: number | undefined;
   /** No new move before this; a nap still starts at once. */
   restUntil: number;
+  /** The move it played last, which it does not pick again next. */
+  lastMove?: MoveName;
   idle: IdleState;
   /** Resting between moves: breathing and glances are drawn on its pose. */
   idling: boolean;
@@ -165,6 +170,15 @@ interface CatState extends CatSpot {
 }
 
 const rand = (lo: number, hi: number): number => lo + Math.random() * (hi - lo);
+
+/** `weights` without the cat's last move, so it never plays the same move twice running. */
+const unlike = (
+  cat: CatState,
+  weights: Partial<Record<MoveName, number>>,
+): Partial<Record<MoveName, number>> =>
+  Object.fromEntries(
+    Object.entries(weights).filter(([name]) => name !== cat.lastMove),
+  );
 
 const pickWeighted = (weights: Partial<Record<MoveName, number>>): MoveName => {
   const entries = Object.entries(weights) as [MoveName, number][];
@@ -387,7 +401,25 @@ export const createColony = (
       onLedge(cat);
     }
     drop(cat, false, false);
-    if (!playing.settle) cat.restUntil = performance.now() + rand(...PAUSE_MS);
+    if (!playing.settle) {
+      cat.restUntil = performance.now() + rand(...PAUSE_MS);
+      if (
+        !playing.then &&
+        cat.holds.size === 0 &&
+        Math.random() < LIE_DOWN_CHANCE
+      )
+        play(
+          cat,
+          {
+            steps: [{ ms: LIE_DOWN_MS, pose: pose('loaf'), ease: 'inOut' }],
+            mods: [],
+          },
+          performance.now(),
+          Math.sign(cat.pose.face) || 1,
+          undefined,
+          true,
+        );
+    }
     playing.then?.();
   };
 
@@ -453,8 +485,10 @@ export const createColony = (
 
   /** One leap along the band, ahead if it fits, else back; false if neither fits. */
   const leap = (cat: CatState, now: number): boolean => {
-    const plan = planFor(cat, pickWeighted(LEAPS));
+    const name = pickWeighted(unlike(cat, LEAPS));
+    const plan = planFor(cat, name);
     if (!plan) return false;
+    cat.lastMove = name;
     play(cat, plan.move, now, plan.dir);
     return true;
   };
@@ -512,11 +546,13 @@ export const createColony = (
   /** Plays `name` from where the cat stands; false if it fits nowhere on the track. */
   const begin = (cat: CatState, name: MoveName, now: number): boolean => {
     if (EDGE_MOVES.has(name)) {
+      cat.lastMove = name;
       play(cat, cupPush(cat.pose.x, cat.min), now, -1);
       return true;
     }
     const plan = planFor(cat, name);
     if (!plan) return false;
+    cat.lastMove = name;
     play(cat, plan.move, now, plan.dir);
     return true;
   };
@@ -530,7 +566,8 @@ export const createColony = (
     if (cat.holds.size > 0 || now < cat.restUntil) return;
     if (Math.random() < CLIMB_CHANCE && climb(cat, now)) return;
     if (Math.random() < LEAP_CHANCE && leap(cat, now)) return;
-    if (!begin(cat, pickWeighted(CAT_WEIGHTS[cat.id]), now)) leap(cat, now);
+    if (!begin(cat, pickWeighted(unlike(cat, CAT_WEIGHTS[cat.id])), now))
+      leap(cat, now);
   };
 
   /* One test for both reading and waking: written two ways, float rounding can make them disagree at the deadline. */

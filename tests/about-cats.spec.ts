@@ -126,7 +126,7 @@ const LEG_HEIGHT = 0.15;
 /** A cat that lies down settles its tail within this. */
 const SETTLE_MS = 3000;
 
-/* Several moves, each followed by a pause of 1 to 3 s (PAUSE_MS in about-cats.ts). */
+/* Several frames of a move and the pause after it (PAUSE_MS in about-cats.ts). */
 const PAUSES_WINDOW_MS = 8000;
 /*
  * A pause ends in at most three empty frames: the one that finds nothing to draw, one timestamped
