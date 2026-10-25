@@ -12,7 +12,7 @@ import PhotoViewer from '../components/PhotoViewer.astro';
 import Section from '../components/Section.astro';
 import PersonaSources from '../components/PersonaSources.astro';
 import { PERSONA_SOURCES_ID, SAMPLE_PERSONA } from '../lib/persona';
-import AboutCats from '../components/ui/AboutCats.vue';
+import AboutCats from '../components/AboutCats.astro';
 import '../styles/components/about-cats.css';
 import type { CatInfo } from '../lib/about-cats';
 import hero from '../assets/photos/calico-cushion.jpg';
@@ -433,5 +433,5 @@ const closeRow = await closeRowLinks({
   <CloseRow {...closeRow} />
 
   <PhotoViewer />
-  <AboutCats client:load cats={catInfo} />
+  <AboutCats cats={catInfo} />
 </BaseLayout>

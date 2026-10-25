@@ -1,0 +1,124 @@
+---
+/*
+ * The About cats. Their controls and cards are templates that
+ * src/scripts/about-cats.ts copies into `#cat-spot-<id>` and the dialog, so
+ * nothing moves or waits without JavaScript.
+ */
+import type { CatInfo } from '../lib/about-cats';
+
+interface Props {
+  cats: CatInfo[];
+  /** Thanked in each card for the idea. */
+  inspiration?: { name: string; href: string };
+}
+
+const { cats, inspiration } = Astro.props;
+---
+
+{cats.map((cat) => (
+  <>
+    <template data-cat-controls={cat.id} data-cat-name={cat.name}>
+      <button
+        type="button"
+        class="cat-button"
+        data-cat={cat.id}
+        data-cat-state="hidden"
+        aria-haspopup="dialog"
+      >
+        <svg class="cat-svg" aria-hidden="true" focusable="false" />
+        <span class="sr-only">Meet {cat.name}</span>
+      </button>
+      <button type="button" class="motion-toggle cat-nap" data-motion-control>
+        <span class="sr-only" />
+      </button>
+      <button
+        type="button"
+        class="cat-tricks-button"
+        aria-expanded="false"
+        popovertarget={`cat-tricks-${cat.id}`}
+        data-motion-control
+      >
+        <svg
+          class="cat-trick-icon"
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+          focusable="false"
+        >
+          <ellipse cx="12" cy="16" rx="5" ry="4" />
+          <circle cx="5" cy="10" r="2" />
+          <circle cx="9.5" cy="5.5" r="2" />
+          <circle cx="14.5" cy="5.5" r="2" />
+          <circle cx="19" cy="10" r="2" />
+        </svg>
+        <span class="sr-only">Choose a trick for {cat.name}</span>
+      </button>
+      <div
+        id={`cat-tricks-${cat.id}`}
+        popover
+        tabindex="-1"
+        class="cat-tricks"
+        data-motion-control
+      >
+        <p role="status" class="cat-tricks-note" />
+      </div>
+    </template>
+    <template data-cat-card={cat.id}>
+      <div class="cat-dialog-body">
+        <div class="cat-photo">
+          <div class="aspect-frame aspect-square w-full border-4 border-border">
+            <img
+              src={cat.photo.src}
+              srcset={cat.photo.srcset}
+              sizes={cat.photo.sizes}
+              width={cat.photo.width}
+              height={cat.photo.height}
+              alt={cat.photo.alt}
+            />
+          </div>
+          <h2 id={`cat-dialog-${cat.id}`} class="cat-name">
+            {cat.name}
+          </h2>
+        </div>
+        <p class="mt-8 text-body text-text">{cat.role}</p>
+        {inspiration && (
+          <p class="mt-6 text-body text-subtle">
+            Thank you for the inspiration,{' '}
+            <a href={inspiration.href}>{inspiration.name}</a>.
+          </p>
+        )}
+      </div>
+    </template>
+  </>
+))}
+<template data-cat-nap-icons>
+  <svg
+    class="cat-nap-icon"
+    viewBox="0 0 24 24"
+    aria-hidden="true"
+    focusable="false"
+  >
+    <path d="M4 11h6l-6 7h6"></path>
+    <path d="M13 4h6l-6 7h6"></path>
+  </svg>
+  <svg
+    class="cat-nap-icon"
+    viewBox="0 0 24 24"
+    aria-hidden="true"
+    focusable="false"
+  >
+    <path d="M2.5 12c2.6-4.4 5.8-6.6 9.5-6.6s6.9 2.2 9.5 6.6c-2.6 4.4-5.8 6.6-9.5 6.6s-6.9-2.2-9.5-6.6z"></path>
+    <circle class="cat-nap-solid" cx="12" cy="12" r="3"></circle>
+  </svg>
+</template>
+
+<dialog class="cat-dialog">
+  <div class="cat-card">
+    <form method="dialog" class="flex justify-end">
+      <button class="btn-secondary cat-close">Close</button>
+    </form>
+  </div>
+</dialog>
+
+<script>
+  import '../scripts/about-cats';
+</script>

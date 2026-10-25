@@ -1,7 +1,7 @@
 /*
  * The trick lists behind each cat's paw button: a name and an icon per move
  * (about-cats-tricks.json), and each cat's own moves, signature ones first.
- * AboutCats.vue fetches the JSON when a person reaches for a paw, so /about's
+ * about-cats.ts fetches the JSON when a person reaches for a paw, so /about's
  * script carries none of it, and checks what came back with isTricksData.
  */
 import { CAT_WEIGHTS, type MoveName } from './about-cats-moves';

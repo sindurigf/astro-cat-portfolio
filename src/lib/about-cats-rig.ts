@@ -1,7 +1,7 @@
 /*
  * Draws one About cat from its frames, die-cut stickers packed in one sheet per
  * cat (scripts/make-about-cats.mjs), and the toys it plays with. Poses and
- * moves are in about-cats-moves.ts; AboutCats.vue owns the frame loop. Units
+ * moves are in about-cats-moves.ts; src/scripts/about-cats.ts owns the frame loop. Units
  * are CSS px, y down, the ground at y = 0 under the cat's origin.
  */
 import { PAD, SHEET } from './about-cats-sheet';

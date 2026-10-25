@@ -269,7 +269,12 @@ for (const route of SAMPLED_ROUTES) {
     }
 
     // Every fluid image the build ships must have been drawn and measured.
-    const built = (builtHtml().get(route)?.match(FLUID_IMG) ?? []).length;
+    /* A <template>'s images are inert until a script clones them, as the About cats' card photos are. */
+    const drawable = (builtHtml().get(route) ?? '').replace(
+      /<template\b[\s\S]*?<\/template>/g,
+      '',
+    );
+    const built = (drawable.match(FLUID_IMG) ?? []).length;
     expect(
       measured.size,
       `${route} ships ${built} img[sizes] but only ${measured.size} were drawn and measured.`,

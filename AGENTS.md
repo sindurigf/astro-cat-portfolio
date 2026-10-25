@@ -118,8 +118,8 @@ covers attribution once. `scripts/check-commits.sh` enforces it in CI;
   `src/styles/global.css`.
 - Names, addresses, ids and switches live in `src/site.config.ts`; never
   repeat one as a literal.
-- Vue only for components with real state (`HeroField.vue`). Small
-  scripts are plain modules, e.g. `src/scripts/mobile-menu.ts`.
+- Vue only for `HeroField.vue`. Everything else is a plain module, stateful
+  or not, e.g. `src/scripts/mobile-menu.ts` and `src/scripts/about-cats.ts`.
 
 ## Comments
 

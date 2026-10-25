@@ -48,7 +48,7 @@ import { climbMove } from '../src/lib/about-cats-climb';
 import { itemAt } from '../src/lib/defined';
 
 /**
- * The About cats (src/components/ui/AboutCats.vue): each cat opens its photo,
+ * The About cats (src/scripts/about-cats.ts): each cat opens its photo,
  * its sleep control stops it (SC 2.2.2), stillness under reduced motion, and
  * never covering text. Their drawing and motion are decoration and not tested.
  */
@@ -154,9 +154,9 @@ const CARD_VIEWPORTS = [
   { width: 768, height: 1024 },
   { width: 1280, height: 900 },
 ];
-/** AboutCats.vue's SIDE_BY_SIDE, 40rem: from here the card sits beside the cat. */
+/** about-cats.ts's SIDE_BY_SIDE, 40rem: from here the card sits beside the cat. */
 const SIDE_BY_SIDE_MIN = 640;
-/** The 16px gap AboutCats.vue keeps, plus rounding. */
+/** The 16px gap about-cats.ts keeps, plus rounding. */
 const CARD_NEAR = 24;
 
 /** Past the card's 4px border, on its padding. */
@@ -168,7 +168,7 @@ const napControl = (page: Page, id: (typeof CATS)[number]) =>
 /** The top-left corner of the viewport, outside the centered card. */
 const BACKDROP_POINT = { x: 4, y: 4 };
 
-/** AboutCats.vue's TRICKS_MARGIN and about-cats.css's `w-60`. */
+/** about-cats.ts's TRICKS_MARGIN and about-cats.css's `w-60`. */
 const TRICKS_MARGIN = 16;
 const TRICKS_WIDTH = 240;
 

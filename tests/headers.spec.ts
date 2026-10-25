@@ -197,7 +197,7 @@ test.describe('security headers', () => {
   }) => {
     const violations = await collectViolations(page);
 
-    /* Every page with a script or an island, and the islands' dialogs, under Trusted Types. */
+    /* Every page with a script or an island, and their dialogs, under Trusted Types. */
     for (const route of POLICY_ROUTES) {
       await page.goto(`${policy().origin}${route}`);
       await waitForHydration(page);

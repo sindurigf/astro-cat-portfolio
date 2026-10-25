@@ -2,7 +2,7 @@
 
 <!-- TODO(fork): Rewrite this file for your own site. -->
 
-A personal website template: Astro, Vue islands, Tailwind CSS and TypeScript on
+A personal website template: Astro, a Vue island, Tailwind CSS and TypeScript on
 Cloudflare Workers. Neo-brutalist, dark by default with a light mode, a blog
 with feeds, a talk slideshow, a contact form, and animated cats on the About
 page. Tested for WCAG 2.2 AA in Chromium, Firefox and WebKit.
@@ -130,14 +130,15 @@ The drawings are code; the cards show a photo.
   `/credits`.
 
 A different number of cats means changing the drawing code in
-`src/lib/about-cats-*.ts` and `src/components/ui/AboutCats.vue`; this guide
+`src/lib/about-cats-*.ts` and `src/scripts/about-cats.ts`; this guide
 does not cover it.
 
 **No cats.** `/about` keeps its photos and text.
 
-- Delete `src/components/ui/AboutCats.vue`, every `src/lib/about-cats*`
-  file, `src/styles/components/about-cats.css`, `tests/about-cats.spec.ts`
-  and the three `src/assets/photos/cat-card-*.jpg` photos.
+- Delete `src/components/AboutCats.astro`, `src/scripts/about-cats.ts`,
+  every `src/lib/about-cats*` file, `src/styles/components/about-cats.css`,
+  `tests/about-cats.spec.ts` and the three `src/assets/photos/cat-card-*.jpg`
+  photos. Keep `src/scripts/motion-loop.ts`: the hero uses it.
 - `src/styles/global.css`: keep the `--color-cat-` colors: the logo cat
   uses them.
 - `src/pages/about.astro`: remove the `about-cats.css`, `AboutCats`, `CatInfo`
