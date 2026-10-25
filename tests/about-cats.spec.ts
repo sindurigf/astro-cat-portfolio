@@ -14,6 +14,7 @@ import { cssColorToken } from './source';
 import { NODE } from './tags';
 import { readFileSync } from 'node:fs';
 import {
+  CAT_WEIGHTS,
   EDGE_MOVES,
   MOVES,
   type MoveName,
@@ -39,10 +40,13 @@ import {
   CONTROL_ROOM,
   MAX_OVERHANG,
   NAP_AFTER_MS,
+  PAUSE_MS,
   POINTER_IDLE_MS,
   TRACK_MARGIN,
   cupPush,
+  pickMove,
   planMove,
+  restMs,
 } from '../src/lib/about-cats';
 import { climbMove } from '../src/lib/about-cats-climb';
 import { itemAt } from '../src/lib/defined';
@@ -133,6 +137,16 @@ const PAUSES_WINDOW_MS = 8000;
  * just before the pause ends, and a new move's unchanged first pose. Running through a pause is 20 or more.
  */
 const MAX_EMPTY_FRAMES_IN_A_ROW = 6;
+/** A roll for every choice: 0.6 is past every chance to climb, leap or lie down, so Rudra only plays and rests. */
+const REST_ROLL = 0.6;
+/** Page time for a first move, its rest of restMs(REST_ROLL) and the start of the next move, within NAP_AFTER_MS. */
+const REST_WINDOW_MS = 28_000;
+/** Two drawn frames this close are one move in motion, not idle breaths. */
+const MOVING_FRAME_MS = 20;
+/** A move's still opening and closing poses, which the cat holds without redrawing either side of a rest. */
+const MOVE_STILL_ENDS_MS = 2000;
+/** Rolls sampled from 0 to 1 for the rest and pick checks. */
+const ROLLS = 1000;
 /** Long enough for a loop running every frame to pass MAX_EMPTY_FRAMES_IN_A_ROW many times over. */
 const LOOP_WINDOW_MS = 500;
 
@@ -2480,6 +2494,103 @@ test.describe('About cats', () => {
     ).toBeLessThanOrEqual(MAX_EMPTY_FRAMES_IN_A_ROW);
     await context.close();
   });
+
+  test('a cat rests between moves for PAUSE_MS with its loop idle, then plays again', async ({
+    browser,
+  }) => {
+    /* A flat band and a fixed roll: no climb, leap or lie-down, so one move, a rest of restMs(REST_ROLL), then the next move. */
+    const context = await browser.newContext({ viewport: PHONE_VIEWPORT });
+    const page = await context.newPage();
+    await page.addInitScript((roll) => {
+      Math.random = () => roll;
+    }, REST_ROLL);
+    await page.clock.install();
+    await gotoSettled(page, ROUTE);
+    await page.evaluate(() =>
+      document
+        .getElementById('cat-spot-rudra')!
+        .scrollIntoView({ block: 'center' }),
+    );
+    await showCat(page, 'rudra');
+    await pauseClock(page);
+    const watch = await page.evaluateHandle(() => {
+      const drawing = document
+        .getElementById('cat-spot-rudra')
+        ?.querySelector('.cat-svg');
+      if (!drawing)
+        throw new Error('#cat-spot-rudra has no .cat-svg to watch.');
+      const observer = new MutationObserver(() => {});
+      observer.observe(drawing, {
+        attributes: true,
+        childList: true,
+        subtree: true,
+      });
+      const request = window.requestAnimationFrame.bind(window);
+      const drawnAt: number[] = [];
+      window.requestAnimationFrame = (callback) =>
+        request((now) => {
+          callback(now);
+          if (observer.takeRecords().length > 0) drawnAt.push(now);
+        });
+      return { drawnAt, stop: () => observer.disconnect() };
+    });
+    await page.clock.runFor(REST_WINDOW_MS);
+    const drawnAt = await watch.evaluate((seen) => {
+      seen.stop();
+      return seen.drawnAt;
+    });
+    /* Moving frames come one animation frame apart; a resting cat's breaths come at the idle rate. */
+    const moving = drawnAt.filter(
+      (t, i) => i > 0 && t - drawnAt[i - 1]! <= MOVING_FRAME_MS,
+    );
+    const gaps = moving.slice(1).map((t, i) => ({ from: moving[i]!, to: t }));
+    const rest = gaps.reduce(
+      (longest, gap) =>
+        gap.to - gap.from > longest.to - longest.from ? gap : longest,
+      { from: 0, to: 0 },
+    );
+    const restLength = rest.to - rest.from;
+    expect(
+      restLength,
+      'Rudra never rested between two moves for at least PAUSE_MS[0]',
+    ).toBeGreaterThanOrEqual(PAUSE_MS[0]);
+    expect(
+      restLength,
+      'Rudra rested longer than PAUSE_MS[1] plus the still ends of the moves around it',
+    ).toBeLessThanOrEqual(PAUSE_MS[1] + MOVE_STILL_ENDS_MS);
+    const drawnInRest = drawnAt.filter(
+      (t) => t > rest.from && t < rest.to,
+    ).length;
+    expect(
+      drawnInRest,
+      'the loop drew a resting cat faster than the idle rate',
+    ).toBeLessThanOrEqual((restLength / 1000) * IDLE_MAX_FPS);
+    await context.close();
+  });
+
+  test(
+    'every rest lasts PAUSE_MS and no cat picks the move it just played',
+    NODE,
+    () => {
+      const outOfRange: number[] = [];
+      const repeats: string[] = [];
+      const tables = [
+        ...Object.values(CAT_WEIGHTS),
+        { pounce: 3, stalk: 1 } satisfies Partial<Record<MoveName, number>>,
+      ];
+      for (let i = 0; i <= ROLLS; i += 1) {
+        const roll = i / ROLLS;
+        const rest = restMs(roll);
+        if (rest < PAUSE_MS[0] || rest > PAUSE_MS[1]) outOfRange.push(rest);
+        for (const weights of tables)
+          for (const last of Object.keys(weights) as MoveName[])
+            if (pickMove(weights, last, roll) === last)
+              repeats.push(`${last} at roll ${roll}`);
+      }
+      expect(outOfRange, 'a rest fell outside PAUSE_MS').toEqual([]);
+      expect(repeats, 'a cat picked the move it had just played').toEqual([]);
+    },
+  );
 
   for (const viewport of [REFLOW_VIEWPORT, PHONE_VIEWPORT, DESKTOP_VIEWPORT]) {
     test(`each sleep control is on top at its center at ${viewport.width}px (SC 2.2.2)`, async ({

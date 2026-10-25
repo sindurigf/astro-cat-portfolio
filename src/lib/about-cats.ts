@@ -48,7 +48,7 @@ import {
 } from './about-cats-idle';
 
 /** The rest after each move, in ms, while the cat idles: cats rest most of the time and play in short bursts. */
-const PAUSE_MS = [8000, 25000] as const;
+export const PAUSE_MS = [8000, 25000] as const;
 /** Chance a cat lies down for its rest after a move, and how long it takes. */
 const LIE_DOWN_CHANCE = 0.5;
 const LIE_DOWN_MS = 600;
@@ -169,23 +169,23 @@ interface CatState extends CatSpot {
   idleShown: IdleOffsets;
 }
 
-const rand = (lo: number, hi: number): number => lo + Math.random() * (hi - lo);
+/** A rest's length in ms for a `roll` from 0 to 1. */
+export const restMs = (roll: number): number =>
+  PAUSE_MS[0] + roll * (PAUSE_MS[1] - PAUSE_MS[0]);
 
-/** `weights` without the cat's last move, so it never plays the same move twice running. */
-const unlike = (
-  cat: CatState,
+/** A move from `weights` for a `roll` from 0 to 1, never `last`, so a cat does not play the same move twice running. */
+export const pickMove = (
   weights: Partial<Record<MoveName, number>>,
-): Partial<Record<MoveName, number>> =>
-  Object.fromEntries(
-    Object.entries(weights).filter(([name]) => name !== cat.lastMove),
+  last: MoveName | undefined,
+  roll: number,
+): MoveName => {
+  const entries = (Object.entries(weights) as [MoveName, number][]).filter(
+    ([name]) => name !== last,
   );
-
-const pickWeighted = (weights: Partial<Record<MoveName, number>>): MoveName => {
-  const entries = Object.entries(weights) as [MoveName, number][];
-  let roll = Math.random() * entries.reduce((sum, [, w]) => sum + w, 0);
+  let left = roll * entries.reduce((sum, [, w]) => sum + w, 0);
   for (const [name, w] of entries) {
-    roll -= w;
-    if (roll <= 0) return name;
+    left -= w;
+    if (left <= 0) return name;
   }
   /* Rounding can leave a sliver of roll; an empty table has the cat look around. */
   return entries[0]?.[0] ?? 'look';
@@ -402,7 +402,7 @@ export const createColony = (
     }
     drop(cat, false, false);
     if (!playing.settle) {
-      cat.restUntil = performance.now() + rand(...PAUSE_MS);
+      cat.restUntil = performance.now() + restMs(Math.random());
       if (
         !playing.then &&
         cat.holds.size === 0 &&
@@ -485,7 +485,7 @@ export const createColony = (
 
   /** One leap along the band, ahead if it fits, else back; false if neither fits. */
   const leap = (cat: CatState, now: number): boolean => {
-    const name = pickWeighted(unlike(cat, LEAPS));
+    const name = pickMove(LEAPS, cat.lastMove, Math.random());
     const plan = planFor(cat, name);
     if (!plan) return false;
     cat.lastMove = name;
@@ -566,7 +566,13 @@ export const createColony = (
     if (cat.holds.size > 0 || now < cat.restUntil) return;
     if (Math.random() < CLIMB_CHANCE && climb(cat, now)) return;
     if (Math.random() < LEAP_CHANCE && leap(cat, now)) return;
-    if (!begin(cat, pickWeighted(unlike(cat, CAT_WEIGHTS[cat.id])), now))
+    if (
+      !begin(
+        cat,
+        pickMove(CAT_WEIGHTS[cat.id], cat.lastMove, Math.random()),
+        now,
+      )
+    )
       leap(cat, now);
   };
 
