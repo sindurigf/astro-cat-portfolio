@@ -8,7 +8,7 @@ import { PAD, SHEET } from './about-cats-sheet';
 import {
   FRAMES_PER_SECOND,
   POSE_FRAME,
-  bridges,
+  towards,
   WALK,
   walkFrame,
   frameFor,
@@ -25,6 +25,8 @@ const D = Math.PI / 180;
 
 /** One step of the flip-book. A new frame waits until the last has shown this long, so every in-between is seen. */
 const TICK_MS = 1000 / FRAMES_PER_SECOND;
+/** Jump frames follow the cat's height off the ground, so they show at once: never filtered as a blip or delayed by in-betweens. */
+const AIRBORNE: ReadonlySet<Frame> = new Set(['takeoff', 'leap', 'landing']);
 /** A frame wanted for less than this is a passing blip of the pose blend, not a pose: one 60Hz frame is 16.7ms. */
 const BLIP_MS = 25;
 /** Walk frames a fast gait may step at once: 2 of 8 keeps the 4 phases (contact and passing, each side). */
@@ -283,11 +285,8 @@ const stepFrame = (
   }
   const at = s.frame === null ? -1 : WALK.indexOf(s.frame);
   const to = WALK.indexOf(wanted);
-  const blip =
-    !s.cut &&
-    to < 0 &&
-    !(s.frame && bridges(s.frame, wanted)) &&
-    now - s.wantedAt < BLIP_MS;
+  const airborne = AIRBORNE.has(wanted);
+  const blip = !s.cut && !airborne && to < 0 && now - s.wantedAt < BLIP_MS;
   if (blip) {
     s.pending = wanted !== s.frame;
     return false;
@@ -299,7 +298,9 @@ const stepFrame = (
       ? x === s.stepX
         ? s.frame!
         : walkFrame(at + Math.min(ahead, MAX_WALK_STEP))
-      : wanted;
+      : s.frame && !s.cut && !airborne
+        ? towards(s.frame, wanted)
+        : wanted;
   s.pending = next !== s.frame && now - s.shownAt < TICK_MS;
   if (next === s.frame) s.cut = false;
   if (next === s.frame || s.pending) return false;
@@ -308,6 +309,8 @@ const stepFrame = (
   s.cut = false;
   s.stepX = x;
   s.frame = next;
+  /* An in-between on the way to `wanted`: the next one follows a step later. */
+  s.pending = next !== wanted;
   return true;
 };
 

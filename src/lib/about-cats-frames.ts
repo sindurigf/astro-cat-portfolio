@@ -139,31 +139,55 @@ export const POSE_FRAME = {
 
 export type NamedPose = keyof typeof POSE_FRAME;
 
-/** The in-between frame drawn halfway from one named pose to another, either way. */
-const BETWEEN: [NamedPose, NamedPose, Frame][] = [
-  ['stand', 'sit', 'rise'],
-  ['stand', 'crouch', 'crouchdown'],
-  ['crouch', 'air', 'takeoff'],
-  ['air', 'stand', 'landing'],
-  ['stand', 'stretch', 'stretchhalf'],
-  ['sit', 'loaf', 'loafsink'],
-  ['stand', 'loaf', 'loafsink'],
-  ['sit', 'rear', 'pawrise'],
-  ['sit', 'low', 'pawrise'],
-  ['stand', 'rear', 'pawrise'],
-  ['rear', 'leap', 'swat'],
+/** Frames one can follow the other, either way: a cat moves between them in one drawing's step. */
+const LINKS: [Frame, Frame][] = [
+  ['sit', 'rise'],
+  ['rise', 'stand'],
+  ['sit', 'headturn'],
+  ['headturn', 'look'],
+  ['sit', 'pawrise'],
+  ['stand', 'pawrise'],
+  ['pawrise', 'swat'],
+  ['sit', 'loafsink'],
+  ['stand', 'loafsink'],
+  ['loafsink', 'loaf'],
+  ['loaf', 'sleep'],
+  ['loaf', 'lieside'],
+  ['lieside', 'roll'],
+  ['roll', 'belly'],
+  ['sit', 'crouchdown'],
+  ['stand', 'crouchdown'],
+  ['crouchdown', 'crouch'],
+  ['crouch', 'loaf'],
+  ['stand', 'stretchhalf'],
+  ['stretchhalf', 'stretch'],
+  ['crouch', 'takeoff'],
+  ['leap', 'landing'],
+  ['takeoff', 'leap'],
+  ['takeoff', 'landing'],
+  ['landing', 'crouch'],
+  ...WALK.map((walk): [Frame, Frame] => ['stand', walk]),
 ];
 
-/** Whether `frame` is drawn in passing between `from` and another pose. */
-export const bridges = (from: Frame, frame: Frame): boolean =>
-  BETWEEN.some(
-    ([a, b, between]) =>
-      between === frame && (POSE_FRAME[a] === from || POSE_FRAME[b] === from),
-  );
+/** The frames linked to `frame`. */
+const linkedTo = (frame: Frame): Frame[] =>
+  LINKS.flatMap(([a, b]) => (a === frame ? [b] : b === frame ? [a] : []));
 
-const betweenFrame = (a: NamedPose, b: NamedPose): Frame | null =>
-  BETWEEN.find(([x, y]) => (x === a && y === b) || (x === b && y === a))?.[2] ??
-  null;
+/** Whether `a` and `b` follow each other directly. */
+const linked = (a: Frame, b: Frame): boolean => linkedTo(a).includes(b);
+
+/**
+ * The frame to show next on the way from `from` to `to`: the first of at most two
+ * in-betweens. A longer way would lag the pose, so the frame cuts straight to `to`.
+ */
+export const towards = (from: Frame, to: Frame): Frame => {
+  const near = linkedTo(from);
+  return from === to || near.includes(to)
+    ? to
+    : (near.find((a) => linked(a, to)) ??
+        near.find((a) => linkedTo(a).some((b) => linked(b, to))) ??
+        to);
+};
 
 /** px or degrees of each pose value that count as one unit of difference. */
 const UNIT = {
@@ -188,8 +212,6 @@ const poseDistance = (p: Pose, q: Pose): number =>
   Math.abs(p.eyes - q.eyes) / UNIT.eyes +
   Math.abs(p.zz - q.zz) / UNIT.zz;
 
-/** Share of the way between the nearest pose and the next past which the in-between frame shows. */
-const BETWEEN_FROM = 0.3;
 /** Roll angle in degrees past which a cat is on its side, and past which it is on its back. */
 const ON_SIDE = 25;
 const ON_BACK = 135;
@@ -235,30 +257,23 @@ export const frameFor = (
   if (turned > ON_SIDE)
     return turned > (ON_SIDE + ON_BACK) / 2 ? 'roll' : 'lieside';
 
-  const ranked = (Object.keys(named) as NamedPose[])
-    .map((name) => ({ name, d: poseDistance(p, named[name]) }))
-    .sort((a, b) => a.d - b.d);
-  /* `named` holds every pose, so neither default applies. */
-  const [near = { name: 'sit', d: 0 }, next = near] = ranked;
+  const near = (Object.keys(named) as NamedPose[]).reduce((best, name) =>
+    poseDistance(p, named[name]) < poseDistance(p, named[best]) ? name : best,
+  );
 
   /* A low hop from sitting, such as a turn on the spot, keeps the sitting frame: jump frames would flash a leap. */
-  const sitHop = near.name === 'sit' && motion.lift <= HIGH;
+  const sitHop = near === 'sit' && motion.lift <= HIGH;
   if (motion.lift > AIRBORNE && !sitHop) {
     if (motion.lift > HIGH) return 'leap';
     return motion.lift >= motion.lastLift ? 'takeoff' : 'landing';
   }
 
-  const share = near.d / (near.d + next.d || 1);
-  const between =
-    share > BETWEEN_FROM ? betweenFrame(near.name, next.name) : null;
-
-  if (motion.moving && (near.name === 'stand' || near.name === 'crouch'))
-    return near.name === 'crouch'
+  if (motion.moving && (near === 'stand' || near === 'crouch'))
+    return near === 'crouch'
       ? 'crouch'
       : walkFrame(Math.floor(motion.travelled / WALK_FRAME_PX));
 
-  if (between) return between;
-  if (near.name === 'sit' && Math.abs(p.hr) > LOOK_BACK) return 'look';
-  if (near.name === 'sit' && Math.abs(p.hr) > GLANCE) return 'headturn';
-  return POSE_FRAME[near.name];
+  if (near === 'sit' && Math.abs(p.hr) > LOOK_BACK) return 'look';
+  if (near === 'sit' && Math.abs(p.hr) > GLANCE) return 'headturn';
+  return POSE_FRAME[near];
 };

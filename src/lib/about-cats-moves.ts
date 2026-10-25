@@ -580,10 +580,9 @@ const along = ([first, ...rest]: Route, t: number): [number, number] => {
 };
 
 /*
- * Rolling onto the back: low, then over all at once with a small flop. Easing
- * the 180° roll would stand the cat on its head halfway.
+ * Rolling onto the back: low, then over all at once; the frames pass through
+ * lying on the side. Easing the 180° roll would stand the cat on its head halfway.
  */
-const FLOP_HOP = 4;
 /** Body height before the roll; upright poses keep their paws on the ground there. */
 const FLOP_LOW = 9;
 const groundedAt = (name: PoseName, by: number): Partial<Pose> =>
@@ -726,7 +725,7 @@ export const MOVES = {
       step(400, 'loaf'),
       step(500, 'sit'),
     ],
-    mods: [arc(700, 900, FLOP_HOP), arc(3000, 3200, FLOP_HOP)],
+    mods: [],
   }),
   /*
    * The fly lands; the cat stalks it and pounces, misses, swats at it overhead,
