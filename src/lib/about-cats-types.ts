@@ -24,24 +24,10 @@ export interface Pose {
   fF: Pair;
   hN: Pair;
   hF: Pair;
-  /** Front and hind leg length, as a share of the drawn length: a sitting cat's front legs are long and straight. */
-  fl: number;
-  hl: number;
-  hx: number;
-  hy: number;
   hr: number;
-  /** Tail base angle, curl per segment, and tip twitch amplitude. */
-  ta: number;
-  tc: number;
-  tw: number;
   eyes: number;
-  ears: number;
   rot: number;
-  mouth: number;
   zz: number;
-  /** A step under the cat: its edge's x from the body center, and how much higher the ground ahead of it is (behind it, if negative). */
-  sx: number;
-  sh: number;
 }
 
 /** A stretch of the band's floor and how far below the band's bottom it lies, in px. */
