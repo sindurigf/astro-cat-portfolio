@@ -267,6 +267,7 @@ interface WallReport {
   gaps: string[];
   covers: string[];
   stubs: string[];
+  overpaints: string[];
 }
 
 /*
@@ -282,6 +283,7 @@ const readWalls = (page: Page): Promise<WallReport> =>
         gaps: [],
         covers: [],
         stubs: [],
+        overpaints: [],
       };
       const edge = parseFloat(
         getComputedStyle(document.documentElement).getPropertyValue(
@@ -296,6 +298,36 @@ const readWalls = (page: Page): Promise<WallReport> =>
           'a wall';
         const bricks = [...wall.children];
         const rects = bricks.map((brick) => brick.getBoundingClientRect());
+        /* A positioned or transformed brick paints after static ones, z-index first. */
+        const paintOrder = bricks.map((brick) => {
+          const style = getComputedStyle(brick);
+          const layered =
+            style.position !== 'static' ||
+            [style.transform, style.translate, style.rotate, style.scale].some(
+              (value) => value !== 'none',
+            );
+          const z = layered ? Number.parseInt(style.zIndex, 10) || 0 : 0;
+          return [z, layered ? 1 : 0];
+        });
+        const throwReach = parseFloat(
+          getComputedStyle(wall).getPropertyValue('--hard-throw'),
+        );
+        rects.forEach((a, i) =>
+          rects.slice(i + 1).forEach((b, k) => {
+            const j = i + k + 1;
+            const meets =
+              a.left < b.right &&
+              b.left < a.right + throwReach &&
+              a.top < b.bottom &&
+              b.top < a.bottom + throwReach;
+            const [zi = 0, li = 0] = paintOrder[i] ?? [];
+            const [zj = 0, lj = 0] = paintOrder[j] ?? [];
+            if (meets && (zi > zj || (zi === zj && li > lj)))
+              report.overpaints.push(
+                `${name}: brick ${i + 1} paints over brick ${j + 1} and its throw shows on it`,
+              );
+          }),
+        );
         rects.forEach((a, i) =>
           rects.slice(i + 1).forEach((b, k) => {
             const across =
@@ -372,6 +404,10 @@ test.describe('joined walls', () => {
         expect(
           rest.covers,
           `${route} has a brick over another's content`,
+        ).toEqual([]);
+        expect(
+          rest.overpaints,
+          `${route} has an earlier brick painted over a later one`,
         ).toEqual([]);
         expect(
           rest.stubs,
