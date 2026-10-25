@@ -725,16 +725,7 @@ export const MOVES = {
       step(400, 'loaf'),
       step(500, 'sit'),
     ],
-    mods: [
-      arc(700, 900, FLOP_HOP),
-      arc(3000, 3200, FLOP_HOP),
-      between(1200, 2800, (p, s) => {
-        p.fN[0] += 4 * Math.sin(s / 90);
-        p.fF[0] -= 4 * Math.sin(s / 90 + 1);
-        p.hN[0] += 5 * Math.sin(s / 70);
-        p.hF[0] -= 5 * Math.sin(s / 70);
-      }),
-    ],
+    mods: [arc(700, 900, FLOP_HOP), arc(3000, 3200, FLOP_HOP)],
   }),
   /*
    * The fly lands; the cat stalks it and pounces, misses, swats at it overhead,
@@ -851,10 +842,6 @@ export const MOVES = {
       bounding(4870, 6370),
       wiggle(6370, 6620),
       arc(6760, 7220, YARN_BOUND_HEIGHT),
-      between(7920, 9420, (p, s) => {
-        p.hN[0] += 6 * Math.sin(s / 60);
-        p.hF[0] -= 6 * Math.sin(s / 60);
-      }),
     ],
     prop: 'yarn',
     /* Rolls ahead; a pounce lands paws first and squirts it on; batted again; then hugged in the hind paws. */
