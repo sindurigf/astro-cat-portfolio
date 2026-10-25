@@ -18,16 +18,16 @@ The statement is voluntary for a personal site and follows the
 
 <!-- TODO(fork): Replace the Project, Accessibility owner and both reporting rows with your own, and set Last reviewed once you have reviewed this file. -->
 
-| Field               | Value                                                      |
-| ------------------- | ---------------------------------------------------------- |
-| Project             | astro-cat-portfolio                                        |
-| Project type        | Static personal website (Astro, two Vue islands, Tailwind) |
-| Accessibility owner | Sinduri Guntupalli                                         |
-| Public reporting    | <https://github.com/sindurigf/astro-cat-portfolio/issues>  |
-| Private reporting   | <lol@sinduri.lol>                                          |
-| Target standard     | WCAG 2.2 Level AA, with AAA text contrast                  |
-| Conformance status  | **Target only. No claim that the site meets it.**          |
-| Last reviewed       | 2026-10-16                                                 |
+| Field               | Value                                                     |
+| ------------------- | --------------------------------------------------------- |
+| Project             | astro-cat-portfolio                                       |
+| Project type        | Static personal website (Astro, one Vue island, Tailwind) |
+| Accessibility owner | Sinduri Guntupalli                                        |
+| Public reporting    | <https://github.com/sindurigf/astro-cat-portfolio/issues> |
+| Private reporting   | <lol@sinduri.lol>                                         |
+| Target standard     | WCAG 2.2 Level AA, with AAA text contrast                 |
+| Conformance status  | **Target only. No claim that the site meets it.**         |
+| Last reviewed       | 2026-10-16                                                |
 
 `src/lib/accessibility-facts.ts` reads the Target standard, Conformance status,
 Last reviewed and both reporting rows into `/accessibility` at build time and
@@ -338,7 +338,7 @@ merge.
 | `tests/media-alternatives.spec.ts`  | 1.2.6, 1.2.7, 1.2.8, 1.4.7                                       | Fails any video or audio without its captions, transcript, sign language and description links; no embeds                                                                                                                                                                                                       |
 | `tests/change-on-request.spec.ts`   | 3.2.5, 2.2.4                                                     | No new windows, automatic refresh, script navigation, alerts or assertive live regions                                                                                                                                                                                                                          |
 | `tests/input-mechanisms.spec.ts`    | 2.5.6                                                            | No pointer, hover or touch detection that could turn an input off                                                                                                                                                                                                                                               |
-| `npm run typecheck`                 |                                                                  | Templates, scripts and the Vue islands type-check                                                                                                                                                                                                                                                               |
+| `npm run typecheck`                 |                                                                  | Templates, scripts and the Vue island type-check                                                                                                                                                                                                                                                                |
 
 Limits:
 

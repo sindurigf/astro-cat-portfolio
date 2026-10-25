@@ -9,7 +9,7 @@ conventions for this template. Design rules and values are in
 | Concern     | Choice                                                                                                                |
 | ----------- | --------------------------------------------------------------------------------------------------------------------- |
 | Framework   | Astro 7, static output; `/contact/send/` renders on demand in the Worker                                              |
-| Interactive | Vue 3 via `@astrojs/vue`, islands only (the homepage canvas hero and the About cats)                                  |
+| Interactive | Vue 3 via `@astrojs/vue`, islands only (the homepage canvas hero)                                                     |
 | Scripts     | Plain modules for everything that is not an island                                                                    |
 | Styling     | Tailwind CSS 4 via `@tailwindcss/vite`                                                                                |
 | Language    | TypeScript, `astro/tsconfigs/strictest`, checked with `astro check` and `vue-tsc`                                     |
@@ -155,7 +155,7 @@ Dark is the default. Colors and rules:
   `MutationObserver` sees `data-theme` change. Its ground is `hero-ground`.
   A `(resolution)` media query resizes its canvases when only the pixel ratio
   changes; in forced colors it is hidden (`tests/hero-media.spec.ts`).
-- `AboutCats.vue` needs neither: the cats are drawings with their outline
+- The About cats (`src/scripts/about-cats.ts`) need neither: the cats are drawings with their outline
   baked in, the same in both themes, and the toys' SVG parts carry classes
   that `about-cats.css` maps to tokens.
 - `playwright.config.ts` sets `colorScheme: 'dark'`; specs that measure light
@@ -705,21 +705,17 @@ require-trusted-types-for 'script'; trusted-types vue
   form. Never `*`. A form posting to a new origin widens it to that exact
   origin and updates `tests/headers-rules.spec.ts` and this section in the same
   commit; so does loosening any directive now `'none'`.
-- Trusted Types: no script of ours writes HTML; Vue's runtime does, through
-  its own `vue` policy, the only one allowed. `tests/headers.spec.ts` opens
-  every page with a script and the island dialogs under the policy.
-- Trusted Types: no script of ours writes HTML; Vue's runtime does, through
-  its own `vue` policy, the only one allowed. `tests/headers.spec.ts` opens
-  every page with a script and the island dialogs under the policy.
+- Trusted Types: no script of ours writes HTML; Vue's runtime on `/` does,
+  through its own `vue` policy, the only one allowed. `tests/headers.spec.ts`
+  opens every page with a script and its dialogs under the policy.
 - `tests/headers-rules.spec.ts` asserts each directive.
 
 ### The hashes go stale
 
 Hashed inline blocks:
 
-- On `/` and `/about/` (the `HeroField.vue` and `AboutCats.vue` islands, both
-  `client:load` so they share one loader hash): the `client:load` loader, the
-  `<astro-island>` hydration script, and the
+- On `/` (the `HeroField.vue` island, `client:load`): the `client:load`
+  loader, the `<astro-island>` hydration script, and the
   `astro-island,astro-slot,astro-static-slot{display:contents}` style.
 - On every page: the theme script in `BaseLayout.astro`'s `<head>`.
 - JSON-LD needs no hash (not executed).

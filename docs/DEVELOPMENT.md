@@ -151,7 +151,7 @@ Until agents work under their own account, the owner cannot approve:
   where it occurs, and in ARCHITECTURE.md "Rejected findings". An AccessLint
   entry also names a reason the page checks.
 - `test:coverage` writes `coverage/` (`index.html`, `lcov.info`). It covers
-  browser JavaScript only (the Vue islands and page scripts). It builds with source
+  browser JavaScript only (the Vue island and page scripts). It builds with source
   maps: run a plain `npm run build` before anything else reads `dist/`.
 - `dev` and `build` pass `--force` to clear Astro's content cache, which does
   not invalidate when a plugin in `src/plugins/` changes. The resulting
@@ -207,8 +207,8 @@ suites in parallel from separate worktrees.
 ```text
 src/
   assets/           Images, processed by the build
-  components/       Astro components; ui/ holds the Vue islands
-  composables/      Vue composables shared by the islands
+  components/       Astro components; ui/ holds the Vue island
+  composables/      Vue composables for the island
   content/blog/     Blog posts as Markdown
   content/talks/    One Slidev Markdown deck per talk
   content.config.ts Content collection schema

@@ -1313,7 +1313,7 @@ Enforced by `tests/nav-current.spec.ts`, `tests/mobile-menu.spec.ts`,
   shows that still frame as a WebP (`npm run hero-still` after a change to the
   field).
 - `HeroField` loads `client:load`.
-- The About cats (`src/components/ui/AboutCats.vue`) wake when their band is
+- The About cats (`src/components/AboutCats.astro`, `src/scripts/about-cats.ts`) wake when their band is
   first on screen, play along it (games like the yarn and the fly carry them,
   leaps move them on), and sit still under reduced motion. Each cat's button
   ("Meet Minerva") opens its card; while it is open the cat sits where it is

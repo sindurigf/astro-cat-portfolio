@@ -2,7 +2,7 @@
 
 @layer components {
   /*
-   * The About cats (AboutCats.vue). A perch reserves a cat's band above its
+   * The About cats (src/scripts/about-cats.ts). A perch reserves a cat's band above its
    * card; the card sits on top so a cat can duck behind it. Colors are
    * classes on the SVG parts because the CSP refuses `style` attributes.
    */
@@ -45,7 +45,7 @@
     right: calc(var(--spacing-target) + var(--focus-width) + var(--focus-gap));
   }
 
-  /* AboutCats.vue sets --cat-below to the lowest brick's depth under the band. */
+  /* about-cats.ts sets --cat-below to the lowest brick's depth under the band. */
   .cat-svg {
     @apply block w-full overflow-visible;
 
@@ -150,7 +150,7 @@
     stroke: none;
   }
 
-  /* AboutCats.vue places it under the band. */
+  /* about-cats.ts places it under the band. */
   .cat-tricks {
     @apply pointer-events-auto m-0 w-60 overflow-y-auto edge border-border
       bg-surface p-0 text-text shadow-hard-pink-object;
@@ -264,7 +264,7 @@
   /*
    * A small card over the page, which stays in view behind a light scrim. The
    * dialog scrolls when the viewport is short (SC 1.4.10); its padding is the
-   * card's shadow, and AboutCats.vue closes only on clicks outside the card.
+   * card's shadow, and about-cats.ts closes only on clicks outside the card.
    */
   .cat-dialog {
     @apply m-auto overflow-y-auto border-0 bg-transparent p-0 pr-1 pb-1
@@ -291,7 +291,7 @@
       shadow-hard-mark-4;
   }
 
-  /* AboutCats.vue sets these beside the cat; until then the dialog centers itself. */
+  /* about-cats.ts sets these beside the cat; until then the dialog centers itself. */
   .cat-dialog[data-placed] {
     @apply m-0;
 

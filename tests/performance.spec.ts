@@ -12,7 +12,7 @@ import { ANALYTICS_ON } from '../src/lib/analytics-site';
  * so it is checked with Lighthouse on the live site (docs/DEPLOYMENT.md).
  */
 
-/* Decoded script bytes. `/` and `/about` carry Vue. */
+/* Decoded script bytes. `/` carries Vue, `/about` the cats. */
 const ROUTE_SCRIPT_BUDGETS: Readonly<Record<string, number>> = {
   '/': 97_000,
   '/about': 125_000,
