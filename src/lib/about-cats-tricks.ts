@@ -9,13 +9,13 @@ import type { CatId } from './about-cats-types';
 
 export type PlayMove = Exclude<MoveName, 'sleep' | 'wake'>;
 
-export interface Trick {
+interface Trick {
   label: string;
   /** A key of `icons`. */
   icon: string;
 }
 
-export interface IconShape {
+interface IconShape {
   d: string;
   /** Filled, with no outline. */
   solid?: boolean;

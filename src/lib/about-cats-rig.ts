@@ -23,7 +23,7 @@ const NS = 'http://www.w3.org/2000/svg';
 const D = Math.PI / 180;
 
 /** One step of the flip-book: 12 a second. A new frame waits until the last has shown this long, so every in-between is seen. */
-export const TICK_MS = 1000 / 12;
+const TICK_MS = 1000 / 12;
 /** A frame wanted for less than this is a passing blip of the pose blend, not a pose: one 60Hz frame is 16.7ms. */
 const BLIP_MS = 25;
 /** Walk frames a fast gait may step at once: 2 of 8 keeps the 4 phases (contact and passing, each side). */
@@ -52,7 +52,7 @@ const ZZ_RISE = 10;
 /** Half the click box's least width: over 44px (SC 2.5.5), wider for a wider frame. */
 export const HIT_HALF_WIDTH = 48;
 /** The click box's least height: a curled-up cat is still a 44px target (SC 2.5.5). */
-export const HIT_MIN_HEIGHT = 44;
+const HIT_MIN_HEIGHT = 44;
 const WING_BEAT_MS = 16;
 
 const f = (n: number): string => n.toFixed(2);
@@ -103,7 +103,7 @@ const sizeOf = (id: CatId, frame: Frame) => {
 };
 
 /** The frame a pose is drawn as, standing still. */
-export const stillFrame = (p: Pose): Frame =>
+const stillFrame = (p: Pose): Frame =>
   frameFor(grounded(p), NAMED, { ...STILL, lift: p.y, lastLift: p.y });
 
 const CAT_IDS = Object.keys(SHEET) as CatId[];
@@ -260,7 +260,7 @@ const drawFrame = (rig: CatRig, layer: Layer, frame: Frame): void => {
 };
 
 /** What stepFrame keeps between frames. */
-export type FrameStep = Pick<
+type FrameStep = Pick<
   CatRig,
   'frame' | 'shownAt' | 'pending' | 'cut' | 'stepX' | 'wanted' | 'wantedAt'
 >;
@@ -270,7 +270,7 @@ export type FrameStep = Pick<
  * Frames cut, never fade: a fade doubles the legs. Each holds a full step, so a
  * quick move still shows its in-between, and a walk advances one frame at a time.
  */
-export const stepFrame = (
+const stepFrame = (
   s: FrameStep,
   wanted: Frame,
   now: number,
@@ -311,10 +311,8 @@ export const stepFrame = (
 };
 
 /** Where the cat is drawn: while a walk frame shows, where that frame began, so a planted paw never slides. */
-export const drawnXOf = (
-  s: Pick<FrameStep, 'frame' | 'stepX'>,
-  x: number,
-): number => (s.frame?.startsWith('walk') ? s.stepX : x);
+const drawnXOf = (s: Pick<FrameStep, 'frame' | 'stepX'>, x: number): number =>
+  s.frame?.startsWith('walk') ? s.stepX : x;
 
 /** True while a frame waits its turn or the arrival squash shows: the loop draws until both end. */
 export const isStepping = (
@@ -342,7 +340,7 @@ const feetUp = (p: Pose): number =>
     : 0;
 
 /** px the drawing is raised: a jump's lift and a climb's height. */
-export const liftOf = (p: Pose): number => Math.max(0, p.y) + feetUp(p);
+const liftOf = (p: Pose): number => Math.max(0, p.y) + feetUp(p);
 
 /** The pose as if its paws were on the ground, to compare with the named poses. */
 const grounded = (p: Pose): Pose => ({ ...p, by: p.by - feetUp(p) });
