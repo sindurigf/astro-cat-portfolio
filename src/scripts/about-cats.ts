@@ -43,7 +43,21 @@ const PLACES: Record<CatId, { start: number; facing: 1 | -1 }> = {
 };
 
 const isCatId = (value: string | undefined): value is CatId =>
-  value !== undefined && value in SHEETS;
+  value !== undefined && Object.hasOwn(SHEETS, value);
+
+/** The element `selector` finds in `root`, checked to be a `type`; markup that does not match AboutCats.astro throws. */
+const required = <T extends Element>(
+  root: ParentNode,
+  selector: string,
+  type: abstract new () => T,
+): T => {
+  const node = root.querySelector(selector);
+  if (!(node instanceof type))
+    throw new Error(
+      `about-cats: ${selector} is missing or not a ${type.name}.`,
+    );
+  return node;
+};
 
 /** Fallback slot between warm-ups where requestIdleCallback is missing (Safari). */
 const WARM_GAP_MS = 50;
@@ -97,37 +111,37 @@ interface Cat {
 }
 
 const setUp = (): void => {
-  const dialog = document.querySelector<HTMLDialogElement>('dialog.cat-dialog');
-  const card = dialog?.querySelector<HTMLElement>('.cat-card');
-  const napIcons = document.querySelector<HTMLTemplateElement>(
+  const dialog = required(document, 'dialog.cat-dialog', HTMLDialogElement);
+  const card = required(dialog, '.cat-card', HTMLElement);
+  const napIcons = required(
+    document,
     'template[data-cat-nap-icons]',
+    HTMLTemplateElement,
   );
-  const [sleepIcon, wakeIcon] = [
-    ...(napIcons?.content.querySelectorAll('svg') ?? []),
-  ];
-  if (!dialog || !card || !sleepIcon || !wakeIcon)
-    throw new Error('about-cats: the dialog or the sleep icons are missing.');
+  const [sleepIcon, wakeIcon] = napIcons.content.querySelectorAll('svg');
+  if (!sleepIcon || !wakeIcon)
+    throw new Error('about-cats: the sleep and wake icons are missing.');
 
   const cats: Cat[] = [];
   for (const template of document.querySelectorAll<HTMLTemplateElement>(
     'template[data-cat-controls]',
   )) {
     const id = template.dataset.catControls;
-    const spot = document.getElementById(`cat-spot-${id}`);
-    const cardTemplate = document.querySelector<HTMLTemplateElement>(
+    if (!isCatId(id)) throw new Error(`about-cats: ${id} is not a cat.`);
+    const spot = required(document, `#cat-spot-${id}`, HTMLElement);
+    const cardTemplate = required(
+      document,
       `template[data-cat-card="${id}"]`,
+      HTMLTemplateElement,
     );
-    if (!isCatId(id) || !spot || !cardTemplate) continue;
     const parts = template.content.cloneNode(true) as DocumentFragment;
-    const button = parts.querySelector<HTMLButtonElement>('.cat-button');
-    const svg = parts.querySelector<SVGSVGElement>('.cat-svg');
-    const nap = parts.querySelector<HTMLButtonElement>('.cat-nap');
-    const napLabel = nap?.querySelector<HTMLElement>('.sr-only');
-    const paw = parts.querySelector<HTMLButtonElement>('.cat-tricks-button');
-    const list = parts.querySelector<HTMLElement>('.cat-tricks');
-    const note = list?.querySelector<HTMLElement>('.cat-tricks-note');
-    if (!button || !svg || !nap || !napLabel || !paw || !list || !note)
-      throw new Error(`about-cats: the controls for ${id} are incomplete.`);
+    const button = required(parts, '.cat-button', HTMLButtonElement);
+    const svg = required(parts, '.cat-svg', SVGSVGElement);
+    const nap = required(parts, '.cat-nap', HTMLButtonElement);
+    const napLabel = required(nap, '.sr-only', HTMLElement);
+    const paw = required(parts, '.cat-tricks-button', HTMLButtonElement);
+    const list = required(parts, '.cat-tricks', HTMLElement);
+    const note = required(list, '.cat-tricks-note', HTMLElement);
     cats.push({
       id,
       name: template.dataset.catName ?? id,
