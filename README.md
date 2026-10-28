@@ -69,15 +69,18 @@ it is done.
 4. **Your cats, or none**: [Your cats, or none](#your-cats-or-none).
 5. **Your site**
    - Address and repository: `site.url` and `site.repository` in
-     `src/site.config.ts`. The build warns while the address is still
-     `example.com`.
+     `src/site.config.ts`. Until `site.url` leaves `example.com`, `.net`,
+     `.org` or `.example`, every build warns
+     `[placeholder-site] site.url is still the placeholder`, because
+     canonicals, the sitemap and the feeds point there. Set `site.url`, or
+     `SITE_URL` for one build, to clear it.
    - Cloudflare: the Worker, domain, database, sender and rate limit in
      `wrangler.jsonc`, then
      [Before the first deploy](docs/DEPLOYMENT.md#before-the-first-deploy).
      For no contact form, set `form: 'none'` under `contact`
      ([contact options](docs/DEPLOYMENT.md#contact-options)).
-   - Analytics and Bing: `analytics` and `bingSiteVerification` in the
-     config, or leave them `null`.
+   - Analytics and Bing: `analytics: true` for Plausible, or `false`, and
+     `bingSiteVerification`, or `null`, in the config.
    - Security contact: the two contacts in [SECURITY.md](SECURITY.md), and
      the one your site publishes in `/.well-known/security.txt`. That comes
      from the `SECURITY_CONTACT` build variable, written as a `mailto:` or
