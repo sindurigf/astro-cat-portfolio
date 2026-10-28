@@ -9,7 +9,7 @@ const SCHEMES = ['dark', 'light'] as const;
 /* One failure in 80 CI runs with no local repro: keep the failing attempt's trace, not only the retry's. */
 test.use({ trace: 'retain-on-first-failure' });
 
-/** How far the hard box and drop shadows of a control, or of anything inside it, reach past its box, in px. */
+/** How far the hard box and drop shadows and masked throw layers of a control, or of anything inside it, reach past its box, in px. */
 const SHADOW_REACH = `
   const shadowsOf = (value) =>
     value
@@ -25,7 +25,12 @@ const SHADOW_REACH = `
       const r = node.getBoundingClientRect();
       const style = getComputedStyle(node);
       const drops = [...style.filter.matchAll(/drop-shadow\\((?:[^()]|\\([^()]*\\))*\\)/g)].map((m) => m[0]);
-      for (const [dx, dy] of [...shadowsOf(style.boxShadow), ...drops.flatMap(shadowsOf)]) {
+      const throwLayer = getComputedStyle(node, '::before');
+      const masked =
+        throwLayer.maskImage !== 'none' && throwLayer.translate !== 'none'
+          ? [throwLayer.translate.split(' ').map(parseFloat)]
+          : [];
+      for (const [dx, dy = dx] of [...shadowsOf(style.boxShadow), ...drops.flatMap(shadowsOf), ...masked]) {
         reach = Math.max(reach, r.right + dx - box.right, r.bottom + dy - box.bottom);
       }
     }

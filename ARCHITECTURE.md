@@ -116,7 +116,8 @@ Rules: [STYLEGUIDE Color tokens](docs/STYLEGUIDE.md#color-tokens).
 - The Step's offsets are `--step-x` and `--step-y` in `global.css`; juts are
   translates or margins, so no page scrolls sideways (`tests/blocks.spec.ts`).
 - `src/lib/wall.ts` turns a wall's rows per breakpoint into `card-rise-*` and
-  `card-step-*` classes; the wall's `drop-shadow` follows the stepped outline.
+  `card-step-*` classes; each brick casts the throw and the next covers it, so
+  it follows the stepped outline.
 
 ### Light mode
 
