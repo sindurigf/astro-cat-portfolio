@@ -126,8 +126,10 @@ The gold-ground set is in [Gold surface](#gold-surface), light values in
   `text-gold` are ink (11.32 on gold, 14.42 on light), `subtle` is `gold-muted`
   (7.88) or `light-subtle` (7.40), and a badge inverts. Gold fills use
   `block-gold`, which never remaps. `tests/blocks.spec.ts`.
-- Walls: blocks in a `.card-block` share 4px walls with no gap, and the wall
-  casts the one throw along its outline, so it shows on outer edges only.
+- Walls: blocks in a `.card-block` share 4px walls with no gap. Each brick
+  casts the throw as a `box-shadow` and the next brick covers it, so it shows
+  on outer edges only. No `filter` on a wall: filter layers stalled Playwright
+  input on an older build and cost raster time (`tests/filter-layers.spec.ts`).
 - The Step Up: the throw falls down and right, so a wall only climbs right.
   Bricks in one row rise by `--step-y` (48px from 1120px; half for the second
   of three or more); stacked rows bring their right edge in by `--step-x`, at
@@ -319,7 +321,7 @@ The switch and what it scopes: [ARCHITECTURE.md](../ARCHITECTURE.md#light-mode).
 - The footer follows the mode like `<main>`: white in light mode, its words
   7:1 or more and its tiles apart from it (`tests/footer.spec.ts`).
 - Logo marks use `mark`, `tile-edge`, the `cat-hela*` coat and
-  `shadow-hard-mark-*` or `drop-shadow-hard-mark-*`, never `pink` or `border`:
+  `shadow-hard-mark-*` or `mark-throw`, never `pink` or `border`:
   they do not change with the mode.
 - The label on a gold fill is `gold-text`, never `background` (white in
   light).
@@ -546,8 +548,7 @@ with a comment beside it.
 | `shadow-hard-gold-border-4` | A card on gold                                                                                                        |
 | `shadow-hard-mark-4`        | `.sticker`, `.btn-gold-primary`                                                                                       |
 | `shadow-hard-mark-8`        | The homepage stickers                                                                                                 |
-| `drop-shadow-hard-mark-8`   | The logo tile on `/about`, following its ears                                                                         |
-| `drop-shadow-hard-mark-12`  | The logo tile's larger copy on `/about`                                                                               |
+| `mark-throw`                | The logo tile in the header and on `/about`, following its ears; `--lift-mark` (8px), `mark-throw-large` 12px         |
 
 - `mark` is `pink`'s hex but stays pink in light mode, where `pink` turns
   ink.
@@ -556,10 +557,10 @@ with a comment beside it.
 - The logo tile on `/about` is an eared tile: a cat's head in the tile's
   shape, with rounded ears and corners, its 4px `tile-edge` edge and 3deg tilt
   (`src/lib/brand-mark.ts`, `CatMark.astro`). It is a mark, not a radius: the
-  rule above does not apply to it, and its shadow is a `drop-shadow-*`.
+  rule above does not apply to it, and its shadow is `mark-throw`.
 - The header's logo tile holds the box cat: Minerva sitting in an open cardboard
-  box (`src/assets/box-cat-logo.svg`), tilted 3deg, its `mark` shadow a drop
-  shadow that follows the box and the cat.
+  box (`src/assets/box-cat-logo.svg`), tilted 3deg, its `mark-throw` following
+  the box and the cat.
 
 ## Components
 
@@ -575,7 +576,7 @@ file per area.
 | `.card-title`                           | Every card heading, `text-h3` 900                                                                                                                                                                                                                                    |
 | `.card-link`                            | Title link; a short press on the card follows it, text stays selectable (`card-click.ts`); inline-block, 44px min; card hover turns title and shadow cyan                                                                                                            |
 | `.card-solid`                           | A light block outside a `.card-block`, where alternation does not reach it                                                                                                                                                                                           |
-| `.card-block`                           | A wall: blocks share 4px walls, alternate gold and light, and step up to the right (`card-rise-*`, `card-step-*` from `src/lib/wall.ts`); the wall casts the one throw                                                                                               |
+| `.card-block`                           | A wall: blocks share 4px walls, alternate gold and light, and step up to the right (`card-rise-*`, `card-step-*` from `src/lib/wall.ts`); each brick casts the throw, the next covers it                                                                             |
 | `.lead`                                 | Paragraph under a section heading, `text-lead` 400, 24px under it                                                                                                                                                                                                    |
 | `.standfirst`                           | Line beside PageHero's title, `text-standfirst` 400                                                                                                                                                                                                                  |
 | `.bullet-list`                          | Bulleted list, gold markers                                                                                                                                                                                                                                          |

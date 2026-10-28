@@ -46,72 +46,93 @@
   }
 
   /*
-   * The logo tile's press, as the controls' in buttons-nav.css with the mark's
-   * 8px throw. A drop shadow, so it follows the box and the cat. Only the tile moves, so
-   * the link keeps the pointer.
+   * A logo tile's throw follows the cat's outline: the art's own file as a mask
+   * on a mark layer behind it, not a filter layer, which stalled Playwright
+   * input on an older build (tests/filter-layers.spec.ts).
    */
-  .logo-link .logo-tile {
-    filter: drop-shadow(var(--lift-mark) var(--lift-mark) 0 var(--color-mark));
+  .mark-throw {
+    position: relative;
+    isolation: isolate;
 
-    @media (prefers-reduced-motion: no-preference) {
-      transition-property: translate, filter;
+    &::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      background-color: var(--color-mark);
+      mask: var(--mark-throw-art) center / contain no-repeat;
+      translate: var(--mark-throw-offset, var(--lift-mark))
+        var(--mark-throw-offset, var(--lift-mark));
+    }
+
+    /* The offset goes in forced colors, as the footer's does. */
+    @media (forced-colors: active) {
+      &::before {
+        display: none;
+      }
+    }
+  }
+
+  .mark-throw-logo {
+    --mark-throw-art: url('../assets/box-cat-logo.svg');
+  }
+
+  .mark-throw-cat {
+    --mark-throw-art: url('../assets/logo-cat.svg');
+  }
+
+  /*
+   * The logo tile's press, as the controls' in buttons-nav.css with the mark's
+   * 8px throw. Only the tile moves, so the link keeps the pointer.
+   */
+  @media (prefers-reduced-motion: no-preference) {
+    .logo-link .logo-tile,
+    .logo-link .logo-tile::before {
+      transition-property: translate;
       transition-duration: var(--press-travel);
       transition-timing-function: linear;
     }
   }
 
   .logo-link:active .logo-tile {
-    filter: drop-shadow(0 0 0 var(--color-mark));
+    --mark-throw-offset: 0px;
   }
 
-  /* Forced colors keep a filter, so the pink offset goes, as the footer's does. */
-  @media (forced-colors: active) {
-    :is(.logo-tile, .logo-link .logo-tile) {
-      filter: none;
-    }
-  }
-
-  /* Not in forced colors, which keep a filter and would paint the offset back. */
   @media (prefers-reduced-motion: no-preference) and (hover: hover) and (forced-colors: none) {
     .logo-link:hover:not(:active) .logo-tile {
+      --mark-throw-offset: calc(var(--lift-mark) + var(--press-lift));
+
       translate: calc(var(--press-lift) * -1) calc(var(--press-lift) * -1);
-      filter: drop-shadow(
-        calc(var(--lift-mark) + var(--press-lift))
-          calc(var(--lift-mark) + var(--press-lift)) 0 var(--color-mark)
-      );
     }
   }
 
   @media (prefers-reduced-motion: no-preference) {
     .logo-link:active .logo-tile {
       translate: var(--lift-mark) var(--lift-mark);
-      transition-duration: 0s;
+
+      &,
+      &::before {
+        transition-duration: 0s;
+      }
     }
   }
 
   /*
-   * A wall: the blocks in a `.card-block` share 4px walls with no gap, and the
-   * wall casts the one throw along its outline, so it shows only on outer
-   * edges. Opt-in, not `:has(.card)`: layout gaps elsewhere feed image `sizes`.
+   * Each joined brick casts the throw and the next covers it: a box-shadow, as a
+   * filter layer stalled Playwright input on an older build. Opt-in, not
+   * `:has(.card)`: layout gaps elsewhere feed image `sizes`.
    */
   .card-block {
     gap: 0;
     padding: 0 0 var(--block-edge) var(--block-edge);
-    filter: drop-shadow(
-      var(--hard-throw) var(--hard-throw) 0 var(--color-pink)
-    );
 
-    & > *,
     & > * > .card {
       box-shadow: none;
     }
 
     & > * {
       margin: 0 0 calc(var(--block-edge) * -1) calc(var(--block-edge) * -1);
-    }
-
-    @media (forced-colors: active) {
-      filter: none;
+      box-shadow: var(--hard-throw) var(--hard-throw) 0 var(--color-pink);
     }
   }
 
@@ -132,6 +153,10 @@
  * first bring their right edge in. `&:is(.card-block > *)` beats the wall's
  * margin reset.
  */
+@utility mark-throw-large {
+  --mark-throw-offset: var(--lift-mark-large);
+}
+
 @utility card-rise-room {
   &.card-block {
     padding-top: var(--step-y);

@@ -298,28 +298,26 @@ test.describe('forced colors', () => {
     });
   }
 
-  // A filter survives forced colors, so the logo's pink offset would paint in the system palette.
+  // The throw layer's mark fill would paint in the system palette.
   test('the logo casts no offset in forced colors, at rest or hovered', async ({
     page,
   }) => {
     await gotoSettled(page, '/blog/');
     await forceColors(page, '/blog/');
     const tile = page.locator('header .logo-tile');
-    const settled = () =>
-      tile.evaluate((el) =>
-        Promise.all(el.getAnimations().map((a) => a.finished)).then(() => true),
+    const throwShown = () =>
+      tile.evaluate(
+        (el) => getComputedStyle(el, '::before').display !== 'none',
       );
-    // Forcing colors after load starts the filter's own transition.
-    await settled();
-    expect(await tile.evaluate((el) => getComputedStyle(el).filter)).toBe(
-      'none',
-    );
-    await page.locator('header .logo-link').hover();
-    await settled();
     expect(
-      await tile.evaluate((el) => getComputedStyle(el).filter),
+      await throwShown(),
+      'the logo paints its offset in forced colors',
+    ).toBe(false);
+    await page.locator('header .logo-link').hover();
+    expect(
+      await throwShown(),
       'the hovered logo paints its offset in forced colors',
-    ).toBe('none');
+    ).toBe(false);
   });
 
   test('/brand color swatches keep their colors in forced colors, edged in CanvasText, each named beside it (SC 1.4.1, 1.4.11)', async ({

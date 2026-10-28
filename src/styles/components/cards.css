@@ -216,8 +216,8 @@
 
   /*
    * Title and shadow turn cyan on hover. No underline: on a wrapped title it
-   * crosses the next line. Inside a card block the hover is restored in @layer
-   * utilities.
+   * crosses the next line. Inside a `.card-block` the brick keeps the wall's
+   * throw (utilities.css).
    */
   .card:has(.card-link):hover {
     @apply shadow-hard-cyan-object;

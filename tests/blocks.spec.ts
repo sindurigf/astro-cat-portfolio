@@ -266,8 +266,8 @@ interface WallReport {
   walls: number;
   gaps: string[];
   covers: string[];
-  throws: string[];
   stubs: string[];
+  overpaints: string[];
 }
 
 /*
@@ -282,8 +282,8 @@ const readWalls = (page: Page): Promise<WallReport> =>
         walls: 0,
         gaps: [],
         covers: [],
-        throws: [],
         stubs: [],
+        overpaints: [],
       };
       const edge = parseFloat(
         getComputedStyle(document.documentElement).getPropertyValue(
@@ -298,12 +298,36 @@ const readWalls = (page: Page): Promise<WallReport> =>
           'a wall';
         const bricks = [...wall.children];
         const rects = bricks.map((brick) => brick.getBoundingClientRect());
-        if (!getComputedStyle(wall).filter.includes('drop-shadow'))
-          report.throws.push(`${name} casts no throw`);
-        for (const brick of bricks)
-          for (const el of [brick, ...brick.querySelectorAll(':scope > .card')])
-            if (getComputedStyle(el).boxShadow !== 'none')
-              report.throws.push(`${name}: a brick casts its own throw`);
+        /* A positioned or transformed brick paints after static ones, z-index first. */
+        const paintOrder = bricks.map((brick) => {
+          const style = getComputedStyle(brick);
+          const layered =
+            style.position !== 'static' ||
+            [style.transform, style.translate, style.rotate, style.scale].some(
+              (value) => value !== 'none',
+            );
+          const z = layered ? Number.parseInt(style.zIndex, 10) || 0 : 0;
+          return [z, layered ? 1 : 0];
+        });
+        const throwReach = parseFloat(
+          getComputedStyle(wall).getPropertyValue('--hard-throw'),
+        );
+        rects.forEach((a, i) =>
+          rects.slice(i + 1).forEach((b, k) => {
+            const j = i + k + 1;
+            const meets =
+              a.left < b.right &&
+              b.left < a.right + throwReach &&
+              a.top < b.bottom &&
+              b.top < a.bottom + throwReach;
+            const [zi = 0, li = 0] = paintOrder[i] ?? [];
+            const [zj = 0, lj = 0] = paintOrder[j] ?? [];
+            if (meets && (zi > zj || (zi === zj && li > lj)))
+              report.overpaints.push(
+                `${name}: brick ${i + 1} paints over brick ${j + 1} and its throw shows on it`,
+              );
+          }),
+        );
         rects.forEach((a, i) =>
           rects.slice(i + 1).forEach((b, k) => {
             const across =
@@ -366,7 +390,7 @@ const readWalls = (page: Page): Promise<WallReport> =>
 
 test.describe('joined walls', () => {
   for (const width of STEP_WIDTHS) {
-    test(`every wall is joined, climbs right and casts one throw at ${width}px`, async ({
+    test(`every wall is joined and climbs right at ${width}px`, async ({
       page,
     }) => {
       await page.setViewportSize({ width, height: DESKTOP_VIEWPORT.height });
@@ -382,20 +406,12 @@ test.describe('joined walls', () => {
           `${route} has a brick over another's content`,
         ).toEqual([]);
         expect(
-          rest.throws,
-          `${route} has a throw that is not the wall's own`,
+          rest.overpaints,
+          `${route} has an earlier brick painted over a later one`,
         ).toEqual([]);
         expect(
           rest.stubs,
           `${route} has a throw that ends against a brick face`,
-        ).toEqual([]);
-        await page
-          .locator('main .card-block > *')
-          .first()
-          .hover({ force: true });
-        expect(
-          (await readWalls(page)).throws,
-          `${route} has a hovered brick that casts its own throw`,
         ).toEqual([]);
       }
     });

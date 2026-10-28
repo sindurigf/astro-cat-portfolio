@@ -92,6 +92,8 @@
 @source not '../../.claude';
 @source not '../../tests';
 @source not '../../scripts';
+/* Words in script source, not classes: they would ship filter utilities (tests/filter-layers.spec.ts). */
+@source not inline('blur filter');
 
 /*
  * Dark tokens; light mode overrides a subset on <main> at the end of this file.
@@ -425,9 +427,6 @@
     var(--color-pink);
   --shadow-hard-mark-4: 4px 4px 0 var(--color-mark);
   --shadow-hard-mark-8: 8px 8px 0 var(--color-mark);
-  /* The same offsets on the eared logo, whose shadow follows its ears. */
-  --drop-shadow-hard-mark-8: 8px 8px 0 var(--color-mark);
-  --drop-shadow-hard-mark-12: 12px 12px 0 var(--color-mark);
   --shadow-hard-cyan-object: var(--hard-throw) var(--hard-throw) 0
     var(--color-cyan);
   /* A card on gold: `gold-border` passes SC 1.4.11 there, pink does not. */
@@ -499,6 +498,8 @@
   --lift-object: var(--hard-throw);
   /* The logo keeps its 8px shadow, so its ring clears 8px. */
   --lift-mark: 8px;
+  /* The larger logo tile on /about throws this far (`mark-throw-large`). */
+  --lift-mark-large: 12px;
   /* A pressable rises this far off its throw under the pointer. */
   --press-lift: 2px;
   /* A pressable's `border-4`; its hit strip reaches past it. */
