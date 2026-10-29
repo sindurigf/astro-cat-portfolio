@@ -31,7 +31,13 @@ import {
   isStepping,
   reachOf,
 } from '../src/lib/about-cats-rig';
-import { FRAMES } from '../src/lib/about-cats-frames';
+import {
+  FRAMES,
+  RISE,
+  WALK,
+  riseStep,
+  type Frame,
+} from '../src/lib/about-cats-frames';
 import { createIdle, idleFrameMs, tickIdle } from '../src/lib/about-cats-idle';
 import { isTricksData, tricksOf } from '../src/lib/about-cats-tricks';
 import tricksData from '../src/lib/about-cats-tricks.json' with { type: 'json' };
@@ -277,6 +283,41 @@ const catBand = (): number => {
   if (!match) throw new Error('global.css defines no --spacing-cat-band in px');
   return Number(match[1]);
 };
+
+/** Frames riseStep passes through from `from` until it lets `wanted` show, `from` included. */
+const riseWay = (from: Frame, wanted: Frame): Frame[] => {
+  const way = [from];
+  for (let next = riseStep(from, wanted); next; next = riseStep(next, wanted))
+    way.push(next);
+  return way;
+};
+
+test(
+  'a cat rises through every rising frame in order and sits down the same way back',
+  NODE,
+  () => {
+    expect(
+      riseWay('sit', 'stand'),
+      'a rise skipped or reordered a frame',
+    ).toEqual(RISE);
+    expect(
+      riseWay('stand', 'sit'),
+      'a sit-down skipped or reordered a frame',
+    ).toEqual([...RISE].reverse());
+    expect(
+      riseWay('sit', WALK[0]!),
+      'a walk from sitting did not rise through every frame first',
+    ).toEqual(RISE);
+    expect(
+      ['sit', 'headturn'],
+      'a cat part-way up did not sit back down before lying',
+    ).toContain(riseWay('risehalf', 'loaf').at(-1));
+    expect(
+      riseWay('risehalf', 'crouch').at(-1),
+      'a cat part-way up did not finish standing before crouching',
+    ).toBe('stand');
+  },
+);
 
 test('no move lifts any part of a cat above its band', NODE, () => {
   const band = catBand();
