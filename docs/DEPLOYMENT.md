@@ -283,3 +283,9 @@ Dashboard settings that change what ships without a file change.
   notifications in production D1. Scope the token to D1 Read on your account.
   Without both, the workflow sets `CHECK_LIVE_SKIP_D1=1` and `check:live`
   prints a skip line for the D1 check.
+- Optional variables `DISCOURSE_URL` and `DISCOURSE_CATEGORY_ID` and secrets
+  `DISCOURSE_API_KEY` and `DISCOURSE_API_USERNAME`: `issue-to-discourse.yml`
+  opens a forum topic for each new issue and links it in a comment. Without
+  both variables the job is skipped. Anyone can open an issue on a public
+  repository, so anyone can create a topic, and an `@mention` in the issue
+  pings that forum user.
