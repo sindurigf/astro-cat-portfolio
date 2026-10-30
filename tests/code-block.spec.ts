@@ -126,7 +126,9 @@ test.describe('code in a post, as it renders', () => {
         if (!prose) throw new Error('the post has no .prose column');
         prose.insertAdjacentHTML('beforeend', html);
 
-        const block = prose.querySelector('pre')!;
+        /* The sample, not a code block the post already has. */
+        const blocks = prose.querySelectorAll('pre');
+        const block = blocks[blocks.length - 1]!;
         const root = document.documentElement;
         return {
           blockOverflowX: getComputedStyle(block).overflowX,
