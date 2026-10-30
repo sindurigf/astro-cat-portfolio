@@ -18,7 +18,6 @@ const GITHUB_HEADER = /^\S+ wrote on GitHub:/;
 const FORUM_HEADER = /^\S+ wrote on the forum:/;
 const MARKER = /<!-- discourse-post:(\d+) -->/g;
 const TOPIC_TITLE = /^GitHub (issue|pull request) #(\d+):/;
-const DEPENDABOT_LOGIN = 'dependabot[bot]';
 const TOPIC_URL = /\/t\/[^/\s]+\/(\d+)\b/;
 /* Discourse's regular post type; moderator actions, small actions and whispers are others. */
 const REGULAR_POST = 1;
@@ -71,12 +70,15 @@ export const topicTarget = (title) => {
 
 /** Whether a pull request event should open a topic: ready for review, from a person. */
 export const shouldOpenTopic = (pullRequest) =>
-  !pullRequest.draft &&
-  pullRequest.user?.login !== DEPENDABOT_LOGIN &&
-  pullRequest.user?.type !== 'Bot';
+  !pullRequest.draft && pullRequest.user?.type !== 'Bot';
 
-const fit = (text, limit, note) =>
-  text.length > limit ? `${text.slice(0, limit - note.length)}${note}` : text;
+/* By code point, so a cut never splits an emoji's surrogate pair. */
+const fit = (text, limit, note) => {
+  const points = Array.from(text);
+  return points.length > limit
+    ? `${points.slice(0, limit - Array.from(note).length).join('')}${note}`
+    : text;
+};
 
 export const pullRequestTopic = (pullRequest) => {
   const body = pullRequest.body

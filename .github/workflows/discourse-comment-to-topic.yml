@@ -1,4 +1,4 @@
-name: Mirror issue comments to Discourse
+name: Mirror issue and pull request comments to Discourse
 
 # Opt-in like issue-to-discourse.yml. Runs the default branch's script on the
 # event file, so a comment's text never reaches a shell

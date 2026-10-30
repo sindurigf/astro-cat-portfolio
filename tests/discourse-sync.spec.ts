@@ -342,7 +342,17 @@ test(
       user: { login: 'robin' },
     });
     expect(topic.title.startsWith('GitHub pull request #12: ')).toBe(true);
-    expect(topic.title.length).toBeLessThanOrEqual(255);
+    expect(Array.from(topic.title).length).toBeLessThanOrEqual(255);
+    const emoji = pullRequestTopic({
+      number: 12,
+      title: '🐈'.repeat(300),
+      body: '',
+      html_url: 'u',
+      user: { login: 'r' },
+    }).title;
+    expect(emoji, 'a cut must not leave half an emoji').not.toMatch(
+      /[\uD800-\uDBFF](?![\uDC00-\uDFFF])/,
+    );
     expect(topic.raw).toContain('https://github.com/o/r/pull/12');
     expect(topic.raw).not.toMatch(/(^|[^\w`/])@[\w-]/);
     expect(

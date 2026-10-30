@@ -300,8 +300,8 @@ Dashboard settings that change what ships without a file change.
     conversation comment as a reply. Review comments on code lines are not
     mirrored.
   - `discourse-topic-to-issue.yml` copies forum replies from topics active in
-    the last 48 hours to their issue or pull request, every 15 minutes. GitHub turns the
-    schedule off after 60 days without repository activity.
+    the last 48 hours to their issue or pull request, every 15 minutes.
+    GitHub turns the schedule off after 60 days without repository activity.
   - Granular API key scopes: `topics` `write`, `read` and `read_lists`; a
     missing scope fails the job with its name.
   - Anyone can open an issue or comment on a public repository, so anyone can
