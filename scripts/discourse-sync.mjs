@@ -1,10 +1,7 @@
 #!/usr/bin/env node
 /*
- * Mirrors discussion between GitHub issues and their Discourse topics, which
- * .github/workflows/issue-to-discourse.yml opens (docs/DEPLOYMENT.md).
- *
- *   node scripts/discourse-sync.mjs to-forum    (one new issue comment, from GITHUB_EVENT_PATH)
- *   node scripts/discourse-sync.mjs to-github   (forum replies in recently active topics)
+ * Mirrors issue comments and forum replies between GitHub and the topics issue-to-discourse.yml opens.
+ * `to-forum` posts one comment from GITHUB_EVENT_PATH; `to-github` copies recent replies (docs/DEPLOYMENT.md).
  */
 
 import { readFileSync } from 'node:fs';
@@ -32,6 +29,11 @@ const MS_PER_S = 1_000;
 const REQUEST_TIMEOUT_MS = 30_000;
 const HTTP_FORBIDDEN = 403;
 const HTTP_NOT_FOUND = 404;
+const HTTP_MOVED = 301;
+const ERROR_BODY_CHARS = 500;
+/* Discourse's default max_post_length; GitHub allows 65,536. */
+const FORUM_MAX_POST_CHARS = 32_000;
+const TRUNCATED_NOTE = '\n\n(Shortened; the full comment is on GitHub.)';
 const HTTP_TOO_MANY = 429;
 
 /** Breaks `@name` so the other side does not notify a user of that name. */
@@ -40,12 +42,17 @@ export const defuseMentions = (text) =>
 
 export const markerOf = (postId) => `<!-- discourse-post:${postId} -->`;
 
-/** Forum post ids already mirrored into these issue comments. */
+/** Copied text loses any marker it carries, so it cannot claim a post as mirrored. */
+const stripMarkers = (text) => text.replace(MARKER, '');
+
+/** Forum post ids already mirrored, read from the bot's comments only. */
 export const mirroredPostIds = (comments) =>
   new Set(
-    comments.flatMap(({ body }) =>
-      [...(body ?? '').matchAll(MARKER)].map((match) => Number(match[1])),
-    ),
+    comments
+      .filter(({ user }) => user?.login === BOT_LOGIN)
+      .flatMap(({ body }) =>
+        [...(body ?? '').matchAll(MARKER)].map((match) => Number(match[1])),
+      ),
   );
 
 export const issueNumberFromTitle = (title) => {
@@ -76,15 +83,36 @@ export const shouldMirrorPost = (post, apiUsername, alreadyMirrored) =>
   post.post_type === REGULAR_POST &&
   !post.hidden &&
   !post.deleted_at &&
-  post.username !== apiUsername &&
+  post.username?.toLowerCase() !== apiUsername.toLowerCase() &&
   !GITHUB_HEADER.test(post.raw ?? '') &&
   !alreadyMirrored.has(post.id);
 
-export const forumReplyBody = (comment) =>
-  `${comment.user.login} wrote on GitHub:\n\n${defuseMentions(comment.body ?? '')}\n\n${comment.html_url}`;
+/**
+ * One page of a category's latest list, newest bump first: the topics bumped since `cutoff`, and
+ * whether an older one showed, which ends paging. Pinned topics lead page 0 whatever their age.
+ */
+export const splitByActivity = (topics, cutoff) => {
+  const unpinned = topics.filter((topic) => !topic.pinned);
+  const recent = unpinned.filter(
+    (topic) => Date.parse(topic.bumped_at) >= cutoff,
+  );
+  return { recent, older: recent.length < unpinned.length };
+};
+
+export const forumReplyBody = (comment) => {
+  const header = `${comment.user.login} wrote on GitHub:\n\n`;
+  const footer = `\n\n${comment.html_url}`;
+  const text = defuseMentions(stripMarkers(comment.body ?? ''));
+  const room = FORUM_MAX_POST_CHARS - header.length - footer.length;
+  const fitted =
+    text.length > room
+      ? `${text.slice(0, room - TRUNCATED_NOTE.length)}${TRUNCATED_NOTE}`
+      : text;
+  return `${header}${fitted}${footer}`;
+};
 
 export const githubCommentBody = (post, postUrl) =>
-  `${post.username} wrote on the forum:\n\n${defuseMentions(post.raw ?? '')}\n\n${postUrl}\n${markerOf(post.id)}`;
+  `${post.username} wrote on the forum:\n\n${defuseMentions(stripMarkers(post.raw ?? ''))}\n\n${postUrl}\n${markerOf(post.id)}`;
 
 const required = (name) => {
   const value = process.env[name];
@@ -100,6 +128,8 @@ const request = async (url, init, scopeHint) => {
     const response = await fetch(url, {
       ...init,
       signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+      /* A followed 301 turns a POST into a GET (transferred issues); fail instead. */
+      redirect: 'manual',
     });
     if (response.status === HTTP_TOO_MANY && attempt < MAX_ATTEMPTS) {
       const retryAfter = Number(response.headers.get('retry-after'));
@@ -118,7 +148,7 @@ const request = async (url, init, scopeHint) => {
         : '';
     throw Object.assign(
       new Error(
-        `${init?.method ?? 'GET'} ${url} answered ${response.status}.${hint} ${text.slice(0, 500)}`,
+        `${init?.method ?? 'GET'} ${url} answered ${response.status}.${hint} ${text.slice(0, ERROR_BODY_CHARS)}`,
       ),
       { status: response.status },
     );
@@ -211,13 +241,12 @@ const recentTopics = async (get, categoryId, cutoff) => {
       `/c/${categoryId}/l/latest.json?page=${page}`,
       'topics: read lists',
     );
-    const batch = list.topic_list?.topics ?? [];
-    const recent = batch.filter(
-      (topic) => Date.parse(topic.bumped_at) >= cutoff,
+    const { recent, older } = splitByActivity(
+      list.topic_list?.topics ?? [],
+      cutoff,
     );
     topics.push(...recent);
-    if (recent.length < batch.length || !list.topic_list?.more_topics_url)
-      return topics;
+    if (older || !list.topic_list?.more_topics_url) return topics;
   }
 };
 
@@ -249,9 +278,10 @@ const toGithub = async () => {
   for (const listed of await recentTopics(get, categoryId, cutoff)) {
     const number = issueNumberFromTitle(listed.title);
     if (!number || listed.category_id !== categoryId) continue;
-    /* A topic whose issue was deleted or transferred has nothing to sync to. */
+    /* A deleted (404) or transferred (301) issue has nothing to sync to. */
     const issue = await gh.issue(number).catch((error) => {
-      if (error.status === HTTP_NOT_FOUND) return null;
+      if (error.status === HTTP_NOT_FOUND || error.status === HTTP_MOVED)
+        return null;
       throw error;
     });
     if (!issue || issue.pull_request) continue;

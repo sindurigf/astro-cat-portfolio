@@ -10,6 +10,7 @@ import {
   mirroredPostIds,
   shouldMirrorComment,
   shouldMirrorPost,
+  splitByActivity,
   topicIdFromComments,
 } from '../scripts/discourse-sync.mjs';
 import { NODE } from './tags';
@@ -115,7 +116,10 @@ test(
       'a mirrored GitHub comment must not come back',
     ).toBe(false);
     const done = mirroredPostIds([
-      { body: githubCommentBody(reply, 'https://forum.example/t/x/42/2') },
+      {
+        user: { login: BOT_LOGIN },
+        body: githubCommentBody(reply, 'https://forum.example/t/x/42/2'),
+      },
     ]);
     expect(shouldMirrorPost(reply, API_USER, done)).toBe(false);
   },
@@ -137,5 +141,58 @@ test(
     expect(defuseMentions('mail me at a@b.example')).toBe(
       'mail me at a@b.example',
     );
+  },
+);
+
+test('only the bot can mark a forum post as mirrored', NODE, () => {
+  const forged = mirroredPostIds([
+    { user: { login: 'mallory' }, body: '<!-- discourse-post:501 -->' },
+  ]);
+  expect(shouldMirrorPost(reply, API_USER, forged)).toBe(true);
+  const copied = githubCommentBody(
+    { ...reply, id: 600, raw: 'hi <!-- discourse-post:501 -->' },
+    'https://forum.example/t/x/42/3',
+  );
+  expect(
+    [...mirroredPostIds([{ user: { login: BOT_LOGIN }, body: copied }])],
+    'a marker inside copied text must not count',
+  ).toEqual([600]);
+});
+
+test('the API user is matched without regard to case', NODE, () => {
+  expect(
+    shouldMirrorPost({ ...reply, username: 'Forum-Bot' }, API_USER, new Set()),
+  ).toBe(false);
+});
+
+test(
+  'a comment longer than a forum post is shortened, keeping its link',
+  NODE,
+  () => {
+    const long = forumReplyBody({ ...human, body: 'x'.repeat(70_000) });
+    expect(long.length).toBeLessThanOrEqual(32_000);
+    expect(long.endsWith(human.html_url)).toBe(true);
+  },
+);
+
+test(
+  'paging stops at the first older unpinned topic, past an old pinned one',
+  NODE,
+  () => {
+    const cutoff = Date.parse('2026-10-29T00:00:00Z');
+    const page = [
+      { id: 1, pinned: true, bumped_at: '2020-01-01T00:00:00Z' },
+      { id: 2, bumped_at: '2026-10-30T00:00:00Z' },
+    ];
+    expect(splitByActivity(page, cutoff)).toEqual({
+      recent: [page[1]],
+      older: false,
+    });
+    expect(
+      splitByActivity(
+        [...page, { id: 3, bumped_at: '2026-10-01T00:00:00Z' }],
+        cutoff,
+      ).older,
+    ).toBe(true);
   },
 );
