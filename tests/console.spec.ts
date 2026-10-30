@@ -97,6 +97,16 @@ test.describe('the browser console', () => {
     await page.keyboard.press('Enter');
     const dialog = page.getByRole('dialog', { name: 'Minerva' });
     await expect(dialog).toBeVisible();
+    await expect(
+      dialog.locator('img'),
+      'the card photo never loaded',
+    ).toHaveJSProperty('complete', true);
+    expect(
+      await dialog
+        .locator('img')
+        .evaluate((img: HTMLImageElement) => img.naturalWidth),
+      'the card photo loaded empty',
+    ).toBeGreaterThan(0);
     await dialog.getByRole('button', { name: 'Close' }).click();
     await expect(dialog).toBeHidden();
 
