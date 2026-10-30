@@ -344,32 +344,6 @@ const arc = (from: number, to: number, height: number): Mod =>
     p.y += Math.sin(Math.PI * k) * height;
     p.hr -= HEAD_LAG * Math.cos(Math.PI * k);
   });
-/** Degrees a leaping body pitches per px of arc height: nose up as it takes off, level at the top, nose down to land. */
-const LEAP_PITCH_PER_PX = 0.35;
-/** The share of the leap, at its end, over which the body comes level: nose down at touchdown, the elbows would dip under the ground. */
-const LEAP_LEVELS_OUT = 0.15;
-/** px the front paws reach down and forward for the landing, and the hind paws push back at take-off. */
-const LANDING_REACH = 12;
-const PUSH_OFF = 8;
-/** A pounce's arc: the body pitches with it, the hind legs push off and the front paws reach to land first. */
-const leap = (from: number, to: number, height: number): Mod => {
-  const rise = arc(from, to, height);
-  return between(from, to, (p, s, k) => {
-    rise.apply(p, s, k);
-    p.ba +=
-      LEAP_PITCH_PER_PX *
-      height *
-      Math.cos(Math.PI * k) *
-      Math.min(1, (1 - k) / LEAP_LEVELS_OUT);
-    const land = LANDING_REACH * Math.max(0, 2 * k - 1);
-    const push = PUSH_OFF * Math.max(0, 1 - 3 * k);
-    for (const paw of PAWS) {
-      const front = paw[0] === 'f';
-      p[paw][0] += front ? land / 2 : -push;
-      p[paw][1] = Math.min(p[paw][1] + (front ? land : push), p.by + p.y);
-    }
-  });
-};
 /* Slow breaths, ending on an exhale so the pose rests where it started; two leave room for a slow device's frames within 5 s. */
 const BREATH_MS = 1000;
 const BREATHS = 2;
@@ -390,51 +364,6 @@ type Route = readonly [RoutePoint, ...RoutePoint[]];
 
 /* Arcs in px; with them the tallest move stays under --spacing-cat-band (tests/about-cats.spec.ts). */
 const POUNCE_HEIGHT = 56;
-/** A stalk's steps are full strides taken slowly, so each paw is seen to lift and set down. */
-const STALK_STRIDE = 1;
-const STALK_STEPS = 5;
-const STALK_STEP_PX = 30;
-const STALK_CROUCH_MS = 400;
-const STALK_STEP_MS = 700;
-/** Between steps the cat freezes with the near front paw held up, as a stalking cat does. */
-const STALK_PAW_UP: Pair = [20, 9];
-const STALK_PAW_MS = 170;
-const STALK_FREEZE_MS = 620;
-const STALK_REACH = 50;
-const POUNCE_REACH = 76;
-/** The pounce crouches, then wiggles until it springs. */
-const POUNCE_CROUCH_MS = 400;
-const POUNCE_WAIT_MS = 1300;
-/* A pounce's phases in ms: gather, air, land, rock back, hold the catch, sit up. */
-const GATHER_MS = 140;
-const AIR_MS = 400;
-const LAND_MS = 150;
-const ROCK_MS = 280;
-const HOLD_MS = 500;
-const SIT_UP_MS = 700;
-/** px the gather steps back, and the landing slides on past the air step. */
-const GATHER_BACK = 2;
-const LANDING_SLIDE = 8;
-/** The pounce from a crouch at `x`, starting at `start` ms: its leap spans the air and the landing, so the paws touch down as the arc ends. */
-const pounceFrom = (
-  start: number,
-  x: number,
-  reach: number,
-): { steps: Step[]; mods: Mod[] } => {
-  const landed = x + reach + LANDING_SLIDE;
-  const leapFrom = start + GATHER_MS;
-  return {
-    steps: [
-      step(GATHER_MS, 'crouch', { x: x - GATHER_BACK, sq: 0.9 }, 'in'),
-      step(AIR_MS, 'air', { x: x + reach }, 'linear'),
-      step(LAND_MS, 'crouch', { x: landed, sq: 0.84, ba: -10 }, 'out'),
-      step(ROCK_MS, 'crouch', { x: landed, hr: 8 }, 'back'),
-      step(HOLD_MS, 'crouch', { x: landed, hr: 8 }),
-      step(SIT_UP_MS, 'sit', { x: landed }),
-    ],
-    mods: [leap(leapFrom, leapFrom + AIR_MS + LAND_MS, POUNCE_HEIGHT)],
-  };
-};
 const LEAP_HEIGHT = 40;
 /** The scratching post stands this far ahead of the cat, clear of its chest. */
 const POST_GAP = 34;
@@ -583,10 +512,9 @@ const along = ([first, ...rest]: Route, t: number): [number, number] => {
 };
 
 /*
- * Rolling onto the back: low, then over all at once with a small flop. Easing
+ * Rolling onto the back: low, then over all at once with a squash. Easing
  * the 180° roll would stand the cat on its head halfway.
  */
-const FLOP_HOP = 4;
 /** Body height before the roll; upright poses keep their paws on the ground there. */
 const FLOP_LOW = 9;
 const groundedAt = (name: PoseName, by: number): Partial<Pose> =>
@@ -617,37 +545,6 @@ export const MOVES = {
     ],
     mods: [],
   }),
-  /* Step, freeze with a front paw held up, step again; then the pounce. */
-  stalk: (): Move => {
-    const steps = [step(STALK_CROUCH_MS, 'crouch')];
-    const mods: Mod[] = [];
-    let t = STALK_CROUCH_MS;
-    for (let i = 1; i <= STALK_STEPS; i += 1) {
-      const x = STALK_STEP_PX * i;
-      steps.push(
-        step(STALK_STEP_MS, 'crouch', { x }, 'linear'),
-        step(STALK_PAW_MS, 'crouch', { x, fN: STALK_PAW_UP }, 'out'),
-        step(STALK_FREEZE_MS, 'crouch', { x, fN: STALK_PAW_UP }),
-        step(STALK_PAW_MS, 'crouch', { x }, 'in'),
-      );
-      mods.push(walking(t, t + STALK_STEP_MS, STALK_STRIDE));
-      t += STALK_STEP_MS + 2 * STALK_PAW_MS + STALK_FREEZE_MS;
-    }
-    const jump = pounceFrom(t, STALK_STEP_PX * STALK_STEPS, STALK_REACH);
-    return { steps: [...steps, ...jump.steps], mods: [...mods, ...jump.mods] };
-  },
-  /* Wiggle, leap, land front paws first, hold the catch pinned, then sit up. */
-  pounce: (): Move => {
-    const jump = pounceFrom(POUNCE_WAIT_MS, 0, POUNCE_REACH);
-    return {
-      steps: [
-        step(POUNCE_CROUCH_MS, 'crouch', { hr: 6 }),
-        step(POUNCE_WAIT_MS - POUNCE_CROUCH_MS, 'crouch', { hr: 6 }),
-        ...jump.steps,
-      ],
-      mods: [wiggle(POUNCE_CROUCH_MS, POUNCE_WAIT_MS), ...jump.mods],
-    };
-  },
   stretch: (): Move => ({
     steps: [
       step(500, 'stand'),
@@ -718,17 +615,6 @@ export const MOVES = {
       }
       return { kind: 'cup', x, y, r, o: Math.min(1, t / 300, y > 30 ? 0 : 1) };
     },
-  }),
-  belly: (): Move => ({
-    steps: [
-      step(500, 'loaf'),
-      ...flopTo('loaf', 'belly'),
-      step(1600, 'belly'),
-      ...flopTo('belly', 'loaf'),
-      step(400, 'loaf'),
-      step(500, 'sit'),
-    ],
-    mods: [arc(700, 900, FLOP_HOP), arc(3000, 3200, FLOP_HOP)],
   }),
   /*
    * The fly lands; the cat stalks it and pounces, misses, swats at it overhead,
@@ -971,11 +857,7 @@ export const moveToPlay = (name: MoveName): Move =>
   );
 
 /** Moves that carry the cat along its track; on a short track they are scaled to fit. */
-export const TRAVEL_MOVES: ReadonlySet<MoveName> = new Set([
-  'stalk',
-  'fly',
-  'yarn',
-]);
+export const TRAVEL_MOVES: ReadonlySet<MoveName> = new Set(['fly', 'yarn']);
 
 /** Moves played at a track end, facing out, so the cup goes over the edge; see withApproach. */
 export const EDGE_MOVES: ReadonlySet<MoveName> = new Set(['knock']);
@@ -1053,23 +935,17 @@ export const CAT_WEIGHTS: Record<CatId, Partial<Record<MoveName, number>>> = {
     stretch: 5,
     post: 4,
     knock: 4,
-    stalk: 3,
     toy: 3,
-    belly: 3,
-    pounce: 2,
   },
-  /* The conspirator: stalks and knocks the cup off, and chases yarn. */
+  /* The conspirator: knocks the cup off, and chases yarn. */
   hela: {
-    stalk: 9,
     knock: 9,
     yarn: 7,
     fly: 6,
-    pounce: 4,
     look: 3,
     toy: 3,
     post: 2,
     stretch: 2,
-    belly: 2,
   },
   /* The baby: chases everything, yarn and flies most. */
   rudra: {
@@ -1077,9 +953,6 @@ export const CAT_WEIGHTS: Record<CatId, Partial<Record<MoveName, number>>> = {
     yarn: 11,
     fly: 10,
     toy: 7,
-    stalk: 5,
-    pounce: 4,
-    belly: 4,
     knock: 3,
     post: 2,
     stretch: 2,

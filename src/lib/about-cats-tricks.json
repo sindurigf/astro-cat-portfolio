@@ -12,10 +12,6 @@
       "label": "Stretch",
       "icon": "stretch"
     },
-    "belly": {
-      "label": "Belly Up",
-      "icon": "belly"
-    },
     "post": {
       "label": "Scratch Post",
       "icon": "post"
@@ -39,14 +35,6 @@
     "knock": {
       "label": "Knock the Cup",
       "icon": "cup"
-    },
-    "stalk": {
-      "label": "Stalk",
-      "icon": "stalk"
-    },
-    "pounce": {
-      "label": "Pounce",
-      "icon": "pounce"
     }
   },
   "icons": {
@@ -88,14 +76,6 @@
         "d": "M3 12H21M7 8L3 12L7 16M17 8L21 12L17 16"
       }
     ],
-    "belly": [
-      {
-        "d": "M6 15a6 6 0 1 0 12 0a6 6 0 1 0 -12 0"
-      },
-      {
-        "d": "M6 9V4M10 7V3M14 7V3M18 9V4"
-      }
-    ],
     "post": [
       {
         "d": "M9 3H15V18H9ZM4 21H20"
@@ -131,19 +111,6 @@
     "cup": [
       {
         "d": "M5 5H18V14C18 18 15 20 11.5 20C8 20 5 18 5 14ZM18 8H21V12H18"
-      }
-    ],
-    "stalk": [
-      {
-        "d": "M4.5 16a2.5 3.5 0 1 0 5 0a2.5 3.5 0 1 0 -5 0"
-      },
-      {
-        "d": "M14.5 8a2.5 3.5 0 1 0 5 0a2.5 3.5 0 1 0 -5 0"
-      }
-    ],
-    "pounce": [
-      {
-        "d": "M3 18Q9 3 19 15M14 14L19 15.5L20 10"
       }
     ]
   }
