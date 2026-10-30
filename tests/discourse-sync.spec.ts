@@ -12,6 +12,9 @@ import {
   PR_LINK_COMMENT_PREFIX,
   pullRequestTopic,
   shouldOpenTopic,
+  acceptDecision,
+  stateSteps,
+  topicStateChange,
   topicTarget,
   mirroredPostIds,
   request,
@@ -368,6 +371,89 @@ test(
   },
 );
 
+const closedIssue = (stateReason: string | null) => ({
+  action: 'closed',
+  sender: { login: 'robin' },
+  issue: {
+    number: 3,
+    html_url: 'https://github.com/o/r/issues/3',
+    state_reason: stateReason,
+  },
+});
+
+test(
+  'a completed issue closes its topic with the reply as the solution',
+  NODE,
+  () => {
+    const change = topicStateChange(closedIssue('completed'));
+    expect(change).toMatchObject({ solve: true, close: true });
+    expect(
+      change?.reply.startsWith('Closed on GitHub as completed by robin.'),
+    ).toBe(true);
+    expect(change?.reply).toContain('https://github.com/o/r/issues/3');
+  },
+);
+
+test(
+  'an issue closed as not planned closes its topic without a solution',
+  NODE,
+  () => {
+    const change = topicStateChange(closedIssue('not_planned'));
+    expect(change).toMatchObject({ solve: false, close: true });
+    expect(
+      change?.reply.startsWith('Closed on GitHub as not planned by robin.'),
+    ).toBe(true);
+    expect(
+      topicStateChange(closedIssue(null))?.reply.startsWith(
+        'Closed on GitHub by robin.',
+      ),
+    ).toBe(true);
+  },
+);
+
+test(
+  'a merged pull request solves and closes its topic, an unmerged one only closes',
+  NODE,
+  () => {
+    const pr = (merged: boolean) => ({
+      action: 'closed',
+      sender: { login: 'robin' },
+      pull_request: {
+        number: 12,
+        merged,
+        merged_by: merged ? { login: 'nami' } : null,
+        html_url: 'https://github.com/o/r/pull/12',
+      },
+    });
+    const merged = topicStateChange(pr(true));
+    expect(merged).toMatchObject({ solve: true, close: true });
+    expect(merged?.reply.startsWith('Merged on GitHub by nami.')).toBe(true);
+    const unmerged = topicStateChange(pr(false));
+    expect(unmerged).toMatchObject({ solve: false, close: true });
+    expect(
+      unmerged?.reply.startsWith('Closed on GitHub without merging by robin.'),
+    ).toBe(true);
+  },
+);
+
+test(
+  'a reopen reopens the topic without a solution, other actions do nothing',
+  NODE,
+  () => {
+    const reopened = topicStateChange({
+      ...closedIssue('completed'),
+      action: 'reopened',
+    });
+    expect(reopened).toMatchObject({ solve: false, close: false });
+    expect(reopened?.reply.startsWith('Reopened on GitHub by robin.')).toBe(
+      true,
+    );
+    expect(
+      topicStateChange({ ...closedIssue('completed'), action: 'edited' }),
+    ).toBeNull();
+  },
+);
+
 test('a pull request link comment from a person binds no topic', NODE, () => {
   expect(
     topicIdFromComments([
@@ -430,5 +516,93 @@ test(
         ).toBeUndefined();
       }
     }
+  },
+);
+
+test('an issue closed as a duplicate says so and is not solved', NODE, () => {
+  const change = topicStateChange(closedIssue('duplicate'));
+  expect(change).toMatchObject({ solve: false, close: true });
+  expect(
+    change?.reply.startsWith('Closed on GitHub as a duplicate by robin.'),
+  ).toBe(true);
+});
+
+test('a merged pull request without merged_by credits the sender', NODE, () => {
+  const change = topicStateChange({
+    action: 'closed',
+    sender: { login: 'robin' },
+    pull_request: { number: 12, merged: true, merged_by: null, html_url: 'u' },
+  });
+  expect(change?.reply.startsWith('Merged on GitHub by robin.')).toBe(true);
+});
+
+const API = 'forum-bot';
+const posts = (...extra: object[]) => [
+  { id: 1, post_number: 1, username: API },
+  ...extra,
+];
+
+test('a close replies, accepts that reply, then closes', NODE, () => {
+  const change = topicStateChange(closedIssue('completed'))!;
+  expect(stateSteps(change, posts(), API).map((s) => s.step)).toEqual([
+    'reply',
+    'accept-reply',
+    'close',
+  ]);
+});
+
+test('a close keeps an answer a person already accepted', NODE, () => {
+  const change = topicStateChange(closedIssue('completed'))!;
+  const steps = stateSteps(
+    change,
+    posts({ id: 5, username: 'nami', accepted_answer: true }),
+    API,
+  ).map((s) => s.step);
+  expect(steps).toEqual(['reply', 'close']);
+});
+
+test(
+  'a reopen reopens first and unaccepts only its own close reply, not a mirrored comment',
+  NODE,
+  () => {
+    const change = topicStateChange({
+      ...closedIssue('completed'),
+      action: 'reopened',
+    })!;
+    expect(
+      stateSteps(
+        change,
+        posts(
+          { id: 5, username: 'nami', accepted_answer: true },
+          {
+            id: 7,
+            username: API,
+            raw: 'robin wrote on GitHub:\n\nThe fix is in #12.',
+            accepted_answer: true,
+          },
+          {
+            id: 9,
+            username: 'Forum-Bot',
+            raw: 'Closed on GitHub as completed by robin.',
+            accepted_answer: true,
+          },
+        ),
+        API,
+      ),
+    ).toEqual([
+      { step: 'reopen' },
+      { step: 'unaccept', postId: 9 },
+      { step: 'reply' },
+    ]);
+  },
+);
+
+test(
+  'a reply Discourse will not let the bot accept takes the notice path',
+  NODE,
+  () => {
+    expect(acceptDecision({ can_accept_answer: true })).toBe('accept');
+    expect(acceptDecision({ can_accept_answer: false })).toBe('notice');
+    expect(acceptDecision(undefined)).toBe('notice');
   },
 );
