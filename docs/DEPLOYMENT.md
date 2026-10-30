@@ -293,9 +293,14 @@ Dashboard settings that change what ships without a file change.
   forum. Without both variables the jobs are skipped.
   - `issue-to-discourse.yml` opens a topic for each new issue and links it in
     a comment.
-  - `discourse-comment-to-topic.yml` posts each new issue comment as a reply.
+  - `pr-to-discourse.yml` does the same for each pull request once it is ready
+    for review, skipping drafts and bots. It runs on `pull_request_target`
+    from the default branch and never checks out the pull request's code.
+  - `discourse-comment-to-topic.yml` posts each new issue or pull request
+    conversation comment as a reply. Review comments on code lines are not
+    mirrored.
   - `discourse-topic-to-issue.yml` copies forum replies from topics active in
-    the last 48 hours to their issues, every 15 minutes. GitHub turns the
+    the last 48 hours to their issue or pull request, every 15 minutes. GitHub turns the
     schedule off after 60 days without repository activity.
   - Granular API key scopes: `topics` `write`, `read` and `read_lists`; a
     missing scope fails the job with its name.

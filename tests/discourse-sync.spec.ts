@@ -8,7 +8,10 @@ import {
   defuseMentions,
   forumReplyBody,
   githubCommentBody,
-  issueNumberFromTitle,
+  PR_LINK_COMMENT_PREFIX,
+  pullRequestTopic,
+  shouldOpenTopic,
+  topicTarget,
   mirroredPostIds,
   request,
   shouldMirrorComment,
@@ -62,12 +65,17 @@ test('the topic id comes only from the bot link comment', NODE, () => {
   expect(topicIdFromComments([human])).toBeNull();
 });
 
-test('a topic title names its issue number', NODE, () => {
-  expect(
-    issueNumberFromTitle('GitHub issue #322: Test: issue to Discourse'),
-  ).toBe(322);
-  expect(issueNumberFromTitle('Re: GitHub issue #322: x')).toBeNull();
-  expect(issueNumberFromTitle(undefined)).toBeNull();
+test('a topic title names its issue or pull request number', NODE, () => {
+  expect(topicTarget('GitHub issue #322: Test: issue to Discourse')).toEqual({
+    number: 322,
+    pullRequest: false,
+  });
+  expect(topicTarget('GitHub pull request #12: Fix the menu')).toEqual({
+    number: 12,
+    pullRequest: true,
+  });
+  expect(topicTarget('Re: GitHub issue #322: x')).toBeNull();
+  expect(topicTarget(undefined)).toBeNull();
 });
 
 test(
@@ -288,3 +296,63 @@ test('a POST is never redirected', NODE, async () => {
     forum.server.close();
   }
 });
+
+test(
+  'a pull request topic links back through its own link comment',
+  NODE,
+  () => {
+    expect(
+      topicIdFromComments([
+        {
+          user: { login: BOT_LOGIN },
+          body: `${PR_LINK_COMMENT_PREFIX}https://forum.example/t/github-pull-request-12-fix/77`,
+        },
+      ]),
+    ).toBe(77);
+  },
+);
+
+test('a draft or bot pull request opens no topic', NODE, () => {
+  const ready = { draft: false, user: { login: 'robin', type: 'User' } };
+  expect(shouldOpenTopic(ready)).toBe(true);
+  expect(shouldOpenTopic({ ...ready, draft: true })).toBe(false);
+  expect(
+    shouldOpenTopic({
+      ...ready,
+      user: { login: 'dependabot[bot]', type: 'Bot' },
+    }),
+  ).toBe(false);
+  expect(
+    shouldOpenTopic({
+      ...ready,
+      user: { login: 'renovate[bot]', type: 'Bot' },
+    }),
+  ).toBe(false);
+});
+
+test(
+  'a pull request topic fits Discourse limits and pings no one',
+  NODE,
+  () => {
+    const topic = pullRequestTopic({
+      number: 12,
+      title: 'x'.repeat(400),
+      body: '@luffy please review',
+      html_url: 'https://github.com/o/r/pull/12',
+      user: { login: 'robin' },
+    });
+    expect(topic.title.startsWith('GitHub pull request #12: ')).toBe(true);
+    expect(topic.title.length).toBeLessThanOrEqual(255);
+    expect(topic.raw).toContain('https://github.com/o/r/pull/12');
+    expect(topic.raw).not.toMatch(/(^|[^\w`/])@[\w-]/);
+    expect(
+      pullRequestTopic({
+        number: 1,
+        title: 't',
+        body: null,
+        html_url: 'u',
+        user: { login: 'r' },
+      }).raw,
+    ).toContain('_No description provided._');
+  },
+);

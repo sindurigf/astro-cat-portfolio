@@ -10,11 +10,12 @@ on:
 permissions:
   contents: read
   issues: read
+  pull-requests: read
 
 jobs:
   to-forum:
     name: Mirror the comment to Discourse
-    if: vars.DISCOURSE_URL != '' && vars.DISCOURSE_CATEGORY_ID != '' && !github.event.issue.pull_request
+    if: vars.DISCOURSE_URL != '' && vars.DISCOURSE_CATEGORY_ID != ''
     runs-on: ubuntu-24.04
     timeout-minutes: 5
 
