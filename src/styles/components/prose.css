@@ -64,6 +64,11 @@
     @apply bg-surface px-1 font-mono text-code text-text;
   }
 
+  /* A path or URL in running text has no break opportunity; it would push the page sideways (SC 1.4.10). */
+  .prose :is(p, li) code {
+    @apply wrap-anywhere;
+  }
+
   /*
    * Scrolls, never wraps. src/plugins/code-block.mjs adds tabindex,
    * `role="group"` and a label so keyboards can scroll it (SC 2.1.1); `region`
