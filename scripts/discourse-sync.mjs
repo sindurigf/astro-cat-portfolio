@@ -456,7 +456,7 @@ const acceptSolution = async (post, postId) => {
     if (error.status !== HTTP_FORBIDDEN && error.status !== HTTP_NOT_FOUND)
       throw error;
     console.log(
-      `::notice::Post ${postId} was not marked as the solution (${error.status}): enable "Allow topic owner and staff to mark a reply as the solution" on the category.`,
+      `::notice::Post ${postId} was not marked as the solution (${error.status}): give the category the Support type to turn Solved on.`,
     );
     return false;
   }
