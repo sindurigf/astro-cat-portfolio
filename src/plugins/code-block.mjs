@@ -24,6 +24,11 @@ export const codeBlock = {
       }
       ctx.setProperty(node, 'role', 'group');
       ctx.setProperty(node, 'ariaLabel', LABEL);
+
+      /* The fence's `language-*` class: no highlighter and no CSS read it. */
+      if (child.properties?.className !== undefined) {
+        ctx.setProperty(child, 'className', null);
+      }
     },
   },
 };

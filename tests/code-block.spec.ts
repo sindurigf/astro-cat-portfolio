@@ -73,6 +73,19 @@ test.describe('the code-block visitor', () => {
     expect(node.properties.ariaLabel).toBe('Code, scrolls sideways');
   });
 
+  test('drops the fence language class, which nothing styles', NODE, () => {
+    const code = {
+      ...codeChild,
+      properties: { className: ['language-sh'] } as Record<string, unknown>,
+    };
+    codeBlock.element.visit(preNode(code), visitorContext());
+
+    expect(
+      code.properties.className,
+      'a language-* class reached the page with no CSS for it',
+    ).toBeNull();
+  });
+
   test('leaves preformatted text that is not code alone', NODE, () => {
     const node = preNode({ type: 'text', value: 'a receipt, not code' });
     codeBlock.element.visit(node, visitorContext());
@@ -113,7 +126,9 @@ test.describe('code in a post, as it renders', () => {
         if (!prose) throw new Error('the post has no .prose column');
         prose.insertAdjacentHTML('beforeend', html);
 
-        const block = prose.querySelector('pre')!;
+        /* The sample, not a code block the post already has. */
+        const blocks = prose.querySelectorAll('pre');
+        const block = blocks[blocks.length - 1]!;
         const root = document.documentElement;
         return {
           blockOverflowX: getComputedStyle(block).overflowX,
