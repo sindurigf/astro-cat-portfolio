@@ -182,3 +182,33 @@ test.describe('a post table is a tab stop only while it scrolls', () => {
       });
   });
 });
+
+/* SC 1.4.10: /brand's columns clip their overflow, so a table wider than its clipping box hides cells nobody can scroll to. */
+test('/brand at 390px: no table is cut off by a box that does not scroll', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 900 });
+  await gotoSettled(page, '/brand');
+
+  const clipped = await page.evaluate(() =>
+    [...document.querySelectorAll('table')].flatMap((table) => {
+      const { left, right } = table.getBoundingClientRect();
+      for (
+        let parent = table.parentElement;
+        parent;
+        parent = parent.parentElement
+      ) {
+        const overflow = getComputedStyle(parent).overflowX;
+        if (overflow === 'visible') continue;
+        if (overflow === 'auto' || overflow === 'scroll') return [];
+        const box = parent.getBoundingClientRect();
+        return left < box.left - 0.5 || right > box.right + 0.5
+          ? [table.caption?.textContent ?? 'a table']
+          : [];
+      }
+      return [];
+    }),
+  );
+
+  expect(clipped, 'tables cut off by a box that does not scroll').toEqual([]);
+});
