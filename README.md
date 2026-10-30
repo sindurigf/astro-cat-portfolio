@@ -211,7 +211,9 @@ form answers 503 until its D1 database is created and migrated
 
 ## Contributing
 
-Issues and pull requests are welcome. Report a security vulnerability privately
+- Issues and pull requests are welcome. Constructive feedback is extremely welcome.
+
+- Report a security vulnerability privately
 instead: [SECURITY.md](SECURITY.md). Pull requests use
 [the template](.github/PULL_REQUEST_TEMPLATE.md) and the rules in
 [AGENTS.md](AGENTS.md).
