@@ -121,15 +121,52 @@ const required = (name) => {
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
+const REDIRECT_STATUSES = new Set([301, 302, 303, 307, 308]);
+const MAX_REDIRECTS = 3;
+
+/**
+ * Where a GET redirect may go: the same origin only, since fetch would carry the
+ * Api-Key header to any host. POSTs never follow (a 301 would resend as a GET).
+ */
+export const redirectTarget = (from, location, method, origin, hops) => {
+  const target = new URL(location ?? '', from);
+  if (method !== 'GET')
+    throw new Error(
+      `${method} ${from} was redirected to ${target}; not followed.`,
+    );
+  if (target.origin !== origin)
+    throw new Error(
+      `GET ${from} was redirected off ${origin} to ${target}; not followed.`,
+    );
+  if (hops >= MAX_REDIRECTS)
+    throw new Error(`GET ${from} redirected more than ${MAX_REDIRECTS} times.`);
+  return target.href;
+};
+
 /* Retries 429 with Retry-After or exponential backoff; a 403 names the API key scope it needs. */
-const request = async (url, init, scopeHint) => {
+export const request = async (url, init, scopeHint) => {
+  const method = init?.method ?? 'GET';
+  const origin = new URL(url).origin;
+  let current = url;
+  let hops = 0;
   for (let attempt = 1; ; attempt += 1) {
-    const response = await fetch(url, {
+    const response = await fetch(current, {
       ...init,
       signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
-      /* Discourse redirects a bare category id to its slug; a followed 301 would turn a POST into a GET. */
-      redirect: init?.method === 'POST' ? 'manual' : 'follow',
+      redirect: 'manual',
     });
+    if (REDIRECT_STATUSES.has(response.status)) {
+      current = redirectTarget(
+        current,
+        response.headers.get('location'),
+        method,
+        origin,
+        hops,
+      );
+      hops += 1;
+      attempt -= 1;
+      continue;
+    }
     if (response.status === HTTP_TOO_MANY && attempt < MAX_ATTEMPTS) {
       const retryAfter = Number(response.headers.get('retry-after'));
       await sleep(
@@ -147,7 +184,7 @@ const request = async (url, init, scopeHint) => {
         : '';
     throw Object.assign(
       new Error(
-        `${init?.method ?? 'GET'} ${url} answered ${response.status}.${hint} ${text.slice(0, ERROR_BODY_CHARS)}`,
+        `${method} ${current} answered ${response.status}.${hint} ${text.slice(0, ERROR_BODY_CHARS)}`,
       ),
       { status: response.status },
     );
