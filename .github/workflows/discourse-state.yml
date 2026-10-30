@@ -15,7 +15,9 @@ permissions:
   pull-requests: read
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.issue.number || github.event.pull_request.number }}
+  # One group per issue or pull request across the forum workflows, so a topic
+  # exists before a comment, close or reopen for the same number runs.
+  group: discourse-${{ github.event.issue.number || github.event.pull_request.number }}
   cancel-in-progress: false
 
 jobs:

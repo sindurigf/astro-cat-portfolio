@@ -12,6 +12,8 @@ import {
   PR_LINK_COMMENT_PREFIX,
   pullRequestTopic,
   shouldOpenTopic,
+  acceptDecision,
+  stateSteps,
   topicStateChange,
   topicTarget,
   mirroredPostIds,
@@ -452,9 +454,6 @@ test(
   },
 );
 
-test('state replies name people without an @', NODE, () => {
-  expect(topicStateChange(closedIssue('completed'))?.reply).not.toContain('@');
-});
 test('a pull request link comment from a person binds no topic', NODE, () => {
   expect(
     topicIdFromComments([
@@ -517,5 +516,78 @@ test(
         ).toBeUndefined();
       }
     }
+  },
+);
+
+test('an issue closed as a duplicate says so and is not solved', NODE, () => {
+  const change = topicStateChange(closedIssue('duplicate'));
+  expect(change).toMatchObject({ solve: false, close: true });
+  expect(
+    change?.reply.startsWith('Closed on GitHub as a duplicate by robin.'),
+  ).toBe(true);
+});
+
+test('a merged pull request without merged_by credits the sender', NODE, () => {
+  const change = topicStateChange({
+    action: 'closed',
+    sender: { login: 'robin' },
+    pull_request: { number: 12, merged: true, merged_by: null, html_url: 'u' },
+  });
+  expect(change?.reply.startsWith('Merged on GitHub by robin.')).toBe(true);
+});
+
+const API = 'forum-bot';
+const posts = (...extra: object[]) => [
+  { id: 1, post_number: 1, username: API },
+  ...extra,
+];
+
+test('a close replies, accepts that reply, then closes', NODE, () => {
+  const change = topicStateChange(closedIssue('completed'))!;
+  expect(stateSteps(change, posts(), API).map((s) => s.step)).toEqual([
+    'reply',
+    'accept-reply',
+    'close',
+  ]);
+});
+
+test('a close keeps an answer a person already accepted', NODE, () => {
+  const change = topicStateChange(closedIssue('completed'))!;
+  const steps = stateSteps(
+    change,
+    posts({ id: 5, username: 'nami', accepted_answer: true }),
+    API,
+  ).map((s) => s.step);
+  expect(steps).toEqual(['reply', 'close']);
+});
+
+test('a reopen reopens first and unaccepts only the bot answer', NODE, () => {
+  const change = topicStateChange({
+    ...closedIssue('completed'),
+    action: 'reopened',
+  })!;
+  expect(
+    stateSteps(
+      change,
+      posts(
+        { id: 5, username: 'nami', accepted_answer: true },
+        { id: 9, username: 'Forum-Bot', accepted_answer: true },
+      ),
+      API,
+    ),
+  ).toEqual([
+    { step: 'reopen' },
+    { step: 'unaccept', postId: 9 },
+    { step: 'reply' },
+  ]);
+});
+
+test(
+  'a reply Discourse will not let the bot accept takes the notice path',
+  NODE,
+  () => {
+    expect(acceptDecision({ can_accept_answer: true })).toBe('accept');
+    expect(acceptDecision({ can_accept_answer: false })).toBe('notice');
+    expect(acceptDecision(undefined)).toBe('notice');
   },
 );

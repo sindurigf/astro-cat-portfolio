@@ -301,11 +301,11 @@ Dashboard settings that change what ships without a file change.
     mirrored.
   - `discourse-state.yml` mirrors a close, merge or reopen: it replies in the
     topic, closes or reopens it, and marks a completed issue's or merged pull
-    request's reply as the solution. Marking needs Solved on the category: the
-    Support category type, or in older versions the category setting "Allow
-    topic owner and staff to mark a reply as the solution". Solved is not on
-    Discourse's hosted Free plan
-    ([Discourse Solved](https://meta.discourse.org/t/discourse-solved/30155)).
+    request's reply as the solution, unless a person already chose one; a
+    reopen unaccepts only its own. Marking needs Solved on the category: the
+    Support category type, the site setting `allow_solved_on_all_topics`, or
+    in older versions the category setting "Allow topic owner and staff to
+    mark a reply as the solution".
     Without it the topic still closes.
   - The API user opens each topic, so it may mark the solution while the topic
     is open. Closing and reopening need it to be staff, trust level 4 or a

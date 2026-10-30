@@ -447,21 +447,33 @@ const openTopic = async () => {
   console.log(`#${pullRequest.number} opened topic ${created.topic_id}.`);
 };
 
-/* Accepting needs the Solved plugin enabled on the category; without it the topic still closes. */
-const acceptSolution = async (get, post, topicId, postId) => {
-  const page = await get(
-    `/t/${topicId}/posts.json?post_ids[]=${postId}`,
-    'topics: read',
-  );
-  if (!page.post_stream?.posts?.[0]?.can_accept_answer) {
-    console.log(
-      `::notice::Post ${postId} cannot be marked as the solution: give the category the Support type to turn Solved on.`,
-    );
-    return false;
-  }
-  await post('/solution/accept.json', { id: postId }, 'solved: answer');
-  return true;
+/**
+ * The forum steps for a close or reopen, in order. A close accepts its reply only when no
+ * answer is accepted yet; a reopen unaccepts only the API user's answers, never a person's choice.
+ */
+export const stateSteps = (change, posts, apiUsername) => {
+  const own = (post) =>
+    post.username?.toLowerCase() === apiUsername.toLowerCase();
+  if (!change.close)
+    return [
+      /* First: the topic author may only unaccept in an open topic. */
+      { step: 'reopen' },
+      ...posts
+        .filter((post) => post.accepted_answer && own(post))
+        .map((post) => ({ step: 'unaccept', postId: post.id })),
+      { step: 'reply' },
+    ];
+  const answered = posts.some((post) => post.accepted_answer);
+  return [
+    { step: 'reply' },
+    ...(change.solve && !answered ? [{ step: 'accept-reply' }] : []),
+    { step: 'close' },
+  ];
 };
+
+/** Accept only what Discourse says this user may accept; Solved off on the category means not. */
+export const acceptDecision = (post) =>
+  post?.can_accept_answer ? 'accept' : 'notice';
 
 const syncState = async () => {
   const event = JSON.parse(readFileSync(required('GITHUB_EVENT_PATH'), 'utf8'));
@@ -471,42 +483,51 @@ const syncState = async () => {
   const topicId = topicIdFromComments(await github().comments(number));
   if (!topicId) return console.log(`#${number} has no forum topic; skipped.`);
   const { get, post, put } = forum();
-  const status = (closed) =>
-    put(
-      `/t/${topicId}/status.json`,
-      { status: 'closed', enabled: closed },
-      'topics: status',
-    );
-  if (!change.close) {
-    /* Reopen first: the topic author may only unaccept in an open topic. */
-    await status(false);
-    const { posts } = await topicPosts(get, topicId);
-    for (const answer of posts.filter((p) => p.accepted_answer))
-      await post(
-        '/solution/unaccept.json',
-        { id: answer.id },
-        'solved: answer',
+  const { posts } = await topicPosts(get, topicId);
+  let replyId = null;
+  let solved = false;
+  for (const { step, postId } of stateSteps(
+    change,
+    posts,
+    required('DISCOURSE_API_USERNAME'),
+  )) {
+    if (step === 'reopen' || step === 'close') {
+      await put(
+        `/t/${topicId}/status.json`,
+        { status: 'closed', enabled: step === 'close' },
+        'topics: status',
       );
-    await post(
-      '/posts.json',
-      { topic_id: topicId, raw: change.reply },
-      'topics: write',
-    );
-    return console.log(`Topic ${topicId} reopened.`);
+    } else if (step === 'unaccept') {
+      await post('/solution/unaccept.json', { id: postId }, 'solved: answer');
+    } else if (step === 'reply') {
+      const reply = await post(
+        '/posts.json',
+        { topic_id: topicId, raw: change.reply },
+        'topics: write',
+      );
+      if (!reply?.id)
+        throw new Error(
+          `Discourse answered without a post id: ${JSON.stringify(reply)}`,
+        );
+      replyId = reply.id;
+    } else if (step === 'accept-reply') {
+      const page = await get(
+        `/t/${topicId}/posts.json?post_ids[]=${replyId}`,
+        'topics: read',
+      );
+      if (acceptDecision(page.post_stream?.posts?.[0]) === 'accept') {
+        await post('/solution/accept.json', { id: replyId }, 'solved: answer');
+        solved = true;
+      } else {
+        console.log(
+          `::notice::Post ${replyId} cannot be marked as the solution: turn Solved on for the category (Support type).`,
+        );
+      }
+    }
   }
-  const reply = await post(
-    '/posts.json',
-    { topic_id: topicId, raw: change.reply },
-    'topics: write',
+  console.log(
+    `Topic ${topicId} ${change.close ? 'closed' : 'reopened'}${solved ? ' and solved' : ''}.`,
   );
-  if (!reply?.id)
-    throw new Error(
-      `Discourse answered without a post id: ${JSON.stringify(reply)}`,
-    );
-  const solved =
-    change.solve && (await acceptSolution(get, post, topicId, reply.id));
-  await status(true);
-  console.log(`Topic ${topicId} closed${solved ? ' and solved' : ''}.`);
 };
 
 const main = async () => {
