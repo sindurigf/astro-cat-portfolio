@@ -342,12 +342,11 @@ const stepFrame = (
 const CREEP: readonly Frame[] = ['crouch', 'crouchdown'];
 /** px a creeping cat covers per drawing, about a third of a walk stride. */
 export const CREEP_STEP_PX = 13;
-/** px a stopped creeping cat may lag its pose before it takes one last step. */
-const CREEP_SETTLE_PX = 0.5;
 
 /**
  * The crouch drawing a creeping cat shows, or null when it is not creeping:
- * the body moves only when the drawing changes, so its paws never glide.
+ * the body moves only when the drawing changes, so its paws never glide, and a
+ * stopped cat settles on the crouch.
  */
 export const creepFrame = (
   s: Pick<FrameStep, 'frame' | 'stepX'>,
@@ -355,17 +354,24 @@ export const creepFrame = (
   moving: boolean,
 ): Frame | null => {
   if (s.frame === null || !CREEP.includes(s.frame)) return null;
-  const behind = Math.abs(x - s.stepX);
-  if (!moving && behind <= CREEP_SETTLE_PX) return null;
-  if (behind < (moving ? CREEP_STEP_PX : CREEP_SETTLE_PX)) return s.frame;
+  if (!moving) return 'crouch';
+  if (Math.abs(x - s.stepX) < CREEP_STEP_PX) return s.frame;
   return s.frame === 'crouch' ? 'crouchdown' : 'crouch';
 };
 
-/** Where the cat is drawn: while a walk or crouch frame shows, where that frame began, so a planted paw never slides. */
-const drawnXOf = (s: Pick<FrameStep, 'frame' | 'stepX'>, x: number): number =>
-  s.frame !== null && (WALK.includes(s.frame) || CREEP.includes(s.frame))
-    ? s.stepX
-    : x;
+/**
+ * Where the cat is drawn: while a walk or creeping crouch frame shows, where that
+ * frame began, so a planted paw never slides; a stopped crouch catches up in place.
+ */
+export const drawnXOf = (
+  s: Pick<FrameStep, 'frame' | 'stepX'>,
+  x: number,
+  moving: boolean,
+): number => {
+  if (s.frame === null) return x;
+  if (WALK.includes(s.frame) || s.frame === 'crouchdown') return s.stepX;
+  return s.frame === 'crouch' && moving ? s.stepX : x;
+};
 
 /** True while a frame waits its turn or the arrival squash shows: the loop draws until both end. */
 export const isStepping = (
@@ -446,7 +452,7 @@ export const renderCat = (
     set(rig.zz, 'opacity', f(Math.min(1, 2 * p.zz)));
   }
 
-  const drawnX = drawnXOf(rig, x);
+  const drawnX = drawnXOf(rig, x, moving);
   set(rig.root, 'transform', translate(drawnX, groundY));
   /* A still frame breathes with the pose's chest, and lands in a squash for one step. */
   const still = RESTING_POSE.has(shown) && !moving;

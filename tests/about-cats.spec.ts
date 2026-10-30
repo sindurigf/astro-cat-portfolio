@@ -28,6 +28,7 @@ import {
   HIT_HALF_WIDTH,
   POST_HEIGHT,
   creepFrame,
+  drawnXOf,
   highestPoint,
   hitBox,
   isStepping,
@@ -333,14 +334,20 @@ test(
       riseWay('crouch', 'sit'),
       'a crouching cat cut straight to sitting',
     ).toEqual(['crouch', 'loafsink', 'sit']);
+    expect(
+      riseWay('crouchdown', 'sit'),
+      'a half-risen crouching cat cut straight to sitting',
+    ).toEqual(['crouchdown', 'crouch', 'loafsink', 'sit']);
   },
 );
 
 test(
-  'a creeping cat changes its crouch drawing only after a full step, and catches up when it stops',
+  'a creeping cat changes its crouch drawing only after a full step, and a stopped one settles on the crouch where it stands',
   NODE,
   () => {
     const crouched = { frame: 'crouch' as Frame, stepX: 0 };
+    const risen = { frame: 'crouchdown' as Frame, stepX: 0 };
+    const LAG_PX = CREEP_STEP_PX / 2;
     expect(
       creepFrame(crouched, CREEP_STEP_PX - 1, true),
       'a creeping cat changed drawing before a full step',
@@ -350,13 +357,21 @@ test(
       'a creeping cat kept one drawing past a full step, so its paws glide',
     ).toBe('crouchdown');
     expect(
-      creepFrame(crouched, 1, false),
-      'a stopped cat stayed drawn behind where it stands',
-    ).toBe('crouchdown');
+      drawnXOf(crouched, LAG_PX, true),
+      'a creeping crouch was drawn moving between steps',
+    ).toBe(0);
     expect(
-      creepFrame(crouched, 0, false),
-      'a still, caught-up cat did not fall back to its posed frame',
-    ).toBeNull();
+      creepFrame(crouched, LAG_PX, false),
+      'a stopped crouching cat swapped drawing instead of settling',
+    ).toBe('crouch');
+    expect(
+      drawnXOf(crouched, LAG_PX, false),
+      'a stopped crouching cat stayed drawn behind where it stands',
+    ).toBe(LAG_PX);
+    expect(
+      creepFrame(risen, LAG_PX, false),
+      'a cat stopped half-risen did not sink back to the crouch',
+    ).toBe('crouch');
     expect(
       creepFrame({ frame: 'stand', stepX: 0 }, CREEP_STEP_PX, true),
       'a cat that is not crouched was treated as creeping',

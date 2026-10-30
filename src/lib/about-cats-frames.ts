@@ -86,10 +86,11 @@ const SEATED: ReadonlySet<Frame> = new Set([
 /** Upright seated frames, which sink through loafsink to a crouch and rise back through it. */
 const UPRIGHT: ReadonlySet<Frame> = new Set(['sit', 'headturn', 'look']);
 
-/** The next frame between sitting up and crouching, either way, or null when the change is not one. */
+/** The next frame between sitting up and crouching, either way, a half-risen crouch included, or null when the change is not one. */
 const crouchStep = (from: Frame, wanted: Frame): Frame | null => {
   if (UPRIGHT.has(from) && wanted === 'crouch') return 'loafsink';
   if (from === 'crouch' && UPRIGHT.has(wanted)) return 'loafsink';
+  if (from === 'crouchdown' && UPRIGHT.has(wanted)) return 'crouch';
   if (from === 'loafsink' && wanted === 'crouch') return 'crouch';
   if (from === 'loafsink' && UPRIGHT.has(wanted)) return 'sit';
   return null;
