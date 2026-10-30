@@ -1,13 +1,9 @@
 /*
- * What a resting cat does between moves: breathes and glances aside. Offsets
- * only; the pose they sit on is the cat's own. The sprite frames draw the
- * breath as a scale and a glance as a head-turn frame.
+ * What a resting cat does between moves: glances aside. An offset only; the
+ * pose it sits on is the cat's own, and the sprite frames draw a glance as a
+ * head-turn frame.
  */
 
-/** A sitting cat breathes about 24 times a minute. */
-const BREATH_MS = 2500;
-/** Chest thickness gained at the top of a breath, in px. */
-export const BREATH_DEPTH = 3.2;
 const GLANCE_EVERY_MS = [2500, 6000] as const;
 const GLANCE_MS = 700;
 /** Largest head turn in degrees; the head returns to center about half the time. */
@@ -18,7 +14,6 @@ const GLANCE_SIDE_CHANCE = 0.5;
 const GLANCE_MIN_SHARE = 0.5;
 
 export interface IdleState {
-  breathPhase: number;
   nextGlance: number;
   glanceFrom: number;
   glanceTo: number;
@@ -26,7 +21,6 @@ export interface IdleState {
 }
 
 export interface IdleOffsets {
-  bt: number;
   hr: number;
 }
 
@@ -36,7 +30,6 @@ type Range = readonly [number, number];
 const UNSET = -1;
 
 export const createIdle = (): IdleState => ({
-  breathPhase: Math.random() * BREATH_MS,
   nextGlance: UNSET,
   glanceFrom: 0,
   glanceTo: 0,
@@ -82,13 +75,10 @@ export const tickIdle = (
 };
 
 export const idleOffsets = (state: IdleState, now: number): IdleOffsets => ({
-  bt:
-    BREATH_DEPTH *
-    Math.sin((2 * Math.PI * (now + state.breathPhase)) / BREATH_MS),
   hr: glanceNow(state, now),
 });
 
-/** Slow while only the breath moves, quicker for a glance. */
+/** Slow while the cat holds still, quicker for a glance. */
 const CALM_FRAME_MS = 100;
 const BUSY_FRAME_MS = 50;
 

@@ -52,6 +52,10 @@ design/
 # git worktrees; Prettier reads this file too, so it skips them
 .claude/worktrees/
 
+# crash dumps, such as a browser's in a test:webkit container
+/core
+/core.[0-9]*
+
 # scratch and atomic-write temp files
 *.tmp
 *.tmp.*
