@@ -29,7 +29,6 @@ const MS_PER_S = 1_000;
 const REQUEST_TIMEOUT_MS = 30_000;
 const HTTP_FORBIDDEN = 403;
 const HTTP_NOT_FOUND = 404;
-const HTTP_MOVED = 301;
 const ERROR_BODY_CHARS = 500;
 /* Discourse's default max_post_length; GitHub allows 65,536. */
 const FORUM_MAX_POST_CHARS = 32_000;
@@ -128,8 +127,8 @@ const request = async (url, init, scopeHint) => {
     const response = await fetch(url, {
       ...init,
       signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
-      /* A followed 301 turns a POST into a GET (transferred issues); fail instead. */
-      redirect: 'manual',
+      /* Discourse redirects a bare category id to its slug; a followed 301 would turn a POST into a GET. */
+      redirect: init?.method === 'POST' ? 'manual' : 'follow',
     });
     if (response.status === HTTP_TOO_MANY && attempt < MAX_ATTEMPTS) {
       const retryAfter = Number(response.headers.get('retry-after'));
@@ -195,10 +194,13 @@ const github = () => {
     }
     return all;
   };
-  const issue = async (number) =>
-    (
+  /* A transferred issue redirects to its new repository; it is not ours to comment on. */
+  const issue = async (number) => {
+    const found = await (
       await request(`${api}/repos/${repo}/issues/${number}`, { headers })
     ).json();
+    return found.repository_url === `${api}/repos/${repo}` ? found : null;
+  };
   const comment = (number, body) =>
     request(`${api}/repos/${repo}/issues/${number}/comments`, {
       method: 'POST',
@@ -278,10 +280,9 @@ const toGithub = async () => {
   for (const listed of await recentTopics(get, categoryId, cutoff)) {
     const number = issueNumberFromTitle(listed.title);
     if (!number || listed.category_id !== categoryId) continue;
-    /* A deleted (404) or transferred (301) issue has nothing to sync to. */
+    /* A deleted issue (404) has nothing to sync to. */
     const issue = await gh.issue(number).catch((error) => {
-      if (error.status === HTTP_NOT_FOUND || error.status === HTTP_MOVED)
-        return null;
+      if (error.status === HTTP_NOT_FOUND) return null;
       throw error;
     });
     if (!issue || issue.pull_request) continue;
