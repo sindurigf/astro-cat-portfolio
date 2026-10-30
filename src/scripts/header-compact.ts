@@ -1,16 +1,14 @@
 /*
  * The slim header once the page scrolls past the full one. A state, not an
  * animation, so reduced motion needs nothing more. tests/header-fit.spec.ts.
+ * An observer, not a scroll listener: WebKit can skip the scroll event of a
+ * single jump, and the observer also reports a page that loads scrolled.
  */
 const header = document.querySelector('header.site-header');
-const full = parseFloat(
-  getComputedStyle(document.documentElement).getPropertyValue(
-    '--spacing-header',
-  ),
-);
-const update = (): void => {
-  header?.toggleAttribute('data-compact', window.scrollY > full);
-};
+const sentinel = document.querySelector('[data-header-sentinel]');
 
-window.addEventListener('scroll', update, { passive: true });
-update();
+if (header && sentinel) {
+  new IntersectionObserver(([entry]) => {
+    header.toggleAttribute('data-compact', !entry?.isIntersecting);
+  }).observe(sentinel);
+}

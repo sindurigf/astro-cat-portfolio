@@ -1,5 +1,5 @@
 import { expect, test } from './test';
-import { gotoSettled, scrollSettled } from './settle';
+import { gotoSettled } from './settle';
 
 /**
  * Tightest header widths: 336px (`--breakpoint-xs`), 768px (primary nav appears),
@@ -194,7 +194,7 @@ for (const width of SLIM_WIDTHS) {
       page,
     }) => {
       await gotoSettled(page, ROUTE);
-      await scrollSettled(page, 900);
+      await page.evaluate(() => window.scrollTo(0, 900));
       await expect(page.locator('header.site-header')).toHaveAttribute(
         'data-compact',
         '',
@@ -242,7 +242,7 @@ test.describe('the slim header once the page scrolls', () => {
       () =>
         document.querySelector('main')!.getBoundingClientRect().top + scrollY,
     );
-    await scrollSettled(page, 900);
+    await page.evaluate(() => window.scrollTo(0, 900));
     await expect(page.locator('header.site-header')).toHaveAttribute(
       'data-compact',
       '',
@@ -279,7 +279,7 @@ test.describe('the slim header once the page scrolls', () => {
     ).toBeGreaterThanOrEqual(44);
     expect(found.mainTop, 'going slim moved the page under it').toBe(before);
     expect(found.transition, 'the slim header animates').toBe('0s');
-    await scrollSettled(page, 0);
+    await page.evaluate(() => window.scrollTo(0, 0));
     await expect(page.locator('header.site-header')).not.toHaveAttribute(
       'data-compact',
     );

@@ -177,17 +177,6 @@ const SWEEP_BUDGET_PER_ROUTE_MS = 3_000;
 export const sweepTimeout = (routeCount: number): number =>
   SWEEP_BUDGET_PER_ROUTE_MS * routeCount;
 
-/** Scrolls after two frames: WebKit drops the scroll event of a scroll made before the first paint. */
-export const scrollSettled = async (page: Page, top: number): Promise<void> => {
-  await page.evaluate(
-    () =>
-      new Promise<void>((done) =>
-        requestAnimationFrame(() => requestAnimationFrame(() => done())),
-      ),
-  );
-  await page.evaluate((y) => window.scrollTo(0, y), top);
-};
-
 /**
  * Resizes, then waits two frames: under load Chromium can measure existing
  * elements with the previous width's viewport units for a frame after the
