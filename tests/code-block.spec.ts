@@ -156,6 +156,27 @@ test.describe('code in a post, as it renders', () => {
   }
 });
 
+/* SC 1.4.10: a long path in running text wraps instead of widening the page. */
+test('inline code in a paragraph wraps inside its column at 320px', async ({
+  page,
+}) => {
+  await page.setViewportSize(REFLOW_VIEWPORT);
+  await gotoSettled(page, itemAt(POST_ROUTES, 0));
+
+  const pageScrolls = await page.evaluate(() => {
+    const prose = document.querySelector('.prose');
+    if (!prose) throw new Error('the post has no .prose column');
+    prose.insertAdjacentHTML(
+      'beforeend',
+      '<p>Edit <code>/srv/example/config/settings/and/a/much/longer/path.yml</code> first.</p>',
+    );
+    const root = document.documentElement;
+    return root.scrollWidth > root.clientWidth;
+  });
+
+  expect(pageScrolls, 'inline code pushed the page sideways').toBe(false);
+});
+
 /* SC 2.4.3, 4.1.2: a stop with nothing to scroll is a dead tab, and "scrolls sideways" a false name. */
 test.describe('a code block is a tab stop only while it scrolls', () => {
   const stateOf = (page: import('@playwright/test').Page) =>
