@@ -299,11 +299,18 @@ Dashboard settings that change what ships without a file change.
   - `discourse-comment-to-topic.yml` posts each new issue or pull request
     conversation comment as a reply. Review comments on code lines are not
     mirrored.
+  - `discourse-state.yml` mirrors a close, merge or reopen: it replies in the
+    topic, closes or reopens it, and marks a completed issue's or merged pull
+    request's reply as the solution. Marking needs the category setting
+    "Allow topic owner and staff to mark a reply as the solution" (Solved);
+    without it the topic still closes. Closing needs an API user who is staff,
+    trust level 4 or a category moderator.
   - `discourse-topic-to-issue.yml` copies forum replies from topics active in
     the last 48 hours to their issue or pull request, every 15 minutes.
     GitHub turns the schedule off after 60 days without repository activity.
-  - Granular API key scopes: `topics` `write`, `read` and `read_lists`; a
-    missing scope fails the job with its name.
+  - Granular API key scopes: `topics` `write`, `read`, `read_lists` and
+    `status`, and `solved` `answer`; a missing scope fails the job with its
+    name.
   - Anyone can open an issue or comment on a public repository, so anyone can
     post to the forum. Mirrored text breaks `@mentions` on both sides.
   - Forum replies in `DISCOURSE_CATEGORY_ID` become public on GitHub, even on

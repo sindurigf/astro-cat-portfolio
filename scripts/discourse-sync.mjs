@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /*
  * Mirrors issue and pull request comments and forum replies between GitHub and their topics.
- * `open-topic` and `to-forum` read GITHUB_EVENT_PATH; `to-github` copies recent replies (docs/DEPLOYMENT.md).
+ * `open-topic`, `to-forum` and `state` read GITHUB_EVENT_PATH; `to-github` copies recent replies (docs/DEPLOYMENT.md).
  */
 
 import { readFileSync } from 'node:fs';
@@ -73,6 +73,47 @@ export const shouldOpenTopic = (pullRequest) =>
   !pullRequest.draft && pullRequest.user?.type !== 'Bot';
 
 /* By code point, so a cut never splits an emoji's surrogate pair. */
+const CLOSE_REASONS = {
+  completed: 'as completed',
+  not_planned: 'as not planned',
+  duplicate: 'as a duplicate',
+};
+
+/**
+ * What a close or reopen on GitHub does to the topic: the reply to post, whether
+ * that reply becomes the accepted solution, and whether the topic closes.
+ */
+export const topicStateChange = (event) => {
+  const item = event.pull_request ?? event.issue;
+  if (!item || !['closed', 'reopened'].includes(event.action)) return null;
+  const actor = event.sender?.login ?? 'someone';
+  const link = `\n\n${item.html_url}`;
+  if (event.action === 'reopened')
+    return {
+      reply: `Reopened on GitHub by ${actor}.${link}`,
+      solve: false,
+      close: false,
+    };
+  if (event.pull_request)
+    return item.merged
+      ? {
+          reply: `Merged on GitHub by ${item.merged_by?.login ?? actor}.${link}`,
+          solve: true,
+          close: true,
+        }
+      : {
+          reply: `Closed on GitHub without merging by ${actor}.${link}`,
+          solve: false,
+          close: true,
+        };
+  const reason = CLOSE_REASONS[item.state_reason];
+  return {
+    reply: `Closed on GitHub ${reason ? `${reason} ` : ''}by ${actor}.${link}`,
+    solve: item.state_reason === 'completed',
+    close: true,
+  };
+};
+
 const fit = (text, limit, note) => {
   const points = Array.from(text);
   return points.length > limit
@@ -241,7 +282,15 @@ const forum = () => {
         scope,
       )
     ).json();
-  return { base, get, post };
+  const put = async (path, body, scope) =>
+    (
+      await request(
+        `${base}${path}`,
+        { method: 'PUT', headers, body: JSON.stringify(body) },
+        scope,
+      )
+    ).json();
+  return { base, get, post, put };
 };
 
 const github = () => {
@@ -398,13 +447,73 @@ const openTopic = async () => {
   console.log(`#${pullRequest.number} opened topic ${created.topic_id}.`);
 };
 
+/* Accepting needs the Solved plugin enabled on the category; without it the topic still closes. */
+const acceptSolution = async (post, postId) => {
+  try {
+    await post('/solution/accept.json', { id: postId }, 'solved: answer');
+    return true;
+  } catch (error) {
+    if (error.status !== HTTP_FORBIDDEN && error.status !== HTTP_NOT_FOUND)
+      throw error;
+    console.log(
+      `::notice::Post ${postId} was not marked as the solution (${error.status}): enable "Allow topic owner and staff to mark a reply as the solution" on the category.`,
+    );
+    return false;
+  }
+};
+
+const syncState = async () => {
+  const event = JSON.parse(readFileSync(required('GITHUB_EVENT_PATH'), 'utf8'));
+  const change = topicStateChange(event);
+  if (!change) return console.log(`Nothing to do for "${event.action}".`);
+  const number = (event.pull_request ?? event.issue).number;
+  const topicId = topicIdFromComments(await github().comments(number));
+  if (!topicId) return console.log(`#${number} has no forum topic; skipped.`);
+  const { get, post, put } = forum();
+  const status = (closed) =>
+    put(
+      `/t/${topicId}/status.json`,
+      { status: 'closed', enabled: closed },
+      'topics: status',
+    );
+  if (!change.close) {
+    const { posts } = await topicPosts(get, topicId);
+    for (const answer of posts.filter((p) => p.accepted_answer))
+      await post(
+        '/solution/unaccept.json',
+        { id: answer.id },
+        'solved: answer',
+      );
+    await status(false);
+    await post(
+      '/posts.json',
+      { topic_id: topicId, raw: change.reply },
+      'topics: write',
+    );
+    return console.log(`Topic ${topicId} reopened.`);
+  }
+  const reply = await post(
+    '/posts.json',
+    { topic_id: topicId, raw: change.reply },
+    'topics: write',
+  );
+  if (!reply?.id)
+    throw new Error(
+      `Discourse answered without a post id: ${JSON.stringify(reply)}`,
+    );
+  const solved = change.solve && (await acceptSolution(post, reply.id));
+  await status(true);
+  console.log(`Topic ${topicId} closed${solved ? ' and solved' : ''}.`);
+};
+
 const main = async () => {
   const mode = process.argv[2];
+  if (mode === 'state') return syncState();
   if (mode === 'open-topic') return openTopic();
   if (mode === 'to-forum') return toForum();
   if (mode === 'to-github') return toGithub();
   throw new Error(
-    'Usage: discourse-sync.mjs open-topic | to-forum | to-github',
+    'Usage: discourse-sync.mjs open-topic | to-forum | to-github | state',
   );
 };
 

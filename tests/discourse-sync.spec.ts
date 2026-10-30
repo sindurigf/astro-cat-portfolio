@@ -11,6 +11,7 @@ import {
   PR_LINK_COMMENT_PREFIX,
   pullRequestTopic,
   shouldOpenTopic,
+  topicStateChange,
   topicTarget,
   mirroredPostIds,
   request,
@@ -366,3 +367,90 @@ test(
     ).toContain('_No description provided._');
   },
 );
+
+const closedIssue = (stateReason: string | null) => ({
+  action: 'closed',
+  sender: { login: 'robin' },
+  issue: {
+    number: 3,
+    html_url: 'https://github.com/o/r/issues/3',
+    state_reason: stateReason,
+  },
+});
+
+test(
+  'a completed issue closes its topic with the reply as the solution',
+  NODE,
+  () => {
+    const change = topicStateChange(closedIssue('completed'));
+    expect(change).toMatchObject({ solve: true, close: true });
+    expect(
+      change?.reply.startsWith('Closed on GitHub as completed by robin.'),
+    ).toBe(true);
+    expect(change?.reply).toContain('https://github.com/o/r/issues/3');
+  },
+);
+
+test(
+  'an issue closed as not planned closes its topic without a solution',
+  NODE,
+  () => {
+    const change = topicStateChange(closedIssue('not_planned'));
+    expect(change).toMatchObject({ solve: false, close: true });
+    expect(
+      change?.reply.startsWith('Closed on GitHub as not planned by robin.'),
+    ).toBe(true);
+    expect(
+      topicStateChange(closedIssue(null))?.reply.startsWith(
+        'Closed on GitHub by robin.',
+      ),
+    ).toBe(true);
+  },
+);
+
+test(
+  'a merged pull request solves and closes its topic, an unmerged one only closes',
+  NODE,
+  () => {
+    const pr = (merged: boolean) => ({
+      action: 'closed',
+      sender: { login: 'robin' },
+      pull_request: {
+        number: 12,
+        merged,
+        merged_by: merged ? { login: 'nami' } : null,
+        html_url: 'https://github.com/o/r/pull/12',
+      },
+    });
+    const merged = topicStateChange(pr(true));
+    expect(merged).toMatchObject({ solve: true, close: true });
+    expect(merged?.reply.startsWith('Merged on GitHub by nami.')).toBe(true);
+    const unmerged = topicStateChange(pr(false));
+    expect(unmerged).toMatchObject({ solve: false, close: true });
+    expect(
+      unmerged?.reply.startsWith('Closed on GitHub without merging by robin.'),
+    ).toBe(true);
+  },
+);
+
+test(
+  'a reopen reopens the topic without a solution, other actions do nothing',
+  NODE,
+  () => {
+    const reopened = topicStateChange({
+      ...closedIssue('completed'),
+      action: 'reopened',
+    });
+    expect(reopened).toMatchObject({ solve: false, close: false });
+    expect(reopened?.reply.startsWith('Reopened on GitHub by robin.')).toBe(
+      true,
+    );
+    expect(
+      topicStateChange({ ...closedIssue('completed'), action: 'edited' }),
+    ).toBeNull();
+  },
+);
+
+test('state replies name people without an @', NODE, () => {
+  expect(topicStateChange(closedIssue('completed'))?.reply).not.toContain('@');
+});
