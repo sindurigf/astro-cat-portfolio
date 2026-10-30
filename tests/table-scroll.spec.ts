@@ -122,7 +122,7 @@ test.describe('a post table at 320px', () => {
         const walker = document.createTreeWalker(cell, NodeFilter.SHOW_TEXT);
         for (let node = walker.nextNode(); node; node = walker.nextNode()) {
           const text = node.textContent ?? '';
-          /* A hyphen is a break opportunity (UAX #14), so `getting-started` may wrap after it. */
+          /* A break after a hyphen is a normal line break, not a split word. */
           for (const match of text.matchAll(/[^\s-]+/g)) {
             const range = document.createRange();
             range.setStart(node, match.index);
