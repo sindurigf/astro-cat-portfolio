@@ -1,4 +1,5 @@
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
+import { load } from 'js-yaml';
 import { createServer, type Server } from 'node:http';
 import type { AddressInfo } from 'node:net';
 import { expect, test } from './test';
@@ -364,5 +365,70 @@ test(
         user: { login: 'r' },
       }).raw,
     ).toContain('_No description provided._');
+  },
+);
+
+test('a pull request link comment from a person binds no topic', NODE, () => {
+  expect(
+    topicIdFromComments([
+      {
+        user: { login: 'mallory' },
+        body: `${PR_LINK_COMMENT_PREFIX}https://forum.example/t/x/77`,
+      },
+    ]),
+  ).toBeNull();
+});
+
+test('a pull request body longer than a forum post is shortened', NODE, () => {
+  const { raw } = pullRequestTopic({
+    number: 12,
+    title: 't',
+    body: 'x'.repeat(70_000),
+    html_url: 'https://github.com/o/r/pull/12',
+    user: { login: 'robin' },
+  });
+  expect(Array.from(raw).length).toBeLessThanOrEqual(32_000);
+  expect(raw).toContain('https://github.com/o/r/pull/12');
+  expect(raw.endsWith('(Shortened; the full comment is on GitHub.)')).toBe(
+    true,
+  );
+});
+
+/* Security: pull_request_target runs with secrets, so it must never check out the pull request. */
+test(
+  'every pull_request_target workflow checks out only the default branch',
+  NODE,
+  () => {
+    const dir = '.github/workflows';
+    type Step = { uses?: string; with?: { ref?: string; repository?: string } };
+    type Workflow = { on?: unknown; jobs?: Record<string, { steps?: Step[] }> };
+    const targets = readdirSync(dir)
+      .filter((name) => name.endsWith('.yml'))
+      .map((name) => ({
+        name,
+        workflow: load(readFileSync(`${dir}/${name}`, 'utf8')) as Workflow,
+      }))
+      .filter(({ workflow }) =>
+        JSON.stringify(workflow.on ?? {}).includes('pull_request_target'),
+      );
+    expect(
+      targets.length,
+      'no pull_request_target workflow found',
+    ).toBeGreaterThan(0);
+    for (const { name, workflow } of targets) {
+      for (const step of Object.values(workflow.jobs ?? {}).flatMap(
+        (job) => job.steps ?? [],
+      )) {
+        if (!step.uses?.startsWith('actions/checkout@')) continue;
+        expect(
+          [undefined, '${{ github.event.repository.default_branch }}'],
+          `${name} checks out ${step.with?.ref}, not the default branch`,
+        ).toContain(step.with?.ref);
+        expect(
+          step.with?.repository,
+          `${name} checks out another repository`,
+        ).toBeUndefined();
+      }
+    }
   },
 );

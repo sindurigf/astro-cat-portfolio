@@ -289,8 +289,8 @@ Dashboard settings that change what ships without a file change.
   Without both, the workflow sets `CHECK_LIVE_SKIP_D1=1` and `check:live`
   prints a skip line for the D1 check.
 - Optional variables `DISCOURSE_URL` and `DISCOURSE_CATEGORY_ID` and secrets
-  `DISCOURSE_API_KEY` and `DISCOURSE_API_USERNAME` link issues to a Discourse
-  forum. Without both variables the jobs are skipped.
+  `DISCOURSE_API_KEY` and `DISCOURSE_API_USERNAME` link issues and pull
+  requests to a Discourse forum. Without both variables the jobs are skipped.
   - `issue-to-discourse.yml` opens a topic for each new issue and links it in
     a comment.
   - `pr-to-discourse.yml` does the same for each pull request once it is ready
@@ -304,8 +304,8 @@ Dashboard settings that change what ships without a file change.
     GitHub turns the schedule off after 60 days without repository activity.
   - Granular API key scopes: `topics` `write`, `read` and `read_lists`; a
     missing scope fails the job with its name.
-  - Anyone can open an issue or comment on a public repository, so anyone can
-    post to the forum. Mirrored text breaks `@mentions` on both sides.
+  - Anyone can open an issue, a pull request from a fork, or a comment on a
+    public repository, so anyone can open a topic or post to the forum. Mirrored text breaks `@mentions` on both sides.
   - Forum replies in `DISCOURSE_CATEGORY_ID` become public on GitHub, even on
     a forum that needs a login.
   - Edits and deletions are not mirrored.
