@@ -83,12 +83,27 @@ const SEATED: ReadonlySet<Frame> = new Set([
   'belly',
 ]);
 
+/** Upright seated frames, which sink through loafsink to a crouch and rise back through it. */
+const UPRIGHT: ReadonlySet<Frame> = new Set(['sit', 'headturn', 'look']);
+
+/** The next frame between sitting up and crouching, either way, a half-risen crouch included, or null when the change is not one. */
+const crouchStep = (from: Frame, wanted: Frame): Frame | null => {
+  if (UPRIGHT.has(from) && wanted === 'crouch') return 'loafsink';
+  if (from === 'crouch' && UPRIGHT.has(wanted)) return 'loafsink';
+  if (from === 'crouchdown' && UPRIGHT.has(wanted)) return 'crouch';
+  if (from === 'loafsink' && wanted === 'crouch') return 'crouch';
+  if (from === 'loafsink' && UPRIGHT.has(wanted)) return 'sit';
+  return null;
+};
+
 /**
- * The next frame on the way from `from` to `wanted` through RISE, or null when
- * the change is not a rise or a sit-down: a walk or a stand from sitting rises
- * first, and a frame part-way up finishes the rise or the sit before anything else.
+ * The next frame on the way from `from` to `wanted` through RISE or crouchStep,
+ * or null when the change is neither: a walk or a stand from sitting rises first,
+ * and a frame part-way up finishes the rise or the sit before anything else.
  */
 export const riseStep = (from: Frame, wanted: Frame): Frame | null => {
+  const crouch = crouchStep(from, wanted);
+  if (crouch) return crouch;
   const at = RISE.indexOf(from);
   if (at < 0 || from === wanted) return null;
   const standing = wanted === 'stand' || WALK.includes(wanted);
@@ -223,6 +238,7 @@ const BETWEEN: [NamedPose, NamedPose, Frame][] = [
   ['air', 'stand', 'landing'],
   ['stand', 'stretch', 'stretchhalf'],
   ['sit', 'loaf', 'loafsink'],
+  ['sit', 'crouch', 'loafsink'],
   ['stand', 'loaf', 'loafsink'],
   ['rear', 'leap', 'swat'],
 ];
