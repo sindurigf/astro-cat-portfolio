@@ -194,7 +194,8 @@ for (const width of SLIM_WIDTHS) {
       page,
     }) => {
       await gotoSettled(page, ROUTE);
-      await page.mouse.wheel(0, 900);
+      /* scrollTo, not a wheel: WebKit can drop a wheel sent right after load, and this tests the header, not input. */
+      await page.evaluate(() => window.scrollTo(0, 900));
       await expect(page.locator('header.site-header')).toHaveAttribute(
         'data-compact',
         '',
@@ -242,7 +243,7 @@ test.describe('the slim header once the page scrolls', () => {
       () =>
         document.querySelector('main')!.getBoundingClientRect().top + scrollY,
     );
-    await page.mouse.wheel(0, 900);
+    await page.evaluate(() => window.scrollTo(0, 900));
     await expect(page.locator('header.site-header')).toHaveAttribute(
       'data-compact',
       '',
@@ -279,7 +280,7 @@ test.describe('the slim header once the page scrolls', () => {
     ).toBeGreaterThanOrEqual(44);
     expect(found.mainTop, 'going slim moved the page under it').toBe(before);
     expect(found.transition, 'the slim header animates').toBe('0s');
-    await page.mouse.wheel(0, -2000);
+    await page.evaluate(() => window.scrollTo(0, 0));
     await expect(page.locator('header.site-header')).not.toHaveAttribute(
       'data-compact',
     );
