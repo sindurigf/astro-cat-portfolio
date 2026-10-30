@@ -1,4 +1,6 @@
 import { readFileSync } from 'node:fs';
+import { createServer, type Server } from 'node:http';
+import type { AddressInfo } from 'node:net';
 import { expect, test } from './test';
 import {
   BOT_LOGIN,
@@ -8,6 +10,7 @@ import {
   githubCommentBody,
   issueNumberFromTitle,
   mirroredPostIds,
+  request,
   shouldMirrorComment,
   shouldMirrorPost,
   splitByActivity,
@@ -196,3 +199,92 @@ test(
     ).toBe(true);
   },
 );
+
+/* Security: fetch would send the Api-Key header to any host a redirect names. */
+const serve = (
+  handler: (url: string) => { status: number; location?: string },
+): Promise<{ server: Server; origin: string; hits: string[] }> =>
+  new Promise((resolve) => {
+    const hits: string[] = [];
+    const server = createServer((req, res) => {
+      hits.push(req.url ?? '');
+      const { status, location } = handler(req.url ?? '');
+      res.writeHead(status, {
+        'content-type': 'application/json',
+        ...(location ? { location } : {}),
+      });
+      res.end('{"ok":true}');
+    });
+    server.listen(0, '127.0.0.1', () =>
+      resolve({
+        server,
+        origin: `http://127.0.0.1:${(server.address() as AddressInfo).port}`,
+        hits,
+      }),
+    );
+  });
+
+test('a same-origin GET redirect is followed', NODE, async () => {
+  const forum = await serve((url) =>
+    url === '/c/54/l/latest.json'
+      ? { status: 301, location: '/c/github/54/l/latest.json' }
+      : { status: 200 },
+  );
+  try {
+    const response = await request(`${forum.origin}/c/54/l/latest.json`, {});
+    expect(await response.json()).toEqual({ ok: true });
+    expect(forum.hits).toEqual([
+      '/c/54/l/latest.json',
+      '/c/github/54/l/latest.json',
+    ]);
+  } finally {
+    forum.server.close();
+  }
+});
+
+test(
+  'a redirect to another host is refused before any request reaches it',
+  NODE,
+  async () => {
+    const other = await serve(() => ({ status: 200 }));
+    const forum = await serve(() => ({
+      status: 302,
+      location: `${other.origin}/steal`,
+    }));
+    try {
+      await expect(
+        request(`${forum.origin}/t/1.json`, {
+          headers: { 'Api-Key': 'secret' },
+        }),
+      ).rejects.toThrow(/redirected off/);
+      expect(other.hits, 'the other host must not see the key').toEqual([]);
+    } finally {
+      forum.server.close();
+      other.server.close();
+    }
+  },
+);
+
+test('a redirect loop stops after a few hops', NODE, async () => {
+  const forum = await serve(() => ({ status: 301, location: '/again' }));
+  try {
+    await expect(request(`${forum.origin}/again`, {})).rejects.toThrow(
+      /more than 3 times/,
+    );
+    expect(forum.hits.length).toBeLessThanOrEqual(4);
+  } finally {
+    forum.server.close();
+  }
+});
+
+test('a POST is never redirected', NODE, async () => {
+  const forum = await serve(() => ({ status: 301, location: '/elsewhere' }));
+  try {
+    await expect(
+      request(`${forum.origin}/posts.json`, { method: 'POST', body: '{}' }),
+    ).rejects.toThrow(/not followed/);
+    expect(forum.hits).toEqual(['/posts.json']);
+  } finally {
+    forum.server.close();
+  }
+});
