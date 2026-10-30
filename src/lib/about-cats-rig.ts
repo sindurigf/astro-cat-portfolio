@@ -7,7 +7,10 @@
 import { PAD, SHEET } from './about-cats-sheet';
 import {
   POSE_FRAME,
+  RISE,
+  RISE_HOLD_MS,
   bridges,
+  riseStep,
   WALK,
   walkFrame,
   frameFor,
@@ -102,6 +105,22 @@ const sizeOf = (id: CatId, frame: Frame) => {
   return { dw, dh, w, h };
 };
 
+const RISE_FROM = RISE.indexOf('sitside');
+const RISE_TO = RISE.indexOf('stand');
+
+/** px a part-way rising frame is drawn off center, before the flip: its front paw steps evenly from the side-on sit's to the stand's, which both stay centered like every other frame. */
+const pawShift = (id: CatId, frame: Frame): number => {
+  const at = RISE.indexOf(frame);
+  if (at <= RISE_FROM || at >= RISE_TO) return 0;
+  const paw = (f: Frame) => SHEET[id][f][8];
+  const share = (at - RISE_FROM) / (RISE_TO - RISE_FROM);
+  return paw('sitside') + (paw('stand') - paw('sitside')) * share - paw(frame);
+};
+
+/** How long `frame` shows before the next may replace it; a cat already on the move rises at the walk's pace. */
+const holdOf = (frame: Frame | null, hurried = false): number =>
+  (!hurried && frame && RISE_HOLD_MS[frame]) || TICK_MS;
+
 /** The frame a pose is drawn as, standing still. */
 const stillFrame = (p: Pose): Frame =>
   frameFor(grounded(p), NAMED, { ...STILL, lift: p.y, lastLift: p.y });
@@ -121,8 +140,13 @@ export const highestPoint = (p: Pose): number => {
 
 /** How far a pose's drawing reaches left and right of its origin, outline included, for the widest cat. */
 export const reachOf = (p: Pose): [number, number] => {
+  const frame = stillFrame(p);
   const half =
-    Math.max(...CAT_IDS.map((id) => sizeOf(id, stillFrame(p)).w)) / 2 + OUTLINE;
+    Math.max(
+      ...CAT_IDS.map(
+        (id) => sizeOf(id, frame).w / 2 + Math.abs(pawShift(id, frame)),
+      ),
+    ) + OUTLINE;
   const zz = p.zz > 0 ? ZZ_AHEAD + ZZ_WIDTH : 0;
   return p.face < 0 ? [-half - zz, half] : [-half, half + zz];
 };
@@ -250,7 +274,7 @@ export const loadSheet = (rig: CatRig): void => {
 const drawFrame = (rig: CatRig, layer: Layer, frame: Frame): void => {
   const [sx, sy, sw, sh, dw, dh, , h] = SHEET[rig.id][frame];
   const { width, height } = rig.sheet;
-  set(layer.view, 'x', f(-dw / 2));
+  set(layer.view, 'x', f(-dw / 2 + pawShift(rig.id, frame)));
   set(layer.view, 'y', f(-(PAD + h)));
   set(layer.view, 'width', dw);
   set(layer.view, 'height', dh);
@@ -275,6 +299,7 @@ const stepFrame = (
   wanted: Frame,
   now: number,
   x: number,
+  hurried: boolean,
 ): boolean => {
   if (wanted !== s.wanted) {
     s.wanted = wanted;
@@ -293,13 +318,14 @@ const stepFrame = (
   }
   const ahead = (to - at + WALK.length) % WALK.length;
   /* Within a walk: hold while the body is still, else step toward `wanted` without skipping a phase. */
+  const rise = s.frame && !s.cut ? riseStep(s.frame, wanted) : null;
   const next =
     at >= 0 && to >= 0
       ? x === s.stepX
         ? s.frame!
         : walkFrame(at + Math.min(ahead, MAX_WALK_STEP))
-      : wanted;
-  s.pending = next !== s.frame && now - s.shownAt < TICK_MS;
+      : (rise ?? wanted);
+  s.pending = next !== s.frame && now - s.shownAt < holdOf(s.frame, hurried);
   if (next === s.frame) s.cut = false;
   if (next === s.frame || s.pending) return false;
   /* A cut counts as a full step already shown: no squash, and the next frame need not wait. */
@@ -307,6 +333,8 @@ const stepFrame = (
   s.cut = false;
   s.stepX = x;
   s.frame = next;
+  /* Part-way through a rise: the next frame follows when this one's hold ends. */
+  s.pending = next !== wanted && riseStep(next, wanted) !== null;
   return true;
 };
 
@@ -316,9 +344,9 @@ const drawnXOf = (s: Pick<FrameStep, 'frame' | 'stepX'>, x: number): number =>
 
 /** True while a frame waits its turn or the arrival squash shows: the loop draws until both end. */
 export const isStepping = (
-  rig: Pick<CatRig, 'shownAt' | 'pending'>,
+  rig: Pick<CatRig, 'shownAt' | 'pending'> & { frame?: Frame | null },
   now: number,
-): boolean => rig.pending || now - rig.shownAt < TICK_MS;
+): boolean => rig.pending || now - rig.shownAt < holdOf(rig.frame ?? null);
 
 /** Makes the next frame show at once, with no squash: a jump cut (resize, reduced motion). */
 export const settleFrame = (rig: CatRig): void => {
@@ -367,7 +395,7 @@ export const renderCat = (
   rig.lastLift = p.y;
 
   const arrived = rig.frame !== null && !rig.cut;
-  if (stepFrame(rig, wanted, now, x)) {
+  if (stepFrame(rig, wanted, now, x, moving)) {
     drawFrame(rig, rig.layer, rig.frame!);
     set(rig.layer.view, 'visibility', 'visible');
     set(rig.root, 'data-frame', rig.frame!);
@@ -377,7 +405,8 @@ export const renderCat = (
   const { w, h } = sizeOf(rig.id, shown);
   const lift = liftOf(p);
   const { half, tall } = hitBox(rig.id, shown);
-  set(rig.hit, 'x', f(-half));
+  /* The drawing is flipped to face its way, so its paw shift lands mirrored. */
+  set(rig.hit, 'x', f(-half - p.face * pawShift(rig.id, shown)));
   set(rig.hit, 'width', f(2 * half));
   set(rig.hit, 'y', f(-(tall + lift)));
   set(rig.hit, 'height', f(tall + lift));

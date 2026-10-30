@@ -10,6 +10,7 @@ import type {
   PropKind,
   PropState,
 } from './about-cats-types';
+import { WALK_SPEED } from './about-cats-frames';
 
 export type { Pose };
 
@@ -531,6 +532,8 @@ const CUP_KNOCKED = 2250;
 /** Where each yarn pounce lands: the front paws reach the ball's near side. */
 const YARN_LAND_1 = 218;
 const YARN_LAND_2 = 308;
+/** ms the cat stands up on the spot before chasing on, so it rises through every frame before its paws move. */
+const YARN_STAND_MS = 500;
 /** ms at which each bat's paw hits the ball: the first bat, and the one after the first pounce lands. */
 const YARN_BAT_1 = BAT_HIT_MS;
 const YARN_POUNCE_LANDED = 4320;
@@ -825,7 +828,8 @@ export const MOVES = {
       step(180, 'crouch', { x: YARN_LAND_1, sq: 0.84 }, 'out'),
       ...bat([30, 14], { x: YARN_LAND_1 }),
       step(150 - BAT_PUSH_MS, 'sit', { x: YARN_LAND_1 }),
-      step(1500, 'stand', { x: 280 }),
+      step(YARN_STAND_MS, 'stand', { x: YARN_LAND_1 }),
+      step(1500 - YARN_STAND_MS, 'stand', { x: 280 }),
       step(250, 'crouch', { x: 280 }),
       step(140, 'crouch', { x: 280, sq: 0.88 }, 'in'),
       step(280, 'air', { x: 298 }, 'linear'),
@@ -839,7 +843,7 @@ export const MOVES = {
       bounding(1000, 3400),
       wiggle(3400, 3700),
       arc(3840, 4320, YARN_BOUND_HEIGHT),
-      bounding(4870, 6370),
+      bounding(4870 + YARN_STAND_MS, 6370),
       wiggle(6370, 6620),
       arc(6760, 7220, YARN_BOUND_HEIGHT),
     ],
@@ -1124,9 +1128,9 @@ const CREEP_READY_MS = 250;
 const SETTLE_BACK_MS = 400;
 /** Farther than this, a cat trots to the spot first and creeps only the last of it. */
 const CREEP_REACH = 60;
-/** px per second of a purposeful trot, twice the creep. */
-const TROT_SPEED = 110;
-const TROT_READY_MS = 250;
+/** A trot at the walk drawings' own pace, so they never skip. It stands up first, quickly at the start, so every rising frame shows before the paws move. */
+const TROT_SPEED = WALK_SPEED;
+const TROT_READY_MS = 800;
 
 /** Trots, then creeps, `distance` ahead first, so an edge move starts at the track end from anywhere on it. */
 /*
@@ -1152,7 +1156,10 @@ export const withApproach = (
     ...move,
     steps: [
       ...(trot > 0
-        ? [step(TROT_READY_MS, 'stand'), step(trotMs, 'stand', { x: trot })]
+        ? [
+            step(TROT_READY_MS, 'stand', {}, 'out'),
+            step(trotMs, 'stand', { x: trot }, 'linear'),
+          ]
         : []),
       step(CREEP_READY_MS, 'crouch', { x: trot }),
       step(creep, 'crouch', { x: distance }),
