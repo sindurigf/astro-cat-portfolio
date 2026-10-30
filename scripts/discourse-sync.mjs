@@ -72,7 +72,6 @@ export const topicTarget = (title) => {
 export const shouldOpenTopic = (pullRequest) =>
   !pullRequest.draft && pullRequest.user?.type !== 'Bot';
 
-/* By code point, so a cut never splits an emoji's surrogate pair. */
 const CLOSE_REASONS = {
   completed: 'as completed',
   not_planned: 'as not planned',
@@ -114,6 +113,7 @@ export const topicStateChange = (event) => {
   };
 };
 
+/* By code point, so a cut never splits an emoji's surrogate pair. */
 const fit = (text, limit, note) => {
   const points = Array.from(text);
   return points.length > limit
@@ -448,18 +448,19 @@ const openTopic = async () => {
 };
 
 /* Accepting needs the Solved plugin enabled on the category; without it the topic still closes. */
-const acceptSolution = async (post, postId) => {
-  try {
-    await post('/solution/accept.json', { id: postId }, 'solved: answer');
-    return true;
-  } catch (error) {
-    if (error.status !== HTTP_FORBIDDEN && error.status !== HTTP_NOT_FOUND)
-      throw error;
+const acceptSolution = async (get, post, topicId, postId) => {
+  const page = await get(
+    `/t/${topicId}/posts.json?post_ids[]=${postId}`,
+    'topics: read',
+  );
+  if (!page.post_stream?.posts?.[0]?.can_accept_answer) {
     console.log(
-      `::notice::Post ${postId} was not marked as the solution (${error.status}): give the category the Support type to turn Solved on.`,
+      `::notice::Post ${postId} cannot be marked as the solution: give the category the Support type to turn Solved on.`,
     );
     return false;
   }
+  await post('/solution/accept.json', { id: postId }, 'solved: answer');
+  return true;
 };
 
 const syncState = async () => {
@@ -477,6 +478,8 @@ const syncState = async () => {
       'topics: status',
     );
   if (!change.close) {
+    /* Reopen first: the topic author may only unaccept in an open topic. */
+    await status(false);
     const { posts } = await topicPosts(get, topicId);
     for (const answer of posts.filter((p) => p.accepted_answer))
       await post(
@@ -484,7 +487,6 @@ const syncState = async () => {
         { id: answer.id },
         'solved: answer',
       );
-    await status(false);
     await post(
       '/posts.json',
       { topic_id: topicId, raw: change.reply },
@@ -501,7 +503,8 @@ const syncState = async () => {
     throw new Error(
       `Discourse answered without a post id: ${JSON.stringify(reply)}`,
     );
-  const solved = change.solve && (await acceptSolution(post, reply.id));
+  const solved =
+    change.solve && (await acceptSolution(get, post, topicId, reply.id));
   await status(true);
   console.log(`Topic ${topicId} closed${solved ? ' and solved' : ''}.`);
 };

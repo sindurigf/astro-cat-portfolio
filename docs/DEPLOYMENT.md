@@ -303,9 +303,13 @@ Dashboard settings that change what ships without a file change.
     topic, closes or reopens it, and marks a completed issue's or merged pull
     request's reply as the solution. Marking needs Solved on the category: the
     Support category type, or in older versions the category setting "Allow
-    topic owner and staff to mark a reply as the solution"; Solved is not on
-    Discourse's Free plan. Without it the topic still closes. Closing needs an API user who is staff,
-    trust level 4 or a category moderator.
+    topic owner and staff to mark a reply as the solution". Solved is not on
+    Discourse's hosted Free plan
+    ([Discourse Solved](https://meta.discourse.org/t/discourse-solved/30155)).
+    Without it the topic still closes.
+  - The API user opens each topic, so it may mark the solution while the topic
+    is open. Closing and reopening need it to be staff, trust level 4 or a
+    category moderator.
   - `discourse-topic-to-issue.yml` copies forum replies from topics active in
     the last 48 hours to their issue or pull request, every 15 minutes.
     GitHub turns the schedule off after 60 days without repository activity.
