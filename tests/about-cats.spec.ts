@@ -184,7 +184,7 @@ const ICONS: Record<string, unknown[]> = tricksData.icons;
 const catButton = (page: Page, id: (typeof CATS)[number]) =>
   page.locator(`#cat-spot-${id} .cat-button`);
 
-/** Where the cat stands, not how it is posed: a held cat still breathes. */
+/** Where the cat stands, not how it is posed: a held cat still turns its head. */
 const place = (page: Page, id: (typeof CATS)[number]) =>
   page.locator(`#cat-spot-${id} .cat-hit`).getAttribute('transform');
 
@@ -647,7 +647,7 @@ test(
 );
 
 test(
-  'a resting cat redraws at the slow idle rate while only its breath moves, and faster during a glance',
+  'a resting cat redraws at the slow idle rate while it holds still, and faster during a glance',
   NODE,
   () => {
     const START_MS = 10_000;
@@ -661,9 +661,11 @@ test(
     }
     expect(
       idleFrameMs(createIdle(), 0),
-      'a cat that has not yet glanced draws faster than its breath needs',
+      'a cat that has not yet glanced draws faster than the calm rate',
     ).toBe(calm);
-    expect(busy, 'a glance drew no faster than the breath').toBeLessThan(calm);
+    expect(busy, 'a glance drew no faster than the calm rate').toBeLessThan(
+      calm,
+    );
   },
 );
 

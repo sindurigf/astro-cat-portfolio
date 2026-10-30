@@ -18,7 +18,6 @@ import {
   type Motion,
   type NamedPose,
 } from './about-cats-frames';
-import { BREATH_DEPTH } from './about-cats-idle';
 import { pose } from './about-cats-moves';
 import type { CatId, Pose, PropKind, PropState } from './about-cats-types';
 
@@ -31,10 +30,6 @@ const TICK_MS = 1000 / 12;
 const BLIP_MS = 25;
 /** Walk frames a fast gait may step at once: 2 of 8 keeps the 4 phases (contact and passing, each side). */
 const MAX_WALK_STEP = 2;
-/** The squash a cat lands in for one step when it arrives in a still pose. */
-const ARRIVE_SQUASH = 0.96;
-/** How much a held pose grows at the top of a breath, as a share of its height. */
-const BREATH_SCALE = 0.025;
 /** ms a cat must stand still before it stops walking. */
 const STILL_MS = 120;
 /** The white rim and ink edge round each frame, in px: part of the drawing. */
@@ -180,7 +175,7 @@ export interface CatRig {
   shownAt: number;
   /** A frame waiting for the current one's step to end. */
   pending: boolean;
-  /** The next frame cuts in without the arrival squash: a resize or reduced motion. */
+  /** The next frame cuts in at once: a resize or reduced motion. */
   cut: boolean;
   /** The frame the pose last asked for, and since when. */
   wanted: Frame | null;
@@ -328,7 +323,7 @@ const stepFrame = (
   s.pending = next !== s.frame && now - s.shownAt < holdOf(s.frame, hurried);
   if (next === s.frame) s.cut = false;
   if (next === s.frame || s.pending) return false;
-  /* A cut counts as a full step already shown: no squash, and the next frame need not wait. */
+  /* A cut counts as a full step already shown, so the next frame need not wait. */
   s.shownAt = s.cut ? now - TICK_MS : now;
   s.cut = false;
   s.stepX = x;
@@ -373,24 +368,18 @@ const drawnXOf = (
   return s.frame === 'crouch' && moving ? s.stepX : x;
 };
 
-/** True while a frame waits its turn or the arrival squash shows: the loop draws until both end. */
+/** True while a frame waits its turn or has not yet shown a full step: the loop draws until both end. */
 export const isStepping = (
   rig: Pick<CatRig, 'shownAt' | 'pending'> & { frame?: Frame | null },
   now: number,
 ): boolean => rig.pending || now - rig.shownAt < holdOf(rig.frame ?? null);
 
-/** Makes the next frame show at once, with no squash: a jump cut (resize, reduced motion). */
+/** Makes the next frame show at once: a jump cut (resize, reduced motion). */
 export const settleFrame = (rig: CatRig): void => {
   rig.shownAt = -Infinity;
   rig.pending = false;
   rig.cut = true;
 };
-
-/** The named pose each still frame draws, for its resting chest thickness: the first one listed wins. */
-const RESTING_POSE = new Map<Frame, NamedPose>();
-for (const name of Object.keys(POSE_FRAME) as NamedPose[])
-  if (!RESTING_POSE.has(POSE_FRAME[name]))
-    RESTING_POSE.set(POSE_FRAME[name], name);
 
 /** px the paws stand above the ground: a climb raises the whole cat onto the upper brick. */
 const feetUp = (p: Pose): number =>
@@ -403,6 +392,10 @@ const liftOf = (p: Pose): number => Math.max(0, p.y) + feetUp(p);
 
 /** The pose as if its paws were on the ground, to compare with the named poses. */
 const grounded = (p: Pose): Pose => ({ ...p, by: p.by - feetUp(p) });
+
+/** A drawing is only ever lifted and turned to face its way, never squashed, stretched or tilted: the drawings face left. */
+const spriteTransform = (face: number, lift: number): string =>
+  `translate(0 ${f(-lift)}) scale(${face < 0 ? 1 : -1} 1)`;
 
 export const renderCat = (
   rig: CatRig,
@@ -427,7 +420,6 @@ export const renderCat = (
   const wanted =
     (posed === 'crouch' ? creepFrame(rig, x, moving) : null) ?? posed;
 
-  const arrived = rig.frame !== null && !rig.cut;
   if (stepFrame(rig, wanted, now, x, moving)) {
     drawFrame(rig, rig.layer, rig.frame!);
     set(rig.layer.view, 'visibility', 'visible');
@@ -454,21 +446,7 @@ export const renderCat = (
 
   const drawnX = drawnXOf(rig, x, moving);
   set(rig.root, 'transform', translate(drawnX, groundY));
-  /* A still frame breathes with the pose's chest, and lands in a squash for one step. */
-  const still = RESTING_POSE.has(shown) && !moving;
-  const resting = still ? RESTING_POSE.get(shown) : undefined;
-  const breath = resting
-    ? clamp((p.bt - NAMED[resting].bt) / BREATH_DEPTH, -1, 1) * BREATH_SCALE
-    : 0;
-  const squash =
-    still && arrived && now - rig.shownAt < TICK_MS ? ARRIVE_SQUASH : 1;
-  const sq = p.sq * squash;
-  /* The drawings face left; a squash flattens the cat onto its feet. */
-  set(
-    rig.flip,
-    'transform',
-    `translate(0 ${f(-lift)}) scale(${f(-p.face * (2 - sq))} ${f(sq * (1 + breath))})`,
-  );
+  set(rig.flip, 'transform', spriteTransform(p.face, lift));
 };
 
 export interface PropRig {
