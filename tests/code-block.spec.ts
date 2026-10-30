@@ -73,6 +73,19 @@ test.describe('the code-block visitor', () => {
     expect(node.properties.ariaLabel).toBe('Code, scrolls sideways');
   });
 
+  test('drops the fence language class, which nothing styles', NODE, () => {
+    const code = {
+      ...codeChild,
+      properties: { className: ['language-sh'] } as Record<string, unknown>,
+    };
+    codeBlock.element.visit(preNode(code), visitorContext());
+
+    expect(
+      code.properties.className,
+      'a language-* class reached the page with no CSS for it',
+    ).toBeNull();
+  });
+
   test('leaves preformatted text that is not code alone', NODE, () => {
     const node = preNode({ type: 'text', value: 'a receipt, not code' });
     codeBlock.element.visit(node, visitorContext());
