@@ -338,9 +338,34 @@ const stepFrame = (
   return true;
 };
 
-/** Where the cat is drawn: while a walk frame shows, where that frame began, so a planted paw never slides. */
+/** The two crouch drawings a creeping cat swaps between, one per step. */
+const CREEP: readonly Frame[] = ['crouch', 'crouchdown'];
+/** px a creeping cat covers per drawing, about a third of a walk stride. */
+export const CREEP_STEP_PX = 13;
+/** px a stopped creeping cat may lag its pose before it takes one last step. */
+const CREEP_SETTLE_PX = 0.5;
+
+/**
+ * The crouch drawing a creeping cat shows, or null when it is not creeping:
+ * the body moves only when the drawing changes, so its paws never glide.
+ */
+export const creepFrame = (
+  s: Pick<FrameStep, 'frame' | 'stepX'>,
+  x: number,
+  moving: boolean,
+): Frame | null => {
+  if (s.frame === null || !CREEP.includes(s.frame)) return null;
+  const behind = Math.abs(x - s.stepX);
+  if (!moving && behind <= CREEP_SETTLE_PX) return null;
+  if (behind < (moving ? CREEP_STEP_PX : CREEP_SETTLE_PX)) return s.frame;
+  return s.frame === 'crouch' ? 'crouchdown' : 'crouch';
+};
+
+/** Where the cat is drawn: while a walk or crouch frame shows, where that frame began, so a planted paw never slides. */
 const drawnXOf = (s: Pick<FrameStep, 'frame' | 'stepX'>, x: number): number =>
-  s.frame?.startsWith('walk') ? s.stepX : x;
+  s.frame !== null && (WALK.includes(s.frame) || CREEP.includes(s.frame))
+    ? s.stepX
+    : x;
 
 /** True while a frame waits its turn or the arrival squash shows: the loop draws until both end. */
 export const isStepping = (
@@ -386,13 +411,15 @@ export const renderCat = (
   /* A frame drawn too soon after the last moves the cat too little to tell: walking lasts until it has stood still a while. */
   const moving = now - rig.movedAt < STILL_MS;
   rig.travelled = moving ? rig.travelled + step : 0;
-  const wanted = frameFor(grounded(p), NAMED, {
+  const posed = frameFor(grounded(p), NAMED, {
     travelled: rig.travelled,
     moving,
     lift: p.y,
     lastLift: rig.lastLift,
   });
   rig.lastLift = p.y;
+  const wanted =
+    (posed === 'crouch' ? creepFrame(rig, x, moving) : null) ?? posed;
 
   const arrived = rig.frame !== null && !rig.cut;
   if (stepFrame(rig, wanted, now, x, moving)) {

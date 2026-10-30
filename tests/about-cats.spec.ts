@@ -24,8 +24,10 @@ import {
   type Move,
 } from '../src/lib/about-cats-moves';
 import {
+  CREEP_STEP_PX,
   HIT_HALF_WIDTH,
   POST_HEIGHT,
+  creepFrame,
   highestPoint,
   hitBox,
   isStepping,
@@ -316,6 +318,49 @@ test(
       riseWay('risehalf', 'crouch').at(-1),
       'a cat part-way up did not finish standing before crouching',
     ).toBe('stand');
+  },
+);
+
+test(
+  'a sitting cat sinks through loafsink to a crouch and rises back through it',
+  NODE,
+  () => {
+    expect(
+      riseWay('sit', 'crouch'),
+      'a sitting cat cut straight to a crouch',
+    ).toEqual(['sit', 'loafsink', 'crouch']);
+    expect(
+      riseWay('crouch', 'sit'),
+      'a crouching cat cut straight to sitting',
+    ).toEqual(['crouch', 'loafsink', 'sit']);
+  },
+);
+
+test(
+  'a creeping cat changes its crouch drawing only after a full step, and catches up when it stops',
+  NODE,
+  () => {
+    const crouched = { frame: 'crouch' as Frame, stepX: 0 };
+    expect(
+      creepFrame(crouched, CREEP_STEP_PX - 1, true),
+      'a creeping cat changed drawing before a full step',
+    ).toBe('crouch');
+    expect(
+      creepFrame(crouched, CREEP_STEP_PX, true),
+      'a creeping cat kept one drawing past a full step, so its paws glide',
+    ).toBe('crouchdown');
+    expect(
+      creepFrame(crouched, 1, false),
+      'a stopped cat stayed drawn behind where it stands',
+    ).toBe('crouchdown');
+    expect(
+      creepFrame(crouched, 0, false),
+      'a still, caught-up cat did not fall back to its posed frame',
+    ).toBeNull();
+    expect(
+      creepFrame({ frame: 'stand', stepX: 0 }, CREEP_STEP_PX, true),
+      'a cat that is not crouched was treated as creeping',
+    ).toBeNull();
   },
 );
 
