@@ -63,15 +63,8 @@ export const MAX_OVERHANG = 16;
 export const CONTROL_ROOM = 48;
 /** Positions tried along the track when looking for room for a move. */
 const FIT_STEPS = 24;
-/** Chance a cat moves along its band, by one leap, instead of playing where it is. */
-const LEAP_CHANCE = 0.15;
 /** Chance a cat on a stepped band climbs to the next brick instead. */
 const CLIMB_CHANCE = 0.5;
-/* Ways to get about, one at a time and weighted; there is no walking. */
-const LEAPS: Partial<Record<MoveName, number>> = {
-  pounce: 3,
-  stalk: 1,
-};
 /** Where a cat stands from the card's edge to push the cup, the track's end: CUP_AHEAD plus its push takes the cup past the edge. */
 const CUP_EDGE = TRACK_MARGIN;
 /** A pointer that has not moved for this long no longer draws a cat's eye. */
@@ -451,14 +444,6 @@ export const createColony = (
   const planFor = (cat: CatState, name: MoveName) =>
     planMove(name, cat.pose.x, Math.sign(cat.pose.face) || 1, cat.min, cat.max);
 
-  /** One leap along the band, ahead if it fits, else back; false if neither fits. */
-  const leap = (cat: CatState, now: number): boolean => {
-    const plan = planFor(cat, pickWeighted(LEAPS));
-    if (!plan) return false;
-    play(cat, plan.move, now, plan.dir);
-    return true;
-  };
-
   /** Walks to the step beside its brick and climbs it; false on a flat band. */
   const climb = (cat: CatState, now: number): boolean => {
     const i = ledgeIndex(cat, cat.pose.x);
@@ -529,8 +514,7 @@ export const createColony = (
     }
     if (cat.holds.size > 0 || now < cat.restUntil) return;
     if (Math.random() < CLIMB_CHANCE && climb(cat, now)) return;
-    if (Math.random() < LEAP_CHANCE && leap(cat, now)) return;
-    if (!begin(cat, pickWeighted(CAT_WEIGHTS[cat.id]), now)) leap(cat, now);
+    begin(cat, pickWeighted(CAT_WEIGHTS[cat.id]), now);
   };
 
   /* One test for both reading and waking: written two ways, float rounding can make them disagree at the deadline. */
