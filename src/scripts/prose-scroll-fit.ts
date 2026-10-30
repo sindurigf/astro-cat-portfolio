@@ -16,15 +16,17 @@ for (const content of document.querySelectorAll(
 }
 
 /*
- * SC 2.4.12: a table taller than the window, reached backward, comes into
- * view bottom first in Firefox, its top under the sticky header. Its start
+ * SC 2.4.12: a table or code block taller than the window, reached backward,
+ * comes into view bottom first, its top under the sticky header. Its start
  * then scrolls in, below `scroll-padding-top`.
  */
-for (const box of document.querySelectorAll<HTMLElement>('.table-scroll')) {
+for (const box of document.querySelectorAll<HTMLElement>(
+  '.table-scroll, pre[role=group]',
+)) {
   box.addEventListener('focus', () => {
     const { scrollPaddingTop } = getComputedStyle(document.documentElement);
     if (box.getBoundingClientRect().top < parseFloat(scrollPaddingTop)) {
-      box.scrollIntoView({ block: 'start' });
+      box.scrollIntoView(true);
     }
   });
 }
