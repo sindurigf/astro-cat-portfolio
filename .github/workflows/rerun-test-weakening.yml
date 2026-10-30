@@ -1,0 +1,55 @@
+name: Re-run test weakening on approval
+
+# The guard runs on pull_request_target, which a review or comment does not
+# start. This re-runs it, still from the default branch, when the owner approves.
+# It checks out nothing from the pull request.
+on:
+  issue_comment:
+    types: [created, edited]
+  pull_request_review:
+    types: [submitted]
+
+permissions:
+  actions: write
+  pull-requests: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.issue.number || github.event.pull_request.number }}
+  cancel-in-progress: false
+
+jobs:
+  rerun:
+    name: Re-run test weakening
+    # contains() ignores case. issue_comment fires on issues too; only pull requests count.
+    if: >-
+      (github.event_name == 'issue_comment' && github.event.issue.pull_request &&
+      github.event.comment.user.login == github.repository_owner &&
+      contains(github.event.comment.body, 'approved')) ||
+      (github.event_name == 'pull_request_review' &&
+      github.event.review.state == 'approved' &&
+      github.event.review.user.login == github.repository_owner)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+
+    steps:
+      - name: Re-run the guard for the pull request's head
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.issue.number || github.event.pull_request.number }}
+        run: |
+          set -euo pipefail
+          head=$(gh pr view "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --json headRefOid --jq .headRefOid)
+          run=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow test-weakening.yml \
+            --event pull_request_target --commit "$head" --limit 1 --json databaseId,status \
+            --jq '.[0] // empty | "\(.databaseId) \(.status)"')
+          if [ -z "$run" ]; then
+            echo "::error::No Test weakening run for $head yet; it starts when the pull request updates."
+            exit 1
+          fi
+          read -r id status <<< "$run"
+          # A run already past its review lookup would miss this approval, so let it finish first.
+          if [ "$status" != "completed" ]; then
+            gh run watch "$id" --repo "$GITHUB_REPOSITORY" --interval 10 > /dev/null
+          fi
+          gh run rerun "$id" --repo "$GITHUB_REPOSITORY"
+          echo "Re-ran Test weakening run $id for $head."

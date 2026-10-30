@@ -276,6 +276,11 @@ Dashboard settings that change what ships without a file change.
      `/scripts/check-test-weakening.mjs`, and turn on Require review from Code
      Owners in the `main` ruleset. A workflow could report a job also named
      `Test weakening`; this keeps such a change from merging.
+- `.github/workflows/rerun-test-weakening.yml` re-runs `Test weakening` for a
+  pull request's head when the owner comments with "approved" or submits an
+  approving review, so the check reads the approval without a manual re-run.
+  It runs the default branch's guard and checks out nothing from the pull
+  request.
 - Turn on Dependabot alerts, automated security fixes and private
   vulnerability reporting ([SECURITY.md](../SECURITY.md)).
 - Optional Actions secret `CLOUDFLARE_API_TOKEN` and variable
