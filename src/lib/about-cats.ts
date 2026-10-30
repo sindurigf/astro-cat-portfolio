@@ -150,7 +150,7 @@ interface CatState extends CatSpot {
   /** No new move before this; a nap still starts at once. */
   restUntil: number;
   idle: IdleState;
-  /** Resting between moves: breathing and glances are drawn on its pose. */
+  /** Resting between moves: glances are drawn on its pose. */
   idling: boolean;
   idleDrawnAt: number;
   /** The idle offsets on screen: a move starts from these, not from offsets a frame newer. */
@@ -287,7 +287,7 @@ export const createColony = (
     idle: createIdle(),
     idling: false,
     idleDrawnAt: 0,
-    idleShown: { bt: 0, hr: 0 },
+    idleShown: { hr: 0 },
   }));
   const watcherId = cats[Math.floor(Math.random() * cats.length)]?.id ?? '';
   const pointerAt = new Map<CatSpot['id'], { x: number; y: number }>();
@@ -340,8 +340,7 @@ export const createColony = (
     updateMood(cat);
   };
 
-  const addIdle = (p: Pose, { bt, hr }: IdleOffsets): void => {
-    p.bt += bt;
+  const addIdle = (p: Pose, { hr }: IdleOffsets): void => {
     p.hr += hr;
   };
 
@@ -393,7 +392,7 @@ export const createColony = (
     settle = false,
   ): void => {
     const from = clonePose(cat.pose);
-    /* The move starts from the pose last drawn, glance and breath included. */
+    /* The move starts from the pose last drawn, glance included. */
     if (cat.idling) {
       addIdle(from, cat.idleShown);
       cat.idling = false;
