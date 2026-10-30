@@ -29,7 +29,6 @@ const MS_PER_S = 1_000;
 const REQUEST_TIMEOUT_MS = 30_000;
 const HTTP_FORBIDDEN = 403;
 const HTTP_NOT_FOUND = 404;
-const HTTP_MOVED = 301;
 const ERROR_BODY_CHARS = 500;
 /* Discourse's default max_post_length; GitHub allows 65,536. */
 const FORUM_MAX_POST_CHARS = 32_000;
@@ -122,15 +121,52 @@ const required = (name) => {
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
+const REDIRECT_STATUSES = new Set([301, 302, 303, 307, 308]);
+const MAX_REDIRECTS = 3;
+
+/**
+ * Where a GET redirect may go: the same origin only, since fetch would carry the
+ * Api-Key header to any host. POSTs never follow (a 301 would resend as a GET).
+ */
+export const redirectTarget = (from, location, method, origin, hops) => {
+  const target = new URL(location ?? '', from);
+  if (method !== 'GET')
+    throw new Error(
+      `${method} ${from} was redirected to ${target}; not followed.`,
+    );
+  if (target.origin !== origin)
+    throw new Error(
+      `GET ${from} was redirected off ${origin} to ${target}; not followed.`,
+    );
+  if (hops >= MAX_REDIRECTS)
+    throw new Error(`GET ${from} redirected more than ${MAX_REDIRECTS} times.`);
+  return target.href;
+};
+
 /* Retries 429 with Retry-After or exponential backoff; a 403 names the API key scope it needs. */
-const request = async (url, init, scopeHint) => {
+export const request = async (url, init, scopeHint) => {
+  const method = init?.method ?? 'GET';
+  const origin = new URL(url).origin;
+  let current = url;
+  let hops = 0;
   for (let attempt = 1; ; attempt += 1) {
-    const response = await fetch(url, {
+    const response = await fetch(current, {
       ...init,
       signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
-      /* A followed 301 turns a POST into a GET (transferred issues); fail instead. */
       redirect: 'manual',
     });
+    if (REDIRECT_STATUSES.has(response.status)) {
+      current = redirectTarget(
+        current,
+        response.headers.get('location'),
+        method,
+        origin,
+        hops,
+      );
+      hops += 1;
+      attempt -= 1;
+      continue;
+    }
     if (response.status === HTTP_TOO_MANY && attempt < MAX_ATTEMPTS) {
       const retryAfter = Number(response.headers.get('retry-after'));
       await sleep(
@@ -148,7 +184,7 @@ const request = async (url, init, scopeHint) => {
         : '';
     throw Object.assign(
       new Error(
-        `${init?.method ?? 'GET'} ${url} answered ${response.status}.${hint} ${text.slice(0, ERROR_BODY_CHARS)}`,
+        `${method} ${current} answered ${response.status}.${hint} ${text.slice(0, ERROR_BODY_CHARS)}`,
       ),
       { status: response.status },
     );
@@ -195,10 +231,13 @@ const github = () => {
     }
     return all;
   };
-  const issue = async (number) =>
-    (
+  /* A transferred issue redirects to its new repository; it is not ours to comment on. */
+  const issue = async (number) => {
+    const found = await (
       await request(`${api}/repos/${repo}/issues/${number}`, { headers })
     ).json();
+    return found.repository_url === `${api}/repos/${repo}` ? found : null;
+  };
   const comment = (number, body) =>
     request(`${api}/repos/${repo}/issues/${number}/comments`, {
       method: 'POST',
@@ -278,10 +317,9 @@ const toGithub = async () => {
   for (const listed of await recentTopics(get, categoryId, cutoff)) {
     const number = issueNumberFromTitle(listed.title);
     if (!number || listed.category_id !== categoryId) continue;
-    /* A deleted (404) or transferred (301) issue has nothing to sync to. */
+    /* A deleted issue (404) has nothing to sync to. */
     const issue = await gh.issue(number).catch((error) => {
-      if (error.status === HTTP_NOT_FOUND || error.status === HTTP_MOVED)
-        return null;
+      if (error.status === HTTP_NOT_FOUND) return null;
       throw error;
     });
     if (!issue || issue.pull_request) continue;
