@@ -284,8 +284,18 @@ Dashboard settings that change what ships without a file change.
   Without both, the workflow sets `CHECK_LIVE_SKIP_D1=1` and `check:live`
   prints a skip line for the D1 check.
 - Optional variables `DISCOURSE_URL` and `DISCOURSE_CATEGORY_ID` and secrets
-  `DISCOURSE_API_KEY` and `DISCOURSE_API_USERNAME`: `issue-to-discourse.yml`
-  opens a forum topic for each new issue and links it in a comment. Without
-  both variables the job is skipped. Anyone can open an issue on a public
-  repository, so anyone can create a topic, and an `@mention` in the issue
-  pings that forum user.
+  `DISCOURSE_API_KEY` and `DISCOURSE_API_USERNAME` link issues to a Discourse
+  forum. Without both variables the jobs are skipped.
+  - `issue-to-discourse.yml` opens a topic for each new issue and links it in
+    a comment.
+  - `discourse-comment-to-topic.yml` posts each new issue comment as a reply.
+  - `discourse-topic-to-issue.yml` copies forum replies from topics active in
+    the last 48 hours to their issues, every 15 minutes. GitHub turns the
+    schedule off after 60 days without repository activity.
+  - Granular API key scopes: `topics` `write`, `read` and `read_lists`; a
+    missing scope fails the job with its name.
+  - Anyone can open an issue or comment on a public repository, so anyone can
+    post to the forum. Mirrored text breaks `@mentions` on both sides.
+  - Forum replies in `DISCOURSE_CATEGORY_ID` become public on GitHub, even on
+    a forum that needs a login.
+  - Edits and deletions are not mirrored.
