@@ -230,7 +230,7 @@ test.describe('a code block is a tab stop only while it scrolls', () => {
   });
 });
 
-/* The selector src/scripts/code-block-fit.ts queries: its fingerprint in a built chunk. */
+/* The selector src/scripts/prose-scroll-fit.ts queries: its fingerprint in a built chunk. */
 const FIT_SELECTOR = 'pre[role=group]>code';
 
 /** Every script a page loads, its imports followed. */
@@ -255,12 +255,14 @@ const scriptsOf = (html: string): string[] => {
   return [...seen.values()];
 };
 
-/* Performance: the fit script loads where a code block renders, and nowhere else. */
+/* Performance: the fit script loads where a code block or post table renders, and nowhere else. */
 test.describe('the code-block fit script', NODE, () => {
-  test('loads on every page with a code block and on no other', () => {
+  test('loads on every page with a code block or post table and on no other', () => {
     const wrong = [...builtHtml()]
       .filter(([, html]) => {
-        const hasBlock = /<pre\b[^>]*\brole="group"/.test(html);
+        const hasBlock =
+          /<pre\b[^>]*\brole="group"/.test(html) ||
+          html.includes('class="table-scroll"');
         const loads = scriptsOf(html).some((source) =>
           source.includes(FIT_SELECTOR),
         );
@@ -268,7 +270,7 @@ test.describe('the code-block fit script', NODE, () => {
       })
       .map(([route]) => route);
 
-    expect(wrong, 'page(s) whose code blocks and fit script disagree').toEqual(
+    expect(wrong, 'page(s) whose scrollers and fit script disagree').toEqual(
       [],
     );
   });

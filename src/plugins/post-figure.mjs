@@ -38,7 +38,7 @@ const SLIDE_SIZES =
   'min(calc(100vw - 5.5rem), 55vh, 28rem)';
 
 /* Must match where src/lib/talk-loader.ts reads the slides from. */
-const TALKS_PATH = '/src/content/talks/';
+export const TALKS_PATH = '/src/content/talks/';
 
 const isTalk = (fileURL) => String(fileURL ?? '').includes(TALKS_PATH);
 
