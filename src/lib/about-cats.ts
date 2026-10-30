@@ -39,7 +39,7 @@ import type { Ledge, PropState } from './about-cats-types';
 import { CLIMB_CLEAR, CLIMB_START, climbMove } from './about-cats-climb';
 import {
   createIdle,
-  idleFrameMs,
+  idleNextDrawAt,
   idleOffsets,
   rearmIdle,
   tickIdle,
@@ -48,7 +48,7 @@ import {
 } from './about-cats-idle';
 
 /** The rest after each move, in ms, while the cat idles: cats act in bursts. */
-const PAUSE_MS = [1500, 4500] as const;
+export const PAUSE_MS = [1500, 4500] as const;
 /** What a frame did for a cat: drew it, left it settled, or held it in a pause. */
 type StepResult = 'draw' | 'still' | 'rest';
 
@@ -150,7 +150,7 @@ interface CatState extends CatSpot {
   /** No new move before this; a nap still starts at once. */
   restUntil: number;
   idle: IdleState;
-  /** Resting between moves: breathing and glances are drawn on its pose. */
+  /** Resting between moves: glances are drawn on its pose. */
   idling: boolean;
   idleDrawnAt: number;
   /** The idle offsets on screen: a move starts from these, not from offsets a frame newer. */
@@ -287,7 +287,7 @@ export const createColony = (
     idle: createIdle(),
     idling: false,
     idleDrawnAt: 0,
-    idleShown: { bt: 0, hr: 0 },
+    idleShown: { hr: 0 },
   }));
   const watcherId = cats[Math.floor(Math.random() * cats.length)]?.id ?? '';
   const pointerAt = new Map<CatSpot['id'], { x: number; y: number }>();
@@ -340,8 +340,7 @@ export const createColony = (
     updateMood(cat);
   };
 
-  const addIdle = (p: Pose, { bt, hr }: IdleOffsets): void => {
-    p.bt += bt;
+  const addIdle = (p: Pose, { hr }: IdleOffsets): void => {
     p.hr += hr;
   };
 
@@ -393,7 +392,7 @@ export const createColony = (
     settle = false,
   ): void => {
     const from = clonePose(cat.pose);
-    /* The move starts from the pose last drawn, glance and breath included. */
+    /* The move starts from the pose last drawn, glance included. */
     if (cat.idling) {
       addIdle(from, cat.idleShown);
       cat.idling = false;
@@ -646,19 +645,21 @@ export const createColony = (
       const result = step(cat, now, frames);
       const frameStepping = isStepping(cat.rig, now);
       const resting = result === 'rest';
-      /* Timers run only while resting, so each rest starts them afresh. */
-      if (resting && !cat.idling) rearmIdle(cat.idle);
+      /* Timers run only while resting, so each rest starts them afresh; its first frame draws at once. */
+      const restStarts = resting && !cat.idling;
+      if (restStarts) rearmIdle(cat.idle);
       cat.idling = resting;
       if (cat.idling) {
         tickIdle(cat.idle, now);
-        const gap = idleFrameMs(cat.idle, now, frameStepping);
-        const due = now - cat.idleDrawnAt >= gap;
+        const due =
+          restStarts ||
+          now >= idleNextDrawAt(cat.idle, cat.idleDrawnAt, frameStepping);
         /* Next frame: the next idle one, the pause's end, or the nap. */
         wakeAt = Math.min(
           wakeAt,
           cat.restUntil,
           cat.napAt,
-          (due ? now : cat.idleDrawnAt) + gap,
+          idleNextDrawAt(cat.idle, due ? now : cat.idleDrawnAt, frameStepping),
         );
         if (!due) continue;
         cat.idleDrawnAt = now;
@@ -682,6 +683,9 @@ export const createColony = (
         wakeAt = now;
       }
       draw(cat, now);
+      /* The draw can leave a frame waiting its turn, so a resting cat wakes for it. */
+      if (cat.idling && isStepping(cat.rig, now))
+        wakeAt = Math.min(wakeAt, idleNextDrawAt(cat.idle, now, true));
     }
     return wakeAt;
   };

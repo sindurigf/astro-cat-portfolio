@@ -16,8 +16,6 @@ export interface Pose {
   by: number;
   /** Body thickness. */
   bt: number;
-  /** Squash (below 1) and stretch (above 1). */
-  sq: number;
   haunch: number;
   /** Paw targets from the body center: near and far front, near and far hind. */
   fN: Pair;
