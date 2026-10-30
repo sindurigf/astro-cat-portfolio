@@ -48,6 +48,7 @@ import {
   idleNextDrawAt,
   tickIdle,
 } from '../src/lib/about-cats-idle';
+import { random } from '../src/lib/hero-field-scene';
 import { isTricksData, tricksOf } from '../src/lib/about-cats-tricks';
 import tricksData from '../src/lib/about-cats-tricks.json' with { type: 'json' };
 import {
@@ -781,9 +782,8 @@ test(
   },
 );
 
-/** The Park-Miller generator: a fixed sequence of rolls from 0 to 1. */
-const PARK_MILLER_A = 16_807;
-const PARK_MILLER_M = 2_147_483_647;
+/** Any fixed seed: the glances vary but every run is the same. */
+const IDLE_SEED = 1;
 
 test(
   'a resting cat is not redrawn while it holds still, only through each glance',
@@ -791,12 +791,7 @@ test(
   () => {
     const START_MS = 10_000;
     const STEP_MS = 10;
-    /* A fixed sequence of rolls, so the glances vary but every run is the same. */
-    let seed = 1;
-    const roll = () => {
-      seed = (seed * PARK_MILLER_A) % PARK_MILLER_M;
-      return seed / PARK_MILLER_M;
-    };
+    const roll = random(IDLE_SEED);
     const idle = createIdle();
     tickIdle(idle, START_MS, roll);
     expect(
@@ -830,7 +825,7 @@ test(
             (t) => t >= g + GLANCE_MS && t <= g + GLANCE_MS + BUSY_FRAME_MS,
           ),
       ),
-      'a glance was never drawn at its end, so the head stopped part-way',
+      'the last change before the loop slept was never drawn',
     ).toEqual([]);
   },
 );
