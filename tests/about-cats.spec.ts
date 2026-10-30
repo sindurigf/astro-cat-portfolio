@@ -1046,7 +1046,7 @@ const expectHeldHeadRelaxes = async (page: Page) => {
 
 /** A roll under every chance in about-cats.ts: Rudra climbs whenever the wall under him has a step. */
 const CLIMB_ROLL = 0.01;
-/** Page time for Rudra to climb down and back up at least once, or to leap across the step. */
+/** Page time for Rudra to climb down and back up at least once. */
 const CLIMB_WINDOW_MS = 30_000;
 const SAMPLE_MS = 250;
 /** px below the floor where the brick's border is, clear of the drawn paws' edge and shadow. */

@@ -1315,8 +1315,8 @@ Enforced by `tests/nav-current.spec.ts`, `tests/mobile-menu.spec.ts`,
   field).
 - `HeroField` loads `client:load`.
 - The About cats (`src/components/AboutCats.astro`, `src/scripts/about-cats.ts`) wake when their band is
-  first on screen, play along it (games like the yarn and the fly carry them,
-  leaps move them on), and sit still under reduced motion. Each cat's button
+  first on screen, play along it (games like the yarn and the fly carry them),
+  and sit still under reduced motion. Each cat's button
   ("Meet Minerva") opens its card; while it is open the cat sits where it is
   and looks round at you, and under reduced motion it stays as it was.
 - Each cat's SC 2.2.2 control sits in its band's corner: Zz ("Put Minerva to
