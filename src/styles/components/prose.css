@@ -179,6 +179,13 @@
     @apply mt-6 min-w-0 overflow-x-auto;
   }
 
+  /* tests/forced-colors.spec.ts: a scroller needs its own edge there; the table's may be scrolled away. */
+  @media (forced-colors: active) {
+    .prose .table-scroll {
+      @apply border-4;
+    }
+  }
+
   /* Auto layout: each column is at least its longest word wide. */
   .prose table {
     @apply w-full edge border-border text-body text-text;
