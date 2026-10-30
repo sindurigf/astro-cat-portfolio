@@ -72,6 +72,8 @@ export const topicTarget = (title) => {
 export const shouldOpenTopic = (pullRequest) =>
   !pullRequest.draft && pullRequest.user?.type !== 'Bot';
 
+const CLOSED_PREFIX = 'Closed on GitHub';
+const MERGED_PREFIX = 'Merged on GitHub';
 const CLOSE_REASONS = {
   completed: 'as completed',
   not_planned: 'as not planned',
@@ -96,18 +98,18 @@ export const topicStateChange = (event) => {
   if (event.pull_request)
     return item.merged
       ? {
-          reply: `Merged on GitHub by ${item.merged_by?.login ?? actor}.${link}`,
+          reply: `${MERGED_PREFIX} by ${item.merged_by?.login ?? actor}.${link}`,
           solve: true,
           close: true,
         }
       : {
-          reply: `Closed on GitHub without merging by ${actor}.${link}`,
+          reply: `${CLOSED_PREFIX} without merging by ${actor}.${link}`,
           solve: false,
           close: true,
         };
   const reason = CLOSE_REASONS[item.state_reason];
   return {
-    reply: `Closed on GitHub ${reason ? `${reason} ` : ''}by ${actor}.${link}`,
+    reply: `${CLOSED_PREFIX} ${reason ? `${reason} ` : ''}by ${actor}.${link}`,
     solve: item.state_reason === 'completed',
     close: true,
   };
@@ -449,11 +451,15 @@ const openTopic = async () => {
 
 /**
  * The forum steps for a close or reopen, in order. A close accepts its reply only when no
- * answer is accepted yet; a reopen unaccepts only the API user's answers, never a person's choice.
+ * answer is accepted yet; a reopen unaccepts only its own close replies, never a person's choice.
  */
 export const stateSteps = (change, posts, apiUsername) => {
+  /* Only this job's own close or merge replies; a mirrored comment a person accepted stays. */
   const own = (post) =>
-    post.username?.toLowerCase() === apiUsername.toLowerCase();
+    post.username?.toLowerCase() === apiUsername.toLowerCase() &&
+    [CLOSED_PREFIX, MERGED_PREFIX].some((prefix) =>
+      (post.raw ?? '').startsWith(prefix),
+    );
   if (!change.close)
     return [
       /* First: the topic author may only unaccept in an open topic. */

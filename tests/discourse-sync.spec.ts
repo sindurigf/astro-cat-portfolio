@@ -561,26 +561,41 @@ test('a close keeps an answer a person already accepted', NODE, () => {
   expect(steps).toEqual(['reply', 'close']);
 });
 
-test('a reopen reopens first and unaccepts only the bot answer', NODE, () => {
-  const change = topicStateChange({
-    ...closedIssue('completed'),
-    action: 'reopened',
-  })!;
-  expect(
-    stateSteps(
-      change,
-      posts(
-        { id: 5, username: 'nami', accepted_answer: true },
-        { id: 9, username: 'Forum-Bot', accepted_answer: true },
+test(
+  'a reopen reopens first and unaccepts only its own close reply, not a mirrored comment',
+  NODE,
+  () => {
+    const change = topicStateChange({
+      ...closedIssue('completed'),
+      action: 'reopened',
+    })!;
+    expect(
+      stateSteps(
+        change,
+        posts(
+          { id: 5, username: 'nami', accepted_answer: true },
+          {
+            id: 7,
+            username: API,
+            raw: 'robin wrote on GitHub:\n\nThe fix is in #12.',
+            accepted_answer: true,
+          },
+          {
+            id: 9,
+            username: 'Forum-Bot',
+            raw: 'Closed on GitHub as completed by robin.',
+            accepted_answer: true,
+          },
+        ),
+        API,
       ),
-      API,
-    ),
-  ).toEqual([
-    { step: 'reopen' },
-    { step: 'unaccept', postId: 9 },
-    { step: 'reply' },
-  ]);
-});
+    ).toEqual([
+      { step: 'reopen' },
+      { step: 'unaccept', postId: 9 },
+      { step: 'reply' },
+    ]);
+  },
+);
 
 test(
   'a reply Discourse will not let the bot accept takes the notice path',
