@@ -212,3 +212,33 @@ test('/brand at 390px: no table is cut off by a box that does not scroll', async
 
   expect(clipped, 'tables cut off by a box that does not scroll').toEqual([]);
 });
+
+/* Function: only a keyboard focus brings a tall box's start into view; a click or text selection never jumps the page. */
+test('a pointer click in a tall table does not scroll the page', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 305, height: 720 });
+  await gotoSettled(page, tablePost());
+  const box = page.locator('.prose .table-scroll').first();
+
+  const tall = await box.evaluate((el) => {
+    const room = parseFloat(
+      getComputedStyle(document.documentElement).scrollPaddingTop,
+    );
+    return el.getBoundingClientRect().height > innerHeight - room;
+  });
+  expect(tall, 'the first post table is not taller than the window').toBe(true);
+
+  await box.evaluate((el) => {
+    scrollBy(0, el.getBoundingClientRect().top - 8);
+  });
+  const before = await page.evaluate(() => scrollY);
+  const cell = box.locator('td').nth(4);
+  const { x, y, width, height } = (await cell.boundingBox())!;
+  await page.mouse.click(x + width / 2, y + height / 2);
+  await page.waitForTimeout(100);
+
+  expect(await page.evaluate(() => scrollY), 'a click scrolled the page').toBe(
+    before,
+  );
+});
