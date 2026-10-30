@@ -1,0 +1,68 @@
+name: Create Discourse topic for new issues
+
+# Opt-in: a fork without the DISCOURSE_* variables skips the job
+# (docs/DEPLOYMENT.md#repository-settings).
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  issues: write
+
+jobs:
+  create-topic:
+    name: Create Discourse topic
+    if: vars.DISCOURSE_URL != '' && vars.DISCOURSE_CATEGORY_ID != ''
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+
+    steps:
+      - name: Create topic in Discourse
+        id: discourse
+        env:
+          DISCOURSE_URL: ${{ vars.DISCOURSE_URL }}
+          DISCOURSE_CATEGORY_ID: ${{ vars.DISCOURSE_CATEGORY_ID }}
+          DISCOURSE_API_KEY: ${{ secrets.DISCOURSE_API_KEY }}
+          DISCOURSE_API_USERNAME: ${{ secrets.DISCOURSE_API_USERNAME }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+          ISSUE_BODY: ${{ github.event.issue.body }}
+          ISSUE_URL: ${{ github.event.issue.html_url }}
+          ISSUE_AUTHOR: ${{ github.event.issue.user.login }}
+        run: |
+          set -euo pipefail
+          if [ -z "$DISCOURSE_API_KEY" ] || [ -z "$DISCOURSE_API_USERNAME" ]; then
+            echo "::error::Set the DISCOURSE_API_KEY and DISCOURSE_API_USERNAME secrets."
+            exit 1
+          fi
+          payload=$(jq -n \
+            --arg title "GitHub issue #${ISSUE_NUMBER}: ${ISSUE_TITLE}" \
+            --arg body "${ISSUE_BODY:-}" \
+            --arg url "$ISSUE_URL" \
+            --arg author "$ISSUE_AUTHOR" \
+            --argjson category "$DISCOURSE_CATEGORY_ID" \
+            '{ title: $title, category: $category, raw: ("Opened by " + $author + " on GitHub:\n\n" + $url + "\n\n---\n\n" + (if $body == "" then "_No description provided._" else $body end)) }')
+          if ! response=$(curl -sS --max-time 30 --fail-with-body -X POST "${DISCOURSE_URL%/}/posts.json" \
+            -H "Content-Type: application/json" \
+            -H "Api-Key: ${DISCOURSE_API_KEY}" \
+            -H "Api-Username: ${DISCOURSE_API_USERNAME}" \
+            -d "$payload"); then
+            echo "::error::Discourse refused the topic: ${response}"
+            exit 1
+          fi
+          topic_id=$(printf '%s' "$response" | jq -r '.topic_id // empty')
+          topic_slug=$(printf '%s' "$response" | jq -r '.topic_slug // empty')
+          if [ -z "$topic_id" ] || [ -z "$topic_slug" ]; then
+            echo "::error::Discourse answered without a topic_id or topic_slug: ${response}"
+            exit 1
+          fi
+          echo "topic_url=${DISCOURSE_URL%/}/t/${topic_slug}/${topic_id}" >> "$GITHUB_OUTPUT"
+
+      - name: Comment on the issue with the topic link
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TOPIC_URL: ${{ steps.discourse.outputs.topic_url }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: |
+          gh issue comment "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" \
+            --body "Discussion for this issue is open on the forum: ${TOPIC_URL}"
