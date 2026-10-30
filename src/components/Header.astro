@@ -31,6 +31,12 @@ const sizeControls = !currentPath.startsWith(TALKS_PATH);
 const current = (href: string) => ariaCurrent(currentPath, href);
 ---
 
+{/* The slim header's trigger: out of view once the page scrolls past the full header (header-compact.ts). */}
+<div
+  class="pointer-events-none absolute inset-x-0 top-0 h-header"
+  aria-hidden="true"
+  data-header-sentinel
+></div>
 {/* Gutter on <header>, not the column, so its content box matches <main> and the footer. */}
 <header class="site-header page-gutter sticky top-0 z-50 h-header py-3 bg-background short:static">
   {/* Grid from `lg`, not `md`: between 768 and 1023px the row barely fits and centering wastes slack. */}
