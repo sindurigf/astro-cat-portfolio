@@ -1,5 +1,5 @@
 import { expect, test } from './test';
-import { gotoSettled } from './settle';
+import { gotoSettled, scrollSettled } from './settle';
 import { NON_TEXT, PAGE_HELPERS } from './contrast';
 import { DESKTOP_VIEWPORT, PHONE_VIEWPORT } from './wcag';
 
@@ -84,8 +84,7 @@ for (const colorScheme of ['dark', 'light'] as const) {
         }) => {
           await gotoSettled(page, ROUTE);
           if (slim) {
-            /* scrollTo, not a wheel: WebKit can drop a wheel sent right after load. */
-            await page.evaluate((top) => window.scrollTo(0, top), SLIM_SCROLL);
+            await scrollSettled(page, SLIM_SCROLL);
             await expect(page.locator('header.site-header')).toHaveAttribute(
               'data-compact',
               '',
