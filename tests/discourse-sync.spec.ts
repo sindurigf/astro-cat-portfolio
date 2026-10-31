@@ -420,7 +420,7 @@ test(
         (job) => job.steps ?? [],
       )) {
         if (!step.uses?.startsWith('actions/checkout@')) continue;
-        // No ref checks out github.ref, which pull_request_target sets to the default branch.
+        // No ref checks out the base branch: trusted code, never the pull request head.
         expect(
           [undefined, '${{ github.event.repository.default_branch }}'],
           `${name} checks out ${step.with?.ref}, not the default branch`,
