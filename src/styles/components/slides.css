@@ -285,8 +285,9 @@
     hyphens: auto;
   }
 
+  /* `px-2` on a phone: at `px-6` a two-column cell is narrower than "Communicate". */
   .slide-body :is(th, td) {
-    @apply px-6 py-2 wrap-anywhere;
+    @apply px-2 py-2 wrap-anywhere sm:px-6;
   }
 
   /* A group label (`cardGroups` in src/lib/slides.ts): `.card-title`'s size, in the slide titles' case. */

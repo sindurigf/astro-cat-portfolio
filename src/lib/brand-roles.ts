@@ -219,7 +219,7 @@ export const roles: Role[] = [
   ),
   role(
     'role-edges',
-    'every boundary but post and /brand table lines.',
+    'every boundary but table lines.',
     'The edge is gold on the dark page and ink on the light one.',
     [PAGE_EDGE, 'tile-edge'],
     {
