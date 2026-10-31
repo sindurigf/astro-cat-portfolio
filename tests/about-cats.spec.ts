@@ -801,10 +801,19 @@ test(
     let drawnAt = START_MS;
     const glances: number[] = [];
     const draws: number[] = [];
-    for (let now = START_MS; now < START_MS + 20_000; now += STEP_MS) {
+    const END_MS = START_MS + 20_000;
+    let lastGlance = -Infinity;
+    /* The run ends past the last glance's drawing, wherever the seed puts that glance. */
+    for (
+      let now = START_MS;
+      now < END_MS || now <= lastGlance + GLANCE_MS + BUSY_FRAME_MS;
+      now += STEP_MS
+    ) {
       tickIdle(idle, now, roll);
-      if (idle.glanceAt === now && idle.glanceFrom !== idle.glanceTo)
+      if (idle.glanceAt === now && idle.glanceFrom !== idle.glanceTo) {
         glances.push(now);
+        if (now < END_MS) lastGlance = now;
+      }
       if (now >= idleNextDrawAt(idle, drawnAt)) {
         drawnAt = now;
         draws.push(now);
@@ -821,6 +830,7 @@ test(
     expect(
       glances.filter(
         (g) =>
+          g < END_MS &&
           !draws.some(
             (t) => t >= g + GLANCE_MS && t <= g + GLANCE_MS + BUSY_FRAME_MS,
           ),
