@@ -990,18 +990,18 @@ Enforced by `tests/post-page.spec.ts`.
 
 ### Rhythm inside `.prose`
 
-| Element     | Treatment                                                                                                                                               |
-| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Paragraph   | `mt-6`, `text-body` (18 to 19px, line height 1.62), `text`                                                                                              |
-| `h2`        | `mt-16`, `text-post-h2` (28px); its text follows at the next `mt-6`                                                                                     |
-| `h3`        | `mt-12`, `text-post-h3` (22px). The last level                                                                                                          |
-| Inline code | `.prose code`: the mono stack at `--text-code`, on a `surface` fill with `px-1` and no border                                                           |
-| Code block  | `.prose pre`: mono, `border-4 border-border` on `surface`, `p-4`, scrolls sideways, a named tab stop while it overflows                                 |
-| Lists       | `mt-6 pl-6`, items `mt-3`, gold markers; a link-only item is 44px tall                                                                                  |
-| Blockquote  | `mt-6`, `edge-l border-border`, `pl-6`, its text at weight 900                                                                                          |
-| Table       | `mt-6`, `edge`, fixed layout, cells `px-4 py-3`, headers on `surface`; Markdown headers get `scope="col"`, a table with row headers is HTML             |
-| Figure      | `mt-8`, wider than the text ([Measure](#measure)), an `.aspect-frame` sized by the file with a 4px `border` ring; caption `mt-4 text-label text-subtle` |
-| `hr`        | `mt-16`, a 6px `border` rule                                                                                                                            |
+| Element     | Treatment                                                                                                                                                                                                                                           |
+| ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Paragraph   | `mt-6`, `text-body` (18 to 19px, line height 1.62), `text`                                                                                                                                                                                          |
+| `h2`        | `mt-16`, `text-post-h2` (28px); its text follows at the next `mt-6`                                                                                                                                                                                 |
+| `h3`        | `mt-12`, `text-post-h3` (22px). The last level                                                                                                                                                                                                      |
+| Inline code | `.prose code`: the mono stack at `--text-code`, on a `surface` fill with `px-1` and no border                                                                                                                                                       |
+| Code block  | `.prose pre`: mono, `border-4 border-border` on `surface`, `p-4`, scrolls sideways, a named tab stop while it overflows                                                                                                                             |
+| Lists       | `mt-6 pl-6`, items `mt-3`, gold markers; a link-only item is 44px tall                                                                                                                                                                              |
+| Blockquote  | `mt-6`, `edge-l border-border`, `pl-6`, its text at weight 900                                                                                                                                                                                      |
+| Table       | In a `.table-scroll` box (`mt-6`) that scrolls sideways, a named tab stop while it overflows; `edge`, auto layout, words never break, cells `px-4 py-3`, headers on `surface`; Markdown headers get `scope="col"`, a table with row headers is HTML |
+| Figure      | `mt-8`, wider than the text ([Measure](#measure)), an `.aspect-frame` sized by the file with a 4px `border` ring; caption `mt-4 text-label text-subtle`                                                                                             |
+| `hr`        | `mt-16`, a 6px `border` rule                                                                                                                                                                                                                        |
 
 - A heading sits 24px above its own text and 48 to 64px below the text before
   it.
