@@ -1,4 +1,5 @@
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
+import { load } from 'js-yaml';
 import { createServer, type Server } from 'node:http';
 import type { AddressInfo } from 'node:net';
 import { expect, test } from './test';
@@ -8,7 +9,10 @@ import {
   defuseMentions,
   forumReplyBody,
   githubCommentBody,
-  issueNumberFromTitle,
+  PR_LINK_COMMENT_PREFIX,
+  pullRequestTopic,
+  shouldOpenTopic,
+  topicTarget,
   mirroredPostIds,
   request,
   shouldMirrorComment,
@@ -62,12 +66,17 @@ test('the topic id comes only from the bot link comment', NODE, () => {
   expect(topicIdFromComments([human])).toBeNull();
 });
 
-test('a topic title names its issue number', NODE, () => {
-  expect(
-    issueNumberFromTitle('GitHub issue #322: Test: issue to Discourse'),
-  ).toBe(322);
-  expect(issueNumberFromTitle('Re: GitHub issue #322: x')).toBeNull();
-  expect(issueNumberFromTitle(undefined)).toBeNull();
+test('a topic title names its issue or pull request number', NODE, () => {
+  expect(topicTarget('GitHub issue #322: Test: issue to Discourse')).toEqual({
+    number: 322,
+    pullRequest: false,
+  });
+  expect(topicTarget('GitHub pull request #12: Fix the menu')).toEqual({
+    number: 12,
+    pullRequest: true,
+  });
+  expect(topicTarget('Re: GitHub issue #322: x')).toBeNull();
+  expect(topicTarget(undefined)).toBeNull();
 });
 
 test(
@@ -288,3 +297,167 @@ test('a POST is never redirected', NODE, async () => {
     forum.server.close();
   }
 });
+
+test(
+  'a pull request topic links back through its own link comment',
+  NODE,
+  () => {
+    expect(
+      topicIdFromComments([
+        {
+          user: { login: BOT_LOGIN },
+          body: `${PR_LINK_COMMENT_PREFIX}https://forum.example/t/github-pull-request-12-fix/77`,
+        },
+      ]),
+    ).toBe(77);
+  },
+);
+
+test('a draft or bot pull request opens no topic', NODE, () => {
+  const ready = { draft: false, user: { login: 'robin', type: 'User' } };
+  expect(shouldOpenTopic(ready)).toBe(true);
+  expect(shouldOpenTopic({ ...ready, draft: true })).toBe(false);
+  expect(
+    shouldOpenTopic({
+      ...ready,
+      user: { login: 'dependabot[bot]', type: 'Bot' },
+    }),
+  ).toBe(false);
+  expect(
+    shouldOpenTopic({
+      ...ready,
+      user: { login: 'renovate[bot]', type: 'Bot' },
+    }),
+  ).toBe(false);
+});
+
+test(
+  'a pull request topic fits Discourse limits and pings no one',
+  NODE,
+  () => {
+    const topic = pullRequestTopic({
+      number: 12,
+      title: 'x'.repeat(400),
+      body: '@luffy please review',
+      html_url: 'https://github.com/o/r/pull/12',
+      user: { login: 'robin' },
+    });
+    expect(topic.title.startsWith('GitHub pull request #12: ')).toBe(true);
+    expect(Array.from(topic.title).length).toBeLessThanOrEqual(255);
+    const emoji = pullRequestTopic({
+      number: 12,
+      title: '🐈'.repeat(300),
+      body: '',
+      html_url: 'u',
+      user: { login: 'r' },
+    }).title;
+    expect(emoji, 'a cut must not leave half an emoji').not.toMatch(
+      /[\uD800-\uDBFF](?![\uDC00-\uDFFF])/,
+    );
+    expect(topic.raw).toContain('https://github.com/o/r/pull/12');
+    expect(topic.raw).not.toMatch(/(^|[^\w`/])@[\w-]/);
+    expect(
+      pullRequestTopic({
+        number: 1,
+        title: 't',
+        body: null,
+        html_url: 'u',
+        user: { login: 'r' },
+      }).raw,
+    ).toContain('_No description provided._');
+  },
+);
+
+test('a pull request link comment from a person binds no topic', NODE, () => {
+  expect(
+    topicIdFromComments([
+      {
+        user: { login: 'mallory' },
+        body: `${PR_LINK_COMMENT_PREFIX}https://forum.example/t/x/77`,
+      },
+    ]),
+  ).toBeNull();
+});
+
+test('a pull request body longer than a forum post is shortened', NODE, () => {
+  const { raw } = pullRequestTopic({
+    number: 12,
+    title: 't',
+    body: 'x'.repeat(70_000),
+    html_url: 'https://github.com/o/r/pull/12',
+    user: { login: 'robin' },
+  });
+  expect(Array.from(raw).length).toBeLessThanOrEqual(32_000);
+  expect(raw).toContain('https://github.com/o/r/pull/12');
+  expect(raw.endsWith('(Shortened; the full comment is on GitHub.)')).toBe(
+    true,
+  );
+});
+
+/* Security: pull_request_target runs with secrets, so it must never check out the pull request. */
+test(
+  'every pull_request_target checkout has no ref or the default branch ref',
+  NODE,
+  () => {
+    const dir = '.github/workflows';
+    type Step = { uses?: string; with?: { ref?: string; repository?: string } };
+    type Workflow = { on?: unknown; jobs?: Record<string, { steps?: Step[] }> };
+    const targets = readdirSync(dir)
+      .filter((name) => name.endsWith('.yml'))
+      .map((name) => ({
+        name,
+        workflow: load(readFileSync(`${dir}/${name}`, 'utf8')) as Workflow,
+      }))
+      .filter(({ workflow }) =>
+        JSON.stringify(workflow.on ?? {}).includes('pull_request_target'),
+      );
+    expect(
+      targets.length,
+      'no pull_request_target workflow found',
+    ).toBeGreaterThan(0);
+    for (const { name, workflow } of targets) {
+      for (const step of Object.values(workflow.jobs ?? {}).flatMap(
+        (job) => job.steps ?? [],
+      )) {
+        if (!step.uses?.startsWith('actions/checkout@')) continue;
+        // No ref checks out github.ref, which pull_request_target sets to the default branch.
+        expect(
+          [undefined, '${{ github.event.repository.default_branch }}'],
+          `${name} checks out ${step.with?.ref}, not the default branch`,
+        ).toContain(step.with?.ref);
+        expect(
+          step.with?.repository,
+          `${name} checks out another repository`,
+        ).toBeUndefined();
+      }
+    }
+  },
+);
+
+/* Function: GitHub cancels all but the newest pending run in a group unless queue is max. */
+test(
+  'every forum workflow per issue queues its runs without dropping one',
+  NODE,
+  () => {
+    const dir = '.github/workflows';
+    type Workflow = { concurrency?: { group?: string; queue?: string } };
+    const grouped = readdirSync(dir)
+      .filter((name) => name.endsWith('.yml'))
+      .map((name) => ({
+        name,
+        workflow: load(readFileSync(`${dir}/${name}`, 'utf8')) as Workflow,
+      }))
+      .filter(({ workflow }) =>
+        workflow.concurrency?.group?.startsWith('discourse-${{'),
+      );
+    expect(grouped.length, 'no per-issue forum workflow found').toBeGreaterThan(
+      2,
+    );
+    for (const { name, workflow } of grouped) {
+      expect(
+        workflow.concurrency?.queue,
+        `${name} drops pending runs in its concurrency group`,
+      ).toBe('max');
+    }
+  },
+);

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /*
- * Mirrors issue comments and forum replies between GitHub and the topics issue-to-discourse.yml opens.
- * `to-forum` posts one comment from GITHUB_EVENT_PATH; `to-github` copies recent replies (docs/DEPLOYMENT.md).
+ * Mirrors issue and pull request comments and forum replies between GitHub and their topics.
+ * `open-topic` and `to-forum` read GITHUB_EVENT_PATH; `to-github` copies recent replies (docs/DEPLOYMENT.md).
  */
 
 import { readFileSync } from 'node:fs';
@@ -10,11 +10,14 @@ import { fileURLToPath } from 'node:url';
 /* Must match the comment issue-to-discourse.yml posts. */
 export const LINK_COMMENT_PREFIX =
   'Discussion for this issue is open on the forum: ';
+export const PR_LINK_COMMENT_PREFIX =
+  'Discussion for this pull request is open on the forum: ';
+const LINK_PREFIXES = [LINK_COMMENT_PREFIX, PR_LINK_COMMENT_PREFIX];
 export const BOT_LOGIN = 'github-actions[bot]';
 const GITHUB_HEADER = /^\S+ wrote on GitHub:/;
 const FORUM_HEADER = /^\S+ wrote on the forum:/;
 const MARKER = /<!-- discourse-post:(\d+) -->/g;
-const TOPIC_TITLE = /^GitHub issue #(\d+):/;
+const TOPIC_TITLE = /^GitHub (issue|pull request) #(\d+):/;
 const TOPIC_URL = /\/t\/[^/\s]+\/(\d+)\b/;
 /* Discourse's regular post type; moderator actions, small actions and whispers are others. */
 const REGULAR_POST = 1;
@@ -33,6 +36,9 @@ const ERROR_BODY_CHARS = 500;
 /* Discourse's default max_post_length; GitHub allows 65,536. */
 const FORUM_MAX_POST_CHARS = 32_000;
 const TRUNCATED_NOTE = '\n\n(Shortened; the full comment is on GitHub.)';
+/* Discourse's default max_topic_title_length. */
+const FORUM_MAX_TITLE_CHARS = 255;
+const TITLE_ELLIPSIS = '…';
 const HTTP_TOO_MANY = 429;
 
 /** Breaks `@name` so the other side does not notify a user of that name. */
@@ -54,16 +60,47 @@ export const mirroredPostIds = (comments) =>
       ),
   );
 
-export const issueNumberFromTitle = (title) => {
+/** The issue or pull request a topic title names, or null. */
+export const topicTarget = (title) => {
   const match = TOPIC_TITLE.exec(title ?? '');
-  return match ? Number(match[1]) : null;
+  return match
+    ? { number: Number(match[2]), pullRequest: match[1] === 'pull request' }
+    : null;
+};
+
+/** Whether a pull request event should open a topic: ready for review, from a person. */
+export const shouldOpenTopic = (pullRequest) =>
+  !pullRequest.draft && pullRequest.user?.type !== 'Bot';
+
+/* By code point, so a cut never splits an emoji's surrogate pair. */
+const fit = (text, limit, note) => {
+  const points = Array.from(text);
+  return points.length > limit
+    ? `${points.slice(0, limit - Array.from(note).length).join('')}${note}`
+    : text;
+};
+
+export const pullRequestTopic = (pullRequest) => {
+  const body = pullRequest.body
+    ? defuseMentions(stripMarkers(pullRequest.body))
+    : '_No description provided._';
+  const header = `Opened by ${pullRequest.user.login} on GitHub:\n\n${pullRequest.html_url}\n\n---\n\n`;
+  return {
+    title: fit(
+      `GitHub pull request #${pullRequest.number}: ${pullRequest.title}`,
+      FORUM_MAX_TITLE_CHARS,
+      TITLE_ELLIPSIS,
+    ),
+    raw: `${header}${fit(body, FORUM_MAX_POST_CHARS - header.length, TRUNCATED_NOTE)}`,
+  };
 };
 
 /** The topic id from the bot's link comment; null without one, so only topics the workflow opened sync. */
 export const topicIdFromComments = (comments) => {
   const link = comments.find(
     ({ user, body }) =>
-      user?.login === BOT_LOGIN && (body ?? '').startsWith(LINK_COMMENT_PREFIX),
+      user?.login === BOT_LOGIN &&
+      LINK_PREFIXES.some((prefix) => (body ?? '').startsWith(prefix)),
   );
   const match = link && TOPIC_URL.exec(link.body);
   return match ? Number(match[1]) : null;
@@ -103,11 +140,7 @@ export const forumReplyBody = (comment) => {
   const footer = `\n\n${comment.html_url}`;
   const text = defuseMentions(stripMarkers(comment.body ?? ''));
   const room = FORUM_MAX_POST_CHARS - header.length - footer.length;
-  const fitted =
-    text.length > room
-      ? `${text.slice(0, room - TRUNCATED_NOTE.length)}${TRUNCATED_NOTE}`
-      : text;
-  return `${header}${fitted}${footer}`;
+  return `${header}${fit(text, room, TRUNCATED_NOTE)}${footer}`;
 };
 
 export const githubCommentBody = (post, postUrl) =>
@@ -251,13 +284,11 @@ const toForum = async () => {
   const event = JSON.parse(readFileSync(required('GITHUB_EVENT_PATH'), 'utf8'));
   const { comment, issue } = event;
   if (!comment || !issue) throw new Error('Expected an issue_comment event.');
-  if (issue.pull_request)
-    return console.log('A pull request comment; nothing to mirror.');
   if (!shouldMirrorComment(comment))
     return console.log('A bot comment or a mirror; skipped.');
   const topicId = topicIdFromComments(await github().comments(issue.number));
   if (!topicId)
-    return console.log(`Issue #${issue.number} has no forum topic; skipped.`);
+    return console.log(`#${issue.number} has no forum topic; skipped.`);
   const { post } = forum();
   const created = await post(
     '/posts.json',
@@ -315,14 +346,15 @@ const toGithub = async () => {
   const cutoff = Date.now() - LOOKBACK_HOURS * MS_PER_HOUR;
   let copied = 0;
   for (const listed of await recentTopics(get, categoryId, cutoff)) {
-    const number = issueNumberFromTitle(listed.title);
-    if (!number || listed.category_id !== categoryId) continue;
+    const target = topicTarget(listed.title);
+    if (!target || listed.category_id !== categoryId) continue;
+    const { number } = target;
     /* A deleted issue (404) has nothing to sync to. */
     const issue = await gh.issue(number).catch((error) => {
       if (error.status === HTTP_NOT_FOUND) return null;
       throw error;
     });
-    if (!issue || issue.pull_request) continue;
+    if (!issue || Boolean(issue.pull_request) !== target.pullRequest) continue;
     const comments = await gh.comments(number);
     if (topicIdFromComments(comments) !== listed.id) continue;
     const done = mirroredPostIds(comments);
@@ -339,11 +371,41 @@ const toGithub = async () => {
   );
 };
 
+const openTopic = async () => {
+  const event = JSON.parse(readFileSync(required('GITHUB_EVENT_PATH'), 'utf8'));
+  const pullRequest = event.pull_request;
+  if (!pullRequest) throw new Error('Expected a pull_request_target event.');
+  if (!shouldOpenTopic(pullRequest))
+    return console.log('A draft or a bot pull request; skipped.');
+  const gh = github();
+  if (topicIdFromComments(await gh.comments(pullRequest.number)))
+    return console.log(`#${pullRequest.number} already has a forum topic.`);
+  const { base, post } = forum();
+  const created = await post(
+    '/posts.json',
+    {
+      ...pullRequestTopic(pullRequest),
+      category: Number(required('DISCOURSE_CATEGORY_ID')),
+    },
+    'topics: write',
+  );
+  if (!created?.topic_id || !created?.topic_slug)
+    throw new Error(
+      `Discourse answered without a topic: ${JSON.stringify(created)}`,
+    );
+  const url = `${base}/t/${created.topic_slug}/${created.topic_id}`;
+  await gh.comment(pullRequest.number, `${PR_LINK_COMMENT_PREFIX}${url}`);
+  console.log(`#${pullRequest.number} opened topic ${created.topic_id}.`);
+};
+
 const main = async () => {
   const mode = process.argv[2];
+  if (mode === 'open-topic') return openTopic();
   if (mode === 'to-forum') return toForum();
   if (mode === 'to-github') return toGithub();
-  throw new Error('Usage: discourse-sync.mjs to-forum | to-github');
+  throw new Error(
+    'Usage: discourse-sync.mjs open-topic | to-forum | to-github',
+  );
 };
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
