@@ -336,14 +336,14 @@ const stepFrame = (
 /** The two crouch drawings a creeping cat swaps between, one per step. */
 const CREEP: readonly Frame[] = ['crouch', 'crouchdown'];
 /** px a creeping cat covers per drawing, about a third of a walk stride. */
-export const CREEP_STEP_PX = 13;
+const CREEP_STEP_PX = 13;
 
 /**
  * The crouch drawing a creeping cat shows, or null when it is not creeping:
  * the body moves only when the drawing changes, so its paws never glide, and a
  * stopped cat settles on the crouch.
  */
-export const creepFrame = (
+const creepFrame = (
   s: Pick<FrameStep, 'frame' | 'stepX'>,
   x: number,
   moving: boolean,
@@ -358,7 +358,7 @@ export const creepFrame = (
  * Where the cat is drawn: while a walk or creeping crouch frame shows, where that
  * frame began, so a planted paw never slides; a stopped crouch catches up in place.
  */
-export const drawnXOf = (
+const drawnXOf = (
   s: Pick<FrameStep, 'frame' | 'stepX'>,
   x: number,
   moving: boolean,

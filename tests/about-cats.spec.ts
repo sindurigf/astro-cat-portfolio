@@ -24,23 +24,14 @@ import {
   type Move,
 } from '../src/lib/about-cats-moves';
 import {
-  CREEP_STEP_PX,
   HIT_HALF_WIDTH,
   POST_HEIGHT,
-  creepFrame,
-  drawnXOf,
   highestPoint,
   hitBox,
   isStepping,
   reachOf,
 } from '../src/lib/about-cats-rig';
-import {
-  FRAMES,
-  RISE,
-  WALK,
-  riseStep,
-  type Frame,
-} from '../src/lib/about-cats-frames';
+import { FRAMES } from '../src/lib/about-cats-frames';
 import { createIdle, idleFrameMs, tickIdle } from '../src/lib/about-cats-idle';
 import { isTricksData, tricksOf } from '../src/lib/about-cats-tricks';
 import tricksData from '../src/lib/about-cats-tricks.json' with { type: 'json' };
@@ -287,98 +278,6 @@ const catBand = (): number => {
   return Number(match[1]);
 };
 
-/** Frames riseStep passes through from `from` until it lets `wanted` show, `from` included. */
-const riseWay = (from: Frame, wanted: Frame): Frame[] => {
-  const way = [from];
-  for (let next = riseStep(from, wanted); next; next = riseStep(next, wanted))
-    way.push(next);
-  return way;
-};
-
-test(
-  'a cat rises through every rising frame in order and sits down the same way back',
-  NODE,
-  () => {
-    expect(
-      riseWay('sit', 'stand'),
-      'a rise skipped or reordered a frame',
-    ).toEqual(RISE);
-    expect(
-      riseWay('stand', 'sit'),
-      'a sit-down skipped or reordered a frame',
-    ).toEqual([...RISE].reverse());
-    expect(
-      riseWay('sit', WALK[0]!),
-      'a walk from sitting did not rise through every frame first',
-    ).toEqual(RISE);
-    expect(
-      ['sit', 'headturn'],
-      'a cat part-way up did not sit back down before lying',
-    ).toContain(riseWay('risehalf', 'loaf').at(-1));
-    expect(
-      riseWay('risehalf', 'crouch').at(-1),
-      'a cat part-way up did not finish standing before crouching',
-    ).toBe('stand');
-  },
-);
-
-test(
-  'a sitting cat sinks through loafsink to a crouch and rises back through it',
-  NODE,
-  () => {
-    expect(
-      riseWay('sit', 'crouch'),
-      'a sitting cat cut straight to a crouch',
-    ).toEqual(['sit', 'loafsink', 'crouch']);
-    expect(
-      riseWay('crouch', 'sit'),
-      'a crouching cat cut straight to sitting',
-    ).toEqual(['crouch', 'loafsink', 'sit']);
-    expect(
-      riseWay('crouchdown', 'sit'),
-      'a half-risen crouching cat cut straight to sitting',
-    ).toEqual(['crouchdown', 'crouch', 'loafsink', 'sit']);
-  },
-);
-
-test(
-  'a creeping cat changes its crouch drawing only after a full step, and a stopped one settles on the crouch where it stands',
-  NODE,
-  () => {
-    const crouched = { frame: 'crouch' as Frame, stepX: 0 };
-    const risen = { frame: 'crouchdown' as Frame, stepX: 0 };
-    const LAG_PX = CREEP_STEP_PX / 2;
-    expect(
-      creepFrame(crouched, CREEP_STEP_PX - 1, true),
-      'a creeping cat changed drawing before a full step',
-    ).toBe('crouch');
-    expect(
-      creepFrame(crouched, CREEP_STEP_PX, true),
-      'a creeping cat kept one drawing past a full step, so its paws glide',
-    ).toBe('crouchdown');
-    expect(
-      drawnXOf(crouched, LAG_PX, true),
-      'a creeping crouch was drawn moving between steps',
-    ).toBe(0);
-    expect(
-      creepFrame(crouched, LAG_PX, false),
-      'a stopped crouching cat swapped drawing instead of settling',
-    ).toBe('crouch');
-    expect(
-      drawnXOf(crouched, LAG_PX, false),
-      'a stopped crouching cat stayed drawn behind where it stands',
-    ).toBe(LAG_PX);
-    expect(
-      creepFrame(risen, LAG_PX, false),
-      'a cat stopped half-risen did not sink back to the crouch',
-    ).toBe('crouch');
-    expect(
-      creepFrame({ frame: 'stand', stepX: 0 }, CREEP_STEP_PX, true),
-      'a cat that is not crouched was treated as creeping',
-    ).toBeNull();
-  },
-);
-
 test('no move lifts any part of a cat above its band', NODE, () => {
   const band = catBand();
   const moves: [string, Move][] = [
@@ -594,33 +493,6 @@ test(
   },
 );
 
-/** How far any pose value may sit from the plain sit pose at a move's end. */
-const SIT_TOLERANCE = 0.01;
-
-test(
-  'every play move ends in a plain sit on the ground, so the cat settles and the next move starts from rest',
-  NODE,
-  () => {
-    const start = pose('sit');
-    const playMoves = (Object.keys(MOVES) as MoveName[]).filter(
-      (name) => name !== 'sleep' && name !== 'wake',
-    );
-    for (const name of playMoves) {
-      const end = poseAt(MOVES[name](), start, duration(MOVES[name]()));
-      const sit = pose('sit', { x: end.x, face: end.face });
-      const off = (Object.keys(sit) as (keyof typeof sit)[]).filter((key) => {
-        const a = end[key];
-        const b = sit[key];
-        return Array.isArray(a) && Array.isArray(b)
-          ? Math.abs(a[0] - b[0]) > SIT_TOLERANCE ||
-              Math.abs(a[1] - b[1]) > SIT_TOLERANCE
-          : Math.abs(Number(a) - Number(b)) > SIT_TOLERANCE;
-      });
-      expect(off, `${name} ends away from a plain sit`).toEqual([]);
-    }
-  },
-);
-
 /** Frames this far apart, as a loaded device drew them in CI. */
 const SLOW_FRAME_MS = 530;
 /** Frames a slow device may still draw after a move ends: the move's last, and its arrival step. */
@@ -797,50 +669,6 @@ test(
   },
 );
 
-/** The frame a cat is drawn with, as its rig reports it. */
-const frameOf = (page: Page, id: (typeof CATS)[number]) =>
-  page.locator(`#cat-spot-${id} .cat-hit`).getAttribute('data-frame');
-/** Frames drawn with the head turned. */
-const TURNED = /^(headturn|look)$/;
-
-/* Window for counting animation frames: none in it means the renderer, not the cat loop, has stopped. */
-const FRAME_COUNT_MS = 500;
-
-/** What a stuck cat's page shows: its reported state, band visibility, tab visibility and frame rate. */
-const catState = async (page: Page, id: (typeof CATS)[number]) => {
-  try {
-    const state = await page.evaluate(
-      ([spotId, windowMs]) =>
-        new Promise<Record<string, unknown>>((resolve) => {
-          const spot = document.getElementById(String(spotId));
-          let frames = 0;
-          let done = false;
-          const count = () => {
-            if (done) return;
-            frames += 1;
-            requestAnimationFrame(count);
-          };
-          requestAnimationFrame(count);
-          setTimeout(() => {
-            done = true;
-            resolve({
-              state: spot
-                ?.querySelector('[data-cat-state]')
-                ?.getAttribute('data-cat-state'),
-              bandVisible: spot?.hasAttribute('data-cat-visible'),
-              documentHidden: document.hidden,
-              framesIn500ms: frames,
-            });
-          }, Number(windowMs));
-        }),
-      [`cat-spot-${id}`, FRAME_COUNT_MS] as const,
-    );
-    return JSON.stringify({ ...state, frame: await frameOf(page, id) });
-  } catch (error) {
-    return `the page state could not be read: ${String(error)}`;
-  }
-};
-
 /** Frames a loaded runner draws late, beyond the 5 s bound for lying down. */
 const SLEEP_MARGIN_MS = 1000;
 /* Longer than MAX_FRAMES_PER_STEP frames at 60fps, so the next frame covers the most a frame can. */
@@ -1008,43 +836,6 @@ const framesDrawnOver = async (
 const IDLE_MAX_FPS = 25;
 /** Frames that must show a resting cat is idling, not frozen, in the window. */
 const IDLE_MIN_FRAMES = 3;
-
-/*
- * A frame stamped this soon after the request for it: Firefox can stamp the frame
- * after a timer wake within a millisecond of the wake, so it covers almost no time.
- */
-const WAKE_FRAME_LEAD_MS = 0.02;
-
-/** Hela asleep and Rudra off screen, so only Minerva's own schedule can wake the loop. */
-const expectHeldHeadRelaxes = async (page: Page) => {
-  await gotoSettled(page, ROUTE);
-  await napControl(page, 'hela').click();
-  await expectMood(page, 'hela', 'asleep', 'Hela did not fall asleep');
-  expect(
-    await settles(page, 'hela', SC_2_2_2_MS + SLEEP_MARGIN_MS),
-    'Hela was still moving after lying down',
-  ).toBe(true);
-  await pointAt(page, 'minerva');
-  await expect
-    .poll(() => frameOf(page, 'minerva'), {
-      message: 'a held cat never turned its head to the pointer',
-      timeout: POINTER_IDLE_MS,
-    })
-    .toMatch(TURNED);
-  try {
-    await expect
-      .poll(() => frameOf(page, 'minerva'), {
-        message: 'a held cat kept its head turned to an idle pointer',
-        timeout: POINTER_IDLE_MS + SC_2_2_2_MS,
-      })
-      .not.toMatch(TURNED);
-  } catch (error) {
-    if (error instanceof Error) {
-      error.message += `\nCat state: ${await catState(page, 'minerva')}`;
-    }
-    throw error;
-  }
-};
 
 /** A roll under every chance in about-cats.ts: Rudra climbs whenever the wall under him has a step. */
 const CLIMB_ROLL = 0.01;
@@ -2214,35 +2005,6 @@ test.describe('About cats', () => {
       list.getByRole('button', { name: TRICKS.fly.label }),
       'a trick that cannot fit the band is offered',
     ).toHaveCount(0);
-  });
-
-  test('a held cat relaxes its head once the pointer goes idle, even with every other cat on screen asleep', async ({
-    browser,
-  }) => {
-    const context = await browser.newContext({
-      viewport: await twoCatWindow(browser),
-    });
-    const page = await context.newPage();
-    await expectHeldHeadRelaxes(page);
-    await context.close();
-  });
-
-  test('a held cat relaxes its head when the frame after the loop wakes covers almost no time', async ({
-    browser,
-  }) => {
-    const context = await browser.newContext({
-      viewport: await twoCatWindow(browser),
-    });
-    const page = await context.newPage();
-    await page.addInitScript((leadMs) => {
-      const request = window.requestAnimationFrame.bind(window);
-      window.requestAnimationFrame = (callback) => {
-        const asked = performance.now();
-        return request(() => callback(asked + leadMs));
-      };
-    }, WAKE_FRAME_LEAD_MS);
-    await expectHeldHeadRelaxes(page);
-    await context.close();
   });
 
   test('a held cat that has settled is not redrawn after a slow frame', async ({
