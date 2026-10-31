@@ -613,6 +613,7 @@ const PER_ISSUE_WORKFLOWS = [
   'issue-to-discourse.yml',
   'pr-to-discourse.yml',
   'discourse-comment-to-topic.yml',
+  'discourse-state.yml',
 ];
 
 test(
