@@ -21,7 +21,6 @@ const BASE: Pose = {
   ba: 0,
   by: 26,
   bt: 20,
-  sq: 1,
   haunch: 0,
   fN: [12, 26],
   fF: [8, 26],
@@ -84,7 +83,6 @@ const POSES = {
   sleep: derive(LOAF, {
     ba: -4,
     bt: 24,
-    sq: 0.86,
     hr: 30,
     eyes: 0,
     zz: 1,
@@ -131,7 +129,6 @@ const POSES = {
   air: derive(BASE, {
     ba: 10,
     by: 30,
-    sq: 1.08,
     fN: [22, 6],
     fF: [19, 9],
     hN: [-22, 10],
@@ -293,13 +290,12 @@ const gait = (
 
 const walking = (from: number, to: number, strength = 1): Mod =>
   gait(from, to, WALK_LEGS, STANCE, STRIDE * strength, STEP_LIFT * strength);
-/** A chasing cat bounds: front paws land together, then hind paws, the back flexing between. px per stride, px of lift and hop, degrees of rock. */
+/** A chasing cat bounds: front paws land together, then hind paws, the back flexing between. px per stride, px of paw lift, degrees of rock. */
 const BOUND_STRIDE = 44;
 const BOUND_LIFT = 6;
-const BOUND_HOP = 3;
 const BOUND_ROCK = 7;
-/** Each pair is down for a quarter of the stride and lands this many px out from its standing place, so the four legs never gather to a point. */
-const BOUND_STANCE = 0.25;
+/** Each pair is down for half the stride, so a paw is always on the ground and the drawing never bobs, and lands this many px out from its standing place, so the four legs never gather to a point. */
+const BOUND_STANCE = 0.5;
 const BOUND_SPREAD = 5;
 const BOUND_LEGS: typeof WALK_LEGS = [
   ['fN', 0],
@@ -319,23 +315,9 @@ const bounding = (from: number, to: number): Mod =>
       for (const k of PAWS)
         p[k][0] += weight * (k[0] === 'f' ? BOUND_SPREAD : -BOUND_SPREAD);
       const phase = 2 * Math.PI * cycle;
-      p.y += weight * BOUND_HOP * Math.abs(Math.sin(phase));
       p.ba += weight * BOUND_ROCK * Math.sin(phase);
     },
   );
-/** Hind paws tread in turn, lifting, while the rump sways over them. */
-const TREAD_LIFT = 3;
-/** px the rump sways side to side before a pounce. */
-const WIGGLE_SWAY = 1.2;
-const wiggle = (from: number, to: number): Mod =>
-  between(from, to, (p, s) => {
-    const w = Math.sin(s / 45);
-    p.x += WIGGLE_SWAY * w;
-    for (const k of PAWS) p[k][0] -= WIGGLE_SWAY * w;
-    p.hN[1] -= TREAD_LIFT * Math.max(0, w);
-    p.hF[1] -= TREAD_LIFT * Math.max(0, -w);
-    p.by -= 1;
-  });
 /** Degrees the head lags a jump by, up as it takes off and down as it lands. */
 const HEAD_LAG = 14;
 /** A jump's rise and fall; it ends with its landing step, so the paws touch down as the arc does. */
@@ -344,19 +326,14 @@ const arc = (from: number, to: number, height: number): Mod =>
     p.y += Math.sin(Math.PI * k) * height;
     p.hr -= HEAD_LAG * Math.cos(Math.PI * k);
   });
-/* Slow breaths, ending on an exhale so the pose rests where it started; two leave room for a slow device's frames within 5 s. */
-const BREATH_MS = 1000;
-const BREATHS = 2;
-/** Body thickness in px the chest gains at the top of a breath. */
-const BREATH_DEPTH = 1.4;
-const breathing = (from: number, breaths: number): Mod =>
-  between(from, from + BREATH_MS * breaths, (p, s) => {
-    p.bt += BREATH_DEPTH * Math.sin((2 * Math.PI * s) / BREATH_MS);
-  });
-/** The "z" rises once per breath, then rests above the head, not back at the start. */
-const dozing = (from: number, breaths: number): Mod =>
-  between(from, from + BREATH_MS * breaths, (p, s) => {
-    p.zz = s >= BREATH_MS * breaths ? 1 : (s % BREATH_MS) / BREATH_MS;
+/* ms the "z" takes to rise once; two rises leave room for a slow device's frames within 5 s. */
+const DOZE_PERIOD_MS = 1000;
+const DOZE_PERIODS = 2;
+/** The "z" rises once per doze period, then rests above the head, not back at the start. */
+const dozing = (from: number, periods: number): Mod =>
+  between(from, from + DOZE_PERIOD_MS * periods, (p, s) => {
+    p.zz =
+      s >= DOZE_PERIOD_MS * periods ? 1 : (s % DOZE_PERIOD_MS) / DOZE_PERIOD_MS;
   });
 
 type RoutePoint = readonly [t: number, x: number, y: number];
@@ -512,7 +489,7 @@ const along = ([first, ...rest]: Route, t: number): [number, number] => {
 };
 
 /*
- * Rolling onto the back: low, then over all at once with a squash. Easing
+ * Rolling onto the back: low, then over all at once. Easing
  * the 180° roll would stand the cat on its head halfway.
  */
 /** Body height before the roll; upright poses keep their paws on the ground there. */
@@ -522,13 +499,8 @@ const groundedAt = (name: PoseName, by: number): Partial<Pose> =>
     ? {}
     : Object.fromEntries(PAWS.map((k) => [k, [POSES[name][k][0], by]]));
 const flopTo = (from: PoseName, to: PoseName, x = 0): Step[] => [
-  step(
-    200,
-    from,
-    { x, by: FLOP_LOW, sq: 0.92, ...groundedAt(from, FLOP_LOW) },
-    'in',
-  ),
-  step(200, to, { x, sq: 0.92 }, 'snap'),
+  step(200, from, { x, by: FLOP_LOW, ...groundedAt(from, FLOP_LOW) }, 'in'),
+  step(200, to, { x }, 'snap'),
   step(300, to, { x }, 'out'),
 ];
 
@@ -624,29 +596,29 @@ export const MOVES = {
     steps: [
       step(1200, 'sit'),
       step(300, 'crouch'),
-      step(120, 'crouch', { sq: 0.88 }, 'in'),
+      step(120, 'crouch', {}, 'in'),
       step(350, 'air', { x: 50 }, 'linear'),
-      step(150, 'crouch', { x: 60, sq: 0.86 }, 'out'),
+      step(150, 'crouch', { x: 60 }, 'out'),
       step(700, 'crouch', { x: 60, hr: 6 }),
       step(1000, 'crouch', { x: 86 }, 'linear'),
       step(600, 'crouch', { x: 86 }),
-      step(140, 'crouch', { x: 86, sq: 0.9 }, 'in'),
+      step(140, 'crouch', { x: 86 }, 'in'),
       step(350, 'air', { x: 100 }, 'linear'),
-      step(150, 'crouch', { x: 108, sq: 0.84 }, 'out'),
+      step(150, 'crouch', { x: 108 }, 'out'),
       step(600, 'sit', { x: 108, hr: -22 }),
       step(400, 'low', { x: 108 }),
       FLY_SWIPE,
       step(260, 'low', { x: 108 }),
       FLY_SWIPE,
       step(300, 'crouch', { x: 108 }),
-      step(120, 'crouch', { x: 108, sq: 0.88 }, 'in'),
+      step(120, 'crouch', { x: 108 }, 'in'),
       step(350, 'air', { x: 150 }, 'linear'),
-      step(150, 'crouch', { x: 160, sq: 0.86 }, 'out'),
+      step(150, 'crouch', { x: 160 }, 'out'),
       step(350, 'crouch', { x: 160, hr: -18 }),
-      step(160, 'crouch', { x: 160, sq: 0.86 }, 'in'),
+      step(160, 'crouch', { x: 160 }, 'in'),
       step(260, 'leap', { x: 190 }, 'out'),
       step(260, 'leap', { x: 200 }, 'in'),
-      step(150, 'crouch', { x: 210, sq: 0.84 }, 'out'),
+      step(150, 'crouch', { x: 210 }, 'out'),
       step(500, 'sit', { x: 210, hr: -20 }),
       step(600, 'sit', { x: 210 }),
     ],
@@ -654,14 +626,10 @@ export const MOVES = {
       between(0, 1200, (p, s) => {
         p.hr = -18 + 14 * Math.sin(s / 260);
       }),
-      wiggle(1200, 1500),
       arc(1620, 2120, FLY_HOP_HEIGHT),
       walking(2820, 3820, 0.6),
-      wiggle(3820, 4420),
       arc(4560, 5060, POUNCE_HEIGHT),
-      wiggle(6640, 6940),
       arc(7060, 7560, FLY_HOP_HEIGHT),
-      wiggle(7560, 7910),
       arc(8070, 8740, LEAP_HEIGHT),
     ],
     prop: 'fly',
@@ -709,17 +677,17 @@ export const MOVES = {
       step(300, 'stand'),
       step(2400, 'stand', { x: 150 }),
       step(300, 'crouch', { x: 150 }),
-      step(140, 'crouch', { x: 150, sq: 0.88 }, 'in'),
+      step(140, 'crouch', { x: 150 }, 'in'),
       step(300, 'air', { x: 198 }, 'linear'),
-      step(180, 'crouch', { x: YARN_LAND_1, sq: 0.84 }, 'out'),
+      step(180, 'crouch', { x: YARN_LAND_1 }, 'out'),
       ...bat([30, 14], { x: YARN_LAND_1 }),
       step(150 - BAT_PUSH_MS, 'sit', { x: YARN_LAND_1 }),
       step(YARN_STAND_MS, 'stand', { x: YARN_LAND_1 }),
       step(1500 - YARN_STAND_MS, 'stand', { x: 280 }),
       step(250, 'crouch', { x: 280 }),
-      step(140, 'crouch', { x: 280, sq: 0.88 }, 'in'),
+      step(140, 'crouch', { x: 280 }, 'in'),
       step(280, 'air', { x: 298 }, 'linear'),
-      step(180, 'crouch', { x: YARN_LAND_2, sq: 0.84 }, 'out'),
+      step(180, 'crouch', { x: YARN_LAND_2 }, 'out'),
       ...flopTo('crouch', 'belly', YARN_LAND_2),
       step(1500, 'belly', { x: YARN_LAND_2 }),
       ...flopTo('belly', 'loaf', YARN_LAND_2),
@@ -727,10 +695,8 @@ export const MOVES = {
     ],
     mods: [
       bounding(1000, 3400),
-      wiggle(3400, 3700),
       arc(3840, 4320, YARN_BOUND_HEIGHT),
       bounding(4870 + YARN_STAND_MS, 6370),
-      wiggle(6370, 6620),
       arc(6760, 7220, YARN_BOUND_HEIGHT),
     ],
     prop: 'yarn',
@@ -770,10 +736,10 @@ export const MOVES = {
       ...wandSwat('fN', 260),
       ...wandSwat('fF', 300),
       step(300, 'crouch', { hr: -20 }),
-      step(160, 'crouch', { sq: 0.86, hr: -24 }, 'in'),
+      step(160, 'crouch', { hr: -24 }, 'in'),
       step(300, 'leap', { fN: [33, -20], fF: [28, -13] }, 'out'),
       step(300, 'leap', { fN: [24, -8], fF: [20, -4] }, 'in'),
-      step(200, 'crouch', { sq: 0.84 }, 'out'),
+      step(200, 'crouch', {}, 'out'),
       step(900, 'crouch', { fN: [32, 16], hr: 6 }),
       step(600, 'sit'),
     ],
@@ -794,16 +760,16 @@ export const MOVES = {
       };
     },
   }),
-  /* A cat that turns first takes a breath fewer, so turning and lying down stay well within 5 s. */
+  /* A cat that turns first dozes one period fewer, so turning and lying down stay well within 5 s. */
   sleep: (turning = false): Move => {
-    const breaths = turning ? BREATHS - 1 : BREATHS;
+    const periods = turning ? DOZE_PERIODS - 1 : DOZE_PERIODS;
     return {
       steps: [
         step(600, 'loaf'),
         step(800, 'sleep'),
-        step(BREATH_MS * breaths, 'sleep'),
+        step(DOZE_PERIOD_MS * periods, 'sleep'),
       ],
-      mods: [breathing(1400, breaths), dozing(1400, breaths)],
+      mods: [dozing(1400, periods)],
     };
   },
   wake: (): Move => ({
@@ -833,28 +799,9 @@ const slower = (move: Move, factor: number): Move => {
   };
 };
 
-/** Squash and stretch, exaggerated: a squash goes this much deeper, a stretch this much longer. */
-const SQUASH_GAIN = 1.8;
-const STRETCH_GAIN = 2;
-const bolder = (move: Move): Move => ({
-  ...move,
-  steps: move.steps.map((s) => ({
-    ...s,
-    pose: {
-      ...clonePose(s.pose),
-      sq:
-        s.pose.sq < 1
-          ? 1 - (1 - s.pose.sq) * SQUASH_GAIN
-          : 1 + (s.pose.sq - 1) * STRETCH_GAIN,
-    },
-  })),
-});
-
-/** The move a cat plays: small play moves slowed down, and squash and stretch exaggerated. */
+/** The move a cat plays: small play moves slowed down. */
 export const moveToPlay = (name: MoveName): Move =>
-  bolder(
-    SLOW_MOVES.has(name) ? slower(MOVES[name](), SLOW_PLAY) : MOVES[name](),
-  );
+  SLOW_MOVES.has(name) ? slower(MOVES[name](), SLOW_PLAY) : MOVES[name]();
 
 /** Moves that carry the cat along its track; on a short track they are scaled to fit. */
 export const TRAVEL_MOVES: ReadonlySet<MoveName> = new Set(['fly', 'yarn']);
@@ -973,7 +920,7 @@ const TURN_HOP = 10;
 
 export const withTurn = (move: Move, from: Pose): Move => {
   const propAt = move.propAt;
-  const gather = { ...clonePose(from), sq: 0.94 };
+  const gather = clonePose(from);
   return {
     ...move,
     steps: [

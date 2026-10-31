@@ -73,6 +73,19 @@ test.describe('the code-block visitor', () => {
     expect(node.properties.ariaLabel).toBe('Code, scrolls sideways');
   });
 
+  test('drops the fence language class, which nothing styles', NODE, () => {
+    const code = {
+      ...codeChild,
+      properties: { className: ['language-sh'] } as Record<string, unknown>,
+    };
+    codeBlock.element.visit(preNode(code), visitorContext());
+
+    expect(
+      code.properties.className,
+      'a language-* class reached the page with no CSS for it',
+    ).toBeNull();
+  });
+
   test('leaves preformatted text that is not code alone', NODE, () => {
     const node = preNode({ type: 'text', value: 'a receipt, not code' });
     codeBlock.element.visit(node, visitorContext());
@@ -113,7 +126,9 @@ test.describe('code in a post, as it renders', () => {
         if (!prose) throw new Error('the post has no .prose column');
         prose.insertAdjacentHTML('beforeend', html);
 
-        const block = prose.querySelector('pre')!;
+        /* The sample, not a code block the post already has. */
+        const blocks = prose.querySelectorAll('pre');
+        const block = blocks[blocks.length - 1]!;
         const root = document.documentElement;
         return {
           blockOverflowX: getComputedStyle(block).overflowX,
@@ -139,6 +154,27 @@ test.describe('code in a post, as it renders', () => {
       ).toBe(false);
     });
   }
+});
+
+/* SC 1.4.10: a long path in running text wraps instead of widening the page. */
+test('inline code in a paragraph wraps inside its column at 320px', async ({
+  page,
+}) => {
+  await page.setViewportSize(REFLOW_VIEWPORT);
+  await gotoSettled(page, itemAt(POST_ROUTES, 0));
+
+  const pageScrolls = await page.evaluate(() => {
+    const prose = document.querySelector('.prose');
+    if (!prose) throw new Error('the post has no .prose column');
+    prose.insertAdjacentHTML(
+      'beforeend',
+      '<p>Edit <code>/srv/example/config/settings/and/a/much/longer/path.yml</code> first.</p>',
+    );
+    const root = document.documentElement;
+    return root.scrollWidth > root.clientWidth;
+  });
+
+  expect(pageScrolls, 'inline code pushed the page sideways').toBe(false);
 });
 
 /* SC 2.4.3, 4.1.2: a stop with nothing to scroll is a dead tab, and "scrolls sideways" a false name. */
@@ -230,7 +266,7 @@ test.describe('a code block is a tab stop only while it scrolls', () => {
   });
 });
 
-/* The selector src/scripts/code-block-fit.ts queries: its fingerprint in a built chunk. */
+/* The selector src/scripts/prose-scroll-fit.ts queries: its fingerprint in a built chunk. */
 const FIT_SELECTOR = 'pre[role=group]>code';
 
 /** Every script a page loads, its imports followed. */
@@ -255,12 +291,14 @@ const scriptsOf = (html: string): string[] => {
   return [...seen.values()];
 };
 
-/* Performance: the fit script loads where a code block renders, and nowhere else. */
+/* Performance: the fit script loads where a code block or post table renders, and nowhere else. */
 test.describe('the code-block fit script', NODE, () => {
-  test('loads on every page with a code block and on no other', () => {
+  test('loads on every page with a code block or post table and on no other', () => {
     const wrong = [...builtHtml()]
       .filter(([, html]) => {
-        const hasBlock = /<pre\b[^>]*\brole="group"/.test(html);
+        const hasBlock =
+          /<pre\b[^>]*\brole="group"/.test(html) ||
+          html.includes('class="table-scroll"');
         const loads = scriptsOf(html).some((source) =>
           source.includes(FIT_SELECTOR),
         );
@@ -268,7 +306,7 @@ test.describe('the code-block fit script', NODE, () => {
       })
       .map(([route]) => route);
 
-    expect(wrong, 'page(s) whose code blocks and fit script disagree').toEqual(
+    expect(wrong, 'page(s) whose scrollers and fit script disagree').toEqual(
       [],
     );
   });

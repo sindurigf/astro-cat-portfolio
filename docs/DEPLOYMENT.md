@@ -322,3 +322,5 @@ Dashboard settings that change what ships without a file change.
   - Forum replies in `DISCOURSE_CATEGORY_ID` become public on GitHub, even on
     a forum that needs a login.
   - Edits and deletions are not mirrored.
+  - Runs for one issue or pull request queue in order (`queue: max`), up to
+    GitHub's 100 pending runs; a run beyond that is canceled and not retried.

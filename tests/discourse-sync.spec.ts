@@ -482,7 +482,7 @@ test('a pull request body longer than a forum post is shortened', NODE, () => {
 
 /* Security: pull_request_target runs with secrets, so it must never check out the pull request. */
 test(
-  'every pull_request_target workflow checks out only the default branch',
+  'every pull_request_target checkout has no ref or the default branch ref',
   NODE,
   () => {
     const dir = '.github/workflows';
@@ -506,6 +506,7 @@ test(
         (job) => job.steps ?? [],
       )) {
         if (!step.uses?.startsWith('actions/checkout@')) continue;
+        // No ref checks out github.ref, which pull_request_target sets to the default branch.
         expect(
           [undefined, '${{ github.event.repository.default_branch }}'],
           `${name} checks out ${step.with?.ref}, not the default branch`,
@@ -604,5 +605,33 @@ test(
     expect(acceptDecision({ can_accept_answer: true })).toBe('accept');
     expect(acceptDecision({ can_accept_answer: false })).toBe('notice');
     expect(acceptDecision(undefined)).toBe('notice');
+  },
+);
+
+/* Function: GitHub cancels all but the newest pending run in a group unless queue is max. */
+test(
+  'every forum workflow per issue queues its runs without dropping one',
+  NODE,
+  () => {
+    const dir = '.github/workflows';
+    type Workflow = { concurrency?: { group?: string; queue?: string } };
+    const grouped = readdirSync(dir)
+      .filter((name) => name.endsWith('.yml'))
+      .map((name) => ({
+        name,
+        workflow: load(readFileSync(`${dir}/${name}`, 'utf8')) as Workflow,
+      }))
+      .filter(({ workflow }) =>
+        workflow.concurrency?.group?.startsWith('discourse-${{'),
+      );
+    expect(grouped.length, 'no per-issue forum workflow found').toBeGreaterThan(
+      2,
+    );
+    for (const { name, workflow } of grouped) {
+      expect(
+        workflow.concurrency?.queue,
+        `${name} drops pending runs in its concurrency group`,
+      ).toBe('max');
+    }
   },
 );
