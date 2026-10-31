@@ -50,13 +50,17 @@ const HAS_TALK = (await getCollection('talks')).length > 0;
       text, and the{' '}
       <Abbr short="AAA" long="the highest of WCAG's three levels" /> criteria
       listed below where met. Status: target only. There is no claim that the
-      site meets it, because no full evaluation has been done and no{' '}
-      <dfn>screen reader</dfn>, software that reads the page aloud, has been
-      tested.
+      site meets it.
+    </p>
+    <p class="standfirst">
+      Automated tests check a lot of the site. No person has tested all of it,
+      and nobody has tried it yet with a <dfn>screen reader</dfn>, software that
+      reads the page aloud. No tool finds every problem. If something blocks
+      you, please tell us.
     </p>
     <p class="standfirst">
       This site aims to work for you with a keyboard, at high zoom and without
-      JavaScript. If something does not work, please tell us.
+      JavaScript.
     </p>
   </PageHero>
 

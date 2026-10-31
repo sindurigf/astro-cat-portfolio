@@ -1,4 +1,5 @@
 ---
+import ProseScrollFit from './ProseScrollFit.astro';
 /*
  * /brand's contrast rows. A row that passes shows its pairing as text (needs
  * 4.5) or an edge (needs 3), in the live tokens; cyan is never at rest, and
@@ -70,50 +71,58 @@ const sampleOf = (row: Row): string[] | null => {
 ---
 
 <div class="prose max-w-none">
-  <table>
-    <caption class="sr-only">{caption}</caption>
-    <thead>
-      <tr>
-        <th scope="col">Pair</th>
-        <th scope="col">Use</th>
-        <th scope="col">Ratio</th>
-      </tr>
-    </thead>
-    <tbody>
-      {rows.map((row) => {
-        const sample = sampleOf(row);
-        return (
-          <tr
-            data-sample={
-              sample ? (row.job === TEXT_JOB ? 'text' : 'edge') : undefined
-            }
-          >
-            <th scope="row">
-              <span class="flex flex-wrap items-center gap-2">
-                {sample && (
-                  <span
-                    class:list={[
-                      'grid size-8 shrink-0 place-items-center',
-                      sample,
-                    ]}
-                    aria-hidden="true"
-                  >
-                    {row.job === TEXT_JOB && 'Aa'}
+  <div
+    class="table-scroll"
+    tabindex="0"
+    role="group"
+    aria-label={`${caption}, scrolls sideways`}
+  >
+    <table>
+      <caption class="sr-only">{caption}</caption>
+      <thead>
+        <tr>
+          <th scope="col">Pair</th>
+          <th scope="col">Use</th>
+          <th scope="col">Ratio</th>
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map((row) => {
+          const sample = sampleOf(row);
+          return (
+            <tr
+              data-sample={
+                sample ? (row.job === TEXT_JOB ? 'text' : 'edge') : undefined
+              }
+            >
+              <th scope="row">
+                <span class="flex flex-wrap items-center gap-2">
+                  {sample && (
+                    <span
+                      class:list={[
+                        'grid size-8 shrink-0 place-items-center',
+                        sample,
+                      ]}
+                      aria-hidden="true"
+                    >
+                      {row.job === TEXT_JOB && 'Aa'}
+                    </span>
+                  )}
+                  <span>
+                    <code>{row.fg}</code> on <code>{row.bg}</code>
                   </span>
-                )}
-                <span>
-                  <code>{row.fg}</code> on <code>{row.bg}</code>
                 </span>
-              </span>
-            </th>
-            <td class="text-subtle">{row.use}</td>
-            <td>
-              {row.ratio}, {row.result}
-              {row.needs !== 'n/a' && ` (${row.needs})`}
-            </td>
-          </tr>
-        );
-      })}
-    </tbody>
-  </table>
+              </th>
+              <td class="text-subtle">{row.use}</td>
+              <td>
+                {row.ratio}, {row.result}
+                {row.needs !== 'n/a' && ` (${row.needs})`}
+              </td>
+            </tr>
+          );
+        })}
+      </tbody>
+    </table>
+  </div>
 </div>
+<ProseScrollFit />

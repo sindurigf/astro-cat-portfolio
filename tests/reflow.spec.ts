@@ -188,8 +188,8 @@ const expectNoHorizontalOverflow = async (
 };
 
 /**
- * Under text spacing a long word in a fixed-layout table spills into the next
- * column without the page scrolling, so the document-level check cannot see it.
+ * Under text spacing a long word in a fixed-layout slide table spills into the
+ * next column without the page scrolling, so the document-level check cannot see it.
  */
 const expectCellsHoldTheirText = async (
   page: Page,
