@@ -39,7 +39,7 @@ import type { Ledge, PropState } from './about-cats-types';
 import { CLIMB_CLEAR, CLIMB_START, climbMove } from './about-cats-climb';
 import {
   createIdle,
-  idleFrameMs,
+  idleNextDrawAt,
   idleOffsets,
   rearmIdle,
   tickIdle,
@@ -48,7 +48,7 @@ import {
 } from './about-cats-idle';
 
 /** The rest after each move, in ms, while the cat idles: cats act in bursts. */
-const PAUSE_MS = [1500, 4500] as const;
+export const PAUSE_MS = [1500, 4500] as const;
 /** What a frame did for a cat: drew it, left it settled, or held it in a pause. */
 type StepResult = 'draw' | 'still' | 'rest';
 
@@ -645,19 +645,21 @@ export const createColony = (
       const result = step(cat, now, frames);
       const frameStepping = isStepping(cat.rig, now);
       const resting = result === 'rest';
-      /* Timers run only while resting, so each rest starts them afresh. */
-      if (resting && !cat.idling) rearmIdle(cat.idle);
+      /* Timers run only while resting, so each rest starts them afresh; its first frame draws at once. */
+      const restStarts = resting && !cat.idling;
+      if (restStarts) rearmIdle(cat.idle);
       cat.idling = resting;
       if (cat.idling) {
         tickIdle(cat.idle, now);
-        const gap = idleFrameMs(cat.idle, now, frameStepping);
-        const due = now - cat.idleDrawnAt >= gap;
+        const due =
+          restStarts ||
+          now >= idleNextDrawAt(cat.idle, cat.idleDrawnAt, frameStepping);
         /* Next frame: the next idle one, the pause's end, or the nap. */
         wakeAt = Math.min(
           wakeAt,
           cat.restUntil,
           cat.napAt,
-          (due ? now : cat.idleDrawnAt) + gap,
+          idleNextDrawAt(cat.idle, due ? now : cat.idleDrawnAt, frameStepping),
         );
         if (!due) continue;
         cat.idleDrawnAt = now;
@@ -681,6 +683,9 @@ export const createColony = (
         wakeAt = now;
       }
       draw(cat, now);
+      /* The draw can leave a frame waiting its turn, so a resting cat wakes for it. */
+      if (cat.idling && isStepping(cat.rig, now))
+        wakeAt = Math.min(wakeAt, idleNextDrawAt(cat.idle, now, true));
     }
     return wakeAt;
   };
