@@ -435,27 +435,29 @@ test(
 );
 
 /* Function: GitHub cancels all but the newest pending run in a group unless queue is max. */
+const PER_ISSUE_WORKFLOWS = [
+  'issue-to-discourse.yml',
+  'pr-to-discourse.yml',
+  'discourse-comment-to-topic.yml',
+];
+
 test(
   'every forum workflow per issue queues its runs without dropping one',
   NODE,
   () => {
-    const dir = '.github/workflows';
     type Workflow = { concurrency?: { group?: string; queue?: string } };
-    const grouped = readdirSync(dir)
-      .filter((name) => name.endsWith('.yml'))
-      .map((name) => ({
-        name,
-        workflow: load(readFileSync(`${dir}/${name}`, 'utf8')) as Workflow,
-      }))
-      .filter(({ workflow }) =>
-        workflow.concurrency?.group?.startsWith('discourse-${{'),
-      );
-    expect(grouped.length, 'no per-issue forum workflow found').toBeGreaterThan(
-      2,
-    );
-    for (const { name, workflow } of grouped) {
+    for (const name of PER_ISSUE_WORKFLOWS) {
+      const { concurrency } = load(
+        readFileSync(`.github/workflows/${name}`, 'utf8'),
+      ) as Workflow;
       expect(
-        workflow.concurrency?.queue,
+        concurrency?.group,
+        `${name} runs outside the per-issue forum queue`,
+      ).toBe(
+        'discourse-${{ github.event.issue.number || github.event.pull_request.number }}',
+      );
+      expect(
+        concurrency?.queue,
         `${name} drops pending runs in its concurrency group`,
       ).toBe('max');
     }
