@@ -420,6 +420,8 @@
   --step-y: clamp(0px, calc((100vw - 640px) / 10), 48px);
   /* Card, panel, field, header and rule edges (`edge` utilities); controls, chips, photos and stickers keep `border-4`. */
   --edge: 6px;
+  /* Table rules only (`hairline` utilities). */
+  --hairline: 1px;
   --shadow-hard-pink-4: 4px 4px 0 var(--color-pink);
   /* In the color opposite the ground, so it shows in both modes. */
   --shadow-brick: var(--brick-throw) var(--brick-throw) 0 var(--color-text);
