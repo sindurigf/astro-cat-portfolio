@@ -272,8 +272,8 @@
   }
 
   /*
-   * Room comes from `px-6` and the gap, not taller rows, so long tables fit
-   * 1280x720. Two classes to outrank `.prose > :first-child`.
+   * Room comes from the cell padding and the gap, not taller rows, so long
+   * tables fit 1280x720. Two classes to outrank `.prose > :first-child`.
    */
   .prose.slide-body > table {
     @apply mt-3 mb-6;
@@ -285,7 +285,7 @@
     hyphens: auto;
   }
 
-  /* `px-2` on a phone: at `px-6` a two-column cell is narrower than "Communicate". */
+  /* `px-2` keeps whole words from 390px; narrower, a long word can still split. */
   .slide-body :is(th, td) {
     @apply px-2 py-2 wrap-anywhere sm:px-6;
   }
