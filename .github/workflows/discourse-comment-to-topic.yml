@@ -13,10 +13,11 @@ permissions:
   pull-requests: read
 
 concurrency:
-  # One group per issue or pull request across the forum workflows, so a topic
-  # exists before a comment, close or reopen for the same number runs.
+  # One FIFO queue per issue or pull request across the forum workflows: the
+  # topic exists before a comment, close or reopen for it runs. queue: max keeps
+  # every pending run; the default cancels all but the newest.
   group: discourse-${{ github.event.issue.number || github.event.pull_request.number }}
-  cancel-in-progress: false
+  queue: max
 
 jobs:
   to-forum:
