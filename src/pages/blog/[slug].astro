@@ -1,6 +1,6 @@
 ---
-import CodeBlockFit from '../../components/CodeBlockFit.astro';
-import { hasCodeBlock } from '../../lib/code-blocks';
+import ProseScrollFit from '../../components/ProseScrollFit.astro';
+import { hasCodeBlock, hasTable } from '../../lib/code-blocks';
 import Breadcrumbs from '../../components/Breadcrumbs.astro';
 import { formatPostDate, isoDateTime } from '../../lib/post-date';
 import { isoDate } from '../../lib/time';
@@ -32,7 +32,8 @@ type Props = InferGetStaticPropsType<typeof getStaticPaths>;
 
 const { post } = Astro.props;
 const { Content, headings } = await render(post);
-const codeInPost = hasCodeBlock(post.body ?? '');
+const scrollerInPost =
+  hasCodeBlock(post.body ?? '') || hasTable(post.body ?? '');
 
 const {
   title,
@@ -208,7 +209,7 @@ const article = placeholder
 
         <div class="prose">
           <Content />
-          {codeInPost && <CodeBlockFit />}
+          {scrollerInPost && <ProseScrollFit />}
           {sources.length > 0 && (
             <>
               <h2 id={PERSONA_SOURCES_ID}>Sources</h2>
