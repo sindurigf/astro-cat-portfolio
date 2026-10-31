@@ -5,7 +5,7 @@
  */
 
 const GLANCE_EVERY_MS = [2500, 6000] as const;
-const GLANCE_MS = 700;
+export const GLANCE_MS = 700;
 /** Largest head turn in degrees; the head returns to center about half the time. */
 const GLANCE_DEG = 28;
 const GLANCE_CENTER_CHANCE = 0.5;
@@ -78,16 +78,16 @@ export const idleOffsets = (state: IdleState, now: number): IdleOffsets => ({
   hr: glanceNow(state, now),
 });
 
-/** Slow while the cat holds still, quicker for a glance. */
-const CALM_FRAME_MS = 100;
-const BUSY_FRAME_MS = 50;
+/** ms between frames while a glance turns the head, or a frame waits its turn. */
+export const BUSY_FRAME_MS = 50;
 
-export const idleFrameMs = (
+/** When a resting cat drawn at `drawnAt` next needs drawing: soon while its head turns, else not before its next glance. */
+export const idleNextDrawAt = (
   state: IdleState,
-  now: number,
+  drawnAt: number,
   busy = false,
 ): number =>
   busy ||
-  (state.glanceFrom !== state.glanceTo && now - state.glanceAt < GLANCE_MS)
-    ? BUSY_FRAME_MS
-    : CALM_FRAME_MS;
+  (state.glanceFrom !== state.glanceTo && drawnAt < state.glanceAt + GLANCE_MS)
+    ? drawnAt + BUSY_FRAME_MS
+    : Math.max(drawnAt + BUSY_FRAME_MS, state.nextGlance);
