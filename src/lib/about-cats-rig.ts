@@ -395,18 +395,9 @@ const creepFrame = (
   return s.frame === 'crouch' ? 'crouchdown' : 'crouch';
 };
 
-/** Drawings with paws on the ground that the body moves past one frame at a time. */
-const PLANTED: ReadonlySet<Frame> = new Set([
-  ...WALK,
-  'crouchdown',
-  'takeoff',
-  'landing',
-]);
-
 /**
- * Where the cat is drawn: while a walk, creeping crouch, push-off or landing frame
- * shows, where that frame began, so a planted paw never slides; a stopped crouch
- * catches up in place.
+ * Where the cat is drawn: while a walk or creeping crouch frame shows, where that
+ * frame began, so a planted paw never slides; a stopped crouch catches up in place.
  */
 const drawnXOf = (
   s: Pick<FrameStep, 'frame' | 'stepX'>,
@@ -414,7 +405,7 @@ const drawnXOf = (
   moving: boolean,
 ): number => {
   if (s.frame === null) return x;
-  if (PLANTED.has(s.frame)) return s.stepX;
+  if (WALK.includes(s.frame) || s.frame === 'crouchdown') return s.stepX;
   return s.frame === 'crouch' && moving ? s.stepX : x;
 };
 
