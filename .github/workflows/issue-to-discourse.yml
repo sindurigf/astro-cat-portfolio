@@ -74,7 +74,7 @@ jobs:
             --arg author "$ISSUE_AUTHOR" \
             --arg external_id "$external_id" \
             --argjson category "$DISCOURSE_CATEGORY_ID" \
-            '{ title: $title, category: $category, external_id: $external_id, raw: ("Opened by " + $author + " on GitHub:\n\n" + $url + "\n\n---\n\n" + (if $body == "" then "_No description provided._" else ($body | gsub("(?<a>^|[^\\w`/])@(?<b>[\\w-])"; "\(.a)@\u200b\(.b)")) end)) }')
+            '{ title: ($title | if length > 255 then .[0:254] + "…" else . end), category: $category, external_id: $external_id, raw: ("Opened by " + $author + " on GitHub:\n\n" + $url + "\n\n---\n\n" + (if $body == "" then "_No description provided._" else ($body | gsub("(?<a>^|[^\\w`/])@(?<b>[\\w-])"; "\(.a)@\u200b\(.b)")) end)) }')
           if ! response=$(curl -sS --max-time 30 --fail-with-body -X POST "${base}/posts.json" \
             -H "Content-Type: application/json" \
             -H "Api-Key: ${DISCOURSE_API_KEY}" \
