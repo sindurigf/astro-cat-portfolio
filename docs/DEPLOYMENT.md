@@ -296,9 +296,11 @@ Dashboard settings that change what ships without a file change.
   - `pr-to-discourse.yml` does the same for each pull request once it is ready
     for review, skipping drafts and bots. It runs on `pull_request_target`
     from the default branch and never checks out the pull request's code.
+  - Each topic has the `external_id` `github-issue-<n>` or `github-pr-<n>`. A
+    re-run links the existing topic instead of opening a second one.
   - `discourse-comment-to-topic.yml` posts each new issue or pull request
-    conversation comment as a reply. Review comments on code lines are not
-    mirrored.
+    conversation comment as a reply. Review comments on code lines and review
+    summary bodies (`pull_request_review`) are not mirrored.
   - `discourse-state.yml` mirrors a close, merge or reopen: it replies in the
     topic, closes or reopens it, and marks a completed issue's or merged pull
     request's reply as the solution, unless a person already chose one; a

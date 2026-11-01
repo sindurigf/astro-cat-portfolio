@@ -240,6 +240,11 @@
     margin-block-start: var(--hero-pad-block);
   }
 
+  /* A plain slab with no breadcrumb above it stands at the same distance. */
+  .page-hero-plain > .plain-slab:first-child {
+    margin-block-start: var(--hero-pad-block);
+  }
+
   /*
    * The column's top margin and edge come off the hero's height so the window's
    * bottom rule lands on the fold; the final --spacing(1) absorbs rounding.

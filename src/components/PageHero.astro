@@ -49,7 +49,12 @@ const titleClass = slab === 'thin' ? 'text-post-title' : fullTitle;
   The plain tier always stacks: beside the title a standfirst outweighs it.
 */}
 {!gold && (
-  <section class="page-hero page-hero-plain band relative isolate pt-head pb-section">
+  <section
+    class:list={[
+      'page-hero page-hero-plain band relative isolate pb-section',
+      Astro.slots.has('eyebrow') ? 'pt-head' : 'pt-0',
+    ]}
+  >
     {Astro.slots.has('eyebrow') && (
       <div
         class:list={['mx-auto mb-8', reading ? 'max-w-measure' : 'max-w-page']}

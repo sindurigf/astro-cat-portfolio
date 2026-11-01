@@ -208,6 +208,18 @@
   border-left-width: var(--edge);
 }
 
+@utility hairline {
+  border-width: var(--hairline);
+}
+
+@utility hairline-t {
+  border-top-width: var(--hairline);
+}
+
+@utility hairline-b {
+  border-bottom-width: var(--hairline);
+}
+
 @utility lift-mark {
   --lift: var(--lift-mark);
 }
