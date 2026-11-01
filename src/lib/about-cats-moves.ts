@@ -1044,13 +1044,13 @@ const RUN_STRIDE = 96;
 const RUN_AIR_MS = 230;
 const RUN_GROUND_MS = 90;
 const RUN_LIFT = 9;
-/** ms crouched before the first push-off. */
-const RUN_READY_MS = 400;
+/** A shorter run is no leap: the cat trots it instead. */
+const RUN_MIN_STRIDE = RUN_STRIDE / 2;
 const run = (
   distance: number,
   from: number,
 ): { steps: Step[]; mods: Mod[] } => {
-  const strides = Math.max(1, Math.round(distance / RUN_STRIDE));
+  const strides = Math.ceil(distance / RUN_STRIDE);
   const stride = distance / strides;
   const steps: Step[] = [];
   const mods: Mod[] = [];
@@ -1074,7 +1074,7 @@ const CREEP_READY_MS = 250;
 const SETTLE_BACK_MS = 400;
 /** Farther than this, a cat trots or runs to the spot first and creeps only the last of it. */
 const CREEP_REACH = 60;
-/** A trot at the walk drawings' own pace, so they never skip. It stands up first, quickly at the start, so every rising frame shows before the paws move. */
+/** A trot at the walk drawings' own pace, so they never skip. It stands up, or crouches for a run, first, quickly at the start, so every drawing on the way shows before the paws move. */
 const TROT_SPEED = WALK_SPEED;
 const TROT_READY_MS = 800;
 
@@ -1090,14 +1090,14 @@ export const withApproach = (
   gait: 'trot' | 'run' = 'trot',
 ): Move => {
   const trot = Math.max(0, distance - CREEP_REACH);
-  const dash = gait === 'run' && trot > 0 ? run(trot, RUN_READY_MS) : null;
+  const dash =
+    gait === 'run' && trot >= RUN_MIN_STRIDE ? run(trot, TROT_READY_MS) : null;
   const trotMs = dash
     ? stepsDuration(dash.steps)
     : trot > 0
       ? (trot / TROT_SPEED) * 1000
       : 0;
-  const ready = dash ? RUN_READY_MS : TROT_READY_MS;
-  const trotLead = trot > 0 ? ready + trotMs : 0;
+  const trotLead = trot > 0 ? TROT_READY_MS + trotMs : 0;
   const creep = Math.max(
     CREEP_MIN_MS,
     ((distance - trot) / CREEP_SPEED) * 1000,
@@ -1109,7 +1109,7 @@ export const withApproach = (
     ...move,
     steps: [
       ...(dash
-        ? [step(RUN_READY_MS, 'crouch', {}, 'out'), ...dash.steps]
+        ? [step(TROT_READY_MS, 'crouch', {}, 'out'), ...dash.steps]
         : trot > 0
           ? [
               step(TROT_READY_MS, 'stand', {}, 'out'),
