@@ -72,6 +72,10 @@ export const topicTarget = (title) => {
 export const shouldOpenTopic = (pullRequest) =>
   !pullRequest.draft && pullRequest.user?.type !== 'Bot';
 
+/** The topic's external_id; must match issue-to-discourse.yml. Discourse allows 50 of [\w-]. */
+export const topicExternalId = (number, pullRequest) =>
+  `github-${pullRequest ? 'pr' : 'issue'}-${number}`;
+
 /* By code point, so a cut never splits an emoji's surrogate pair. */
 const fit = (text, limit, note) => {
   const points = Array.from(text);
@@ -380,22 +384,38 @@ const openTopic = async () => {
   const gh = github();
   if (topicIdFromComments(await gh.comments(pullRequest.number)))
     return console.log(`#${pullRequest.number} already has a forum topic.`);
-  const { base, post } = forum();
-  const created = await post(
-    '/posts.json',
-    {
-      ...pullRequestTopic(pullRequest),
-      category: Number(required('DISCOURSE_CATEGORY_ID')),
-    },
-    'topics: write',
-  );
-  if (!created?.topic_id || !created?.topic_slug)
+  const { base, get, post } = forum();
+  const externalId = topicExternalId(pullRequest.number, true);
+  /* A run that opened the topic but failed to comment left it behind; link that one. */
+  const existing = await get(
+    `/t/external_id/${externalId}.json`,
+    'topics: read',
+  ).catch((error) => {
+    if (error.status === HTTP_NOT_FOUND) return null;
+    throw error;
+  });
+  const created =
+    existing ??
+    (await post(
+      '/posts.json',
+      {
+        ...pullRequestTopic(pullRequest),
+        category: Number(required('DISCOURSE_CATEGORY_ID')),
+        external_id: externalId,
+      },
+      'topics: write',
+    ));
+  const topicId = existing ? existing.id : created?.topic_id;
+  const slug = existing ? existing.slug : created?.topic_slug;
+  if (!topicId || !slug)
     throw new Error(
       `Discourse answered without a topic: ${JSON.stringify(created)}`,
     );
-  const url = `${base}/t/${created.topic_slug}/${created.topic_id}`;
+  const url = `${base}/t/${slug}/${topicId}`;
   await gh.comment(pullRequest.number, `${PR_LINK_COMMENT_PREFIX}${url}`);
-  console.log(`#${pullRequest.number} opened topic ${created.topic_id}.`);
+  console.log(
+    `#${pullRequest.number} ${existing ? 'linked existing' : 'opened'} topic ${topicId}.`,
+  );
 };
 
 const main = async () => {

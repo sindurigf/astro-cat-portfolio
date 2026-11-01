@@ -1,4 +1,8 @@
-import { readFileSync, readdirSync } from 'node:fs';
+import { execFile } from 'node:child_process';
+import { mkdtempSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { promisify } from 'node:util';
 import { load } from 'js-yaml';
 import { createServer, type Server } from 'node:http';
 import type { AddressInfo } from 'node:net';
@@ -12,6 +16,7 @@ import {
   PR_LINK_COMMENT_PREFIX,
   pullRequestTopic,
   shouldOpenTopic,
+  topicExternalId,
   topicTarget,
   mirroredPostIds,
   request,
@@ -461,5 +466,139 @@ test(
         `${name} drops pending runs in its concurrency group`,
       ).toBe('max');
     }
+  },
+);
+
+/* Function: a run that opened the topic but failed to comment must link it on a re-run, not 422 on the title. */
+type Hit = { method: string; url: string; body: string };
+
+const fakeForumAndGithub = (
+  topicExists: boolean,
+): Promise<{ server: Server; origin: string; hits: Hit[] }> =>
+  new Promise((resolve) => {
+    const hits: Hit[] = [];
+    const server = createServer((req, res) => {
+      let body = '';
+      req.on('data', (chunk) => (body += chunk));
+      req.on('end', () => {
+        const url = req.url ?? '';
+        hits.push({ method: req.method ?? '', url, body });
+        const json = (status: number, data: unknown, location?: string) => {
+          res.writeHead(status, {
+            'content-type': 'application/json',
+            ...(location ? { location } : {}),
+          });
+          res.end(JSON.stringify(data));
+        };
+        if (url.startsWith('/repos/o/r/issues/12/comments'))
+          return req.method === 'POST' ? json(201, {}) : json(200, []);
+        if (url === '/t/external_id/github-pr-12.json')
+          return topicExists
+            ? json(301, {}, '/t/fix-the-menu/77.json')
+            : json(404, { errors: ['Not found'] });
+        if (url === '/t/fix-the-menu/77.json')
+          return json(200, { id: 77, slug: 'fix-the-menu' });
+        if (url === '/posts.json' && req.method === 'POST')
+          return json(200, { topic_id: 78, topic_slug: 'fix-the-menu' });
+        json(500, { unexpected: url });
+      });
+    });
+    server.listen(0, '127.0.0.1', () =>
+      resolve({
+        server,
+        origin: `http://127.0.0.1:${(server.address() as AddressInfo).port}`,
+        hits,
+      }),
+    );
+  });
+
+const runOpenTopic = async (origin: string) => {
+  const event = join(mkdtempSync(join(tmpdir(), 'discourse-')), 'event.json');
+  writeFileSync(
+    event,
+    JSON.stringify({
+      pull_request: {
+        number: 12,
+        draft: false,
+        title: 'Fix the menu',
+        body: 'Fixes the menu.',
+        html_url: 'https://github.com/o/r/pull/12',
+        user: { login: 'robin', type: 'User' },
+      },
+    }),
+  );
+  await promisify(execFile)(
+    process.execPath,
+    ['scripts/discourse-sync.mjs', 'open-topic'],
+    {
+      env: {
+        PATH: process.env.PATH,
+        GITHUB_EVENT_PATH: event,
+        GITHUB_API_URL: origin,
+        GITHUB_REPOSITORY: 'o/r',
+        GITHUB_TOKEN: 'gh-token',
+        DISCOURSE_URL: origin,
+        DISCOURSE_CATEGORY_ID: '5',
+        DISCOURSE_API_KEY: 'key',
+        DISCOURSE_API_USERNAME: 'forum-bot',
+      },
+    },
+  );
+};
+
+const linkComments = (hits: Hit[]) =>
+  hits
+    .filter(({ method, url }) => method === 'POST' && url.includes('/comments'))
+    .map(({ body }) => JSON.parse(body).body);
+
+test(
+  'a re-run links the topic an earlier run opened instead of opening another',
+  NODE,
+  async () => {
+    const fake = await fakeForumAndGithub(true);
+    try {
+      await runOpenTopic(fake.origin);
+      expect(
+        fake.hits.some(({ url }) => url === '/posts.json'),
+        'a topic with this external_id exists, so no new one may be created',
+      ).toBe(false);
+      expect(linkComments(fake.hits)).toEqual([
+        `${PR_LINK_COMMENT_PREFIX}${fake.origin}/t/fix-the-menu/77`,
+      ]);
+    } finally {
+      fake.server.close();
+    }
+  },
+);
+
+test(
+  'a new pull request topic carries its external_id and is linked',
+  NODE,
+  async () => {
+    const fake = await fakeForumAndGithub(false);
+    try {
+      await runOpenTopic(fake.origin);
+      const created = fake.hits.find(({ url }) => url === '/posts.json');
+      expect(JSON.parse(created?.body ?? '{}').external_id).toBe(
+        'github-pr-12',
+      );
+      expect(linkComments(fake.hits)).toEqual([
+        `${PR_LINK_COMMENT_PREFIX}${fake.origin}/t/fix-the-menu/78`,
+      ]);
+    } finally {
+      fake.server.close();
+    }
+  },
+);
+
+test(
+  'issue-to-discourse.yml uses the external_id the script would give an issue',
+  NODE,
+  () => {
+    expect(topicExternalId(3, false)).toBe('github-issue-3');
+    expect(
+      readFileSync('.github/workflows/issue-to-discourse.yml', 'utf8'),
+      'issue-to-discourse.yml no longer gives topics the external_id the script uses',
+    ).toContain('external_id="github-issue-${ISSUE_NUMBER}"');
   },
 );
