@@ -1,4 +1,9 @@
-import { readFileSync } from 'node:fs';
+import { execFile } from 'node:child_process';
+import { mkdtempSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { promisify } from 'node:util';
+import { load } from 'js-yaml';
 import { createServer, type Server } from 'node:http';
 import type { AddressInfo } from 'node:net';
 import { expect, test } from './test';
@@ -8,7 +13,11 @@ import {
   defuseMentions,
   forumReplyBody,
   githubCommentBody,
-  issueNumberFromTitle,
+  PR_LINK_COMMENT_PREFIX,
+  pullRequestTopic,
+  shouldOpenTopic,
+  topicExternalId,
+  topicTarget,
   mirroredPostIds,
   request,
   shouldMirrorComment,
@@ -62,12 +71,17 @@ test('the topic id comes only from the bot link comment', NODE, () => {
   expect(topicIdFromComments([human])).toBeNull();
 });
 
-test('a topic title names its issue number', NODE, () => {
-  expect(
-    issueNumberFromTitle('GitHub issue #322: Test: issue to Discourse'),
-  ).toBe(322);
-  expect(issueNumberFromTitle('Re: GitHub issue #322: x')).toBeNull();
-  expect(issueNumberFromTitle(undefined)).toBeNull();
+test('a topic title names its issue or pull request number', NODE, () => {
+  expect(topicTarget('GitHub issue #322: Test: issue to Discourse')).toEqual({
+    number: 322,
+    pullRequest: false,
+  });
+  expect(topicTarget('GitHub pull request #12: Fix the menu')).toEqual({
+    number: 12,
+    pullRequest: true,
+  });
+  expect(topicTarget('Re: GitHub issue #322: x')).toBeNull();
+  expect(topicTarget(undefined)).toBeNull();
 });
 
 test(
@@ -288,3 +302,303 @@ test('a POST is never redirected', NODE, async () => {
     forum.server.close();
   }
 });
+
+test(
+  'a pull request topic links back through its own link comment',
+  NODE,
+  () => {
+    expect(
+      topicIdFromComments([
+        {
+          user: { login: BOT_LOGIN },
+          body: `${PR_LINK_COMMENT_PREFIX}https://forum.example/t/github-pull-request-12-fix/77`,
+        },
+      ]),
+    ).toBe(77);
+  },
+);
+
+test('a draft or bot pull request opens no topic', NODE, () => {
+  const ready = { draft: false, user: { login: 'robin', type: 'User' } };
+  expect(shouldOpenTopic(ready)).toBe(true);
+  expect(shouldOpenTopic({ ...ready, draft: true })).toBe(false);
+  expect(
+    shouldOpenTopic({
+      ...ready,
+      user: { login: 'dependabot[bot]', type: 'Bot' },
+    }),
+  ).toBe(false);
+  expect(
+    shouldOpenTopic({
+      ...ready,
+      user: { login: 'renovate[bot]', type: 'Bot' },
+    }),
+  ).toBe(false);
+});
+
+test(
+  'a pull request topic fits Discourse limits and pings no one',
+  NODE,
+  () => {
+    const topic = pullRequestTopic({
+      number: 12,
+      title: 'x'.repeat(400),
+      body: '@luffy please review',
+      html_url: 'https://github.com/o/r/pull/12',
+      user: { login: 'robin' },
+    });
+    expect(topic.title.startsWith('GitHub pull request #12: ')).toBe(true);
+    expect(Array.from(topic.title).length).toBeLessThanOrEqual(255);
+    const emoji = pullRequestTopic({
+      number: 12,
+      title: '🐈'.repeat(300),
+      body: '',
+      html_url: 'u',
+      user: { login: 'r' },
+    }).title;
+    expect(emoji, 'a cut must not leave half an emoji').not.toMatch(
+      /[\uD800-\uDBFF](?![\uDC00-\uDFFF])/,
+    );
+    expect(topic.raw).toContain('https://github.com/o/r/pull/12');
+    expect(topic.raw).not.toMatch(/(^|[^\w`/])@[\w-]/);
+    expect(
+      pullRequestTopic({
+        number: 1,
+        title: 't',
+        body: null,
+        html_url: 'u',
+        user: { login: 'r' },
+      }).raw,
+    ).toContain('_No description provided._');
+  },
+);
+
+test('a pull request link comment from a person binds no topic', NODE, () => {
+  expect(
+    topicIdFromComments([
+      {
+        user: { login: 'mallory' },
+        body: `${PR_LINK_COMMENT_PREFIX}https://forum.example/t/x/77`,
+      },
+    ]),
+  ).toBeNull();
+});
+
+test('a pull request body longer than a forum post is shortened', NODE, () => {
+  const { raw } = pullRequestTopic({
+    number: 12,
+    title: 't',
+    body: 'x'.repeat(70_000),
+    html_url: 'https://github.com/o/r/pull/12',
+    user: { login: 'robin' },
+  });
+  expect(Array.from(raw).length).toBeLessThanOrEqual(32_000);
+  expect(raw).toContain('https://github.com/o/r/pull/12');
+  expect(raw.endsWith('(Shortened; the full comment is on GitHub.)')).toBe(
+    true,
+  );
+});
+
+/* Security: pull_request_target runs with secrets, so it must never check out the pull request. */
+test(
+  'every pull_request_target checkout has no ref or the default branch ref',
+  NODE,
+  () => {
+    const dir = '.github/workflows';
+    type Step = { uses?: string; with?: { ref?: string; repository?: string } };
+    type Workflow = { on?: unknown; jobs?: Record<string, { steps?: Step[] }> };
+    const targets = readdirSync(dir)
+      .filter((name) => name.endsWith('.yml'))
+      .map((name) => ({
+        name,
+        workflow: load(readFileSync(`${dir}/${name}`, 'utf8')) as Workflow,
+      }))
+      .filter(({ workflow }) =>
+        JSON.stringify(workflow.on ?? {}).includes('pull_request_target'),
+      );
+    expect(
+      targets.length,
+      'no pull_request_target workflow found',
+    ).toBeGreaterThan(0);
+    for (const { name, workflow } of targets) {
+      for (const step of Object.values(workflow.jobs ?? {}).flatMap(
+        (job) => job.steps ?? [],
+      )) {
+        if (!step.uses?.startsWith('actions/checkout@')) continue;
+        // No ref checks out the base branch: trusted code, never the pull request head.
+        expect(
+          [undefined, '${{ github.event.repository.default_branch }}'],
+          `${name} checks out ${step.with?.ref}, not the default branch`,
+        ).toContain(step.with?.ref);
+        expect(
+          step.with?.repository,
+          `${name} checks out another repository`,
+        ).toBeUndefined();
+      }
+    }
+  },
+);
+
+/* Function: GitHub cancels all but the newest pending run in a group unless queue is max. */
+const PER_ISSUE_WORKFLOWS = [
+  'issue-to-discourse.yml',
+  'pr-to-discourse.yml',
+  'discourse-comment-to-topic.yml',
+];
+
+test(
+  'every forum workflow per issue queues its runs without dropping one',
+  NODE,
+  () => {
+    type Workflow = { concurrency?: { group?: string; queue?: string } };
+    for (const name of PER_ISSUE_WORKFLOWS) {
+      const { concurrency } = load(
+        readFileSync(`.github/workflows/${name}`, 'utf8'),
+      ) as Workflow;
+      expect(
+        concurrency?.group,
+        `${name} runs outside the per-issue forum queue`,
+      ).toBe(
+        'discourse-${{ github.event.issue.number || github.event.pull_request.number }}',
+      );
+      expect(
+        concurrency?.queue,
+        `${name} drops pending runs in its concurrency group`,
+      ).toBe('max');
+    }
+  },
+);
+
+/* Function: a run that opened the topic but failed to comment must link it on a re-run, not 422 on the title. */
+type Hit = { method: string; url: string; body: string };
+
+const fakeForumAndGithub = (
+  topicExists: boolean,
+): Promise<{ server: Server; origin: string; hits: Hit[] }> =>
+  new Promise((resolve) => {
+    const hits: Hit[] = [];
+    const server = createServer((req, res) => {
+      let body = '';
+      req.on('data', (chunk) => (body += chunk));
+      req.on('end', () => {
+        const url = req.url ?? '';
+        hits.push({ method: req.method ?? '', url, body });
+        const json = (status: number, data: unknown, location?: string) => {
+          res.writeHead(status, {
+            'content-type': 'application/json',
+            ...(location ? { location } : {}),
+          });
+          res.end(JSON.stringify(data));
+        };
+        if (url.startsWith('/repos/o/r/issues/12/comments'))
+          return req.method === 'POST' ? json(201, {}) : json(200, []);
+        if (url === '/t/external_id/github-pr-12.json')
+          return topicExists
+            ? json(301, {}, '/t/fix-the-menu/77.json')
+            : json(404, { errors: ['Not found'] });
+        if (url === '/t/fix-the-menu/77.json')
+          return json(200, { id: 77, slug: 'fix-the-menu' });
+        if (url === '/posts.json' && req.method === 'POST')
+          return json(200, { topic_id: 78, topic_slug: 'fix-the-menu' });
+        json(500, { unexpected: url });
+      });
+    });
+    server.listen(0, '127.0.0.1', () =>
+      resolve({
+        server,
+        origin: `http://127.0.0.1:${(server.address() as AddressInfo).port}`,
+        hits,
+      }),
+    );
+  });
+
+const runOpenTopic = async (origin: string) => {
+  const event = join(mkdtempSync(join(tmpdir(), 'discourse-')), 'event.json');
+  writeFileSync(
+    event,
+    JSON.stringify({
+      pull_request: {
+        number: 12,
+        draft: false,
+        title: 'Fix the menu',
+        body: 'Fixes the menu.',
+        html_url: 'https://github.com/o/r/pull/12',
+        user: { login: 'robin', type: 'User' },
+      },
+    }),
+  );
+  await promisify(execFile)(
+    process.execPath,
+    ['scripts/discourse-sync.mjs', 'open-topic'],
+    {
+      env: {
+        PATH: process.env.PATH,
+        GITHUB_EVENT_PATH: event,
+        GITHUB_API_URL: origin,
+        GITHUB_REPOSITORY: 'o/r',
+        GITHUB_TOKEN: 'gh-token',
+        DISCOURSE_URL: origin,
+        DISCOURSE_CATEGORY_ID: '5',
+        DISCOURSE_API_KEY: 'key',
+        DISCOURSE_API_USERNAME: 'forum-bot',
+      },
+    },
+  );
+};
+
+const linkComments = (hits: Hit[]) =>
+  hits
+    .filter(({ method, url }) => method === 'POST' && url.includes('/comments'))
+    .map(({ body }) => JSON.parse(body).body);
+
+test(
+  'a re-run links the topic an earlier run opened instead of opening another',
+  NODE,
+  async () => {
+    const fake = await fakeForumAndGithub(true);
+    try {
+      await runOpenTopic(fake.origin);
+      expect(
+        fake.hits.some(({ url }) => url === '/posts.json'),
+        'a topic with this external_id exists, so no new one may be created',
+      ).toBe(false);
+      expect(linkComments(fake.hits)).toEqual([
+        `${PR_LINK_COMMENT_PREFIX}${fake.origin}/t/fix-the-menu/77`,
+      ]);
+    } finally {
+      fake.server.close();
+    }
+  },
+);
+
+test(
+  'a new pull request topic carries its external_id and is linked',
+  NODE,
+  async () => {
+    const fake = await fakeForumAndGithub(false);
+    try {
+      await runOpenTopic(fake.origin);
+      const created = fake.hits.find(({ url }) => url === '/posts.json');
+      expect(JSON.parse(created?.body ?? '{}').external_id).toBe(
+        'github-pr-12',
+      );
+      expect(linkComments(fake.hits)).toEqual([
+        `${PR_LINK_COMMENT_PREFIX}${fake.origin}/t/fix-the-menu/78`,
+      ]);
+    } finally {
+      fake.server.close();
+    }
+  },
+);
+
+test(
+  'issue-to-discourse.yml uses the external_id the script would give an issue',
+  NODE,
+  () => {
+    expect(topicExternalId(3, false)).toBe('github-issue-3');
+    expect(
+      readFileSync('.github/workflows/issue-to-discourse.yml', 'utf8'),
+      'issue-to-discourse.yml no longer gives topics the external_id the script uses',
+    ).toContain('external_id="github-issue-${ISSUE_NUMBER}"');
+  },
+);
