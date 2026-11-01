@@ -50,7 +50,7 @@ const sizeUp = (from: number, to: number): Move['mods'][number] => ({
   },
 });
 
-/* Up: look, crouch and size it up, spring from the hind legs, land front paws then hind paws on the top. */
+/* Up: look, crouch and size it up, spring from the hind legs, land front paws then hind paws on the top, one drawing per stage. */
 const up = (h: number): Move => {
   const e = CLIMB_START.up;
   return {
@@ -72,7 +72,7 @@ const up = (h: number): Move => {
             hN: [e - 30, 0],
             hF: [e - 27, 0],
           },
-          { ba: 35, hr: -14 },
+          { ba: 35, hr: -14, draw: 'takeoff' },
         ),
         'in',
       ),
@@ -88,7 +88,7 @@ const up = (h: number): Move => {
             hN: [e - 6, h + 6],
             hF: [e - 3, h + 8],
           },
-          { ba: 12, hr: -6 },
+          { ba: 12, hr: -6, draw: 'leap' },
         ),
         'out',
       ),
@@ -104,7 +104,7 @@ const up = (h: number): Move => {
             hN: [e + 2, h + 5],
             hF: [e + 5, h + 6],
           },
-          { ba: -6 },
+          { ba: -6, draw: 'landing' },
         ),
         'in',
       ),
@@ -115,7 +115,7 @@ const up = (h: number): Move => {
           e + 20,
           h + 22,
           { fN: [e + 30, h], fF: [e + 27, h], hN: [e + 6, h], hF: [e + 9, h] },
-          {},
+          { draw: 'crouch' },
         ),
         'out',
       ),
@@ -125,88 +125,36 @@ const up = (h: number): Move => {
   };
 };
 
-/* Down: peer over, stretch both front paws down the face, hold, let go with the hind legs; front paws land first, then hind. */
+/* Down: peer over the edge, push off, and hop down onto the floor clear of the brick, landing front paws first. */
 const down = (h: number): Move => {
   const e = CLIMB_START.down;
-  const top: Partial<Record<Paw, Pair>> = { hN: [e - 14, h], hF: [e - 11, h] };
-  const reach = {
-    fN: [e + 10, h * 0.25] as Pair,
-    fF: [e + 7, h * 0.3] as Pair,
+  const edge: Partial<Record<Paw, Pair>> = { fN: [e - 1, h], fF: [e - 4, h] };
+  const onTop: Partial<Record<Paw, Pair>> = {
+    fN: [e + 6, h],
+    fF: [e + 3, h],
+    hN: [e - 18, h],
+    hF: [e - 15, h],
+  };
+  const land = e + CLIMB_CLEAR;
+  const onFloor: Partial<Record<Paw, Pair>> = {
+    fN: [land + 10, 0],
+    fF: [land + 7, 0],
+    hN: [land - 14, 0],
+    hF: [land - 11, 0],
   };
   return {
     rise: -h,
     mods: [],
     steps: [
       key(300, at('stand', 0, h + 26, {}, { hr: 22 })),
-      key(
-        400,
-        at(
-          'crouch',
-          e - 14,
-          h + 16,
-          { fN: [e - 1, h], fF: [e - 4, h] },
-          { hr: 30 },
-        ),
-      ),
-      key(
-        450,
-        at('stand', e - 2, h + 2, { ...reach, ...top }, { ba: -50, hr: 12 }),
-        'out',
-      ),
-      key(
-        250,
-        at('stand', e - 2, h + 1, { ...reach, ...top }, { ba: -50, hr: 12 }),
-      ),
-      key(
-        180,
-        at(
-          'stand',
-          e + 10,
-          h - 6,
-          {
-            fN: [e + 20, 4],
-            fF: [e + 16, 6],
-            hN: [e - 4, h + 2],
-            hF: [e - 1, h + 4],
-          },
-          { ba: -35 },
-        ),
-        'in',
-      ),
-      key(
-        120,
-        at(
-          'crouch',
-          e + 20,
-          22,
-          {
-            fN: [e + 30, 0],
-            fF: [e + 26, 0],
-            hN: [e + 8, 14],
-            hF: [e + 11, 16],
-          },
-          { ba: -20 },
-        ),
-        'out',
-      ),
-      key(
-        140,
-        at(
-          'crouch',
-          e + 26,
-          22,
-          {
-            fN: [e + 36, 0],
-            fF: [e + 33, 0],
-            hN: [e + 14, 0],
-            hF: [e + 17, 0],
-          },
-          {},
-        ),
-        'out',
-      ),
-      key(300, at('stand', e + CLIMB_CLEAR, 26, {})),
-      key(500, at('sit', e + CLIMB_CLEAR, 25, {})),
+      key(400, at('crouch', e - 14, h + 16, edge, { hr: 30 })),
+      key(300, at('crouch', e - 14, h + 16, edge, { hr: 30 })),
+      key(200, at('stand', e - 6, h + 22, onTop, { draw: 'takeoff' })),
+      key(200, at('stand', land - 6, 24, onFloor, { draw: 'leap' }), 'in'),
+      key(60, at('stand', land - 4, 22, onFloor, { draw: 'landing' }), 'out'),
+      key(140, at('crouch', land, 16, {}), 'out'),
+      key(300, at('stand', land, 26, {})),
+      key(500, at('sit', land, 25, {})),
     ],
   };
 };

@@ -24,6 +24,7 @@ import {
   type Move,
   type MoveName,
   type Pose,
+  SWAT_TIP,
 } from './about-cats-moves';
 import {
   clamp,
@@ -175,9 +176,11 @@ const poseGap = (a: Pose, b: Pose): number =>
     ...(Object.keys(a) as (keyof Pose)[]).flatMap((key) => {
       const u = a[key];
       const v = b[key];
-      return Array.isArray(u) && Array.isArray(v)
-        ? [Math.abs(u[0] - v[0]), Math.abs(u[1] - v[1])]
-        : [Math.abs(Number(u) - Number(v))];
+      if (Array.isArray(u) && Array.isArray(v))
+        return [Math.abs(u[0] - v[0]), Math.abs(u[1] - v[1])];
+      return typeof u === 'number' && typeof v === 'number'
+        ? [Math.abs(u - v)]
+        : [];
     }),
   );
 
@@ -597,7 +600,17 @@ export const createColony = (
     cat.pose = p;
     if (playing.prop && playing.move.propAt) {
       const s = playing.move.propAt(t);
-      playing.shown = { ...s, x: playing.origin + playing.dir * s.x };
+      const [ahead, up] = playing.move.atSwatTip
+        ? [
+            SWAT_TIP[cat.id][0] - SWAT_TIP.minerva[0],
+            SWAT_TIP[cat.id][1] - SWAT_TIP.minerva[1],
+          ]
+        : [0, 0];
+      playing.shown = {
+        ...s,
+        x: playing.origin + playing.dir * (s.x + ahead),
+        y: s.y - up,
+      };
       playing.prop.draw(playing.shown, now);
     }
     if (t >= playing.length) endMove(cat);
