@@ -25,6 +25,8 @@
     --color-pink-text: var(--color-gold-link);
     --color-border: var(--color-block-ink);
     --color-card-edge: var(--color-block-ink);
+    /* Light mode's square before a gold label: ink on gold, gold elsewhere. */
+    --label-mark: var(--color-block-ink);
 
     position: relative;
     border-width: var(--block-edge);
@@ -46,6 +48,7 @@
   ):not(.surface-gold, .surface-gold *) {
     --color-background: var(--color-block-light);
     --color-surface: var(--color-block-light);
+    --label-mark: var(--color-block-gold);
     --color-subtle: var(--color-light-subtle);
 
     background-color: var(--color-block-light);

@@ -272,8 +272,8 @@
   }
 
   /*
-   * Room comes from `px-6` and the gap, not taller rows, so long tables fit
-   * 1280x720. Two classes to outrank `.prose > :first-child`.
+   * Room comes from the cell padding and the gap, not taller rows, so long
+   * tables fit 1280x720. Two classes to outrank `.prose > :first-child`.
    */
   .prose.slide-body > table {
     @apply mt-3 mb-6;
@@ -285,8 +285,9 @@
     hyphens: auto;
   }
 
+  /* From 390px `px-2` breaks a word only at a hyphen; narrower, a long word can split anywhere. */
   .slide-body :is(th, td) {
-    @apply px-6 py-2 wrap-anywhere;
+    @apply px-2 py-2 wrap-anywhere sm:px-6;
   }
 
   /* A group label (`cardGroups` in src/lib/slides.ts): `.card-title`'s size, in the slide titles' case. */

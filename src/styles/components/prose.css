@@ -191,44 +191,26 @@
     }
   }
 
-  /* Auto layout: each column is at least its longest word wide. */
+  /* Auto layout: each column is at least its longest word wide. Lines are `text`, never gold. */
   .prose table {
-    @apply w-full edge border-border text-body text-text;
+    @apply w-full text-body text-text;
     border-collapse: collapse;
   }
 
   /* `normal` over the `anywhere` that body takes below 19rem. */
   .prose :is(th, td) {
-    @apply edge border-border px-4 py-3 text-left align-top;
+    @apply hairline border-text px-4 py-3 text-left align-top;
     overflow-wrap: normal;
   }
 
-  /*
-   * `surface` ground. Not uppercased: it would widen the narrowest columns on
-   * the page.
-   */
+  /* Not uppercased: it would widen the narrowest columns on the page. */
   .prose th {
-    @apply bg-surface font-black text-text;
+    @apply font-black text-text;
   }
 
-  /* A row header names its row; only the column headers wear the ground. */
+  /* A row header names its row; only the column headers are bold. */
   .prose tbody th {
-    @apply bg-transparent font-normal;
-  }
-
-  /* A post or /brand table; a slide keeps the rules above. */
-  .prose .table-scroll {
-    & table {
-      @apply border-0;
-    }
-
-    & :is(th, td) {
-      @apply hairline border-text;
-    }
-
-    & thead th {
-      @apply bg-transparent;
-    }
+    @apply font-normal;
   }
 
   /* Built by src/plugins/table-stack.mjs; the header cell names the column. */

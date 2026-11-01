@@ -125,8 +125,9 @@
   :is(:root[data-theme='light'] main, main .mode-light)
     :is(.label.text-gold, .slide-label):not(.mode-dark *)::before {
     content: '';
+    background-color: var(--label-mark, var(--color-block-gold));
 
-    @apply mr-2 inline-block size-2.5 bg-block-gold;
+    @apply mr-2 inline-block size-2.5;
   }
 
   /* The homepage's second sticker and `.sticker` are black blocks in light mode. */

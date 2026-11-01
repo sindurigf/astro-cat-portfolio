@@ -10,12 +10,12 @@ const READING = {
   bg: ['background', 'surface'],
   job: 'text',
 };
-const readingPairs = contrast.filter(
-  (row) =>
-    READING.fg.includes(row.fg) &&
-    READING.bg.includes(row.bg) &&
-    row.job === READING.job,
-);
+const isReading = (row: (typeof contrast)[number]): boolean =>
+  READING.fg.includes(row.fg) &&
+  READING.bg.includes(row.bg) &&
+  row.job === READING.job;
+const readingPairs = contrast.filter(isReading);
+const lightReadingPairs = lightContrast.filter(isReading);
 ---
 
 <ul role="list" class="brand-parts">
@@ -33,9 +33,19 @@ const readingPairs = contrast.filter(
       </details>
     </div>
     <div slot="light">
-      <ContrastTable rows={lightContrast} caption="Light Mode Pairings" />
+      <ContrastTable rows={lightReadingPairs} caption="Light Reading Pairs" />
+      <details class="mt-head">
+        <summary class="post-contents-summary">
+          <span>Show All {lightContrast.length} Light Pairings</span>
+          <span class="post-contents-marker" aria-hidden="true" />
+        </summary>
+        <div class="mt-6">
+          <ContrastTable rows={lightContrast} caption="All Light Pairings" />
+        </div>
+      </details>
       <p class="mt-6 text-body text-text">
-        Gold text turns to ink on white, with a gold square before the word.
+        Gold text turns to ink on white, with a gold square before the word; on
+        a gold block the square is ink.
       </p>
     </div>
   </ComponentRow>

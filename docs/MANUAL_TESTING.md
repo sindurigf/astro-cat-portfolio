@@ -201,8 +201,8 @@ its place at 320 and 1280px, its ring, forced colors, the theme set before
       header and a primary button: each ring is separate from its block. → SC 1.4.11, 2.4.7
 - [ ] Hover and press a button, a chip and a link: text and edge stay readable
       in each state. → SC 1.4.3, 1.4.11
-- [ ] A gold label shows ink text with its gold square; nothing is gold text
-      on white. → SC 1.4.3
+- [ ] A gold label shows ink text with its square, gold on white and ink on
+      a gold block; nothing is gold text on white. → SC 1.4.3
 - [ ] Repeat §3 at 400% in light: no overlap, no cut-off. → SC 1.4.10
 - [ ] Repeat §5a.2 forced colors in light: the roundel edge and the focus ring
       show. → SC 1.4.11

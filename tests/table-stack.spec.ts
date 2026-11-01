@@ -360,10 +360,10 @@ const tableEdges = (page: Page) =>
     ${PAGE_HELPERS}
     const SIDES = ['Top', 'Right', 'Bottom', 'Left'];
     const out = [];
-    for (const element of document.querySelectorAll('.table-scroll :is(table, tr, th, td)')) {
+    for (const element of document.querySelectorAll('.prose :is(table, tr, th, td)')) {
       const style = getComputedStyle(element);
-      if (style.display === 'none') continue;
-      const ground = effectiveBackground(element.closest('.table-scroll'));
+      if (style.display === 'none' || element.getClientRects().length === 0) continue;
+      const ground = effectiveBackground(element.closest('.table-scroll') ?? element.closest('table').parentElement);
       for (const side of SIDES) {
         if (['none', 'hidden'].includes(style['border' + side + 'Style'])) continue;
         if (parseFloat(style['border' + side + 'Width']) <= 0) continue;
@@ -385,8 +385,21 @@ for (const colorScheme of ['dark', 'light'] as const) {
 
       /* SC 1.4.11: the lines are what separate rows and fields, so each must read against the page. */
       test(`reach ${NON_TEXT}:1 against the page`, async ({ page }) => {
-        for (const route of routesWith('table-scroll')) {
+        const slides = [...builtHtml()]
+          .filter(
+            ([, html]) =>
+              html.includes('slide-body') && html.includes('<table'),
+          )
+          .map(([route]) => route);
+        expect(slides, 'no built slide has a table').not.toEqual([]);
+        for (const route of [...routesWith('table-scroll'), ...slides]) {
           await visit(page, route);
+          /* From lg the deck shows one slide; open the one with the table. */
+          await page.evaluate(() => {
+            const slide = document.querySelector('table')?.closest('.slide');
+            if (slide?.id) location.hash = slide.id;
+          });
+          await expect(page.locator('main table').first()).toBeVisible();
           const edges = await tableEdges(page);
           expect(edges, `${route} draws no table line`).not.toEqual([]);
           expect(
