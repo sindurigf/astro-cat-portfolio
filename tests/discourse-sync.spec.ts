@@ -17,6 +17,7 @@ import {
   pullRequestTopic,
   shouldOpenTopic,
   acceptDecision,
+  earlierReplyId,
   stateSteps,
   topicStateChange,
   topicExternalId,
@@ -638,6 +639,53 @@ test(
       { step: 'unaccept', postId: 9 },
       { step: 'reply' },
     ]);
+  },
+);
+
+/* Function: a re-run after a failed accept or close must not post its reply twice. */
+test(
+  "a re-run reuses its earlier reply only when it is the API user's latest post",
+  NODE,
+  () => {
+    const { reply } = topicStateChange(closedIssue('completed'))!;
+    const earlier = {
+      id: 11,
+      post_number: 4,
+      username: 'Forum-Bot',
+      raw: reply,
+    };
+    expect(earlierReplyId(posts(earlier), API, reply)).toBe(11);
+    expect(
+      earlierReplyId(
+        posts(earlier, {
+          id: 12,
+          post_number: 5,
+          username: 'nami',
+          raw: 'Thanks!',
+        }),
+        API,
+        reply,
+      ),
+      'a person replying after it does not hide the earlier reply',
+    ).toBe(11);
+    expect(
+      earlierReplyId(
+        posts(earlier, {
+          id: 13,
+          post_number: 6,
+          username: API,
+          raw: 'Reopened on GitHub by robin.',
+        }),
+        API,
+        reply,
+      ),
+      'a reply from an earlier close is not reused once the bot posted after it',
+    ).toBeNull();
+    expect(
+      earlierReplyId(posts({ ...earlier, username: 'nami' }), API, reply),
+      "a person quoting the text is not the bot's reply",
+    ).toBeNull();
+    expect(earlierReplyId(posts(), API, reply)).toBeNull();
   },
 );
 

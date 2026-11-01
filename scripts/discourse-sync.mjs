@@ -502,6 +502,22 @@ export const stateSteps = (change, posts, apiUsername) => {
   ];
 };
 
+/** The id of a reply an earlier run of this event posted: the API user's latest post, if it has this text. */
+export const earlierReplyId = (posts, apiUsername, reply) => {
+  const latest = posts
+    .filter(
+      (post) => post.username?.toLowerCase() === apiUsername.toLowerCase(),
+    )
+    .reduce(
+      (last, post) =>
+        !last || post.post_number > last.post_number ? post : last,
+      null,
+    );
+  return latest && (latest.raw ?? '').trim() === reply.trim()
+    ? latest.id
+    : null;
+};
+
 /** Accept only what Discourse says this user may accept; Solved off on the category means not. */
 export const acceptDecision = (post) =>
   post?.can_accept_answer ? 'accept' : 'notice';
@@ -517,11 +533,8 @@ const syncState = async () => {
   const { posts } = await topicPosts(get, topicId);
   let replyId = null;
   let solved = false;
-  for (const { step, postId } of stateSteps(
-    change,
-    posts,
-    required('DISCOURSE_API_USERNAME'),
-  )) {
+  const apiUsername = required('DISCOURSE_API_USERNAME');
+  for (const { step, postId } of stateSteps(change, posts, apiUsername)) {
     if (step === 'reopen' || step === 'close') {
       await put(
         `/t/${topicId}/status.json`,
@@ -531,6 +544,11 @@ const syncState = async () => {
     } else if (step === 'unaccept') {
       await post('/solution/unaccept.json', { id: postId }, 'solved: answer');
     } else if (step === 'reply') {
+      replyId = earlierReplyId(posts, apiUsername, change.reply);
+      if (replyId) {
+        console.log(`Reply ${replyId} is already posted; reused.`);
+        continue;
+      }
       const reply = await post(
         '/posts.json',
         { topic_id: topicId, raw: change.reply },
