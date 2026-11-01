@@ -312,6 +312,9 @@ Dashboard settings that change what ships without a file change.
   - The API user opens each topic, so it may mark the solution while the topic
     is open. Closing and reopening need it to be staff, trust level 4 or a
     category moderator.
+  - Changing `DISCOURSE_API_USERNAME` leaves the old user's replies in place;
+    they are not copied to GitHub again. A reopen does not unaccept the old
+    user's close reply.
   - `discourse-topic-to-issue.yml` copies forum replies from topics active in
     the last 48 hours to their issue or pull request, every 15 minutes.
     GitHub turns the schedule off after 60 days without repository activity.

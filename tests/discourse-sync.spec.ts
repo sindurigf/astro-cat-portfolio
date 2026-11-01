@@ -27,6 +27,7 @@ import {
   shouldMirrorComment,
   shouldMirrorPost,
   splitByActivity,
+  STATUS_SCOPE,
   topicIdFromComments,
 } from '../scripts/discourse-sync.mjs';
 import { NODE } from './tags';
@@ -848,5 +849,86 @@ test(
       readFileSync('.github/workflows/issue-to-discourse.yml', 'utf8'),
       'issue-to-discourse.yml no longer gives topics the external_id the script uses',
     ).toContain('external_id="github-issue-${ISSUE_NUMBER}"');
+  },
+);
+
+test(
+  'a state reply posted by an earlier API user stays on the forum',
+  NODE,
+  () => {
+    const none = new Set<number>();
+    const replies = [
+      topicStateChange(closedIssue('completed'))!.reply,
+      topicStateChange({ ...closedIssue('completed'), action: 'reopened' })!
+        .reply,
+      topicStateChange({
+        action: 'closed',
+        sender: { login: 'robin' },
+        pull_request: {
+          number: 12,
+          html_url: 'https://github.com/o/r/pull/12',
+          merged: true,
+          merged_by: { login: 'robin' },
+          closed_at: '2026-11-01T07:00:00Z',
+        },
+      })!.reply,
+      'Closed on GitHub as completed by robin.\n\nhttps://github.com/o/r/issues/3',
+    ];
+    for (const raw of replies)
+      expect(
+        shouldMirrorPost(
+          { ...reply, username: 'old-bot', raw },
+          API_USER,
+          none,
+        ),
+        `"${raw.split('\n')[0]}" must not be copied to GitHub`,
+      ).toBe(false);
+  },
+);
+
+test(
+  "a person's reply that starts like a state reply still goes to GitHub",
+  NODE,
+  () => {
+    const none = new Set<number>();
+    expect(
+      shouldMirrorPost(
+        {
+          ...reply,
+          raw: 'Closed on GitHub as completed by robin. Thanks, it works now.',
+        },
+        API_USER,
+        none,
+      ),
+    ).toBe(true);
+  },
+);
+
+test(
+  'a 403 on a topic status change names both the missing scope and the missing user rights',
+  NODE,
+  async () => {
+    const forum = await serve(() => ({ status: 403 }));
+    try {
+      const failure = request(
+        `${forum.origin}/t/42/status`,
+        { method: 'PUT', body: '{}' },
+        STATUS_SCOPE,
+      );
+      await expect(failure).rejects.toThrow(
+        `needs the "${STATUS_SCOPE}" scope`,
+      );
+      await expect(failure).rejects.toThrow(/trust level 4/);
+      await expect(
+        request(
+          `${forum.origin}/posts.json`,
+          { method: 'POST' },
+          'topics: write',
+        ),
+        'only closing and reopening depend on user rights',
+      ).rejects.not.toThrow(/trust level 4/);
+    } finally {
+      forum.server.close();
+    }
   },
 );
