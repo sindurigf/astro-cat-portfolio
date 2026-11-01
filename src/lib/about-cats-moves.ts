@@ -1042,8 +1042,11 @@ export const withTurn = (move: Move, from: Pose): Move => {
 /** A run from the jump drawings: push off, stretch out, land. The body moves only in the air, so a paw on the ground never slides. */
 const RUN_STRIDE = 96;
 const RUN_AIR_MS = 230;
-const RUN_GROUND_MS = 90;
+/** As long as the landing drawing must show (HOLD_MS), so each ground drawing is up for its whole step. */
+const RUN_GROUND_MS = 120;
 const RUN_LIFT = 9;
+/** ms the body waits at the start of each leap, so the leap drawing is up before it moves: a new drawing waits out a blip and a screen frame. */
+const RUN_LIFTOFF_MS = 40;
 /** A shorter run is no leap: the cat trots it instead. */
 const RUN_MIN_STRIDE = RUN_STRIDE / 2;
 const run = (
@@ -1059,7 +1062,13 @@ const run = (
     const air = from + (2 * i + 1) * RUN_GROUND_MS + i * RUN_AIR_MS;
     steps.push(
       step(RUN_GROUND_MS, 'stand', { x: at, draw: 'takeoff' }, 'linear'),
-      step(RUN_AIR_MS, 'stand', { x: at + stride, draw: 'leap' }, 'linear'),
+      step(RUN_LIFTOFF_MS, 'stand', { x: at, draw: 'leap' }),
+      step(
+        RUN_AIR_MS - RUN_LIFTOFF_MS,
+        'stand',
+        { x: at + stride, draw: 'leap' },
+        'linear',
+      ),
       step(RUN_GROUND_MS, 'stand', { x: at + stride, draw: 'landing' }),
     );
     mods.push(arc(air, air + RUN_AIR_MS, RUN_LIFT));
