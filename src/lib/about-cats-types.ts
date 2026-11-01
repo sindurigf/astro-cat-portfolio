@@ -2,6 +2,8 @@
  * Types shared by the About cats' rig, moves and colony, here so the rig and
  * the moves need not import each other.
  */
+import type { Frame } from './about-cats-frames';
+
 export type CatId = 'minerva' | 'hela' | 'rudra';
 
 export type Pair = [number, number];
@@ -26,6 +28,8 @@ export interface Pose {
   eyes: number;
   rot: number;
   zz: number;
+  /** The drawing to show, where the nearest named pose would pick the wrong one. */
+  draw?: Frame;
 }
 
 /** A stretch of the band's floor and how far below the band's bottom it lies, in px. */

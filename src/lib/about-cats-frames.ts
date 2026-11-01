@@ -51,24 +51,7 @@ export const WALK: readonly Frame[] = [
 /** The walk drawing a walk starts on: its stance is the standing cat's, so the first step does not snap the legs apart. */
 const WALK_START = 2;
 
-/** Sitting to standing, both ways: each frame shows in turn, the cat turned side-on before it rises and its front paws planted. */
-export const RISE: readonly Frame[] = [
-  'sit',
-  'headturn',
-  'sitside',
-  'risehalf',
-  'risehigh',
-  'stand',
-];
-
-/** ms each rising frame shows, longer than one step: the whole rise takes about half a second. */
-export const RISE_HOLD_MS: Partial<Record<Frame, number>> = {
-  sitside: 120,
-  risehalf: 150,
-  risehigh: 140,
-};
-
-/** Frames a seated cat shows; any other is reached from standing. */
+/** Seated drawings: a cat on its way to one is sitting down. */
 const SEATED: ReadonlySet<Frame> = new Set([
   'sit',
   'headturn',
@@ -83,44 +66,102 @@ const SEATED: ReadonlySet<Frame> = new Set([
   'belly',
 ]);
 
-/** Upright seated frames, which sink through loafsink to a crouch and rise back through it. */
-const UPRIGHT: ReadonlySet<Frame> = new Set(['sit', 'headturn', 'look']);
+/* The drawings a cat may cut between, one per step: front-facing sit, look and loaf turn
+ * side-on only through headturn; a jump goes push-off, leap, landing. Of two equal
+ * routes the cat takes the one whose first link is listed first: up through the rise. */
+const LINKS: readonly (readonly [Frame, Frame])[] = [
+  ['sit', 'headturn'],
+  ['sit', 'look'],
+  ['sit', 'loaf'],
+  ['headturn', 'sitside'],
+  ['headturn', 'loafsink'],
+  ['headturn', 'pawrise'],
+  ['sitside', 'risehalf'],
+  ['risehalf', 'risehigh'],
+  ['risehigh', 'stand'],
+  ['stand', 'crouchdown'],
+  ['crouchdown', 'crouch'],
+  ['crouch', 'loafsink'],
+  ['crouch', 'pawrise'],
+  ['crouch', 'lieside'],
+  ['crouch', 'takeoff'],
+  ['crouch', 'landing'],
+  ['loaf', 'sleep'],
+  ['lieside', 'roll'],
+  ['roll', 'belly'],
+  ['pawrise', 'swat'],
+  ['stand', 'stretchhalf'],
+  ['stretchhalf', 'stretch'],
+];
+const JUMP_LINKS: readonly (readonly [Frame, Frame])[] = [
+  ['takeoff', 'leap'],
+  ['leap', 'landing'],
+];
 
-/** The next frame between sitting up and crouching, either way, a half-risen crouch included, or null when the change is not one. */
-const crouchStep = (from: Frame, wanted: Frame): Frame | null => {
-  if (UPRIGHT.has(from) && wanted === 'crouch') return 'loafsink';
-  if (from === 'crouch' && UPRIGHT.has(wanted)) return 'loafsink';
-  if (from === 'crouchdown' && UPRIGHT.has(wanted)) return 'crouch';
-  if (from === 'loafsink' && wanted === 'crouch') return 'crouch';
-  if (from === 'loafsink' && UPRIGHT.has(wanted)) return 'sit';
+const NEXT = new Map<Frame, Frame[]>();
+const link = (a: Frame, b: Frame): void => {
+  NEXT.set(a, [...(NEXT.get(a) ?? []), b]);
+};
+for (const [a, b] of LINKS) {
+  link(a, b);
+  link(b, a);
+}
+for (const [a, b] of JUMP_LINKS) link(a, b);
+
+/** A walk drawing links on as the standing cat does. */
+const node = (frame: Frame): Frame => (WALK.includes(frame) ? 'stand' : frame);
+
+/** The next drawing on the shortest way from `from` to `wanted`, or null when it is a straight cut. */
+export const routeStep = (from: Frame, wanted: Frame): Frame | null => {
+  const start = node(from);
+  const goal = node(wanted);
+  if (start === goal) return null;
+  const firstHop = new Map<Frame, Frame>();
+  const queue: Frame[] = [start];
+  for (let i = 0; i < queue.length; i++) {
+    const at = queue[i] as Frame;
+    for (const next of NEXT.get(at) ?? []) {
+      if (next === start || firstHop.has(next)) continue;
+      const hop = firstHop.get(at) ?? next;
+      if (next === goal) return hop === goal ? null : hop;
+      firstHop.set(next, hop);
+      queue.push(next);
+    }
+  }
   return null;
 };
 
-/**
- * The next frame on the way from `from` to `wanted` through RISE or crouchStep,
- * or null when the change is neither: a walk or a stand from sitting rises first,
- * and a frame part-way up finishes the rise or the sit before anything else.
- */
-export const riseStep = (from: Frame, wanted: Frame): Frame | null => {
-  const crouch = crouchStep(from, wanted);
-  if (crouch) return crouch;
-  const at = RISE.indexOf(from);
-  if (at < 0 || from === wanted) return null;
-  const standing = wanted === 'stand' || WALK.includes(wanted);
-  /* Part-way up: headturn is also a seated glance, so it does not count. */
-  const midway = at > RISE.indexOf('headturn') && at < RISE.length - 1;
-  const goal = RISE.includes(wanted)
-    ? wanted
-    : midway
-      ? SEATED.has(wanted)
-        ? 'sit'
-        : 'stand'
-      : standing && SEATED.has(from)
-        ? 'stand'
-        : null;
-  if (goal === null || goal === from) return null;
-  return RISE[at + Math.sign(RISE.indexOf(goal) - at)] ?? null;
+/** ms each in-between drawing shows at least, so a pose change takes about half a second. */
+export const HOLD_MS: Partial<Record<Frame, number>> = {
+  headturn: 200,
+  sitside: 120,
+  risehalf: 150,
+  risehigh: 140,
+  crouchdown: 220,
+  loafsink: 180,
+  lieside: 160,
+  roll: 160,
+  stretchhalf: 200,
+  landing: 120,
 };
+
+/** Sitting down lowers the hind end first: the rise's drawings show longer on the way down. */
+export const DOWN_HOLD_MS: Partial<Record<Frame, number>> = {
+  risehalf: 200,
+  sitside: 260,
+};
+
+/** Whether `frame` is a seated drawing, so a cat on its way there is sitting down. */
+export const isSeated = (frame: Frame): boolean => SEATED.has(frame);
+
+/** Drawings shown on the ground during a jump: the push-off, the landing and the crouches either side. */
+export const GROUND_DRAWINGS: ReadonlySet<Frame> = new Set([
+  'takeoff',
+  'landing',
+  'crouch',
+  'crouchdown',
+  'pawrise',
+]);
 
 /** The walk frame `step` strides in; steps count up from 0. */
 export const walkFrame = (step: number): Frame =>
@@ -171,12 +212,12 @@ const SIZE: Record<Frame, ['h' | 'w', number]> = {
   look: ['h', 0.9],
 };
 
-/** Per cat, how much larger a frame is drawn than SIZE says: each drawing is framed a little differently. Rudra stands taller than the others when he stretches up. */
+/** Per cat, how much larger a frame is drawn than SIZE says: each drawing is framed a little differently. Reared and swatting, each cat keeps Minerva's size against its own sit. */
 const ADJUST: Record<CatId, Partial<Record<Frame, number>>> = {
   minerva: { pawrise: 0.9, swat: 0.9, loaf: 0.85 },
   rudra: {
-    pawrise: 1.16,
-    swat: 1.23,
+    pawrise: 0.945,
+    swat: 0.945,
     loaf: 0.8,
     belly: 0.85,
     sit: 1.05,
@@ -188,6 +229,8 @@ const ADJUST: Record<CatId, Partial<Record<Frame, number>>> = {
     stand: 1.2,
   },
   hela: {
+    pawrise: 0.9,
+    swat: 0.9,
     risehigh: 1.09,
     stand: 1.2,
     walk: 1.1,
@@ -234,12 +277,8 @@ export type NamedPose = keyof typeof POSE_FRAME;
 /** The in-between frame drawn halfway from one named pose to another, either way. */
 const BETWEEN: [NamedPose, NamedPose, Frame][] = [
   ['stand', 'crouch', 'crouchdown'],
-  ['crouch', 'air', 'takeoff'],
-  ['air', 'stand', 'landing'],
   ['stand', 'stretch', 'stretchhalf'],
-  ['sit', 'loaf', 'loafsink'],
   ['sit', 'crouch', 'loafsink'],
-  ['stand', 'loaf', 'loafsink'],
   ['rear', 'leap', 'swat'],
 ];
 
@@ -282,12 +321,13 @@ const BETWEEN_FROM = 0.3;
 /** Roll angle in degrees past which a cat is on its side, and past which it is on its back. */
 const ON_SIDE = 25;
 const ON_BACK = 135;
-/** Head turn in degrees that reads as a glance, and as a look back. */
-const GLANCE = 5;
+/** Head turn in degrees that reads as a look back. */
 export const LOOK_BACK = 20;
 /** px off the ground that reads as a jump, and as the top of one. */
 const AIRBORNE = 3;
 const HIGH = 14;
+/** Named poses that jump straight up, reaching overhead: drawn upright, never as a flying leap. */
+const UPRIGHT_JUMP: ReadonlySet<NamedPose> = new Set(['leap', 'rear', 'low']);
 /** px the body travels in one stride, the drawn step length of the walk cycle. */
 const WALK_STRIDE_PX = 52;
 
@@ -305,9 +345,8 @@ export interface Motion {
   /** px travelled along the ground since the cat started walking. */
   travelled: number;
   moving: boolean;
-  /** Height above the ground now and on the last frame. */
+  /** Height above the ground. */
   lift: number;
-  lastLift: number;
 }
 
 /** The frame that draws `p`, given the named poses to compare it with. */
@@ -316,6 +355,7 @@ export const frameFor = (
   named: Readonly<Record<NamedPose, Pose>>,
   motion: Motion,
 ): Frame => {
+  if (p.draw) return p.draw;
   const roll = Math.abs(((p.rot % 360) + 360) % 360);
   const turned = roll > 180 ? 360 - roll : roll;
   if (turned > ON_BACK) return 'belly';
@@ -328,11 +368,15 @@ export const frameFor = (
   /* `named` holds every pose, so neither default applies. */
   const [near = { name: 'sit', d: 0 }, next = near] = ranked;
 
-  /* A low hop from sitting, such as a turn on the spot, keeps the sitting frame: jump frames would flash a leap. */
-  const sitHop = near.name === 'sit' && motion.lift <= HIGH;
-  if (motion.lift > AIRBORNE && !sitHop) {
+  /* A hop straight up stays upright; a low hop, such as a turn on the spot, keeps its grounded frame. The route adds push-off and landing. */
+  if (motion.lift > AIRBORNE) {
+    if (near.name === 'air') return 'leap';
+    if (
+      UPRIGHT_JUMP.has(near.name) ||
+      (motion.lift > HIGH && UPRIGHT_JUMP.has(next.name))
+    )
+      return 'swat';
     if (motion.lift > HIGH) return 'leap';
-    return motion.lift >= motion.lastLift ? 'takeoff' : 'landing';
   }
 
   const share = near.d / (near.d + next.d || 1);
@@ -345,7 +389,7 @@ export const frameFor = (
       : walkFrame(WALK_START + Math.floor(motion.travelled / WALK_FRAME_PX));
 
   if (between) return between;
+  /* A smaller turn of the head keeps the front-facing sit: headturn turns the whole body side-on. */
   if (near.name === 'sit' && Math.abs(p.hr) > LOOK_BACK) return 'look';
-  if (near.name === 'sit' && Math.abs(p.hr) > GLANCE) return 'headturn';
   return POSE_FRAME[near.name];
 };
