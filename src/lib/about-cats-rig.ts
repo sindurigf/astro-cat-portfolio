@@ -6,11 +6,13 @@
  */
 import { PAD, SHEET } from './about-cats-sheet';
 import {
+  DOWN_HOLD_MS,
+  GROUND_DRAWINGS,
+  HOLD_MS,
   POSE_FRAME,
-  RISE,
-  RISE_HOLD_MS,
   bridges,
-  riseStep,
+  isSeated,
+  routeStep,
   WALK,
   walkFrame,
   frameFor,
@@ -91,7 +93,6 @@ const STILL: Motion = {
   travelled: 0,
   moving: false,
   lift: 0,
-  lastLift: 0,
 };
 
 /** A frame's drawn size and the cat's own size inside it, in px. */
@@ -100,25 +101,33 @@ const sizeOf = (id: CatId, frame: Frame) => {
   return { dw, dh, w, h };
 };
 
-const RISE_FROM = RISE.indexOf('sitside');
-const RISE_TO = RISE.indexOf('stand');
+/** The rise from the side-on sit to standing, whose part-way drawings keep the front paws planted. */
+const RISE: readonly Frame[] = ['sitside', 'risehalf', 'risehigh', 'stand'];
+const RISE_TO = RISE.length - 1;
 
 /** px a part-way rising frame is drawn off center, before the flip: its front paw steps evenly from the side-on sit's to the stand's, which both stay centered like every other frame. */
 const pawShift = (id: CatId, frame: Frame): number => {
   const at = RISE.indexOf(frame);
-  if (at <= RISE_FROM || at >= RISE_TO) return 0;
+  if (at <= 0 || at >= RISE_TO) return 0;
   const paw = (f: Frame) => SHEET[id][f][8];
-  const share = (at - RISE_FROM) / (RISE_TO - RISE_FROM);
+  const share = at / RISE_TO;
   return paw('sitside') + (paw('stand') - paw('sitside')) * share - paw(frame);
 };
 
-/** How long `frame` shows before the next may replace it; a cat already on the move rises at the walk's pace. */
-const holdOf = (frame: Frame | null, hurried = false): number =>
-  (!hurried && frame && RISE_HOLD_MS[frame]) || TICK_MS;
+/** How long `frame` shows before the next may replace it; a cat already on the move changes at the walk's pace. */
+const holdOf = (
+  frame: Frame | null,
+  hurried = false,
+  sittingDown = false,
+): number =>
+  (!hurried &&
+    frame &&
+    ((sittingDown && DOWN_HOLD_MS[frame]) || HOLD_MS[frame])) ||
+  TICK_MS;
 
 /** The frame a pose is drawn as, standing still. */
 const stillFrame = (p: Pose): Frame =>
-  frameFor(grounded(p), NAMED, { ...STILL, lift: p.y, lastLift: p.y });
+  frameFor(grounded(p), NAMED, { ...STILL, lift: p.y });
 
 const CAT_IDS = Object.keys(SHEET) as CatId[];
 
@@ -183,7 +192,6 @@ export interface CatRig {
   lastX: number;
   /** Where the cat was drawn when its walk frame last changed: a walk moves only with the frame. */
   stepX: number;
-  lastLift: number;
   movedAt: number;
   travelled: number;
 }
@@ -244,7 +252,6 @@ export const createCatRig = (
     wantedAt: 0,
     lastX: NaN,
     stepX: 0,
-    lastLift: 0,
     movedAt: -Infinity,
     travelled: 0,
   };
@@ -313,14 +320,16 @@ const stepFrame = (
   }
   const ahead = (to - at + WALK.length) % WALK.length;
   /* Within a walk: hold while the body is still, else step toward `wanted` without skipping a phase. */
-  const rise = s.frame && !s.cut ? riseStep(s.frame, wanted) : null;
+  const route = s.frame && !s.cut ? routeStep(s.frame, wanted) : null;
   const next =
     at >= 0 && to >= 0
       ? x === s.stepX
         ? s.frame!
         : walkFrame(at + Math.min(ahead, MAX_WALK_STEP))
-      : (rise ?? wanted);
-  s.pending = next !== s.frame && now - s.shownAt < holdOf(s.frame, hurried);
+      : (route ?? wanted);
+  s.pending =
+    next !== s.frame &&
+    now - s.shownAt < holdOf(s.frame, hurried, isSeated(wanted));
   if (next === s.frame) s.cut = false;
   if (next === s.frame || s.pending) return false;
   /* A cut counts as a full step already shown, so the next frame need not wait. */
@@ -328,22 +337,22 @@ const stepFrame = (
   s.cut = false;
   s.stepX = x;
   s.frame = next;
-  /* Part-way through a rise: the next frame follows when this one's hold ends. */
-  s.pending = next !== wanted && riseStep(next, wanted) !== null;
+  /* Part-way along a route: the next frame follows when this one's hold ends. */
+  s.pending = next !== wanted && !(WALK.includes(next) && to >= 0);
   return true;
 };
 
 /** The two crouch drawings a creeping cat swaps between, one per step. */
 const CREEP: readonly Frame[] = ['crouch', 'crouchdown'];
 /** px a creeping cat covers per drawing, about a third of a walk stride. */
-export const CREEP_STEP_PX = 13;
+const CREEP_STEP_PX = 13;
 
 /**
  * The crouch drawing a creeping cat shows, or null when it is not creeping:
  * the body moves only when the drawing changes, so its paws never glide, and a
  * stopped cat settles on the crouch.
  */
-export const creepFrame = (
+const creepFrame = (
   s: Pick<FrameStep, 'frame' | 'stepX'>,
   x: number,
   moving: boolean,
@@ -358,7 +367,7 @@ export const creepFrame = (
  * Where the cat is drawn: while a walk or creeping crouch frame shows, where that
  * frame began, so a planted paw never slides; a stopped crouch catches up in place.
  */
-export const drawnXOf = (
+const drawnXOf = (
   s: Pick<FrameStep, 'frame' | 'stepX'>,
   x: number,
   moving: boolean,
@@ -414,9 +423,7 @@ export const renderCat = (
     travelled: rig.travelled,
     moving,
     lift: p.y,
-    lastLift: rig.lastLift,
   });
-  rig.lastLift = p.y;
   const wanted =
     (posed === 'crouch' ? creepFrame(rig, x, moving) : null) ?? posed;
 
@@ -428,7 +435,8 @@ export const renderCat = (
   const shown = rig.frame ?? wanted;
 
   const { w, h } = sizeOf(rig.id, shown);
-  const lift = liftOf(p);
+  /* A jump leaves the ground only on its air drawing: push-off and landing stay on the floor. */
+  const lift = GROUND_DRAWINGS.has(shown) ? feetUp(p) : liftOf(p);
   const { half, tall } = hitBox(rig.id, shown);
   /* The drawing is flipped to face its way, so its paw shift lands mirrored. */
   set(rig.hit, 'x', f(-half - p.face * pawShift(rig.id, shown)));

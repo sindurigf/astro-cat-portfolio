@@ -1,7 +1,7 @@
 /*
  * What a resting cat does between moves: glances aside. An offset only; the
- * pose it sits on is the cat's own, and the sprite frames draw a glance as a
- * head-turn frame.
+ * pose it sits on is the cat's own, and the sprite frames draw a glance as the
+ * look drawing.
  */
 
 const GLANCE_EVERY_MS = [2500, 6000] as const;
@@ -11,7 +11,8 @@ const GLANCE_DEG = 28;
 const GLANCE_CENTER_CHANCE = 0.5;
 /** A turn is to either side with equal chance, and at least this share of the largest. */
 const GLANCE_SIDE_CHANCE = 0.5;
-const GLANCE_MIN_SHARE = 0.5;
+/* 0.75 of 28° is 21°, past LOOK_BACK in about-cats-frames.ts, so every glance shows the look drawing. */
+const GLANCE_MIN_SHARE = 0.75;
 
 export interface IdleState {
   nextGlance: number;
