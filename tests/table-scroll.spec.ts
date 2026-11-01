@@ -108,7 +108,7 @@ const scrollerState = (page: Page) =>
       name: box.getAttribute('aria-label') ?? '',
     }));
 
-/* SC 1.4.10 allows a data table to scroll in two dimensions; a word split across lines is harder to read than a scroll. */
+/* SC 1.4.10 allows a data table to scroll in two dimensions; a word split across lines is harder to read than a scroll. A long identifier in code may break. */
 test.describe('a post table at 320px', () => {
   test('splits no word across lines and keeps its overflow to itself', async ({
     page,
@@ -121,6 +121,7 @@ test.describe('a post table at 320px', () => {
       for (const cell of document.querySelectorAll('.prose :is(th, td)')) {
         const walker = document.createTreeWalker(cell, NodeFilter.SHOW_TEXT);
         for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+          if (node.parentElement?.closest('code')) continue;
           const text = node.textContent ?? '';
           /* A break after a hyphen is a normal line break, not a split word. */
           for (const match of text.matchAll(/[^\s-]+/g)) {

@@ -243,7 +243,8 @@ CSS and `tests/contrast-table.spec.ts` fails when it drifts.
 
 - `text`, `subtle`, `gold`, `cyan` and `pink-text` clear 7:1 on `background`
   and `surface`.
-- `border` carries every boundary and clears SC 1.4.11.
+- `border` carries every boundary but post and `/brand` table lines, which
+  take `text`; both clear SC 1.4.11.
 - `pink` is non-text only; `pink-text` carries every pink glyph.
 - The focus ring clears every shadow it could touch
   ([Focus](docs/STYLEGUIDE.md#focus)).
@@ -308,6 +309,7 @@ merge.
 | `tests/target-size.spec.ts`         | 2.5.5                                                            | Every target's 44px square, on pages and in open dialogs, at 305px and 1280px                                                                                                                                                                                                                                   |
 | `tests/reflow.spec.ts`              | 1.4.10, 1.4.12                                                   | No sideways scroll; content box; heading word fit                                                                                                                                                                                                                                                               |
 | `tests/table-scroll.spec.ts`        | 1.4.10, 2.1.1, 4.1.2                                             | A post table splits no word at 320px and scrolls in its own box, a named tab stop only while it overflows                                                                                                                                                                                                       |
+| `tests/table-stack.spec.ts`         | 1.3.1, 1.4.10, 1.4.11, 4.1.2                                     | Below 640px a post table stacks with its table, row, header and cell roles in Chromium's tree, column labels hidden from assistive technology and left out of cell names, no sideways scroll at 320 or 390px and no split word; post and `/brand` table lines 3:1 against the page, dark and light              |
 | `tests/visual-presentation.spec.ts` | 1.4.8                                                            | Line length, line height and paragraph spacing at three widths, open cat card included                                                                                                                                                                                                                          |
 | `tests/zoom-lines.spec.ts`          | 1.4.8                                                            | Every line of text on screen and no sideways scroll at 200px and 256px, the 500% zoom widths; code blocks, tables and photo strips scroll in their own region                                                                                                                                                   |
 | `tests/hero-fit.spec.ts`            | 1.4.10, 1.4.11, 1.4.12, 2.2.2, 2.4.11                            | Hero name unclipped and uncovered; no visible sticker over text in a window too short for it; pause control on the first screen beside the first name, every point of it reachable, clear of the name, edge and ring 3:1 on the page                                                                            |

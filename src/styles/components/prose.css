@@ -176,9 +176,9 @@
   }
 
   /*
-   * Scrolls, so cells never break a word. src/plugins/table-scroll.mjs adds
-   * tabindex, `role="group"` and a label; src/scripts/prose-scroll-fit.ts takes
-   * one that fits out of the tab order.
+   * From 40rem a wide table scrolls, so cells never break a word. table-scroll.mjs
+   * adds tabindex, `role="group"` and a label; prose-scroll-fit.ts takes one that
+   * fits, stacked tables included, out of the tab order.
    */
   .prose .table-scroll {
     @apply mt-6 min-w-0 overflow-x-auto;
@@ -214,5 +214,69 @@
   /* A row header names its row; only the column headers wear the ground. */
   .prose tbody th {
     @apply bg-transparent font-normal;
+  }
+
+  /* A post or /brand table; a slide keeps the rules above. */
+  .prose .table-scroll {
+    & table {
+      @apply border-0;
+    }
+
+    & :is(th, td) {
+      @apply hairline border-text;
+    }
+
+    & thead th {
+      @apply bg-transparent;
+    }
+  }
+
+  /* Built by src/plugins/table-stack.mjs; the header cell names the column. */
+  .prose .table-label {
+    @apply hidden;
+  }
+
+  /*
+   * Below 40rem a post table's rows stack: the first cell is the title, the
+   * others sit under their column's label. table-stack.mjs's roles keep the
+   * semantics; the header row keeps its own layout so each cell holds its text.
+   */
+  @media (width < 40rem) {
+    .prose table.table-stack {
+      @apply block hairline-t border-text;
+
+      & :is(tbody, tbody tr, tbody th, td) {
+        @apply block;
+      }
+
+      & thead {
+        @apply sr-only;
+      }
+
+      & tbody tr {
+        @apply hairline-b border-text py-3;
+      }
+
+      & tbody :is(th, td) {
+        @apply border-0 p-0;
+      }
+
+      & tbody tr > :first-child {
+        @apply font-black;
+      }
+
+      & tbody tr > * + * {
+        @apply mt-2 hairline-t pt-2;
+      }
+
+      & .table-label {
+        @apply mb-1 block text-label font-black text-subtle;
+      }
+
+      /* A long identifier may break anywhere; words never do. */
+      & :is(th, td) code {
+        overflow-wrap: anywhere;
+      }
+    }
   }
 }
