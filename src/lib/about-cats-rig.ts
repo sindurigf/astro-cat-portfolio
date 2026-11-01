@@ -20,7 +20,7 @@ import {
   type Motion,
   type NamedPose,
 } from './about-cats-frames';
-import { pose } from './about-cats-moves';
+import { POST_WIDTH, pose } from './about-cats-moves';
 import type { CatId, Pose, PropKind, PropState } from './about-cats-types';
 
 const NS = 'http://www.w3.org/2000/svg';
@@ -38,10 +38,18 @@ const STILL_MS = 120;
 const OUTLINE = 3;
 /** The feather's string hangs from just under the band's top: --spacing-cat-band (140px) must stay above it. */
 const STRING_TOP = -136;
-/** The scratching post's height in px, cap aside; with it, it stays under the band. */
-export const POST_HEIGHT = 92;
+/** The scratching post's height in px, cap aside: well above a reaching cat, and with its cap under the band. */
+export const POST_HEIGHT = 126;
+/** px between turns of rope, and clear of the post's top and bottom. */
+const ROPE_PITCH = 8;
+const ROPE_INSET = 6;
 /** Where each turn of rope starts on the post's left edge, top to bottom, in px. */
-const ROPE_TURNS = [-86, -78, -70, -62, -54, -46, -38, -30, -22, -14];
+const ROPE_TURNS = Array.from(
+  { length: Math.floor((POST_HEIGHT - 2 * ROPE_INSET) / ROPE_PITCH) + 1 },
+  (_, i) => ROPE_INSET - POST_HEIGHT + ROPE_PITCH * i,
+);
+/** px the post's cap reaches past each side of it. */
+const POST_CAP_OVERHANG = 5;
 /** A small and a larger "z", drawn from the lower left of the small one. */
 const ZZ = 'M0 0h4l-4 5h4M6 -9h6l-6 7h6';
 const ZZ_HEIGHT = 14;
@@ -550,9 +558,9 @@ export const createProp = (
     el(
       'rect',
       {
-        x: -5,
+        x: -POST_WIDTH / 2,
         y: -POST_HEIGHT,
-        width: 10,
+        width: POST_WIDTH,
         height: POST_HEIGHT,
         ...solid('card'),
       },
@@ -561,7 +569,9 @@ export const createProp = (
     el(
       'path',
       {
-        d: ROPE_TURNS.map((y) => `M-5 ${y}l10 3`).join(''),
+        d: ROPE_TURNS.map(
+          (y) => `M${-POST_WIDTH / 2} ${y}l${POST_WIDTH} 3`,
+        ).join(''),
         class: 'cat-prop-rope',
         'stroke-width': 1.3,
       },
@@ -570,9 +580,9 @@ export const createProp = (
     el(
       'rect',
       {
-        x: -10,
+        x: -POST_WIDTH / 2 - POST_CAP_OVERHANG,
         y: -POST_HEIGHT - 4,
-        width: 20,
+        width: POST_WIDTH + 2 * POST_CAP_OVERHANG,
         height: 5,
         ...solid('card'),
       },

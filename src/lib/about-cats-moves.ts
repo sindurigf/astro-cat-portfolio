@@ -342,8 +342,16 @@ type Route = readonly [RoutePoint, ...RoutePoint[]];
 /* Arcs in px; with them the tallest move stays under --spacing-cat-band (tests/about-cats.spec.ts). */
 const POUNCE_HEIGHT = 56;
 const LEAP_HEIGHT = 40;
-/** The scratching post stands this far ahead of the cat, clear of its chest. */
-const POST_GAP = 34;
+/** The scratching post's width in px: thick enough that both scratching drawings' paws land on its face. */
+export const POST_WIDTH = 18;
+/** px ahead of the cat's middle that its sitting paw raise reaches, rim included; the post's face stands there. */
+const SCRATCH_PAW: Record<CatId, number> = {
+  minerva: 26,
+  hela: 20,
+  rudra: 24,
+};
+/** px the paw sinks into the post's face, so it reads as clawing in, not hovering. */
+const SCRATCH_GRIP = 3;
 /** A scratch: paws reach high up the post, then rake down; each stroke takes this long. */
 const SCRATCH_STROKE_MS = 250;
 const SCRATCH_STROKES = 12;
@@ -689,9 +697,9 @@ export const MOVES = {
     ],
     mods: [],
     prop: 'post',
-    propAt: (t) => ({
+    propAt: (t, cat) => ({
       kind: 'post',
-      x: POST_GAP,
+      x: SCRATCH_PAW[cat] - SCRATCH_GRIP + POST_WIDTH / 2,
       y: 0,
       r: 0,
       o: fade(t, 300, 4700, 300),
