@@ -383,6 +383,8 @@ const closedIssue = (stateReason: string | null) => ({
     number: 3,
     html_url: 'https://github.com/o/r/issues/3',
     state_reason: stateReason,
+    closed_at: '2026-11-01T07:00:00Z',
+    updated_at: '2026-11-01T07:02:00Z',
   },
 });
 
@@ -428,6 +430,7 @@ test(
         merged,
         merged_by: merged ? { login: 'nami' } : null,
         html_url: 'https://github.com/o/r/pull/12',
+        closed_at: '2026-11-01T07:00:00Z',
       },
     });
     const merged = topicStateChange(pr(true));
@@ -537,9 +540,44 @@ test('a merged pull request without merged_by credits the sender', NODE, () => {
   const change = topicStateChange({
     action: 'closed',
     sender: { login: 'robin' },
-    pull_request: { number: 12, merged: true, merged_by: null, html_url: 'u' },
+    pull_request: {
+      number: 12,
+      merged: true,
+      merged_by: null,
+      html_url: 'u',
+      closed_at: '2026-11-01T07:00:00Z',
+    },
   });
   expect(change?.reply.startsWith('Merged on GitHub by robin.')).toBe(true);
+});
+
+/* Function: Discourse refuses a non-staff user's identical post within 5 minutes. */
+test(
+  'close, reopen and close again give three different replies, the same event the same reply',
+  NODE,
+  () => {
+    const first = topicStateChange(closedIssue('completed'))!.reply;
+    const reopen = topicStateChange({
+      ...closedIssue('completed'),
+      action: 'reopened',
+    })!.reply;
+    const again = closedIssue('completed');
+    again.issue.closed_at = '2026-11-01T07:03:00Z';
+    const second = topicStateChange(again)!.reply;
+    expect(new Set([first, reopen, second]).size).toBe(3);
+    expect(first).toContain('2026-11-01T07:00:00Z');
+    expect(reopen).toContain('2026-11-01T07:02:00Z');
+    expect(
+      topicStateChange(closedIssue('completed'))!.reply,
+      'a re-run of one event must give the same text, so its earlier reply can be found',
+    ).toBe(first);
+  },
+);
+
+test('a close event without its time fails instead of posting', NODE, () => {
+  const event = closedIssue('completed');
+  event.issue.closed_at = '';
+  expect(() => topicStateChange(event)).toThrow(/closed_at/);
 });
 
 const API = 'forum-bot';

@@ -92,28 +92,33 @@ export const topicStateChange = (event) => {
   const item = event.pull_request ?? event.issue;
   if (!item || !['closed', 'reopened'].includes(event.action)) return null;
   const actor = event.sender?.login ?? 'someone';
-  const link = `\n\n${item.html_url}`;
+  /* Discourse refuses a non-staff user's identical post within 5 minutes; the time keeps each reply unique. */
+  const timeField = event.action === 'reopened' ? 'updated_at' : 'closed_at';
+  const at = item[timeField];
+  if (!at)
+    throw new Error(`#${item.number} ${event.action} without ${timeField}.`);
+  const footer = `\n\n${item.html_url}\n\nEvent time: ${at}`;
   if (event.action === 'reopened')
     return {
-      reply: `Reopened on GitHub by ${actor}.${link}`,
+      reply: `Reopened on GitHub by ${actor}.${footer}`,
       solve: false,
       close: false,
     };
   if (event.pull_request)
     return item.merged
       ? {
-          reply: `${MERGED_PREFIX} by ${item.merged_by?.login ?? actor}.${link}`,
+          reply: `${MERGED_PREFIX} by ${item.merged_by?.login ?? actor}.${footer}`,
           solve: true,
           close: true,
         }
       : {
-          reply: `${CLOSED_PREFIX} without merging by ${actor}.${link}`,
+          reply: `${CLOSED_PREFIX} without merging by ${actor}.${footer}`,
           solve: false,
           close: true,
         };
   const reason = CLOSE_REASONS[item.state_reason];
   return {
-    reply: `${CLOSED_PREFIX} ${reason ? `${reason} ` : ''}by ${actor}.${link}`,
+    reply: `${CLOSED_PREFIX} ${reason ? `${reason} ` : ''}by ${actor}.${footer}`,
     solve: item.state_reason === 'completed',
     close: true,
   };
