@@ -78,6 +78,14 @@ export const topicExternalId = (number, pullRequest) =>
 
 const CLOSED_PREFIX = 'Closed on GitHub';
 const MERGED_PREFIX = 'Merged on GitHub';
+const REOPENED_PREFIX = 'Reopened on GitHub';
+const STATE_PREFIXES = [CLOSED_PREFIX, MERGED_PREFIX, REOPENED_PREFIX];
+const EVENT_TIME_LABEL = 'Event time: ';
+const STATE_REPLY_FIRST_LINE_END = / by \S+\.$/;
+/* Replies posted before the event time existed end with the GitHub link instead. */
+const STATE_REPLY_END = new RegExp(
+  `\\n(${EVENT_TIME_LABEL}\\S+|https://github\\.com/\\S+)$`,
+);
 const CLOSE_REASONS = {
   completed: 'as completed',
   not_planned: 'as not planned',
@@ -97,10 +105,10 @@ export const topicStateChange = (event) => {
   const at = item[timeField];
   if (!at)
     throw new Error(`#${item.number} ${event.action} without ${timeField}.`);
-  const footer = `\n\n${item.html_url}\n\nEvent time: ${at}`;
+  const footer = `\n\n${item.html_url}\n\n${EVENT_TIME_LABEL}${at}`;
   if (event.action === 'reopened')
     return {
-      reply: `Reopened on GitHub by ${actor}.${footer}`,
+      reply: `${REOPENED_PREFIX} by ${actor}.${footer}`,
       solve: false,
       close: false,
     };
@@ -165,7 +173,17 @@ export const shouldMirrorComment = ({ user, body }) =>
   !FORUM_HEADER.test(body ?? '') &&
   ![...(body ?? '').matchAll(MARKER)].length;
 
-/** Whether a forum post should go to GitHub: a regular reply, not the API user's, not a mirror, not yet copied. */
+/** A close, merge or reopen reply from topicStateChange, whichever user posted it. */
+export const isStateReply = (raw) => {
+  const text = (raw ?? '').trim();
+  return (
+    STATE_PREFIXES.some((prefix) => text.startsWith(prefix)) &&
+    STATE_REPLY_FIRST_LINE_END.test(text.split('\n')[0].trimEnd()) &&
+    STATE_REPLY_END.test(text)
+  );
+};
+
+/** Whether a forum post should go to GitHub: a regular reply, not the API user's, not a mirror or state reply, not yet copied. */
 export const shouldMirrorPost = (post, apiUsername, alreadyMirrored) =>
   post.post_number > 1 &&
   post.post_type === REGULAR_POST &&
@@ -173,6 +191,7 @@ export const shouldMirrorPost = (post, apiUsername, alreadyMirrored) =>
   !post.deleted_at &&
   post.username?.toLowerCase() !== apiUsername.toLowerCase() &&
   !GITHUB_HEADER.test(post.raw ?? '') &&
+  !isStateReply(post.raw) &&
   !alreadyMirrored.has(post.id);
 
 /**
@@ -228,7 +247,9 @@ export const redirectTarget = (from, location, method, origin, hops) => {
   return target.href;
 };
 
-/* Retries 429 with Retry-After or exponential backoff; a 403 names the API key scope it needs. */
+export const STATUS_SCOPE = 'topics: status';
+
+/* Retries 429 with Retry-After or exponential backoff; a 403 names the scope it needs, and for status the user rights. */
 export const request = async (url, init, scopeHint) => {
   const method = init?.method ?? 'GET';
   const origin = new URL(url).origin;
@@ -265,7 +286,9 @@ export const request = async (url, init, scopeHint) => {
     const text = await response.text();
     const hint =
       response.status === HTTP_FORBIDDEN && scopeHint
-        ? ` The API key needs the "${scopeHint}" scope.`
+        ? scopeHint === STATUS_SCOPE
+          ? ` The API key needs the "${scopeHint}" scope, or the API user must be staff, trust level 4 or a category moderator.`
+          : ` The API key needs the "${scopeHint}" scope.`
         : '';
     throw Object.assign(
       new Error(
@@ -476,21 +499,21 @@ const openTopic = async () => {
 
 /**
  * The forum steps for a close or reopen, in order. A close accepts its reply only when no
- * answer is accepted yet; a reopen unaccepts only its own close replies, never a person's choice.
+ * answer is accepted yet; a reopen unaccepts only close or merge replies, never a person's choice.
  */
-export const stateSteps = (change, posts, apiUsername) => {
-  /* Only this job's own close or merge replies; a mirrored comment a person accepted stays. */
-  const own = (post) =>
-    post.username?.toLowerCase() === apiUsername.toLowerCase() &&
+export const stateSteps = (change, posts) => {
+  /* A close or merge reply by shape, so an earlier API user's counts; a person's accepted post stays. */
+  const isCloseReply = (post) =>
+    isStateReply(post.raw) &&
     [CLOSED_PREFIX, MERGED_PREFIX].some((prefix) =>
-      (post.raw ?? '').startsWith(prefix),
+      (post.raw ?? '').trim().startsWith(prefix),
     );
   if (!change.close)
     return [
       /* First: the topic author may only unaccept in an open topic. */
       { step: 'reopen' },
       ...posts
-        .filter((post) => post.accepted_answer && own(post))
+        .filter((post) => post.accepted_answer && isCloseReply(post))
         .map((post) => ({ step: 'unaccept', postId: post.id })),
       { step: 'reply' },
     ];
@@ -502,13 +525,9 @@ export const stateSteps = (change, posts, apiUsername) => {
   ];
 };
 
-/** The id of a reply an earlier run of this event posted: any API user post with this text. */
-export const earlierReplyId = (posts, apiUsername, reply) =>
-  posts.find(
-    (post) =>
-      post.username?.toLowerCase() === apiUsername.toLowerCase() &&
-      (post.raw ?? '').trim() === reply.trim(),
-  )?.id ?? null;
+/** The id of a reply an earlier run of this event posted, under any username; its event time makes the text unique. */
+export const earlierReplyId = (posts, reply) =>
+  posts.find((post) => (post.raw ?? '').trim() === reply.trim())?.id ?? null;
 
 /** Accept only what Discourse says this user may accept; Solved off on the category means not. */
 export const acceptDecision = (post) =>
@@ -525,18 +544,17 @@ const syncState = async () => {
   const { posts } = await topicPosts(get, topicId);
   let replyId = null;
   let solved = false;
-  const apiUsername = required('DISCOURSE_API_USERNAME');
-  for (const { step, postId } of stateSteps(change, posts, apiUsername)) {
+  for (const { step, postId } of stateSteps(change, posts)) {
     if (step === 'reopen' || step === 'close') {
       await put(
         `/t/${topicId}/status.json`,
         { status: 'closed', enabled: step === 'close' },
-        'topics: status',
+        STATUS_SCOPE,
       );
     } else if (step === 'unaccept') {
       await post('/solution/unaccept.json', { id: postId }, 'solved: answer');
     } else if (step === 'reply') {
-      replyId = earlierReplyId(posts, apiUsername, change.reply);
+      replyId = earlierReplyId(posts, change.reply);
       if (replyId) {
         console.log(`Reply ${replyId} is already posted; reused.`);
         continue;

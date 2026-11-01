@@ -304,7 +304,7 @@ Dashboard settings that change what ships without a file change.
   - `discourse-state.yml` mirrors a close, merge or reopen: it replies in the
     topic, closes or reopens it, and marks a completed issue's or merged pull
     request's reply as the solution, unless a person already chose one; a
-    reopen unaccepts only its own. Marking needs Solved on the category: the
+    reopen unaccepts only close or merge replies. Marking needs Solved on the category: the
     Support category type, the site setting `allow_solved_on_all_topics`, or
     in older versions the category setting "Allow topic owner and staff to
     mark a reply as the solution".
@@ -312,6 +312,9 @@ Dashboard settings that change what ships without a file change.
   - The API user opens each topic, so it may mark the solution while the topic
     is open. Closing and reopening need it to be staff, trust level 4 or a
     category moderator.
+  - Changing `DISCOURSE_API_USERNAME` leaves the old user's replies in place;
+    they are not copied to GitHub again. A reopen still unaccepts the old
+    user's close or merge reply, and a re-run reuses it.
   - `discourse-topic-to-issue.yml` copies forum replies from topics active in
     the last 48 hours to their issue or pull request, every 15 minutes.
     GitHub turns the schedule off after 60 days without repository activity.

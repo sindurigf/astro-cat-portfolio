@@ -27,6 +27,7 @@ import {
   shouldMirrorComment,
   shouldMirrorPost,
   splitByActivity,
+  STATUS_SCOPE,
   topicIdFromComments,
 } from '../scripts/discourse-sync.mjs';
 import { NODE } from './tags';
@@ -589,7 +590,7 @@ const posts = (...extra: object[]) => [
 
 test('a close replies, accepts that reply, then closes', NODE, () => {
   const change = topicStateChange(closedIssue('completed'))!;
-  expect(stateSteps(change, posts(), API).map((s) => s.step)).toEqual([
+  expect(stateSteps(change, posts()).map((s) => s.step)).toEqual([
     'reply',
     'accept-reply',
     'close',
@@ -601,24 +602,29 @@ test('a close keeps an answer a person already accepted', NODE, () => {
   const steps = stateSteps(
     change,
     posts({ id: 5, username: 'nami', accepted_answer: true }),
-    API,
   ).map((s) => s.step);
   expect(steps).toEqual(['reply', 'close']);
 });
 
 test(
-  'a reopen reopens first and unaccepts only its own close reply, not a mirrored comment',
+  'a reopen reopens first and unaccepts only close replies, from any API user, not a person or a mirrored comment',
   NODE,
   () => {
     const change = topicStateChange({
       ...closedIssue('completed'),
       action: 'reopened',
     })!;
+    const closeReply = topicStateChange(closedIssue('completed'))!.reply;
     expect(
       stateSteps(
         change,
         posts(
-          { id: 5, username: 'nami', accepted_answer: true },
+          {
+            id: 5,
+            username: 'nami',
+            raw: 'Closed on GitHub as completed by robin. Thanks, it works now.',
+            accepted_answer: true,
+          },
           {
             id: 7,
             username: API,
@@ -628,15 +634,33 @@ test(
           {
             id: 9,
             username: 'Forum-Bot',
-            raw: 'Closed on GitHub as completed by robin.',
+            raw: closeReply,
+            accepted_answer: true,
+          },
+          {
+            id: 10,
+            username: 'old-bot',
+            raw: closeReply,
+            accepted_answer: true,
+          },
+          {
+            id: 12,
+            username: 'nami',
+            raw: 'Closed on GitHub via #12:\n\nhttps://github.com/o/r/pull/12',
+            accepted_answer: true,
+          },
+          {
+            id: 14,
+            username: 'old-bot',
+            raw: change.reply,
             accepted_answer: true,
           },
         ),
-        API,
       ),
     ).toEqual([
       { step: 'reopen' },
       { step: 'unaccept', postId: 9 },
+      { step: 'unaccept', postId: 10 },
       { step: 'reply' },
     ]);
   },
@@ -644,7 +668,7 @@ test(
 
 /* Function: a re-run after a failed accept or close must not post its reply twice. */
 test(
-  "a re-run reuses its earlier reply, even after a mirrored comment, but not a person's copy",
+  "a re-run reuses its earlier reply from any API user, even after a mirrored comment, but not a person's post",
   NODE,
   () => {
     const { reply } = topicStateChange(closedIssue('completed'))!;
@@ -654,7 +678,7 @@ test(
       username: 'Forum-Bot',
       raw: reply,
     };
-    expect(earlierReplyId(posts(earlier), API, reply)).toBe(11);
+    expect(earlierReplyId(posts(earlier), reply)).toBe(11);
     expect(
       earlierReplyId(
         posts(earlier, {
@@ -663,16 +687,36 @@ test(
           username: API,
           raw: 'nami wrote on GitHub:\n\nStill broken for me.',
         }),
-        API,
         reply,
       ),
       'a comment the bot mirrored after the reply must not hide it',
     ).toBe(11);
     expect(
-      earlierReplyId(posts({ ...earlier, username: 'nami' }), API, reply),
-      "a person quoting the text is not the bot's reply",
+      earlierReplyId(posts({ ...earlier, username: 'old-bot' }), reply),
+      'a reply an earlier API user posted must be reused, not posted again',
+    ).toBe(11);
+    expect(
+      earlierReplyId(
+        posts({
+          ...earlier,
+          username: 'nami',
+          raw: reply.split('\n')[0],
+        }),
+        reply,
+      ),
+      "a person quoting the reply's first line is not the bot's reply",
     ).toBeNull();
-    expect(earlierReplyId(posts(), API, reply)).toBeNull();
+    expect(
+      earlierReplyId(
+        posts({
+          ...earlier,
+          raw: reply.replace('2026-11-01T07:00:00Z', '2026-11-01T06:00:00Z'),
+        }),
+        reply,
+      ),
+      'a close before a reopen is not this close, so it posts again',
+    ).toBeNull();
+    expect(earlierReplyId(posts(), reply)).toBeNull();
   },
 );
 
@@ -848,5 +892,97 @@ test(
       readFileSync('.github/workflows/issue-to-discourse.yml', 'utf8'),
       'issue-to-discourse.yml no longer gives topics the external_id the script uses',
     ).toContain('external_id="github-issue-${ISSUE_NUMBER}"');
+  },
+);
+
+test(
+  'a state reply posted by an earlier API user stays on the forum',
+  NODE,
+  () => {
+    const none = new Set<number>();
+    const replies = [
+      topicStateChange(closedIssue('completed'))!.reply,
+      topicStateChange({ ...closedIssue('completed'), action: 'reopened' })!
+        .reply,
+      topicStateChange({
+        action: 'closed',
+        sender: { login: 'robin' },
+        pull_request: {
+          number: 12,
+          html_url: 'https://github.com/o/r/pull/12',
+          merged: true,
+          merged_by: { login: 'robin' },
+          closed_at: '2026-11-01T07:00:00Z',
+        },
+      })!.reply,
+      'Closed on GitHub as completed by robin.\n\nhttps://github.com/o/r/issues/3',
+    ];
+    for (const raw of replies)
+      expect(
+        shouldMirrorPost(
+          { ...reply, username: 'old-bot', raw },
+          API_USER,
+          none,
+        ),
+        `"${raw.split('\n')[0]}" must not be copied to GitHub`,
+      ).toBe(false);
+  },
+);
+
+test(
+  "a person's reply that starts like a state reply still goes to GitHub",
+  NODE,
+  () => {
+    const none = new Set<number>();
+    expect(
+      shouldMirrorPost(
+        {
+          ...reply,
+          raw: 'Closed on GitHub as completed by robin. Thanks, it works now.',
+        },
+        API_USER,
+        none,
+      ),
+    ).toBe(true);
+    expect(
+      shouldMirrorPost(
+        {
+          ...reply,
+          raw: 'Closed on GitHub via #12:\n\nhttps://github.com/o/r/pull/12',
+        },
+        API_USER,
+        none,
+      ),
+      'a reply ending in a GitHub link is not a state reply without the "by <login>." line',
+    ).toBe(true);
+  },
+);
+
+test(
+  'a 403 on a topic status change names both the missing scope and the missing user rights',
+  NODE,
+  async () => {
+    const forum = await serve(() => ({ status: 403 }));
+    try {
+      const failure = request(
+        `${forum.origin}/t/42/status`,
+        { method: 'PUT', body: '{}' },
+        STATUS_SCOPE,
+      );
+      await expect(failure).rejects.toThrow(
+        `needs the "${STATUS_SCOPE}" scope`,
+      );
+      await expect(failure).rejects.toThrow(/trust level 4/);
+      await expect(
+        request(
+          `${forum.origin}/posts.json`,
+          { method: 'POST' },
+          'topics: write',
+        ),
+        'only closing and reopening depend on user rights',
+      ).rejects.not.toThrow(/trust level 4/);
+    } finally {
+      forum.server.close();
+    }
   },
 );
