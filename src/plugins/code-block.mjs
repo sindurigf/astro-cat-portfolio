@@ -1,6 +1,6 @@
 /*
  * Makes every fenced code block a tab stop (SC 2.1.1): `.prose pre` scrolls
- * sideways, and overflow depends on the viewport; src/scripts/code-block-fit.ts
+ * sideways, and overflow depends on the viewport; src/scripts/prose-scroll-fit.ts
  * takes one that fits out of the tab order. `group`, not `region`: a name
  * needs a role, and `region` would add a landmark per block.
  */
@@ -24,6 +24,11 @@ export const codeBlock = {
       }
       ctx.setProperty(node, 'role', 'group');
       ctx.setProperty(node, 'ariaLabel', LABEL);
+
+      /* The fence's `language-*` class: no highlighter and no CSS read it. */
+      if (child.properties?.className !== undefined) {
+        ctx.setProperty(child, 'className', null);
+      }
     },
   },
 };

@@ -32,13 +32,21 @@ import {
   reachOf,
 } from '../src/lib/about-cats-rig';
 import { FRAMES } from '../src/lib/about-cats-frames';
-import { createIdle, idleFrameMs, tickIdle } from '../src/lib/about-cats-idle';
+import {
+  BUSY_FRAME_MS,
+  GLANCE_MS,
+  createIdle,
+  idleNextDrawAt,
+  tickIdle,
+} from '../src/lib/about-cats-idle';
+import { random } from '../src/lib/hero-field-scene';
 import { isTricksData, tricksOf } from '../src/lib/about-cats-tricks';
 import tricksData from '../src/lib/about-cats-tricks.json' with { type: 'json' };
 import {
   CONTROL_ROOM,
   MAX_OVERHANG,
   NAP_AFTER_MS,
+  PAUSE_MS,
   POINTER_IDLE_MS,
   TRACK_MARGIN,
   cupPush,
@@ -126,7 +134,7 @@ const LEG_HEIGHT = 0.15;
 /** A cat that lies down settles its tail within this. */
 const SETTLE_MS = 3000;
 
-/* Several moves, each followed by a pause of 1 to 3 s (PAUSE_MS in about-cats.ts). */
+/* Several moves, each followed by a pause from PAUSE_MS. */
 const PAUSES_WINDOW_MS = 8000;
 /*
  * A pause ends in at most three empty frames: the one that finds nothing to draw, one timestamped
@@ -646,26 +654,61 @@ test(
   },
 );
 
+/** Any fixed seed: the glances vary but every run is the same. */
+const IDLE_SEED = 1;
+
 test(
-  'a resting cat redraws at the slow idle rate while it holds still, and faster during a glance',
+  'a resting cat is not redrawn while it holds still, only through each glance',
   NODE,
   () => {
     const START_MS = 10_000;
+    const STEP_MS = 10;
+    const roll = random(IDLE_SEED);
     const idle = createIdle();
-    tickIdle(idle, START_MS, () => 0.5);
-    const calm = idleFrameMs(idle, START_MS);
-    let busy = Infinity;
-    for (let now = START_MS; now < START_MS + 20_000; now += 50) {
-      tickIdle(idle, now, () => 0.5);
-      busy = Math.min(busy, idleFrameMs(idle, now));
+    tickIdle(idle, START_MS, roll);
+    expect(
+      idleNextDrawAt(idle, START_MS),
+      'a still cat is drawn again before its next glance',
+    ).toBeGreaterThanOrEqual(idle.nextGlance);
+    let drawnAt = START_MS;
+    const glances: number[] = [];
+    const draws: number[] = [];
+    const END_MS = START_MS + 20_000;
+    let lastGlance = -Infinity;
+    /* The run ends past the last glance's drawing, wherever the seed puts that glance. */
+    for (
+      let now = START_MS;
+      now < END_MS || now <= lastGlance + GLANCE_MS + BUSY_FRAME_MS;
+      now += STEP_MS
+    ) {
+      tickIdle(idle, now, roll);
+      if (idle.glanceAt === now && idle.glanceFrom !== idle.glanceTo) {
+        glances.push(now);
+        if (now < END_MS) lastGlance = now;
+      }
+      if (now >= idleNextDrawAt(idle, drawnAt)) {
+        drawnAt = now;
+        draws.push(now);
+      }
     }
     expect(
-      idleFrameMs(createIdle(), 0),
-      'a cat that has not yet glanced draws faster than the calm rate',
-    ).toBe(calm);
-    expect(busy, 'a glance drew no faster than the calm rate').toBeLessThan(
-      calm,
-    );
+      draws.filter(
+        (t) =>
+          !glances.some((g) => t >= g && t <= g + GLANCE_MS + BUSY_FRAME_MS),
+      ),
+      'a still cat was redrawn between glances',
+    ).toEqual([]);
+    expect(glances.length, 'no glance turned the head').toBeGreaterThan(0);
+    expect(
+      glances.filter(
+        (g) =>
+          g < END_MS &&
+          !draws.some(
+            (t) => t >= g + GLANCE_MS && t <= g + GLANCE_MS + BUSY_FRAME_MS,
+          ),
+      ),
+      'the last change before the loop slept was never drawn',
+    ).toEqual([]);
   },
 );
 
@@ -832,9 +875,7 @@ const framesDrawnOver = async (
   });
 };
 
-/** A resting cat is drawn at most this often, in frames a second: the quick idle rate, well below the animation frame rate. */
-const IDLE_MAX_FPS = 25;
-/** Frames that must show a resting cat is idling, not frozen, in the window. */
+/** Frames that must show a cat woke from its rest for its next move, not frozen. */
 const IDLE_MIN_FRAMES = 3;
 
 /** A roll under every chance in about-cats.ts: Rudra climbs whenever the wall under him has a step. */
@@ -2103,14 +2144,14 @@ test.describe('About cats', () => {
     await still.close();
   });
 
-  test('a resting cat is drawn at the idle rate, not every animation frame', async ({
+  test('a resting cat is not redrawn while it holds still, and wakes for its next move', async ({
     browser,
   }) => {
     const context = await browser.newContext({
       viewport: { width: 1280, height: 4200 },
     });
     await context.addInitScript(() => {
-      /* Near 1: the longest pause after a move, and no other random move or idle event inside the window. */
+      /* Near 1: the longest pause after a move, and its first glance due only after the pause ends. */
       Math.random = () => 0.99;
     });
     const page = await context.newPage();
@@ -2131,15 +2172,15 @@ test.describe('About cats', () => {
     const AFTER_LOOK_MS = duration(MOVES.look()) + 2200;
     await page.clock.runFor(AFTER_LOOK_MS);
     const WINDOW_MS = 1200;
-    const frames = await framesDrawnOver(page, id, WINDOW_MS);
     expect(
-      frames,
-      'a resting cat was never drawn, so it was not idling',
+      await framesDrawnOver(page, id, WINDOW_MS),
+      'a resting cat was redrawn while it held still',
+    ).toBe(0);
+    const [, LONGEST_PAUSE_MS] = PAUSE_MS;
+    expect(
+      await framesDrawnOver(page, id, LONGEST_PAUSE_MS),
+      'a resting cat never woke for its next move',
     ).toBeGreaterThanOrEqual(IDLE_MIN_FRAMES);
-    expect(
-      frames,
-      'a resting cat was drawn nearly every animation frame',
-    ).toBeLessThanOrEqual((IDLE_MAX_FPS * WINDOW_MS) / 1000);
     await context.close();
   });
 

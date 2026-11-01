@@ -275,13 +275,15 @@ Sätteri hast visitors in `astro.config.mjs` `hastPlugins`.
 `markdown.rehypePlugins` does nothing without `@astrojs/markdown-remark`,
 which is not installed.
 
-| Visitor                          | Marks                                               |
-| -------------------------------- | --------------------------------------------------- |
-| `src/plugins/link-list-item.mjs` | a list item that is only a link (SC 2.5.5)          |
-| `src/plugins/post-figure.mjs`    | a post image: frame, sizer, `widths`, `sizes`       |
-| `src/plugins/code-block.mjs`     | `<pre>` as `tabindex="0"` `role="group"` (SC 2.1.1) |
+| Visitor                          | Marks                                                                                 |
+| -------------------------------- | ------------------------------------------------------------------------------------- |
+| `src/plugins/link-list-item.mjs` | a list item that is only a link (SC 2.5.5)                                            |
+| `src/plugins/post-figure.mjs`    | a post image: frame, sizer, `widths`, `sizes`                                         |
+| `src/plugins/code-block.mjs`     | `<pre>` as `tabindex="0"` `role="group"` (SC 2.1.1)                                   |
+| `src/plugins/table-scope.mjs`    | a Markdown header cell as `scope="col"` (H63)                                         |
+| `src/plugins/table-scroll.mjs`   | a post table, wrapped in a `tabindex="0"` `role="group"` box that scrolls (SC 1.4.10) |
 
-`group`, not `region`, so code blocks are not landmarks.
+`group`, not `region`, so code blocks and tables are not landmarks.
 
 ### Markdown sources and discovery
 
@@ -759,6 +761,9 @@ evidence.
 - **Keep an About cat's `cut` set until its frame changes:** `stepFrame` clears
   it once the frame holds, so only the settle draw counts as a step already
   shown; a later frame waits its full step.
+- **Test the About cat loop's wake after a draw:** it guards a rare blip, a
+  head-turn frame wanted on a glance's last draw, which no test reaches
+  without crafting the random order.
 - **Route `/llms.txt` through `getSortedPosts`:** it drops placeholder
   posts, and `/llms.txt` is the one surface meant to list them.
 - **Use Astro's `security.csp`:** `@astrojs/cloudflare` lacks
