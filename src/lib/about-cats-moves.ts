@@ -222,12 +222,10 @@ export interface Move {
   steps: Step[];
   mods: Mod[];
   prop?: PropKind;
-  /** Prop position relative to the cat's starting point, forward positive. */
-  propAt?: ((t: number) => PropState) | undefined;
+  /** Prop position relative to the cat's starting point, forward positive; `cat` places it at that cat's reach. */
+  propAt?: ((t: number, cat: CatId) => PropState) | undefined;
   /** px the cat ends higher than it starts, a climb; it plays on the lower floor. */
   rise?: number;
-  /** The prop hangs at Minerva's swat reach, moved to the playing cat's own. */
-  atSwatTip?: true;
 }
 
 const step = (
@@ -449,8 +447,7 @@ export const SWAT_TIP: Record<CatId, Pair> = {
   rudra: [25, 83],
   hela: [27, 59],
 };
-/* The toy move is laid out at Minerva's reach; the colony moves the feather to each cat's own. */
-const [TOY_AHEAD, TOY_HIGH] = SWAT_TIP.minerva;
+const CAT_IDS = Object.keys(SWAT_TIP) as CatId[];
 /** The feather swings back towards the cat by this share of its swing away, so each swat finds it. */
 const TOY_BACKSWING = 0.25;
 /** The cup stands clear of the head and chest; the first tap pushes it on. */
@@ -577,16 +574,16 @@ export const MOVES = {
       steps,
       mods: [],
       prop: 'toy',
-      atSwatTip: true,
-      propAt: (t) => {
+      propAt: (t, cat) => {
+        const [ahead, high] = SWAT_TIP[cat];
         const swing = TOY_HITS.reduce(
           (sum, at) => sum + swung(t - at, 30, 600, 120),
           0,
         );
         return {
           kind: 'toy',
-          x: TOY_AHEAD,
-          y: -TOY_HIGH + 4 * Math.sin(t / 700),
+          x: ahead,
+          y: -high + 4 * Math.sin(t / 700),
           r: swing < 0 ? swing * TOY_BACKSWING : swing,
           o: fade(t, 300, end, 400),
         };
@@ -831,7 +828,7 @@ const slower = (move: Move, factor: number): Move => {
       to: mod.to * factor,
       apply: (p, s, k) => mod.apply(p, s / factor, k),
     })),
-    propAt: propAt && ((t) => propAt(t / factor)),
+    propAt: propAt && ((t, cat) => propAt(t / factor, cat)),
   };
 };
 
@@ -859,13 +856,13 @@ export const scaleTravel = (move: Move, factor: number): Move => {
     })),
     propAt:
       propAt &&
-      ((t) => {
-        const s = propAt(t);
-        const cat = sample(move.steps, SCALE_FROM, t).x;
-        const ahead = s.x - cat;
+      ((t, cat) => {
+        const s = propAt(t, cat);
+        const at = sample(move.steps, SCALE_FROM, t).x;
+        const ahead = s.x - at;
         const kept = Math.min(Math.abs(ahead), PROP_KEEP);
         const scaled = Math.max(Math.abs(ahead) * factor, kept);
-        return { ...s, x: cat * factor + Math.sign(ahead) * scaled };
+        return { ...s, x: at * factor + Math.sign(ahead) * scaled };
       }),
   };
 };
@@ -973,7 +970,7 @@ export const withTurn = (move: Move, from: Pose): Move => {
         to: mod.to + TURN_MS,
       })),
     ],
-    propAt: propAt && ((t) => propAt(Math.max(0, t - TURN_MS))),
+    propAt: propAt && ((t, cat) => propAt(Math.max(0, t - TURN_MS), cat)),
   };
 };
 
@@ -1038,8 +1035,8 @@ export const withApproach = (
     ],
     propAt:
       propAt &&
-      ((t) => {
-        const s = propAt(Math.max(0, t - lead));
+      ((t, cat) => {
+        const s = propAt(Math.max(0, t - lead), cat);
         return { ...s, x: s.x + distance, o: t < lead ? 0 : s.o };
       }),
   };
@@ -1063,8 +1060,9 @@ const extent = (move: Move): [number, number] => {
     const x = poseAt(move, start, at).x;
     back = Math.min(back, x);
     forward = Math.max(forward, x);
-    const prop = move.propAt?.(at);
-    if (prop && prop.o > PROP_SEEN) {
+    for (const cat of move.propAt ? CAT_IDS : []) {
+      const prop = move.propAt!(at, cat);
+      if (prop.o <= PROP_SEEN) continue;
       back = Math.min(back, prop.x - PROP_REACH);
       forward = Math.max(forward, prop.x + PROP_REACH);
     }

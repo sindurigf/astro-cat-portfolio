@@ -304,14 +304,16 @@ test('no move lifts any part of a cat above its band', NODE, () => {
         break;
       }
     }
-    if (move.propAt) {
+    for (const cat of move.propAt ? CATS : []) {
       for (let t = 0; t <= duration(move); t += FRAME_MS) {
-        const prop = move.propAt(t);
+        const prop = move.propAt!(t, cat);
         /* The post stands up from its point; its cap and edge add a few px. */
         const top =
           -prop.y + (prop.kind === 'post' ? POST_HEIGHT + POST_CAP : 0);
         if (prop.o > 0 && top > band) {
-          tooHigh.push(`${name}'s ${prop.kind} at ${Math.round(t)}ms`);
+          tooHigh.push(
+            `${name}'s ${prop.kind} for ${cat} at ${Math.round(t)}ms`,
+          );
           break;
         }
       }

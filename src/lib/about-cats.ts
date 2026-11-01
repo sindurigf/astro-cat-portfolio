@@ -24,7 +24,6 @@ import {
   type Move,
   type MoveName,
   type Pose,
-  SWAT_TIP,
 } from './about-cats-moves';
 import {
   clamp,
@@ -599,18 +598,8 @@ export const createColony = (
     p.face *= playing.dir;
     cat.pose = p;
     if (playing.prop && playing.move.propAt) {
-      const s = playing.move.propAt(t);
-      const [ahead, up] = playing.move.atSwatTip
-        ? [
-            SWAT_TIP[cat.id][0] - SWAT_TIP.minerva[0],
-            SWAT_TIP[cat.id][1] - SWAT_TIP.minerva[1],
-          ]
-        : [0, 0];
-      playing.shown = {
-        ...s,
-        x: playing.origin + playing.dir * (s.x + ahead),
-        y: s.y - up,
-      };
+      const s = playing.move.propAt(t, cat.id);
+      playing.shown = { ...s, x: playing.origin + playing.dir * s.x };
       playing.prop.draw(playing.shown, now);
     }
     if (t >= playing.length) endMove(cat);
