@@ -644,7 +644,7 @@ test(
 
 /* Function: a re-run after a failed accept or close must not post its reply twice. */
 test(
-  "a re-run reuses its earlier reply only when it is the API user's latest post",
+  "a re-run reuses its earlier reply, even after a mirrored comment, but not a person's copy",
   NODE,
   () => {
     const { reply } = topicStateChange(closedIssue('completed'))!;
@@ -658,29 +658,16 @@ test(
     expect(
       earlierReplyId(
         posts(earlier, {
-          id: 12,
-          post_number: 5,
-          username: 'nami',
-          raw: 'Thanks!',
-        }),
-        API,
-        reply,
-      ),
-      'a person replying after it does not hide the earlier reply',
-    ).toBe(11);
-    expect(
-      earlierReplyId(
-        posts(earlier, {
           id: 13,
           post_number: 6,
           username: API,
-          raw: 'Reopened on GitHub by robin.',
+          raw: 'nami wrote on GitHub:\n\nStill broken for me.',
         }),
         API,
         reply,
       ),
-      'a reply from an earlier close is not reused once the bot posted after it',
-    ).toBeNull();
+      'a comment the bot mirrored after the reply must not hide it',
+    ).toBe(11);
     expect(
       earlierReplyId(posts({ ...earlier, username: 'nami' }), API, reply),
       "a person quoting the text is not the bot's reply",

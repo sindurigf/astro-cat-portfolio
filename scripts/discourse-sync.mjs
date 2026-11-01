@@ -502,21 +502,13 @@ export const stateSteps = (change, posts, apiUsername) => {
   ];
 };
 
-/** The id of a reply an earlier run of this event posted: the API user's latest post, if it has this text. */
-export const earlierReplyId = (posts, apiUsername, reply) => {
-  const latest = posts
-    .filter(
-      (post) => post.username?.toLowerCase() === apiUsername.toLowerCase(),
-    )
-    .reduce(
-      (last, post) =>
-        !last || post.post_number > last.post_number ? post : last,
-      null,
-    );
-  return latest && (latest.raw ?? '').trim() === reply.trim()
-    ? latest.id
-    : null;
-};
+/** The id of a reply an earlier run of this event posted: any API user post with this text. */
+export const earlierReplyId = (posts, apiUsername, reply) =>
+  posts.find(
+    (post) =>
+      post.username?.toLowerCase() === apiUsername.toLowerCase() &&
+      (post.raw ?? '').trim() === reply.trim(),
+  )?.id ?? null;
 
 /** Accept only what Discourse says this user may accept; Solved off on the category means not. */
 export const acceptDecision = (post) =>
