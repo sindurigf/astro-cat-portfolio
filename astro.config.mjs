@@ -13,6 +13,7 @@ import { linkListItem } from './src/plugins/link-list-item.mjs';
 import { codeBlock } from './src/plugins/code-block.mjs';
 import { tableScope } from './src/plugins/table-scope.mjs';
 import { tableScroll } from './src/plugins/table-scroll.mjs';
+import { tableStack } from './src/plugins/table-stack.mjs';
 import { postFigure } from './src/plugins/post-figure.mjs';
 import { MARKDOWN_WIDTHS } from './src/lib/image-densities.ts';
 import { cssColorToken } from './src/lib/css-token.ts';
@@ -150,6 +151,7 @@ export default defineConfig({
         postFigure,
         codeBlock,
         tableScope,
+        tableStack,
         tableScroll,
       ],
     }),
