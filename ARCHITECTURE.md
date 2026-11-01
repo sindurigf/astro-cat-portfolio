@@ -763,8 +763,8 @@ evidence.
   it once the frame holds, so only the settle draw counts as a step already
   shown; a later frame waits its full step.
 - **Test the About cat loop's wake after a draw:** it guards a rare blip, a
-  head-turn frame wanted on a glance's last draw, which no test reaches
-  without crafting the random order.
+  look drawing wanted on a glance's last draw, which no test reaches without
+  crafting the random order.
 - **Route `/llms.txt` through `getSortedPosts`:** it drops placeholder
   posts, and `/llms.txt` is the one surface meant to list them.
 - **Use Astro's `security.csp`:** `@astrojs/cloudflare` lacks

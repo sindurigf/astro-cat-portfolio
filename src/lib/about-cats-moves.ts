@@ -226,6 +226,8 @@ export interface Move {
   propAt?: ((t: number) => PropState) | undefined;
   /** px the cat ends higher than it starts, a climb; it plays on the lower floor. */
   rise?: number;
+  /** The prop hangs at Minerva's swat reach, moved to the playing cat's own. */
+  atSwatTip?: true;
 }
 
 const step = (
@@ -344,6 +346,16 @@ const POUNCE_HEIGHT = 56;
 const LEAP_HEIGHT = 40;
 /** The scratching post stands this far ahead of the cat, clear of its chest. */
 const POST_GAP = 34;
+/** A scratch: paws reach high up the post, then rake down; each stroke takes this long. */
+const SCRATCH_STROKE_MS = 250;
+const SCRATCH_STROKES = 12;
+const SCRATCH_LOW: Partial<Pose> = {
+  fN: [21, -24],
+  fF: [19, -14],
+  hr: 0,
+  draw: 'pawrise',
+};
+const SCRATCH_HIGH: Partial<Pose> = { hr: 0, draw: 'swat' };
 const YARN_BOUND_HEIGHT = 38;
 const FLY_HOP_HEIGHT = 40;
 /* The fly's route, [ms, x, y] ahead of the cat: it lands, is missed, circles, and escapes. */
@@ -380,17 +392,22 @@ const WINDUP_MS = 180;
 const SWAT_RAISED: Pair = [36, -17];
 const REAR_RAISED: Pair = [33, -24];
 const SWAT_MS = 160;
-/** A sitting swat `leadMs` after the last, the head tipped back `hr` degrees and the paw landing at height `y`. */
+/** A sitting swat `leadMs` after the last, side-on to the toy, the head tipped back `hr` degrees and the paw landing at height `y`. */
 const sitSwat = (leadMs: number, hr: number, y: number): Step[] => [
-  step(leadMs - WINDUP_MS, 'sit', { hr: -15 }),
-  step(WINDUP_MS, 'sit', { hr, fN: SWAT_RAISED }, 'out'),
-  step(SWAT_MS, 'sit', { hr, fN: [34, y] }, 'in'),
+  step(leadMs - WINDUP_MS, 'sit', { hr: -15, draw: 'headturn' }),
+  step(WINDUP_MS, 'sit', { hr, fN: SWAT_RAISED, draw: 'pawrise' }, 'out'),
+  step(SWAT_MS, 'sit', { hr, fN: [34, y], draw: 'swat' }, 'in'),
 ];
-/** Reared up, both paws swipe down. */
+/** Reared up, both paws swipe down: the swat drawing shows for the strike. */
 const rearSwat = (leadMs: number): Step[] => [
-  step(leadMs - WINDUP_MS, 'low'),
-  step(WINDUP_MS, 'low', { fN: REAR_RAISED, fF: [18, -14] }, 'out'),
-  step(SWAT_MS, 'low', { fN: [34, -7], fF: [30, -4] }, 'in'),
+  step(leadMs - WINDUP_MS, 'low', { draw: 'pawrise' }),
+  step(
+    WINDUP_MS,
+    'low',
+    { fN: REAR_RAISED, fF: [18, -14], draw: 'pawrise' },
+    'out',
+  ),
+  step(SWAT_MS, 'low', { fN: [34, -7], fF: [30, -4], draw: 'swat' }, 'in'),
 ];
 /** ms at which each swat hits the feather toy. */
 const TOY_HITS = [860, 1520, 2680, 3100, 3760];
@@ -426,8 +443,14 @@ const bat = (hit: Pair, over: Partial<Pose> = {}): Step[] => {
     lean(BAT_AFTER_MS - BAT_PUSH_MS, BAT_RAISED, 'out'),
   ];
 };
-/** The feather hangs this far ahead, clear of the chest, where a long swat reaches it. */
-const TOY_AHEAD = 36;
+/** Just past where each cat's swat drawing reaches, px ahead and up from its feet: the feather hangs there, so each swat meets it. */
+export const SWAT_TIP: Record<CatId, Pair> = {
+  minerva: [35, 79],
+  rudra: [25, 83],
+  hela: [27, 59],
+};
+/* The toy move is laid out at Minerva's reach; the colony moves the feather to each cat's own. */
+const [TOY_AHEAD, TOY_HIGH] = SWAT_TIP.minerva;
 /** The feather swings back towards the cat by this share of its swing away, so each swat finds it. */
 const TOY_BACKSWING = 0.25;
 /** The cup stands clear of the head and chest; the first tap pushes it on. */
@@ -447,6 +470,10 @@ const YARN_BAT_2 = YARN_POUNCE_LANDED + BAT_HIT_MS;
 /** The ball hugged on the back, between the hind paws, from the cat's place. */
 const YARN_HUG = 9;
 const YARN_HUG_Y = -34;
+/** On its back with the ball, the cat rocks onto its side and back for each kick; the drawings alternate. */
+const YARN_KICK_MS = 250;
+const YARN_KICKS = 6;
+const YARN_KICK_ROLL = 110;
 /** The wand's feather hangs on the cat tree just out of a sitting cat's reach, clear of its face. */
 const WAND_HIGH = -62;
 const WAND_AHEAD = 32;
@@ -488,20 +515,24 @@ const along = ([first, ...rest]: Route, t: number): [number, number] => {
   return [x0, y0];
 };
 
-/*
- * Rolling onto the back: low, then over all at once. Easing
- * the 180° roll would stand the cat on its head halfway.
- */
 /** Body height before the roll; upright poses keep their paws on the ground there. */
 const FLOP_LOW = 9;
+/** ms a flop takes, and its roll: long enough for each drawing on the way over to show. */
+const FLOP_MS = 700;
+const FLOP_ROLL_MS = 480;
 const groundedAt = (name: PoseName, by: number): Partial<Pose> =>
   POSES[name].rot !== 0
     ? {}
     : Object.fromEntries(PAWS.map((k) => [k, [POSES[name][k][0], by]]));
+/* Rolling onto the back: low, then over through the lying-on-side and rolling drawings. */
 const flopTo = (from: PoseName, to: PoseName, x = 0): Step[] => [
-  step(200, from, { x, by: FLOP_LOW, ...groundedAt(from, FLOP_LOW) }, 'in'),
-  step(200, to, { x }, 'snap'),
-  step(300, to, { x }, 'out'),
+  step(
+    FLOP_MS - FLOP_ROLL_MS,
+    from,
+    { x, by: FLOP_LOW, ...groundedAt(from, FLOP_LOW) },
+    'in',
+  ),
+  step(FLOP_ROLL_MS, to, { x }, 'linear'),
 ];
 
 /** A prop's opacity `t` ms in: it fades in over `inMs`, and out over the `outMs` before `end`. */
@@ -520,8 +551,8 @@ export const MOVES = {
   stretch: (): Move => ({
     steps: [
       step(500, 'stand'),
-      step(700, 'stretch'),
-      step(900, 'stretch'),
+      step(600, 'stretch'),
+      step(300, 'stretch'),
       step(500, 'stand'),
       step(500, 'sit', { hr: -25, eyes: 0 }),
       step(700, 'sit', { hr: -25, eyes: 0 }),
@@ -534,7 +565,7 @@ export const MOVES = {
     const steps = [
       ...sitSwat(700, -18, -3),
       ...sitSwat(500, -20, -5),
-      step(600, 'sit', { hr: -12 }),
+      step(600, 'sit', { hr: -12, draw: 'headturn' }),
       ...rearSwat(400),
       ...rearSwat(260),
       ...sitSwat(500, -18, -3),
@@ -546,6 +577,7 @@ export const MOVES = {
       steps,
       mods: [],
       prop: 'toy',
+      atSwatTip: true,
       propAt: (t) => {
         const swing = TOY_HITS.reduce(
           (sum, at) => sum + swung(t - at, 30, 600, 120),
@@ -554,7 +586,7 @@ export const MOVES = {
         return {
           kind: 'toy',
           x: TOY_AHEAD,
-          y: -30 + 4 * Math.sin(t / 700),
+          y: -TOY_HIGH + 4 * Math.sin(t / 700),
           r: swing < 0 ? swing * TOY_BACKSWING : swing,
           o: fade(t, 300, end, 400),
         };
@@ -647,19 +679,18 @@ export const MOVES = {
     },
   }),
   post: (): Move => ({
-    /* A long scratch up a tall post, paws high, then a look at the work. */
+    /* A long scratch up a tall post, the paws raking down in turn, then a look at the work. */
     steps: [
-      step(600, 'rear', { fN: [21, -24], fF: [19, -14], hr: 0 }),
-      step(3000, 'rear', { fN: [21, -24], fF: [19, -14], hr: 0 }),
+      step(600, 'rear', SCRATCH_LOW),
+      ...Array.from({ length: SCRATCH_STROKES }, (_, i) =>
+        i % 2 === 0
+          ? step(SCRATCH_STROKE_MS, 'leap', SCRATCH_HIGH)
+          : step(SCRATCH_STROKE_MS, 'rear', SCRATCH_LOW),
+      ),
       step(600, 'sit', { hr: -14 }),
       step(500, 'sit'),
     ],
-    mods: [
-      between(600, 3600, (p, s) => {
-        p.fN[1] += 6 * Math.sin(s / 90);
-        p.fF[1] -= 6 * Math.sin(s / 90);
-      }),
-    ],
+    mods: [],
     prop: 'post',
     propAt: (t) => ({
       kind: 'post',
@@ -689,8 +720,13 @@ export const MOVES = {
       step(280, 'air', { x: 298 }, 'linear'),
       step(180, 'crouch', { x: YARN_LAND_2 }, 'out'),
       ...flopTo('crouch', 'belly', YARN_LAND_2),
-      step(1500, 'belly', { x: YARN_LAND_2 }),
-      ...flopTo('belly', 'loaf', YARN_LAND_2),
+      ...Array.from({ length: YARN_KICKS }, (_, i) =>
+        step(YARN_KICK_MS, 'belly', {
+          x: YARN_LAND_2,
+          rot: i % 2 === 0 ? YARN_KICK_ROLL : 180,
+        }),
+      ),
+      ...flopTo('belly', 'crouch', YARN_LAND_2),
       step(500, 'sit', { x: YARN_LAND_2 }),
     ],
     mods: [
@@ -713,9 +749,9 @@ export const MOVES = {
         ease(span(7100, 7350)) * 10 +
         ease(span(9420, 9820)) * 12;
       /* Up over the rolled body first, then back to the hind paws; the reverse on letting go. */
-      const lift = span(7520, 7620) - span(9470, 9620);
-      const draw = span(7620, 7720) - span(9420, 9470);
-      const kick = t > 7920 && t < 9420 ? Math.sin((t - 7920) / 60) : 0;
+      const lift = span(7820, 7920) - span(9470, 9620);
+      const draw = span(7920, 8020) - span(9420, 9470);
+      const kick = t > 8020 && t < 9420 ? Math.sin((t - 8020) / 60) : 0;
       return {
         kind: 'yarn',
         x: roll + draw * (YARN_LAND_2 + YARN_HUG - roll) + 3 * kick,
@@ -737,8 +773,8 @@ export const MOVES = {
       ...wandSwat('fF', 300),
       step(300, 'crouch', { hr: -20 }),
       step(160, 'crouch', { hr: -24 }, 'in'),
-      step(300, 'leap', { fN: [33, -20], fF: [28, -13] }, 'out'),
-      step(300, 'leap', { fN: [24, -8], fF: [20, -4] }, 'in'),
+      step(300, 'leap', { fN: [33, -20], fF: [28, -13], draw: 'swat' }, 'out'),
+      step(300, 'leap', { fN: [24, -8], fF: [20, -4], draw: 'swat' }, 'in'),
       step(200, 'crouch', {}, 'out'),
       step(900, 'crouch', { fN: [32, 16], hr: 6 }),
       step(600, 'sit'),
