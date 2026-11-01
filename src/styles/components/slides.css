@@ -285,7 +285,7 @@
     hyphens: auto;
   }
 
-  /* `px-2` keeps whole words from 390px; narrower, a long word can still split. */
+  /* From 390px `px-2` breaks a word only at a hyphen; narrower, a long word can split anywhere. */
   .slide-body :is(th, td) {
     @apply px-2 py-2 wrap-anywhere sm:px-6;
   }
