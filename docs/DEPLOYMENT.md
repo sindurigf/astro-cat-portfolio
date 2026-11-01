@@ -299,8 +299,8 @@ Dashboard settings that change what ships without a file change.
   - Each topic has the `external_id` `github-issue-<n>` or `github-pr-<n>`. A
     re-run links the existing topic instead of opening a second one.
   - `discourse-comment-to-topic.yml` posts each new issue or pull request
-    conversation comment as a reply. Review comments on code lines are not
-    mirrored.
+    conversation comment as a reply. Review comments on code lines and review
+    summary bodies (`pull_request_review`) are not mirrored.
   - `discourse-topic-to-issue.yml` copies forum replies from topics active in
     the last 48 hours to their issue or pull request, every 15 minutes.
     GitHub turns the schedule off after 60 days without repository activity.
