@@ -60,7 +60,7 @@ const SERVED_AS_IS = new Map([
   ],
 ]);
 
-/* Skips node_modules, including a stale one under src/content/talks/. */
+/* Skips node_modules. */
 const walk = async (dir) =>
   (
     await Array.fromAsync(

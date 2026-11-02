@@ -20,7 +20,7 @@ const SOURCE_EXTENSIONS = ['.astro', '.vue', '.ts', '.md', '.mjs'];
  */
 const HOOKS = new Map();
 
-/* Skips node_modules, including a stale one under src/content/talks/. */
+/* Skips node_modules. */
 const walk = (dir, extensions) =>
   Array.fromAsync(
     glob(

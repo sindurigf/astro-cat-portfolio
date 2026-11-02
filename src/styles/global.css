@@ -308,7 +308,7 @@
    * a block of more than one sentence; 1.55 stays clear after sub-pixel rounding.
    */
   --leading-paragraph: 1.55;
-  /* Display text that is not a heading: links, values and stats at h3's old fluid size. */
+  /* Display text that is not a heading: links, values and stats. */
   --text-display: clamp(1.25rem, 2.6vw, 2rem);
   --text-display--line-height: 1.1;
   /* --text-scale (Smaller and Larger) multiplies the reading sizes only: lead, standfirst, post teaser, body and label. */

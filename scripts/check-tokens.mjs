@@ -91,7 +91,7 @@ const blankComments = (source) => {
                                                    URL is never truncated */
 };
 
-/* Skips node_modules, including a stale one under src/content/talks/. */
+/* Skips node_modules. */
 const walk = (dir) =>
   Array.fromAsync(
     glob(
