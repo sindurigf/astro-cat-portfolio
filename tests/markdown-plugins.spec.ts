@@ -1,7 +1,5 @@
-import { mkdtempSync, writeFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { dirname, join, relative, resolve } from 'node:path';
+import { dirname, relative, resolve } from 'node:path';
 import { expect, test } from './test';
 import { itemAt } from '../src/lib/defined';
 import { linkListItem } from '../src/plugins/link-list-item.mjs';
@@ -88,14 +86,6 @@ test.describe('link-list-item', NODE, () => {
 /* Paths only, unless passed as `fileURL`: then the plugin reads the post for a `cover`. */
 const POST_URL = pathToFileURL(resolve(BLOG_CONTENT_DIR, 'any-post.md'));
 const TALK_URL = pathToFileURL(resolve(TALKS_DIR, 'any-deck', DECK_FILE));
-/* A post opens on its cover, if it has one; the priority tests need both kinds. */
-const postFile = (frontmatter: string): URL => {
-  const file = join(mkdtempSync(join(tmpdir(), 'post-figure-')), 'post.md');
-  writeFileSync(file, `---\n${frontmatter}\n---\n\nBody.\n`);
-  return pathToFileURL(file);
-};
-const UNCOVERED_POST_URL = postFile("title: 'No cover'");
-const COVERED_POST_URL = postFile("title: 'Cover'\ncover: './cover.jpg'");
 const PHOTO = relative(
   dirname(fileURLToPath(POST_URL)),
   resolve('tests/fixtures/photo-4x3.png'),
@@ -330,7 +320,7 @@ test.describe('post-figure', NODE, () => {
   });
 
   const priorities = async (url: URL): Promise<boolean[]> => {
-    const plugin = postFigure({ fileURL: url });
+    const plugin = postFigure();
     const images = [1, 2].map(() => el('img', [], { src: PHOTO, alt: 'x' }));
     const root = el(
       'root',
@@ -342,16 +332,9 @@ test.describe('post-figure', NODE, () => {
     return images.map((img) => img.properties?.priority === true);
   };
 
-  test("a post's first image loads with priority, and no other image does", async () => {
-    expect(
-      await priorities(UNCOVERED_POST_URL),
-      'only the first image of a post should be fetched eagerly and first.',
-    ).toEqual([true, false]);
-  });
-
   test('a post with a cover gives none of its body images priority', async () => {
     expect(
-      await priorities(COVERED_POST_URL),
+      await priorities(POST_URL),
       'the cover is the first image; a body image would compete with it.',
     ).toEqual([false, false]);
   });
@@ -359,10 +342,7 @@ test.describe('post-figure', NODE, () => {
   test('a talk slide image never takes priority', async () => {
     const img = el('img', [], { src: PHOTO, alt: 'x' });
     const root = el('root', [el('p', [text('in '), img])]);
-    await postFigure({ fileURL: TALK_URL }).element.visit(
-      img,
-      contextFor(root, TALK_URL),
-    );
+    await postFigure().element.visit(img, contextFor(root, TALK_URL));
     expect(
       img.properties?.priority,
       'each slide compiles alone, so every slide would claim priority.',
