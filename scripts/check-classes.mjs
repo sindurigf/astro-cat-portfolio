@@ -4,7 +4,6 @@
  * and a page-only sheet is not linked elsewhere. Reads selectors only.
  */
 import { fileURLToPath } from 'node:url';
-import { existsSync } from 'node:fs';
 import { glob, readFile } from 'node:fs/promises';
 import { join, relative } from 'node:path';
 import { assertBuildCurrent } from './build-fingerprint.mjs';
@@ -61,15 +60,7 @@ const decodeEntities = (value) =>
     .replace(/&#39;/g, "'");
 
 const main = async () => {
-  if (!existsSync(DIST)) {
-    console.error(
-      'Classes: dist/client does not exist. Run `npm run build` first; this ' +
-        'check reads the build output.',
-    );
-    process.exit(1);
-  }
-
-  await assertBuildCurrent('Classes');
+  await assertBuildCurrent('Classes', DIST);
 
   const pages = await walk(DIST, ['.html']);
   const stylesheets = await walk(DIST, ['.css']);

@@ -3,7 +3,6 @@
  * property of an imported image emits its original, which no page links to.
  */
 import { fileURLToPath } from 'node:url';
-import { existsSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { glob, readFile } from 'node:fs/promises';
 import { join, relative } from 'node:path';
@@ -36,15 +35,7 @@ const digest = async (file) =>
     .digest('hex');
 
 const run = async () => {
-  if (!existsSync(DIST)) {
-    console.error(
-      'Untransformed: dist/client does not exist. Run `npm run build` first; ' +
-        'this check reads the build output.',
-    );
-    process.exit(1);
-  }
-
-  await assertBuildCurrent('Untransformed');
+  await assertBuildCurrent('Untransformed', DIST);
 
   const built = await walk(DIST);
 
