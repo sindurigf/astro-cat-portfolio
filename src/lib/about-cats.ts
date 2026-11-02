@@ -645,7 +645,8 @@ export const createColony = (
         fading.splice(fading.indexOf(fade), 1);
         continue;
       }
-      prop.draw({ ...shown, o: shown.o * (1 - k) }, now);
+      /* Falling fluff would hang still, so it goes at once. */
+      prop.draw({ ...shown, o: shown.o * (1 - k), sincePull: Infinity }, now);
       wakeAt = now;
     }
     for (const cat of cats) {
