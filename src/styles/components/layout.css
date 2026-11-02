@@ -32,7 +32,7 @@
    * photo's shadow lands on the fold: its 4px lift cancels the slab's border.
    */
   .page-hero-photo,
-  .post-slab-photo {
+  .post-slab {
     margin-block-end: var(--spacing-head);
   }
 
@@ -49,14 +49,6 @@
         flex-grow: 1;
       }
     }
-  }
-
-  /*
-   * Title to teaser when stacked. From `lg` it starts level with the h1, both
-   * 24px below the breadcrumb's `mb-6`.
-   */
-  .post-slab-aside {
-    @apply mt-6 lg:mt-0;
   }
 
   /*
@@ -96,7 +88,7 @@
 
   /*
    * Thin at the top only. The bottom stays --spacing-section, the only padding
-   * that clears the roundel (half its box, its lift and 24px: 92px at 1280).
+   * that clears a thin hero's roundel (half its box, its lift and 24px: 92px at 1280).
    */
   .page-hero-thin,
   .post-slab {
