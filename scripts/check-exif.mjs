@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 /*
  * Fails on image metadata that can locate or identify: EXIF (GPS, camera,
- * date) and XMP, in every JPEG, PNG and WebP under src/assets and public.
+ * date) and XMP, in every JPEG, PNG and WebP under src/assets, public and artwork.
  * PDFs are not images here: PDF/UA requires their XMP.
  */
 
 import { readdirSync, readFileSync } from 'node:fs';
 import { extname, join } from 'node:path';
 
-const ROOTS = ['src/assets', 'public'];
+const ROOTS = ['src/assets', 'public', 'artwork'];
 
 const JPEG_SOI = 0xffd8;
 const JPEG_SOS = 0xda;
