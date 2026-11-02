@@ -22,8 +22,11 @@ const buildDone = (root: string) =>
 const existingRules = (count: number): string =>
   Array.from({ length: count }, (_, i) => `/old-${i} /new-${i} 301`).join('\n');
 
+/* One page besides the home page, so the hook adds one redirect. */
+const PAGE_REDIRECTS = 1;
+
 const site = (ruleCount: number): Files => ({
-  [REDIRECTS]: `# Hand-written rules.\n${existingRules(ruleCount)}\n`,
+  [REDIRECTS]: `# Hand-written rules.\n\n${existingRules(ruleCount)}\n\n# End.\n`,
   'index.html': '',
   'about/index.html': '',
 });
@@ -35,16 +38,21 @@ test.describe('slash redirects', NODE, () => {
     ]);
   });
 
-  test('appends one redirect per page to _redirects within the limit', () => {
+  test('appends one redirect per page and keeps the hand-written rules', () => {
     const root = fixture(site(1));
     buildDone(root);
-    expect(readFileSync(join(root, REDIRECTS), 'utf8')).toContain(
-      '/about /about/ 301',
-    );
+    const redirects = readFileSync(join(root, REDIRECTS), 'utf8');
+    expect(redirects).toContain(existingRules(1));
+    expect(redirects).toContain('/about /about/ 301');
+  });
+
+  test('allows exactly the Workers limit, not counting comments or blank lines', () => {
+    const root = fixture(site(MAX_STATIC_REDIRECTS - PAGE_REDIRECTS));
+    expect(() => buildDone(root)).not.toThrow();
   });
 
   test('throws when the redirects would pass the Workers limit', () => {
-    const root = fixture(site(MAX_STATIC_REDIRECTS));
+    const root = fixture(site(MAX_STATIC_REDIRECTS - PAGE_REDIRECTS + 1));
     expect(() => buildDone(root)).toThrow(String(MAX_STATIC_REDIRECTS));
   });
 });
