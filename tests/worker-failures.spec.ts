@@ -7,6 +7,7 @@ import { RESEND_AFTER_MS } from '../src/lib/contact-resend';
 import { retentionCutoff } from '../src/lib/contact-retention';
 import { DAY_MS } from '../src/lib/time';
 import type { D1Database } from '../src/lib/contact-env';
+import { CONTACT_FORM_ON } from '../src/lib/contact';
 
 /**
  * src/worker.ts as built, run in workerd with chosen bindings, so a sweep can
@@ -60,6 +61,9 @@ const withMailer = (config: BuiltConfig) => ({
 });
 
 const SWEEP_BLOCKED = 'sweep blocked';
+
+/* With `contact.form: 'none'` the cron job returns at once, needing no database. */
+const formOnOrOff = <T>(on: T, off: T): T => (CONTACT_FORM_ON ? on : off);
 
 const harnesses: TestHarness[] = [];
 
@@ -130,16 +134,21 @@ test.describe('the scheduled job when the sweep fails', () => {
     expect(
       outcome,
       'a failed sweep was swallowed, so the cron run reports success and nobody is alerted.',
-    ).toBe('exception');
+    ).toBe(formOnOrOff('exception', 'ok'));
     const logs = server.getLogs().map(({ message }) => message);
     expect(
       logs.filter((line) => line.includes(SWEEP_BLOCKED)),
       'the sweep failure was not logged.',
-    ).toHaveLength(1);
+    ).toHaveLength(formOnOrOff(1, 0));
     expect(
       logs.filter((line) => line.startsWith('notification resend:')),
       'a failed sweep should not stop the resend, nor run it twice.',
-    ).toEqual(['notification resend: sent 1 of 1 unsent notifications']);
+    ).toEqual(
+      formOnOrOff(
+        ['notification resend: sent 1 of 1 unsent notifications'],
+        [],
+      ),
+    );
 
     const { results } = await MESSAGES_DB.prepare(
       'SELECT id FROM messages WHERE notified_at IS NOT NULL',
@@ -147,12 +156,12 @@ test.describe('the scheduled job when the sweep fails', () => {
     expect(
       results.map(({ id }) => id),
       'the resent notification was not marked sent.',
-    ).toEqual(['unsent']);
+    ).toEqual(formOnOrOff(['unsent'], []));
   });
 });
 
 test.describe('a missing binding fails the request or run', () => {
-  test('without MESSAGES_DB the cron run fails before any resend', async () => {
+  test('without MESSAGES_DB the cron run fails before any resend, unless the form is off', async () => {
     const config = built();
     const server = await start({ ...bare(config), ...withMailer(config) });
 
@@ -161,7 +170,7 @@ test.describe('a missing binding fails the request or run', () => {
     expect(
       outcome,
       'the cron run succeeded with no database, so the retention /privacy promises silently stopped.',
-    ).toBe('exception');
+    ).toBe(formOnOrOff('exception', 'ok'));
     expect(
       server.getLogs().map(({ message }) => message),
       'the run went past the missing database.',
