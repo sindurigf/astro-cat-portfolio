@@ -959,7 +959,7 @@ export const main = async ({
     return 0;
   }
   log(
-    `\nTest weakening: needs ${owner}'s approving or comment review of ${head.slice(0, SHORT_SHA_LENGTH)} with the line "Approved test change: <reason>", then a re-run of this job.`,
+    `\nTest weakening: needs ${owner}'s approving or comment review of ${head.slice(0, SHORT_SHA_LENGTH)} with the line "Approved test change: <reason>"; the review re-runs this job.`,
   );
   return 1;
 };
