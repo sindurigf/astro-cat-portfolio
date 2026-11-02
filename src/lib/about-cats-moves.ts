@@ -466,20 +466,20 @@ export const CAT_IDS = Object.keys(SWAT_TIP) as CatId[];
 const TOY_BACKSWING = 0.25;
 /** The cup's middle, px ahead of the cat's: its near side where the patting paw comes down, 14 to 17 px ahead for the three cats. */
 const CUP_AT_PAW = 22;
-/** Half the cup's width, as drawn in about-cats-rig.ts. */
+/** Half the cup's width, as drawn in about-cats-rig.ts: it tips over the edge by this much. */
 const CUP_HALF_WIDTH = 5.5;
-/** px from where the cat stops to the card's edge: TRACK_MARGIN in about-cats.ts. */
-export const CUP_LIP = 48;
-/** The pat slides the cup to the edge, easing to a stop, and it starts to tip before it stops. */
+/** px from where the cat stops to the card's edge, for track checks: TRACK_MARGIN in about-cats.ts. */
+const CUP_LIP = 48;
+/** ms after the pat's step that its paw-down drawing shows: the rig's BLIP_MS (25) and a frame. */
+const CUP_PAW_LANDS_MS = 45;
+/** The pat slides the cup until its middle is over the edge, easing to a stop. */
 const CUP_SLIDE_MS = 200;
-const CUP_TIP_AFTER_MS = 150;
 /** One pat tips the cup over the edge: it slides off the lip, then drops, turning as it falls. */
 const CUP_LOOK_MS = 450;
 const CUP_PAW_UP_MS = 220;
 const CUP_PAW_DOWN_MS = 140;
 const CUP_HIT = CUP_LOOK_MS + CUP_PAW_UP_MS;
 const CUP_TIP_MS = 110;
-const CUP_TIP_PX = 16;
 const CUP_TIP_DEG = 80;
 /** px per ms², so the cup drops out of sight below the edge in about a quarter second; it drifts and spins per ms as it falls. */
 const CUP_GRAVITY = 0.0022;
@@ -568,13 +568,11 @@ const flopTo = (from: PoseName, to: PoseName, x = 0): Step[] => [
   step(FLOP_ROLL_MS, to, { x }, 'linear'),
 ];
 
-const easeOut = (k: number): number =>
-  1 - (1 - Math.min(1, Math.max(0, k))) ** 2;
-
-/** Looks at the cup, pats it once and watches it fall: the pat slides the cup from under the paw to the edge `lip` px ahead, and over it. */
+/** Looks at the cup, pats it once and watches it fall: the pat slides the cup from under the paw to the edge `lip` px ahead, and it tips over. */
 export const knockAt = (lip: number): Move => {
-  const slide = lip + CUP_HALF_WIDTH - CUP_AT_PAW;
-  const tipFrom = CUP_HIT + CUP_TIP_AFTER_MS;
+  const slide = Math.max(0, lip - CUP_AT_PAW);
+  const pushFrom = CUP_HIT + CUP_PAW_LANDS_MS;
+  const tipFrom = pushFrom + CUP_SLIDE_MS;
   return {
     steps: [
       step(CUP_LOOK_MS, 'sit', { hr: 14, draw: 'headturn' }),
@@ -586,13 +584,16 @@ export const knockAt = (lip: number): Move => {
     mods: [],
     prop: 'cup',
     propAt: (t) => {
-      const pushed = t > CUP_HIT ? easeOut((t - CUP_HIT) / CUP_SLIDE_MS) : 0;
+      const pushed = EASE.out(
+        Math.min(1, Math.max(0, (t - pushFrom) / CUP_SLIDE_MS)),
+      );
       const tip = Math.min(1, Math.max(0, (t - tipFrom) / CUP_TIP_MS));
       const fall = Math.max(0, t - tipFrom - CUP_TIP_MS);
       const y = 0.5 * CUP_GRAVITY * fall ** 2;
       return {
         kind: 'cup',
-        x: CUP_AT_PAW + slide * pushed + CUP_TIP_PX * tip + CUP_DRIFT * fall,
+        x:
+          CUP_AT_PAW + slide * pushed + CUP_HALF_WIDTH * tip + CUP_DRIFT * fall,
         y,
         r: CUP_TIP_DEG * tip + CUP_SPIN * fall,
         o: Math.min(
