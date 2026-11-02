@@ -24,7 +24,6 @@ import {
   type Move,
   type MoveName,
   type Pose,
-  SWAT_TIP,
 } from './about-cats-moves';
 import {
   clamp,
@@ -599,17 +598,13 @@ export const createColony = (
     p.face *= playing.dir;
     cat.pose = p;
     if (playing.prop && playing.move.propAt) {
-      const s = playing.move.propAt(t);
-      const [ahead, up] = playing.move.atSwatTip
-        ? [
-            SWAT_TIP[cat.id][0] - SWAT_TIP.minerva[0],
-            SWAT_TIP[cat.id][1] - SWAT_TIP.minerva[1],
-          ]
-        : [0, 0];
+      const s = playing.move.propAt(t, cat.id);
+      /* A move played heading left mirrors every prop's turn: the cup tips out over the edge, the ball rolls and the feather swings its way. */
       playing.shown = {
         ...s,
-        x: playing.origin + playing.dir * (s.x + ahead),
-        y: s.y - up,
+        x: playing.origin + playing.dir * s.x,
+        r: playing.dir * s.r,
+        dir: playing.dir,
       };
       playing.prop.draw(playing.shown, now);
     }
@@ -650,7 +645,8 @@ export const createColony = (
         fading.splice(fading.indexOf(fade), 1);
         continue;
       }
-      prop.draw({ ...shown, o: shown.o * (1 - k) }, now);
+      /* Falling fluff would hang still, so it goes at once. */
+      prop.draw({ ...shown, o: shown.o * (1 - k), sincePull: Infinity }, now);
       wakeAt = now;
     }
     for (const cat of cats) {

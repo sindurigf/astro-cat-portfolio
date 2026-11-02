@@ -222,12 +222,10 @@ export interface Move {
   steps: Step[];
   mods: Mod[];
   prop?: PropKind;
-  /** Prop position relative to the cat's starting point, forward positive. */
-  propAt?: ((t: number) => PropState) | undefined;
+  /** Prop position relative to the cat's starting point, forward positive; `cat` places it at that cat's reach. */
+  propAt?: ((t: number, cat: CatId) => PropState) | undefined;
   /** px the cat ends higher than it starts, a climb; it plays on the lower floor. */
   rise?: number;
-  /** The prop hangs at Minerva's swat reach, moved to the playing cat's own. */
-  atSwatTip?: true;
 }
 
 const step = (
@@ -344,18 +342,32 @@ type Route = readonly [RoutePoint, ...RoutePoint[]];
 /* Arcs in px; with them the tallest move stays under --spacing-cat-band (tests/about-cats.spec.ts). */
 const POUNCE_HEIGHT = 56;
 const LEAP_HEIGHT = 40;
-/** The scratching post stands this far ahead of the cat, clear of its chest. */
-const POST_GAP = 34;
-/** A scratch: paws reach high up the post, then rake down; each stroke takes this long. */
-const SCRATCH_STROKE_MS = 250;
-const SCRATCH_STROKES = 12;
-const SCRATCH_LOW: Partial<Pose> = {
-  fN: [21, -24],
-  fF: [19, -14],
-  hr: 0,
-  draw: 'pawrise',
+export const POST_WIDTH = 18;
+/** The post's height in px, cap aside: well above a reaching cat, and with its cap under the band. */
+export const POST_HEIGHT = 126;
+/** px the post's cap reaches past each side of it. */
+export const POST_CAP_OVERHANG = 5;
+/** px ahead of the cat's middle and up from its feet where each cat's scratch drawing hooks its claws. */
+const SCRATCH_CLAWS: Record<CatId, Pair> = {
+  minerva: [32, 97],
+  hela: [21, 70],
+  rudra: [29, 100],
 };
-const SCRATCH_HIGH: Partial<Pose> = { hr: 0, draw: 'swat' };
+/** px the claws sink into the post's face. */
+const SCRATCH_GRIP = 2;
+/** The rise onto the hind legs, then each stroke: a slow lean in, then a hard pull back. */
+const SCRATCH_RISE_MS = 500;
+const SCRATCH_REACH_MS = 380;
+const SCRATCH_PULL_MS = 170;
+export const SCRATCH_PULLS = 6;
+/** px the body pulls back; the post leans with it, so the claws stay in its face. */
+const SCRATCH_PULL_PX = 5;
+/** Once the claws let go the post springs back upright, critically damped, so its face never swings away from the claws: ms to settle to 1/e. */
+const POST_SETTLE_MS = 80;
+/** The cat looks at its work, then rests while the post fades. */
+const SCRATCH_LOOK_MS = 600;
+const SCRATCH_REST_MS = 500;
+const SCRATCH: Partial<Pose> = { hr: 0, draw: 'scratch' };
 const YARN_BOUND_HEIGHT = 38;
 const FLY_HOP_HEIGHT = 40;
 /* The fly's route, [ms, x, y] ahead of the cat: it lands, is missed, circles, and escapes. */
@@ -444,13 +456,12 @@ const bat = (hit: Pair, over: Partial<Pose> = {}): Step[] => {
   ];
 };
 /** Just past where each cat's swat drawing reaches, px ahead and up from its feet: the feather hangs there, so each swat meets it. */
-export const SWAT_TIP: Record<CatId, Pair> = {
+const SWAT_TIP: Record<CatId, Pair> = {
   minerva: [35, 79],
   rudra: [25, 83],
   hela: [27, 59],
 };
-/* The toy move is laid out at Minerva's reach; the colony moves the feather to each cat's own. */
-const [TOY_AHEAD, TOY_HIGH] = SWAT_TIP.minerva;
+export const CAT_IDS = Object.keys(SWAT_TIP) as CatId[];
 /** The feather swings back towards the cat by this share of its swing away, so each swat finds it. */
 const TOY_BACKSWING = 0.25;
 /** The cup stands clear of the head and chest; the first tap pushes it on. */
@@ -577,16 +588,16 @@ export const MOVES = {
       steps,
       mods: [],
       prop: 'toy',
-      atSwatTip: true,
-      propAt: (t) => {
+      propAt: (t, cat) => {
+        const [ahead, high] = SWAT_TIP[cat];
         const swing = TOY_HITS.reduce(
           (sum, at) => sum + swung(t - at, 30, 600, 120),
           0,
         );
         return {
           kind: 'toy',
-          x: TOY_AHEAD,
-          y: -TOY_HIGH + 4 * Math.sin(t / 700),
+          x: ahead,
+          y: -high + 4 * Math.sin(t / 700),
           r: swing < 0 ? swing * TOY_BACKSWING : swing,
           o: fade(t, 300, end, 400),
         };
@@ -678,28 +689,63 @@ export const MOVES = {
       };
     },
   }),
-  post: (): Move => ({
-    /* A long scratch up a tall post, the paws raking down in turn, then a look at the work. */
-    steps: [
-      step(600, 'rear', SCRATCH_LOW),
-      ...Array.from({ length: SCRATCH_STROKES }, (_, i) =>
-        i % 2 === 0
-          ? step(SCRATCH_STROKE_MS, 'leap', SCRATCH_HIGH)
-          : step(SCRATCH_STROKE_MS, 'rear', SCRATCH_LOW),
-      ),
-      step(600, 'sit', { hr: -14 }),
-      step(500, 'sit'),
-    ],
-    mods: [],
-    prop: 'post',
-    propAt: (t) => ({
-      kind: 'post',
-      x: POST_GAP,
-      y: 0,
-      r: 0,
-      o: fade(t, 300, 4700, 300),
-    }),
-  }),
+  post: (): Move => {
+    /* Reaches up the post, then pulls down on it in strokes and looks at the work. */
+    const steps: Step[] = [
+      step(SCRATCH_RISE_MS, 'rear', { hr: 0, draw: 'swat' }),
+      step(SCRATCH_REACH_MS, 'leap', SCRATCH, 'out'),
+    ];
+    const pulls: number[] = [];
+    for (let i = 0; i < SCRATCH_PULLS; i++) {
+      pulls.push(stepsDuration(steps));
+      steps.push(
+        step(
+          SCRATCH_PULL_MS,
+          'leap',
+          { ...SCRATCH, x: -SCRATCH_PULL_PX },
+          'in',
+        ),
+        step(SCRATCH_REACH_MS, 'leap', SCRATCH, 'out'),
+      );
+    }
+    steps.push(
+      step(SCRATCH_LOOK_MS, 'sit', { hr: -14 }),
+      step(SCRATCH_REST_MS, 'sit'),
+    );
+    const end = stepsDuration(steps);
+    return {
+      steps,
+      mods: [],
+      prop: 'post',
+      propAt: (t, cat) => {
+        const [ahead, high] = SCRATCH_CLAWS[cat];
+        /* Leaning toward the cat turns the post anticlockwise. */
+        const tug = -Math.atan2(SCRATCH_PULL_PX, high) * (180 / Math.PI);
+        const done = pulls.filter((p) => t >= p);
+        const last = done.at(-1);
+        const since = last === undefined ? Infinity : t - last;
+        const pulling = Math.min(1, since / SCRATCH_PULL_MS);
+        const after = since - SCRATCH_PULL_MS;
+        return {
+          kind: 'post',
+          x: ahead - SCRATCH_GRIP + POST_WIDTH / 2,
+          y: 0,
+          r:
+            last === undefined
+              ? 0
+              : after < 0
+                ? tug * EASE.in(pulling)
+                : tug *
+                  Math.exp(-after / POST_SETTLE_MS) *
+                  (1 + after / POST_SETTLE_MS),
+          o: fade(t, 300, end, SCRATCH_REST_MS),
+          marks: pulls.filter((p) => t >= p + SCRATCH_PULL_MS).length,
+          sincePull: after < 0 ? Infinity : after,
+          clawHigh: high,
+        };
+      },
+    };
+  },
   /* Bats the ball, bounds after it, pounces with its paws on it, bats it on, then rolls over hugging it. */
   yarn: (): Move => ({
     steps: [
@@ -831,7 +877,7 @@ const slower = (move: Move, factor: number): Move => {
       to: mod.to * factor,
       apply: (p, s, k) => mod.apply(p, s / factor, k),
     })),
-    propAt: propAt && ((t) => propAt(t / factor)),
+    propAt: propAt && ((t, cat) => propAt(t / factor, cat)),
   };
 };
 
@@ -859,13 +905,13 @@ export const scaleTravel = (move: Move, factor: number): Move => {
     })),
     propAt:
       propAt &&
-      ((t) => {
-        const s = propAt(t);
-        const cat = sample(move.steps, SCALE_FROM, t).x;
-        const ahead = s.x - cat;
+      ((t, cat) => {
+        const s = propAt(t, cat);
+        const at = sample(move.steps, SCALE_FROM, t).x;
+        const ahead = s.x - at;
         const kept = Math.min(Math.abs(ahead), PROP_KEEP);
         const scaled = Math.max(Math.abs(ahead) * factor, kept);
-        return { ...s, x: cat * factor + Math.sign(ahead) * scaled };
+        return { ...s, x: at * factor + Math.sign(ahead) * scaled };
       }),
   };
 };
@@ -973,7 +1019,7 @@ export const withTurn = (move: Move, from: Pose): Move => {
         to: mod.to + TURN_MS,
       })),
     ],
-    propAt: propAt && ((t) => propAt(Math.max(0, t - TURN_MS))),
+    propAt: propAt && ((t, cat) => propAt(Math.max(0, t - TURN_MS), cat)),
   };
 };
 
@@ -1038,8 +1084,8 @@ export const withApproach = (
     ],
     propAt:
       propAt &&
-      ((t) => {
-        const s = propAt(Math.max(0, t - lead));
+      ((t, cat) => {
+        const s = propAt(Math.max(0, t - lead), cat);
         return { ...s, x: s.x + distance, o: t < lead ? 0 : s.o };
       }),
   };
@@ -1052,6 +1098,14 @@ const EXTENT_STEP_MS = 1000 / 60;
 const PROP_REACH = 10;
 const PROP_SEEN = 0.05;
 
+/** px a prop reaches past its center: the post's cap, and its top as it leans. */
+const propReach = (prop: PropState): number =>
+  prop.kind === 'post'
+    ? POST_WIDTH / 2 +
+      POST_CAP_OVERHANG +
+      POST_HEIGHT * Math.abs(Math.sin((prop.r * Math.PI) / 180))
+    : PROP_REACH;
+
 /** A move's path back and forward from its start, its prop's included, for track checks: sampled from the drawn path, so eases and modifiers count. */
 const extent = (move: Move): [number, number] => {
   const start = pose('sit');
@@ -1063,10 +1117,11 @@ const extent = (move: Move): [number, number] => {
     const x = poseAt(move, start, at).x;
     back = Math.min(back, x);
     forward = Math.max(forward, x);
-    const prop = move.propAt?.(at);
-    if (prop && prop.o > PROP_SEEN) {
-      back = Math.min(back, prop.x - PROP_REACH);
-      forward = Math.max(forward, prop.x + PROP_REACH);
+    for (const cat of move.propAt ? CAT_IDS : []) {
+      const prop = move.propAt!(at, cat);
+      if (prop.o <= PROP_SEEN) continue;
+      back = Math.min(back, prop.x - propReach(prop));
+      forward = Math.max(forward, prop.x + propReach(prop));
     }
   }
   return [back, forward];

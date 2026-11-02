@@ -47,4 +47,10 @@ export interface PropState {
   y: number;
   r: number;
   o: number;
+  /** 1 when the playing cat faces right, -1 when left; set by the colony. */
+  dir?: number;
+  /** The post's claw marks so far, ms since the claws last let go, and how high they hook. */
+  marks?: number;
+  sincePull?: number;
+  clawHigh?: number;
 }
