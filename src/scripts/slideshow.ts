@@ -5,6 +5,8 @@
  * failed start sets `data-deck-failed`, which shows them all.
  */
 
+import { requiredElement } from './required-element';
+
 const SLIDE_ID = /^#slide-(\d+)$/;
 
 const NEXT_KEYS = new Set(['ArrowRight', 'PageDown']);
@@ -30,14 +32,8 @@ const SLIDESHOW_QUERY = '(min-width: 64rem)';
 /* Share of the viewport one Page Up or Down scrolls, leaving a line of overlap. */
 const PAGE_STEP = 0.875;
 
-const required = <T extends Element>(root: ParentNode, selector: string): T => {
-  const element = root.querySelector<T>(selector);
-  if (!element) throw new Error(`slideshow: ${selector} is missing.`);
-  return element;
-};
-
 const heading = (slide: HTMLElement): HTMLElement =>
-  required<HTMLElement>(slide, '.slide-title');
+  requiredElement(slide, '.slide-title', HTMLElement);
 
 /* "Pillar 1: Governance", without the space the hidden colon's span leaves. */
 const titleOf = (slide: HTMLElement): string =>
@@ -76,14 +72,22 @@ const wire = (deck: HTMLElement): void => {
   /* Every caller passes an index in range; the first slide stands in otherwise. */
   const slideAt = (index: number): HTMLElement => slides[index] ?? first;
 
-  const bar = required<HTMLElement>(deck, '[data-deck-bar]');
-  const previous = required<HTMLButtonElement>(bar, '[data-deck-previous]');
-  const next = required<HTMLButtonElement>(bar, '[data-deck-next]');
-  const count = required<HTMLElement>(bar, '[data-deck-count]');
-  const part = required<HTMLElement>(bar, '[data-deck-part]');
-  const fullscreen = required<HTMLButtonElement>(bar, '[data-deck-fullscreen]');
-  const exit = required<HTMLButtonElement>(bar, '[data-deck-exit]');
-  const status = required<HTMLElement>(deck, '[data-deck-status]');
+  const bar = requiredElement(deck, '[data-deck-bar]', HTMLElement);
+  const previous = requiredElement(
+    bar,
+    '[data-deck-previous]',
+    HTMLButtonElement,
+  );
+  const next = requiredElement(bar, '[data-deck-next]', HTMLButtonElement);
+  const count = requiredElement(bar, '[data-deck-count]', HTMLElement);
+  const part = requiredElement(bar, '[data-deck-part]', HTMLElement);
+  const fullscreen = requiredElement(
+    bar,
+    '[data-deck-fullscreen]',
+    HTMLButtonElement,
+  );
+  const exit = requiredElement(bar, '[data-deck-exit]', HTMLButtonElement);
+  const status = requiredElement(deck, '[data-deck-status]', HTMLElement);
   const notes = [...deck.querySelectorAll<HTMLElement>('[data-for-slide]')];
   const upcoming = deck.querySelector<HTMLElement>('[data-deck-upcoming]');
   const channel =
