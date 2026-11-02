@@ -3,11 +3,12 @@
  * are ignored: contrast notes quote hex values on purpose.
  */
 
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { glob, readFile } from 'node:fs/promises';
 import { join, relative } from 'node:path';
 
-const ROOT = fileURLToPath(new URL('..', import.meta.url));
+const ROOT =
+  process.env.CHECK_ROOT ?? fileURLToPath(new URL('..', import.meta.url));
 const SRC = join(ROOT, 'src');
 
 /* The only file allowed to name a color literally. */
@@ -72,7 +73,7 @@ const GRID_ALLOWED = new Set(['1', '2', '3']);
 const GRID_SPLIT = '12';
 
 /* False positives, each with its reason; an entry that no longer matches fails. */
-const EXCEPTIONS = [
+export const EXCEPTIONS = [
   {
     file: 'src/lib/brand.ts',
     text: 'light-[a-z-]',
@@ -164,166 +165,176 @@ const rawLengths = (source, [from, to], [themeFrom, themeTo]) => {
   return hits;
 };
 
-const failures = [];
-const exceptionsSeen = new Set();
+const run = async () => {
+  const failures = [];
+  const exceptionsSeen = new Set();
 
-const isException = (name, text) =>
-  EXCEPTIONS.some((entry, i) => {
-    const hit = entry.file === name && entry.text === text;
-    if (hit) exceptionsSeen.add(i);
-    return hit;
+  const isException = (name, text) =>
+    EXCEPTIONS.some((entry, i) => {
+      const hit = entry.file === name && entry.text === text;
+      if (hit) exceptionsSeen.add(i);
+      return hit;
+    });
+
+  const sourceFiles = await walk(SRC);
+  if (sourceFiles.length === 0) {
+    failures.push(`${relative(ROOT, SRC)}  no source file found to check`);
+  }
+
+  for (const path of sourceFiles) {
+    const source = blankComments(await readFile(path, 'utf8'));
+    const name = relative(ROOT, path);
+    const theme = path === TOKEN_SOURCE ? themeSpan(source) : [0, 0];
+    const inTheme = (at) => {
+      const offset = source
+        .split('\n')
+        .slice(0, Number(at.split(':')[0]) - 1)
+        .join('\n').length;
+      return offset >= theme[0] && offset <= theme[1];
+    };
+
+    for (const hit of scan(source, ARBITRARY_VALUE)) {
+      if (isException(name, hit.text)) continue;
+      failures.push(`${name}:${hit.at}  arbitrary value  ${hit.text}`);
+    }
+
+    for (const hit of scan(source, COLOR_FUNCTION)) {
+      if (!inTheme(hit.at)) {
+        failures.push(`${name}:${hit.at}  color function  ${hit.text}`);
+      }
+    }
+
+    for (const span of cssSpans(path, source)) {
+      for (const hit of rawLengths(source, span, theme)) {
+        failures.push(
+          `${name}:${hit.at}  ${hit.custom ? 'raw length in a custom property outside @theme' : 'raw length'}  ${hit.text}`,
+        );
+      }
+      const css = source.slice(0, span[1]);
+      const re = new RegExp(OUTLINE_CSS.source, 'g');
+      re.lastIndex = span[0];
+      for (let m = re.exec(css); m; m = re.exec(css)) {
+        failures.push(
+          `${name}:${locate(source, m.index)}  outline removed  ${m[0]}`,
+        );
+      }
+    }
+
+    for (const match of source.matchAll(BORDER_WIDTH)) {
+      if (match[1] !== undefined && BORDER_WIDTHS.has(match[1])) continue;
+      failures.push(
+        `${name}:${locate(source, match.index)}  border width off 0, 4, 8  ${match[0]}`,
+      );
+    }
+
+    for (const match of source.matchAll(RADIUS)) {
+      if (match[1] !== undefined && RADII.has(match[1])) continue;
+      failures.push(
+        `${name}:${locate(source, match.index)}  radius not rounded-full  ${match[0]}`,
+      );
+    }
+
+    for (const match of source.matchAll(DEFAULT_TYPE)) {
+      failures.push(
+        `${name}:${locate(source, match.index)}  type off the tokens  ${match[0]}`,
+      );
+    }
+
+    for (const match of source.matchAll(OUTLINE_UTILITY)) {
+      failures.push(
+        `${name}:${locate(source, match.index)}  outline removed  ${match[0]}`,
+      );
+    }
+
+    for (const match of source.matchAll(SPACING_UTILITY)) {
+      if (SPACING_SCALE.has(match[1])) continue;
+      const text = match[0];
+      if (isException(name, text)) continue;
+      failures.push(
+        `${name}:${locate(source, match.index)}  off-scale spacing  ${text}`,
+      );
+    }
+
+    for (const match of source.matchAll(GRID_COLUMNS)) {
+      const [text, breakpoint, columns] = match;
+      const split = columns === GRID_SPLIT && ['lg', 'xl'].includes(breakpoint);
+      if (GRID_ALLOWED.has(columns) || split || isException(name, text))
+        continue;
+      failures.push(
+        `${name}:${locate(source, match.index)}  off-grid columns  ${text}`,
+      );
+    }
+
+    if (path.endsWith('.astro') || path.endsWith('.vue')) {
+      for (const hit of scan(source, INLINE_STYLE)) {
+        failures.push(`${name}:${hit.at}  inline style`);
+      }
+    }
+
+    if (path === TOKEN_SOURCE) continue;
+
+    for (const hit of scan(source, RAW_HEX)) {
+      failures.push(`${name}:${hit.at}  raw hex  ${hit.text}`);
+    }
+  }
+
+  /*
+   * SC 1.4.4 for fluid type (Barvian, Smashing Magazine 2023): at the browser's 500%
+   * zoom a clamp() whose MAX is at most 2.5 x MIN still doubles, and rem bounds follow
+   * a larger default font size.
+   */
+  const MAX_FLUID_RATIO = 2.5;
+  const FLUID_TYPE =
+    /(--text-[a-z0-9-]+):\s*clamp\(\s*([\d.]+)(rem|px),[^;]*,\s*([\d.]+)(rem|px)\s*\)/g;
+  const tokenSource = blankComments(await readFile(TOKEN_SOURCE, 'utf8'));
+  let fluidTokens = 0;
+  for (const match of tokenSource.matchAll(FLUID_TYPE)) {
+    const [text, token, min, minUnit, max, maxUnit] = match;
+    const at = `${relative(ROOT, TOKEN_SOURCE)}:${locate(tokenSource, match.index)}`;
+    fluidTokens += 1;
+    if (minUnit !== 'rem' || maxUnit !== 'rem') {
+      failures.push(`${at}  fluid type bounds not in rem  ${text}`);
+    }
+    if (Number(max) > Number(min) * MAX_FLUID_RATIO) {
+      failures.push(
+        `${at}  ${token} max ${max}${maxUnit} over ${MAX_FLUID_RATIO} x min ${min}${minUnit}, so it cannot double by 500% zoom`,
+      );
+    }
+  }
+  if (fluidTokens === 0) {
+    failures.push(
+      `${relative(ROOT, TOKEN_SOURCE)}  no fluid --text-* clamp() found to check`,
+    );
+  }
+
+  EXCEPTIONS.forEach((entry, i) => {
+    if (!exceptionsSeen.has(i)) {
+      failures.push(
+        `${entry.file}  exception "${entry.text}" no longer matches; remove it from EXCEPTIONS`,
+      );
+    }
   });
 
-const sourceFiles = await walk(SRC);
-if (sourceFiles.length === 0) {
-  failures.push(`${relative(ROOT, SRC)}  no source file found to check`);
-}
-
-for (const path of sourceFiles) {
-  const source = blankComments(await readFile(path, 'utf8'));
-  const name = relative(ROOT, path);
-  const theme = path === TOKEN_SOURCE ? themeSpan(source) : [0, 0];
-  const inTheme = (at) => {
-    const offset = source
-      .split('\n')
-      .slice(0, Number(at.split(':')[0]) - 1)
-      .join('\n').length;
-    return offset >= theme[0] && offset <= theme[1];
-  };
-
-  for (const hit of scan(source, ARBITRARY_VALUE)) {
-    if (isException(name, hit.text)) continue;
-    failures.push(`${name}:${hit.at}  arbitrary value  ${hit.text}`);
-  }
-
-  for (const hit of scan(source, COLOR_FUNCTION)) {
-    if (!inTheme(hit.at)) {
-      failures.push(`${name}:${hit.at}  color function  ${hit.text}`);
-    }
-  }
-
-  for (const span of cssSpans(path, source)) {
-    for (const hit of rawLengths(source, span, theme)) {
-      failures.push(
-        `${name}:${hit.at}  ${hit.custom ? 'raw length in a custom property outside @theme' : 'raw length'}  ${hit.text}`,
-      );
-    }
-    const css = source.slice(0, span[1]);
-    const re = new RegExp(OUTLINE_CSS.source, 'g');
-    re.lastIndex = span[0];
-    for (let m = re.exec(css); m; m = re.exec(css)) {
-      failures.push(
-        `${name}:${locate(source, m.index)}  outline removed  ${m[0]}`,
-      );
-    }
-  }
-
-  for (const match of source.matchAll(BORDER_WIDTH)) {
-    if (match[1] !== undefined && BORDER_WIDTHS.has(match[1])) continue;
-    failures.push(
-      `${name}:${locate(source, match.index)}  border width off 0, 4, 8  ${match[0]}`,
+  if (failures.length > 0) {
+    console.error(
+      `Found ${failures.length} value(s) that should come from a token:\n`,
     );
-  }
-
-  for (const match of source.matchAll(RADIUS)) {
-    if (match[1] !== undefined && RADII.has(match[1])) continue;
-    failures.push(
-      `${name}:${locate(source, match.index)}  radius not rounded-full  ${match[0]}`,
+    for (const failure of failures) console.error(`  ${failure}`);
+    console.error(
+      '\nAdd a token to src/styles/global.css and use it by name. See the' +
+        '\n--spacing-menu-bar comment for the house style.',
     );
+    process.exit(1);
   }
 
-  for (const match of source.matchAll(DEFAULT_TYPE)) {
-    failures.push(
-      `${name}:${locate(source, match.index)}  type off the tokens  ${match[0]}`,
-    );
-  }
-
-  for (const match of source.matchAll(OUTLINE_UTILITY)) {
-    failures.push(
-      `${name}:${locate(source, match.index)}  outline removed  ${match[0]}`,
-    );
-  }
-
-  for (const match of source.matchAll(SPACING_UTILITY)) {
-    if (SPACING_SCALE.has(match[1])) continue;
-    const text = match[0];
-    if (isException(name, text)) continue;
-    failures.push(
-      `${name}:${locate(source, match.index)}  off-scale spacing  ${text}`,
-    );
-  }
-
-  for (const match of source.matchAll(GRID_COLUMNS)) {
-    const [text, breakpoint, columns] = match;
-    const split = columns === GRID_SPLIT && ['lg', 'xl'].includes(breakpoint);
-    if (GRID_ALLOWED.has(columns) || split || isException(name, text)) continue;
-    failures.push(
-      `${name}:${locate(source, match.index)}  off-grid columns  ${text}`,
-    );
-  }
-
-  if (path.endsWith('.astro') || path.endsWith('.vue')) {
-    for (const hit of scan(source, INLINE_STYLE)) {
-      failures.push(`${name}:${hit.at}  inline style`);
-    }
-  }
-
-  if (path === TOKEN_SOURCE) continue;
-
-  for (const hit of scan(source, RAW_HEX)) {
-    failures.push(`${name}:${hit.at}  raw hex  ${hit.text}`);
-  }
-}
-
-/*
- * SC 1.4.4 for fluid type (Barvian, Smashing Magazine 2023): at the browser's 500%
- * zoom a clamp() whose MAX is at most 2.5 x MIN still doubles, and rem bounds follow
- * a larger default font size.
- */
-const MAX_FLUID_RATIO = 2.5;
-const FLUID_TYPE =
-  /(--text-[a-z0-9-]+):\s*clamp\(\s*([\d.]+)(rem|px),[^;]*,\s*([\d.]+)(rem|px)\s*\)/g;
-const tokenSource = blankComments(await readFile(TOKEN_SOURCE, 'utf8'));
-let fluidTokens = 0;
-for (const match of tokenSource.matchAll(FLUID_TYPE)) {
-  const [text, token, min, minUnit, max, maxUnit] = match;
-  const at = `${relative(ROOT, TOKEN_SOURCE)}:${locate(tokenSource, match.index)}`;
-  fluidTokens += 1;
-  if (minUnit !== 'rem' || maxUnit !== 'rem') {
-    failures.push(`${at}  fluid type bounds not in rem  ${text}`);
-  }
-  if (Number(max) > Number(min) * MAX_FLUID_RATIO) {
-    failures.push(
-      `${at}  ${token} max ${max}${maxUnit} over ${MAX_FLUID_RATIO} x min ${min}${minUnit}, so it cannot double by 500% zoom`,
-    );
-  }
-}
-if (fluidTokens === 0) {
-  failures.push(
-    `${relative(ROOT, TOKEN_SOURCE)}  no fluid --text-* clamp() found to check`,
+  console.log(
+    'Tokens: no arbitrary values, raw colors, raw lengths, off-scale spacing, border widths or radii, default type, removed outlines, off-grid columns or inline styles outside the tokens; every fluid type token in rem within 2.5x.',
   );
+};
+
+if (
+  process.argv[1] &&
+  import.meta.url === pathToFileURL(process.argv[1]).href
+) {
+  await run();
 }
-
-EXCEPTIONS.forEach((entry, i) => {
-  if (!exceptionsSeen.has(i)) {
-    failures.push(
-      `${entry.file}  exception "${entry.text}" no longer matches; remove it from EXCEPTIONS`,
-    );
-  }
-});
-
-if (failures.length > 0) {
-  console.error(
-    `Found ${failures.length} value(s) that should come from a token:\n`,
-  );
-  for (const failure of failures) console.error(`  ${failure}`);
-  console.error(
-    '\nAdd a token to src/styles/global.css and use it by name. See the' +
-      '\n--spacing-menu-bar comment for the house style.',
-  );
-  process.exit(1);
-}
-
-console.log(
-  'Tokens: no arbitrary values, raw colors, raw lengths, off-scale spacing, border widths or radii, default type, removed outlines, off-grid columns or inline styles outside the tokens; every fluid type token in rem within 2.5x.',
-);

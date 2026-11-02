@@ -3,13 +3,14 @@
  * page links: Tailwind v4 silently generates nothing for a missing theme token,
  * and a page-only sheet is not linked elsewhere. Reads selectors only.
  */
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { existsSync } from 'node:fs';
 import { glob, readFile } from 'node:fs/promises';
 import { join, relative } from 'node:path';
 import { assertBuildCurrent } from './build-fingerprint.mjs';
 
-const ROOT = fileURLToPath(new URL('..', import.meta.url));
+const ROOT =
+  process.env.CHECK_ROOT ?? fileURLToPath(new URL('..', import.meta.url));
 const DIST = join(ROOT, 'dist/client');
 const SRC = join(ROOT, 'src');
 const SOURCE_EXTENSIONS = ['.astro', '.vue', '.ts', '.md', '.mjs'];
@@ -18,7 +19,7 @@ const SOURCE_EXTENSIONS = ['.astro', '.vue', '.ts', '.md', '.mjs'];
  * Classes that exist only for a test or script to select. An entry that no
  * longer matches fails.
  */
-const HOOKS = new Map();
+export const HOOKS = new Map();
 
 /* Skips node_modules, including a stale one under src/content/talks/. */
 const walk = (dir, extensions) =>
@@ -167,4 +168,9 @@ const main = async () => {
   process.exit(1);
 };
 
-await main();
+if (
+  process.argv[1] &&
+  import.meta.url === pathToFileURL(process.argv[1]).href
+) {
+  await main();
+}

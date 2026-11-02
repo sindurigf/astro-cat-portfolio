@@ -2,14 +2,15 @@
  * Fails if a built file is byte-identical to a source image. Reading any
  * property of an imported image emits its original, which no page links to.
  */
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { existsSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { glob, readFile } from 'node:fs/promises';
 import { join, relative } from 'node:path';
 import { assertBuildCurrent } from './build-fingerprint.mjs';
 
-const ROOT = fileURLToPath(new URL('..', import.meta.url));
+const ROOT =
+  process.env.CHECK_ROOT ?? fileURLToPath(new URL('..', import.meta.url));
 const DIST = join(ROOT, 'dist/client');
 const ASSETS = join(ROOT, 'src/assets');
 const TALKS = join(ROOT, 'src/content/talks');
@@ -18,7 +19,7 @@ const TALKS = join(ROOT, 'src/content/talks');
  * Each entry names what reads the original. An entry that no longer matches
  * fails.
  */
-const SERVED_AS_IS = new Map([
+export const SERVED_AS_IS = new Map([
   ...['minerva', 'rudra', 'hela'].map((cat) => [
     `about-cats-${cat}.avif`,
     'the About cats draw their frames from it with SVG <image>; it is an AVIF atlas already.',
@@ -152,4 +153,9 @@ const run = async () => {
   );
 };
 
-await run();
+if (
+  process.argv[1] &&
+  import.meta.url === pathToFileURL(process.argv[1]).href
+) {
+  await run();
+}

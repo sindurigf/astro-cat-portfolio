@@ -16,7 +16,8 @@ import {
 import { readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
-const ROOT = fileURLToPath(new URL('..', import.meta.url));
+const ROOT =
+  process.env.CHECK_ROOT ?? fileURLToPath(new URL('..', import.meta.url));
 /* Beside dist/client and dist/server, so it is neither served nor deployed. */
 const STAMP = join(ROOT, 'dist', '.build-fingerprint');
 const INSTALLED = 'node_modules/.package-lock.json';
