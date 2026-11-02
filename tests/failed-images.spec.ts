@@ -32,10 +32,7 @@ const FRAME_ROUTES = [
   '/blog',
   ...CATEGORY_ROUTES,
   ...TAG_ROUTES,
-  ...new Set([
-    ...PHOTO_POST_ROUTES,
-    ...POSTS.filter((post) => post.hasCover).map((post) => post.route),
-  ]),
+  ...new Set([...PHOTO_POST_ROUTES, ...POSTS.map((post) => post.route)]),
 ];
 
 /* How long to hold the page's scripts back so the images fail first. */

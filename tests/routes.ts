@@ -93,7 +93,6 @@ interface PostSummary {
   published: boolean;
   category: string;
   tags: string[];
-  hasCover: boolean;
   coverAlt: string | undefined;
   coverCredit: string | undefined;
   featured: boolean;
@@ -120,7 +119,6 @@ export const POSTS: readonly PostSummary[] = postFileNames()
       published: frontmatterField(frontmatter, 'placeholder') !== 'true',
       category,
       tags: frontmatterTags(frontmatter),
-      hasCover: frontmatterField(frontmatter, 'cover') !== undefined,
       coverAlt: frontmatterField(frontmatter, 'coverAlt'),
       coverCredit: frontmatterField(frontmatter, 'coverCredit'),
       featured: frontmatterField(frontmatter, 'featured') === 'true',
@@ -145,7 +143,7 @@ export const NO_POST = `no post in ${BLOG_CONTENT_DIR}`;
 export const NO_PUBLISHED_POST = `no published post in ${BLOG_CONTENT_DIR}`;
 
 /** `/blog` features the newest published post, whose cover is its one photo. */
-export const BLOG_FEATURES_COVER = PUBLISHED[0]?.hasCover === true;
+export const BLOG_FEATURES_COVER = PUBLISHED.length > 0;
 
 /** The homepage features published posts marked `featured`. */
 export const HOME_FEATURES_POST = PUBLISHED.some((post) => post.featured);

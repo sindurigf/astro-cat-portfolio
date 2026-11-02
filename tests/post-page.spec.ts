@@ -149,18 +149,9 @@ const COVER_RATIO_TOLERANCE = 0.01;
 /* The cover is the opening's photo and the page's largest paint, so it loads first. */
 test.describe('the cover as the post hero', () => {
   for (const post of POSTS) {
-    test(`${post.route} ${post.hasCover ? 'opens on its cover' : 'opens on no photo'}`, async ({
-      page,
-    }) => {
+    test(`${post.route} opens on its cover`, async ({ page }) => {
       await gotoSettled(page, post.route);
       const slabImages = page.locator('main article .post-slab header img');
-      if (!post.hasCover) {
-        await expect(
-          slabImages,
-          'a post without a cover shows a photo in its opening',
-        ).toHaveCount(0);
-        return;
-      }
       const first = page.locator('main article img').first();
       await expect(
         slabImages,
@@ -306,8 +297,8 @@ test.describe('body figures', () => {
 });
 
 /* A photographer is credited in the date line, linked when the site knows them. */
-const CREDITED = POSTS.flatMap(({ route, hasCover, coverCredit }) =>
-  hasCover && coverCredit ? [{ route, credit: coverCredit }] : [],
+const CREDITED = POSTS.flatMap(({ route, coverCredit }) =>
+  coverCredit ? [{ route, credit: coverCredit }] : [],
 );
 
 test.describe('the cover credit', () => {
