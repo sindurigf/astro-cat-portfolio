@@ -140,9 +140,11 @@ const EMPTY_BLOG = {
             feature={feature}
             wide={fillsRow}
             coverSizes={
-              feature || fillsRow
-                ? CARD_COVER_SIZES.wide
-                : steppedCardCoverSizes(lgSteps[index] ?? 0)
+              feature
+                ? CARD_COVER_SIZES.feature
+                : fillsRow
+                  ? CARD_COVER_SIZES.row
+                  : steppedCardCoverSizes(lgSteps[index] ?? 0)
             }
             describeCover={feature}
             eager={index === 0}

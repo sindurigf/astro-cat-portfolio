@@ -27,7 +27,7 @@ interface Props {
   readingTime?: number;
   /** The newest post on /blog: a wide card with a larger title, loaded first. */
   feature?: boolean;
-  /** A card filling its row: the cover beside the text from `md`, as on a feature card. */
+  /** A card filling its row: the cover beside the text from `lg`, where the list has two columns. */
   wide?: boolean;
   /** The cover's `sizes`, for where this card is drawn. */
   coverSizes: string;
@@ -62,7 +62,6 @@ const {
 } = Astro.props;
 
 const Heading = `h${headingLevel}` as 'h2' | 'h3' | 'h4';
-const beside = feature || wide;
 
 /* The largest crop the cover can give at the card's frame. */
 const coverSize = await photoSize(cover);
@@ -81,12 +80,19 @@ const readableDate = formatPostDate(date);
 ---
 
 <article class:list={['card flex flex-col', className]}>
-  <div class:list={['grid gap-8', beside && 'md:grid-cols-2 md:items-center']}>
+  <div
+    class:list={[
+      'grid gap-8',
+      feature && 'md:grid-cols-2 md:items-center',
+      wide && 'lg:grid-cols-2 lg:items-center',
+    ]}
+  >
     {/* `aspect-4/3` is CARD_COVER_RATIO: the CSP blocks a style attribute. */}
     <div
       class:list={[
         'aspect-frame aspect-4/3 border-4',
-        beside && 'md:order-last',
+        feature && 'md:order-last',
+        wide && 'lg:order-last',
       ]}
     >
       <Picture

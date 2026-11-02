@@ -27,8 +27,8 @@ export const CARD_COVER_RATIO = { width: 4, height: 3 } as const;
 
 /*
  * A post card cover's drawn width. Stacked cards by column count at `lg`
- * (homepage Featured Posts, the /blog list); a wide card holds it in its
- * right half from `md`. tests/image-size.spec.ts fails when one drifts.
+ * (homepage Featured Posts, the /blog list); the /blog feature holds it in its
+ * right half from `md`, a card filling its row from `lg`. tests/image-size.spec.ts fails when one drifts.
  */
 const CARD_NARROW =
   '(min-width: 40rem) calc(100vw - 144px), calc(100vw - 96px)';
@@ -46,7 +46,9 @@ export const steppedCardCoverSizes = (step: number): string =>
 export const CARD_COVER_SIZES = {
   2: steppedCardCoverSizes(0),
   3: `(min-width: 83rem) 333px, (min-width: 64rem) calc(33.33vw - 109px), ${CARD_NARROW}`,
-  wide: '(min-width: 48rem) min(calc(50vw - 5.5rem), 36rem), (min-width: 40rem) calc(100vw - 9rem), calc(100vw - 6rem)',
+  feature:
+    '(min-width: 48rem) min(calc(50vw - 5.5rem), 36rem), (min-width: 40rem) calc(100vw - 9rem), calc(100vw - 6rem)',
+  row: `(min-width: 64rem) min(calc(50vw - 5.5rem), 36rem), ${CARD_NARROW}`,
 } as const;
 
 /*
