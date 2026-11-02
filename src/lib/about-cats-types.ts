@@ -49,6 +49,9 @@ export interface PropState {
   o: number;
   /** 1 when the playing cat faces right, -1 when left; set by the colony. */
   dir?: number;
+  /** The yarn ball is held in the paws, and its loose strand's far end, px from the ball before mirroring. */
+  held?: boolean;
+  strand?: Pair;
   /** The post's claw marks so far, ms since the claws last let go, and how high they hook. */
   marks?: number;
   sincePull?: number;
