@@ -909,6 +909,7 @@ evidence.
   newest post's card on `/` and `/blog` keeps `coverAlt`.
   `data-card-cover` marks a decorative one for `tests/alt-text.spec.ts`.
 - The cover comes before the text in a card's markup, so a stacked card draws
-  it above the text and the reading order matches (SC 1.3.2). A wide card
-  moves it right from `md`, a visual change only.
+  it above the text and the reading order matches (SC 1.3.2). The `/blog`
+  feature moves it right from `md` and a card filling its row from `lg`, a
+  visual change only.
 - `/career` has no photo placement.
