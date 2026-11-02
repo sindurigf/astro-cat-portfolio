@@ -450,12 +450,12 @@ const bat = (hit: Pair, over: Partial<Pose> = {}): Step[] => {
   ];
 };
 /** Just past where each cat's swat drawing reaches, px ahead and up from its feet: the feather hangs there, so each swat meets it. */
-export const SWAT_TIP: Record<CatId, Pair> = {
+const SWAT_TIP: Record<CatId, Pair> = {
   minerva: [35, 79],
   rudra: [25, 83],
   hela: [27, 59],
 };
-const CAT_IDS = Object.keys(SWAT_TIP) as CatId[];
+export const CAT_IDS = Object.keys(SWAT_TIP) as CatId[];
 /** The feather swings back towards the cat by this share of its swing away, so each swat finds it. */
 const TOY_BACKSWING = 0.25;
 /** The cup stands clear of the head and chest; the first tap pushes it on. */

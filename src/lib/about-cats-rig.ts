@@ -20,7 +20,7 @@ import {
   type Motion,
   type NamedPose,
 } from './about-cats-frames';
-import { POST_WIDTH, pose } from './about-cats-moves';
+import { CAT_IDS, POST_WIDTH, pose } from './about-cats-moves';
 import type { CatId, Pose, PropKind, PropState } from './about-cats-types';
 
 const NS = 'http://www.w3.org/2000/svg';
@@ -136,8 +136,6 @@ const holdOf = (
 /** The frame a pose is drawn as, standing still. */
 const stillFrame = (p: Pose): Frame =>
   frameFor(grounded(p), NAMED, { ...STILL, lift: p.y });
-
-const CAT_IDS = Object.keys(SHEET) as CatId[];
 
 /** Height of a pose's highest drawn point above the ground, outline included, for the tallest cat. */
 export const highestPoint = (p: Pose): number => {
