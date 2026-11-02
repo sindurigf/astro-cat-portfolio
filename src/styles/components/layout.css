@@ -52,14 +52,6 @@
   }
 
   /*
-   * Title to teaser when stacked. From `lg` it starts level with the h1, both
-   * 24px below the breadcrumb's `mb-6`.
-   */
-  .post-slab-aside {
-    @apply mt-6 lg:mt-0;
-  }
-
-  /*
    * Facts divided by rules between cells only; they turn horizontal when
    * stacked. Padding on the rule side keeps the first cell on the column edge.
    */
