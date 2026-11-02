@@ -4,9 +4,10 @@
  */
 import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
-import { glob, readFile } from 'node:fs/promises';
+import { readFile } from 'node:fs/promises';
 import { join, relative } from 'node:path';
 import { assertBuildCurrent } from './build-fingerprint.mjs';
+import { filesUnder } from './files-under.mjs';
 import { SERVED_AS_IS } from './check-allow-lists.mjs';
 
 const ROOT =
@@ -14,20 +15,6 @@ const ROOT =
 const DIST = join(ROOT, 'dist/client');
 const ASSETS = join(ROOT, 'src/assets');
 const TALKS = join(ROOT, 'src/content/talks');
-
-/* Skips node_modules, including a stale one under src/content/talks/. */
-const walk = async (dir) =>
-  (
-    await Array.fromAsync(
-      glob('**/*', {
-        cwd: dir,
-        exclude: ['**/node_modules/**'],
-        withFileTypes: true,
-      }),
-    )
-  )
-    .filter((entry) => entry.isFile())
-    .map((entry) => join(entry.parentPath, entry.name));
 
 const digest = async (file) =>
   createHash('sha256')
@@ -37,10 +24,10 @@ const digest = async (file) =>
 const run = async () => {
   await assertBuildCurrent('Untransformed', DIST);
 
-  const built = await walk(DIST);
+  const built = filesUnder(DIST);
 
   const sources = new Map();
-  for (const file of [...(await walk(ASSETS)), ...(await walk(TALKS))]) {
+  for (const file of [...filesUnder(ASSETS), ...filesUnder(TALKS)]) {
     sources.set(await digest(file), file);
   }
   if (built.length === 0 || sources.size === 0) {

@@ -164,10 +164,10 @@ do ([AGENTS.md](../AGENTS.md#what-a-test-is-for)).
   regenerate them all. It skips an entry whose bytes are not its extension's
   format.
 - Helpers, not run directly: `scripts/build-fingerprint.mjs` stamps `dist/`,
-  and checks that read `dist/` refuse a stale build; `scripts/mime-types.mjs`
-  holds content types for the test servers; `scripts/pdf-pages.mjs` counts PDF
-  pages for `publish:talk` and `tests/talk-pdf.spec.ts`;
-  `scripts/noindex.mjs` rewrites `_headers` and `_redirects` on a
+  and checks that read `dist/` refuse a stale build; `scripts/files-under.mjs`
+  lists the files a check script reads; `scripts/mime-types.mjs` holds content
+  types for the test servers; `scripts/pdf-pages.mjs` counts PDF pages for
+  `publish:talk` and `tests/talk-pdf.spec.ts`; `scripts/noindex.mjs` rewrites `_headers` and `_redirects` on a
   [`NOINDEX` build](DEPLOYMENT.md#run-a-demo); `scripts/warm-browsers.mjs`
   opens one page per browser in CI before the tests, so no worker's first page
   builds the browser caches inside a test;

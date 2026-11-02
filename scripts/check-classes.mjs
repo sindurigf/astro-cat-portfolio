@@ -4,9 +4,10 @@
  * and a page-only sheet is not linked elsewhere. Reads selectors only.
  */
 import { fileURLToPath } from 'node:url';
-import { glob, readFile } from 'node:fs/promises';
+import { readFile } from 'node:fs/promises';
 import { join, relative } from 'node:path';
 import { assertBuildCurrent } from './build-fingerprint.mjs';
+import { filesUnder } from './files-under.mjs';
 import { CLASS_HOOKS as HOOKS } from './check-allow-lists.mjs';
 
 const ROOT =
@@ -14,16 +15,6 @@ const ROOT =
 const DIST = join(ROOT, 'dist/client');
 const SRC = join(ROOT, 'src');
 const SOURCE_EXTENSIONS = ['.astro', '.vue', '.ts', '.md', '.mjs'];
-
-/* Skips node_modules, including a stale one under src/content/talks/. */
-const walk = (dir, extensions) =>
-  Array.fromAsync(
-    glob(
-      extensions.map((ext) => `**/*${ext}`),
-      { cwd: dir, exclude: ['**/node_modules/**'] },
-    ),
-    (path) => join(dir, path),
-  );
 
 /* `.hover\:text-cyan` → `hover:text-cyan`, `.w-1\/2` → `w-1/2`. */
 const unescape = (name) =>
@@ -62,8 +53,8 @@ const decodeEntities = (value) =>
 const main = async () => {
   await assertBuildCurrent('Classes', DIST);
 
-  const pages = await walk(DIST, ['.html']);
-  const stylesheets = await walk(DIST, ['.css']);
+  const pages = filesUnder(DIST, ['.html']);
+  const stylesheets = filesUnder(DIST, ['.css']);
   if (pages.length === 0 || stylesheets.length === 0) {
     console.error(`Classes: no HTML or no CSS under ${relative(ROOT, DIST)}.`);
     process.exit(1);
@@ -122,7 +113,7 @@ const main = async () => {
     return;
   }
 
-  const sources = await walk(SRC, SOURCE_EXTENSIONS);
+  const sources = filesUnder(SRC, SOURCE_EXTENSIONS);
   const sourceText = await Promise.all(
     sources.map(async (file) => [
       relative(ROOT, file),
