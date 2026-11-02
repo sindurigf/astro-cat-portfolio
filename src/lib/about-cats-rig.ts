@@ -490,8 +490,12 @@ export const createProp = (
   front: SVGGElement,
   kind: PropKind,
 ): PropRig => {
-  /* The yarn ball is held in the paws, so it draws over the cat. */
-  const node = el('g', { class: 'cat-prop' }, kind === 'yarn' ? front : parent);
+  /* The yarn ball is held in the paws, so it draws over the cat. Hidden until its first draw places it. */
+  const node = el(
+    'g',
+    { class: 'cat-prop', opacity: 0 },
+    kind === 'yarn' ? front : parent,
+  );
   const remove = (): void => {
     node.remove();
   };
