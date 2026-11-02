@@ -18,7 +18,6 @@ import {
   moveToPlay,
   scaleTravel,
   scaledExtent,
-  CUP_LIP,
   EDGE_MOVES,
   knockAt,
   TRAVEL_FACTORS,
@@ -261,12 +260,13 @@ export const planMove = (
 };
 
 /**
- * The cup push from anywhere on the track, heading left: a run to `edge`, the
- * track's left end, `lip` px short of the card's or the step's edge, which the cup goes over.
+ * The cup push from anywhere on the track, heading left: a run and a creep to
+ * `edge`, the track's left end, so the cup goes over the card's or the step's
+ * edge at `floor`, where the surface the cat stands on starts.
  * Left only: the right end is the sleep control's corner.
  */
-export const cupPush = (x: number, edge = CUP_EDGE, lip = CUP_LIP): Move =>
-  withApproach(knockAt(lip), Math.max(0, x - edge), 0, 'run');
+export const cupPush = (x: number, edge = CUP_EDGE, floor = 0): Move =>
+  withApproach(knockAt(edge - floor), Math.max(0, x - edge), 0, 'run');
 
 export const createColony = (
   spots: CatSpot[],
@@ -501,12 +501,7 @@ export const createColony = (
   const begin = (cat: CatState, name: MoveName, now: number): boolean => {
     if (EDGE_MOVES.has(name)) {
       const brick = cat.ledges[ledgeIndex(cat, cat.pose.x)];
-      play(
-        cat,
-        cupPush(cat.pose.x, cat.min, cat.min - (brick?.x0 ?? 0)),
-        now,
-        -1,
-      );
+      play(cat, cupPush(cat.pose.x, cat.min, brick?.x0 ?? 0), now, -1);
       return true;
     }
     const plan = planFor(cat, name);
