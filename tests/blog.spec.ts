@@ -304,14 +304,7 @@ test.describe('a post and a category cannot claim one path', () => {
   });
 });
 
-/*
- * Function: every card shows its post's cover. Accessibility: a card's cover is
- * decorative (H67) except the newest post's on / and /blog, which keeps its
- * alt (SC 1.1.1); the cover comes before the text in the markup, and stacked
- * cards draw it above the text, so visual and reading order agree (SC 1.3.2).
- * Performance: the file is the 4:3 crop, not the whole master, and only the
- * first card loads eagerly.
- */
+/* Function, SC 1.1.1, SC 1.3.2 and performance: ACCESSIBILITY.md lists what the card cover checks assert. */
 const NEWEST = POSTS.find((post) => post.published);
 
 const LISTING_ROUTES = [
