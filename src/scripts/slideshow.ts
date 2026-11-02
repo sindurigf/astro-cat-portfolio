@@ -5,7 +5,9 @@
  * failed start sets `data-deck-failed`, which shows them all.
  */
 
-import { requiredElement } from './required-element';
+import { requiredElementIn } from './required-element';
+
+const required = requiredElementIn('slideshow');
 
 const SLIDE_ID = /^#slide-(\d+)$/;
 
@@ -33,7 +35,7 @@ const SLIDESHOW_QUERY = '(min-width: 64rem)';
 const PAGE_STEP = 0.875;
 
 const heading = (slide: HTMLElement): HTMLElement =>
-  requiredElement(slide, '.slide-title', HTMLElement);
+  required(slide, '.slide-title', HTMLElement);
 
 /* "Pillar 1: Governance", without the space the hidden colon's span leaves. */
 const titleOf = (slide: HTMLElement): string =>
@@ -72,22 +74,14 @@ const wire = (deck: HTMLElement): void => {
   /* Every caller passes an index in range; the first slide stands in otherwise. */
   const slideAt = (index: number): HTMLElement => slides[index] ?? first;
 
-  const bar = requiredElement(deck, '[data-deck-bar]', HTMLElement);
-  const previous = requiredElement(
-    bar,
-    '[data-deck-previous]',
-    HTMLButtonElement,
-  );
-  const next = requiredElement(bar, '[data-deck-next]', HTMLButtonElement);
-  const count = requiredElement(bar, '[data-deck-count]', HTMLElement);
-  const part = requiredElement(bar, '[data-deck-part]', HTMLElement);
-  const fullscreen = requiredElement(
-    bar,
-    '[data-deck-fullscreen]',
-    HTMLButtonElement,
-  );
-  const exit = requiredElement(bar, '[data-deck-exit]', HTMLButtonElement);
-  const status = requiredElement(deck, '[data-deck-status]', HTMLElement);
+  const bar = required(deck, '[data-deck-bar]', HTMLElement);
+  const previous = required(bar, '[data-deck-previous]', HTMLButtonElement);
+  const next = required(bar, '[data-deck-next]', HTMLButtonElement);
+  const count = required(bar, '[data-deck-count]', HTMLElement);
+  const part = required(bar, '[data-deck-part]', HTMLElement);
+  const fullscreen = required(bar, '[data-deck-fullscreen]', HTMLButtonElement);
+  const exit = required(bar, '[data-deck-exit]', HTMLButtonElement);
+  const status = required(deck, '[data-deck-status]', HTMLElement);
   const notes = [...deck.querySelectorAll<HTMLElement>('[data-for-slide]')];
   const upcoming = deck.querySelector<HTMLElement>('[data-deck-upcoming]');
   const channel =

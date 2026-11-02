@@ -5,7 +5,7 @@
  */
 import { IDLE, createMotionLoop } from './motion-loop';
 import { markFailed } from './failed-frame';
-import { requiredElement } from './required-element';
+import { requiredElementIn } from './required-element';
 import {
   clamp,
   createCatRig,
@@ -45,6 +45,8 @@ const PLACES: Record<CatId, { start: number; facing: 1 | -1 }> = {
 
 const isCatId = (value: string | undefined): value is CatId =>
   value !== undefined && Object.hasOwn(SHEETS, value);
+
+const required = requiredElementIn('about-cats');
 
 /** Fallback slot between warm-ups where requestIdleCallback is missing (Safari). */
 const WARM_GAP_MS = 50;
@@ -98,13 +100,9 @@ interface Cat {
 }
 
 const setUp = (): void => {
-  const dialog = requiredElement(
-    document,
-    'dialog.cat-dialog',
-    HTMLDialogElement,
-  );
-  const card = requiredElement(dialog, '.cat-card', HTMLElement);
-  const napIcons = requiredElement(
+  const dialog = required(document, 'dialog.cat-dialog', HTMLDialogElement);
+  const card = required(dialog, '.cat-card', HTMLElement);
+  const napIcons = required(
     document,
     'template[data-cat-nap-icons]',
     HTMLTemplateElement,
@@ -119,20 +117,20 @@ const setUp = (): void => {
   )) {
     const id = template.dataset.catControls;
     if (!isCatId(id)) throw new Error(`about-cats: ${id} is not a cat.`);
-    const spot = requiredElement(document, `#cat-spot-${id}`, HTMLElement);
-    const cardTemplate = requiredElement(
+    const spot = required(document, `#cat-spot-${id}`, HTMLElement);
+    const cardTemplate = required(
       document,
       `template[data-cat-card="${id}"]`,
       HTMLTemplateElement,
     );
     const parts = template.content.cloneNode(true) as DocumentFragment;
-    const button = requiredElement(parts, '.cat-button', HTMLButtonElement);
-    const svg = requiredElement(parts, '.cat-svg', SVGSVGElement);
-    const nap = requiredElement(parts, '.cat-nap', HTMLButtonElement);
-    const napLabel = requiredElement(nap, '.sr-only', HTMLElement);
-    const paw = requiredElement(parts, '.cat-tricks-button', HTMLButtonElement);
-    const list = requiredElement(parts, '.cat-tricks', HTMLElement);
-    const note = requiredElement(list, '.cat-tricks-note', HTMLElement);
+    const button = required(parts, '.cat-button', HTMLButtonElement);
+    const svg = required(parts, '.cat-svg', SVGSVGElement);
+    const nap = required(parts, '.cat-nap', HTMLButtonElement);
+    const napLabel = required(nap, '.sr-only', HTMLElement);
+    const paw = required(parts, '.cat-tricks-button', HTMLButtonElement);
+    const list = required(parts, '.cat-tricks', HTMLElement);
+    const note = required(list, '.cat-tricks-note', HTMLElement);
     cats.push({
       id,
       name: template.dataset.catName ?? id,
