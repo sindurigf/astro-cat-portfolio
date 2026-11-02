@@ -19,6 +19,8 @@ import {
   scaleTravel,
   scaledExtent,
   EDGE_MOVES,
+  knockAt,
+  TRACK_MARGIN,
   TRAVEL_FACTORS,
   TRAVEL_MOVES,
   type Move,
@@ -55,8 +57,7 @@ type StepResult = 'draw' | 'still' | 'rest';
 /** On-screen play time after waking before a cat naps. */
 export const NAP_AFTER_MS = 30_000;
 
-/** Distance from each card end the cat's origin keeps, so its drawing reaches at most MAX_OVERHANG past the end. */
-export const TRACK_MARGIN = 48;
+export { TRACK_MARGIN };
 /** px a drawing may reach past its band's end: the page gutter on phones (`px-4`), so it stays on screen. */
 export const MAX_OVERHANG = 16;
 /** Room at the right end for the sleep control. */
@@ -65,7 +66,7 @@ export const CONTROL_ROOM = 48;
 const FIT_STEPS = 24;
 /** Chance a cat on a stepped band climbs to the next brick instead. */
 const CLIMB_CHANCE = 0.5;
-/** Where a cat stands from the card's edge to push the cup, the track's end: CUP_AHEAD plus its push takes the cup past the edge. */
+/** Where a cat stands from the card's edge to push the cup: the track's end. */
 const CUP_EDGE = TRACK_MARGIN;
 /** A pointer that has not moved for this long no longer draws a cat's eye. */
 export const POINTER_IDLE_MS = 4000;
@@ -259,12 +260,19 @@ export const planMove = (
 };
 
 /**
- * The cup push from anywhere on the track, heading left: a trot and a creep to
- * `edge`, the track's left end, so the cup goes over the card's or the step's edge.
+ * The cup push from anywhere on the track, heading left: a run and a creep to
+ * `edge`, the track's left end, so the cup goes over the card's or the step's
+ * edge at `floor`, where the surface the cat stands on starts, onto a floor
+ * `depth` px below.
  * Left only: the right end is the sleep control's corner.
  */
-export const cupPush = (x: number, edge = CUP_EDGE): Move =>
-  withApproach(moveToPlay('knock'), Math.max(0, x - edge));
+export const cupPush = (
+  x: number,
+  edge = CUP_EDGE,
+  floor = 0,
+  depth = Infinity,
+): Move =>
+  withApproach(knockAt(edge - floor, depth), Math.max(0, x - edge), 0, 'run');
 
 export const createColony = (
   spots: CatSpot[],
@@ -498,7 +506,10 @@ export const createColony = (
   /** Plays `name` from where the cat stands; false if it fits nowhere on the track. */
   const begin = (cat: CatState, name: MoveName, now: number): boolean => {
     if (EDGE_MOVES.has(name)) {
-      play(cat, cupPush(cat.pose.x, cat.min), now, -1);
+      const i = ledgeIndex(cat, cat.pose.x);
+      const [below, brick] = [cat.ledges[i - 1], cat.ledges[i]];
+      const depth = below && brick ? below.drop - brick.drop : Infinity;
+      play(cat, cupPush(cat.pose.x, cat.min, brick?.x0 ?? 0, depth), now, -1);
       return true;
     }
     const plan = planFor(cat, name);

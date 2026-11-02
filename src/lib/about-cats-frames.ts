@@ -98,6 +98,8 @@ const LINKS: readonly (readonly [Frame, Frame])[] = [
 const JUMP_LINKS: readonly (readonly [Frame, Frame])[] = [
   ['takeoff', 'leap'],
   ['leap', 'landing'],
+  /* A run lands straight into its next push-off. */
+  ['landing', 'takeoff'],
 ];
 
 const NEXT = new Map<Frame, Frame[]>();
