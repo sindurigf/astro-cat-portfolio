@@ -951,7 +951,7 @@ Enforced by `tests/post-page.spec.ts`.
   `.band.py-section` holding `.post-layout`. `BaseLayout` adds no
   element, so articles never nest.
 - Source order: the `<header>` in the slab (breadcrumb, `h1`, teaser, date and
-  reading time, then the cover when the post has one), contents list,
+  reading time, then the cover), contents list,
   `.prose`, tags.
 - A cover takes [Media](#media) in PageHero's photo layout, in its own ratio
   (`.aspect-sizer`): text in the left half, the photo in columns 8 to 12
