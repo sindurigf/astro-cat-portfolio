@@ -87,10 +87,9 @@ const readableDate = formatPostDate(date);
       wide && 'lg:grid-cols-2 lg:items-center',
     ]}
   >
-    {/* `aspect-4/3` is CARD_COVER_RATIO: the CSP blocks a style attribute. */}
     <div
       class:list={[
-        'aspect-frame aspect-4/3 border-4',
+        'aspect-frame aspect-card-cover border-4',
         feature && 'md:order-last',
         wide && 'lg:order-last',
       ]}

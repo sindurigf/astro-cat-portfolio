@@ -961,9 +961,9 @@ Enforced by `tests/post-page.spec.ts`.
 - Every post card, the newest included, shows a 4:3 file the build crops from
   the cover at `coverPosition` (`CARD_COVER_RATIO`), whatever the cover's own
   shape, so cards in a row match. It is the only cropped photo, by the owner's
-  choice. The cover sits above the text on every stacked card; a wide card
-  (the `/blog` feature, a card filling its row) puts it in the right half from
-  `md`. `alt=""` except the newest post's on `/` and `/blog`
+  choice. The cover sits above the text on every stacked card. The `/blog`
+  feature puts it in the right half from `md`, and a card filling its row from
+  `lg`, where the list has two columns. `alt=""` except the newest post's on `/` and `/blog`
   ([ARCHITECTURE](../ARCHITECTURE.md#content-notes)).
 - `coverCredit` puts "Photo: name" in the date line, `text-gold-muted`, linked
   when the name is in `PHOTOGRAPHERS`. Not under the cover: the photo hangs
@@ -1445,7 +1445,7 @@ size-full object-cover`). Never put `aspect-ratio` on the image: WebKit
   drops it, and the ratio from `width` and `height`, when the image fails.
 - A designed ratio is a class on the frame, only where every file already has
   it: `aspect-portrait` (4:5, hero photos), `aspect-square` (square photos),
-  `aspect-4/3` (post card covers). Never a CSS ratio that crops; a post card
+  `aspect-card-cover` (4:3, post card covers). Never a CSS ratio that crops; a post card
   cover is a 4:3 file the build crops ([Posts](#posts)).
 - Two photos side by side are a `.photo-pair`: from `sm` flex shrinks them to
   one height, each in its own ratio; below `sm` they stack.
