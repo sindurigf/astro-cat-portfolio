@@ -70,6 +70,14 @@ const withoutMaintainerValues = (path, line) =>
     line,
   );
 
+/* A lockfile's base64 hashes can spell a name by chance; its package names and URLs are still scanned. */
+const LOCKFILE = 'package-lock.json';
+const INTEGRITY_HASH =
+  /"integrity": "sha(?:256|384|512)-[A-Za-z0-9+/]+={0,2}"/g;
+
+const withoutIntegrityHashes = (path, line) =>
+  path === LOCKFILE ? line.replace(INTEGRITY_HASH, '') : line;
+
 const leaks = (text) =>
   CASE_INSENSITIVE.test(text) || CASE_SENSITIVE.test(text);
 
@@ -172,7 +180,9 @@ for (const path of tracked) {
     .split('\n')
     .forEach((line, index) => {
       if (path === EXEMPT_LINE_FILE && line === EXEMPT_LINE) return;
-      if (leaks(withoutMaintainerValues(path, line)))
+      if (
+        leaks(withoutIntegrityHashes(path, withoutMaintainerValues(path, line)))
+      )
         hits.push(`${path}:${index + 1}: ${line.trim()}`);
     });
 }
