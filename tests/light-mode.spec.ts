@@ -254,6 +254,32 @@ test.describe('the theme menu', () => {
     expect(await mainIsLight(page)).toBe(true);
   });
 
+  test('with storage blocked, Light still applies and nothing throws', async ({
+    page,
+  }) => {
+    await page.addInitScript(() => {
+      const blocked = () => {
+        throw new DOMException('Storage is blocked', 'SecurityError');
+      };
+      Storage.prototype.getItem = blocked;
+      Storage.prototype.setItem = blocked;
+      Storage.prototype.removeItem = blocked;
+    });
+    const errors: string[] = [];
+    page.on('pageerror', (error) => errors.push(error.message));
+
+    await gotoSettled(page, '/about');
+    expect(await mainIsLight(page)).toBe(false);
+
+    await choose(page, 'Light');
+    await expect(radio(page, 'light')).toBeChecked();
+    expect(
+      await mainIsLight(page),
+      'Light was not applied when storage is blocked.',
+    ).toBe(true);
+    expect(errors, 'blocked storage threw on the page.').toEqual([]);
+  });
+
   test('Dark holds on a light device across a reload', async ({ browser }) => {
     const context = await browser.newContext({ colorScheme: 'light' });
     const page = await context.newPage();
