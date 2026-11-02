@@ -449,6 +449,56 @@ test.describe('the photo viewer while a photo loads', () => {
     await expect(count).not.toHaveText(/loading/i, { timeout: ARRIVAL_MS });
   });
 
+  // SC 1.1.1, 4.1.3: a reopened viewer never shows or announces the last photo as the new one.
+  test('reopened on another photo, the viewer holds nothing of the last one while it loads', async ({
+    page,
+  }) => {
+    const { viewer, photos } = await openFirst(page);
+    const caption = viewer.locator('[data-viewer-caption]');
+    const count = viewer.locator('[data-viewer-count]');
+    const image = viewer.locator('img');
+    const last = {
+      caption: (await caption.textContent()) ?? '',
+      src: await image.evaluate((img: HTMLImageElement) => img.src),
+    };
+    expect(last.caption, 'the first photo has no caption to leak').toBeTruthy();
+
+    await page.keyboard.press('Escape');
+    await expect(viewer).toBeHidden();
+
+    const other = page.locator(`${STRIP} a[data-photo]`).nth(1);
+    expect(
+      await other.evaluate((link: HTMLAnchorElement) => link.href),
+      'the second photo is the same file as the first',
+    ).not.toBe(last.src);
+
+    photos.hold();
+    try {
+      await other.click();
+      await photos.arrived;
+      await expect(count).toHaveText(/loading/i);
+
+      await expect(viewer).toHaveAccessibleName(/\S/);
+      expect(
+        await caption.textContent(),
+        'the caption still describes the last photo',
+      ).not.toBe(last.caption);
+      expect(
+        await viewer.ariaSnapshot(),
+        "the last photo's description is still in the dialog",
+      ).not.toContain(last.caption);
+      expect(
+        await image.evaluate((img: HTMLImageElement) => img.currentSrc),
+        'the last photo is still on screen',
+      ).not.toBe(last.src);
+    } finally {
+      photos.release();
+    }
+
+    await expect(count).not.toHaveText(/loading/i, { timeout: ARRIVAL_MS });
+    await expect(caption).not.toHaveText(last.caption);
+  });
+
   /* Read from the accessibility tree: a duplicate announcement is invisible in the markup. */
   test('the description reaches the accessibility tree once', async ({
     page,
