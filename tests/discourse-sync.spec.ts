@@ -221,18 +221,22 @@ test(
 
 /* Security: fetch would send the Api-Key header to any host a redirect names. */
 const serve = (
-  handler: (url: string) => { status: number; location?: string },
+  handler: (url: string) => {
+    status: number;
+    location?: string;
+    body?: unknown;
+  },
 ): Promise<{ server: Server; origin: string; hits: string[] }> =>
   new Promise((resolve) => {
     const hits: string[] = [];
     const server = createServer((req, res) => {
       hits.push(req.url ?? '');
-      const { status, location } = handler(req.url ?? '');
+      const { status, location, body } = handler(req.url ?? '');
       res.writeHead(status, {
         'content-type': 'application/json',
         ...(location ? { location } : {}),
       });
-      res.end('{"ok":true}');
+      res.end(JSON.stringify(body ?? { ok: true }));
     });
     server.listen(0, '127.0.0.1', () =>
       resolve({
@@ -983,6 +987,59 @@ test(
       ).rejects.not.toThrow(/trust level 4/);
     } finally {
       forum.server.close();
+    }
+  },
+);
+
+test(
+  'a forum topic whose issue was deleted is skipped instead of failing the run',
+  NODE,
+  async () => {
+    const fake = await serve((url) => {
+      if (url.startsWith('/c/5/l/latest.json'))
+        return {
+          status: 200,
+          body: {
+            topic_list: {
+              topics: [
+                {
+                  id: 90,
+                  title: 'GitHub issue #42: Deleted',
+                  category_id: 5,
+                  bumped_at: new Date().toISOString(),
+                },
+              ],
+            },
+          },
+        };
+      if (url === '/repos/o/r/issues/42')
+        return { status: 410, body: { message: 'This issue was deleted' } };
+      return { status: 500, body: { unexpected: url } };
+    });
+    try {
+      const { stdout } = await promisify(execFile)(
+        process.execPath,
+        ['scripts/discourse-sync.mjs', 'to-github'],
+        {
+          env: {
+            PATH: process.env.PATH,
+            GITHUB_API_URL: fake.origin,
+            GITHUB_REPOSITORY: 'o/r',
+            GITHUB_TOKEN: 'gh-token',
+            DISCOURSE_URL: fake.origin,
+            DISCOURSE_CATEGORY_ID: '5',
+            DISCOURSE_API_KEY: 'key',
+            DISCOURSE_API_USERNAME: 'forum-bot',
+          },
+        },
+      );
+      expect(stdout).toContain('Copied 0 forum replies to GitHub.');
+      expect(
+        fake.hits,
+        'a deleted issue has no comments or topic posts to read',
+      ).not.toContainEqual(expect.stringMatching(/comments|^\/t\//));
+    } finally {
+      fake.server.close();
     }
   },
 );

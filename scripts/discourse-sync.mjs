@@ -32,6 +32,7 @@ const MS_PER_S = 1_000;
 const REQUEST_TIMEOUT_MS = 30_000;
 const HTTP_FORBIDDEN = 403;
 const HTTP_NOT_FOUND = 404;
+const HTTP_GONE = 410;
 const ERROR_BODY_CHARS = 500;
 /* Discourse's default max_post_length; GitHub allows 65,536. */
 const FORUM_MAX_POST_CHARS = 32_000;
@@ -432,9 +433,10 @@ const toGithub = async () => {
     const target = topicTarget(listed.title);
     if (!target || listed.category_id !== categoryId) continue;
     const { number } = target;
-    /* A deleted issue (404) has nothing to sync to. */
+    /* GitHub answers 410 for a deleted issue and 404 for one it hides; neither has anything to sync to. */
     const issue = await gh.issue(number).catch((error) => {
-      if (error.status === HTTP_NOT_FOUND) return null;
+      if (error.status === HTTP_NOT_FOUND || error.status === HTTP_GONE)
+        return null;
       throw error;
     });
     if (!issue || Boolean(issue.pull_request) !== target.pullRequest) continue;
