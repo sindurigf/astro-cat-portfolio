@@ -244,6 +244,66 @@ const fullHeader = (page: Page): Promise<number> =>
 /* Tab stops walked under the slim header: past the opening of /about and into its body. */
 const SLIM_WALK_STOPS = 30;
 
+/* Diagnostics for an intermittent miss (template runs 41284994235, 41441768531): what the sentinel's observer and the page's scroll reported. */
+type SentinelLog = {
+  t: number;
+  kind: string;
+  y: number;
+  top?: number;
+  hit?: boolean;
+}[];
+
+const recordSentinel = () => {
+  const log: SentinelLog = [];
+  Object.assign(window, { __sentinelLog: log });
+  const Native = window.IntersectionObserver;
+  window.IntersectionObserver = class extends Native {
+    constructor(
+      callback: IntersectionObserverCallback,
+      options?: IntersectionObserverInit,
+    ) {
+      super((entries, observer) => {
+        for (const entry of entries)
+          if (entry.target.matches('[data-header-sentinel]'))
+            log.push({
+              t: Math.round(performance.now()),
+              kind: 'entry',
+              y: Math.round(scrollY),
+              top: Math.round(entry.boundingClientRect.top),
+              hit: entry.isIntersecting,
+            });
+        callback(entries, observer);
+      }, options);
+    }
+  };
+  addEventListener(
+    'scroll',
+    () =>
+      log.push({
+        t: Math.round(performance.now()),
+        kind: 'scroll',
+        y: Math.round(scrollY),
+      }),
+    { passive: true },
+  );
+};
+
+const sentinelState = (page: Page) =>
+  page.evaluate(() => ({
+    now: Math.round(performance.now()),
+    scrollY: Math.round(scrollY),
+    sentinel: document
+      .querySelector('[data-header-sentinel]')
+      ?.getBoundingClientRect()
+      .toJSON(),
+    compact: document
+      .querySelector('header.site-header')
+      ?.hasAttribute('data-compact'),
+    log: (
+      window as unknown as { __sentinelLog?: unknown[] }
+    ).__sentinelLog?.slice(-40),
+  }));
+
 test.describe('the slim header once the page scrolls', () => {
   test.use({ viewport: { width: 1280, height: VIEWPORT_HEIGHT } });
 
@@ -301,15 +361,24 @@ test.describe('the slim header once the page scrolls', () => {
   test('is slim on a page that loads scrolled to an anchor', async ({
     page,
   }) => {
+    await page.addInitScript(recordSentinel);
     await gotoSettled(page, `${ROUTE}/#${FAR_ANCHOR}`);
     expect(
       await page.evaluate(() => window.scrollY),
       `/about/#${FAR_ANCHOR} did not load scrolled`,
     ).toBeGreaterThan(await fullHeader(page));
-    await expect(page.locator('header.site-header')).toHaveAttribute(
-      'data-compact',
-      '',
-    );
+    try {
+      await expect(page.locator('header.site-header')).toHaveAttribute(
+        'data-compact',
+        '',
+      );
+    } catch (error) {
+      await test.info().attach('header sentinel', {
+        body: JSON.stringify(await sentinelState(page), null, 2),
+        contentType: 'application/json',
+      });
+      throw error;
+    }
   });
 
   test('goes slim one pixel past the full header and back at its height', async ({
