@@ -705,7 +705,7 @@ drawings are `aria-hidden`.
       the cat. → SC 2.4.3, 4.1.2
 - [ ] Tab stays on Close, never the page behind. → SC 2.1.2
 - [ ] Escape closes the card and focus returns to the same cat. → SC 2.4.3
-- [ ] The sleep control reads "Put Minerva to sleep"; Enter stops the cat
+- [ ] The sleep control reads "Let Minerva nap"; Enter stops the cat
       within 5 s and the control then reads "Wake Minerva". → SC 2.2.2, 4.1.2
 - [ ] Tab reaches the paw "Choose a trick for Minerva" after the sleep control;
       Enter opens a list, Random first, and Escape closes it with focus back on

@@ -1,7 +1,7 @@
 /*
  * The About cats: copies each cat's controls from AboutCats.astro into
  * `#cat-spot-<id>`, runs the colony's frame loop and opens the cards. Each cat
- * opens its card; the Zz or eye beside it puts it to sleep or wakes it (SC 2.2.2).
+ * opens its card; the Zz or eye beside it lets it nap or wakes it (SC 2.2.2).
  */
 import { IDLE, createMotionLoop } from './motion-loop';
 import { markFailed } from './failed-frame';
@@ -178,7 +178,7 @@ const setUp = (): void => {
     );
     cat.napLabel.textContent = cat.asleep
       ? `Wake ${cat.name}`
-      : `Put ${cat.name} to sleep`;
+      : `Let ${cat.name} nap`;
   };
 
   const showControls = (on: boolean): void => {

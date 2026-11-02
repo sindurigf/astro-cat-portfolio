@@ -1332,8 +1332,8 @@ Enforced by `tests/nav-current.spec.ts`, `tests/mobile-menu.spec.ts`,
   and sit still under reduced motion. Each cat's button
   ("Meet Minerva") opens its card; while it is open the cat sits where it is
   and looks round at you, and under reduced motion it stays as it was.
-- Each cat's SC 2.2.2 control sits in its band's corner: Zz ("Put Minerva to
-  sleep") while it plays, an eye ("Wake Minerva") while it sleeps.
+- Each cat's SC 2.2.2 control sits in its band's corner: Zz ("Let Minerva nap")
+  while it plays, an eye ("Wake Minerva") while it sleeps.
   Hidden under reduced motion, where nothing moves.
 - A paw button under Zz ("Choose a trick for Minerva") opens that cat's tricks:
   Random first, then its own moves, each an icon and a name
