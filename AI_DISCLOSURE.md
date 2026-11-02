@@ -37,6 +37,10 @@ AI-drawn art, by Claude or Canva AI:
   Minerva's head (`artwork/cats/minerva-head.png`), cut from the full-size
   Canva AI drawing behind `artwork/cats/minerva-sit.png`, and set as a die-cut
   sticker by `scripts/make-icons.mjs`.
+- The linocut covers of four sample posts, drawn by Canva AI:
+  `src/assets/blog/<slug>/cover.jpg` for `how-i-get-to-know-a-new-island`,
+  `learning-to-ask-for-what-i-want`, `sample-talk` and
+  `sun-protection-at-ten-thousand-meters`.
 - The sharing images, `public/images/og-default.png` and
   `public/images/og/*.jpg`, drawn by
   `scripts/make-og.mjs` with the logo cat.

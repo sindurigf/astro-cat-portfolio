@@ -14,8 +14,9 @@ import {
   categoryLabel,
   getCategoriesWithPosts,
   getFeaturedPosts,
+  getSortedPosts,
 } from '../lib/blog';
-import { WIDTHS } from '../lib/image-densities';
+import { FEATURED_COVER_SIZES, WIDTHS } from '../lib/image-densities';
 import { PERSONA_NOTICE_ID, SAMPLE_PERSONA } from '../lib/persona';
 import { MOTTO } from '../lib/site';
 import { CATEGORIES, CATEGORY_TILE } from '../lib/categories';
@@ -34,13 +35,15 @@ const FEATURED_LIMIT = 3;
 const featured = await getFeaturedPosts(FEATURED_LIMIT);
 /* Matches the `lg:grid-cols-*` choice on the list below. */
 const FEWER_FEATURED_COLUMNS = 2;
+const [newest] = await getSortedPosts();
+const featuredColumns =
+  featured.length >= FEATURED_LIMIT ? FEATURED_LIMIT : FEWER_FEATURED_COLUMNS;
+const featuredCoverSizes = FEATURED_COVER_SIZES[featuredColumns];
 const featuredWall = wallClasses(
   {
     lg: packRows(
       featured.map(() => 1),
-      featured.length >= FEATURED_LIMIT
-        ? FEATURED_LIMIT
-        : FEWER_FEATURED_COLUMNS,
+      featuredColumns,
     ),
   },
   featured.length,
@@ -284,7 +287,14 @@ const statWall = wallClasses({ sm: [[0, 1]] }, STATS.length);
       >
         {featured.map((post, index) => (
           <li class:list={['flex min-w-0', featuredWall.bricks[index]]}>
-            <BlogCard {...cardProps(post)} headingLevel={3} class="w-full" />
+            <BlogCard
+              {...cardProps(post)}
+              {...(post.id === newest?.id
+                ? { largeCoverSizes: featuredCoverSizes }
+                : {})}
+              headingLevel={3}
+              class="w-full"
+            />
           </li>
         ))}
       </ul>

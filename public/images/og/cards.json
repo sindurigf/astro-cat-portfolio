@@ -16,13 +16,13 @@
   },
   "/blog/how-i-get-to-know-a-new-island": {
     "title": "How I Get to Know a New Island",
-    "photo": null,
-    "alt": "How I Get to Know a New Island, example.com, beside the example.com logo."
+    "photo": "/_astro/cover.2Oqq49mM_ZeqTlW.webp",
+    "alt": "How I Get to Know a New Island, example.com, beside a photo: A linocut of a small island with one ancient stone pillar, ringed by carved waves."
   },
   "/blog/learning-to-ask-for-what-i-want": {
     "title": "Learning to Ask for What I Want",
-    "photo": null,
-    "alt": "Learning to Ask for What I Want, example.com, beside the example.com logo."
+    "photo": "/_astro/cover.bdCEvzMj_Z1oWgph.webp",
+    "alt": "Learning to Ask for What I Want, example.com, beside a photo: A linocut of an open hand raised palm forward."
   },
   "/blog/open-source": {
     "title": "Open Source",
@@ -46,8 +46,8 @@
   },
   "/blog/sample-talk": {
     "title": "Reading the Stones",
-    "photo": null,
-    "alt": "Reading the Stones, example.com, beside the example.com logo."
+    "photo": "/_astro/cover.CWIQ1QOd_1e5v3R.webp",
+    "alt": "Reading the Stones, example.com, beside a photo: A linocut of a chipped stone tablet carved with rows of glyphs."
   },
   "/blog/skincare": {
     "title": "Skincare",
@@ -56,8 +56,8 @@
   },
   "/blog/sun-protection-at-ten-thousand-meters": {
     "title": "Sun Protection at Ten Thousand Meters",
-    "photo": null,
-    "alt": "Sun Protection at Ten Thousand Meters, example.com, beside the example.com logo."
+    "photo": "/_astro/cover.yebPILi7_1lxu9j.webp",
+    "alt": "Sun Protection at Ten Thousand Meters, example.com, beside a photo: A linocut of a wide-brimmed sun hat seen from the side."
   },
   "/blog/tag/archaeology": {
     "title": "Posts Tagged Archaeology",

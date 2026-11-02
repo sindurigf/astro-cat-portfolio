@@ -254,8 +254,12 @@ Add a Markdown file to `src/content/blog/`; the filename is the slug. The build
 validates frontmatter against `src/content.config.ts` and fails on a mismatch.
 `sample-talk.md` is a complete example.
 
-- The newest published post needs `cover` and `coverAlt`: `/blog` features
-  it. A cover can have any ratio; the post hero and the feature card show it uncropped.
+- Every post needs `cover` and `coverAlt`; the build fails without them. A
+  cover can have any ratio; the post hero, the `/blog` feature card and its
+  homepage card show it uncropped. Other cards show a square crop: set
+  `coverPosition` (`center`, `top`, `bottom`, `left` or `right`) when the
+  subject is off center. `top` and `bottom` move a portrait crop, `left` and
+  `right` a landscape one.
 - Tests read the new post's routes, category and tags from its frontmatter.
 - A spec that needs a post or talk with some property (a cover, a tag, a
   paired talk PDF) skips, naming the property, while none has it.

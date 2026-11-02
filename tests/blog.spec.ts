@@ -56,7 +56,7 @@ test('the post /blog features has a cover', NODE, () => {
   test.skip(feature === undefined, 'no published post, so no feature card');
   expect(
     feature!.hasCover,
-    `${feature!.route} is the newest post, so /blog features it; without a cover the card shows a placeholder box.`,
+    `${feature!.route} is the newest post, so /blog features it with its cover.`,
   ).toBe(true);
 });
 
@@ -301,3 +301,94 @@ test.describe('a post and a category cannot claim one path', () => {
     ).toEqual([]);
   });
 });
+
+/* Function: every card shows its post's cover. Accessibility: a cropped thumbnail is decorative (H67), the newest post's whole cover keeps its alt (SC 1.1.1). Performance: only the first card loads eagerly. */
+const NEWEST = POSTS.find((post) => post.published);
+
+const cardCovers = (page: Page) =>
+  page.evaluate(async () => {
+    const cards = [...document.querySelectorAll('main article.card')].filter(
+      (card) => card.querySelector('.card-link'),
+    );
+    const thumbnails = document.querySelectorAll(
+      'img[data-card-thumbnail]',
+    ).length;
+    const covers = await Promise.all(
+      cards.map(async (card) => {
+        const img = card.querySelector<HTMLImageElement>('.aspect-frame img');
+        const loading = img?.getAttribute('loading') ?? null;
+        if (img) {
+          img.loading = 'eager';
+          await img.decode().catch(() => undefined);
+        }
+        return {
+          href: new URL(
+            card.querySelector<HTMLAnchorElement>('.card-link')!.href,
+          ).pathname,
+          alt: img?.getAttribute('alt') ?? null,
+          loading,
+          thumbnail: img?.closest('.aspect-square') !== null,
+          whole:
+            img
+              ?.closest('.aspect-frame')
+              ?.querySelector(':scope > .aspect-sizer') != null,
+          square: img ? img.naturalWidth === img.naturalHeight : false,
+          marked: img?.hasAttribute('data-card-thumbnail') ?? false,
+        };
+      }),
+    );
+    return { covers, thumbnails };
+  });
+
+for (const route of ['/blog', '/', ...CATEGORY_ROUTES, ...TAG_ROUTES]) {
+  test(
+    `every post card on ${route} shows its cover`,
+    ENGINE_INVARIANT,
+    async ({ page }) => {
+      await gotoSettled(page, route);
+      const { covers, thumbnails } = await cardCovers(page);
+      expect(covers.length, `${route} shows no post card`).toBeGreaterThan(0);
+      expect(
+        thumbnails,
+        `an empty alt marked data-card-thumbnail on ${route} sits outside a post card`,
+      ).toBe(covers.filter((cover) => cover.marked).length);
+      const newestShownLarge = route === '/blog' || route === '/';
+
+      for (const [index, cover] of covers.entries()) {
+        const large = newestShownLarge && cover.href === `${NEWEST?.route}/`;
+        expect(
+          cover.alt,
+          `${cover.href} on ${route} has no cover`,
+        ).not.toBeNull();
+        if (large) {
+          expect(
+            cover.alt,
+            `the newest post's whole cover on ${route} must keep its coverAlt`,
+          ).toBe(NEWEST?.coverAlt);
+          expect(
+            cover.whole,
+            `the newest post's cover on ${route} must be drawn whole in its own ratio`,
+          ).toBe(true);
+          continue;
+        }
+        expect(
+          cover.thumbnail,
+          `${cover.href} on ${route} is not the newest post, so it shows a square thumbnail`,
+        ).toBe(true);
+        expect(
+          cover.alt,
+          `the thumbnail for ${cover.href} repeats the heading, so it must be decorative`,
+        ).toBe('');
+        expect(
+          cover.square,
+          `the thumbnail for ${cover.href} is a CSS crop, not a square file`,
+        ).toBe(true);
+        if (index > 0)
+          expect(
+            cover.loading,
+            `the thumbnail for ${cover.href} is below the first card, so it must load lazily`,
+          ).toBe('lazy');
+      }
+    },
+  );
+}

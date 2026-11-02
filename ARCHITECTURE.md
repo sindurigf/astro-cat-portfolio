@@ -211,23 +211,24 @@ Headings, alt text, focus rings and axe are checked on the rendered page by
 `src/content.config.ts` defines `blog` (`glob()` over
 `src/content/blog/*.md`, top level only) and [`talks`](#talks).
 
-| Field            | Type              | Required     | Default |
-| ---------------- | ----------------- | ------------ | ------- |
-| `title`          | string            | yes          |         |
-| `date`           | date              | yes          |         |
-| `updated`        | date              | no           |         |
-| `category`       | enum, see below   | yes          |         |
-| `placeholder`    | boolean           | yes          |         |
-| `tags`           | slug[], see below | no           | `[]`    |
-| `teaser`         | string            | yes          |         |
-| `featured`       | boolean           | no           | `false` |
-| `readingTime`    | number            | no           |         |
-| `seoTitle`       | string            | no           |         |
-| `seoDescription` | string            | no           |         |
-| `cover`          | image             | no           |         |
-| `coverAlt`       | string            | with `cover` |         |
-| `coverCredit`    | string            | no           |         |
-| `personaSources` | boolean           | no           | `false` |
+| Field            | Type              | Required | Default  |
+| ---------------- | ----------------- | -------- | -------- |
+| `title`          | string            | yes      |          |
+| `date`           | date              | yes      |          |
+| `updated`        | date              | no       |          |
+| `category`       | enum, see below   | yes      |          |
+| `placeholder`    | boolean           | yes      |          |
+| `tags`           | slug[], see below | no       | `[]`     |
+| `teaser`         | string            | yes      |          |
+| `featured`       | boolean           | no       | `false`  |
+| `readingTime`    | number            | no       |          |
+| `seoTitle`       | string            | no       |          |
+| `seoDescription` | string            | no       |          |
+| `cover`          | image             | yes      |          |
+| `coverAlt`       | string            | yes      |          |
+| `coverPosition`  | see below         | no       | `center` |
+| `coverCredit`    | string            | no       |          |
+| `personaSources` | boolean           | no       | `false`  |
 
 - Categories: `skincare`, `travel`, `personal-thoughts`,
   `professional-journey`, `open-source`. Rename them in `BLOG_CATEGORIES` and
@@ -246,9 +247,11 @@ Headings, alt text, focus rings and axe are checked on the rendered page by
 - Non-placeholder posts get `og:type` `article`,
   `article:published_time` and a `BlogPosting` JSON-LD node. Other pages are
   `website`.
-- `cover` is relative to the post, any ratio, never cropped, and shown as the
-  post's hero photo, on the `/blog` feature card and on its sharing card; the
-  schema requires `coverAlt` with it.
+- Every post needs `cover` (relative to the post, any ratio) and `coverAlt`;
+  the build fails without them. The cover is the post's hero photo and its
+  sharing card, uncropped, and so on the `/blog` feature card and its homepage
+  card. Every other post card shows a square crop at `coverPosition`: `center`,
+  `top`, `bottom`, `left` or `right` ([STYLEGUIDE](docs/STYLEGUIDE.md#posts)).
 - `updated` sets `dateModified`; absent, it is omitted, not copied from `date`.
 - Pagination (`/blog/page/<n>`) builds only past `POSTS_PER_PAGE`, 9 unless
   the build's `POSTS_PER_PAGE` variable sets another positive whole number.
@@ -541,7 +544,8 @@ in `wrangler.jsonc`).
 
 - Photos: `src/assets/photos/` (pages) and `src/assets/blog/<slug>/` (posts).
   Masters are JPEG, metadata stripped, never cropped on display: tiles, pairs,
-  strips, figures, covers and sharing cards show the whole file.
+  strips, figures, covers and sharing cards show the whole file. Only a post
+  card thumbnail is a crop.
 - Fixed-size photos pass `DENSITIES`; fluid ones pass `WIDTHS` and `sizes`
   from `src/lib/image-densities.ts`. `WIDTHS` steps at most 1.5x; `sizes` is
   the real drawn width. `tests/image-size.spec.ts` fails on stretching,
@@ -898,5 +902,9 @@ evidence.
 - **CV PDF.** Set `person.cv` in `src/site.config.ts` to a PDF under
   `public/`, and `/career` links it with its size; `tests/cv.spec.ts` then
   checks the file's metadata and tags. No CV ships.
-- **Post artwork.** A `feature` `BlogCard` without a `cover` shows
-  `PlaceholderBox`. `/career` has no photo placement.
+- **Post card thumbnails** are decorative (`alt=""`,
+  [H67](https://www.w3.org/WAI/WCAG22/Techniques/html/H67)): the card's
+  heading link names the post, and the post page carries `coverAlt`. The
+  newest post's card shows the whole cover with `coverAlt`.
+  `data-card-thumbnail` marks the crop for `tests/alt-text.spec.ts`.
+- `/career` has no photo placement.

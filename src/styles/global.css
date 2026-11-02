@@ -394,7 +394,6 @@
 
   /* Tokens because components may not carry arbitrary values. */
   --aspect-portrait: 4 / 5;
-  --aspect-photo: 4 / 3;
 
   --tracking-heading: -0.05em;
   /* -0.05em suits capitals and crowds lowercase. */

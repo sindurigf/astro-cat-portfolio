@@ -54,7 +54,7 @@ const { targetStandard, conformanceStatus } = accessibilityFacts;
   {post && (
     <ComponentRow
       id="post-card"
-      use="a post in a list: category, title, teaser and date."
+      use="a post in a list: category, title, teaser, date and a square thumbnail of its cover."
       rule="Only the title is a link, so the card has one tab stop and its text stays selectable."
     >
       <BlogCard {...cardProps(post)} headingLevel={3} />

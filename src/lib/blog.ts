@@ -40,6 +40,9 @@ export const cardProps = (post: BlogPost) => ({
   teaser: post.data.teaser,
   category: post.data.category,
   date: post.data.date,
+  cover: post.data.cover,
+  coverAlt: post.data.coverAlt,
+  coverPosition: post.data.coverPosition,
   ...(post.data.readingTime === undefined
     ? {}
     : { readingTime: post.data.readingTime }),

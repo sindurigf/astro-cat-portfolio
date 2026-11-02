@@ -21,3 +21,15 @@ export const MARKDOWN_WIDTHS = [...WIDTHS, 1920, 2400];
 const HERO_PHOTO_CAP = 'calc(24rem - 8px)';
 
 export const HERO_PHOTO_SIZES = `(min-width: 1829px) calc(20.93vw + 178px), (min-width: 1396px) calc(17.9vw + 234px), (min-width: 83rem) 484px, (min-width: 64rem) calc(39vw - 34px), min(calc(100vw - 5.5rem), ${HERO_PHOTO_CAP})`;
+
+/*
+ * The newest post's cover on a homepage Featured Posts card, by column count
+ * at `lg`. tests/image-size.spec.ts checks the count the build has.
+ */
+const FEATURED_CARD_NARROW =
+  '(min-width: 40rem) calc(100vw - 144px), calc(100vw - 96px)';
+
+export const FEATURED_COVER_SIZES = {
+  2: `(min-width: 83rem) 546px, (min-width: 64rem) calc(50vw - 118px), ${FEATURED_CARD_NARROW}`,
+  3: `(min-width: 83rem) 333px, (min-width: 64rem) calc(33.33vw - 109px), ${FEATURED_CARD_NARROW}`,
+} as const;

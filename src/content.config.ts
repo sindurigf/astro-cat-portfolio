@@ -18,39 +18,45 @@ export const BLOG_CATEGORIES = [
 
 export type BlogCategory = (typeof BLOG_CATEGORIES)[number];
 
+/* Crop positions sharp reads for the square card thumbnail. */
+export const COVER_POSITIONS = [
+  'center',
+  'top',
+  'bottom',
+  'left',
+  'right',
+] as const;
+
+export type CoverPosition = (typeof COVER_POSITIONS)[number];
+
 const blog = defineCollection({
   loader: glob({ base: BLOG_CONTENT_DIR, pattern: BLOG_FILE_PATTERN }),
   schema: ({ image }) =>
-    z
-      .object({
-        title: z.string(),
-        date: z.coerce.date(),
-        /* A reader-visible revision. Absent omits `dateModified` rather than copying `date`. */
-        updated: z.coerce.date().optional(),
-        category: z.enum(BLOG_CATEGORIES),
-        /* Lorem ipsum stand-in. Required so every post states it; tests/llms-txt.spec.ts checks the text. */
-        placeholder: z.boolean(),
-        /* Kebab-case: each tag is a URL segment in /blog/tag/<tag>/. */
-        tags: z
-          .array(z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/))
-          .default([]),
-        teaser: z.string(),
-        featured: z.boolean().default(false),
-        readingTime: z.number().optional(),
-        /* Ends the post with the sample persona's sources (src/lib/persona.ts). */
-        personaSources: z.boolean().default(false),
-        seoTitle: z.string().optional(),
-        seoDescription: z.string().optional(),
-        /* Any ratio, shown uncropped in its own ratio. Relative to the post. */
-        cover: image().optional(),
-        coverAlt: z.string().optional(),
-        /* The cover's photographer, shown in the post's date line; a PHOTOGRAPHERS name is linked. */
-        coverCredit: z.string().optional(),
-      })
-      .refine((post) => post.cover === undefined || Boolean(post.coverAlt), {
-        message: 'A post with a cover needs coverAlt describing the photo.',
-        path: ['coverAlt'],
-      }),
+    z.object({
+      title: z.string(),
+      date: z.coerce.date(),
+      /* A reader-visible revision. Absent omits `dateModified` rather than copying `date`. */
+      updated: z.coerce.date().optional(),
+      category: z.enum(BLOG_CATEGORIES),
+      /* Lorem ipsum stand-in. Required so every post states it; tests/llms-txt.spec.ts checks the text. */
+      placeholder: z.boolean(),
+      /* Kebab-case: each tag is a URL segment in /blog/tag/<tag>/. */
+      tags: z.array(z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/)).default([]),
+      teaser: z.string(),
+      featured: z.boolean().default(false),
+      readingTime: z.number().optional(),
+      /* Ends the post with the sample persona's sources (src/lib/persona.ts). */
+      personaSources: z.boolean().default(false),
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      /* Any ratio, relative to the post; uncropped on the post, the /blog feature card and its homepage card. */
+      cover: image(),
+      coverAlt: z.string().min(1),
+      /* Where the build crops the square card thumbnail. */
+      coverPosition: z.enum(COVER_POSITIONS).default('center'),
+      /* The cover's photographer, shown in the post's date line; a PHOTOGRAPHERS name is linked. */
+      coverCredit: z.string().optional(),
+    }),
 });
 
 const TALKS_CONTENT_DIR = 'src/content/talks';
