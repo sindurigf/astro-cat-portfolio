@@ -1,6 +1,6 @@
 // A deck is one file of many slides, so three document rules misread it.
 {
-  // Every slide opens with a # heading; the page renders each as an h2.
+  // Every slide opens with a # heading; each slide after the cover renders as an h2.
   "MD025": false,
   // A closing slide may repeat the talk's title, as this deck's slide 28 does.
   "MD024": false,

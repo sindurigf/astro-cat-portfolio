@@ -64,6 +64,7 @@ What happens without the `CONTACT_NOTIFY_TO` secret:
 | `npm run check:untransformed`  | No built file is byte-identical to a source image                                                                                                         |
 | `npm run check:title-case`     | Built headings, titles, summaries, `og:title` and button labels are in Chicago title case; needs `npm run build`                                          |
 | `npm run check:exif`           | No EXIF, XMP or IPTC in JPEG, PNG or WebP under `src/assets`, `public` and `artwork`; AVIF is not read                                                    |
+| `npm run check:pdf`            | Every PDF in `public/` against PDF/UA-1, veraPDF in Docker                                                                                                |
 | `npm run check:commits`        | Commit subjects match `type: Sentence.` and carry no AI attribution, against `origin/main`                                                                |
 | `npm run check:test-weakening` | Test weakening against `origin/main`, working tree included; CI runs it as the `Test weakening` check                                                     |
 | `npm run check:fork`           | Every `TODO(fork)` marker left, as `file:line` with the count; fails on any other TODO comment in code and config; `--strict` fails while one is left     |
@@ -76,7 +77,6 @@ What happens without the `CONTACT_NOTIFY_TO` secret:
 | `npm run test:coverage`        | `test:a11y` in Chromium, with line and branch coverage of `src/`                                                                                          |
 | `npm run check:live`           | Production headers and markup against this repository                                                                                                     |
 | `npm run check:live:console`   | Every production route in a browser, failing on console errors                                                                                            |
-| `npm run check:pdf`            | Every PDF in `public/` against PDF/UA-1, veraPDF in Docker                                                                                                |
 | `npm run publish:talk`         | Print a talk's slideshow to its tagged PDF in `public/talks/`                                                                                             |
 | `npm run og`                   | After a build, render `public/images/og-default.png` and every page's card in `public/images/og/`                                                         |
 | `npm run hero-still`           | After a build, redraws the hero stills in `src/assets/hero-still-*.webp` shown without JavaScript                                                         |
