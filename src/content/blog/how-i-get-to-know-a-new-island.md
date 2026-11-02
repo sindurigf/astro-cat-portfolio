@@ -9,6 +9,8 @@ teaser: 'A desert kingdom, an island in the sky and one full of zombies. Seven h
 readingTime: 4
 personaSources: true
 seoDescription: 'Travel habits from an archaeologist: find the oldest stone, respect ruins, go ashore on the scary islands, sketch what you see and ask who built it.'
+cover: '../../assets/blog/how-i-get-to-know-a-new-island/cover.jpg'
+coverAlt: 'A linocut of a small island with one ancient stone pillar, ringed by carved waves.'
 ---
 
 I have been to a lot of islands, often in a hurry. Some were deserts, one was in the sky and one was full of zombies. These are the habits that help me get to know a new place.

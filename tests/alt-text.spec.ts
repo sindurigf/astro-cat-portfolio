@@ -5,22 +5,34 @@ import { NODE } from './tags';
 
 /**
  * Alt text rules axe cannot judge: every <img> has an `alt` (Astro writes an
- * empty one as a bare `alt`), only the logo mark is empty, a filled one is not
+ * empty one as a bare `alt`), only the logo mark and decorative card covers are empty, a filled one is not
  * a filename or "image/photo/picture/logo", and an inline <svg> is hidden or named.
  */
 
 /** The one image the site draws for decoration. */
 const DECORATIVE = /box-cat|logo-cat/;
 
+/* A post card's cover: the card heading names the post (H67). */
+const CARD_COVER = /\sdata-card-cover(?=[\s>=/])/;
+
 const SUPPLIED_BY_THE_READER = /\b(image|photo|picture|logo)\b/i;
 const FILENAME = /\.(webp|avif|jpe?g|png|gif|svg)\b/i;
 
 type Problem = { image: string; problem: string };
 
+/** Whether the tag at `index` sits inside an open `<article class="card …">`. */
+const insidePostCard = (html: string, index: number): boolean => {
+  const open = html.lastIndexOf('<article', index);
+  return (
+    open > html.lastIndexOf('</article>', index) &&
+    /^<article\b[^>]*\sclass="[^"]*\bcard\b/.test(html.slice(open))
+  );
+};
+
 const auditImages = (html: string): Problem[] => {
   const problems: Problem[] = [];
 
-  for (const [tag] of html.matchAll(/<img\b[^>]*>/g)) {
+  for (const { 0: tag, index } of html.matchAll(/<img\b[^>]*>/g)) {
     const source = /\ssrc="([^"]*)"/.exec(tag)?.[1] ?? '(no src)';
     const valued = /\salt="([^"]*)"/.exec(tag);
     const bare = /\salt(?=[\s>/])/.test(tag);
@@ -33,10 +45,16 @@ const auditImages = (html: string): Problem[] => {
 
     const alt = valued?.[1]?.trim() ?? '';
     if (alt === '') {
-      if (!DECORATIVE.test(source)) {
+      if (CARD_COVER.test(tag) && !insidePostCard(html, index)) {
         problems.push({
           image,
-          problem: 'empty alt on an image that is not the logo mark',
+          problem: 'a card cover outside a post card',
+        });
+      } else if (!DECORATIVE.test(source) && !CARD_COVER.test(tag)) {
+        problems.push({
+          image,
+          problem:
+            'empty alt on an image that is not the logo mark or a card cover',
         });
       }
       continue;
@@ -84,6 +102,8 @@ const FIXTURE = `
   <svg viewBox="0 0 24 24"><path d="" /></svg>
   <img src="/_astro/box-cat-roundel.svg" alt>
   <img src="/_astro/bicycle.webp" alt="A person riding a bicycle down a tree-lined path.">
+  <article class="card flex"><img src="/_astro/cover.webp" alt="" data-card-cover></article>
+  <img src="/_astro/stray.webp" alt="" data-card-cover>
   <svg aria-hidden="true"><path d="" /></svg>
   <svg role="img"><path d="" /></svg>
   <svg role="img"><title>A mascot asleep</title><path d="" /></svg>
@@ -94,9 +114,10 @@ test('the checker reports every kind of fault', NODE, () => {
   const problems = auditImages(FIXTURE).map((p) => p.problem);
   expect(problems).toEqual([
     'no alt attribute',
-    'empty alt on an image that is not the logo mark',
+    'empty alt on an image that is not the logo mark or a card cover',
     'alt says what a screen reader already says: "A photo of a desk"',
     'alt is a filename: "mascot.webp"',
+    'a card cover outside a post card',
     'an svg that is neither aria-hidden nor named',
     'an svg that is neither aria-hidden nor named',
   ]);

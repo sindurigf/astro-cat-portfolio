@@ -11,6 +11,8 @@ readingTime: 9
 personaSources: true
 seoTitle: 'Reading the Stones'
 seoDescription: 'A talk on why old records disappear, what the survivors had in common, and six habits open projects can borrow from them.'
+cover: '../../assets/blog/sample-talk/cover.jpg'
+coverAlt: 'A linocut of a chipped stone tablet carved with rows of glyphs.'
 ---
 
 The library I grew up in burned in a single day. Most records are lost more slowly. A [library lost its only reader](https://example.org/1/), a [catalog lived in one person's head](https://example.org/2/), a [script stopped being taught](https://example.org/3/). [Copies were never made](https://example.org/4/), [keys were never written down](https://example.org/5/), and [nobody noticed until it was too late](https://example.org/6/). Open projects fail in the same quiet ways.

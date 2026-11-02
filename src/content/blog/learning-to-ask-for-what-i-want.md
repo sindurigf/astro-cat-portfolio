@@ -9,6 +9,8 @@ teaser: 'For twenty years, asking for anything was dangerous. How my crew taught
 readingTime: 3
 personaSources: true
 seoDescription: 'Twenty years on the run taught me to ask for nothing. What changed at Enies Lobby, and why saying no clearly matters just as much.'
+cover: '../../assets/blog/learning-to-ask-for-what-i-want/cover.jpg'
+coverAlt: 'A linocut of an open hand raised palm forward.'
 ---
 
 I was eight when the World Government put a bounty on me. For the next twenty years, asking anyone for anything was dangerous.

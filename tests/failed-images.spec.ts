@@ -7,10 +7,11 @@ import {
 } from './test';
 import { AA_TEXT, NON_TEXT, PAGE_HELPERS } from './contrast';
 import {
-  BLOG_FEATURES_COVER,
   builtHtml,
+  CATEGORY_ROUTES,
   PHOTO_POST_ROUTES,
   POSTS,
+  TAG_ROUTES,
 } from './routes';
 import { gotoSettled } from './settle';
 import { NODE } from './tags';
@@ -28,7 +29,9 @@ const FRAME_ROUTES = [
   '/',
   '/about',
   '/brand',
-  ...(BLOG_FEATURES_COVER ? ['/blog'] : []),
+  '/blog',
+  ...CATEGORY_ROUTES,
+  ...TAG_ROUTES,
   ...new Set([
     ...PHOTO_POST_ROUTES,
     ...POSTS.filter((post) => post.hasCover).map((post) => post.route),

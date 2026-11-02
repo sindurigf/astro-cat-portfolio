@@ -21,3 +21,39 @@ export const MARKDOWN_WIDTHS = [...WIDTHS, 1920, 2400];
 const HERO_PHOTO_CAP = 'calc(24rem - 8px)';
 
 export const HERO_PHOTO_SIZES = `(min-width: 1829px) calc(20.93vw + 178px), (min-width: 1396px) calc(17.9vw + 234px), (min-width: 83rem) 484px, (min-width: 64rem) calc(39vw - 34px), min(calc(100vw - 5.5rem), ${HERO_PHOTO_CAP})`;
+
+/* Every post card crops its cover to this frame, whatever the cover's own shape. */
+export const CARD_COVER_RATIO = { width: 4, height: 3 } as const;
+
+/*
+ * A post card cover's drawn width. Stacked cards by column count at `lg`
+ * (homepage Featured Posts, the /blog list); the /blog feature holds it in its
+ * right half from `md`, a card filling its row from `lg`. tests/image-size.spec.ts fails when one drifts.
+ */
+const CARD_NARROW =
+  '(min-width: 40rem) calc(100vw - 144px), calc(100vw - 96px)';
+
+/* px a wall step takes off a card's right edge from `lg`: `--step-x` in global.css. */
+const STEP_PX = 24;
+/* A two-column card cover's width from 83rem, and its inset from half the viewport below that. */
+const TWO_COLUMN_CARD_PX = 546;
+const TWO_COLUMN_CARD_INSET_PX = 118;
+
+/** A stacked card's cover in a wall of two columns at `lg`, stepped in `step` times. */
+export const steppedCardCoverSizes = (step: number): string =>
+  `(min-width: 83rem) ${TWO_COLUMN_CARD_PX - STEP_PX * step}px, (min-width: 64rem) calc(50vw - ${TWO_COLUMN_CARD_INSET_PX + STEP_PX * step}px), ${CARD_NARROW}`;
+
+export const CARD_COVER_SIZES = {
+  2: steppedCardCoverSizes(0),
+  3: `(min-width: 83rem) 333px, (min-width: 64rem) calc(33.33vw - 109px), ${CARD_NARROW}`,
+  feature:
+    '(min-width: 48rem) min(calc(50vw - 5.5rem), 36rem), (min-width: 40rem) calc(100vw - 9rem), calc(100vw - 6rem)',
+  row: `(min-width: 64rem) min(calc(50vw - 5.5rem), 36rem), ${CARD_NARROW}`,
+} as const;
+
+/*
+ * The post card on /brand, in the brand page's own columns: its content
+ * column splits at 51rem and again past the menu at 1143px.
+ */
+export const BRAND_CARD_COVER_SIZES =
+  '(min-width: 83rem) 332px, (min-width: 1143px) calc(50vw - 331px), (min-width: 64rem) calc(96.62vw - 480px), (min-width: 51rem) calc(50vw - 168px), (min-width: 40rem) calc(100vw - 192px), calc(100vw - 144px)';
