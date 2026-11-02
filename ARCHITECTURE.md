@@ -251,7 +251,8 @@ Headings, alt text, focus rings and axe are checked on the rendered page by
   the build fails without them. The cover is the post's hero photo and its
   sharing card, uncropped. Every post card, the newest included, shows a 4:3
   crop at `coverPosition` (`CARD_COVER_RATIO`): `center`, `top`, `bottom`,
-  `left` or `right` ([STYLEGUIDE](docs/STYLEGUIDE.md#posts)).
+  `left` or `right`, and so does the `/blog` sharing card, which takes the
+  feature card's cover ([STYLEGUIDE](docs/STYLEGUIDE.md#posts)).
 - `updated` sets `dateModified`; absent, it is omitted, not copied from `date`.
 - Pagination (`/blog/page/<n>`) builds only past `POSTS_PER_PAGE`, 9 unless
   the build's `POSTS_PER_PAGE` variable sets another positive whole number.
@@ -545,7 +546,7 @@ in `wrangler.jsonc`).
 - Photos: `src/assets/photos/` (pages) and `src/assets/blog/<slug>/` (posts).
   Masters are JPEG, metadata stripped, never cropped on display: tiles, pairs,
   strips, figures, covers and sharing cards show the whole file. Only a post
-  card cover is a crop.
+  card cover is a crop, and the `/blog` sharing card that takes it.
 - Fixed-size photos pass `DENSITIES`; fluid ones pass `WIDTHS` and `sizes`
   from `src/lib/image-densities.ts`. `WIDTHS` steps at most 1.5x; `sizes` is
   the real drawn width. `tests/image-size.spec.ts` fails on stretching,

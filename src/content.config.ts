@@ -49,7 +49,7 @@ const blog = defineCollection({
       personaSources: z.boolean().default(false),
       seoTitle: z.string().optional(),
       seoDescription: z.string().optional(),
-      /* Any ratio, relative to the post; uncropped on the post page, cropped to 4:3 on every card. */
+      /* Any ratio, relative to the post; uncropped on the post page and its sharing card, cropped to 4:3 on every card. */
       cover: image(),
       coverAlt: z.string().min(1),
       /* Where the build crops the card's 4:3 cover. */
