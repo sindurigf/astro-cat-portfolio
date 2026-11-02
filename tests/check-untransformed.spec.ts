@@ -1,6 +1,6 @@
 import { expect, test } from './test';
 import { builtFixture, runCheck, type Files } from './check-fixture';
-import { SERVED_AS_IS } from '../scripts/check-untransformed.mjs';
+import { SERVED_AS_IS } from '../scripts/check-allow-lists.mjs';
 import { NODE } from './tags';
 
 const SCRIPT = 'scripts/check-untransformed.mjs';

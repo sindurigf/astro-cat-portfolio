@@ -1,6 +1,6 @@
 import { expect, test } from './test';
 import { builtFixture, runCheck, type Files } from './check-fixture';
-import { ALLOWED } from '../scripts/check-title-case.mjs';
+import { TITLE_CASE_ALLOWED } from '../scripts/check-allow-lists.mjs';
 import { SITE_CONFIG } from '../src/site.config';
 import { NODE } from './tags';
 
@@ -26,10 +26,12 @@ const distFile = (route: string): string => `dist/client${route}index.html`;
 /* Every allowed text on its route, so none reads as stale. */
 const allowedPages = (): Files => {
   const bodies: Record<string, string> = {};
-  for (const { route, kind, text } of ALLOWED as Allowed[]) {
+  for (const { route, kind, text } of TITLE_CASE_ALLOWED as Allowed[]) {
     const markup = MARKUP[kind];
     if (!markup)
-      throw new Error(`no fixture markup for ALLOWED kind "${kind}"`);
+      throw new Error(
+        `no fixture markup for TITLE_CASE_ALLOWED kind "${kind}"`,
+      );
     bodies[route] = `${bodies[route] ?? ''}${markup(text)}`;
   }
   return Object.fromEntries(

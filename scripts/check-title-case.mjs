@@ -5,7 +5,7 @@
  * Each part of a hyphenated compound counts as a word.
  * The site name and short name in src/site.config.ts are exempt, in their own case.
  */
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { fileURLToPath } from 'node:url';
 import { existsSync } from 'node:fs';
 import { glob, readFile } from 'node:fs/promises';
 import { join } from 'node:path';
@@ -13,6 +13,7 @@ import { assertBuildCurrent } from './build-fingerprint.mjs';
 import { visibleMarkup } from './visible-markup.mjs';
 import { titleCaseMiss } from '../src/lib/labels.ts';
 import { SITE_CONFIG } from '../src/site.config.ts';
+import { TITLE_CASE_ALLOWED as ALLOWED } from './check-allow-lists.mjs';
 
 const ROOT =
   process.env.CHECK_ROOT ?? fileURLToPath(new URL('..', import.meta.url));
@@ -44,12 +45,6 @@ const BRAND_TOKENS = new Set([
   SITE_CONFIG.site.name,
   SITE_CONFIG.site.shortName,
 ]);
-
-/*
- * Each entry names why the text stays as written. An entry that no longer
- * matches fails.
- */
-export const ALLOWED = [];
 
 const ENTITIES = {
   '&nbsp;': ' ',
@@ -135,7 +130,7 @@ const run = async () => {
   for (const { route, kind, text } of stale) {
     console.error(
       `Title case: ALLOWED entry ${kind} "${text}" on ${route} no longer ` +
-        'matches; remove it from ALLOWED.',
+        'matches; remove it from TITLE_CASE_ALLOWED in scripts/check-allow-lists.mjs.',
     );
   }
 
@@ -160,9 +155,4 @@ const run = async () => {
   );
 };
 
-if (
-  process.argv[1] &&
-  import.meta.url === pathToFileURL(process.argv[1]).href
-) {
-  await run();
-}
+await run();

@@ -1,6 +1,6 @@
 import { expect, test } from './test';
 import { builtFixture, runCheck } from './check-fixture';
-import { HOOKS } from '../scripts/check-classes.mjs';
+import { CLASS_HOOKS } from '../scripts/check-allow-lists.mjs';
 import { NODE } from './tags';
 
 const SCRIPT = 'scripts/check-classes.mjs';
@@ -9,7 +9,7 @@ const UNSTYLED = 'missing-token';
 
 /* Every hook used without CSS, so none reads as stale. */
 const hookMarkup = (): string =>
-  [...(HOOKS as Map<string, string>).keys()]
+  [...(CLASS_HOOKS as Map<string, string>).keys()]
     .map((hook) => `<span class="${hook}"></span>`)
     .join('');
 

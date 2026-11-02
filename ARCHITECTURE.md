@@ -182,8 +182,8 @@ Dark is the default. Colors and rules:
 - a grid column count or split other than those in
   [STYLEGUIDE Grid](docs/STYLEGUIDE.md#grid)
 
-`EXCEPTIONS` lists false positives, each with its reason, and fails when one
-no longer matches.
+`TOKEN_EXCEPTIONS` in `scripts/check-allow-lists.mjs` lists false positives,
+each with its reason, and fails when one no longer matches.
 
 Headings, alt text, focus rings and axe are checked on the rendered page by
 `tests/headings.spec.ts`, `tests/alt-text.spec.ts`, `tests/focus.spec.ts` and

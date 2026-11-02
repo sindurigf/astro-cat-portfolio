@@ -2,64 +2,19 @@
  * Fails if a built file is byte-identical to a source image. Reading any
  * property of an imported image emits its original, which no page links to.
  */
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { fileURLToPath } from 'node:url';
 import { existsSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { glob, readFile } from 'node:fs/promises';
 import { join, relative } from 'node:path';
 import { assertBuildCurrent } from './build-fingerprint.mjs';
+import { SERVED_AS_IS } from './check-allow-lists.mjs';
 
 const ROOT =
   process.env.CHECK_ROOT ?? fileURLToPath(new URL('..', import.meta.url));
 const DIST = join(ROOT, 'dist/client');
 const ASSETS = join(ROOT, 'src/assets');
 const TALKS = join(ROOT, 'src/content/talks');
-
-/*
- * Each entry names what reads the original. An entry that no longer matches
- * fails.
- */
-export const SERVED_AS_IS = new Map([
-  ...['minerva', 'rudra', 'hela'].map((cat) => [
-    `about-cats-${cat}.avif`,
-    'the About cats draw their frames from it with SVG <image>; it is an AVIF atlas already.',
-  ]),
-  [
-    'box-cat-logo.svg',
-    'Header.astro and 404.astro import it with `?url`: one file with its picture inside, cached once for every page.',
-  ],
-  [
-    'box-cat-roundel.svg',
-    'Roundel.astro imports it with `?url`: one file with its picture inside, cached once for every page.',
-  ],
-  [
-    'box-cat-footer.svg',
-    'Footer.astro imports it with `?url`: one file with its picture inside, cached once for every page.',
-  ],
-  [
-    'logo-cat.svg',
-    'CatMark.astro imports it with `?url`: a vector file, cached once for every page.',
-  ],
-  [
-    'hero-still-short.webp',
-    'layout.css links it as the hero background under `scripting: none`; ' +
-      'scripts/make-hero-still.mjs writes it as WebP already.',
-  ],
-  [
-    'hero-still-tall.webp',
-    'layout.css links it as the hero background under `scripting: none`; ' +
-      'scripts/make-hero-still.mjs writes it as WebP already.',
-  ],
-  [
-    'hero-still-wide.webp',
-    'layout.css links it as the hero background under `scripting: none`; ' +
-      'scripts/make-hero-still.mjs writes it as WebP already.',
-  ],
-  [
-    'social-icons.svg',
-    'the footer imports it with `?url` and every page links it as a <use> sprite.',
-  ],
-]);
 
 /* Skips node_modules, including a stale one under src/content/talks/. */
 const walk = async (dir) =>
@@ -123,7 +78,7 @@ const run = async () => {
   for (const name of stale) {
     console.error(
       `Untransformed: SERVED_AS_IS entry "${name}" no longer matches, as the ` +
-        'build does not ship it byte for byte; remove it from SERVED_AS_IS.',
+        'build does not ship it byte for byte; remove it from SERVED_AS_IS in scripts/check-allow-lists.mjs.',
     );
   }
 
@@ -140,8 +95,8 @@ const run = async () => {
         'is reading a property of an imported image directly, such as ' +
         '`image.width`: that marks the original as used. Take the size from ' +
         '`getImage({ src })` instead, as src/components/PhotoTile.astro does. ' +
-        'If a file is meant to ship as it is, add it to SERVED_AS_IS in this ' +
-        'script with what reads it.',
+        'If a file is meant to ship as it is, add it to SERVED_AS_IS in ' +
+        'scripts/check-allow-lists.mjs with what reads it.',
     );
     process.exit(1);
   }
@@ -153,9 +108,4 @@ const run = async () => {
   );
 };
 
-if (
-  process.argv[1] &&
-  import.meta.url === pathToFileURL(process.argv[1]).href
-) {
-  await run();
-}
+await run();
