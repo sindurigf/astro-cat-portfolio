@@ -258,13 +258,17 @@ test.describe('bricks', () => {
     await expect(page.locator(MENU_LINK).first()).toBeVisible();
   };
 
-  test('a pressed menu brick drops its throw', async ({ page }) => {
+  test('a pressed menu brick drops its throw and moves', async ({ page }) => {
     await openMenu(page);
     await pressCenter(page, MENU_LINK);
     expect(
       await castsShadow(page, MENU_LINK),
       'a pressed menu brick keeps its throw',
     ).toBe(false);
+    expect(
+      (await translateOf(page, MENU_LINK)).some((offset) => offset !== 0),
+      'a pressed menu brick does not move',
+    ).toBe(true);
     await page.mouse.up();
   });
 
