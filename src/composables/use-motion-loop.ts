@@ -5,7 +5,7 @@ import {
   type MotionLoopOptions,
 } from '../scripts/motion-loop';
 
-export { IDLE, NEXT_FRAME } from '../scripts/motion-loop';
+export { NEXT_FRAME } from '../scripts/motion-loop';
 
 export interface VueMotionLoop extends Omit<
   MotionLoop,
