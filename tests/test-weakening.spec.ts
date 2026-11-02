@@ -489,7 +489,7 @@ test.describe('test-weakening guard', NODE, () => {
     expect(inSpec(withLine(`  ${call('photos', 'fail')});`))).toEqual([]);
   });
 
-  test("accepts the marker only in the owner's approving review of the tested commit, outside code", () => {
+  test("accepts the marker only in the owner's approving or comment review of the tested commit, outside code", () => {
     const HEAD = 'abc123';
     const review = (
       login: string,
@@ -505,7 +505,21 @@ test.describe('test-weakening guard', NODE, () => {
 
     expect(approve(review('coordinator-bot', MARKER))).toBeNull();
     expect(approve(review(OWNER, MARKER, { commitId: 'older1' }))).toBeNull();
-    expect(approve(review(OWNER, MARKER, { state: 'COMMENTED' }))).toBeNull();
+    expect(approve(review(OWNER, MARKER, { state: 'COMMENTED' }))).toBe(
+      'the old check measured decoration.',
+    );
+    expect(approve(review(OWNER, MARKER, { state: 'PENDING' }))).toBeNull();
+    expect(
+      approve(
+        review(OWNER, MARKER, { state: 'COMMENTED', editor: 'agent-bot' }),
+      ),
+    ).toBeNull();
+    expect(
+      approve(
+        review(OWNER, MARKER, { state: 'COMMENTED' }),
+        review(OWNER, 'Not this one.', { state: 'DISMISSED' }),
+      ),
+    ).toBeNull();
     expect(approve(review(OWNER, MARKER, { state: 'DISMISSED' }))).toBeNull();
     expect(approve(review(OWNER, MARKER, { editor: 'agent-bot' }))).toBeNull();
     expect(

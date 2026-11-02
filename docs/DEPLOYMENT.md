@@ -261,25 +261,24 @@ Dashboard settings that change what ships without a file change.
   branch, so a stacked pull request gets the full gate. Its commits are checked
   against its own base branch, not `main`.
 - `Test weakening` (`.github/workflows/test-weakening.yml`) is a second
-  status. GitHub blocks approving your own pull request, so the owner sets it
-  up in this order, in both repositories:
-  1. Create a machine account for agents and add it as a collaborator with
-     write access.
-  2. Give the agents a fine-grained token for it, scoped to both repositories
-     with Contents and Pull requests set to read and write. Log the agents'
-     `gh` in with it and remove the owner's token from their keyring.
-  3. Require the status: Settings, Rules, Rulesets, the `main` ruleset,
-     Require status checks to pass, Add checks, type `Test weakening`, pick
-     the GitHub Actions source, Save. The name is offered once the check has
-     run on a pull request. Before step 2, every flagged pull request blocks.
-  4. Add `.github/CODEOWNERS` naming the owner for `/.github/` and
+  status. The owner's approving or comment review with the marker passes it
+  ([rule](../ARCHITECTURE.md#tests)). To require it, in both repositories:
+  1. Settings, Rules, Rulesets, the `main` ruleset, Require status checks to
+     pass, Add checks, type `Test weakening`, pick the GitHub Actions source,
+     Save. The name is offered once the check has run on a pull request.
+  2. Add `.github/CODEOWNERS` naming the owner for `/.github/` and
      `/scripts/check-test-weakening.mjs`, and turn on Require review from Code
      Owners in the `main` ruleset. A workflow could report a job also named
      `Test weakening`; this keeps such a change from merging.
+- Agents use the owner's `gh` login, so they could post the marker. To take
+  that away, create a machine account for them with write access and a
+  fine-grained token for both repositories (Contents and Pull requests, read
+  and write), log their `gh` in with it, and remove the owner's token from
+  their keyring.
 - `.github/workflows/rerun-test-weakening.yml` re-runs `Test weakening` for a
-  pull request's head when the owner comments with "approved" or submits an
-  approving review, so the check reads the approval without a manual re-run.
-  It runs the default branch's guard and checks out nothing from the pull
+  pull request's head when the owner submits an approving review, or a comment
+  review with the marker, so the check reads it without a manual re-run. It
+  runs the default branch's guard and checks out nothing from the pull
   request.
 - Turn on Dependabot alerts, automated security fixes and private
   vulnerability reporting ([SECURITY.md](../SECURITY.md)).
