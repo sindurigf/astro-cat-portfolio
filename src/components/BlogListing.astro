@@ -9,6 +9,7 @@ import {
 import { ariaCurrent } from '../lib/nav';
 import { BLOG_PATH, categoryHref, indexPageHref } from '../lib/paths';
 import BlogCard from './BlogCard.astro';
+import { CARD_COVER_SIZES } from '../lib/image-densities';
 import { packRows, wallClasses } from '../lib/wall';
 
 /*
@@ -136,6 +137,11 @@ const EMPTY_BLOG = {
           <BlogCard
             {...cardProps(post)}
             feature={feature}
+            wide={fillsRow}
+            coverSizes={
+              feature || fillsRow ? CARD_COVER_SIZES.wide : CARD_COVER_SIZES[2]
+            }
+            describeCover={feature}
             eager={index === 0}
             headingLevel={2}
             class:list={['w-full', fillsRow && 'card-wide']}

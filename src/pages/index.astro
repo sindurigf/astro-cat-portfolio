@@ -16,7 +16,7 @@ import {
   getFeaturedPosts,
   getSortedPosts,
 } from '../lib/blog';
-import { FEATURED_COVER_SIZES, WIDTHS } from '../lib/image-densities';
+import { CARD_COVER_SIZES, WIDTHS } from '../lib/image-densities';
 import { PERSONA_NOTICE_ID, SAMPLE_PERSONA } from '../lib/persona';
 import { MOTTO } from '../lib/site';
 import { CATEGORIES, CATEGORY_TILE } from '../lib/categories';
@@ -38,7 +38,7 @@ const FEWER_FEATURED_COLUMNS = 2;
 const [newest] = await getSortedPosts();
 const featuredColumns =
   featured.length >= FEATURED_LIMIT ? FEATURED_LIMIT : FEWER_FEATURED_COLUMNS;
-const featuredCoverSizes = FEATURED_COVER_SIZES[featuredColumns];
+const featuredCoverSizes = CARD_COVER_SIZES[featuredColumns];
 const featuredWall = wallClasses(
   {
     lg: packRows(
@@ -289,9 +289,8 @@ const statWall = wallClasses({ sm: [[0, 1]] }, STATS.length);
           <li class:list={['flex min-w-0', featuredWall.bricks[index]]}>
             <BlogCard
               {...cardProps(post)}
-              {...(post.id === newest?.id
-                ? { largeCoverSizes: featuredCoverSizes }
-                : {})}
+              coverSizes={featuredCoverSizes}
+              describeCover={post.id === newest?.id}
               headingLevel={3}
               class="w-full"
             />

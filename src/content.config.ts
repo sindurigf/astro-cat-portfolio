@@ -18,7 +18,7 @@ export const BLOG_CATEGORIES = [
 
 export type BlogCategory = (typeof BLOG_CATEGORIES)[number];
 
-/* Crop positions sharp reads for the square card thumbnail. */
+/* Crop positions sharp reads for a post card's 4:3 cover. */
 export const COVER_POSITIONS = [
   'center',
   'top',
@@ -49,10 +49,10 @@ const blog = defineCollection({
       personaSources: z.boolean().default(false),
       seoTitle: z.string().optional(),
       seoDescription: z.string().optional(),
-      /* Any ratio, relative to the post; uncropped on the post, the /blog feature card and a featured newest post's homepage card. */
+      /* Any ratio, relative to the post; uncropped on the post page, cropped to 4:3 on every card. */
       cover: image(),
       coverAlt: z.string().min(1),
-      /* Where the build crops the square card thumbnail. */
+      /* Where the build crops the card's 4:3 cover. */
       coverPosition: z.enum(COVER_POSITIONS).default('center'),
       /* The cover's photographer, shown in the post's date line; a PHOTOGRAPHERS name is linked. */
       coverCredit: z.string().optional(),
