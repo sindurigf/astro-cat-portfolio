@@ -258,12 +258,11 @@ test.describe('the theme menu', () => {
     page,
   }) => {
     await page.addInitScript(() => {
-      const blocked = () => {
-        throw new DOMException('Storage is blocked', 'SecurityError');
-      };
-      Storage.prototype.getItem = blocked;
-      Storage.prototype.setItem = blocked;
-      Storage.prototype.removeItem = blocked;
+      Object.defineProperty(window, 'localStorage', {
+        get() {
+          throw new DOMException('Storage is blocked', 'SecurityError');
+        },
+      });
     });
     const errors: string[] = [];
     page.on('pageerror', (error) => errors.push(error.message));
