@@ -18,7 +18,9 @@ import {
   moveToPlay,
   scaleTravel,
   scaledExtent,
+  CUP_LIP,
   EDGE_MOVES,
+  knockAt,
   TRAVEL_FACTORS,
   TRAVEL_MOVES,
   type Move,
@@ -65,7 +67,7 @@ export const CONTROL_ROOM = 48;
 const FIT_STEPS = 24;
 /** Chance a cat on a stepped band climbs to the next brick instead. */
 const CLIMB_CHANCE = 0.5;
-/** Where a cat stands from the card's edge to push the cup, the track's end: CUP_AHEAD plus its tip takes the cup past the edge. */
+/** Where a cat stands from the card's edge to push the cup: the track's end. */
 const CUP_EDGE = TRACK_MARGIN;
 /** A pointer that has not moved for this long no longer draws a cat's eye. */
 export const POINTER_IDLE_MS = 4000;
@@ -259,12 +261,12 @@ export const planMove = (
 };
 
 /**
- * The cup push from anywhere on the track, heading left: a run and a creep to
- * `edge`, the track's left end, so the cup goes over the card's or the step's edge.
+ * The cup push from anywhere on the track, heading left: a run to `edge`, the
+ * track's left end, `lip` px short of the card's or the step's edge, which the cup goes over.
  * Left only: the right end is the sleep control's corner.
  */
-export const cupPush = (x: number, edge = CUP_EDGE): Move =>
-  withApproach(moveToPlay('knock'), Math.max(0, x - edge), 0, 'run');
+export const cupPush = (x: number, edge = CUP_EDGE, lip = CUP_LIP): Move =>
+  withApproach(knockAt(lip), Math.max(0, x - edge), 0, 'run');
 
 export const createColony = (
   spots: CatSpot[],
@@ -498,7 +500,13 @@ export const createColony = (
   /** Plays `name` from where the cat stands; false if it fits nowhere on the track. */
   const begin = (cat: CatState, name: MoveName, now: number): boolean => {
     if (EDGE_MOVES.has(name)) {
-      play(cat, cupPush(cat.pose.x, cat.min), now, -1);
+      const brick = cat.ledges[ledgeIndex(cat, cat.pose.x)];
+      play(
+        cat,
+        cupPush(cat.pose.x, cat.min, cat.min - (brick?.x0 ?? 0)),
+        now,
+        -1,
+      );
       return true;
     }
     const plan = planFor(cat, name);
