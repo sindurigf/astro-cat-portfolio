@@ -342,26 +342,26 @@ type Route = readonly [RoutePoint, ...RoutePoint[]];
 /* Arcs in px; with them the tallest move stays under --spacing-cat-band (tests/about-cats.spec.ts). */
 const POUNCE_HEIGHT = 56;
 const LEAP_HEIGHT = 40;
-/** The scratching post's width in px: thick enough that both scratching drawings' paws land on its face. */
+/** The scratching post's width in px. */
 export const POST_WIDTH = 18;
-/** px ahead of the cat's middle that its sitting paw raise reaches, rim included; the post's face stands there. */
-const SCRATCH_PAW: Record<CatId, number> = {
-  minerva: 26,
-  hela: 20,
-  rudra: 24,
+/** px ahead of the cat's middle and up from its feet where each cat's scratch drawing hooks its claws. */
+const SCRATCH_CLAWS: Record<CatId, Pair> = {
+  minerva: [32, 97],
+  hela: [23, 78],
+  rudra: [29, 100],
 };
-/** px the paw sinks into the post's face, so it reads as clawing in, not hovering. */
-const SCRATCH_GRIP = 3;
-/** A scratch: paws reach high up the post, then rake down; each stroke takes this long. */
-const SCRATCH_STROKE_MS = 250;
-const SCRATCH_STROKES = 12;
-const SCRATCH_LOW: Partial<Pose> = {
-  fN: [21, -24],
-  fF: [19, -14],
-  hr: 0,
-  draw: 'pawrise',
-};
-const SCRATCH_HIGH: Partial<Pose> = { hr: 0, draw: 'swat' };
+/** px the claws sink into the post's face. */
+const SCRATCH_GRIP = 2;
+/** A stroke: a slow lean in, then a hard pull back. */
+const SCRATCH_REACH_MS = 380;
+const SCRATCH_PULL_MS = 170;
+const SCRATCH_PULLS = 6;
+/** px the body pulls back; the post leans with it, so the claws stay in its face. */
+const SCRATCH_PULL_PX = 5;
+/** ms for the post to settle once the claws let go, and for each swing on the way. */
+const POST_SETTLE_MS = 160;
+const POST_SWING_MS = 40;
+const SCRATCH: Partial<Pose> = { hr: 0, draw: 'scratch' };
 const YARN_BOUND_HEIGHT = 38;
 const FLY_HOP_HEIGHT = 40;
 /* The fly's route, [ms, x, y] ahead of the cat: it lands, is missed, circles, and escapes. */
@@ -683,28 +683,60 @@ export const MOVES = {
       };
     },
   }),
-  post: (): Move => ({
-    /* A long scratch up a tall post, the paws raking down in turn, then a look at the work. */
-    steps: [
-      step(600, 'rear', SCRATCH_LOW),
-      ...Array.from({ length: SCRATCH_STROKES }, (_, i) =>
-        i % 2 === 0
-          ? step(SCRATCH_STROKE_MS, 'leap', SCRATCH_HIGH)
-          : step(SCRATCH_STROKE_MS, 'rear', SCRATCH_LOW),
-      ),
-      step(600, 'sit', { hr: -14 }),
-      step(500, 'sit'),
-    ],
-    mods: [],
-    prop: 'post',
-    propAt: (t, cat) => ({
-      kind: 'post',
-      x: SCRATCH_PAW[cat] - SCRATCH_GRIP + POST_WIDTH / 2,
-      y: 0,
-      r: 0,
-      o: fade(t, 300, 4700, 300),
-    }),
-  }),
+  post: (): Move => {
+    /* Reaches up the post, then pulls down on it in strokes and looks at the work. */
+    const steps: Step[] = [
+      step(500, 'rear', { hr: 0, draw: 'swat' }),
+      step(SCRATCH_REACH_MS, 'leap', SCRATCH, 'out'),
+    ];
+    const pulls: number[] = [];
+    for (let i = 0; i < SCRATCH_PULLS; i++) {
+      pulls.push(stepsDuration(steps));
+      steps.push(
+        step(
+          SCRATCH_PULL_MS,
+          'leap',
+          { ...SCRATCH, x: -SCRATCH_PULL_PX },
+          'in',
+        ),
+        step(SCRATCH_REACH_MS, 'leap', SCRATCH, 'out'),
+      );
+    }
+    steps.push(step(600, 'sit', { hr: -14 }), step(500, 'sit'));
+    const end = stepsDuration(steps);
+    return {
+      steps,
+      mods: [],
+      prop: 'post',
+      propAt: (t, cat) => {
+        const [ahead, high] = SCRATCH_CLAWS[cat];
+        /* Leaning toward the cat turns the post anticlockwise. */
+        const tug = -Math.atan2(SCRATCH_PULL_PX, high) * (180 / Math.PI);
+        const done = pulls.filter((p) => t >= p);
+        const last = done.at(-1);
+        const since = last === undefined ? Infinity : t - last;
+        const pulling = Math.min(1, since / SCRATCH_PULL_MS);
+        const after = since - SCRATCH_PULL_MS;
+        return {
+          kind: 'post',
+          x: ahead - SCRATCH_GRIP + POST_WIDTH / 2,
+          y: 0,
+          r:
+            last === undefined
+              ? 0
+              : after < 0
+                ? tug * pulling ** 2
+                : tug *
+                  Math.exp(-after / POST_SETTLE_MS) *
+                  Math.cos(after / POST_SWING_MS),
+          o: fade(t, 300, end - 600, 300),
+          marks: pulls.filter((p) => t >= p + SCRATCH_PULL_MS).length,
+          sincePull: after < 0 ? Infinity : after,
+          clawHigh: high,
+        };
+      },
+    };
+  },
   /* Bats the ball, bounds after it, pounces with its paws on it, bats it on, then rolls over hugging it. */
   yarn: (): Move => ({
     steps: [

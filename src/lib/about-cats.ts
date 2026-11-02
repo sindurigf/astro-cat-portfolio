@@ -604,6 +604,7 @@ export const createColony = (
         ...s,
         x: playing.origin + playing.dir * s.x,
         r: playing.dir * s.r,
+        dir: playing.dir,
       };
       playing.prop.draw(playing.shown, now);
     }

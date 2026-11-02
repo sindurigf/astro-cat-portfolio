@@ -50,6 +50,20 @@ const ROPE_TURNS = Array.from(
 );
 /** px the post's cap reaches past each side of it. */
 const POST_CAP_OVERHANG = 5;
+/** Claw marks on the post's face: sets of three rakes, px apart, the next set lower down. */
+const MARK_SETS = 2;
+const MARKS_PER_SET = 3;
+const MARK_GAP = 3;
+const MARK_SET_DROP = 7;
+const MARK_LENGTH = 12;
+/** px below the claws the marks start. */
+const MARK_BELOW_CLAWS = 6;
+/** Bits of rope that fall from the claws after each pull: ms they last, and px per ms² they fall, per ms they drift and degrees per ms they spin. */
+const FLUFF_BITS = 4;
+const FLUFF_MS = 500;
+const FLUFF_FALL = 0.0005;
+const FLUFF_DRIFT = 0.006;
+const FLUFF_SPIN = 0.5;
 /** A small and a larger "z", drawn from the lower left of the small one. */
 const ZZ = 'M0 0h4l-4 5h4M6 -9h6l-6 7h6';
 const ZZ_HEIGHT = 14;
@@ -603,12 +617,65 @@ export const createProp = (
       node,
     );
   }
+  const place = (s: PropState): void => {
+    set(node, 'transform', `${translate(s.x, s.y)} rotate(${f(s.r)})`);
+    set(node, 'opacity', f(s.o));
+  };
+  if (kind !== 'post') return { node, remove, draw: place };
+  /* Drawn for a cat on the left, then mirrored to face the playing cat. */
+  const scratched = el('g', {}, node);
+  const face = -POST_WIDTH / 2;
+  const marks = Array.from({ length: MARK_SETS * MARKS_PER_SET }, () =>
+    el(
+      'path',
+      { class: 'cat-prop-string', 'stroke-width': 0.9, visibility: 'hidden' },
+      scratched,
+    ),
+  );
+  const fluff = Array.from({ length: FLUFF_BITS }, () =>
+    el(
+      'path',
+      {
+        d: 'M0 0l2 1.5',
+        class: 'cat-prop-rope',
+        'stroke-width': 1.2,
+        visibility: 'hidden',
+      },
+      scratched,
+    ),
+  );
   return {
     node,
     remove,
     draw: (s) => {
-      set(node, 'transform', `${translate(s.x, s.y)} rotate(${f(s.r)})`);
-      set(node, 'opacity', f(s.o));
+      place(s);
+      set(scratched, 'transform', `scale(${s.dir ?? 1} 1)`);
+      const top = -(s.clawHigh ?? 0) + MARK_BELOW_CLAWS;
+      marks.forEach((mark, i) => {
+        const shown = i < (s.marks ?? 0) * MARKS_PER_SET;
+        set(mark, 'visibility', shown ? 'visible' : 'hidden');
+        if (!shown) return;
+        const y =
+          top +
+          Math.floor(i / MARKS_PER_SET) * MARK_SET_DROP +
+          (i % MARKS_PER_SET) * MARK_GAP;
+        set(
+          mark,
+          'd',
+          `M${face + 1} ${y}l${6 + (i % MARKS_PER_SET)} ${MARK_LENGTH}`,
+        );
+      });
+      const since = s.sincePull ?? Infinity;
+      fluff.forEach((bit, i) => {
+        const falling = since < FLUFF_MS;
+        set(bit, 'visibility', falling ? 'visible' : 'hidden');
+        if (!falling) return;
+        const x = face - 2 - i * 1.5 - since * FLUFF_DRIFT * (i + 1);
+        const y = top + 4 + i * 4 + FLUFF_FALL * since ** 2;
+        const spin = since * FLUFF_SPIN * (i % 2 ? 1 : -1);
+        set(bit, 'transform', `${translate(x, y)} rotate(${f(spin)})`);
+        set(bit, 'opacity', f(1 - since / FLUFF_MS));
+      });
     },
   };
 };
