@@ -464,8 +464,15 @@ const SWAT_TIP: Record<CatId, Pair> = {
 export const CAT_IDS = Object.keys(SWAT_TIP) as CatId[];
 /** The feather swings back towards the cat by this share of its swing away, so each swat finds it. */
 const TOY_BACKSWING = 0.25;
-/** The cup stands clear of the head and chest. */
-const CUP_AHEAD = 36;
+/** The cup's middle, px ahead of the cat's: its near side where the patting paw comes down, 14 to 17 px ahead for the three cats. */
+const CUP_AT_PAW = 22;
+/** Half the cup's width, as drawn in about-cats-rig.ts. */
+const CUP_HALF_WIDTH = 5.5;
+/** px from where the cat stops to the card's edge: TRACK_MARGIN in about-cats.ts. */
+export const CUP_LIP = 48;
+/** The pat slides the cup to the edge, easing to a stop, and it starts to tip before it stops. */
+const CUP_SLIDE_MS = 200;
+const CUP_TIP_AFTER_MS = 150;
 /** One pat tips the cup over the edge: it slides off the lip, then drops, turning as it falls. */
 const CUP_LOOK_MS = 450;
 const CUP_PAW_UP_MS = 220;
@@ -561,6 +568,43 @@ const flopTo = (from: PoseName, to: PoseName, x = 0): Step[] => [
   step(FLOP_ROLL_MS, to, { x }, 'linear'),
 ];
 
+const easeOut = (k: number): number =>
+  1 - (1 - Math.min(1, Math.max(0, k))) ** 2;
+
+/** Looks at the cup, pats it once and watches it fall: the pat slides the cup from under the paw to the edge `lip` px ahead, and over it. */
+export const knockAt = (lip: number): Move => {
+  const slide = lip + CUP_HALF_WIDTH - CUP_AT_PAW;
+  const tipFrom = CUP_HIT + CUP_TIP_AFTER_MS;
+  return {
+    steps: [
+      step(CUP_LOOK_MS, 'sit', { hr: 14, draw: 'headturn' }),
+      step(CUP_PAW_UP_MS, 'sit', { hr: 8, draw: 'pawrise' }, 'out'),
+      step(CUP_PAW_DOWN_MS, 'sit', { hr: 14, draw: 'headturn' }, 'in'),
+      step(CUP_WATCH_MS, 'sit', { hr: 26, draw: 'headturn' }),
+      step(CUP_SETTLE_MS, 'sit'),
+    ],
+    mods: [],
+    prop: 'cup',
+    propAt: (t) => {
+      const pushed = t > CUP_HIT ? easeOut((t - CUP_HIT) / CUP_SLIDE_MS) : 0;
+      const tip = Math.min(1, Math.max(0, (t - tipFrom) / CUP_TIP_MS));
+      const fall = Math.max(0, t - tipFrom - CUP_TIP_MS);
+      const y = 0.5 * CUP_GRAVITY * fall ** 2;
+      return {
+        kind: 'cup',
+        x: CUP_AT_PAW + slide * pushed + CUP_TIP_PX * tip + CUP_DRIFT * fall,
+        y,
+        r: CUP_TIP_DEG * tip + CUP_SPIN * fall,
+        o: Math.min(
+          1,
+          t / CUP_FADE_IN_MS,
+          Math.max(0, 1 - (y - CUP_FADE_AFTER) / CUP_FADE_AFTER),
+        ),
+      };
+    },
+  };
+};
+
 /** A prop's opacity `t` ms in: it fades in over `inMs`, and out over the `outMs` before `end`. */
 const fade = (t: number, inMs: number, end: number, outMs: number): number =>
   Math.min(1, t / inMs, Math.max(0, (end - t) / outMs));
@@ -619,34 +663,7 @@ export const MOVES = {
       },
     };
   },
-  /* Looks at the cup, pats it once, and watches it fall. */
-  knock: (): Move => ({
-    steps: [
-      step(CUP_LOOK_MS, 'sit', { hr: 14, draw: 'headturn' }),
-      step(CUP_PAW_UP_MS, 'sit', { hr: 8, draw: 'pawrise' }, 'out'),
-      step(CUP_PAW_DOWN_MS, 'sit', { hr: 14, draw: 'headturn' }, 'in'),
-      step(CUP_WATCH_MS, 'sit', { hr: 26, draw: 'headturn' }),
-      step(CUP_SETTLE_MS, 'sit'),
-    ],
-    mods: [],
-    prop: 'cup',
-    propAt: (t) => {
-      const tip = Math.min(1, Math.max(0, (t - CUP_HIT) / CUP_TIP_MS));
-      const fall = Math.max(0, t - CUP_HIT - CUP_TIP_MS);
-      const y = 0.5 * CUP_GRAVITY * fall ** 2;
-      return {
-        kind: 'cup',
-        x: CUP_AHEAD + CUP_TIP_PX * tip + CUP_DRIFT * fall,
-        y,
-        r: CUP_TIP_DEG * tip + CUP_SPIN * fall,
-        o: Math.min(
-          1,
-          t / CUP_FADE_IN_MS,
-          Math.max(0, 1 - (y - CUP_FADE_AFTER) / CUP_FADE_AFTER),
-        ),
-      };
-    },
-  }),
+  knock: () => knockAt(CUP_LIP),
   /*
    * The fly lands; the cat stalks it and pounces, misses, swats at it overhead,
    * follows it along the band in hops, leaps for it, and it gets away.
