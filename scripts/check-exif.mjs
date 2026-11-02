@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 /*
  * Fails on image metadata that can locate or identify: EXIF (GPS, camera,
- * date) and XMP, in every JPEG, PNG and WebP under src/assets and public.
+ * date) and XMP, in every JPEG, PNG and WebP under src/assets, public and artwork.
  * PDFs are not images here: PDF/UA requires their XMP.
  */
 
 import { readdirSync, readFileSync } from 'node:fs';
 import { extname, join } from 'node:path';
 
-const ROOTS = ['src/assets', 'public'];
+const ROOTS = ['src/assets', 'public', 'artwork'];
 
 const JPEG_SOI = 0xffd8;
 const JPEG_SOS = 0xda;
@@ -17,6 +17,11 @@ const JPEG_APP13 = 0xed;
 const PNG_SIGNATURE_BYTES = 8;
 const RIFF_HEADER_BYTES = 12;
 const CHUNK_HEADER_BYTES = 8;
+/* PNG text chunks; ImageMagick stores EXIF, XMP and IPTC in them as "Raw profile type <name>". */
+const TEXT_CHUNKS = new Set(['tEXt', 'zTXt', 'iTXt']);
+const RAW_PROFILE = /^Raw profile type (exif|xmp|iptc|8bim|app1)$/i;
+/* A text chunk's keyword: at most 79 bytes, then a null. */
+const KEYWORD_BYTES = 80;
 
 const files = (dir) =>
   readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
@@ -49,10 +54,19 @@ const pngProblems = (bytes) => {
   while (offset + CHUNK_HEADER_BYTES <= bytes.length) {
     const length = bytes.readUInt32BE(offset);
     const type = bytes.toString('latin1', offset + 4, offset + 8);
-    const data = bytes.toString('latin1', offset + 8, offset + 8 + 30);
+    const head = bytes.subarray(
+      offset + CHUNK_HEADER_BYTES,
+      offset + CHUNK_HEADER_BYTES + Math.min(length, KEYWORD_BYTES),
+    );
+    const end = head.indexOf(0);
+    const keyword = head.toString('latin1', 0, end === -1 ? head.length : end);
     if (type === 'eXIf') found.push('EXIF (eXIf)');
-    if (type === 'iTXt' && data.startsWith('XML:com.adobe.xmp')) {
-      found.push('XMP (iTXt)');
+    if (TEXT_CHUNKS.has(type) && keyword === 'XML:com.adobe.xmp') {
+      found.push(`XMP (${type})`);
+    }
+    const raw = RAW_PROFILE.exec(keyword);
+    if (TEXT_CHUNKS.has(type) && raw) {
+      found.push(`${raw[1].toUpperCase()} raw profile (${type})`);
     }
     if (type === 'IEND') break;
     offset += CHUNK_HEADER_BYTES + length + 4;

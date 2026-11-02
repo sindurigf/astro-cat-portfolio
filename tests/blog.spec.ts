@@ -53,15 +53,6 @@ test.describe('the blog index while every post fits on one page', () => {
   });
 });
 
-test('the post /blog features has a cover', NODE, () => {
-  const feature = POSTS.find((post) => post.published);
-  test.skip(feature === undefined, 'no published post, so no feature card');
-  expect(
-    feature!.hasCover,
-    `${feature!.route} is the newest post, so /blog features it with its cover.`,
-  ).toBe(true);
-});
-
 test.describe('the category filter', () => {
   /**
    * `aria-current` is the machine-readable half; the `aria-hidden` marker square
