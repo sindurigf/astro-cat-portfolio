@@ -102,8 +102,8 @@ const FIXTURE = `
   <svg viewBox="0 0 24 24"><path d="" /></svg>
   <img src="/_astro/box-cat-roundel.svg" alt>
   <img src="/_astro/bicycle.webp" alt="A person riding a bicycle down a tree-lined path.">
-  <article class="card flex"><img src="/_astro/cover.webp" alt="" data-card-thumbnail></article>
-  <img src="/_astro/stray.webp" alt="" data-card-thumbnail>
+  <article class="card flex"><img src="/_astro/cover.webp" alt="" data-card-cover></article>
+  <img src="/_astro/stray.webp" alt="" data-card-cover>
   <svg aria-hidden="true"><path d="" /></svg>
   <svg role="img"><path d="" /></svg>
   <svg role="img"><title>A mascot asleep</title><path d="" /></svg>
