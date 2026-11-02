@@ -34,6 +34,8 @@ before changing anything it covers.
 - A ring outside a joined brick: it crosses the next one. Draw it inside.
 - State signaled by color alone.
 - Text over a photograph, or `aspect-ratio` on an `<img>`.
+- A cropped photo, except a post card cover, which the build crops to 4:3 at
+  `coverPosition` ([Posts](../../../docs/STYLEGUIDE.md#posts)).
 - A radius other than `rounded-full` or `rounded-none`.
 - ARIA where a native element works; an `aria-label` over visible text
   ([ACCESSIBILITY.md §9](../../../ACCESSIBILITY.md#9-contributor-checklist)).

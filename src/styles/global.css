@@ -394,7 +394,8 @@
 
   /* Tokens because components may not carry arbitrary values. */
   --aspect-portrait: 4 / 5;
-  --aspect-photo: 4 / 3;
+  /* CARD_COVER_RATIO in src/lib/image-densities.ts: the crop the build makes. */
+  --aspect-card-cover: 4 / 3;
 
   --tracking-heading: -0.05em;
   /* -0.05em suits capitals and crowds lowercase. */

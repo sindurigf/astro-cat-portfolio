@@ -51,11 +51,6 @@
     }
   }
 
-  /* Full-row card: box spans both tracks, text keeps the half-width measure. */
-  .card-wide :is(h2, h3, p) {
-    max-width: var(--container-measure);
-  }
-
   /*
    * Title to teaser when stacked. From `lg` it starts level with the h1, both
    * 24px below the breadcrumb's `mb-6`.

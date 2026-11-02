@@ -9,7 +9,11 @@ import {
 import { ariaCurrent } from '../lib/nav';
 import { BLOG_PATH, categoryHref, indexPageHref } from '../lib/paths';
 import BlogCard from './BlogCard.astro';
-import { packRows, wallClasses } from '../lib/wall';
+import {
+  CARD_COVER_SIZES,
+  steppedCardCoverSizes,
+} from '../lib/image-densities';
+import { packRows, wallClasses, wallSteps } from '../lib/wall';
 
 /*
  * The filter is links to built routes, not a Vue island: filtering is
@@ -48,15 +52,13 @@ const singleCellCards = featureFirst ? posts.length - 1 : posts.length;
 const lastFillsRow = singleCellCards % GRID_COLUMNS === 1;
 const spansRow = (index: number) =>
   (featureFirst && index === 0) || (lastFillsRow && index === posts.length - 1);
-const wall = wallClasses(
-  {
-    lg: packRows(
-      posts.map((_, index) => (spansRow(index) ? GRID_COLUMNS : 1)),
-      GRID_COLUMNS,
-    ),
-  },
-  posts.length,
+const lgRows = packRows(
+  posts.map((_, index) => (spansRow(index) ? GRID_COLUMNS : 1)),
+  GRID_COLUMNS,
 );
+const wall = wallClasses({ lg: lgRows }, posts.length);
+/* A stepped card is narrower at `lg`, so its cover asks for a smaller file. */
+const { step: lgSteps } = wallSteps(lgRows, posts.length);
 
 const withPosts = await getCategoriesWithPosts();
 const filterOptions = CATEGORY_FILTERS.filter(
@@ -136,10 +138,18 @@ const EMPTY_BLOG = {
           <BlogCard
             {...cardProps(post)}
             feature={feature}
-            {...(post.data.cover ? { cover: post.data.cover } : {})}
-            {...(post.data.coverAlt ? { coverAlt: post.data.coverAlt } : {})}
+            wide={fillsRow}
+            coverSizes={
+              feature
+                ? CARD_COVER_SIZES.feature
+                : fillsRow
+                  ? CARD_COVER_SIZES.row
+                  : steppedCardCoverSizes(lgSteps[index] ?? 0)
+            }
+            describeCover={feature}
+            eager={index === 0}
             headingLevel={2}
-            class:list={['w-full', fillsRow && 'card-wide']}
+            class="w-full"
           />
         </li>
       );

@@ -1,5 +1,5 @@
 ---
-import type { BlogCategory } from '../content.config';
+import type { BlogCategory, CoverPosition } from '../content.config';
 import { formatPostDate } from '../lib/post-date';
 import { isoDate } from '../lib/time';
 import { categoryLabel } from '../lib/blog';
@@ -7,15 +7,15 @@ import { CATEGORY_LABEL } from '../lib/categories';
 import type { ImageMetadata } from 'astro';
 import { Picture } from 'astro:assets';
 import { PHOTO_FORMATS } from '../lib/photo-formats';
-import PlaceholderBox from './PlaceholderBox.astro';
-import { WIDTHS } from '../lib/image-densities';
+import { CARD_COVER_RATIO, WIDTHS } from '../lib/image-densities';
 import { photoSize } from '../lib/photo-size';
 
 /*
  * The link is on the heading, not the whole card: a card-wide <a> would take
  * every word as its name and make the teaser unselectable. A press on the
  * card follows it (src/scripts/card-click.ts). No separate "Read the post"
- * link: a second tab stop to the same URL.
+ * link: a second tab stop to the same URL. Cover order and alt:
+ * ARCHITECTURE.md#content-notes.
  */
 
 interface Props {
@@ -25,11 +25,20 @@ interface Props {
   category: BlogCategory;
   date: Date;
   readingTime?: number;
+  /** The newest post on /blog: a wide card with a larger title, loaded first. */
   feature?: boolean;
+  /** A card filling its row: the cover beside the text from `lg`, where the list has two columns. */
+  wide?: boolean;
+  /** The cover's `sizes`, for where this card is drawn. */
+  coverSizes: string;
+  /** The newest post's card on the homepage and /blog: the cover keeps its alt text. */
+  describeCover?: boolean;
+  /** The first card of a listing, above the fold. */
+  eager?: boolean;
   headingLevel?: 2 | 3 | 4;
-  /** Shown only on a `feature` card, where the placeholder box would be. */
-  cover?: ImageMetadata;
-  coverAlt?: string;
+  cover: ImageMetadata;
+  coverAlt: string;
+  coverPosition: CoverPosition;
   class?: string;
 }
 
@@ -41,19 +50,30 @@ const {
   date,
   readingTime,
   feature = false,
+  wide = false,
+  coverSizes,
+  describeCover = false,
+  eager = false,
   headingLevel = 3,
   cover,
-  coverAlt = '',
+  coverAlt,
+  coverPosition,
   class: className = '',
 } = Astro.props;
 
 const Heading = `h${headingLevel}` as 'h2' | 'h3' | 'h4';
 
-/* Half the card from `md`, full width below; tests/image-size.spec.ts fails when it drifts. */
-const COVER_SIZES =
-  '(min-width: 48rem) min(calc(50vw - 5.5rem), 36rem), (min-width: 40rem) calc(100vw - 9rem), calc(100vw - 6rem)';
-
-const coverSize = feature && cover ? await photoSize(cover) : null;
+/* The largest crop the cover can give at the card's frame. */
+const coverSize = await photoSize(cover);
+const cropWidth = Math.min(
+  coverSize.width,
+  Math.floor(
+    (coverSize.height * CARD_COVER_RATIO.width) / CARD_COVER_RATIO.height,
+  ),
+);
+const cropHeight = Math.round(
+  (cropWidth * CARD_COVER_RATIO.height) / CARD_COVER_RATIO.width,
+);
 
 const machineDate = isoDate(date);
 const readableDate = formatPostDate(date);
@@ -61,8 +81,40 @@ const readableDate = formatPostDate(date);
 
 <article class:list={['card flex flex-col', className]}>
   <div
-    class:list={[feature ? 'grid gap-8 md:grid-cols-2 md:items-center' : '']}
+    class:list={[
+      'grid gap-8',
+      feature && 'md:grid-cols-2 md:items-center',
+      wide && 'lg:grid-cols-2 lg:items-center',
+    ]}
   >
+    <div
+      class:list={[
+        'aspect-frame aspect-card-cover border-4',
+        feature && 'md:order-last',
+        wide && 'lg:order-last',
+      ]}
+    >
+      <Picture
+        {...PHOTO_FORMATS}
+        src={cover}
+        alt={describeCover ? coverAlt : ''}
+        data-card-cover={describeCover ? undefined : ''}
+        width={cropWidth}
+        height={cropHeight}
+        fit="cover"
+        position={coverPosition}
+        widths={[
+          ...new Set([
+            ...WIDTHS.filter((width) => width < cropWidth),
+            cropWidth,
+          ]),
+        ]}
+        sizes={coverSizes}
+        {...(feature
+          ? { priority: true }
+          : { loading: eager ? 'eager' : 'lazy' })}
+      />
+    </div>
     <div class="flex flex-col">
       <span
         class:list={[
@@ -96,29 +148,6 @@ const readableDate = formatPostDate(date);
         <time datetime={machineDate}>{readableDate}</time>
       </span>
     </div>
-
-    {feature && cover && coverSize ? (
-      <div class="aspect-frame mt-2 border-4">
-        <svg
-          class="aspect-sizer"
-          viewBox={`0 0 ${coverSize.width} ${coverSize.height}`}
-          aria-hidden="true"
-          focusable="false"
-        />
-        <Picture
-          {...PHOTO_FORMATS}
-          src={cover}
-          alt={coverAlt}
-          width={coverSize.width}
-          height={coverSize.height}
-          widths={WIDTHS}
-          sizes={COVER_SIZES}
-          priority
-        />
-      </div>
-    ) : feature ? (
-      <PlaceholderBox label="Post Artwork" class="mt-2" />
-    ) : null}
   </div>
 </article>
 

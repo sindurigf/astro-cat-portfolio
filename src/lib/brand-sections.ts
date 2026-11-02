@@ -238,9 +238,9 @@ export const BRAND_SECTIONS: readonly BrandSection[] = [
     title: 'Photos',
     group: 'Components',
     lead: 'Every photo sits in a frame and opens full size.',
-    rule: 'Never cropped, never text over a photo.',
+    rule: 'Never cropped, never text over a photo. A post card cover is the one crop, at 4:3.',
     description:
-      'Photos: each one in a frame, never cropped, never under text, and each one opens full size.',
+      'Photos: each one in a frame, never cropped, never under text, and each one opens full size. A post card cover is the one crop, at 4:3.',
     parts: [{ id: 'photo-strip', name: 'Photo Strip' }],
   },
   {
