@@ -171,6 +171,7 @@ test.describe('a missing binding fails the request or run', () => {
       outcome,
       'the cron run succeeded with no database, so the retention /privacy promises silently stopped.',
     ).toBe(formOnOrOff('exception', 'ok'));
+    // getLogs() holds console output only; workerd never surfaces a scheduled exception's message.
     expect(
       server.getLogs().map(({ message }) => message),
       'the run went past the missing database.',
