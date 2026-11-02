@@ -129,6 +129,17 @@ const setUpViewer = (viewer: HTMLDialogElement): void => {
   viewer.addEventListener('close', () => links[index]?.focus());
 };
 
+/** Where `tile` sits when snapped to the strip's start, in the strip's scroll coordinates. */
+const snapLeft = (strip: HTMLElement, tile: Element): number =>
+  tile.getBoundingClientRect().left -
+  strip.getBoundingClientRect().left -
+  strip.clientLeft +
+  strip.scrollLeft -
+  (parseFloat(getComputedStyle(strip).scrollPaddingInlineStart) || 0);
+
+/* Firefox re-snaps a mandatory strip to its old photo when a layout change (a photo loading) lands mid smooth scroll, undoing the arrow: snap is off until the scroll ends. */
+const SNAP_PAUSE = 'onscrollend' in window;
+
 const setUpStrips = (): void => {
   /*
    * A photo keyboard-focused part outside the strip is aligned to its start, a
@@ -175,14 +186,7 @@ const setUpStrips = (): void => {
       /* `auto` parses to NaN: the snap line is then the strip's own edge. */
       end = Math.min(
         strip.scrollWidth - strip.clientWidth,
-        last
-          ? last.getBoundingClientRect().left -
-              strip.getBoundingClientRect().left -
-              strip.clientLeft +
-              strip.scrollLeft -
-              (parseFloat(getComputedStyle(strip).scrollPaddingInlineStart) ||
-                0)
-          : Infinity,
+        last ? snapLeft(strip, last) : Infinity,
       );
       if (hide && document.activeElement === button) strip.focus();
       button.hidden = hide;
@@ -195,8 +199,28 @@ const setUpStrips = (): void => {
     strip.addEventListener('scroll', update);
     button.addEventListener('click', () => {
       if (atEdge()) return;
-      strip.scrollBy({
-        left: direction * strip.clientWidth * STRIP_STEP,
+      /* The photo nearest a step on, so the strip ends on a snap point with snap off. */
+      const goal =
+        strip.scrollLeft + direction * strip.clientWidth * STRIP_STEP;
+      const ahead = [...strip.children]
+        .map((tile) => snapLeft(strip, tile))
+        .filter(
+          (left) => direction * (left - strip.scrollLeft) > SCROLL_ROUNDING_PX,
+        );
+      const left = ahead.reduce(
+        (best, at) => (Math.abs(at - goal) < Math.abs(best - goal) ? at : best),
+        ahead[0] ?? goal,
+      );
+      if (SNAP_PAUSE) {
+        strip.toggleAttribute('data-snap-paused', true);
+        strip.addEventListener(
+          'scrollend',
+          () => strip.toggleAttribute('data-snap-paused', false),
+          { once: true },
+        );
+      }
+      strip.scrollTo({
+        left: Math.min(Math.max(left, 0), end),
         behavior: matchMedia('(prefers-reduced-motion: reduce)').matches
           ? 'auto'
           : 'smooth',
