@@ -249,9 +249,9 @@ Headings, alt text, focus rings and axe are checked on the rendered page by
   `website`.
 - Every post needs `cover` (relative to the post, any ratio) and `coverAlt`;
   the build fails without them. The cover is the post's hero photo and its
-  sharing card, uncropped, and so on the `/blog` feature card and, when the
-  newest post is featured, its homepage card. Every other post card shows a square crop at `coverPosition`: `center`,
-  `top`, `bottom`, `left` or `right` ([STYLEGUIDE](docs/STYLEGUIDE.md#posts)).
+  sharing card, uncropped. Every post card, the newest included, shows a 4:3
+  crop at `coverPosition` (`CARD_COVER_RATIO`): `center`, `top`, `bottom`,
+  `left` or `right` ([STYLEGUIDE](docs/STYLEGUIDE.md#posts)).
 - `updated` sets `dateModified`; absent, it is omitted, not copied from `date`.
 - Pagination (`/blog/page/<n>`) builds only past `POSTS_PER_PAGE`, 9 unless
   the build's `POSTS_PER_PAGE` variable sets another positive whole number.
@@ -545,7 +545,7 @@ in `wrangler.jsonc`).
 - Photos: `src/assets/photos/` (pages) and `src/assets/blog/<slug>/` (posts).
   Masters are JPEG, metadata stripped, never cropped on display: tiles, pairs,
   strips, figures, covers and sharing cards show the whole file. Only a post
-  card thumbnail is a crop.
+  card cover is a crop.
 - Fixed-size photos pass `DENSITIES`; fluid ones pass `WIDTHS` and `sizes`
   from `src/lib/image-densities.ts`. `WIDTHS` steps at most 1.5x; `sizes` is
   the real drawn width. `tests/image-size.spec.ts` fails on stretching,
@@ -902,9 +902,12 @@ evidence.
 - **CV PDF.** Set `person.cv` in `src/site.config.ts` to a PDF under
   `public/`, and `/career` links it with its size; `tests/cv.spec.ts` then
   checks the file's metadata and tags. No CV ships.
-- **Post card thumbnails** are decorative (`alt=""`,
+- **Post card covers** are decorative (`alt=""`,
   [H67](https://www.w3.org/WAI/WCAG22/Techniques/html/H67)): the card's
   heading link names the post, and the post page carries `coverAlt`. The
-  newest post's card shows the whole cover with `coverAlt`.
-  `data-card-thumbnail` marks the crop for `tests/alt-text.spec.ts`.
+  newest post's card on `/` and `/blog` keeps `coverAlt`.
+  `data-card-cover` marks a decorative one for `tests/alt-text.spec.ts`.
+- The cover comes before the text in a card's markup, so a stacked card draws
+  it above the text and the reading order matches (SC 1.3.2). A wide card
+  moves it right from `md`, a visual change only.
 - `/career` has no photo placement.

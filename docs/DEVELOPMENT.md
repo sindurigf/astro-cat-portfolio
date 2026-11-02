@@ -255,11 +255,10 @@ validates frontmatter against `src/content.config.ts` and fails on a mismatch.
 `sample-talk.md` is a complete example.
 
 - Every post needs `cover` and `coverAlt`; the build fails without them. A
-  cover can have any ratio; the post hero, the `/blog` feature card and, when
-  the newest post is featured, its homepage card show it uncropped. Other cards show a square crop: set
-  `coverPosition` (`center`, `top`, `bottom`, `left` or `right`) when the
-  subject is off center. `top` and `bottom` move a portrait crop, `left` and
-  `right` a landscape one.
+  cover can have any ratio; the post page shows it uncropped. Every post card
+  shows a 4:3 crop: set `coverPosition` (`center`, `top`, `bottom`, `left` or
+  `right`) when the subject is off center. `top` and `bottom` move the crop on
+  a cover taller than 4:3, `left` and `right` on a wider one.
 - Tests read the new post's routes, category and tags from its frontmatter.
 - A spec that needs a post or talk with some property (a cover, a tag, a
   paired talk PDF) skips, naming the property, while none has it.

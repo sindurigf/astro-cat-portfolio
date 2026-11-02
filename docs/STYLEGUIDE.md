@@ -956,15 +956,15 @@ Enforced by `tests/post-page.spec.ts`.
 - A cover takes [Media](#media) in PageHero's photo layout, in its own ratio
   (`.aspect-sizer`): text in the left half, the photo in columns 8 to 12
   crossing the slab's bottom edge, no roundel. `tests/post-page.spec.ts`.
-- A cover file keeps its full frame. The hero, the `/blog` feature card (the
-  newest post), the newest post's homepage card when it is featured, and the
-  sharing card show it in its own ratio
-  ([ARCHITECTURE](../ARCHITECTURE.md#assets)).
-- Every other post card shows a square thumbnail: a file the build crops from
-  the cover at `coverPosition`, sized from the rem frame, in a `w-32` frame
-  right of the text in a card at least 28rem wide, above it in a narrower
-  one, `gap-6` (24px). It is the only cropped photo,
-  by the owner's choice; `alt=""` ([ARCHITECTURE](../ARCHITECTURE.md#content-notes)).
+- A cover file keeps its full frame. The post hero and the sharing card show
+  it in its own ratio ([ARCHITECTURE](../ARCHITECTURE.md#assets)).
+- Every post card, the newest included, shows a 4:3 file the build crops from
+  the cover at `coverPosition` (`CARD_COVER_RATIO`), whatever the cover's own
+  shape, so cards in a row match. It is the only cropped photo, by the owner's
+  choice. The cover sits above the text on every stacked card; a wide card
+  (the `/blog` feature, a card filling its row) puts it in the right half from
+  `md`. `alt=""` except the newest post's on `/` and `/blog`
+  ([ARCHITECTURE](../ARCHITECTURE.md#content-notes)).
 - `coverCredit` puts "Photo: name" in the date line, `text-gold-muted`, linked
   when the name is in `PHOTOGRAPHERS`. Not under the cover: the photo hangs
   below the slab, off the gold ground.
@@ -1444,9 +1444,9 @@ shows no alt text. Enforced by `tests/replaced-elements.spec.ts` and
 size-full object-cover`). Never put `aspect-ratio` on the image: WebKit
   drops it, and the ratio from `width` and `height`, when the image fails.
 - A designed ratio is a class on the frame, only where every file already has
-  it: `aspect-portrait` (4:5, hero photos), `aspect-square` (square photos,
-  and the post card thumbnail). Never a CSS ratio that crops; the post card
-  thumbnail is a square file the build crops ([Posts](#posts)).
+  it: `aspect-portrait` (4:5, hero photos), `aspect-square` (square photos),
+  `aspect-4/3` (post card covers). Never a CSS ratio that crops; a post card
+  cover is a 4:3 file the build crops ([Posts](#posts)).
 - Two photos side by side are a `.photo-pair`: from `sm` flex shrinks them to
   one height, each in its own ratio; below `sm` they stack.
 - A file's own ratio is an `.aspect-sizer`: an empty `aria-hidden` SVG whose
