@@ -160,7 +160,7 @@ test.describe('the cover as the post hero', () => {
       await expect(
         first,
         'the cover is not the first image in the article',
-      ).toHaveAttribute('alt', post.coverAlt ?? '');
+      ).toHaveAttribute('alt', post.coverAlt);
       await expect(
         first.locator('xpath=ancestor::*[contains(@class, "post-slab")]'),
       ).toHaveCount(1);
