@@ -151,11 +151,6 @@
     @apply shrink-0 snap-start;
   }
 
-  /* While an arrow scrolls it (src/scripts/photo-viewer.ts). */
-  .photo-strip[data-snap-paused] {
-    scroll-snap-type: none;
-  }
-
   /* Natural-ratio tile, capped to the strip; `h-auto` keeps the ratio. */
   .strip-photo {
     @apply block h-auto;

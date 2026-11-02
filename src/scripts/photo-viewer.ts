@@ -129,16 +129,13 @@ const setUpViewer = (viewer: HTMLDialogElement): void => {
   viewer.addEventListener('close', () => links[index]?.focus());
 };
 
-/** Where `tile` sits when snapped to the strip's start, in the strip's scroll coordinates. */
+/** `tile`'s snap position: where the strip's scroll puts it at the snap line. */
 const snapLeft = (strip: HTMLElement, tile: Element): number =>
   tile.getBoundingClientRect().left -
   strip.getBoundingClientRect().left -
   strip.clientLeft +
   strip.scrollLeft -
   (parseFloat(getComputedStyle(strip).scrollPaddingInlineStart) || 0);
-
-/* Firefox re-snaps a mandatory strip to its old photo when a layout change (a photo loading) lands mid smooth scroll, undoing the arrow: snap is off until the scroll ends. */
-const SNAP_PAUSE = 'onscrollend' in window;
 
 const setUpStrips = (): void => {
   /*
@@ -199,28 +196,20 @@ const setUpStrips = (): void => {
     strip.addEventListener('scroll', update);
     button.addEventListener('click', () => {
       if (atEdge()) return;
-      /* The photo nearest a step on, so the strip ends on a snap point with snap off. */
+      /* The first snap point a step on, scrolled to with snap off: Firefox re-snaps to the old photo if one loads mid scroll. */
       const goal =
-        strip.scrollLeft + direction * strip.clientWidth * STRIP_STEP;
-      const ahead = [...strip.children]
-        .map((tile) => snapLeft(strip, tile))
-        .filter(
-          (left) => direction * (left - strip.scrollLeft) > SCROLL_ROUNDING_PX,
-        );
-      const left = ahead.reduce(
-        (best, at) => (Math.abs(at - goal) < Math.abs(best - goal) ? at : best),
-        ahead[0] ?? goal,
-      );
-      if (SNAP_PAUSE) {
-        strip.toggleAttribute('data-snap-paused', true);
-        strip.addEventListener(
-          'scrollend',
-          () => strip.toggleAttribute('data-snap-paused', false),
-          { once: true },
-        );
+        direction * strip.scrollLeft + strip.clientWidth * STRIP_STEP;
+      let left = Infinity;
+      for (const tile of strip.children) {
+        const at = direction * snapLeft(strip, tile);
+        if (at >= goal && at < left) left = at;
+      }
+      if ('onscrollend' in strip) {
+        strip.style.scrollSnapType = 'none';
+        strip.onscrollend = () => (strip.style.scrollSnapType = '');
       }
       strip.scrollTo({
-        left: Math.min(Math.max(left, 0), end),
+        left: Math.min(Math.max(direction * left, 0), end),
         behavior: matchMedia('(prefers-reduced-motion: reduce)').matches
           ? 'auto'
           : 'smooth',
