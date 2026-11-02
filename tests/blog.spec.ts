@@ -397,7 +397,7 @@ for (const route of LISTING_ROUTES) {
         } else {
           expect(
             cover.alt,
-            `the cover for ${cover.href} on ${route} repeats the heading, so it must be decorative`,
+            `the cover for ${cover.href} on ${route} is named by the card's heading link, so it must be decorative (H67)`,
           ).toBe('');
           expect(
             cover.marked,
