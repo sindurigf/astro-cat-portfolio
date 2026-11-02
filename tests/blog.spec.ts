@@ -2,7 +2,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { expect, test, type Page } from './test';
 import { itemAt } from '../src/lib/defined';
-import { gotoSettled } from './settle';
+import { gotoSettled, setViewportSettled } from './settle';
 import { blogCategories } from './source';
 import {
   CATEGORY_ROUTES,
@@ -15,6 +15,8 @@ import {
   NO_PUBLISHED_POST,
 } from './routes';
 import { pageCount } from '../src/lib/pagination';
+import { indexPageHref } from '../src/lib/paths';
+import { CARD_COVER_RATIO } from '../src/lib/image-densities';
 import { ENGINE_INVARIANT, NODE } from './tags';
 
 const POST_COUNT = PUBLISHED_POST_ROUTES.length;
@@ -302,20 +304,40 @@ test.describe('a post and a category cannot claim one path', () => {
   });
 });
 
-/* Function: every card shows its post's cover. Accessibility: a cropped thumbnail is decorative (H67), the newest post's whole cover keeps its alt (SC 1.1.1). Performance: only the first card loads eagerly. */
+/*
+ * Function: every card shows its post's cover. Accessibility: a card's cover is
+ * decorative (H67) except the newest post's on / and /blog, which keeps its
+ * alt (SC 1.1.1); the cover comes before the text in the markup, and stacked
+ * cards draw it above the text, so visual and reading order agree (SC 1.3.2).
+ * Performance: the file is the 4:3 crop, not the whole master, and only the
+ * first card loads eagerly.
+ */
 const NEWEST = POSTS.find((post) => post.published);
+
+const LISTING_ROUTES = [
+  '/blog',
+  ...Array.from({ length: PAGE_COUNT - 1 }, (_, index) =>
+    indexPageHref(index + 2),
+  ),
+  '/',
+  '/brand',
+  ...CATEGORY_ROUTES,
+  ...TAG_ROUTES,
+];
+
+/** Widths where every card stacks: the cover must sit above its text. */
+const STACKED_WIDTHS = [320, 390];
 
 const cardCovers = (page: Page) =>
   page.evaluate(async () => {
     const cards = [...document.querySelectorAll('main article.card')].filter(
       (card) => card.querySelector('.card-link'),
     );
-    const thumbnails = document.querySelectorAll(
-      'img[data-card-thumbnail]',
-    ).length;
+    const marked = document.querySelectorAll('img[data-card-cover]').length;
     const covers = await Promise.all(
       cards.map(async (card) => {
         const img = card.querySelector<HTMLImageElement>('.aspect-frame img');
+        const heading = card.querySelector('.card-link');
         const loading = img?.getAttribute('loading') ?? null;
         if (img) {
           img.loading = 'eager';
@@ -327,73 +349,83 @@ const cardCovers = (page: Page) =>
           ).pathname,
           alt: img?.getAttribute('alt') ?? null,
           loading,
-          thumbnail: img?.closest('.aspect-square') !== null,
-          whole:
-            img
-              ?.closest('.aspect-frame')
-              ?.querySelector(':scope > .aspect-sizer') != null,
-          square: img ? img.naturalWidth === img.naturalHeight : false,
-          marked: img?.hasAttribute('data-card-thumbnail') ?? false,
+          ratio: img ? img.naturalWidth / img.naturalHeight : 0,
+          marked: img?.hasAttribute('data-card-cover') ?? false,
+          coverFirst:
+            img !== null &&
+            heading !== null &&
+            (img.compareDocumentPosition(heading) &
+              Node.DOCUMENT_POSITION_FOLLOWING) !==
+              0,
+          coverBottom: img?.getBoundingClientRect().bottom ?? 0,
+          headingTop: heading?.getBoundingClientRect().top ?? 0,
         };
       }),
     );
-    return { covers, thumbnails };
+    return { covers, marked };
   });
 
-for (const route of [
-  '/blog',
-  '/',
-  '/brand',
-  ...CATEGORY_ROUTES,
-  ...TAG_ROUTES,
-]) {
+/** A 4:3 file within a pixel of rounding either way. */
+const CROP_RATIO = CARD_COVER_RATIO.width / CARD_COVER_RATIO.height;
+const CROP_TOLERANCE = 0.01;
+
+for (const route of LISTING_ROUTES) {
   test(
-    `every post card on ${route} shows its cover`,
+    `every post card on ${route} shows its cover cropped, described only for the newest post, before its text`,
     ENGINE_INVARIANT,
     async ({ page }) => {
       await gotoSettled(page, route);
-      const { covers, thumbnails } = await cardCovers(page);
+      const { covers, marked } = await cardCovers(page);
       expect(covers.length, `${route} shows no post card`).toBeGreaterThan(0);
       expect(
-        thumbnails,
-        `an empty alt marked data-card-thumbnail on ${route} sits outside a post card`,
+        marked,
+        `an image marked data-card-cover on ${route} sits outside a post card`,
       ).toBe(covers.filter((cover) => cover.marked).length);
-      const newestShownLarge = route === '/blog' || route === '/';
+      const describesNewest = route === '/blog' || route === '/';
 
       for (const [index, cover] of covers.entries()) {
-        const large = newestShownLarge && cover.href === `${NEWEST?.route}/`;
         expect(
           cover.alt,
           `${cover.href} on ${route} has no cover`,
         ).not.toBeNull();
-        if (large) {
+        expect(
+          Math.abs(cover.ratio - CROP_RATIO),
+          `the cover file for ${cover.href} on ${route} is not the 4:3 crop`,
+        ).toBeLessThan(CROP_TOLERANCE);
+        expect(
+          cover.coverFirst,
+          `the cover for ${cover.href} on ${route} comes after its text in reading order`,
+        ).toBe(true);
+        if (describesNewest && cover.href === `${NEWEST?.route}/`) {
           expect(
             cover.alt,
-            `the newest post's whole cover on ${route} must keep its coverAlt`,
+            `the newest post's cover on ${route} must keep its coverAlt`,
           ).toBe(NEWEST?.coverAlt);
+        } else {
           expect(
-            cover.whole,
-            `the newest post's cover on ${route} must be drawn whole in its own ratio`,
+            cover.alt,
+            `the cover for ${cover.href} on ${route} repeats the heading, so it must be decorative`,
+          ).toBe('');
+          expect(
+            cover.marked,
+            `the decorative cover for ${cover.href} on ${route} is not marked data-card-cover`,
           ).toBe(true);
-          continue;
         }
-        expect(
-          cover.thumbnail,
-          `${cover.href} on ${route} is not the newest post, so it shows a square thumbnail`,
-        ).toBe(true);
-        expect(
-          cover.alt,
-          `the thumbnail for ${cover.href} repeats the heading, so it must be decorative`,
-        ).toBe('');
-        expect(
-          cover.square,
-          `the thumbnail for ${cover.href} is a CSS crop, not a square file`,
-        ).toBe(true);
         if (index > 0)
           expect(
             cover.loading,
-            `the thumbnail for ${cover.href} is below the first card, so it must load lazily`,
+            `the cover for ${cover.href} is below the first card on ${route}, so it must load lazily`,
           ).toBe('lazy');
+      }
+
+      for (const width of STACKED_WIDTHS) {
+        await setViewportSettled(page, { width, height: 844 });
+        const stacked = await cardCovers(page);
+        for (const cover of stacked.covers)
+          expect(
+            cover.coverBottom,
+            `at ${width}px the cover for ${cover.href} on ${route} is not above its text`,
+          ).toBeLessThanOrEqual(cover.headingTop);
       }
     },
   );

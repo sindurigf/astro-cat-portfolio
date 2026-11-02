@@ -5,15 +5,15 @@ import { NODE } from './tags';
 
 /**
  * Alt text rules axe cannot judge: every <img> has an `alt` (Astro writes an
- * empty one as a bare `alt`), only the logo mark and card thumbnails are empty, a filled one is not
+ * empty one as a bare `alt`), only the logo mark and decorative card covers are empty, a filled one is not
  * a filename or "image/photo/picture/logo", and an inline <svg> is hidden or named.
  */
 
 /** The one image the site draws for decoration. */
 const DECORATIVE = /box-cat|logo-cat/;
 
-/* A post card's square crop: the card heading names the post (H67). */
-const CARD_THUMBNAIL = /\sdata-card-thumbnail(?=[\s>=/])/;
+/* A post card's cover: the card heading names the post (H67). */
+const CARD_COVER = /\sdata-card-cover(?=[\s>=/])/;
 
 const SUPPLIED_BY_THE_READER = /\b(image|photo|picture|logo)\b/i;
 const FILENAME = /\.(webp|avif|jpe?g|png|gif|svg)\b/i;
@@ -45,16 +45,16 @@ const auditImages = (html: string): Problem[] => {
 
     const alt = valued?.[1]?.trim() ?? '';
     if (alt === '') {
-      if (CARD_THUMBNAIL.test(tag) && !insidePostCard(html, index)) {
+      if (CARD_COVER.test(tag) && !insidePostCard(html, index)) {
         problems.push({
           image,
-          problem: 'a card thumbnail outside a post card',
+          problem: 'a card cover outside a post card',
         });
-      } else if (!DECORATIVE.test(source) && !CARD_THUMBNAIL.test(tag)) {
+      } else if (!DECORATIVE.test(source) && !CARD_COVER.test(tag)) {
         problems.push({
           image,
           problem:
-            'empty alt on an image that is not the logo mark or a card thumbnail',
+            'empty alt on an image that is not the logo mark or a card cover',
         });
       }
       continue;
@@ -114,10 +114,10 @@ test('the checker reports every kind of fault', NODE, () => {
   const problems = auditImages(FIXTURE).map((p) => p.problem);
   expect(problems).toEqual([
     'no alt attribute',
-    'empty alt on an image that is not the logo mark or a card thumbnail',
+    'empty alt on an image that is not the logo mark or a card cover',
     'alt says what a screen reader already says: "A photo of a desk"',
     'alt is a filename: "mascot.webp"',
-    'a card thumbnail outside a post card',
+    'a card cover outside a post card',
     'an svg that is neither aria-hidden nor named',
     'an svg that is neither aria-hidden nor named',
   ]);
