@@ -464,11 +464,12 @@ Rejected:
   - a new or edited rejected finding, an edit to the guard, any change under
     `.github/workflows` or `.github/actions`.
 
-  A finding passes only with an `APPROVED` review by `GITHUB_REPOSITORY_OWNER`
-  on the head commit carrying `Approved test change: <reason>`, then a re-run;
-  a new push needs a new approval. GitHub blocks approving your own pull
-  request, so this holds only while agents work under their own account. It
-  matches text, so indirection evades it.
+  A finding passes only with an `APPROVED` or `COMMENTED` review by
+  `GITHUB_REPOSITORY_OWNER` on the head commit carrying
+  `Approved test change: <reason>`; a later dismissal or change request revokes
+  it, and a new push needs a new review. GitHub blocks approving your own pull
+  request, so a comment review counts. It matches text, so indirection evades
+  it.
 
 ### Claims that rest on a platform setting
 
