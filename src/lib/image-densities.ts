@@ -33,8 +33,18 @@ export const CARD_COVER_RATIO = { width: 4, height: 3 } as const;
 const CARD_NARROW =
   '(min-width: 40rem) calc(100vw - 144px), calc(100vw - 96px)';
 
+/* px a wall step takes off a card's right edge from `lg`: `--step-x` in global.css. */
+const STEP_PX = 24;
+/* A two-column card cover's width from 83rem, and its inset from half the viewport below that. */
+const TWO_COLUMN_CARD_PX = 546;
+const TWO_COLUMN_CARD_INSET_PX = 118;
+
+/** A stacked card's cover in a wall of two columns at `lg`, stepped in `step` times. */
+export const steppedCardCoverSizes = (step: number): string =>
+  `(min-width: 83rem) ${TWO_COLUMN_CARD_PX - STEP_PX * step}px, (min-width: 64rem) calc(50vw - ${TWO_COLUMN_CARD_INSET_PX + STEP_PX * step}px), ${CARD_NARROW}`;
+
 export const CARD_COVER_SIZES = {
-  2: `(min-width: 83rem) 546px, (min-width: 64rem) calc(50vw - 118px), ${CARD_NARROW}`,
+  2: steppedCardCoverSizes(0),
   3: `(min-width: 83rem) 333px, (min-width: 64rem) calc(33.33vw - 109px), ${CARD_NARROW}`,
   wide: '(min-width: 48rem) min(calc(50vw - 5.5rem), 36rem), (min-width: 40rem) calc(100vw - 9rem), calc(100vw - 6rem)',
 } as const;

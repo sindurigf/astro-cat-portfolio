@@ -14,10 +14,8 @@ import { photoSize } from '../lib/photo-size';
  * The link is on the heading, not the whole card: a card-wide <a> would take
  * every word as its name and make the teaser unselectable. A press on the
  * card follows it (src/scripts/card-click.ts). No separate "Read the post"
- * link: a second tab stop to the same URL. The cover comes first in the
- * markup, so stacked it sits above the text on every card; a wide card moves
- * it right, a visual change only. It is decorative unless `describeCover`:
- * the heading names the post (H67).
+ * link: a second tab stop to the same URL. Cover order and alt:
+ * ARCHITECTURE.md#content-notes.
  */
 
 interface Props {
@@ -100,7 +98,12 @@ const readableDate = formatPostDate(date);
         height={cropHeight}
         fit="cover"
         position={coverPosition}
-        widths={WIDTHS.filter((width) => width <= cropWidth)}
+        widths={[
+          ...new Set([
+            ...WIDTHS.filter((width) => width < cropWidth),
+            cropWidth,
+          ]),
+        ]}
         sizes={coverSizes}
         {...(feature
           ? { priority: true }
