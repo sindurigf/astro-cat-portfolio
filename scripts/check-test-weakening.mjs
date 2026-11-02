@@ -779,27 +779,26 @@ const approvalReason = (body) => {
   return null;
 };
 
-const DECIDING_STATES = new Set([APPROVED, 'CHANGES_REQUESTED', 'DISMISSED']);
+/* GitHub blocks approving your own pull request, so the owner's comment review counts too. */
+const MARKER_STATES = new Set([APPROVED, 'COMMENTED']);
+const REVOKING_STATES = new Set(['CHANGES_REQUESTED', 'DISMISSED']);
 
 /**
- * The reason from the owner's approving review of `headSha` that carries the
- * marker, unless her latest deciding review of it is not an approval or someone
- * else last edited it; `null` otherwise. Reviews come oldest first.
+ * The reason from the owner's latest approving or comment review of `headSha`
+ * that carries the marker and that no one else edited, unless a later owner
+ * review requests changes or was dismissed; `null` otherwise. Oldest first.
  */
 export const ownerApproval = (reviews, owner, headSha) => {
   const isOwner = (login) =>
     (login ?? '').toLowerCase() === owner.toLowerCase();
-  const hers = reviews.filter(
-    ({ login, commitId }) => isOwner(login) && commitId === headSha,
-  );
-  const deciding = hers.filter(({ state }) => DECIDING_STATES.has(state));
-  if (deciding.at(-1)?.state !== APPROVED) return null;
-  for (const { state, body, editor } of hers) {
-    if (state !== APPROVED || (editor && !isOwner(editor))) continue;
-    const reason = approvalReason(body);
-    if (reason) return reason;
+  let reason = null;
+  for (const { login, commitId, state, body, editor } of reviews) {
+    if (!isOwner(login) || commitId !== headSha) continue;
+    if (REVOKING_STATES.has(state)) reason = null;
+    else if (MARKER_STATES.has(state) && (!editor || isOwner(editor)))
+      reason = approvalReason(body) ?? reason;
   }
-  return null;
+  return reason;
 };
 
 export const runGit = (...args) =>
@@ -960,7 +959,7 @@ export const main = async ({
     return 0;
   }
   log(
-    `\nTest weakening: needs ${owner}'s approving review of ${head.slice(0, SHORT_SHA_LENGTH)} with the line "Approved test change: <reason>", then a re-run of this job.`,
+    `\nTest weakening: needs ${owner}'s approving or comment review of ${head.slice(0, SHORT_SHA_LENGTH)} with the line "Approved test change: <reason>"; the review re-runs this job.`,
   );
   return 1;
 };

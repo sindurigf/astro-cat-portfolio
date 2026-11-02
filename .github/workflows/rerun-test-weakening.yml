@@ -1,11 +1,9 @@
 name: Re-run test weakening on approval
 
-# The guard runs on pull_request_target, which a review or comment does not
-# start. This re-runs it, still from the default branch, when the owner approves.
-# It checks out nothing from the pull request.
+# The guard runs on pull_request_target, which a review does not start. This
+# re-runs it, still from the default branch, when the owner reviews with the
+# marker. It checks out nothing from the pull request.
 on:
-  issue_comment:
-    types: [created, edited]
   pull_request_review:
     types: [submitted]
 
@@ -14,20 +12,18 @@ permissions:
   pull-requests: read
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.issue.number || github.event.pull_request.number }}
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
   cancel-in-progress: false
 
 jobs:
   rerun:
     name: Re-run test weakening
-    # contains() ignores case. issue_comment fires on issues too; only pull requests count.
+    # contains() ignores case; the guard itself matches the marker exactly.
     if: >-
-      (github.event_name == 'issue_comment' && github.event.issue.pull_request &&
-      github.event.comment.user.login == github.repository_owner &&
-      contains(github.event.comment.body, 'approved')) ||
-      (github.event_name == 'pull_request_review' &&
-      github.event.review.state == 'approved' &&
-      github.event.review.user.login == github.repository_owner)
+      github.event.review.user.login == github.repository_owner &&
+      (github.event.review.state == 'approved' ||
+      (github.event.review.state == 'commented' &&
+      contains(github.event.review.body, 'Approved test change:')))
     runs-on: ubuntu-24.04
     timeout-minutes: 5
 
@@ -35,7 +31,7 @@ jobs:
       - name: Re-run the guard for the pull request's head
         env:
           GH_TOKEN: ${{ github.token }}
-          PR_NUMBER: ${{ github.event.issue.number || github.event.pull_request.number }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
           set -euo pipefail
           head=$(gh pr view "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --json headRefOid --jq .headRefOid)

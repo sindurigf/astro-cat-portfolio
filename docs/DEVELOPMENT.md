@@ -122,13 +122,12 @@ WEBKIT_CPUS=8 npm run test:webkit
 The `Test weakening` check
 ([rules](../ARCHITECTURE.md#tests)) fails until the owner approves:
 
-1. Review the pull request's changes, choose Approve, and write the line
-   `Approved test change: <reason>`.
-2. Open the failed `Test weakening` check and choose Re-run jobs. A review
-   does not start it, and a new push needs a new approval.
+1. Review the pull request's changes, choose Approve or, on your own pull
+   request, Comment, and write the line `Approved test change: <reason>`.
+2. The review re-runs `Test weakening`. A new push needs a new review.
 
-Until agents work under their own account, the owner cannot approve:
-[setup](DEPLOYMENT.md#repository-settings).
+Agents that use the owner's `gh` login can post that review too; they never
+do ([AGENTS.md](../AGENTS.md#what-a-test-is-for)).
 
 ### Other notes
 
