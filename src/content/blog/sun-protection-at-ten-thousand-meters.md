@@ -9,6 +9,8 @@ teaser: 'A full day in the ruins of Skypiea, ten thousand meters up, taught me t
 readingTime: 3
 personaSources: true
 seoDescription: 'Sun protection for life at sea and at altitude: broad-spectrum SPF 30 or higher, reapplied every two hours, a hat, shade and no essential oils.'
+cover: '../../assets/blog/sun-protection-at-ten-thousand-meters/cover.jpg'
+coverAlt: 'A linocut of a wide-brimmed sun hat seen from the side.'
 ---
 
 Skypiea is a sky island ten thousand meters above the sea. I spent a full day there exploring the ruins of Shandora, with almost no shade. Since then, I take sun protection as seriously as I take old books.

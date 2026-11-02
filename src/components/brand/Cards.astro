@@ -1,6 +1,7 @@
 ---
 import BlogCard from '../BlogCard.astro';
 import ComponentRow from './ComponentRow.astro';
+import { BRAND_CARD_COVER_SIZES } from '../../lib/image-densities';
 import { cardProps, getSortedPosts } from '../../lib/blog';
 import { accessibilityFacts } from '../../lib/accessibility-facts';
 
@@ -54,10 +55,14 @@ const { targetStandard, conformanceStatus } = accessibilityFacts;
   {post && (
     <ComponentRow
       id="post-card"
-      use="a post in a list: category, title, teaser and date."
+      use="a post in a list: its cover cropped to 4:3, then category, title, teaser and date."
       rule="Only the title is a link, so the card has one tab stop and its text stays selectable."
     >
-      <BlogCard {...cardProps(post)} headingLevel={3} />
+      <BlogCard
+        {...cardProps(post)}
+        coverSizes={BRAND_CARD_COVER_SIZES}
+        headingLevel={3}
+      />
     </ComponentRow>
   )}
 

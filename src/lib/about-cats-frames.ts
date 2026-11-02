@@ -32,6 +32,8 @@ export const FRAMES = [
   'swat',
   'headturn',
   'look',
+  'scratch',
+  'hold',
 ] as const;
 
 export type Frame = (typeof FRAMES)[number];
@@ -64,6 +66,7 @@ const SEATED: ReadonlySet<Frame> = new Set([
   'lieside',
   'roll',
   'belly',
+  'hold',
 ]);
 
 /* The drawings a cat may cut between, one per step: front-facing sit, look and loaf turn
@@ -89,13 +92,17 @@ const LINKS: readonly (readonly [Frame, Frame])[] = [
   ['loaf', 'sleep'],
   ['lieside', 'roll'],
   ['roll', 'belly'],
+  ['roll', 'hold'],
   ['pawrise', 'swat'],
+  ['swat', 'scratch'],
   ['stand', 'stretchhalf'],
   ['stretchhalf', 'stretch'],
 ];
 const JUMP_LINKS: readonly (readonly [Frame, Frame])[] = [
   ['takeoff', 'leap'],
   ['leap', 'landing'],
+  /* A run lands straight into its next push-off. */
+  ['landing', 'takeoff'],
 ];
 
 const NEXT = new Map<Frame, Frame[]>();
@@ -210,16 +217,20 @@ const SIZE: Record<Frame, ['h' | 'w', number]> = {
   swat: ['h', 1.098],
   headturn: ['h', 0.9],
   look: ['h', 0.9],
+  scratch: ['h', 1.4],
+  hold: ['w', 1.05],
 };
 
 /** Per cat, how much larger a frame is drawn than SIZE says: each drawing is framed a little differently. Reared and swatting, each cat keeps Minerva's size against its own sit. */
 const ADJUST: Record<CatId, Partial<Record<Frame, number>>> = {
-  minerva: { pawrise: 0.9, swat: 0.9, loaf: 0.85 },
+  minerva: { pawrise: 0.9, swat: 0.9, scratch: 0.9, loaf: 0.85, hold: 1.05 },
   rudra: {
     pawrise: 0.945,
     swat: 0.945,
+    scratch: 0.945,
     loaf: 0.8,
     belly: 0.85,
+    hold: 1.13,
     sit: 1.05,
     headturn: 1.05,
     look: 1.05,
@@ -231,6 +242,7 @@ const ADJUST: Record<CatId, Partial<Record<Frame, number>>> = {
   hela: {
     pawrise: 0.9,
     swat: 0.9,
+    scratch: 0.9,
     risehigh: 1.09,
     stand: 1.2,
     walk: 1.1,
@@ -242,6 +254,7 @@ const ADJUST: Record<CatId, Partial<Record<Frame, number>>> = {
     walk7: 1.1,
     walk8: 1.1,
     belly: 0.8,
+    hold: 1.45,
   },
 };
 
