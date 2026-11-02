@@ -62,6 +62,7 @@ const MARK_INSET = 1;
 const MARK_SLANT = 6;
 /** px below the claws the marks start. */
 const MARK_BELOW_CLAWS = 6;
+const MARK_STROKE = 0.9;
 /** Bits of rope that fall from the claws after each pull, px apart from the face down: ms they last, and px per ms² they fall, per ms they drift and degrees per ms they spin. */
 const FLUFF_BITS = 4;
 const FLUFF_CLEAR = 2;
@@ -72,6 +73,9 @@ const FLUFF_MS = 500;
 const FLUFF_FALL = 0.0005;
 const FLUFF_DRIFT = 0.006;
 const FLUFF_SPIN = 0.5;
+/** A bit of fluff: a short tuft of rope. */
+const FLUFF_TUFT = 'M0 0l2 1.5';
+const FLUFF_STROKE = 1.2;
 /** A small and a larger "z", drawn from the lower left of the small one. */
 const ZZ = 'M0 0h4l-4 5h4M6 -9h6l-6 7h6';
 const ZZ_HEIGHT = 14;
@@ -640,7 +644,11 @@ export const createProp = (
   const marks = Array.from({ length: SCRATCH_PULLS * MARKS_PER_SET }, () =>
     el(
       'path',
-      { class: 'cat-prop-string', 'stroke-width': 0.9, visibility: 'hidden' },
+      {
+        class: 'cat-prop-string',
+        'stroke-width': MARK_STROKE,
+        visibility: 'hidden',
+      },
       scratched,
     ),
   );
@@ -648,9 +656,9 @@ export const createProp = (
     el(
       'path',
       {
-        d: 'M0 0l2 1.5',
+        d: FLUFF_TUFT,
         class: 'cat-prop-rope',
-        'stroke-width': 1.2,
+        'stroke-width': FLUFF_STROKE,
         visibility: 'hidden',
       },
       scratched,

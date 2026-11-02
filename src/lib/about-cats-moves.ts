@@ -355,7 +355,8 @@ const SCRATCH_CLAWS: Record<CatId, Pair> = {
 };
 /** px the claws sink into the post's face. */
 const SCRATCH_GRIP = 2;
-/** A stroke: a slow lean in, then a hard pull back. */
+/** The rise onto the hind legs, then each stroke: a slow lean in, then a hard pull back. */
+const SCRATCH_RISE_MS = 500;
 const SCRATCH_REACH_MS = 380;
 const SCRATCH_PULL_MS = 170;
 export const SCRATCH_PULLS = 6;
@@ -691,7 +692,7 @@ export const MOVES = {
   post: (): Move => {
     /* Reaches up the post, then pulls down on it in strokes and looks at the work. */
     const steps: Step[] = [
-      step(500, 'rear', { hr: 0, draw: 'swat' }),
+      step(SCRATCH_RISE_MS, 'rear', { hr: 0, draw: 'swat' }),
       step(SCRATCH_REACH_MS, 'leap', SCRATCH, 'out'),
     ];
     const pulls: number[] = [];
