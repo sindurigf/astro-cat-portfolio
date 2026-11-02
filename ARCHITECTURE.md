@@ -871,9 +871,8 @@ evidence.
   be announced twice.
 - **AccessLint engine hits, each checked against the live DOM:**
   `color-contrast` on the homepage name is read against a gold ancestor the
-  text does not sit on; `landmark-unique` counts the no-JavaScript nav, a
-  second "Primary" nav that is `display: none` with scripts on, so only one is
-  ever exposed, and axe does not flag it; `aria-hidden-focus` flags the controls
+  text does not sit on; `landmark-unique` counts the no-JavaScript nav, which
+  is `display: none` with scripts on; `aria-hidden-focus` flags the controls
   in `/brand`'s light halves, which are `inert` and so never take focus.
   `ACCESSLINT_FALSE_POSITIVES` in `tests/accesslint.ts` drops each only on
   those elements and while its reason holds.
