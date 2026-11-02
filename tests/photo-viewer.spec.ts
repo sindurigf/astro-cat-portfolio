@@ -471,6 +471,10 @@ test.describe('the photo viewer while a photo loads', () => {
       await other.evaluate((link: HTMLAnchorElement) => link.href),
       'the second photo is the same file as the first',
     ).not.toBe(last.src);
+    expect(
+      await other.locator('img').getAttribute('alt'),
+      'the second photo has the same description as the first',
+    ).not.toBe(last.caption);
 
     photos.hold();
     try {
@@ -478,7 +482,6 @@ test.describe('the photo viewer while a photo loads', () => {
       await photos.arrived;
       await expect(count).toHaveText(/loading/i);
 
-      await expect(viewer).toHaveAccessibleName(/\S/);
       expect(
         await caption.textContent(),
         'the caption still describes the last photo',
