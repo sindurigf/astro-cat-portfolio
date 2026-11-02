@@ -22,10 +22,10 @@ import {
   poseAt,
   withTurn,
   type Move,
+  POST_HEIGHT,
 } from '../src/lib/about-cats-moves';
 import {
   HIT_HALF_WIDTH,
-  POST_HEIGHT,
   highestPoint,
   hitBox,
   isStepping,

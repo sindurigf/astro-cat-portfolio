@@ -342,8 +342,11 @@ type Route = readonly [RoutePoint, ...RoutePoint[]];
 /* Arcs in px; with them the tallest move stays under --spacing-cat-band (tests/about-cats.spec.ts). */
 const POUNCE_HEIGHT = 56;
 const LEAP_HEIGHT = 40;
-/** The scratching post's width in px. */
 export const POST_WIDTH = 18;
+/** The post's height in px, cap aside: well above a reaching cat, and with its cap under the band. */
+export const POST_HEIGHT = 126;
+/** px the post's cap reaches past each side of it. */
+export const POST_CAP_OVERHANG = 5;
 /** px ahead of the cat's middle and up from its feet where each cat's scratch drawing hooks its claws. */
 const SCRATCH_CLAWS: Record<CatId, Pair> = {
   minerva: [32, 97],
@@ -1089,6 +1092,14 @@ const EXTENT_STEP_MS = 1000 / 60;
 const PROP_REACH = 10;
 const PROP_SEEN = 0.05;
 
+/** px a prop reaches past its center: the post's cap, and its top as it leans. */
+const propReach = (prop: PropState): number =>
+  prop.kind === 'post'
+    ? POST_WIDTH / 2 +
+      POST_CAP_OVERHANG +
+      POST_HEIGHT * Math.abs(Math.sin((prop.r * Math.PI) / 180))
+    : PROP_REACH;
+
 /** A move's path back and forward from its start, its prop's included, for track checks: sampled from the drawn path, so eases and modifiers count. */
 const extent = (move: Move): [number, number] => {
   const start = pose('sit');
@@ -1103,8 +1114,8 @@ const extent = (move: Move): [number, number] => {
     for (const cat of move.propAt ? CAT_IDS : []) {
       const prop = move.propAt!(at, cat);
       if (prop.o <= PROP_SEEN) continue;
-      back = Math.min(back, prop.x - PROP_REACH);
-      forward = Math.max(forward, prop.x + PROP_REACH);
+      back = Math.min(back, prop.x - propReach(prop));
+      forward = Math.max(forward, prop.x + propReach(prop));
     }
   }
   return [back, forward];

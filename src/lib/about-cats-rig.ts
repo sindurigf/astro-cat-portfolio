@@ -20,7 +20,13 @@ import {
   type Motion,
   type NamedPose,
 } from './about-cats-frames';
-import { CAT_IDS, POST_WIDTH, pose } from './about-cats-moves';
+import {
+  CAT_IDS,
+  POST_CAP_OVERHANG,
+  POST_HEIGHT,
+  POST_WIDTH,
+  pose,
+} from './about-cats-moves';
 import type { CatId, Pose, PropKind, PropState } from './about-cats-types';
 
 const NS = 'http://www.w3.org/2000/svg';
@@ -38,8 +44,6 @@ const STILL_MS = 120;
 const OUTLINE = 3;
 /** The feather's string hangs from just under the band's top: --spacing-cat-band (140px) must stay above it. */
 const STRING_TOP = -136;
-/** The scratching post's height in px, cap aside: well above a reaching cat, and with its cap under the band. */
-export const POST_HEIGHT = 126;
 /** px between turns of rope, and clear of the post's top and bottom. */
 const ROPE_PITCH = 8;
 const ROPE_INSET = 6;
@@ -48,8 +52,6 @@ const ROPE_TURNS = Array.from(
   { length: Math.floor((POST_HEIGHT - 2 * ROPE_INSET) / ROPE_PITCH) + 1 },
   (_, i) => ROPE_INSET - POST_HEIGHT + ROPE_PITCH * i,
 );
-/** px the post's cap reaches past each side of it. */
-const POST_CAP_OVERHANG = 5;
 /** Claw marks on the post's face: sets of three rakes, px apart, the next set lower down. */
 const MARK_SETS = 2;
 const MARKS_PER_SET = 3;
