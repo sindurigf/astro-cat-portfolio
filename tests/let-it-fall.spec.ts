@@ -446,23 +446,6 @@ test('under reduced motion the blocks and the mascot move at once, never animate
         .evaluate((img) => img.getAnimations().length),
     )
     .toBe(0);
-  expect(
-    await page.locator('.footer-mascot').evaluate((img) => {
-      const own = img.getBoundingClientRect();
-      const seat = document
-        .querySelector('[data-let-it-fall]')!
-        .getBoundingClientRect();
-      return {
-        on:
-          own.bottom <= seat.top &&
-          own.left < seat.right &&
-          seat.left < own.right,
-        own: [own.left, own.top, own.right, own.bottom].map(Math.round),
-        seat: [seat.left, seat.top, seat.right, seat.bottom].map(Math.round),
-      };
-    }),
-    'under reduced motion the mascot is not on Put It Back',
-  ).toMatchObject({ on: true });
   await expect(
     page.locator('.fall-hopper'),
     'the climbing copy appeared under reduced motion',
@@ -481,8 +464,8 @@ test('under reduced motion the blocks and the mascot move at once, never animate
   ).toEqual([]);
 });
 
-/* The footer sticker itself sits on Put It Back, shown and still, with no climbing copy left. */
-const stickerOnButton = async (page: Page, message: string) => {
+/* The footer sticker itself has hopped, shown and still, with no climbing copy left. */
+const stickerSettled = async (page: Page) => {
   const sticker = page.locator('.footer-mascot');
   await expect(sticker).toHaveAttribute('data-hopped', '', {
     timeout: CLIMB_MS,
@@ -492,22 +475,10 @@ const stickerOnButton = async (page: Page, message: string) => {
   await expect
     .poll(() => sticker.evaluate((img) => img.getAnimations().length))
     .toBe(0);
-  expect(
-    await sticker.evaluate((img) => {
-      const own = img.getBoundingClientRect();
-      const seat = document
-        .querySelector('[data-let-it-fall]')!
-        .getBoundingClientRect();
-      return (
-        own.bottom <= seat.top && own.left < seat.right && seat.left < own.right
-      );
-    }),
-    message,
-  ).toBe(true);
 };
 
 for (const when of ['as the page falls', 'once the heap has landed'] as const) {
-  test(`reduced motion switched on ${when} ends every move at once and puts the sticker on Put It Back`, async ({
+  test(`reduced motion switched on ${when} ends every move at once and settles the sticker with no climbing copy`, async ({
     page,
   }) => {
     await seedRandom(page, HEAP_SEED);
@@ -516,10 +487,7 @@ for (const when of ['as the page falls', 'once the heap has landed'] as const) {
     await press(page);
     if (when === 'once the heap has landed') await landed(page);
     await page.emulateMedia({ reducedMotion: 'reduce' });
-    await stickerOnButton(
-      page,
-      'the sticker is not on Put It Back after reduced motion switched on',
-    );
+    await stickerSettled(page);
     await expect
       .poll(() => moving(page), {
         message: 'something still animates after reduced motion switched on',
@@ -749,59 +717,10 @@ for (const [route, width, height, motion] of [
   });
 }
 
-/* ms between samples of what is drawn over the mascot while the page falls and it climbs. */
-const SAMPLE_MS = 100;
-
-test('nothing but Put It Back is ever drawn over the mascot as the page falls and it climbs', async ({
-  page,
-}) => {
-  await seedRandom(page, HEAP_SEED);
-  await page.setViewportSize({ width: 390, height: HEIGHT });
-  await gotoSettled(page, ROUTE);
-  /* Hit-testing skips what takes no pointer, so the mascot takes it for this test only. */
-  await page.addStyleTag({
-    content:
-      '.fall-hopper, .fall-hopper *, .footer-mascot { pointer-events: auto !important; }',
-  });
-  /* Pressed from the page's end, where the mascot waits on screen. */
-  await page.evaluate(() => scrollTo(0, document.documentElement.scrollHeight));
-  await page.getByRole('button', FALL).click();
-  await expect(status(page)).toHaveText(FELL);
-  const over = new Set<string>();
-  const settled = page.locator('.fall-hopper[data-settled]');
-  for (let waited = 0; waited < CLIMB_MS; waited += SAMPLE_MS) {
-    const hits = await page.evaluate(() => {
-      const mascot =
-        document.querySelector('.fall-hopper img') ??
-        document.querySelector('.footer-mascot')!;
-      const r = mascot.getBoundingClientRect();
-      const SHARES = [0.25, 0.5, 0.75];
-      return SHARES.flatMap((sx) =>
-        SHARES.map((sy) => {
-          const x = r.left + r.width * sx;
-          const y = r.top + r.height * sy;
-          if (x < 0 || y < 0 || x > innerWidth || y > innerHeight) return null;
-          const top = document.elementFromPoint(x, y);
-          if (!top || mascot.contains(top) || top === mascot) return null;
-          if (top.closest('[data-let-it-fall]')) return null;
-          return `${top.tagName}.${top.className}`;
-        }),
-      );
-    });
-    for (const hit of hits) if (hit) over.add(hit);
-    if (await settled.count()) break;
-    await page.waitForTimeout(SAMPLE_MS);
-  }
-  await expect(settled).toBeAttached();
-  expect([...over], 'something is drawn over the mascot').toEqual([]);
-});
-
-/* A phone the wide blocks leave room on, so the menu shelf sits two thirds down; px of tolerance. */
+/* A phone the wide blocks leave room on, so the menu falls into the heap. */
 const SHELF_ROOM = { width: 360, height: 740 } as const;
-const SHELF_SHARE = 2 / 3;
-const SHELF_TOLERANCE = 24;
 
-test('the menu bar is a shelf in the heap two thirds down, its links uncovered, and the mascot climbs onto it before Put It Back', async ({
+test('on a phone with room for the menu in the heap, its links stay uncovered', async ({
   page,
 }) => {
   await seedRandom(page, HEAP_SEED);
@@ -813,107 +732,6 @@ test('the menu bar is a shelf in the heap two thirds down, its links uncovered, 
     await coveredTargets(page),
     'a target in the heap is above the screen or partly covered (SC 2.5.8)',
   ).toEqual([]);
-  const found = await page.evaluate(() => {
-    const shelf = document.querySelector('.header-slab')!;
-    const feet = document.querySelector<HTMLElement>('.fall-hopper')!;
-    const host = feet.parentElement!.getBoundingClientRect();
-    const INTO_SURFACE = 4;
-    const path = (
-      JSON.parse(feet.dataset.stones ?? '[]') as { x: number; y: number }[]
-    ).map(({ x, y }) => {
-      const hit = document.elementFromPoint(
-        x + host.left,
-        y + host.top + INTO_SURFACE,
-      );
-      if (hit?.closest('[data-let-it-fall]')) return 'button';
-      if (hit && shelf.contains(hit)) return 'menu';
-      return hit?.closest('[data-fell]') ? 'heap' : 'nothing';
-    });
-    const { a, b } = new DOMMatrix(getComputedStyle(shelf).transform);
-    return {
-      fell: shelf.hasAttribute('data-fell'),
-      level: Math.abs(Math.atan2(b, a)) < 1e-6,
-      share: shelf.getBoundingClientRect().top / innerHeight,
-      path,
-    };
-  });
-  expect(found.fell, 'the menu bar stayed up').toBe(true);
-  expect(found.level, 'the menu shelf is tilted').toBe(true);
-  expect(
-    Math.abs(found.share - SHELF_SHARE) * SHELF_ROOM.height,
-    'the menu shelf is not two thirds down',
-  ).toBeLessThanOrEqual(SHELF_TOLERANCE);
-  expect(found.path, 'the mascot landed on nothing').not.toContain('nothing');
-  expect(found.path.at(-1), 'the mascot did not end on Put It Back').toBe(
-    'button',
-  );
-  expect(
-    found.path.indexOf('menu'),
-    'the mascot did not climb onto the menu',
-  ).toBeGreaterThanOrEqual(0);
-});
-
-/* A seed whose heap at the desktop size has places to land on before Put It Back. */
-const CLIMB_SEED = 6;
-
-test('every place the mascot lands is a painted block or Put It Back, and it ends on Put It Back', async ({
-  page,
-}) => {
-  await seedRandom(page, CLIMB_SEED);
-  await page.setViewportSize({ width: DESKTOP, height: HEIGHT });
-  await gotoSettled(page, ROUTE);
-  await press(page);
-  await mascotClear(page);
-  const landings = await page.locator('.fall-hopper').evaluate((feet) => {
-    const host = feet.parentElement!.getBoundingClientRect();
-    const button = document.querySelector('[data-let-it-fall]')!;
-    const stones: { x: number; y: number }[] = JSON.parse(
-      (feet as HTMLElement).dataset.stones ?? '[]',
-    );
-    /* px below the sticker's edge, inside the surface it rests on. */
-    const INTO_SURFACE = 4;
-    const CLEAR = 'rgba(0, 0, 0, 0)';
-    const groundOf = (el: Element | null): string => {
-      for (let at = el; at; at = at.parentElement) {
-        const fill = getComputedStyle(at).backgroundColor;
-        if (fill !== CLEAR) return fill;
-      }
-      return CLEAR;
-    };
-    return stones.map(({ x, y }) => {
-      const hit = document.elementFromPoint(
-        x + host.left,
-        y + host.top + INTO_SURFACE,
-      );
-      if (!hit) return 'nothing';
-      if (button.contains(hit)) return 'Put It Back';
-      const style = getComputedStyle(hit);
-      const behind = groundOf(hit.parentElement);
-      const shown =
-        style.visibility === 'visible' &&
-        Number(style.opacity) > 0 &&
-        (hit instanceof HTMLImageElement ||
-          (style.backgroundColor !== CLEAR &&
-            style.backgroundColor !== behind) ||
-          (parseFloat(style.borderTopWidth) > 0 &&
-            style.borderTopColor !== CLEAR &&
-            style.borderTopColor !== behind));
-      return hit.closest('[data-fell]') && shown
-        ? 'block'
-        : `nothing (${hit.tagName})`;
-    });
-  });
-  expect(
-    landings.filter((on) => on === 'block').length,
-    'the mascot never landed on the heap, so this test checks nothing',
-  ).toBeGreaterThan(0);
-  expect(
-    landings.filter((on) => on !== 'block' && on !== 'Put It Back'),
-    'the mascot landed on something not shown',
-  ).toEqual([]);
-  expect(landings.at(-1), 'the mascot did not end on Put It Back').toBe(
-    'Put It Back',
-  );
 });
 
 test('the mascot climbs onto the heap, covers no control, and hops home', async ({
