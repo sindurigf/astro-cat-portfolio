@@ -222,12 +222,10 @@ export interface Move {
   steps: Step[];
   mods: Mod[];
   prop?: PropKind;
-  /** Prop position relative to the cat's starting point, forward positive. */
-  propAt?: ((t: number) => PropState) | undefined;
+  /** Prop position relative to the cat's starting point, forward positive; `cat` places it at that cat's reach. */
+  propAt?: ((t: number, cat: CatId) => PropState) | undefined;
   /** px the cat ends higher than it starts, a climb; it plays on the lower floor. */
   rise?: number;
-  /** The prop hangs at Minerva's swat reach, moved to the playing cat's own. */
-  atSwatTip?: true;
 }
 
 const step = (
@@ -252,7 +250,7 @@ const STANCE = 0.5;
 const GAIT_BLEND_MS = 180;
 
 type Paw = (typeof PAWS)[number];
-/** Each paw's place in a stride, as a share of it: a walk moves them one at a time, a bound in pairs. */
+/** Each paw's place in a stride, as a share of it: a walk moves them one at a time. */
 const WALK_LEGS: readonly (readonly [Paw, number])[] = [
   ['fN', 0],
   ['hF', 0.25],
@@ -261,7 +259,7 @@ const WALK_LEGS: readonly (readonly [Paw, number])[] = [
 ];
 /*
  * A gait fades in and out. A paw is down for the `stance` share of a stride of `length` px, going back as fast
- * as the body goes forward, then swings ahead; `rest` moves the body by the gait's weight and place in the stride.
+ * as the body goes forward, then swings ahead.
  */
 const gait = (
   from: number,
@@ -270,7 +268,6 @@ const gait = (
   stance: number,
   length: number,
   lift: number,
-  rest?: (p: Pose, weight: number, cycle: number) => void,
 ): Mod =>
   between(from, to, (p, s) => {
     const weight = Math.min(
@@ -287,39 +284,10 @@ const gait = (
         (u < stance ? 1 - (2 * u) / stance : 2 * k * k * (3 - 2 * k) - 1);
       p[leg][1] -= weight * lift * Math.sin(Math.PI * k);
     }
-    rest?.(p, weight, cycle);
   });
 
 const walking = (from: number, to: number, strength = 1): Mod =>
   gait(from, to, WALK_LEGS, STANCE, STRIDE * strength, STEP_LIFT * strength);
-/** A chasing cat bounds: front paws land together, then hind paws, the back flexing between. px per stride, px of paw lift, degrees of rock. */
-const BOUND_STRIDE = 44;
-const BOUND_LIFT = 6;
-const BOUND_ROCK = 7;
-/** Each pair is down for half the stride, so a paw is always on the ground and the drawing never bobs, and lands this many px out from its standing place, so the four legs never gather to a point. */
-const BOUND_STANCE = 0.5;
-const BOUND_SPREAD = 5;
-const BOUND_LEGS: typeof WALK_LEGS = [
-  ['fN', 0],
-  ['fF', 0.08],
-  ['hN', 0.5],
-  ['hF', 0.58],
-];
-const bounding = (from: number, to: number): Mod =>
-  gait(
-    from,
-    to,
-    BOUND_LEGS,
-    BOUND_STANCE,
-    BOUND_STRIDE,
-    BOUND_LIFT,
-    (p, weight, cycle) => {
-      for (const k of PAWS)
-        p[k][0] += weight * (k[0] === 'f' ? BOUND_SPREAD : -BOUND_SPREAD);
-      const phase = 2 * Math.PI * cycle;
-      p.ba += weight * BOUND_ROCK * Math.sin(phase);
-    },
-  );
 /** Degrees the head lags a jump by, up as it takes off and down as it lands. */
 const HEAD_LAG = 14;
 /** A jump's rise and fall; it ends with its landing step, so the paws touch down as the arc does. */
@@ -344,19 +312,32 @@ type Route = readonly [RoutePoint, ...RoutePoint[]];
 /* Arcs in px; with them the tallest move stays under --spacing-cat-band (tests/about-cats.spec.ts). */
 const POUNCE_HEIGHT = 56;
 const LEAP_HEIGHT = 40;
-/** The scratching post stands this far ahead of the cat, clear of its chest. */
-const POST_GAP = 34;
-/** A scratch: paws reach high up the post, then rake down; each stroke takes this long. */
-const SCRATCH_STROKE_MS = 250;
-const SCRATCH_STROKES = 12;
-const SCRATCH_LOW: Partial<Pose> = {
-  fN: [21, -24],
-  fF: [19, -14],
-  hr: 0,
-  draw: 'pawrise',
+export const POST_WIDTH = 18;
+/** The post's height in px, cap aside: well above a reaching cat, and with its cap under the band. */
+export const POST_HEIGHT = 126;
+/** px the post's cap reaches past each side of it. */
+export const POST_CAP_OVERHANG = 5;
+/** px ahead of the cat's middle and up from its feet where each cat's scratch drawing hooks its claws. */
+const SCRATCH_CLAWS: Record<CatId, Pair> = {
+  minerva: [32, 97],
+  hela: [21, 70],
+  rudra: [29, 100],
 };
-const SCRATCH_HIGH: Partial<Pose> = { hr: 0, draw: 'swat' };
-const YARN_BOUND_HEIGHT = 38;
+/** px the claws sink into the post's face. */
+const SCRATCH_GRIP = 2;
+/** The rise onto the hind legs, then each stroke: a slow lean in, then a hard pull back. */
+const SCRATCH_RISE_MS = 500;
+const SCRATCH_REACH_MS = 380;
+const SCRATCH_PULL_MS = 170;
+export const SCRATCH_PULLS = 6;
+/** px the body pulls back; the post leans with it, so the claws stay in its face. */
+const SCRATCH_PULL_PX = 5;
+/** Once the claws let go the post springs back upright, critically damped, so its face never swings away from the claws: ms to settle to 1/e. */
+const POST_SETTLE_MS = 80;
+/** The cat looks at its work, then rests while the post fades. */
+const SCRATCH_LOOK_MS = 600;
+const SCRATCH_REST_MS = 500;
+const SCRATCH: Partial<Pose> = { hr: 0, draw: 'scratch' };
 const FLY_HOP_HEIGHT = 40;
 /* The fly's route, [ms, x, y] ahead of the cat: it lands, is missed, circles, and escapes. */
 const FLY_PATH: Route = [
@@ -419,61 +400,125 @@ const swung = (
   beat: number,
 ): number =>
   since > 0 ? size * Math.exp(-since / fade) * Math.sin(since / beat) : 0;
-/*
- * A bat at something on the ground: the cat leans in with its head down, lifts
- * the paw curled, hooks it down onto the target and snaps it back.
- */
-const BAT_LEAN: Partial<Pose> = { ba: 46, hr: 24 };
-const BAT_RAISED: Pair = [22, 8];
-const BAT_STRIKE_MS = 90;
-/** The paw stays on what it hit and pushes it on this far, so the hit is seen. */
+/** A swatting paw stays on what it hit and pushes it on this far, so the hit is seen. */
 const BAT_PUSH_MS = 90;
 const BAT_PUSH = 4;
-/** ms from the hit until the paw is back up. */
-const BAT_AFTER_MS = BAT_PUSH_MS + 130;
-/** ms from a bat's start to the paw's hit. */
-const BAT_HIT_MS = WINDUP_MS + BAT_STRIKE_MS;
-const bat = (hit: Pair, over: Partial<Pose> = {}): Step[] => {
-  const lean = (ms: number, fN: Pair, ease: Ease): Step =>
-    step(ms, 'sit', { ...over, ...BAT_LEAN, fN }, ease);
-  return [
-    lean(WINDUP_MS, BAT_RAISED, 'out'),
-    lean(BAT_STRIKE_MS, hit, 'in'),
-    lean(BAT_PUSH_MS, [hit[0] + BAT_PUSH, hit[1]], 'linear'),
-    lean(BAT_AFTER_MS - BAT_PUSH_MS, BAT_RAISED, 'out'),
-  ];
-};
 /** Just past where each cat's swat drawing reaches, px ahead and up from its feet: the feather hangs there, so each swat meets it. */
-export const SWAT_TIP: Record<CatId, Pair> = {
+const SWAT_TIP: Record<CatId, Pair> = {
   minerva: [35, 79],
   rudra: [25, 83],
   hela: [27, 59],
 };
-/* The toy move is laid out at Minerva's reach; the colony moves the feather to each cat's own. */
-const [TOY_AHEAD, TOY_HIGH] = SWAT_TIP.minerva;
+export const CAT_IDS = Object.keys(SWAT_TIP) as CatId[];
 /** The feather swings back towards the cat by this share of its swing away, so each swat finds it. */
 const TOY_BACKSWING = 0.25;
-/** The cup stands clear of the head and chest; the first tap pushes it on. */
-const CUP_AHEAD = 36;
-/** ms at which the paw nudges the cup, then knocks it over. */
-const CUP_NUDGED = 750;
-const CUP_KNOCKED = 2250;
-/** Where each yarn pounce lands: the front paws reach the ball's near side. */
-const YARN_LAND_1 = 218;
-const YARN_LAND_2 = 308;
-/** ms the cat stands up on the spot before chasing on, so it rises through every frame before its paws move. */
-const YARN_STAND_MS = 500;
-/** ms at which each bat's paw hits the ball: the first bat, and the one after the first pounce lands. */
-const YARN_BAT_1 = BAT_HIT_MS;
-const YARN_POUNCE_LANDED = 4320;
-const YARN_BAT_2 = YARN_POUNCE_LANDED + BAT_HIT_MS;
-/** The ball hugged on the back, between the hind paws, from the cat's place. */
-const YARN_HUG = 9;
-const YARN_HUG_Y = -34;
-/** On its back with the ball, the cat rocks onto its side and back for each kick; the drawings alternate. */
-const YARN_KICK_MS = 250;
-const YARN_KICKS = 6;
-const YARN_KICK_ROLL = 110;
+/** Distance from each card end the cat's origin keeps, so its drawing reaches at most MAX_OVERHANG past the end. */
+export const TRACK_MARGIN = 48;
+/** The cup's middle, px ahead of the cat's: its near side 1.5px inside where each cat's patting paw comes down. */
+const CUP_AT_PAW: Record<CatId, number> = {
+  minerva: 21.5,
+  hela: 19,
+  rudra: 22,
+};
+/** Half the cup's width, as drawn in about-cats-rig.ts: it tips over the edge by this much. */
+const CUP_HALF_WIDTH = 5.5;
+/** ms after a pat's step that its paw-down drawing shows: the rig's BLIP_MS (25) and a frame. */
+const PAW_LANDS_MS = 45;
+/** The pat slides the cup until its middle is over the edge, easing to a stop. */
+const CUP_SLIDE_MS = 200;
+/** One pat tips the cup over the edge: it slides off the lip, then drops, turning as it falls. */
+const CUP_LOOK_MS = 450;
+const CUP_PAW_UP_MS = 220;
+const CUP_PAW_DOWN_MS = 140;
+const CUP_HIT = CUP_LOOK_MS + CUP_PAW_UP_MS;
+const CUP_TIP_MS = 110;
+const CUP_TIP_DEG = 80;
+/** px per ms², so the cup drops out of sight below the edge in about a quarter second; it drifts and spins per ms as it falls. */
+const CUP_GRAVITY = 0.0022;
+const CUP_DRIFT = 0.04;
+const CUP_SPIN = 0.9;
+/** px of fall after which the cup fades out, over as many px again. */
+const CUP_FADE_AFTER = 30;
+const CUP_FADE_IN_MS = 250;
+/** ms the cat watches the cup fall, then settles. */
+const CUP_WATCH_MS = 500;
+const CUP_SETTLE_MS = 500;
+/** A pat from a side-on crouch: the paw comes up, then down on the ball, which rolls off as it lands. */
+const PAT_READY_MS = 200;
+const PAT_UP_MS = 200;
+const PAT_DOWN_MS = 120;
+const PAT_AFTER_MS = 260;
+/** The sit before the first pat, and the settle after the last kick. */
+const YARN_SIT_MS = 260;
+const YARN_SETTLE_MS = 500;
+const pat = (x: number): Step[] => [
+  step(PAT_READY_MS, 'crouch', { x, draw: 'crouch' }),
+  step(PAT_UP_MS, 'crouch', { x, draw: 'pawrise' }, 'out'),
+  step(PAT_DOWN_MS, 'crouch', { x, draw: 'crouch' }, 'in'),
+  step(PAT_AFTER_MS, 'crouch', { x }),
+];
+/** A pounce: gather, push off, fly, land with the front paws on the ball, settle. */
+const POUNCE_GATHER_MS = 160;
+const POUNCE_PUSH_MS = 90;
+const POUNCE_AIR_MS = 260;
+const POUNCE_LAND_MS = 110;
+const POUNCE_SETTLE_MS = 220;
+const YARN_POUNCE_HEIGHT = 24;
+/** px ahead of the cat's middle that the ball lands under a pounce: within the landing paws' 31 to 41 px, and inside every cat's crouched pat after. */
+const YARN_POUNCE_REACH = 35;
+/** Onto the back: settles, lies on its side, rolls over and plays holding the ball; getting up is the reverse. */
+const LIE_MS = 260;
+const LIE_HOLD_MS = 480;
+const ROLL_MS = 260;
+const YARN_KICKS = 7;
+const GET_UP_MS = 300;
+/** The ring of each cat's paws in its hold drawing, px ahead and up from its place: the ball sits there. */
+const YARN_HELD: Record<CatId, Pair> = {
+  minerva: [1, 38],
+  hela: [0, 31],
+  rudra: [0, 34],
+};
+const YARN_RADIUS = 6;
+/** Each kick bounces the ball up in the paws for this many ms, this far, and spins it on by this many degrees. */
+const YARN_KICK_MS = 300;
+const BACK_PLAY_MS = YARN_KICKS * YARN_KICK_MS;
+const YARN_KICK_UP = 5;
+const YARN_KICK_TURN = 40;
+/** The ball hops this high, for this long, as each pat's paw comes down on it. */
+const YARN_HOP_PX = 3;
+const YARN_HOP_MS = 180;
+/** The loose strand trails behind the rolling ball up to this long, and hangs from the held ball over the hind paws to this end. */
+const STRAND_TRAIL = 36;
+const STRAND_MIN = 4;
+const STRAND_HELD: Pair = [-10, 22];
+/** The ball rolls this long after each pat, and rolls off when let go. */
+const YARN_PAT_ROLL_MS = 900;
+const YARN_LET_GO = 22;
+const YARN_LET_GO_MS = 500;
+/** The chase along the band, px from the start: the ball's place, each pat's roll and each run's end. */
+const YARN_START = 26;
+const YARN_ROLL_1 = 150;
+const YARN_ROLL_2 = 120;
+const YARN_RUN_1 = 100;
+const YARN_RUN_2 = 230;
+const YARN_FADE_IN_MS = 200;
+const YARN_FADE_OUT_MS = 300;
+/** The ball turns once for each 2πr it rolls. */
+const turned = (px: number): number => (px / YARN_RADIUS) * (180 / Math.PI);
+const easeOut = (k: number): number =>
+  1 - (1 - Math.min(1, Math.max(0, k))) ** 2;
+/** Where the ball is along [ms, px] points, easing to rest between each pair. */
+const ballAt = (
+  points: readonly (readonly [number, number])[],
+  t: number,
+): number => {
+  let [t0, x0] = points[0] ?? [0, 0];
+  for (const [t1, x1] of points.slice(1)) {
+    if (t <= t1) return x0 + (x1 - x0) * easeOut((t - t0) / (t1 - t0 || 1));
+    [t0, x0] = [t1, x1];
+  }
+  return x0;
+};
 /** The wand's feather hangs on the cat tree just out of a sitting cat's reach, clear of its face. */
 const WAND_HIGH = -62;
 const WAND_AHEAD = 32;
@@ -515,25 +560,51 @@ const along = ([first, ...rest]: Route, t: number): [number, number] => {
   return [x0, y0];
 };
 
-/** Body height before the roll; upright poses keep their paws on the ground there. */
-const FLOP_LOW = 9;
-/** ms a flop takes, and its roll: long enough for each drawing on the way over to show. */
-const FLOP_MS = 700;
-const FLOP_ROLL_MS = 480;
-const groundedAt = (name: PoseName, by: number): Partial<Pose> =>
-  POSES[name].rot !== 0
-    ? {}
-    : Object.fromEntries(PAWS.map((k) => [k, [POSES[name][k][0], by]]));
-/* Rolling onto the back: low, then over through the lying-on-side and rolling drawings. */
-const flopTo = (from: PoseName, to: PoseName, x = 0): Step[] => [
-  step(
-    FLOP_MS - FLOP_ROLL_MS,
-    from,
-    { x, by: FLOP_LOW, ...groundedAt(from, FLOP_LOW) },
-    'in',
-  ),
-  step(FLOP_ROLL_MS, to, { x }, 'linear'),
-];
+/**
+ * Looks at the cup, pats it once and watches it fall: the pat slides the cup
+ * from under the paw to the edge `lip` px ahead, and it tips over and is gone
+ * before it drops `depth` px onto a floor below.
+ */
+export const knockAt = (lip: number, depth = Infinity): Move => {
+  const fadeAfter = Math.min(CUP_FADE_AFTER, depth / 2);
+  const pushFrom = CUP_HIT + PAW_LANDS_MS;
+  const tipFrom = pushFrom + CUP_SLIDE_MS;
+  return {
+    steps: [
+      step(CUP_LOOK_MS, 'sit', { hr: 14, draw: 'headturn' }),
+      step(CUP_PAW_UP_MS, 'sit', { hr: 8, draw: 'pawrise' }, 'out'),
+      step(CUP_PAW_DOWN_MS, 'sit', { hr: 14, draw: 'headturn' }, 'in'),
+      step(CUP_WATCH_MS, 'sit', { hr: 26, draw: 'headturn' }),
+      step(CUP_SETTLE_MS, 'sit'),
+    ],
+    mods: [],
+    prop: 'cup',
+    propAt: (t, cat) => {
+      const slide = Math.max(0, lip - CUP_AT_PAW[cat]);
+      const pushed = EASE.out(
+        Math.min(1, Math.max(0, (t - pushFrom) / CUP_SLIDE_MS)),
+      );
+      const tip = Math.min(1, Math.max(0, (t - tipFrom) / CUP_TIP_MS));
+      const fall = Math.max(0, t - tipFrom - CUP_TIP_MS);
+      const y = Math.min(depth, 0.5 * CUP_GRAVITY * fall ** 2);
+      return {
+        kind: 'cup',
+        x:
+          CUP_AT_PAW[cat] +
+          slide * pushed +
+          CUP_HALF_WIDTH * tip +
+          CUP_DRIFT * fall,
+        y,
+        r: CUP_TIP_DEG * tip + CUP_SPIN * fall,
+        o: Math.min(
+          1,
+          t / CUP_FADE_IN_MS,
+          Math.max(0, 1 - (y - fadeAfter) / fadeAfter),
+        ),
+      };
+    },
+  };
+};
 
 /** A prop's opacity `t` ms in: it fades in over `inMs`, and out over the `outMs` before `end`. */
 const fade = (t: number, inMs: number, end: number, outMs: number): number =>
@@ -577,49 +648,23 @@ export const MOVES = {
       steps,
       mods: [],
       prop: 'toy',
-      atSwatTip: true,
-      propAt: (t) => {
+      propAt: (t, cat) => {
+        const [ahead, high] = SWAT_TIP[cat];
         const swing = TOY_HITS.reduce(
           (sum, at) => sum + swung(t - at, 30, 600, 120),
           0,
         );
         return {
           kind: 'toy',
-          x: TOY_AHEAD,
-          y: -TOY_HIGH + 4 * Math.sin(t / 700),
+          x: ahead,
+          y: -high + 4 * Math.sin(t / 700),
           r: swing < 0 ? swing * TOY_BACKSWING : swing,
           o: fade(t, 300, end, 400),
         };
       },
     };
   },
-  knock: (): Move => ({
-    steps: [
-      step(CUP_NUDGED - BAT_HIT_MS, 'sit', { hr: 12 }),
-      ...bat([30, 14]),
-      step(1200 - CUP_NUDGED - BAT_AFTER_MS, 'sit'),
-      step(CUP_KNOCKED - BAT_HIT_MS - 1200, 'sit', { hr: -8 }),
-      ...bat([30 + BAT_PUSH, 13]),
-      step(3250 - CUP_KNOCKED - BAT_AFTER_MS, 'sit', { hr: 25 }),
-      step(400, 'sit'),
-    ],
-    mods: [],
-    prop: 'cup',
-    propAt: (t) => {
-      let x =
-        CUP_AHEAD +
-        BAT_PUSH * Math.min(1, Math.max(0, (t - CUP_NUDGED) / BAT_PUSH_MS));
-      let y = 0;
-      let r = 0;
-      if (t > CUP_KNOCKED) {
-        const k = Math.min(1, (t - CUP_KNOCKED) / 700);
-        x += 22 * Math.min(1, k * 3);
-        y = k > 0.33 ? ((k - 0.33) * 3) ** 2 * 40 : 0;
-        r = k * 140;
-      }
-      return { kind: 'cup', x, y, r, o: Math.min(1, t / 300, y > 30 ? 0 : 1) };
-    },
-  }),
+  knock: () => knockAt(TRACK_MARGIN),
   /*
    * The fly lands; the cat stalks it and pounces, misses, swats at it overhead,
    * follows it along the band in hops, leaps for it, and it gets away.
@@ -678,92 +723,175 @@ export const MOVES = {
       };
     },
   }),
-  post: (): Move => ({
-    /* A long scratch up a tall post, the paws raking down in turn, then a look at the work. */
-    steps: [
-      step(600, 'rear', SCRATCH_LOW),
-      ...Array.from({ length: SCRATCH_STROKES }, (_, i) =>
-        i % 2 === 0
-          ? step(SCRATCH_STROKE_MS, 'leap', SCRATCH_HIGH)
-          : step(SCRATCH_STROKE_MS, 'rear', SCRATCH_LOW),
-      ),
-      step(600, 'sit', { hr: -14 }),
-      step(500, 'sit'),
-    ],
-    mods: [],
-    prop: 'post',
-    propAt: (t) => ({
-      kind: 'post',
-      x: POST_GAP,
-      y: 0,
-      r: 0,
-      o: fade(t, 300, 4700, 300),
-    }),
-  }),
-  /* Bats the ball, bounds after it, pounces with its paws on it, bats it on, then rolls over hugging it. */
-  yarn: (): Move => ({
-    steps: [
-      ...bat([30, 14]),
-      step(300 - BAT_PUSH_MS, 'sit'),
-      step(300, 'stand'),
-      step(2400, 'stand', { x: 150 }),
-      step(300, 'crouch', { x: 150 }),
-      step(140, 'crouch', { x: 150 }, 'in'),
-      step(300, 'air', { x: 198 }, 'linear'),
-      step(180, 'crouch', { x: YARN_LAND_1 }, 'out'),
-      ...bat([30, 14], { x: YARN_LAND_1 }),
-      step(150 - BAT_PUSH_MS, 'sit', { x: YARN_LAND_1 }),
-      step(YARN_STAND_MS, 'stand', { x: YARN_LAND_1 }),
-      step(1500 - YARN_STAND_MS, 'stand', { x: 280 }),
-      step(250, 'crouch', { x: 280 }),
-      step(140, 'crouch', { x: 280 }, 'in'),
-      step(280, 'air', { x: 298 }, 'linear'),
-      step(180, 'crouch', { x: YARN_LAND_2 }, 'out'),
-      ...flopTo('crouch', 'belly', YARN_LAND_2),
-      ...Array.from({ length: YARN_KICKS }, (_, i) =>
-        step(YARN_KICK_MS, 'belly', {
-          x: YARN_LAND_2,
-          rot: i % 2 === 0 ? YARN_KICK_ROLL : 180,
-        }),
-      ),
-      ...flopTo('belly', 'crouch', YARN_LAND_2),
-      step(500, 'sit', { x: YARN_LAND_2 }),
-    ],
-    mods: [
-      bounding(1000, 3400),
-      arc(3840, 4320, YARN_BOUND_HEIGHT),
-      bounding(4870 + YARN_STAND_MS, 6370),
-      arc(6760, 7220, YARN_BOUND_HEIGHT),
-    ],
-    prop: 'yarn',
-    /* Rolls ahead; a pounce lands paws first and squirts it on; batted again; then hugged in the hind paws. */
-    propAt: (t) => {
-      const ease = (k: number) => 1 - (1 - k) ** 2;
-      const span = (a: number, b: number) =>
-        Math.min(1, Math.max(0, (t - a) / (b - a)));
-      const roll =
-        28 +
-        ease(span(YARN_BAT_1, 3850)) * 212 +
-        ease(span(4200, 4450)) * 6 +
-        ease(span(YARN_BAT_2, 6900)) * 84 +
-        ease(span(7100, 7350)) * 10 +
-        ease(span(9420, 9820)) * 12;
-      /* Up over the rolled body first, then back to the hind paws; the reverse on letting go. */
-      const lift = span(7820, 7920) - span(9470, 9620);
-      const draw = span(7920, 8020) - span(9420, 9470);
-      const kick = t > 8020 && t < 9420 ? Math.sin((t - 8020) / 60) : 0;
-      return {
-        kind: 'yarn',
-        x: roll + draw * (YARN_LAND_2 + YARN_HUG - roll) + 3 * kick,
-        y: -6 + lift * (YARN_HUG_Y + 6) + 2 * kick,
-        r:
-          span(YARN_BAT_1, 3850) * 900 +
-          span(4200, 4450) * 80 +
-          span(YARN_BAT_2, 6900) * 500,
-        o: fade(t, 200, 10620, 300),
-      };
-    },
-  }),
+  post: (): Move => {
+    /* Reaches up the post, then pulls down on it in strokes and looks at the work. */
+    const steps: Step[] = [
+      step(SCRATCH_RISE_MS, 'rear', { hr: 0, draw: 'swat' }),
+      step(SCRATCH_REACH_MS, 'leap', SCRATCH, 'out'),
+    ];
+    const pulls: number[] = [];
+    for (let i = 0; i < SCRATCH_PULLS; i++) {
+      pulls.push(stepsDuration(steps));
+      steps.push(
+        step(
+          SCRATCH_PULL_MS,
+          'leap',
+          { ...SCRATCH, x: -SCRATCH_PULL_PX },
+          'in',
+        ),
+        step(SCRATCH_REACH_MS, 'leap', SCRATCH, 'out'),
+      );
+    }
+    steps.push(
+      step(SCRATCH_LOOK_MS, 'sit', { hr: -14 }),
+      step(SCRATCH_REST_MS, 'sit'),
+    );
+    const end = stepsDuration(steps);
+    return {
+      steps,
+      mods: [],
+      prop: 'post',
+      propAt: (t, cat) => {
+        const [ahead, high] = SCRATCH_CLAWS[cat];
+        /* Leaning toward the cat turns the post anticlockwise. */
+        const tug = -Math.atan2(SCRATCH_PULL_PX, high) * (180 / Math.PI);
+        const done = pulls.filter((p) => t >= p);
+        const last = done.at(-1);
+        const since = last === undefined ? Infinity : t - last;
+        const pulling = Math.min(1, since / SCRATCH_PULL_MS);
+        const after = since - SCRATCH_PULL_MS;
+        return {
+          kind: 'post',
+          x: ahead - SCRATCH_GRIP + POST_WIDTH / 2,
+          y: 0,
+          r:
+            last === undefined
+              ? 0
+              : after < 0
+                ? tug * EASE.in(pulling)
+                : tug *
+                  Math.exp(-after / POST_SETTLE_MS) *
+                  (1 + after / POST_SETTLE_MS),
+          o: fade(t, 300, end, SCRATCH_REST_MS),
+          marks: pulls.filter((p) => t >= p + SCRATCH_PULL_MS).length,
+          sincePull: after < 0 ? Infinity : after,
+          clawHigh: high,
+        };
+      },
+    };
+  },
+  /* Pats the ball, runs after it, pounces on it, pats it on, runs and pounces again, then lies back and kicks it. */
+  yarn: (): Move => {
+    const steps: Step[] = [];
+    const mods: Mod[] = [];
+    let t = 0;
+    let at = 0;
+    const ball: [number, number][] = [[0, YARN_START]];
+    const hits: number[] = [];
+    const ballNow = (): number => ball.at(-1)?.[1] ?? YARN_START;
+    const add = (...more: Step[]): void => {
+      steps.push(...more);
+      t += stepsDuration(more);
+    };
+    const patTo = (roll: number): void => {
+      const hit = t + PAT_READY_MS + PAT_UP_MS + PAW_LANDS_MS;
+      const from = ballNow();
+      hits.push(hit);
+      ball.push([hit, from], [hit + YARN_PAT_ROLL_MS, from + roll]);
+      add(...pat(at));
+    };
+    const runTo = (x: number): void => {
+      add(step(POUNCE_GATHER_MS, 'crouch', { x: at }, 'in'));
+      const dash = run(at, x, t);
+      mods.push(...dash.mods);
+      add(...dash.steps);
+      at = x;
+    };
+    /* The front paws land on the ball. */
+    const pounce = (): void => {
+      const x = ballNow() - YARN_POUNCE_REACH;
+      add(step(PAT_READY_MS, 'crouch', { x: at }, 'out'));
+      add(step(POUNCE_GATHER_MS, 'crouch', { x: at }, 'in'));
+      add(step(POUNCE_PUSH_MS, 'stand', { x: at, draw: 'takeoff' }));
+      mods.push(arc(t, t + POUNCE_AIR_MS, YARN_POUNCE_HEIGHT));
+      add(step(POUNCE_AIR_MS, 'stand', { x, draw: 'leap' }, 'linear'));
+      add(step(POUNCE_LAND_MS, 'stand', { x, draw: 'landing' }));
+      add(step(POUNCE_SETTLE_MS, 'crouch', { x }, 'out'));
+      at = x;
+    };
+    add(step(YARN_SIT_MS, 'sit'));
+    patTo(YARN_ROLL_1);
+    runTo(YARN_RUN_1);
+    pounce();
+    patTo(YARN_ROLL_2);
+    runTo(YARN_RUN_2);
+    pounce();
+    const rollFrom = t + LIE_MS + LIE_HOLD_MS;
+    add(
+      step(LIE_MS, 'crouch', { x: at }),
+      step(LIE_HOLD_MS, 'crouch', { x: at, draw: 'lieside' }),
+      step(ROLL_MS, 'crouch', { x: at, draw: 'roll' }),
+    );
+    const kicksFrom = t;
+    add(step(BACK_PLAY_MS, 'belly', { x: at, draw: 'hold' }));
+    const letGo = t;
+    add(
+      step(ROLL_MS, 'belly', { x: at, draw: 'roll' }),
+      step(GET_UP_MS, 'crouch', { x: at, draw: 'lieside' }),
+      step(GET_UP_MS, 'crouch', { x: at }),
+      step(YARN_SETTLE_MS, 'sit', { x: at }),
+    );
+    const end = t;
+    const rest = at;
+    return {
+      steps,
+      mods,
+      prop: 'yarn',
+      propAt: (u, cat) => {
+        const [ahead, up] = YARN_HELD[cat];
+        const held =
+          Math.min(1, Math.max(0, (u - rollFrom) / ROLL_MS)) *
+          (1 - Math.min(1, Math.max(0, (u - letGo) / ROLL_MS)));
+        const kicks = Math.min(
+          YARN_KICKS,
+          Math.max(0, (u - kicksFrom) / YARN_KICK_MS),
+        );
+        const kick = Math.sin(kicks * Math.PI) ** 2;
+        const spun =
+          Math.floor(kicks) + (1 - Math.cos(Math.PI * (kicks % 1))) / 2;
+        const hop = hits.reduce(
+          (h, hit) =>
+            u > hit && u < hit + YARN_HOP_MS
+              ? h + YARN_HOP_PX * Math.sin((Math.PI * (u - hit)) / YARN_HOP_MS)
+              : h,
+          0,
+        );
+        const away =
+          u > letGo ? easeOut((u - letGo) / YARN_LET_GO_MS) * YARN_LET_GO : 0;
+        const ground = u > letGo ? rest + ahead + away : ballAt(ball, u);
+        const rolled = ballAt(ball, Math.min(u, letGo)) - YARN_START + away;
+        const x = (1 - held) * ground + held * (rest + ahead);
+        const trail = -Math.min(
+          STRAND_TRAIL,
+          Math.max(STRAND_MIN, ground - YARN_START),
+        );
+        return {
+          kind: 'yarn',
+          x,
+          y:
+            -(1 - held) * (YARN_RADIUS + hop) -
+            held * (up + YARN_KICK_UP * kick),
+          r: turned(rolled) + YARN_KICK_TURN * spun,
+          o: fade(u, YARN_FADE_IN_MS, end, YARN_FADE_OUT_MS),
+          held: held > 0.5,
+          strand: [
+            (1 - held) * trail + held * STRAND_HELD[0],
+            (1 - held) * (YARN_RADIUS + hop) + held * STRAND_HELD[1],
+          ],
+        };
+      },
+    };
+  },
   /* Rudra and the wand on the cat tree, from his photo: sat back reaching up, swats, and one leap that brings it down. */
   wand: (): Move => ({
     steps: [
@@ -818,7 +946,7 @@ export type MoveName = keyof typeof MOVES;
 
 /** Small play moves run this much slower than drawn, so each one can be watched. */
 const SLOW_PLAY = 1.5;
-const SLOW_MOVES: ReadonlySet<MoveName> = new Set(['toy', 'knock']);
+const SLOW_MOVES: ReadonlySet<MoveName> = new Set(['toy']);
 
 /** A move at `factor` of its speed, modifiers and prop included. */
 const slower = (move: Move, factor: number): Move => {
@@ -831,7 +959,7 @@ const slower = (move: Move, factor: number): Move => {
       to: mod.to * factor,
       apply: (p, s, k) => mod.apply(p, s / factor, k),
     })),
-    propAt: propAt && ((t) => propAt(t / factor)),
+    propAt: propAt && ((t, cat) => propAt(t / factor, cat)),
   };
 };
 
@@ -859,13 +987,19 @@ export const scaleTravel = (move: Move, factor: number): Move => {
     })),
     propAt:
       propAt &&
-      ((t) => {
-        const s = propAt(t);
-        const cat = sample(move.steps, SCALE_FROM, t).x;
-        const ahead = s.x - cat;
+      ((t, cat) => {
+        const s = propAt(t, cat);
+        const at = sample(move.steps, SCALE_FROM, t).x;
+        const ahead = s.x - at;
         const kept = Math.min(Math.abs(ahead), PROP_KEEP);
         const scaled = Math.max(Math.abs(ahead) * factor, kept);
-        return { ...s, x: cat * factor + Math.sign(ahead) * scaled };
+        const x = at * factor + Math.sign(ahead) * scaled;
+        /* The ball turns as far as it now rolls. */
+        return {
+          ...s,
+          x,
+          r: s.kind === 'yarn' ? s.r + turned(x - s.x) : s.r,
+        };
       }),
   };
 };
@@ -973,8 +1107,46 @@ export const withTurn = (move: Move, from: Pose): Move => {
         to: mod.to + TURN_MS,
       })),
     ],
-    propAt: propAt && ((t) => propAt(Math.max(0, t - TURN_MS))),
+    propAt: propAt && ((t, cat) => propAt(Math.max(0, t - TURN_MS), cat)),
   };
+};
+
+/** A run from the jump drawings: push off, stretch out, land. The body moves only in the air, so a paw on the ground never slides. */
+const RUN_STRIDE = 96;
+const RUN_AIR_MS = 230;
+/** As long as the landing drawing must show (HOLD_MS), so each ground drawing is up for its whole step. */
+const RUN_GROUND_MS = 120;
+const RUN_LIFT = 9;
+/** ms the body waits at the start of each leap, so the leap drawing is up before it moves: a new drawing waits out a blip and a screen frame. */
+const RUN_LIFTOFF_MS = 40;
+/** A shorter run is no leap: the cat trots it instead. */
+const RUN_MIN_STRIDE = RUN_STRIDE / 2;
+const run = (
+  x0: number,
+  x1: number,
+  from: number,
+): { steps: Step[]; mods: Mod[] } => {
+  const strides = Math.max(1, Math.ceil(Math.abs(x1 - x0) / RUN_STRIDE));
+  const stride = (x1 - x0) / strides;
+  const steps: Step[] = [];
+  const mods: Mod[] = [];
+  for (let i = 0; i < strides; i++) {
+    const at = x0 + i * stride;
+    const air = from + (2 * i + 1) * RUN_GROUND_MS + i * RUN_AIR_MS;
+    steps.push(
+      step(RUN_GROUND_MS, 'stand', { x: at, draw: 'takeoff' }, 'linear'),
+      step(RUN_LIFTOFF_MS, 'stand', { x: at, draw: 'leap' }),
+      step(
+        RUN_AIR_MS - RUN_LIFTOFF_MS,
+        'stand',
+        { x: at + stride, draw: 'leap' },
+        'linear',
+      ),
+      step(RUN_GROUND_MS, 'stand', { x: at + stride, draw: 'landing' }),
+    );
+    mods.push(arc(air, air + RUN_AIR_MS, RUN_LIFT));
+  }
+  return { steps, mods };
 };
 
 /** px per second of a crouched creep, slower than a trot. */
@@ -982,13 +1154,13 @@ const CREEP_SPEED = 45;
 const CREEP_MIN_MS = 300;
 const CREEP_READY_MS = 250;
 const SETTLE_BACK_MS = 400;
-/** Farther than this, a cat trots to the spot first and creeps only the last of it. */
+/** Farther than this, a cat trots or runs to the spot first and creeps only the last of it. */
 const CREEP_REACH = 60;
-/** A trot at the walk drawings' own pace, so they never skip. It stands up first, quickly at the start, so every rising frame shows before the paws move. */
+/** A trot at the walk drawings' own pace, so they never skip. It stands up, or crouches for a run, first, quickly at the start, so every drawing on the way shows before the paws move. */
 const TROT_SPEED = WALK_SPEED;
 const TROT_READY_MS = 800;
 
-/** Trots, then creeps, `distance` ahead first, so an edge move starts at the track end from anywhere on it. */
+/** Trots or runs, then creeps, `distance` ahead first, so an edge move starts at the track end from anywhere on it. */
 /*
  * Also shuffles `settleBack` px back once the move is done, so a cat that crept
  * past its track's end finishes on it again.
@@ -997,9 +1169,18 @@ export const withApproach = (
   move: Move,
   distance: number,
   settleBack = 0,
+  gait: 'trot' | 'run' = 'trot',
 ): Move => {
   const trot = Math.max(0, distance - CREEP_REACH);
-  const trotMs = trot > 0 ? (trot / TROT_SPEED) * 1000 : 0;
+  const dash =
+    gait === 'run' && trot >= RUN_MIN_STRIDE
+      ? run(0, trot, TROT_READY_MS)
+      : null;
+  const trotMs = dash
+    ? stepsDuration(dash.steps)
+    : trot > 0
+      ? (trot / TROT_SPEED) * 1000
+      : 0;
   const trotLead = trot > 0 ? TROT_READY_MS + trotMs : 0;
   const creep = Math.max(
     CREEP_MIN_MS,
@@ -1011,12 +1192,14 @@ export const withApproach = (
   return {
     ...move,
     steps: [
-      ...(trot > 0
-        ? [
-            step(TROT_READY_MS, 'stand', {}, 'out'),
-            step(trotMs, 'stand', { x: trot }, 'linear'),
-          ]
-        : []),
+      ...(dash
+        ? [step(TROT_READY_MS, 'crouch', {}, 'out'), ...dash.steps]
+        : trot > 0
+          ? [
+              step(TROT_READY_MS, 'stand', {}, 'out'),
+              step(trotMs, 'stand', { x: trot }, 'linear'),
+            ]
+          : []),
       step(CREEP_READY_MS, 'crouch', { x: trot }),
       step(creep, 'crouch', { x: distance }),
       ...move.steps.map((s) => ({
@@ -1028,7 +1211,11 @@ export const withApproach = (
         : []),
     ],
     mods: [
-      ...(trot > 0 ? [walking(TROT_READY_MS, trotLead)] : []),
+      ...(dash
+        ? dash.mods
+        : trot > 0
+          ? [walking(TROT_READY_MS, trotLead)]
+          : []),
       walking(trotLead + CREEP_READY_MS, lead, 0.6),
       ...move.mods.map((mod) => ({
         ...mod,
@@ -1038,8 +1225,8 @@ export const withApproach = (
     ],
     propAt:
       propAt &&
-      ((t) => {
-        const s = propAt(Math.max(0, t - lead));
+      ((t, cat) => {
+        const s = propAt(Math.max(0, t - lead), cat);
         return { ...s, x: s.x + distance, o: t < lead ? 0 : s.o };
       }),
   };
@@ -1052,6 +1239,14 @@ const EXTENT_STEP_MS = 1000 / 60;
 const PROP_REACH = 10;
 const PROP_SEEN = 0.05;
 
+/** px a prop reaches past its center: the post's cap, and its top as it leans. */
+const propReach = (prop: PropState): number =>
+  prop.kind === 'post'
+    ? POST_WIDTH / 2 +
+      POST_CAP_OVERHANG +
+      POST_HEIGHT * Math.abs(Math.sin((prop.r * Math.PI) / 180))
+    : PROP_REACH;
+
 /** A move's path back and forward from its start, its prop's included, for track checks: sampled from the drawn path, so eases and modifiers count. */
 const extent = (move: Move): [number, number] => {
   const start = pose('sit');
@@ -1063,10 +1258,11 @@ const extent = (move: Move): [number, number] => {
     const x = poseAt(move, start, at).x;
     back = Math.min(back, x);
     forward = Math.max(forward, x);
-    const prop = move.propAt?.(at);
-    if (prop && prop.o > PROP_SEEN) {
-      back = Math.min(back, prop.x - PROP_REACH);
-      forward = Math.max(forward, prop.x + PROP_REACH);
+    for (const cat of move.propAt ? CAT_IDS : []) {
+      const prop = move.propAt!(at, cat);
+      if (prop.o <= PROP_SEEN) continue;
+      back = Math.min(back, prop.x - propReach(prop));
+      forward = Math.max(forward, prop.x + propReach(prop));
     }
   }
   return [back, forward];

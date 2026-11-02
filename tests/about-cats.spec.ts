@@ -22,10 +22,10 @@ import {
   poseAt,
   withTurn,
   type Move,
+  POST_HEIGHT,
 } from '../src/lib/about-cats-moves';
 import {
   HIT_HALF_WIDTH,
-  POST_HEIGHT,
   highestPoint,
   hitBox,
   isStepping,
@@ -304,14 +304,16 @@ test('no move lifts any part of a cat above its band', NODE, () => {
         break;
       }
     }
-    if (move.propAt) {
+    for (const cat of move.propAt ? CATS : []) {
       for (let t = 0; t <= duration(move); t += FRAME_MS) {
-        const prop = move.propAt(t);
+        const prop = move.propAt!(t, cat);
         /* The post stands up from its point; its cap and edge add a few px. */
         const top =
           -prop.y + (prop.kind === 'post' ? POST_HEIGHT + POST_CAP : 0);
         if (prop.o > 0 && top > band) {
-          tooHigh.push(`${name}'s ${prop.kind} at ${Math.round(t)}ms`);
+          tooHigh.push(
+            `${name}'s ${prop.kind} for ${cat} at ${Math.round(t)}ms`,
+          );
           break;
         }
       }
@@ -2027,8 +2029,8 @@ test.describe('About cats', () => {
     const list = tricksList(page, id);
     await expect(
       list.getByRole('button', { name: TRICKS.yarn.label }),
-      'a trick that cannot fit the band is offered',
-    ).toHaveCount(0);
+      'a trick that fits the band is not offered',
+    ).toBeAttached();
     await list.getByRole('button', { name: TRICKS.fly.label }).click();
     await expect(
       page.locator(`#cat-spot-${id} .cat-prop-wing`).first(),
@@ -2042,6 +2044,10 @@ test.describe('About cats', () => {
     await expect(
       list.getByRole('button', { name: TRICKS.look.label }),
     ).toBeAttached();
+    await expect(
+      list.getByRole('button', { name: TRICKS.yarn.label }),
+      'a trick that cannot fit the band is offered',
+    ).toHaveCount(0);
     await expect(
       list.getByRole('button', { name: TRICKS.fly.label }),
       'a trick that cannot fit the band is offered',
