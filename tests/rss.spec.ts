@@ -9,6 +9,8 @@ import {
   builtHtml,
   NO_PUBLISHED_POST,
   PUBLISHED_POST_ROUTES,
+  frontmatterTime,
+  postFrontmatter,
 } from './routes';
 import { NODE } from './tags';
 import {
@@ -186,6 +188,47 @@ test.describe('the feeds', () => {
       ).toEqual([]);
     },
   );
+});
+
+test.describe('the built feed lastBuildDate', NODE, () => {
+  const lastChangedOf = (slug: string): number => {
+    const frontmatter = postFrontmatter(slug);
+    const time =
+      frontmatterTime(frontmatter, 'updated') ??
+      frontmatterTime(frontmatter, 'date');
+    if (time === undefined) throw new Error(`${slug} has no date.`);
+    return time;
+  };
+
+  test('every feed lastBuildDate is the latest updated or date of its posts', () => {
+    const paths = [SITE_FEED, ...TAG_ROUTES.map((route) => `${route}/rss.xml`)];
+    const wrong: string[] = [];
+    for (const path of paths) {
+      const xml = readFileSync(join(DIST_DIR, path), 'utf8');
+      const lastBuild = /<lastBuildDate>([^<]*)<\/lastBuildDate>/.exec(
+        xml,
+      )?.[1];
+      const slugs = [
+        ...xml.matchAll(/<item>[\s\S]*?<link>([^<]*)<\/link>/g),
+      ].map((match) =>
+        new URL(match[1]!).pathname.split('/').filter(Boolean).pop()!,
+      );
+      if (slugs.length === 0) {
+        if (lastBuild !== undefined) wrong.push(`${path} is empty but dated`);
+        continue;
+      }
+      const expected = Math.max(...slugs.map(lastChangedOf));
+      if (lastBuild === undefined || Date.parse(lastBuild) !== expected) {
+        wrong.push(
+          `${path} lastBuildDate ${lastBuild}, latest post change ${new Date(expected).toUTCString()}`,
+        );
+      }
+    }
+    expect(
+      wrong,
+      'a feed lastBuildDate is not the latest updated or date of its posts.',
+    ).toEqual([]);
+  });
 });
 
 test.describe('lastChanged, the feed lastBuildDate', NODE, () => {
