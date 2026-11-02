@@ -599,7 +599,12 @@ export const createColony = (
     cat.pose = p;
     if (playing.prop && playing.move.propAt) {
       const s = playing.move.propAt(t, cat.id);
-      playing.shown = { ...s, x: playing.origin + playing.dir * s.x };
+      /* A move played heading left mirrors every prop's turn: the cup tips out over the edge, the ball rolls and the feather swings its way. */
+      playing.shown = {
+        ...s,
+        x: playing.origin + playing.dir * s.x,
+        r: playing.dir * s.r,
+      };
       playing.prop.draw(playing.shown, now);
     }
     if (t >= playing.length) endMove(cat);
