@@ -956,12 +956,14 @@ Enforced by `tests/post-page.spec.ts`.
 - A cover takes [Media](#media) in PageHero's photo layout, in its own ratio
   (`.aspect-sizer`): text in the left half, the photo in columns 8 to 12
   crossing the slab's bottom edge, no roundel. `tests/post-page.spec.ts`.
-- A cover file keeps its full frame. The hero, the newest post's card (the
-  `/blog` feature card and its homepage card) and the sharing card show it in
-  its own ratio ([ARCHITECTURE](../ARCHITECTURE.md#assets)).
-- Every other post card shows a square thumbnail: a 120px file the build
-  crops from the cover at `coverPosition`, in a `w-32` frame right of the text
-  from `sm`, above it below `sm`, `gap-6` (24px). It is the only cropped photo,
+- A cover file keeps its full frame. The hero, the `/blog` feature card (the
+  newest post), the newest post's homepage card when it is featured, and the
+  sharing card show it in its own ratio
+  ([ARCHITECTURE](../ARCHITECTURE.md#assets)).
+- Every other post card shows a square thumbnail: a file the build crops from
+  the cover at `coverPosition`, sized from the rem frame, in a `w-32` frame
+  right of the text in a card at least 28rem wide, above it in a narrower
+  one, `gap-6` (24px). It is the only cropped photo,
   by the owner's choice; `alt=""` ([ARCHITECTURE](../ARCHITECTURE.md#content-notes)).
 - `coverCredit` puts "Photo: name" in the date line, `text-gold-muted`, linked
   when the name is in `PHOTOGRAPHERS`. Not under the cover: the photo hangs

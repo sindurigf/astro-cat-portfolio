@@ -49,7 +49,7 @@ const blog = defineCollection({
       personaSources: z.boolean().default(false),
       seoTitle: z.string().optional(),
       seoDescription: z.string().optional(),
-      /* Any ratio, relative to the post; uncropped on the post, the /blog feature card and its homepage card. */
+      /* Any ratio, relative to the post; uncropped on the post, the /blog feature card and a featured newest post's homepage card. */
       cover: image(),
       coverAlt: z.string().min(1),
       /* Where the build crops the square card thumbnail. */

@@ -23,6 +23,14 @@ const HERO_PHOTO_CAP = 'calc(24rem - 8px)';
 export const HERO_PHOTO_SIZES = `(min-width: 1829px) calc(20.93vw + 178px), (min-width: 1396px) calc(17.9vw + 234px), (min-width: 83rem) 484px, (min-width: 64rem) calc(39vw - 34px), min(calc(100vw - 5.5rem), ${HERO_PHOTO_CAP})`;
 
 /*
+ * A post card thumbnail: the `w-32` frame less both `border-4` edges, in rem
+ * so a larger root font size fetches a larger file. Steps stay within 1.5x.
+ */
+export const THUMBNAIL_PX = 120;
+export const THUMBNAIL_SIZES = 'calc(8rem - 8px)';
+export const THUMBNAIL_WIDTHS = [THUMBNAIL_PX, 180, 240, 360, 480];
+
+/*
  * The newest post's cover on a homepage Featured Posts card, by column count
  * at `lg`. tests/image-size.spec.ts checks the count the build has.
  */

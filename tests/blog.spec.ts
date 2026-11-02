@@ -340,7 +340,13 @@ const cardCovers = (page: Page) =>
     return { covers, thumbnails };
   });
 
-for (const route of ['/blog', '/', ...CATEGORY_ROUTES, ...TAG_ROUTES]) {
+for (const route of [
+  '/blog',
+  '/',
+  '/brand',
+  ...CATEGORY_ROUTES,
+  ...TAG_ROUTES,
+]) {
   test(
     `every post card on ${route} shows its cover`,
     ENGINE_INVARIANT,

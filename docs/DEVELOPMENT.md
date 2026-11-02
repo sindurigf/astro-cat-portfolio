@@ -255,8 +255,8 @@ validates frontmatter against `src/content.config.ts` and fails on a mismatch.
 `sample-talk.md` is a complete example.
 
 - Every post needs `cover` and `coverAlt`; the build fails without them. A
-  cover can have any ratio; the post hero, the `/blog` feature card and its
-  homepage card show it uncropped. Other cards show a square crop: set
+  cover can have any ratio; the post hero, the `/blog` feature card and, when
+  the newest post is featured, its homepage card show it uncropped. Other cards show a square crop: set
   `coverPosition` (`center`, `top`, `bottom`, `left` or `right`) when the
   subject is off center. `top` and `bottom` move a portrait crop, `left` and
   `right` a landscape one.
