@@ -235,6 +235,7 @@ const ADJUST: Record<CatId, Partial<Record<Frame, number>>> = {
   hela: {
     pawrise: 0.9,
     swat: 0.9,
+    scratch: 0.9,
     risehigh: 1.09,
     stand: 1.2,
     walk: 1.1,

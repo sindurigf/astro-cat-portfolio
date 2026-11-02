@@ -350,7 +350,7 @@ export const POST_CAP_OVERHANG = 5;
 /** px ahead of the cat's middle and up from its feet where each cat's scratch drawing hooks its claws. */
 const SCRATCH_CLAWS: Record<CatId, Pair> = {
   minerva: [32, 97],
-  hela: [23, 78],
+  hela: [21, 70],
   rudra: [29, 100],
 };
 /** px the claws sink into the post's face. */
