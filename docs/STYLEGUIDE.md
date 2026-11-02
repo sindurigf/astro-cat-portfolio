@@ -861,7 +861,7 @@ tier and takes its padding.
 roundel.**
 
 - `PageHero` renders the roundel whenever it has no `image`. There is no prop.
-- About and every post with a `cover` have a photo, so no roundel.
+- About and every post have a photo, so no roundel.
 - The homepage is not a PageHero and has no roundel on its window.
 - The roundel is the box cat: Rudra sitting in an open cardboard box, with the
   box's own ink edge and pink throw, tilted 3deg (`src/assets/box-cat-roundel.svg`).
@@ -877,7 +877,7 @@ roundel.**
   is thin at the top only.
 - `tests/page-hero.spec.ts` lists each route's tier and holds it to the build:
   a roundel on every gold or plain slab without a photo, none on
-  `PHOTO_ROUTES` or a post with a cover, and over no text on a gold or plain
+  `PHOTO_ROUTES` or a post, and over no text on a gold or plain
   slab. A new PageHero photo adds its route there.
 
 ### Color roles and ratios
