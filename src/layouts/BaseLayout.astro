@@ -5,6 +5,7 @@ import { themeColor } from '../lib/theme-color';
 import { DECK_READY_TIMEOUT_MS } from '../lib/deck-ready';
 import { THEME_STORAGE_KEY } from '../lib/theme';
 import {
+  PERCENT,
   TEXT_SCALE_DEFAULT,
   TEXT_SCALE_KEY,
   TEXT_SCALE_PROPERTY,
@@ -103,14 +104,9 @@ const articleData = article && {
     <meta name="theme-color" content={themeColor} />
 
     {/*
-      Sets data-theme and the `js` class before first paint. In <head>, not
-      beside the switch: an inline script in the header lets it paint half-built.
-      Blocked storage throws; the empty catches fall back to the system theme
-      and the default text size.
-      The saved text size sets --text-scale here too, so no page reflows after paint.
-      A page restored from the back-forward cache takes the stored choice again:
-      another page may have changed it.
-      The timer marks a deck whose script never started, so slides.css shows it whole.
+      Theme, `js` class and --text-scale before first paint; a header script paints half-built.
+      Blocked storage throws; the empty catches keep the system theme and default size.
+      A back-forward cache restore rereads the theme; the timer flags a deck that never started.
     */}
     <script
       is:inline
@@ -121,6 +117,7 @@ const articleData = article && {
         scaleProperty: TEXT_SCALE_PROPERTY,
         scaleSteps: TEXT_SCALE_STEPS,
         scaleDefault: TEXT_SCALE_DEFAULT,
+        percent: PERCENT,
       }}
     >
       document.documentElement.classList.add('js');
@@ -151,8 +148,8 @@ const articleData = article && {
       } catch {}
       const scale = Number(savedScale);
       const root = document.documentElement;
-      const setScale = (percent) =>
-        root.style.setProperty(scaleProperty, percent / scaleDefault);
+      const setScale = (step) =>
+        root.style.setProperty(scaleProperty, step / percent);
       if (scale > scaleDefault && scaleSteps.includes(scale)) {
         setScale(scale);
         /* A size this page cannot hold without sideways scroll steps down to one it can (SC 1.4.10). */
