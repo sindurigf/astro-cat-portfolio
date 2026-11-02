@@ -466,8 +466,12 @@ export const CAT_IDS = Object.keys(SWAT_TIP) as CatId[];
 const TOY_BACKSWING = 0.25;
 /** Distance from each card end the cat's origin keeps, so its drawing reaches at most MAX_OVERHANG past the end. */
 export const TRACK_MARGIN = 48;
-/** The cup's middle, px ahead of the cat's: its near side where the patting paw comes down, 14 to 17 px ahead for the three cats. */
-const CUP_AT_PAW = 22;
+/** The cup's middle, px ahead of the cat's: its near side 1.5px inside where each cat's patting paw comes down. */
+const CUP_AT_PAW: Record<CatId, number> = {
+  minerva: 21.5,
+  hela: 19,
+  rudra: 22,
+};
 /** Half the cup's width, as drawn in about-cats-rig.ts: it tips over the edge by this much. */
 const CUP_HALF_WIDTH = 5.5;
 /** ms after the pat's step that its paw-down drawing shows: the rig's BLIP_MS (25) and a frame. */
@@ -568,9 +572,13 @@ const flopTo = (from: PoseName, to: PoseName, x = 0): Step[] => [
   step(FLOP_ROLL_MS, to, { x }, 'linear'),
 ];
 
-/** Looks at the cup, pats it once and watches it fall: the pat slides the cup from under the paw to the edge `lip` px ahead, and it tips over. */
-export const knockAt = (lip: number): Move => {
-  const slide = Math.max(0, lip - CUP_AT_PAW);
+/**
+ * Looks at the cup, pats it once and watches it fall: the pat slides the cup
+ * from under the paw to the edge `lip` px ahead, and it tips over and is gone
+ * before it drops `depth` px onto a floor below.
+ */
+export const knockAt = (lip: number, depth = Infinity): Move => {
+  const fadeAfter = Math.min(CUP_FADE_AFTER, depth / 2);
   const pushFrom = CUP_HIT + CUP_PAW_LANDS_MS;
   const tipFrom = pushFrom + CUP_SLIDE_MS;
   return {
@@ -583,23 +591,27 @@ export const knockAt = (lip: number): Move => {
     ],
     mods: [],
     prop: 'cup',
-    propAt: (t) => {
+    propAt: (t, cat) => {
+      const slide = Math.max(0, lip - CUP_AT_PAW[cat]);
       const pushed = EASE.out(
         Math.min(1, Math.max(0, (t - pushFrom) / CUP_SLIDE_MS)),
       );
       const tip = Math.min(1, Math.max(0, (t - tipFrom) / CUP_TIP_MS));
       const fall = Math.max(0, t - tipFrom - CUP_TIP_MS);
-      const y = 0.5 * CUP_GRAVITY * fall ** 2;
+      const y = Math.min(depth, 0.5 * CUP_GRAVITY * fall ** 2);
       return {
         kind: 'cup',
         x:
-          CUP_AT_PAW + slide * pushed + CUP_HALF_WIDTH * tip + CUP_DRIFT * fall,
+          CUP_AT_PAW[cat] +
+          slide * pushed +
+          CUP_HALF_WIDTH * tip +
+          CUP_DRIFT * fall,
         y,
         r: CUP_TIP_DEG * tip + CUP_SPIN * fall,
         o: Math.min(
           1,
           t / CUP_FADE_IN_MS,
-          Math.max(0, 1 - (y - CUP_FADE_AFTER) / CUP_FADE_AFTER),
+          Math.max(0, 1 - (y - fadeAfter) / fadeAfter),
         ),
       };
     },
