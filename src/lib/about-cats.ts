@@ -20,6 +20,7 @@ import {
   scaledExtent,
   EDGE_MOVES,
   knockAt,
+  TRACK_MARGIN,
   TRAVEL_FACTORS,
   TRAVEL_MOVES,
   type Move,
@@ -56,8 +57,7 @@ type StepResult = 'draw' | 'still' | 'rest';
 /** On-screen play time after waking before a cat naps. */
 export const NAP_AFTER_MS = 30_000;
 
-/** Distance from each card end the cat's origin keeps, so its drawing reaches at most MAX_OVERHANG past the end. */
-export const TRACK_MARGIN = 48;
+export { TRACK_MARGIN };
 /** px a drawing may reach past its band's end: the page gutter on phones (`px-4`), so it stays on screen. */
 export const MAX_OVERHANG = 16;
 /** Room at the right end for the sleep control. */
