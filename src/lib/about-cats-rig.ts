@@ -25,6 +25,7 @@ import {
   POST_CAP_OVERHANG,
   POST_HEIGHT,
   POST_WIDTH,
+  SCRATCH_PULLS,
   pose,
 } from './about-cats-moves';
 import type { CatId, Pose, PropKind, PropState } from './about-cats-types';
@@ -52,16 +53,21 @@ const ROPE_TURNS = Array.from(
   { length: Math.floor((POST_HEIGHT - 2 * ROPE_INSET) / ROPE_PITCH) + 1 },
   (_, i) => ROPE_INSET - POST_HEIGHT + ROPE_PITCH * i,
 );
-/** Claw marks on the post's face: sets of three rakes, px apart, the next set lower down. */
-const MARK_SETS = 2;
+/** Claw marks on the post's face, a set of three rakes per pull, each set a little lower: px apart, down and long, from the face. */
 const MARKS_PER_SET = 3;
 const MARK_GAP = 3;
-const MARK_SET_DROP = 7;
+const MARK_SET_DROP = 4;
 const MARK_LENGTH = 12;
+const MARK_INSET = 1;
+const MARK_SLANT = 6;
 /** px below the claws the marks start. */
 const MARK_BELOW_CLAWS = 6;
-/** Bits of rope that fall from the claws after each pull: ms they last, and px per ms² they fall, per ms they drift and degrees per ms they spin. */
+/** Bits of rope that fall from the claws after each pull, px apart from the face down: ms they last, and px per ms² they fall, per ms they drift and degrees per ms they spin. */
 const FLUFF_BITS = 4;
+const FLUFF_CLEAR = 2;
+const FLUFF_SPREAD_X = 1.5;
+const FLUFF_BELOW_CLAWS = 10;
+const FLUFF_SPREAD_Y = 4;
 const FLUFF_MS = 500;
 const FLUFF_FALL = 0.0005;
 const FLUFF_DRIFT = 0.006;
@@ -631,7 +637,7 @@ export const createProp = (
   /* Drawn for a cat on the left, then mirrored to face the playing cat. */
   const scratched = el('g', {}, node);
   const face = -POST_WIDTH / 2;
-  const marks = Array.from({ length: MARK_SETS * MARKS_PER_SET }, () =>
+  const marks = Array.from({ length: SCRATCH_PULLS * MARKS_PER_SET }, () =>
     el(
       'path',
       { class: 'cat-prop-string', 'stroke-width': 0.9, visibility: 'hidden' },
@@ -656,19 +662,20 @@ export const createProp = (
     draw: (s) => {
       place(s);
       set(scratched, 'transform', `scale(${s.dir ?? 1} 1)`);
-      const top = -(s.clawHigh ?? 0) + MARK_BELOW_CLAWS;
+      const claws = -(s.clawHigh ?? 0);
       marks.forEach((mark, i) => {
         const shown = i < (s.marks ?? 0) * MARKS_PER_SET;
         set(mark, 'visibility', shown ? 'visible' : 'hidden');
         if (!shown) return;
         const y =
-          top +
+          claws +
+          MARK_BELOW_CLAWS +
           Math.floor(i / MARKS_PER_SET) * MARK_SET_DROP +
           (i % MARKS_PER_SET) * MARK_GAP;
         set(
           mark,
           'd',
-          `M${face + 1} ${y}l${6 + (i % MARKS_PER_SET)} ${MARK_LENGTH}`,
+          `M${face + MARK_INSET} ${y}l${MARK_SLANT + (i % MARKS_PER_SET)} ${MARK_LENGTH}`,
         );
       });
       const since = s.sincePull ?? Infinity;
@@ -676,8 +683,19 @@ export const createProp = (
         const falling = since < FLUFF_MS;
         set(bit, 'visibility', falling ? 'visible' : 'hidden');
         if (!falling) return;
-        const x = face - 2 - i * 1.5 - since * FLUFF_DRIFT * (i + 1);
-        const y = top + 4 + i * 4 + FLUFF_FALL * since ** 2;
+        const x =
+          face -
+          FLUFF_CLEAR -
+          i * FLUFF_SPREAD_X -
+          since * FLUFF_DRIFT * (i + 1);
+        /* It lands on the floor and fades there. */
+        const y = Math.min(
+          0,
+          claws +
+            FLUFF_BELOW_CLAWS +
+            i * FLUFF_SPREAD_Y +
+            FLUFF_FALL * since ** 2,
+        );
         const spin = since * FLUFF_SPIN * (i % 2 ? 1 : -1);
         set(bit, 'transform', `${translate(x, y)} rotate(${f(spin)})`);
         set(bit, 'opacity', f(1 - since / FLUFF_MS));
