@@ -5,7 +5,13 @@ import { serveUnderShippedCsp } from './csp';
 import { SITE_NAME } from '../src/lib/site';
 import { NODE } from './tags';
 import { timedScan } from './axe';
-import { TEXT_SCALE_KEY, TEXT_SCALE_STEPS } from '../src/lib/text-scale';
+import {
+  PERCENT,
+  TEXT_SCALE_KEY,
+  TEXT_SCALE_PROPERTY,
+  TEXT_SCALE_STEPS,
+} from '../src/lib/text-scale';
+import { builtHtml } from './routes';
 
 const WIDE_ROUTES = ['/', '/about/', '/blog/', '/credits/', '/career/'];
 /** From 86rem the page leaves a free gutter and the control is the edge tab (the `tab` variant in global.css). */
@@ -636,4 +642,86 @@ test.describe('The reading tab: Smaller, Larger and Reset', () => {
       }
     },
   );
+});
+
+/** The narrowest reflow width (SC 1.4.10) and the largest Drink Me step, as --text-scale. */
+const REFLOW_WIDTH = 320;
+const LARGEST_SCALE = Math.max(...TEXT_SCALE_STEPS) / PERCENT;
+
+/*
+ * Labels whose single words outgrow a 320px column at the largest step; each
+ * breaks inside a word instead. Other routes may still cap the step (ACCESSIBILITY.md).
+ */
+const WRAPPING_LABELS = [
+  {
+    name: 'the breadcrumb',
+    built: /<nav\b[^>]*aria-label="Breadcrumb"/,
+    selector: 'nav[aria-label="Breadcrumb"]',
+  },
+  {
+    name: 'the footer page links',
+    built: /class="footer-policies"/,
+    selector: '.footer-pages, .footer-policies',
+  },
+  {
+    name: 'a category or tag chip',
+    built: /<a\b[^>]*class="chip[\s"]/,
+    selector: 'a.chip',
+  },
+  {
+    name: "a post card's category and date",
+    built: /class="card-link"/,
+    selector: 'article:has(.card-link) .label',
+  },
+] as const;
+
+test.describe(`at ${REFLOW_WIDTH}px and the largest text size (SC 1.4.4, 1.4.10)`, () => {
+  test.use({ viewport: { width: REFLOW_WIDTH, height: 800 } });
+
+  for (const { name, built, selector } of WRAPPING_LABELS) {
+    test(`nothing in ${name} runs past the viewport on any page that has it`, async ({
+      page,
+    }) => {
+      const routes = [...builtHtml()]
+        .filter(([, html]) => built.test(html))
+        .map(([route]) => route);
+      expect(routes.length, `no built page has ${name}`).toBeGreaterThan(0);
+
+      for (const route of routes) {
+        await gotoSettled(page, route);
+        const found = page.locator(selector);
+        await expect(found.first(), `${route} has no ${name}`).toBeAttached();
+        await page.evaluate(
+          ({ property, scale }) =>
+            document.documentElement.style.setProperty(property, String(scale)),
+          { property: TEXT_SCALE_PROPERTY, scale: LARGEST_SCALE },
+        );
+        /* Text, not boxes: a full-width link keeps its box while its word spills out. */
+        const past = await found.evaluateAll((elements) => {
+          const edge = document.documentElement.clientWidth;
+          return elements.flatMap((element) => {
+            const walker = document.createTreeWalker(
+              element,
+              NodeFilter.SHOW_TEXT,
+            );
+            const spilled: string[] = [];
+            for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+              const range = document.createRange();
+              range.selectNodeContents(node);
+              const out = [...range.getClientRects()].some(
+                (rect) =>
+                  rect.width > 0 && (rect.right > edge || rect.left < 0),
+              );
+              if (out) spilled.push((node.textContent ?? '').trim());
+            }
+            return spilled;
+          });
+        });
+        expect(
+          past,
+          `${route}: text in ${name} runs past the viewport`,
+        ).toEqual([]);
+      }
+    });
+  }
 });

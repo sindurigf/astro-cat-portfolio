@@ -27,6 +27,7 @@
     display: flex;
     align-items: center;
     min-height: var(--spacing-target);
+    overflow-wrap: anywhere;
   }
 
   /* The current page takes the text-link underline: a mark that is not color (SC 1.4.1). */
