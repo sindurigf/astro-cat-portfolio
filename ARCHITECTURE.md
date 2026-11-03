@@ -182,8 +182,8 @@ Dark is the default. Colors and rules:
 - a grid column count or split other than those in
   [STYLEGUIDE Grid](docs/STYLEGUIDE.md#grid)
 
-`EXCEPTIONS` lists false positives, each with its reason, and fails when one
-no longer matches.
+`TOKEN_EXCEPTIONS` in `scripts/check-allow-lists.mjs` lists false positives,
+each with its reason, and fails when one no longer matches.
 
 Headings, alt text, focus rings and axe are checked on the rendered page by
 `tests/headings.spec.ts`, `tests/alt-text.spec.ts`, `tests/focus.spec.ts` and
@@ -267,6 +267,8 @@ Headings, alt text, focus rings and axe are checked on the rendered page by
 
 - `/rss.xml` (all published posts) and `/blog/tag/<tag>/rss.xml`, RSS 2.0 from
   `src/lib/feed.ts`, with `atom:link rel="self"` and RFC 822 dates.
+- `lastBuildDate` is the latest `updated`, else `date`, of the feed's posts
+  (`src/lib/feed-date.ts`), so a post's `updated` date moves it.
 - A tag feed serves aggregators that follow one topic. The `openingFeedTag`
   feed carries each post's opening, whole sentences up to 300 characters,
   stopping before a paragraph that ends in a colon (`src/lib/feed-excerpt.ts`),

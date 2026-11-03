@@ -538,7 +538,7 @@ with a comment beside it.
   lines take `text`. A block,
   the header bar included: `block-ink`, 4px. Inside gold: `gold-border` (ink). A
   gold or light fill: `fill-edge` (ink). Light mode: ink everywhere.
-  `tests/edges.spec.ts` asserts each in both modes.
+  `tests/edges.spec.ts` asserts each reaches 3:1 in both modes.
 - Shadows are hard offsets, no blur. Gold casts none (gold on gold is 1.00).
 - A tilted box with a drawn edge clips its fill to the padding box when the
   edge and fill differ, or the fill shows outside the softened edge as a
@@ -1060,19 +1060,19 @@ A heading, a sentence, one way on. Enforced by `tests/empty-states.spec.ts`,
 `tests/contact.spec.ts` (Worker), `tests/contact-sending.spec.ts` and
 `tests/failed-images.spec.ts`.
 
-| State                   | Where                                   | Heading                                                                             | Sentence                                                                  | Action                                 | Announced by                       |
-| ----------------------- | --------------------------------------- | ----------------------------------------------------------------------------------- | ------------------------------------------------------------------------- | -------------------------------------- | ---------------------------------- |
-| Not found               | `/404`                                  | `h1` "Lost? This Page Is Gone"                                                      | the page does not exist, and a link to report a broken one                | Follow Me (primary), Or Ask the Cat    | the page load                      |
-| Empty category or tag   | not built: pages exist only with a post |                                                                                     |                                                                           |                                        |                                    |
-| Empty blog              | `/blog` with no posts                   | `h2` "No Posts Yet"                                                                 | "Nothing has been published here yet."                                    | "Go to the Homepage"                   | the page load                      |
-| Invalid form            | `/contact/send`, 422                    | `h2` "There Is One Problem with This Form" or "There Are N Problems with This Form" | one linked entry per field                                                | each entry moves to its field          | focus on the summary on arrival    |
-| Rate-limited or unsaved | `/contact/send`, 429 or 503             | `h2` "Your Message Was Not Sent"                                                    | the reason, and the email address as the way round it                     | the form, still holding what was typed | focus on the summary on arrival    |
-| Message over the cap    | `/contact/send`, 413                    | `h1` "Message Too Long"                                                             | nothing was sent or kept, the 5,000 character limit and the email address | "Back to the Contact Form"             | the page load                      |
-| Offline                 | `/contact`, on submit                   | none: the form stays                                                                | "You are offline, so your message has not been sent…"                     | the form, unchanged                    | the form's `role="status"` region  |
-| Sending                 | `/contact`, while the post is in flight | none                                                                                | "Sending your message." and the button reads "Sending"                    | a second submit is blocked             | the form's `role="status"` region  |
-| Failed photo            | any `.aspect-frame`                     | none                                                                                | its alt text on the frame                                                 | none                                   | not announced: the alt is its name |
-| Loading a photo         | the photo viewer, past 200ms            | none: the previous photo stays                                                      | "Loading photo 4 of 12" in the count                                      | the previous photo and its caption     | the viewer's count region          |
-| Photo that never loads  | the photo viewer, on a failed decode    | none                                                                                | "This photo could not be loaded." on the frame                            | the caption still describes it         | the viewer's count region          |
+| State                   | Where                                   | Heading                                                                             | Sentence                                                                  | Action                                        | Announced by                       |
+| ----------------------- | --------------------------------------- | ----------------------------------------------------------------------------------- | ------------------------------------------------------------------------- | --------------------------------------------- | ---------------------------------- |
+| Not found               | `/404`                                  | `h1` "Lost? This Page Is Gone"                                                      | the page does not exist, and a link to report a broken one                | Follow Me (primary), Or Ask the Cat           | the page load                      |
+| Empty category or tag   | not built: pages exist only with a post |                                                                                     |                                                                           |                                               |                                    |
+| Empty blog              | `/blog` with no posts                   | `h2` "No Posts Yet"                                                                 | "Nothing has been published here yet."                                    | "Go to the Homepage"                          | the page load                      |
+| Invalid form            | `/contact/send`, 422                    | `h2` "There Is One Problem with This Form" or "There Are N Problems with This Form" | one linked entry per field                                                | each entry moves to its field                 | focus on the summary on arrival    |
+| Rate-limited or unsaved | `/contact/send`, 429 or 503             | `h2` "Your Message Was Not Sent"                                                    | the reason, and the email address as the way round it                     | the form, still holding what was typed        | focus on the summary on arrival    |
+| Message over the cap    | `/contact/send`, 413                    | `h1` "Message Too Long"                                                             | nothing was sent or kept, the 5,000 character limit and the email address | "Back to the Contact Form"                    | the page load                      |
+| Offline                 | `/contact`, on submit                   | none: the form stays                                                                | "You are offline, so your message has not been sent…"                     | the form, unchanged                           | the form's `role="status"` region  |
+| Sending                 | `/contact`, while the post is in flight | none                                                                                | "Sending your message." and the button reads "Sending"                    | a second submit is blocked                    | the form's `role="status"` region  |
+| Failed photo            | any `.aspect-frame`                     | none                                                                                | its alt text on the frame                                                 | none                                          | not announced: the alt is its name |
+| Loading a photo         | the photo viewer, past 200ms            | none: a step keeps the previous photo                                               | "Loading photo 4 of 12" in the count                                      | on a step, the previous photo and its caption | the viewer's count region          |
+| Photo that never loads  | the photo viewer, on a failed decode    | none                                                                                | "This photo could not be loaded." on the frame                            | the caption still describes it                | the viewer's count region          |
 
 - `.error-summary`: 6px `pink` edge on `surface`, `tabindex="-1"` and
   `autofocus`, no `role="alert"` (focus already announces it; some screen
@@ -1083,9 +1083,10 @@ A heading, a sentence, one way on. Enforced by `tests/empty-states.spec.ts`,
   other state is its own page.
 - The photo viewer decodes before it swaps, then writes `src`, caption and
   count together, so nothing is announced before it is painted.
-- Loading holds: past 200ms the count reads "Loading photo 4 of 12" and the
-  previous photo, caption and buttons stay. No blank frame. Under 200ms
-  nothing is announced.
+- Loading holds: past 200ms the count reads "Loading photo 4 of 12". On a
+  step the previous photo, caption and buttons stay; on open the frame is
+  blank, with nothing left from the last photo. Under 200ms nothing is
+  announced.
 - A failed photo fades out; the frame reads "This photo could not be loaded."
   (`aria-hidden`), the count reads "Photo 4 of 12 could not be loaded", and the
   caption keeps the alt text.

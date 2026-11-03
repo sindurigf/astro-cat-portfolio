@@ -1,5 +1,6 @@
 import rss from '@astrojs/rss';
 import { publishedPosts, tagLabel, type BlogPost } from './blog';
+import { lastChanged } from './feed-date';
 import { feedExcerpt } from './feed-excerpt';
 import { postHref } from './paths';
 import { PERSON_NAME } from './profiles';
@@ -42,7 +43,7 @@ export const feedResponse = async (
     'every link in a feed must be absolute.',
   );
   const posts = publishedPosts(feed.posts);
-  const newest = posts[0]?.data.date;
+  const lastBuild = lastChanged(posts);
   const self = new URL(feed.selfPath, site).href;
 
   return rss({
@@ -53,7 +54,9 @@ export const feedResponse = async (
     xmlns: NAMESPACES,
     customData: [
       `<language>${FEED_LANGUAGE}</language>`,
-      newest ? `<lastBuildDate>${newest.toUTCString()}</lastBuildDate>` : '',
+      lastBuild
+        ? `<lastBuildDate>${lastBuild.toUTCString()}</lastBuildDate>`
+        : '',
       `<atom:link href="${self}" rel="self" type="application/rss+xml"/>`,
     ].join(''),
     items: posts.map((post) => ({

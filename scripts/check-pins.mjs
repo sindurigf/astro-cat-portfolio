@@ -7,7 +7,8 @@ import { fileURLToPath } from 'node:url';
 import { readdir, readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
-const ROOT = fileURLToPath(new URL('..', import.meta.url));
+const ROOT =
+  process.env.CHECK_ROOT ?? fileURLToPath(new URL('..', import.meta.url));
 const WORKFLOWS = join(ROOT, '.github', 'workflows');
 const MCP_CONFIG = join(ROOT, '.mcp.json');
 
