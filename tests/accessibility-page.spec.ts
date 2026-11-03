@@ -154,7 +154,7 @@ test(
   },
 );
 
-/* SC 3.2.6 Consistent Help, in spirit: reporting is reachable without reading the whole statement. */
+/* Findable help: a reader reaches the report links without reading the whole statement. */
 test.describe('reporting on the accessibility statement', () => {
   test('the report links come before the first heading of the statement', async ({
     page,
@@ -193,11 +193,11 @@ test.describe('reporting on the accessibility statement', () => {
           .first(),
         'The top GitHub link does not open the accessibility issue form.',
       ).toHaveAttribute('href', publicReporting);
+      expect(
+        publicReporting,
+        `${RECORD} public reporting does not point at the accessibility issue form.`,
+      ).toMatch(/\/issues\/new\?template=accessibility\.yml$/);
     }
-    expect(
-      tableValue('Public reporting'),
-      `${RECORD} public reporting does not point at the accessibility issue form.`,
-    ).toMatch(/\/issues\/new\?template=accessibility\.yml$/);
   });
 
   test('"More on reporting" leads to the Report a Barrier section', async ({

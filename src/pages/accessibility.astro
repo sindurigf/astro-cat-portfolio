@@ -67,9 +67,9 @@ const HAS_TALK = (await getCollection('talks')).length > 0;
   <section class="reading-layout band py-section">
     <div class="mx-auto max-w-page">
       {/* Reporting first, so nobody reads the whole statement to find it. */}
-      <div class="mx-auto mb-section max-w-measure" data-report-top>
+      <div class="mx-auto mb-section max-w-measure">
         <p class="text-body text-text text-pretty">
-          Something here blocks you? Report it{' '}
+          If something here blocks you, report it{' '}
           {PUBLIC_REPORTING !== null ? 'on GitHub or by email' : 'by email'}.
           You do not need to name a guideline.{' '}
           <a href="#report-a-barrier">More on reporting</a>.
@@ -766,6 +766,13 @@ const HAS_TALK = (await getCollection('talks')).length > 0;
         </div>
 
         <ul role="list" class="actions mt-head">
+          {PUBLIC_REPORTING !== null && (
+            <li>
+              <a href={PUBLIC_REPORTING} class="btn-secondary">
+                Report It on GitHub
+              </a>
+            </li>
+          )}
           <li>
             <a
               href={`mailto:${accessibilityFacts.privateReporting}`}
@@ -774,13 +781,6 @@ const HAS_TALK = (await getCollection('talks')).length > 0;
               Email {accessibilityFacts.privateReporting}
             </a>
           </li>
-          {PUBLIC_REPORTING !== null && (
-            <li>
-              <a href={PUBLIC_REPORTING} class="btn-secondary">
-                Report It on GitHub
-              </a>
-            </li>
-          )}
         </ul>
 
         {FULL_RECORD !== null && (
