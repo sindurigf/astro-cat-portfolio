@@ -4,8 +4,8 @@
  * tests/headers-rules.spec.ts; scripts/check-live.sh reads DATA_SCRIPT_TYPES.
  */
 import { createHash } from 'node:crypto';
-import { readdirSync, readFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { readFileSync } from 'node:fs';
+import { filesUnder } from './files-under.mjs';
 
 /**
  * Types `script-src` does not gate, per the HTML "prepare the script element"
@@ -22,18 +22,11 @@ const isDataBlock = (attributes) => {
 export const cspHash = (body) =>
   `'sha256-${createHash('sha256').update(body, 'utf8').digest('base64')}'`;
 
-const htmlFiles = (dir) =>
-  readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
-    const full = join(dir, entry.name);
-    if (entry.isDirectory()) return htmlFiles(full);
-    return entry.name.endsWith('.html') ? [full] : [];
-  });
-
 /** Every distinct inline <script> and <style> body across the build. */
 export const inlineBlocks = (distDir) => {
   const scripts = new Set();
   const styles = new Set();
-  for (const file of htmlFiles(distDir)) {
+  for (const file of filesUnder(distDir, ['.html'])) {
     const html = readFileSync(file, 'utf8');
     for (const [, attributes = '', body = ''] of html.matchAll(
       /<script\b([^>]*)>([\s\S]*?)<\/script>/g,
