@@ -8,17 +8,13 @@ import { existsSync } from 'node:fs';
 import { glob, readFile } from 'node:fs/promises';
 import { join, relative } from 'node:path';
 import { assertBuildCurrent } from './build-fingerprint.mjs';
+import { CLASS_HOOKS as HOOKS } from './check-allow-lists.mjs';
 
-const ROOT = fileURLToPath(new URL('..', import.meta.url));
+const ROOT =
+  process.env.CHECK_ROOT ?? fileURLToPath(new URL('..', import.meta.url));
 const DIST = join(ROOT, 'dist/client');
 const SRC = join(ROOT, 'src');
 const SOURCE_EXTENSIONS = ['.astro', '.vue', '.ts', '.md', '.mjs'];
-
-/*
- * Classes that exist only for a test or script to select. An entry that no
- * longer matches fails.
- */
-const HOOKS = new Map();
 
 /* Skips node_modules, including a stale one under src/content/talks/. */
 const walk = (dir, extensions) =>
@@ -123,7 +119,7 @@ const main = async () => {
   for (const hook of staleHooks) {
     console.error(
       `Classes: hook "${hook}" no longer matches, as the built HTML does not ` +
-        'use it or it has CSS; remove it from HOOKS.',
+        'use it or it has CSS; remove it from CLASS_HOOKS in scripts/check-allow-lists.mjs.',
     );
   }
 
