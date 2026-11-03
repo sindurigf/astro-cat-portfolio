@@ -3,6 +3,7 @@ import { join } from 'node:path';
 import { expect, test, type Page } from './test';
 import {
   FORM_MEDIA_TYPE,
+  formatCount,
   LIMITS,
   MAX_BODY_BYTES,
   MESSAGES,
@@ -721,13 +722,13 @@ test.describe('the contact endpoint', WITH_CONTACT_FORM, () => {
       /<h1\b[^>]*>[^<]*Message Too Long/,
     );
     expect(html, 'the refusal does not name the limit.').toContain(
-      String(LIMITS.bodyMax),
+      formatCount(LIMITS.bodyMax),
     );
     expect(html, 'the refusal does not offer the email address.').toContain(
       `href="mailto:${CONTACT_EMAIL}">${CONTACT_EMAIL}</a>`,
     );
     expect(html, 'the refusal adds words of its own to the message.').toContain(
-      `>${MESSAGES.bodyLong}</p>`,
+      `>${MESSAGES.bodyTooLarge}</p>`,
     );
     expect(html, 'the refusal has no link back to the form.').toContain(
       `href="${CONTACT_PATH}"`,

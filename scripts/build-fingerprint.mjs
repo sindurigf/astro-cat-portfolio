@@ -14,7 +14,7 @@ import {
   readlinkSync,
 } from 'node:fs';
 import { readFile, writeFile } from 'node:fs/promises';
-import { join } from 'node:path';
+import { join, relative } from 'node:path';
 
 const ROOT =
   process.env.CHECK_ROOT ?? fileURLToPath(new URL('..', import.meta.url));
@@ -77,7 +77,14 @@ export const recordFingerprint = () => {
   };
 };
 
-export const assertBuildCurrent = async (label) => {
+export const assertBuildCurrent = async (label, buildDir) => {
+  if (buildDir !== undefined && !existsSync(buildDir)) {
+    console.error(
+      `${label}: ${relative(ROOT, buildDir)} does not exist. Run \`npm run build\` ` +
+        'first; this check reads the build output.',
+    );
+    process.exit(1);
+  }
   const recorded = existsSync(STAMP) ? await readFile(STAMP, 'utf8') : null;
   if (recorded === fingerprint()) return;
   console.error(

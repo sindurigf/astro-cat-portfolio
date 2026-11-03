@@ -9,6 +9,8 @@ import {
   builtHtml,
   NO_PUBLISHED_POST,
   PUBLISHED_POST_ROUTES,
+  frontmatterTime,
+  postFrontmatter,
 } from './routes';
 import { NODE } from './tags';
 import {
@@ -16,6 +18,7 @@ import {
   feedExcerpt,
 } from '../src/lib/feed-excerpt';
 import { SITE_CONFIG } from '../src/site.config';
+import { lastChanged } from '../src/lib/feed-date';
 import { requireContent } from './content';
 
 /*
@@ -41,6 +44,7 @@ interface ParsedFeed {
   title: string | null;
   link: string | null;
   description: string | null;
+  lastBuildDate: string | null;
   self: string | null;
   items: {
     link: string;
@@ -74,6 +78,7 @@ const parseFeed = async (page: Page, path: string): Promise<ParsedFeed> => {
       title: child('title'),
       link: child('link'),
       description: child('description'),
+      lastBuildDate: child('lastBuildDate'),
       self: self?.getAttribute('href') ?? null,
       items: [...(channel?.querySelectorAll(':scope > item') ?? [])].map(
         (item) => ({
@@ -102,7 +107,15 @@ const expectValidFeed = (feed: ParsedFeed, path: string): void => {
     feed.self,
     `${path} must name itself in atom:link rel="self", absolute`,
   ).toBe(`${SITE}${path}`);
+  expect(feed.lastBuildDate, `${path}: lastBuildDate is not RFC 822`).toMatch(
+    RFC_822,
+  );
+  const lastBuild = Date.parse(feed.lastBuildDate ?? '');
   for (const item of feed.items) {
+    expect(
+      Date.parse(item.pubDate),
+      `${item.link}: pubDate is after the ${path} lastBuildDate`,
+    ).toBeLessThanOrEqual(lastBuild);
     expect(item.title, `an item in ${path} has no title`).toBeTruthy();
     expect(item.guid, `${item.link}: guid should be the permalink`).toBe(
       item.link,
@@ -176,6 +189,90 @@ test.describe('the feeds', () => {
       ).toEqual([]);
     },
   );
+});
+
+test.describe('the built feed lastBuildDate', NODE, () => {
+  const lastChangedOf = (slug: string): number => {
+    const frontmatter = postFrontmatter(slug);
+    const time =
+      frontmatterTime(frontmatter, 'updated') ??
+      frontmatterTime(frontmatter, 'date');
+    if (time === undefined) throw new Error(`${slug} has no date.`);
+    return time;
+  };
+
+  test('every feed lastBuildDate is the latest updated or date of its posts', () => {
+    const paths = [SITE_FEED, ...TAG_ROUTES.map((route) => `${route}/rss.xml`)];
+    const wrong: string[] = [];
+    for (const path of paths) {
+      const xml = readFileSync(join(DIST_DIR, path), 'utf8');
+      const lastBuild = /<lastBuildDate>([^<]*)<\/lastBuildDate>/.exec(
+        xml,
+      )?.[1];
+      const slugs = [
+        ...xml.matchAll(/<item>[\s\S]*?<link>([^<]*)<\/link>/g),
+      ].map((match) =>
+        new URL(match[1]!).pathname.split('/').filter(Boolean).pop()!,
+      );
+      if (slugs.length === 0) {
+        if (lastBuild !== undefined) wrong.push(`${path} is empty but dated`);
+        continue;
+      }
+      const expected = Math.max(...slugs.map(lastChangedOf));
+      if (lastBuild === undefined || Date.parse(lastBuild) !== expected) {
+        wrong.push(
+          `${path} lastBuildDate ${lastBuild}, latest post change ${new Date(expected).toUTCString()}`,
+        );
+      }
+    }
+    expect(
+      wrong,
+      'a feed lastBuildDate is not the latest updated or date of its posts.',
+    ).toEqual([]);
+  });
+});
+
+test.describe('lastChanged, the feed lastBuildDate', NODE, () => {
+  const post = (tag: string, date: string, updated?: string) => ({
+    tag,
+    data: {
+      date: new Date(date),
+      updated: updated === undefined ? undefined : new Date(updated),
+    },
+  });
+  const latestOf = (posts: readonly ReturnType<typeof post>[]): number =>
+    Math.max(...posts.map((p) => (p.data.updated ?? p.data.date).getTime()));
+
+  const POSTS_FIXTURE = [
+    post('design', '2026-09-13'),
+    post('design', '2026-08-01', '2026-08-20'),
+    post('community', '2026-07-01', '2026-10-18'),
+  ];
+
+  test('an updated date newer than every post date wins', () => {
+    const newestDate = Math.max(
+      ...POSTS_FIXTURE.map((p) => p.data.date.getTime()),
+    );
+    const result = lastChanged(POSTS_FIXTURE)?.getTime();
+    expect(result).toBe(latestOf(POSTS_FIXTURE));
+    expect(result).toBeGreaterThan(newestDate);
+  });
+
+  test('with no updated dates the newest post date wins', () => {
+    const posts = [post('design', '2026-06-01'), post('design', '2026-09-13')];
+    expect(lastChanged(posts)?.getTime()).toBe(latestOf(posts));
+  });
+
+  test('a tag feed counts only its own posts', () => {
+    const tagged = POSTS_FIXTURE.filter((p) => p.tag === 'design');
+    const result = lastChanged(tagged)?.getTime();
+    expect(result).toBe(latestOf(tagged));
+    expect(result).toBeLessThan(latestOf(POSTS_FIXTURE));
+  });
+
+  test('a feed with no posts has no lastBuildDate', () => {
+    expect(lastChanged([])).toBeUndefined();
+  });
 });
 
 test.describe('the opening feed', () => {

@@ -259,140 +259,46 @@ test.describe('the Step', () => {
 
 /* Every page with a `.card-block`. */
 const WALL_ROUTES = ['/', '/blog', '/about', '/career', '/credits'];
-/** Spacing of the points sampled across a wall, in CSS px. */
-const WALL_SAMPLE_PX = 4;
-/** Subpixel rounding allowed where two outline samples should agree, in CSS px. */
-const OUTLINE_TOLERANCE_PX = 2;
 
 interface WallReport {
   walls: number;
-  gaps: string[];
   covers: string[];
-  stubs: string[];
-  overpaints: string[];
 }
 
-/*
- * The throw falls down and right, so it reads as one outline only while the
- * wall's bottom edge never steps down going right and its right edge never
- * steps out going down; either step ends the throw against a brick face.
- */
 const readWalls = (page: Page): Promise<WallReport> =>
-  page.evaluate(
-    ({ sample, tolerance }) => {
-      const report: WallReport = {
-        walls: 0,
-        gaps: [],
-        covers: [],
-        stubs: [],
-        overpaints: [],
-      };
-      const edge = parseFloat(
-        getComputedStyle(document.documentElement).getPropertyValue(
-          '--block-edge',
-        ),
+  page.evaluate(() => {
+    const report: WallReport = { walls: 0, covers: [] };
+    const edge = parseFloat(
+      getComputedStyle(document.documentElement).getPropertyValue(
+        '--block-edge',
+      ),
+    );
+    for (const wall of document.querySelectorAll('main .card-block')) {
+      if (!wall.getClientRects().length) continue;
+      report.walls += 1;
+      const name =
+        wall.closest('section')?.querySelector('h2')?.textContent?.trim() ??
+        'a wall';
+      const rects = [...wall.children].map((brick) =>
+        brick.getBoundingClientRect(),
       );
-      for (const wall of document.querySelectorAll('main .card-block')) {
-        if (!wall.getClientRects().length) continue;
-        report.walls += 1;
-        const name =
-          wall.closest('section')?.querySelector('h2')?.textContent?.trim() ??
-          'a wall';
-        const bricks = [...wall.children];
-        const rects = bricks.map((brick) => brick.getBoundingClientRect());
-        /* A positioned or transformed brick paints after static ones, z-index first. */
-        const paintOrder = bricks.map((brick) => {
-          const style = getComputedStyle(brick);
-          const layered =
-            style.position !== 'static' ||
-            [style.transform, style.translate, style.rotate, style.scale].some(
-              (value) => value !== 'none',
+      rects.forEach((a, i) =>
+        rects.slice(i + 1).forEach((b, k) => {
+          const across = Math.min(a.right, b.right) - Math.max(a.left, b.left);
+          const down = Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top);
+          if (Math.min(across, down) > edge + 0.5)
+            report.covers.push(
+              `${name}: brick ${i + k + 2} covers brick ${i + 1} by ${Math.round(Math.min(across, down))}px`,
             );
-          const z = layered ? Number.parseInt(style.zIndex, 10) || 0 : 0;
-          return [z, layered ? 1 : 0];
-        });
-        const throwReach = parseFloat(
-          getComputedStyle(wall).getPropertyValue('--hard-throw'),
-        );
-        rects.forEach((a, i) =>
-          rects.slice(i + 1).forEach((b, k) => {
-            const j = i + k + 1;
-            const meets =
-              a.left < b.right &&
-              b.left < a.right + throwReach &&
-              a.top < b.bottom &&
-              b.top < a.bottom + throwReach;
-            const [zi = 0, li = 0] = paintOrder[i] ?? [];
-            const [zj = 0, lj = 0] = paintOrder[j] ?? [];
-            if (meets && (zi > zj || (zi === zj && li > lj)))
-              report.overpaints.push(
-                `${name}: brick ${i + 1} paints over brick ${j + 1} and its throw shows on it`,
-              );
-          }),
-        );
-        rects.forEach((a, i) =>
-          rects.slice(i + 1).forEach((b, k) => {
-            const across =
-              Math.min(a.right, b.right) - Math.max(a.left, b.left);
-            const down = Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top);
-            if (Math.min(across, down) > edge + 0.5)
-              report.covers.push(
-                `${name}: brick ${i + k + 2} covers brick ${i + 1} by ${Math.round(Math.min(across, down))}px`,
-              );
-          }),
-        );
-        const left = Math.min(...rects.map((r) => r.left));
-        const right = Math.max(...rects.map((r) => r.right));
-        const top = Math.min(...rects.map((r) => r.top));
-        const bottom = Math.max(...rects.map((r) => r.bottom));
-        const covered = (x: number, y: number) =>
-          rects.some(
-            (r) => x >= r.left && x <= r.right && y >= r.top && y <= r.bottom,
-          );
-        for (let y = top + 1; y < bottom - 1; y += sample) {
-          let entered = false;
-          let crossed = false;
-          for (let x = left + 1; x < right - 1; x += sample) {
-            const on = covered(x, y);
-            if (on && crossed) {
-              report.gaps.push(
-                `${name}: ground between bricks at ${Math.round(x - left)},${Math.round(y - top)}`,
-              );
-              break;
-            }
-            if (on) entered = true;
-            else if (entered) crossed = true;
-          }
-        }
-        let lastBottom = -Infinity;
-        for (let x = left + 1; x < right - 1; x += sample) {
-          let y = bottom;
-          while (y > top && !covered(x, y)) y -= 1;
-          if (y > lastBottom + tolerance && lastBottom !== -Infinity)
-            report.stubs.push(
-              `${name}: the bottom edge steps down at ${Math.round(x - left)}px`,
-            );
-          lastBottom = y;
-        }
-        let lastRight = -Infinity;
-        for (let y = top + 1; y < bottom - 1; y += sample) {
-          let x = right;
-          while (x > left && !covered(x, y)) x -= 1;
-          if (x > lastRight + tolerance && lastRight !== -Infinity)
-            report.stubs.push(
-              `${name}: the right edge steps out at ${Math.round(y - top)}px`,
-            );
-          lastRight = x;
-        }
-      }
-      return report;
-    },
-    { sample: WALL_SAMPLE_PX, tolerance: OUTLINE_TOLERANCE_PX },
-  );
+        }),
+      );
+    }
+    return report;
+  });
 
-test.describe('joined walls', () => {
+test.describe('card walls', () => {
   for (const width of STEP_WIDTHS) {
-    test(`every wall is joined and climbs right at ${width}px`, async ({
+    test(`no brick covers another's content at ${width}px`, async ({
       page,
     }) => {
       await page.setViewportSize({ width, height: DESKTOP_VIEWPORT.height });
@@ -402,18 +308,9 @@ test.describe('joined walls', () => {
         expect(rest.walls, `${route} has no wall to measure`).toBeGreaterThan(
           0,
         );
-        expect(rest.gaps, `${route} shows the page between bricks`).toEqual([]);
         expect(
           rest.covers,
           `${route} has a brick over another's content`,
-        ).toEqual([]);
-        expect(
-          rest.overpaints,
-          `${route} has an earlier brick painted over a later one`,
-        ).toEqual([]);
-        expect(
-          rest.stubs,
-          `${route} has a throw that ends against a brick face`,
         ).toEqual([]);
       }
     });

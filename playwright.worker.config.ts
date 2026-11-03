@@ -21,6 +21,7 @@ export const WORKER_SPECS = [
   'video-range.spec.ts',
   'served-types.spec.ts',
   'blog-pages.spec.ts',
+  'worker-failures.spec.ts',
 ] as const;
 
 /*

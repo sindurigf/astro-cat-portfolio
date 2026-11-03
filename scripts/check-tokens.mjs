@@ -4,9 +4,10 @@
  */
 
 import { fileURLToPath } from 'node:url';
-import { glob, readFile } from 'node:fs/promises';
+import { readFile } from 'node:fs/promises';
 import { join, relative } from 'node:path';
 import { TOKEN_EXCEPTIONS as EXCEPTIONS } from './check-allow-lists.mjs';
+import { filesUnder } from './files-under.mjs';
 
 const ROOT =
   process.env.CHECK_ROOT ?? fileURLToPath(new URL('..', import.meta.url));
@@ -84,16 +85,6 @@ const blankComments = (source) => {
                                                    URL is never truncated */
 };
 
-/* Skips node_modules, including a stale one under src/content/talks/. */
-const walk = (dir) =>
-  Array.fromAsync(
-    glob(
-      EXTENSIONS.map((ext) => `**/*${ext}`),
-      { cwd: dir, exclude: ['**/node_modules/**'] },
-    ),
-    (path) => join(dir, path),
-  );
-
 const locate = (source, index) => {
   const before = source.slice(0, index);
   const line = before.split('\n').length;
@@ -167,7 +158,7 @@ const isException = (name, text) =>
     return hit;
   });
 
-const sourceFiles = await walk(SRC);
+const sourceFiles = filesUnder(SRC, EXTENSIONS);
 if (sourceFiles.length === 0) {
   failures.push(`${relative(ROOT, SRC)}  no source file found to check`);
 }
