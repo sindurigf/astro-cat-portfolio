@@ -10,7 +10,7 @@ const REDIRECTS = '_redirects';
 const PAGE = 'index.html';
 const STATUS = 301;
 /* https://developers.cloudflare.com/workers/static-assets/redirects/ */
-const MAX_STATIC_REDIRECTS = 2000;
+export const MAX_STATIC_REDIRECTS = 2000;
 
 const isRule = (line) =>
   line.trim() !== '' && !line.trimStart().startsWith('#');
