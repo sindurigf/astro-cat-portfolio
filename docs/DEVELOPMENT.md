@@ -72,7 +72,7 @@ What happens without the `CONTACT_NOTIFY_TO` secret:
 | `npm run test:a11y`            | Playwright suite in Chromium and Firefox; CI adds WebKit                                                                                                  |
 | `npm run test:webkit`          | The same suite in WebKit, in Playwright's Docker image                                                                                                    |
 | `npm run test:a11y:ui`         | The same suite in Playwright's UI mode                                                                                                                    |
-| `npm run test:worker`          | Worker specs, local D1: contact endpoint, byte ranges, types, /blog pager                                                                                 |
+| `npm run test:worker`          | Worker specs, local D1: contact endpoint, byte ranges, types, /blog pager, failed sweeps and missing bindings                                             |
 | `npm run test:demo`            | Demo specs against a `NOINDEX` demo build                                                                                                                 |
 | `npm run test:coverage`        | `test:a11y` in Chromium, with line and branch coverage of `src/`                                                                                          |
 | `npm run check:live`           | Production headers and markup against this repository                                                                                                     |
@@ -83,6 +83,10 @@ What happens without the `CONTACT_NOTIFY_TO` secret:
 | `npm run about-cats`           | Packs the About cats' drawings in `artwork/about-cats/` into `src/assets/about-cats-*.avif` and `src/lib/about-cats-sheet.ts`                             |
 | `npm run icons`                | Render `src/assets/logo-cat.svg` from `src/lib/brand-mark.ts`, and the favicons and app icons from `artwork/cats/minerva-head.png`                        |
 | `npm run box-cat`              | Render the box cat logo, roundel and footer mascot SVGs in `src/assets/` from `src/lib/box-cat.ts` and the cut-outs in `artwork/cats/`                    |
+
+`CHECK_ROOT=<dir>` points `check:tokens`, `pins`, `classes`, `csp`,
+`untransformed` and `title-case` at another tree. The `tests/check-*.spec.ts`
+self-tests use it to run each check on a passing and a failing fixture.
 
 ### WebKit
 
@@ -169,10 +173,10 @@ Agents never post that review
   regenerate them all. It skips an entry whose bytes are not its extension's
   format.
 - Helpers, not run directly: `scripts/build-fingerprint.mjs` stamps `dist/`,
-  and checks that read `dist/` refuse a stale build; `scripts/mime-types.mjs`
-  holds content types for the test servers; `scripts/pdf-pages.mjs` counts PDF
-  pages for `publish:talk` and `tests/talk-pdf.spec.ts`;
-  `scripts/noindex.mjs` rewrites `_headers` and `_redirects` on a
+  and checks that read `dist/` refuse a stale build; `scripts/files-under.mjs`
+  lists the files a check script reads; `scripts/mime-types.mjs` holds content
+  types for the test servers; `scripts/pdf-pages.mjs` counts PDF pages for
+  `publish:talk` and `tests/talk-pdf.spec.ts`; `scripts/noindex.mjs` rewrites `_headers` and `_redirects` on a
   [`NOINDEX` build](DEPLOYMENT.md#run-a-demo); `scripts/warm-browsers.mjs`
   opens one page per browser in CI before the tests, so no worker's first page
   builds the browser caches inside a test;

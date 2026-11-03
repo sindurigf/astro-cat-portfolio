@@ -1,6 +1,7 @@
 /* Smaller, Larger and Reset: step --text-scale and remember the size. */
 import { itemAt } from '../lib/defined';
 import {
+  PERCENT,
   TEXT_SCALE_DEFAULT,
   TEXT_SCALE_KEY,
   TEXT_SCALE_PROPERTY,
@@ -9,7 +10,6 @@ import {
 
 type Action = 'smaller' | 'larger' | 'reset';
 
-const PERCENT = 100;
 const last = TEXT_SCALE_STEPS.length - 1;
 
 const run = (trigger: HTMLButtonElement): void => {
@@ -70,7 +70,9 @@ const run = (trigger: HTMLButtonElement): void => {
   try {
     if (percent === TEXT_SCALE_DEFAULT) localStorage.removeItem(TEXT_SCALE_KEY);
     else localStorage.setItem(TEXT_SCALE_KEY, String(percent));
-  } catch {}
+  } catch {
+    /* Storage is unavailable; the size holds for this page. */
+  }
 };
 
 for (const trigger of document.querySelectorAll<HTMLButtonElement>(

@@ -466,7 +466,7 @@ Let It Fall:
 
 Contact Form:
 
-- [ ] Open /contact and swipe to the form. Expect: “Name (required)”, an edit box, then “Email (required)” with “Used to reply, and nothing else.”, then “Message (required)” with “Between 10 and 5000 characters.” → SC 1.3.1, 3.3.2
+- [ ] Open /contact and swipe to the form. Expect: “Name (required)”, an edit box, then “Email (required)” with “Used to reply, and nothing else.”, then “Message (required)” with “Between 10 and 5,000 characters.” → SC 1.3.1, 3.3.2
 - [ ] Leave every field empty and double-tap Send Message. Expect: The page reloads and TalkBack starts at “There Are 3 Problems with This Form”, a heading, with a link for each problem. → SC 3.3.1, 2.4.3
 - [ ] Double-tap the first problem link. Expect: Focus moves into the Name field, and its error is read with it. → SC 3.3.1
 
@@ -530,7 +530,7 @@ Let It Fall:
 
 Contact Form:
 
-- [ ] Open /contact and press F to reach the first field, then Tab. Expect: “Name (required)”, an entry, then “Email (required)” with “Used to reply, and nothing else.”, then “Message (required)” with “Between 10 and 5000 characters.” → SC 1.3.1, 3.3.2
+- [ ] Open /contact and press F to reach the first field, then Tab. Expect: “Name (required)”, an entry, then “Email (required)” with “Used to reply, and nothing else.”, then “Message (required)” with “Between 10 and 5,000 characters.” → SC 1.3.1, 3.3.2
 - [ ] Leave every field empty, Tab to Send Message and press Enter. Expect: The page reloads and Orca starts at “There Are 3 Problems with This Form”, a heading, with a link for each problem. → SC 3.3.1, 2.4.3
 - [ ] Press Enter on the first problem link. Expect: Focus moves into the Name field, and its error is read with it. → SC 3.3.1
 
@@ -583,7 +583,7 @@ Let It Fall:
 
 Contact form:
 
-- [ ] Open /contact and swipe to the form. Expect: “Name (required), text field”, then “Email (required), text field”, with “Used to reply, and nothing else.”, then “Message (required)”, with “Between 10 and 5000 characters.” → SC 1.3.1, 3.3.2
+- [ ] Open /contact and swipe to the form. Expect: “Name (required), text field”, then “Email (required), text field”, with “Used to reply, and nothing else.”, then “Message (required)”, with “Between 10 and 5,000 characters.” → SC 1.3.1, 3.3.2
 - [ ] Leave every field empty and double-tap Send Message. Expect: The page reloads and VoiceOver starts at “There Are 3 Problems with This Form, heading”, with a link for each problem. → SC 3.3.1, 2.4.3
 - [ ] Double-tap the first problem link. Expect: Focus moves into the Name field, and its error is read with it. → SC 3.3.1
 
@@ -706,7 +706,7 @@ drawings are `aria-hidden`.
       the cat. → SC 2.4.3, 4.1.2
 - [ ] Tab stays on Close, never the page behind. → SC 2.1.2
 - [ ] Escape closes the card and focus returns to the same cat. → SC 2.4.3
-- [ ] The sleep control reads "Put Minerva to sleep"; Enter stops the cat
+- [ ] The sleep control reads "Let Minerva nap"; Enter stops the cat
       within 5 s and the control then reads "Wake Minerva". → SC 2.2.2, 4.1.2
 - [ ] Tab reaches the paw "Choose a trick for Minerva" after the sleep control;
       Enter opens a list, Random first, and Escape closes it with focus back on
@@ -717,8 +717,7 @@ drawings are `aria-hidden`.
       wakes it first. → SC 2.2.2
 - [ ] Rudra climbs between his two bricks, and a click on him opens his card
       on either brick. → SC 2.5.5
-- [ ] Under reduced motion Rudra sits on the brick under him, never in the
-      air above it. → SC 2.3.3
+- [ ] Under reduced motion Rudra stops climbing. → SC 2.3.3
 - [ ] The drawings announce nothing. → SC 1.1.1
 - [ ] While the trick list loads, or if it fails, its note is read once, as
       a status. → SC 4.1.3
