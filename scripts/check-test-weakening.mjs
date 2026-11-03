@@ -36,6 +36,7 @@ const RUNNER_FILES = [
   'playwright.worker.config.ts',
   'tests/tags.ts',
   'tests/test.ts',
+  'tests/reporters/no-skips.ts',
   'tests/ports.ts',
   'scripts/shard-tests.mjs',
 ];
@@ -81,7 +82,9 @@ const AWAITED = /(?:\bawait|\breturn|=>)\s*$/;
 /** A return behind an engine, device or environment test: the usual way to skip a test quietly. */
 const GUARDED_RETURN =
   /\bif\s*\([^)]*\b(?:browserName|isMobile|channel|project|process\.env|testInfo)\b[^)]*\)\s*\{?\s*return\b/g;
-const ENGINE_INVARIANT = /\bENGINE_INVARIANT\b/;
+/** A tag from tests/tags.ts that keeps a test out of one or more engines, by name or as its literal. */
+const ENGINE_SCOPE =
+  /\b(?:ENGINE_INVARIANT|CHROMIUM_ONLY|WEBKIT_ONLY|NO_WEBKIT|NO_FIREFOX)\b|['"`]@(?:engine-invariant|chromium-only|webkit-only|no-webkit|no-firefox)\b/;
 const TEST_CALL = /\b(?:test|describe)(?:\.describe)?\s*\(/g;
 const GATE_SCRIPT = /^(?:pre|post)?(?:test|check|build)\b/;
 const GATE_HOOK = /^(?:pre|post)(?:test|check|build)\b/;
@@ -309,7 +312,7 @@ const unawaitedExpects = (code) =>
     .filter((match) => !AWAITED.test(code.slice(0, match.index)))
     .map((match) => match.index);
 
-/** Each test or describe call: its title text, line, and whether its header carries ENGINE_INVARIANT. */
+/** Each test or describe call: its title text, line, and whether its header carries an engine-scope tag. */
 const testHeaders = (text, code) =>
   [...code.matchAll(TEST_CALL)].map((match) => {
     const open = match.index + match[0].length - 1;
@@ -331,7 +334,7 @@ const testHeaders = (text, code) =>
       line: lineAt(code, match.index),
       title: {
         key: normalize(text.slice(open + 1, comma)),
-        tagged: ENGINE_INVARIANT.test(text.slice(open, headerEnd)),
+        tagged: ENGINE_SCOPE.test(text.slice(open, headerEnd)),
       },
     };
   });

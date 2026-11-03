@@ -439,8 +439,8 @@ Rejected:
   `scripts/check-test-weakening.mjs` judges each pull request. The head is
   fetched as git objects; nothing from it is installed or run. It flags:
   - a new or widened skip, fixme or fail, `describe.configure`, a return
-    behind an engine or environment test, and an existing test tagged
-    `ENGINE_INVARIANT`;
+    behind an engine or environment test, and an existing test given an
+    engine tag from `tests/tags.ts`;
   - axe narrowing: `disableRules`, `exclude`, `include`, `withRules`,
     `withTags`, `runOnly`, `enabled: false`, filtered results, a `timedScan`
     tag list, a dropped `AXE_*` entry, any edit to `tests/axe.ts`;

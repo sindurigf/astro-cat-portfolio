@@ -181,15 +181,27 @@ test.describe('test-weakening guard', NODE, () => {
   });
 
   test('flags an existing test moved to fewer engines, not a new one', () => {
-    const tag = ['ENGINE', 'INVARIANT'].join('_');
-    expect(
-      inSpec(
-        BASE.replace(`test('one', () => {`, `test('one', ${tag}, () => {`),
-      ),
-    ).toEqual(['runs an existing test in fewer engines']);
-    expect(
-      inSpec(withLine(`test('two', ${tag}, () => {\n  ${E}(3).toBe(3);\n});`)),
-    ).toEqual([]);
+    const tags = [
+      ['ENGINE', 'INVARIANT'],
+      ['CHROMIUM', 'ONLY'],
+      ['WEBKIT', 'ONLY'],
+      ['NO', 'WEBKIT'],
+      ['NO', 'FIREFOX'],
+    ].map((parts) => parts.join('_'));
+    for (const tag of [...tags, `{ tag: '@chromium-only' }`]) {
+      expect(
+        inSpec(
+          BASE.replace(`test('one', () => {`, `test('one', ${tag}, () => {`),
+        ),
+        `${tag} on an existing test is not flagged`,
+      ).toEqual(['runs an existing test in fewer engines']);
+      expect(
+        inSpec(
+          withLine(`test('two', ${tag}, () => {\n  ${E}(3).toBe(3);\n});`),
+        ),
+        `${tag} on a new test is flagged`,
+      ).toEqual([]);
+    }
   });
 
   test('flags a changed number in an assertion and a changed test constant', () => {
