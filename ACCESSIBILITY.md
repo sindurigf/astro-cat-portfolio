@@ -18,16 +18,16 @@ The statement is voluntary for a personal site and follows the
 
 <!-- TODO(fork): Replace the Project, Accessibility owner and both reporting rows with your own, and set Last reviewed once you have reviewed this file. -->
 
-| Field               | Value                                                     |
-| ------------------- | --------------------------------------------------------- |
-| Project             | astro-cat-portfolio                                       |
-| Project type        | Static personal website (Astro, one Vue island, Tailwind) |
-| Accessibility owner | Sinduri Guntupalli                                        |
-| Public reporting    | <https://github.com/sindurigf/astro-cat-portfolio/issues> |
-| Private reporting   | <lol@sinduri.lol>                                         |
-| Target standard     | WCAG 2.2 Level AA, with AAA text contrast                 |
-| Conformance status  | **Target only. No claim that the site meets it.**         |
-| Last reviewed       | 2026-10-16                                                |
+| Field               | Value                                                                                    |
+| ------------------- | ---------------------------------------------------------------------------------------- |
+| Project             | astro-cat-portfolio                                                                      |
+| Project type        | Static personal website (Astro, one Vue island, Tailwind)                                |
+| Accessibility owner | Sinduri Guntupalli                                                                       |
+| Public reporting    | <https://github.com/sindurigf/astro-cat-portfolio/issues/new?template=accessibility.yml> |
+| Private reporting   | <lol@sinduri.lol>                                                                        |
+| Target standard     | WCAG 2.2 Level AA, with AAA text contrast                                                |
+| Conformance status  | **Target only. No claim that the site meets it.**                                        |
+| Last reviewed       | 2026-10-16                                                                               |
 
 `src/lib/accessibility-facts.ts` reads the Target standard, Conformance status,
 Last reviewed and both reporting rows into `/accessibility` at build time and

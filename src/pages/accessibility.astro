@@ -66,6 +66,33 @@ const HAS_TALK = (await getCollection('talks')).length > 0;
 
   <section class="reading-layout band py-section">
     <div class="mx-auto max-w-page">
+      {/* Reporting first, so nobody reads the whole statement to find it. */}
+      <div class="mx-auto mb-section max-w-measure" data-report-top>
+        <p class="text-body text-text text-pretty">
+          Something here blocks you? Report it{' '}
+          {PUBLIC_REPORTING !== null ? 'on GitHub or by email' : 'by email'}.
+          You do not need to name a guideline.{' '}
+          <a href="#report-a-barrier">More on reporting</a>.
+        </p>
+        <ul role="list" class="actions mt-head">
+          {PUBLIC_REPORTING !== null && (
+            <li>
+              <a href={PUBLIC_REPORTING} class="btn-secondary">
+                Report It on GitHub
+              </a>
+            </li>
+          )}
+          <li>
+            <a
+              href={`mailto:${accessibilityFacts.privateReporting}`}
+              class="btn-secondary"
+            >
+              Email {accessibilityFacts.privateReporting}
+            </a>
+          </li>
+        </ul>
+      </div>
+
       {/* Four spans of three on the twelve-column grid; there is no four-column grid. */}
       <dl class="fact-strip grid gap-0 lg:grid-cols-12">
         <div class="lg:col-span-3">
@@ -725,7 +752,7 @@ const HAS_TALK = (await getCollection('talks')).length > 0;
             .
           </p>
 
-          <h2>Report a Barrier</h2>
+          <h2 id="report-a-barrier">Report a Barrier</h2>
 
           <p>
             If something here blocks you, please say so. You do not need to know

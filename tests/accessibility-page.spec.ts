@@ -153,3 +153,69 @@ test(
     ).not.toThrow();
   },
 );
+
+/* SC 3.2.6 Consistent Help, in spirit: reporting is reachable without reading the whole statement. */
+test.describe('reporting on the accessibility statement', () => {
+  test('the report links come before the first heading of the statement', async ({
+    page,
+  }) => {
+    await page.goto(PAGE);
+    const firstHeading = page.locator('main h2').first();
+    await expect(firstHeading, `${PAGE} has no h2`).toBeAttached();
+
+    const publicReporting = sourceUrl(tableValue('Public reporting'));
+    const names = [
+      ...(publicReporting === null ? [] : ['Report It on GitHub']),
+      `Email ${tableValue('Private reporting')}`,
+    ];
+    for (const name of names) {
+      const link = page.getByRole('link', { name, exact: true }).first();
+      await expect(link, `${PAGE} has no link named "${name}"`).toBeAttached();
+      const before = await link.evaluate(
+        (el, heading) =>
+          Boolean(
+            heading &&
+            el.compareDocumentPosition(heading) &
+              Node.DOCUMENT_POSITION_FOLLOWING,
+          ),
+        await firstHeading.elementHandle(),
+      );
+      expect(
+        before,
+        `"${name}" comes after the first h2 on ${PAGE}, so a reader has to search for it.`,
+      ).toBe(true);
+    }
+
+    if (publicReporting !== null) {
+      await expect(
+        page
+          .getByRole('link', { name: 'Report It on GitHub', exact: true })
+          .first(),
+        'The top GitHub link does not open the accessibility issue form.',
+      ).toHaveAttribute('href', publicReporting);
+    }
+    expect(
+      tableValue('Public reporting'),
+      `${RECORD} public reporting does not point at the accessibility issue form.`,
+    ).toMatch(/\/issues\/new\?template=accessibility\.yml$/);
+  });
+
+  test('"More on reporting" leads to the Report a Barrier section', async ({
+    page,
+  }) => {
+    await page.goto(PAGE);
+    const more = page.getByRole('link', { name: 'More on reporting' });
+    await expect(
+      more,
+      `${PAGE} has no "More on reporting" link`,
+    ).toBeAttached();
+    const target = defined(
+      (await more.getAttribute('href')) ?? undefined,
+      '"More on reporting" href',
+    );
+    await expect(
+      page.locator(target),
+      `"More on reporting" points at ${target}, which is not the Report a Barrier heading.`,
+    ).toHaveText('Report a Barrier');
+  });
+});
