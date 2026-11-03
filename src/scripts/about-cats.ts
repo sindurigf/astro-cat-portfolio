@@ -5,6 +5,7 @@
  */
 import { IDLE, createMotionLoop } from './motion-loop';
 import { markFailed } from './failed-frame';
+import { requiredElementIn } from './required-element';
 import {
   clamp,
   createCatRig,
@@ -45,19 +46,7 @@ const PLACES: Record<CatId, { start: number; facing: 1 | -1 }> = {
 const isCatId = (value: string | undefined): value is CatId =>
   value !== undefined && Object.hasOwn(SHEETS, value);
 
-/** The element `selector` finds in `root`, checked to be a `type`; markup that does not match AboutCats.astro throws. */
-const required = <T extends Element>(
-  root: ParentNode,
-  selector: string,
-  type: abstract new () => T,
-): T => {
-  const node = root.querySelector(selector);
-  if (!(node instanceof type))
-    throw new Error(
-      `about-cats: ${selector} is missing or not a ${type.name}.`,
-    );
-  return node;
-};
+const required = requiredElementIn('about-cats');
 
 /** Fallback slot between warm-ups where requestIdleCallback is missing (Safari). */
 const WARM_GAP_MS = 50;
