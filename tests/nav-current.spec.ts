@@ -20,6 +20,7 @@ import { gotoSettled } from './settle';
 import { DESKTOP_VIEWPORT, NARROW_WIDTH } from './wcag';
 import { ENGINE_INVARIANT, NODE } from './tags';
 import { SITE_NAME } from '../src/lib/site';
+import { requireContent } from './content';
 
 const NARROW_VIEWPORT = {
   width: NARROW_WIDTH,
@@ -362,7 +363,7 @@ test.describe('the current page, as the navigation reports it', () => {
   test('on a post, every navigation marks Blog as the section, not the page', async ({
     page,
   }) => {
-    test.skip(POST_ROUTES.length === 0, NO_POST);
+    requireContent(POST_ROUTES.length > 0, NO_POST);
     const blog = '/blog/';
     await page.setViewportSize(DESKTOP_VIEWPORT);
     const post = itemAt(POST_ROUTES, 0);

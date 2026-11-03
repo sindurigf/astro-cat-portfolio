@@ -4,6 +4,7 @@ import { DESKTOP_VIEWPORT, PHONE_VIEWPORT } from './wcag';
 import { CONTACT_FORM_ON } from '../src/lib/contact';
 import { CATEGORY_ROUTES, NO_PUBLISHED_POST } from './routes';
 import { NO_FIREFOX } from './tags';
+import { requireContent } from './content';
 
 /* The form's send button, or the 404 page's link when there is no form. */
 const PRIMARY_ROUTE = CONTACT_FORM_ON ? '/contact' : '/404';
@@ -14,8 +15,6 @@ interface Pressable {
   route: string;
   control: string;
   moves: string;
-  /** Why the page has no such control, when it has none. */
-  absent?: string;
 }
 
 const PRESSABLE: Pressable[] = [
@@ -143,7 +142,6 @@ const pressLook = (page: Page, selector: string) =>
 test.describe('a press is drawn', () => {
   for (const p of PRESSABLE) {
     test(`${p.name} looks different pressed than hovered`, async ({ page }) => {
-      test.skip(p.absent !== undefined, p.absent);
       await page.setViewportSize(DESKTOP_VIEWPORT);
       await gotoSettled(page, p.route);
       await page.locator(p.control).first().hover();
@@ -161,7 +159,6 @@ test.describe('a press is drawn', () => {
     test(`${p.name} shows a press under reduced motion without moving`, async ({
       page,
     }) => {
-      test.skip(p.absent !== undefined, p.absent);
       await page.emulateMedia({ reducedMotion: 'reduce' });
       await page.setViewportSize(DESKTOP_VIEWPORT);
       await gotoSettled(page, p.route);
@@ -188,7 +185,6 @@ test.describe('a press is drawn', () => {
 test.describe('a press on the edge still clicks', () => {
   for (const p of PRESSABLE) {
     test(p.name, async ({ page }) => {
-      test.skip(p.absent !== undefined, p.absent);
       await page.setViewportSize(DESKTOP_VIEWPORT);
       await gotoSettled(page, p.route);
       const el = page.locator(p.control).first();
@@ -295,7 +291,7 @@ test.describe('bricks', () => {
   });
 
   test('a joined filter chip holds still when pressed', async ({ page }) => {
-    test.skip(CATEGORY_ROUTES.length === 0, NO_PUBLISHED_POST);
+    requireContent(CATEGORY_ROUTES.length > 0, NO_PUBLISHED_POST);
     const chip = 'main .chip-row a.chip:not([aria-current])';
     await page.setViewportSize(DESKTOP_VIEWPORT);
     await gotoSettled(page, '/blog/');

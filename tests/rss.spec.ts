@@ -16,6 +16,7 @@ import {
   feedExcerpt,
 } from '../src/lib/feed-excerpt';
 import { SITE_CONFIG } from '../src/site.config';
+import { requireContent } from './content';
 
 /*
  * The feeds from src/lib/feed.ts, parsed by the browser's XML parser so
@@ -116,7 +117,7 @@ test.describe('the feeds', () => {
   test('the site feed lists every published post, newest first', async ({
     page,
   }) => {
-    test.skip(PUBLISHED_POST_ROUTES.length === 0, NO_PUBLISHED_POST);
+    requireContent(PUBLISHED_POST_ROUTES.length > 0, NO_PUBLISHED_POST);
     const posts = publishedPosts();
     expect(
       posts.length,

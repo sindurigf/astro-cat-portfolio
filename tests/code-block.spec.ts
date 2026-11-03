@@ -9,6 +9,7 @@ import { builtHtml, DIST_DIR, NO_POST, POST_ROUTES } from './routes';
 import { hasCodeBlock } from '../src/lib/code-blocks';
 import { REFLOW_VIEWPORT } from './wcag';
 import { NODE } from './tags';
+import { requireContent } from './content';
 
 /**
  * `src/plugins/code-block.mjs` and the `.prose code` / `.prose pre` rules. No
@@ -117,7 +118,7 @@ const SAMPLE = `
 test.describe('code in a post, as it renders', () => {
   for (const width of [1280, REFLOW_VIEWPORT.width]) {
     test(`keeps its overflow to itself at ${width}px`, async ({ page }) => {
-      test.skip(POST_ROUTES.length === 0, NO_POST);
+      requireContent(POST_ROUTES.length > 0, NO_POST);
       await page.setViewportSize({ width, height: 900 });
       await gotoSettled(page, itemAt(POST_ROUTES, 0));
 

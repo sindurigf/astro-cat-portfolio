@@ -15,6 +15,7 @@ import { AA_TEXT, NON_TEXT, PAGE_HELPERS } from './contrast';
 import { DECK_READY_TIMEOUT_MS } from '../src/lib/deck-ready';
 import { DECK_FILE, splitDeck } from '../src/lib/slides';
 import { NO_FIREFOX } from './tags';
+import { requireContent } from './content';
 
 /** src/scripts/slideshow.ts driven by buttons, keys, slide links, full screen, print, and without JavaScript. */
 
@@ -137,7 +138,7 @@ const sidewaysOverflow = async (page: Page): Promise<string[]> => {
 };
 
 test.describe('the talk slideshow', () => {
-  test.skip(!ROUTE, NO_TALK);
+  requireContent(ROUTE, NO_TALK);
 
   test('without JavaScript every slide is on the page and no control is', async ({
     browser,
@@ -427,7 +428,7 @@ test.describe('the talk slideshow', () => {
 });
 
 test.describe('the talk slideshow in full screen', () => {
-  test.skip(!ROUTE, NO_TALK);
+  requireContent(ROUTE, NO_TALK);
 
   test.beforeEach(async ({ page }) => {
     await page.setViewportSize(PROJECTOR);
@@ -1028,7 +1029,7 @@ const deviceSizes = async (browser: Browser, width: number, zoom: number) => {
 };
 
 test.describe('the talk slideshow on the page at 200% zoom', () => {
-  test.skip(!ROUTE, NO_TALK);
+  requireContent(ROUTE, NO_TALK);
 
   for (const { width, zoom } of TITLE_ZOOM) {
     test(`from ${width}px, slide titles reach 2x by ${zoom * 100}% page zoom (SC 1.4.4)`, async ({

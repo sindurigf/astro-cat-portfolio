@@ -18,6 +18,7 @@ import {
   REFLOW_VIEWPORT,
 } from './wcag';
 import { NODE } from './tags';
+import { requireContent } from './content';
 
 /* Every test here runs at least one axe scan; see AXE_TIMEOUT_MS. */
 test.describe.configure({ timeout: AXE_TIMEOUT_MS });
@@ -182,7 +183,7 @@ test.describe('axe: WCAG 2.2 AA with interactive states open', () => {
   });
 
   test('a post with its contents open at 320px', async ({ page }) => {
-    test.skip(!CONTENTS_POST_ROUTE, NO_CONTENTS_POST);
+    requireContent(CONTENTS_POST_ROUTE, NO_CONTENTS_POST);
     await page.setViewportSize(REFLOW_VIEWPORT);
     await gotoSettled(page, CONTENTS_POST_ROUTE!);
     const summary = page.locator('nav.post-contents summary');
@@ -196,7 +197,7 @@ test.describe('axe: WCAG 2.2 AA with interactive states open', () => {
   });
 
   test('the talk after moving to the next slide', async ({ page }) => {
-    test.skip(TALK_ROUTES.length === 0, NO_TALK);
+    requireContent(TALK_ROUTES.length > 0, NO_TALK);
     await gotoSettled(page, `${TALK_ROUTES[0]}/`);
     await page.waitForSelector('[data-deck-ready]');
     await page.getByRole('button', { name: 'Next' }).click();

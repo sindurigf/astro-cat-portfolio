@@ -506,10 +506,6 @@ test.describe(
     // llms.txt lists placeholders on purpose, and is not HTML.
     test('nothing links to a placeholder post', () => {
       const placeholders = placeholderPosts();
-      test.skip(
-        placeholders.size === 0,
-        'no post is a placeholder, so there is no link to find',
-      );
       const offered: string[] = [];
 
       for (const [route, html] of builtHtmlByRoute()) {

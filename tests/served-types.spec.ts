@@ -2,6 +2,7 @@ import { readdirSync } from 'node:fs';
 import { test, expect } from './test';
 import { PUBLISHED_POST_ROUTES } from './routes';
 import { SITE_FEED_PATH } from '../src/lib/paths';
+import { requireContent } from './content';
 
 /* Run by playwright.worker.config.ts: only the Worker applies _headers and _redirects. HTTP only, no browser. */
 
@@ -52,7 +53,7 @@ test.describe('served types', () => {
     request,
   }) => {
     const pdfs = publishedPdfs();
-    test.skip(pdfs.length === 0, 'public/ has no PDF');
+    requireContent(pdfs.length > 0, 'public/ has no PDF');
     for (const path of pdfs) {
       const response = await request.get(path);
       expect(response.status(), `${path} status`).toBe(200);
@@ -74,7 +75,7 @@ test.describe('served types', () => {
   test("a post's Markdown source carries the Markdown type", async ({
     request,
   }) => {
-    test.skip(!POST, 'no published post, so no Markdown source is built');
+    requireContent(POST, 'no published post, so no Markdown source is built');
     const path = `${POST}.md`;
     const response = await request.get(path);
     expect(response.status(), `${path} status`).toBe(200);

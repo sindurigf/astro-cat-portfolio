@@ -8,6 +8,7 @@ import { ANALYTICS_ON } from '../src/lib/analytics-site';
 import { asServed, headersFor, MIME, type Rule } from './policy-server';
 import { ASSET_CACHE_CONTROL, usePolicyServer } from './headers-fixture';
 import { NODE } from './tags';
+import { requireContent } from './content';
 
 /** The rules as declared and as the policy server serves them; tests/headers.spec.ts covers browsers. */
 
@@ -256,8 +257,8 @@ test.describe('security headers as declared and served', NODE, () => {
   });
 
   test("each post's Markdown copy is kept out of search", () => {
-    test.skip(
-      PUBLISHED_POST_ROUTES.length === 0,
+    requireContent(
+      PUBLISHED_POST_ROUTES.length > 0,
       'no published post, so no Markdown copy is built',
     );
     const copies = builtFiles(join(DIST_DIR, 'blog'))
@@ -281,7 +282,7 @@ test.describe('security headers as declared and served', NODE, () => {
     const pdfs = builtFiles(DIST_DIR)
       .filter((file) => file.endsWith('.pdf'))
       .map(servedPath);
-    test.skip(pdfs.length === 0, 'the build has no PDF');
+    requireContent(pdfs.length > 0, 'the build has no PDF');
 
     const page = headersFor(rules, '/');
     for (const path of pdfs) {

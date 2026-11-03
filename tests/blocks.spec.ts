@@ -133,14 +133,12 @@ for (const colorScheme of ['dark', 'light'] as const) {
           `${route} has a block edge under ${NON_TEXT}:1 or text under ${AAA_TEXT}:1`,
         ).toEqual([]);
       });
+    }
 
+    for (const route of LINK_ROUTES) {
       test(`${route}: links in blocks read through hover and focus, rings inside their block`, async ({
         page,
       }) => {
-        test.skip(
-          !LINK_ROUTES.includes(route),
-          'a /brand example; the real page walks its links',
-        );
         await gotoSettled(page, route);
         /* Buttons draw their own hover and focus; tests/states.spec.ts covers them. */
         const links = page.locator(

@@ -3,6 +3,7 @@ import { gotoSettled } from './settle';
 import { PUBLISHED_POST_ROUTES } from './routes';
 import { indexPageHref } from '../src/lib/paths';
 import { WORKER_POSTS_PER_PAGE } from '../playwright.worker.config';
+import { requireContent } from './content';
 
 /** The /blog pager, built by playwright.worker.config.ts at WORKER_POSTS_PER_PAGE so today's posts span pages. */
 
@@ -31,7 +32,7 @@ const HAS_SECOND_PAGE = PAGE_COUNT > 1;
 const NO_SECOND_PAGE = `${POST_COUNT} published posts at ${WORKER_POSTS_PER_PAGE} a page make no second page`;
 
 test('page one holds exactly one page of posts', async ({ page }) => {
-  test.skip(!HAS_SECOND_PAGE, NO_SECOND_PAGE);
+  requireContent(HAS_SECOND_PAGE, NO_SECOND_PAGE);
   await gotoSettled(page, '/blog/');
 
   expect(
@@ -64,7 +65,7 @@ test('every page holds its share, and nothing is lost or repeated', async ({
 test('the pager is a named landmark, marks the current page, and reaches page two by keyboard', async ({
   page,
 }) => {
-  test.skip(!HAS_SECOND_PAGE, NO_SECOND_PAGE);
+  requireContent(HAS_SECOND_PAGE, NO_SECOND_PAGE);
   await gotoSettled(page, '/blog/');
 
   await expect(

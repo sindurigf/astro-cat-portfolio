@@ -2,6 +2,7 @@ import { expect, test } from './test';
 import { gotoSettled } from './settle';
 import { CONTENTS_POST_ROUTE, NO_CONTENTS_POST, TALK_ROUTES } from './routes';
 import { CHROMIUM_ONLY } from './tags';
+import { requireContent } from './content';
 
 /** A4 at 96 dpi, the page a talk prints on in tests; any page size behaves the same. */
 const A4 = { width: 794, height: 1123 } as const;
@@ -57,7 +58,7 @@ for (const route of TALK_ROUTES) {
 
 /* SC 1.3.1: a printed post keeps its contents list; a closed disclosure would print only its summary. */
 test('a post prints its In This Post list open', async ({ page }) => {
-  test.skip(!CONTENTS_POST_ROUTE, NO_CONTENTS_POST);
+  requireContent(CONTENTS_POST_ROUTE, NO_CONTENTS_POST);
   await gotoSettled(page, CONTENTS_POST_ROUTE!);
   await page.emulateMedia({ media: 'print' });
   const contents = page.locator('details[data-post-contents]');

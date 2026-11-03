@@ -19,6 +19,7 @@ import { configuredSite } from './source';
 import { fakeCollector, type PlausibleSend } from './plausible';
 import { REFLOW_VIEWPORT } from './wcag';
 import { WITHOUT_ANALYTICS, WITH_ANALYTICS } from './feature-tags';
+import { requireContent } from './content';
 
 /**
  * Plausible, held to what /privacy discloses (PAYLOAD_DISCLOSED, EVENT_DATA_DISCLOSED).
@@ -454,7 +455,7 @@ test.describe('analytics', WITH_ANALYTICS, () => {
     });
 
     test('a download click is counted', async ({ page }) => {
-      test.skip(!PAIRED, 'no post links a talk PDF to download');
+      requireContent(PAIRED, 'no post links a talk PDF to download');
       const paired = defined(PAIRED, 'a post linking a talk PDF');
       const target = `${paired.talk}.pdf`;
       const sent = await openAsProduction(page, `${paired.post}/`);

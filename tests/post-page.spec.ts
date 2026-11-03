@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { expect, test, type Page } from './test';
 import { defined } from '../src/lib/defined';
 import {
@@ -10,7 +12,9 @@ import {
 import { PHOTOGRAPHERS } from '../src/lib/credits';
 import { gotoSettled } from './settle';
 import { MIN_TARGET, SUBPIXEL_TOLERANCE } from './wcag';
-import { ENGINE_INVARIANT } from './tags';
+import { ENGINE_INVARIANT, NODE } from './tags';
+import { BLOG_CONTENT_DIR } from '../src/lib/paths';
+import { requireContent } from './content';
 
 /**
  * A post as a reading page, docs/STYLEGUIDE.md "Posts". Below `xl` the contents
@@ -79,8 +83,8 @@ const LONG_PARAGRAPH_POST = postsWhere((source) =>
 test(`a post with a long paragraph sets at most ${MAX_CHARACTERS_PER_LINE} characters a line`, async ({
   page,
 }) => {
-  test.skip(
-    !LONG_PARAGRAPH_POST,
+  requireContent(
+    LONG_PARAGRAPH_POST,
     'no post has a paragraph long enough to measure',
   );
   await page.setViewportSize({ width: MEASURE_WIDTH, height: 900 });
@@ -94,7 +98,7 @@ test(`a post with a long paragraph sets at most ${MAX_CHARACTERS_PER_LINE} chara
 });
 
 test.describe('the contents list', () => {
-  test.skip(!CONTENTS_POST_ROUTE, NO_CONTENTS_POST);
+  requireContent(CONTENTS_POST_ROUTE, NO_CONTENTS_POST);
 
   for (const width of [320, 1279]) {
     test(`is a closed disclosure at ${width}px`, async ({ page }) => {
@@ -203,6 +207,26 @@ const FIGURE_VIEWPORT_HEIGHT = 900;
 /* Edges snap to the device pixel. */
 const FIGURE_EDGE_TOLERANCE = 1;
 
+/* A Markdown image alone on its line builds to a body figure. */
+const STANDALONE_IMAGE = /^!\[[^\]]*\]\([^)]*\)\s*$/gm;
+
+const sourceFigureCount = (route: string): number =>
+  readFileSync(
+    join(BLOG_CONTENT_DIR, `${route.replace(/^\/blog\//, '')}.md`),
+    'utf8',
+  ).match(STANDALONE_IMAGE)?.length ?? 0;
+
+test(
+  'some post has a body figure, so the figure checks measure one',
+  NODE,
+  () => {
+    expect(
+      POSTS.map(({ route }) => sourceFigureCount(route)).some((n) => n > 0),
+      'no post source has a standalone image',
+    ).toBe(true);
+  },
+);
+
 /* Body figures: uncropped, never past the viewport or page column (SC 1.4.10), never over the contents list. */
 test.describe('body figures', () => {
   for (const post of POSTS) {
@@ -251,7 +275,10 @@ test.describe('body figures', () => {
             },
           );
         });
-        test.skip(figures.length === 0, `${post.route} has no body figure`);
+        expect(
+          figures.length,
+          `${post.route} builds a different number of body figures than its source has standalone images`,
+        ).toBe(sourceFigureCount(post.route));
 
         for (const [index, figure] of figures.entries()) {
           const name = `figure ${index + 1}`;

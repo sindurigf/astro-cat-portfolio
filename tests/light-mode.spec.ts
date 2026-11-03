@@ -82,14 +82,18 @@ test.describe('light mode keeps every control edge visible', () => {
   for (const route of SAMPLED_ROUTES) {
     test(route, async ({ page }) => {
       await gotoSettled(page, route);
-      const { shaped, faint } = (await page.evaluate(`(() => {
+      const { shaped, controls, faint, unmarked } =
+        (await page.evaluate(`(() => {
         ${PAGE_HELPERS}
         let shaped = 0;
+        let controls = 0;
         const faint = [];
+        const unmarked = [];
         for (const el of document.querySelectorAll('main :is(${FOCUSABLE_SELECTOR.replaceAll("'", "\\'")})')) {
           const style = getComputedStyle(el);
           if (style.display === 'none' || el.getBoundingClientRect().width === 0) continue;
           // A photo link is identified by its photo, which the fill only backs.
+          controls += 1;
           if (el.querySelector('img')) continue;
           const ground = effectiveBackground(el.parentElement);
           if (!ground) {
@@ -102,7 +106,10 @@ test.describe('light mode keeps every control edge visible', () => {
             .map((side) => parse(style['border' + side + 'Color']))
             .filter((c) => c && c.a > 0);
           const hasFill = fill && fill.a > 0;
-          if (!hasFill && edges.length === 0) continue;
+          if (!hasFill && edges.length === 0) {
+            if (!style.textDecorationLine.includes('underline')) unmarked.push(describe(el));
+            continue;
+          }
           shaped += 1;
           const ratios = [
             ...(hasFill ? [ratio(over(fill, ground), ground)] : []),
@@ -112,12 +119,26 @@ test.describe('light mode keeps every control edge visible', () => {
             faint.push(describe(el) + ' best edge ' + Math.max(...ratios).toFixed(2));
           }
         }
-        return { shaped, faint };
-      })()`)) as { shaped: number; faint: string[] };
+        return { shaped, controls, faint, unmarked };
+      })()`)) as {
+          shaped: number;
+          controls: number;
+          faint: string[];
+          unmarked: string[];
+        };
       // The home page always has shaped controls; a prose page may have none.
       if (route === '/')
         expect(shaped, 'no shaped control found on /').toBeGreaterThan(0);
-      test.skip(shaped === 0, `${route} draws no control as a shape`);
+      if (shaped === 0) {
+        expect(
+          controls,
+          `${route} has no control in its main region`,
+        ).toBeGreaterThan(0);
+        expect(
+          unmarked,
+          `${route} draws no control as a shape, so each must be an underlined text link`,
+        ).toEqual([]);
+      }
       expect(faint, `${route} in light mode`).toEqual([]);
     });
   }
