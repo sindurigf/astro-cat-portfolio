@@ -75,9 +75,9 @@ const NUMBER = /\d[\d_]*(?:\.\d+)?/;
 const NEGATION = /\.not\./;
 const NUMBERS = new RegExp(NUMBER.source, 'g');
 const TRY_BLOCK = /\btry\s*\{/g;
-/** An expect that returns a promise: a locator, the page, or `expect.poll`. */
+/** An expect that returns a promise: a locator, `expect.poll`, or `page` before a page matcher, as `page` may name a string. */
 const ASYNC_EXPECT =
-  /\bexpect\s*(?:\.\s*poll\b|\(\s*(?:page\s*\)|[\w.$]*(?:[Ll]ocator|getBy\w+)\b))/g;
+  /\bexpect\s*(?:\.\s*poll\b|\(\s*(?:page\s*\)\s*(?:\.\s*not\s*)?\.\s*toHave(?:Title|URL|Screenshot)\b|[\w.$]*(?:[Ll]ocator|getBy\w+)\b))/g;
 const AWAITED = /(?:\bawait|\breturn|=>)\s*$/;
 /** A return behind an engine, device or environment test: the usual way to skip a test quietly. */
 const GUARDED_RETURN =

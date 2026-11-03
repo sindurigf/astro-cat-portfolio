@@ -155,6 +155,10 @@ test.describe('test-weakening guard', NODE, () => {
     expect(inSpec(awaited.replace('await ', ''), awaited)).toEqual([
       'leaves 1 async expect unawaited',
     ]);
+    const notAwaited = withLine(`  await ${E}(page).not.toHaveURL('/a');`);
+    expect(inSpec(notAwaited.replace('await ', ''), notAwaited)).toEqual([
+      'leaves 1 async expect unawaited',
+    ]);
     expect(
       inSpec(
         BASE.replace(
@@ -166,6 +170,10 @@ test.describe('test-weakening guard', NODE, () => {
     expect(inSpec(BASE.replace(`(2).toBe(2)`, `(2).not.toBe(2)`))).toEqual([
       'negates an assertion',
     ]);
+  });
+
+  test('does not flag a page variable before a value matcher', () => {
+    expect(inSpec(withLine(`  ${E}(page).toContain('a');`))).toEqual([]);
   });
 
   test('counts a wrapped expect chain and flags a number changed on a wrapped matcher', () => {
