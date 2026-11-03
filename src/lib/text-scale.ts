@@ -3,6 +3,9 @@ export const TEXT_SCALE_STEPS = [75, 100, 125, 150, 200] as const;
 
 export const TEXT_SCALE_DEFAULT = 100;
 
+/** A step's percent divided by this is its --text-scale value. */
+export const PERCENT = 100;
+
 /** Set on the root as a plain number (1.25), read by the reading tokens in global.css. */
 export const TEXT_SCALE_PROPERTY = '--text-scale';
 
