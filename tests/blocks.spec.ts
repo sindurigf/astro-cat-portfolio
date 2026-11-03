@@ -35,8 +35,14 @@ const BLOCK_ROUTES = [
 ];
 /* A few links per page cover each block kind in reasonable time. */
 const LINKS_PER_PAGE = 6;
-/* /brand repeats real cards inside clipped half-width stages; the real pages carry the link walk. */
-const LINK_ROUTES = BLOCK_ROUTES.filter((route) => !route.startsWith('/brand'));
+/* Pages with text links inside blocks; /brand repeats real cards inside clipped stages. */
+const LINK_ROUTES = [
+  '/',
+  '/blog',
+  '/about',
+  '/career',
+  ...(CONTENTS_POST_ROUTE ? [CONTENTS_POST_ROUTE] : []),
+];
 const STEP_WIDTHS = [
   DESKTOP_VIEWPORT.width,
   PHONE_VIEWPORT.width,
