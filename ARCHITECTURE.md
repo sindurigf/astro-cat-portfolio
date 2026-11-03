@@ -367,7 +367,10 @@ multiplied into `--text-lead`, `--text-standfirst`, `--text-post-teaser`, `--tex
 `--text-label` in `global.css`. Scaling the root font size was rejected: media
 queries ignore it, so layouts overflowed at widths such as 768px.
 `tests/reading-tab.spec.ts` holds the no-sideways-scroll rule at 320, 390 and
-1280px. The control is the reading tab (`ReadingTab.astro`).
+1280px. At 320px and 200% one uppercase label word outgrows the column, so the
+breadcrumb, chips, post card labels and footer links take `wrap-anywhere`; a
+page-wide rule was rejected because it reflows shrink-to-fit text at 100%. The
+control is the reading tab (`ReadingTab.astro`).
 
 ### Scripts loaded on demand
 
