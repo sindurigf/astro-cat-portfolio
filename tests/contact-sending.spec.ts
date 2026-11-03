@@ -2,7 +2,7 @@ import type { Page } from '@playwright/test';
 import { expect, test } from './test';
 import { gotoSettled } from './settle';
 import { PHONE_VIEWPORT } from './wcag';
-import { LIMITS } from '../src/lib/contact-form';
+import { LIMITS, formatCount } from '../src/lib/contact-form';
 import { CONTACT_FORM_ON } from '../src/lib/contact';
 
 test.skip(!CONTACT_FORM_ON, 'contact.form is none in src/site.config.ts');
@@ -258,7 +258,9 @@ test('the message field states its limits and keeps pasted text past them', asyn
   await gotoSettled(page, '/contact/');
   const message = page.getByLabel('Message');
   await expect(message).toHaveAccessibleDescription(
-    new RegExp(`${LIMITS.bodyMin}.*${LIMITS.bodyMax} characters`),
+    new RegExp(
+      `${formatCount(LIMITS.bodyMin)}.*${formatCount(LIMITS.bodyMax)} characters`,
+    ),
   );
 
   const pasted = 'x'.repeat(LIMITS.bodyMax + 1);
