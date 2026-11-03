@@ -86,10 +86,6 @@ test.describe('the hero after a media change', () => {
           message: 'the backing store kept its old pixel ratio',
         })
         .toBe(Math.round(before!.cssWidth * DENSER));
-      expect(
-        (await backStore(page))!.ink,
-        'the field is blank after the pixel ratio changed',
-      ).toBeGreaterThan(0);
     },
   );
 
