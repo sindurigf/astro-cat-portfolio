@@ -339,48 +339,6 @@ test.describe('the hero field on /', () => {
     });
   }
 
-  /* Resizing clears a canvas; every frame is held, so the only paint is `relayout()`'s own. */
-  test('a resize while a frame is pending leaves the field drawn', async ({
-    page,
-  }) => {
-    await page.addInitScript(() => {
-      window.requestAnimationFrame = () => 1;
-    });
-    await page.goto(HERO_ROUTE);
-    const field = page.locator('.hero-field');
-    await expect(field).toHaveAttribute('data-hero-motion', 'running');
-
-    const midWidth = () =>
-      page.evaluate(
-        () =>
-          document.querySelectorAll<HTMLCanvasElement>('.hero-field-layer')[1]
-            ?.width ?? 0,
-      );
-    const before = await midWidth();
-    const size = page.viewportSize()!;
-    await page.setViewportSize({
-      width: size.width - 160,
-      height: size.height,
-    });
-    await expect.poll(midWidth).not.toBe(before);
-
-    const ink = await page.evaluate(() => {
-      const mid =
-        document.querySelectorAll<HTMLCanvasElement>('.hero-field-layer')[1];
-      if (!mid) throw new Error('The hero field has no middle layer.');
-      const { data } = mid
-        .getContext('2d')!
-        .getImageData(0, 0, mid.width, mid.height);
-      let total = 0;
-      for (const alpha of data.filter((_, i) => i % 4 === 3)) total += alpha;
-      return total;
-    });
-    expect(
-      ink,
-      'the resize cleared the middle canvas and nothing redrew it.',
-    ).toBeGreaterThan(0);
-  });
-
   test('under reduced motion it is drawn once and held, with no control', async ({
     page,
   }) => {

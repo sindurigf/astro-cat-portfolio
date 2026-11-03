@@ -14,9 +14,10 @@ import {
   readlinkSync,
 } from 'node:fs';
 import { readFile, writeFile } from 'node:fs/promises';
-import { join } from 'node:path';
+import { join, relative } from 'node:path';
 
-const ROOT = fileURLToPath(new URL('..', import.meta.url));
+const ROOT =
+  process.env.CHECK_ROOT ?? fileURLToPath(new URL('..', import.meta.url));
 /* Beside dist/client and dist/server, so it is neither served nor deployed. */
 const STAMP = join(ROOT, 'dist', '.build-fingerprint');
 const INSTALLED = 'node_modules/.package-lock.json';
@@ -76,7 +77,14 @@ export const recordFingerprint = () => {
   };
 };
 
-export const assertBuildCurrent = async (label) => {
+export const assertBuildCurrent = async (label, buildDir) => {
+  if (buildDir !== undefined && !existsSync(buildDir)) {
+    console.error(
+      `${label}: ${relative(ROOT, buildDir)} does not exist. Run \`npm run build\` ` +
+        'first; this check reads the build output.',
+    );
+    process.exit(1);
+  }
   const recorded = existsSync(STAMP) ? await readFile(STAMP, 'utf8') : null;
   if (recorded === fingerprint()) return;
   console.error(

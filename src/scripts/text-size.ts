@@ -70,7 +70,9 @@ const run = (trigger: HTMLButtonElement): void => {
   try {
     if (percent === TEXT_SCALE_DEFAULT) localStorage.removeItem(TEXT_SCALE_KEY);
     else localStorage.setItem(TEXT_SCALE_KEY, String(percent));
-  } catch {}
+  } catch {
+    /* Storage is unavailable; the size holds for this page. */
+  }
 };
 
 for (const trigger of document.querySelectorAll<HTMLButtonElement>(
