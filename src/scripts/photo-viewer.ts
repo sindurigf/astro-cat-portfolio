@@ -92,8 +92,18 @@ const setUpViewer = (viewer: HTMLDialogElement): void => {
     count.textContent = position();
   };
 
+  /* Only on open: a step keeps the previous photo up until the next decodes. */
+  const clear = (): void => {
+    image.removeAttribute('src');
+    caption.textContent = '';
+    message.textContent = '';
+    count.textContent = '';
+    delete figure.dataset.state;
+  };
+
   const open = (group: HTMLAnchorElement[], link: HTMLAnchorElement): void => {
     links = group;
+    clear();
     if (!image.isConnected) figure.prepend(image);
     steps.hidden = group.length < 2;
     void show(group.indexOf(link));
