@@ -144,8 +144,10 @@ view (development server only, never published), and forks.
   the page sideways is taken back and announced (SC 1.4.10), so some pages at
   some widths stop below 200 percent, where a long word or a control outgrows
   its column. The breadcrumb, chips, post card labels and footer links break
-  inside a word instead, so they never cause the stop. The browser's own
-  zoom and text-only zoom still work (SC 1.4.4). `tests/reading-tab.spec.ts`.
+  inside a word instead, so they never cause the stop. Just above 768px, where
+  Get in Touch joins the header row, every page stops at 150 percent: the
+  header row does not fit at 200 percent. The browser's own zoom and text-only
+  zoom still work (SC 1.4.4). `tests/reading-tab.spec.ts`.
 - **Target size.** A 44px square centered on every target outside a sentence
   hits only that target, at 305px and 1280px, on every page (listings sampled
   as below) and in the open cat card, photo viewer and menu (SC 2.5.5).
