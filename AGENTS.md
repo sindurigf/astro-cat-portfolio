@@ -10,7 +10,7 @@ npm run build
 npm run typecheck
 npm run check        # tokens, links, pins, classes, csp, images, title-case, format, commits, leaks
 npm run test:a11y    # Chromium, Firefox; WebKit in CI or with WEBKIT=1
-npm run test:webkit  # test:a11y in WebKit via Docker
+npm run test:webkit  # CI's WebKit run, locally via Docker: only to debug CI
 npm run test:worker  # WORKER_SPECS through the Worker
 npm run test:demo    # DEMO_SPECS against a NOINDEX demo build
 ```

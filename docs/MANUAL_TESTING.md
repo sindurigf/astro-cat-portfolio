@@ -408,9 +408,10 @@ Setup: Firefox, 1280px, `/404` (preview serves it with 200;
 
 Heard: `________________________`
 
-### 6.10 NVDA and VoiceOver
+### 6.10 Other screen readers
 
-Needs Windows and Apple hardware. Open in ACCESSIBILITY.md §7 gap 2.
+NVDA needs Windows and VoiceOver Apple hardware. Open in ACCESSIBILITY.md §7
+gap 2.
 
 - [ ] NVDA: §6 in Chrome and Firefox, plus browse and focus mode in the dialog. → needs Windows
 - [ ] VoiceOver on a Mac: Safari (`Cmd+F5`, rotor `Ctrl+Opt+U`). → needs a Mac

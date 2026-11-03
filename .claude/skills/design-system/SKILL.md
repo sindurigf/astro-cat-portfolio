@@ -36,7 +36,7 @@ before changing anything it covers.
 - Text over a photograph, or `aspect-ratio` on an `<img>`.
 - A cropped photo, except a post card cover, which the build crops to 4:3 at
   `coverPosition` ([Posts](../../../docs/STYLEGUIDE.md#posts)).
-- A radius other than `rounded-full` or `rounded-none`.
+- A radius off [Borders, shadows and radius](../../../docs/STYLEGUIDE.md#borders-shadows-and-radius).
 - ARIA where a native element works; an `aria-label` over visible text
   ([ACCESSIBILITY.md §9](../../../ACCESSIBILITY.md#9-contributor-checklist)).
 - Horizontal padding on a page container.
@@ -83,6 +83,6 @@ before changing anything it covers.
 
 - Run the commands in `AGENTS.md`.
 - Tab the page, zoom to 400% and toggle reduced motion.
-- Never suppress an axe, AccessLint or HTML_CodeSniffer rule; a false positive
-  is handled as [DEVELOPMENT.md](../../../docs/DEVELOPMENT.md#other-notes) says.
+- No axe, AccessLint or HTML_CodeSniffer suppression except a named false
+  positive in [Rejected findings](../../../ARCHITECTURE.md#rejected-findings).
 - A new color, animation or control usually needs a new assertion.

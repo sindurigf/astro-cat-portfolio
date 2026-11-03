@@ -261,8 +261,9 @@ Dashboard settings that change what ships without a file change.
   branch, so a stacked pull request gets the full gate. Its commits are checked
   against its own base branch, not `main`.
 - `Test weakening` (`.github/workflows/test-weakening.yml`) is a second
-  status. The owner's approving or comment review with the marker passes it
-  ([rule](../ARCHITECTURE.md#tests)). To require it, in both repositories:
+  status ([rule](../ARCHITECTURE.md#tests),
+  [approving](DEVELOPMENT.md#approving-a-test-change)). To require it, in both
+  repositories:
   1. Settings, Rules, Rulesets, the `main` ruleset, Require status checks to
      pass, Add checks, type `Test weakening`, pick the GitHub Actions source,
      Save. The name is offered once the check has run on a pull request.
@@ -275,11 +276,6 @@ Dashboard settings that change what ships without a file change.
   fine-grained token for both repositories (Contents and Pull requests, read
   and write), log their `gh` in with it, and remove the owner's token from
   their keyring.
-- `.github/workflows/rerun-test-weakening.yml` re-runs `Test weakening` for a
-  pull request's head when the owner submits an approving review, or a comment
-  review with the marker, so the check reads it without a manual re-run. It
-  runs the default branch's guard and checks out nothing from the pull
-  request.
 - Turn on Dependabot alerts, automated security fixes and private
   vulnerability reporting ([SECURITY.md](../SECURITY.md)).
 - Optional Actions secret `CLOUDFLARE_API_TOKEN` and variable
