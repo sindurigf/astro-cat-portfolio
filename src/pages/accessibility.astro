@@ -204,10 +204,11 @@ const HAS_TALK = (await getCollection('talks')).length > 0;
             a cat also naps after 30 seconds on screen. SC 2.3.3 Animation from
             Interactions (AAA): under{' '}
             <code>prefers-reduced-motion: reduce</code>, the field is drawn once
-            and held, and the cats sit still on the brick under them with no
-            controls. A pressed button does not move, and the photo strip
-            scrolls without smooth scrolling. Let It Fall in the footer moves
-            the page at once, without animation. Nothing else animates.
+            and held. Under the same setting, the cats sit still on the brick
+            under them with no controls. A pressed button does not move, and the
+            photo strip scrolls without smooth scrolling. Let It Fall in the
+            footer moves the page at once, without animation. Nothing else
+            animates.
           </p>
           <p>
             You can pause the moving pictures. If your device asks for less
@@ -246,9 +247,9 @@ const HAS_TALK = (await getCollection('talks')).length > 0;
             15px scrollbar, no page scrolls sideways. No heading word is wider
             than its box, and no text or control sits past either edge. No
             sideways scroll at 640, 768, 1024, 1280 and 1920px either. SC 1.4.12
-            Text Spacing (AA): with the criterion's own override (line height
-            1.5, letters 0.12em, words 0.16em, paragraphs 2em) at 305px, no page
-            scrolls sideways and table cells keep their text.
+            Text Spacing (AA): the criterion's own override sets line height
+            1.5, letters 0.12em, words 0.16em and paragraphs 2em. With it at
+            305px, no page scrolls sideways and table cells keep their text.
           </p>
           <p>
             At 400% zoom you can read each page top to bottom without scrolling
@@ -267,12 +268,12 @@ const HAS_TALK = (await getCollection('talks')).length > 0;
           <h3>Line Length and Spacing</h3>
           <p>
             SC 1.4.8 Visual Presentation (AAA), in part. On every page at 390,
-            1280 and 1920px, every visible paragraph or list item of two or more
-            sentences has at most 80 characters a line, a line height of at
-            least 1.5, and no justified text. A paragraph directly after another
-            starts at least 2.5 times the text size below the top of the
-            previous one's last line. Readers can choose colors through the
-            browser and the light or dark switch.
+            1280 and 1920px, this applies to every visible paragraph or list
+            item of two or more sentences. Each has at most 80 characters a
+            line, a line height of at least 1.5, and no justified text. A
+            paragraph directly after another starts at least 2.5 times the text
+            size below the top of the previous one's last line. Readers can
+            choose colors through the browser and the light or dark switch.
           </p>
           <p>
             Paragraphs are kept narrow, with room between lines and between
@@ -290,9 +291,9 @@ const HAS_TALK = (await getCollection('talks')).length > 0;
           <p>
             Forced colors (<code>forced-colors: active</code>), emulated in
             Chromium and Firefox. On every page, with listings sampled, every
-            control other than a link keeps a painted edge or an opaque fill,
-            and links differ from body text. Every focus stop on the homepage
-            keeps an outline, and the menu button's bars take{' '}
+            control other than a link keeps a painted edge or an opaque fill. On
+            the same pages, links differ from body text. Every focus stop on the
+            homepage keeps an outline, and the menu button's bars take{' '}
             <code>ButtonText</code>. On the brand page each named color swatch
             keeps its color, since the color is its content, edged in{' '}
             <code>CanvasText</code>. This supports SC 1.4.11 and 2.4.7 under
@@ -340,13 +341,13 @@ const HAS_TALK = (await getCollection('talks')).length > 0;
           <p>
             SC 1.4.11 Non-text Contrast (AA). On every page, in dark and light
             mode, at 390 and 1280px, every drawn edge reaches 3:1 against the
-            ground it sits on, unless the element's own opaque fill already
-            does. A gold fill's edge also reaches 3:1 against the fill. Cards
-            are gold or light blocks whose fill or 4px ink edge reaches 3:1
-            against the page; forced colors keep the edge. Every{' '}
-            <dfn>focus ring</dfn>, the outline on the control you are on,
-            reaches 3:1 against the ground it paints over, on every page with
-            listings sampled.
+            ground it sits on. This is not required when the element's own
+            opaque fill already reaches 3:1 against that ground. A gold fill's
+            edge also reaches 3:1 against the fill. Cards are gold or light
+            blocks whose fill or 4px ink edge reaches 3:1 against the page;
+            forced colors keep the edge. Every <dfn>focus ring</dfn>, the
+            outline on the control you are on, reaches 3:1 against the ground it
+            paints over, on every page with listings sampled.
           </p>
           <p>
             Buttons and fields have outlines that stand out clearly from the
@@ -384,11 +385,12 @@ const HAS_TALK = (await getCollection('talks')).length > 0;
                 SC 3.3.2 Labels or Instructions (A): each field has a visible
                 label with "(required)" in words. SC 1.3.5 Identify Input
                 Purpose (AA): <code>autocomplete</code> on name and email. SC
-                3.3.1 Error Identification (A): on a 422 or 503, the server
-                returns the form with a focused error summary linking to each
-                field, <code>aria-invalid</code> on the field, and each error
-                tied to its field. Typed text is kept. SC 4.1.3 Status Messages
-                (AA): a <code>role="status"</code> message while sending.
+                3.3.1 Error Identification (A): on a 422 or 503, the form comes
+                back with a focused error summary linking to each field in
+                error. Each of those fields has <code>aria-invalid</code> and
+                its error tied to it. Typed text is kept. SC 4.1.3 Status
+                Messages (AA): a <code>role="status"</code> message while
+                sending.
               </p>
               <p>
                 Every field has a written label. If sending fails, you see what
@@ -414,9 +416,9 @@ const HAS_TALK = (await getCollection('talks')).length > 0;
               <p>
                 SC 1.4.10 Reflow: below 1024px the talk page drops the slide
                 controls. It shows every slide once, in order, as text that
-                reflows, with and without the 1.4.12 override at 305px, and
-                links the PDF with its size. The PDF passes veraPDF's machine
-                checks for PDF/
+                reflows, with and without the 1.4.12 override at 305px. The page
+                also links the PDF with its size. The PDF passes veraPDF's
+                machine checks for PDF/
                 <Abbr
                   short="UA-1"
                   long="Universal Accessibility, part 1"
@@ -503,10 +505,10 @@ const HAS_TALK = (await getCollection('talks')).length > 0;
 
           <h3>Keyboard Use, Not Only Reach</h3>
           <p>
-            The tab walk proves every control is reached and visible. Pressing
-            each control with Enter or Space is tested only for the menu, skip
-            link, slides, cat buttons, theme switch, hero pause control, photo
-            viewer and contact form.
+            The tab walk proves every control is reached and visible. Only some
+            controls are tested by pressing them with Enter or Space. They are
+            the menu, skip link, slides, cat buttons, theme switch, hero pause
+            control, photo viewer and contact form.
           </p>
           <p>
             Tests check that you can reach every control by keyboard, but not
@@ -520,9 +522,9 @@ const HAS_TALK = (await getCollection('talks')).length > 0;
 
           <h3>Plain Language</h3>
           <p>
-            Functional pages keep sentences to 25 words or fewer. On those
-            pages, jargon is defined at first use (SC 3.1.3 Unusual Words, AAA),
-            and each abbreviation's expansion opens on tap or focus (SC 3.1.4
+            Functional pages aim for sentences of 25 words or fewer. On those
+            pages, jargon is defined at first use (SC 3.1.3 Unusual Words, AAA).
+            There, each abbreviation's expansion opens on tap or focus (SC 3.1.4
             Abbreviations, AAA). Both apply to listed terms only. SC 3.1.5
             Reading Level is not claimed, and no reader has checked the pages.
           </p>
@@ -545,9 +547,10 @@ const HAS_TALK = (await getCollection('talks')).length > 0;
           <h3>Gold Sections</h3>
           <p>
             The gold sections are measured at 1280px in dark mode. Every string
-            on gold reaches 4.5:1 or more, every control's fill or edge stands
-            apart from gold, and the <code>/contact</code> button's ring reaches
-            3:1 at 305px. Nobody has tabbed through, zoomed or looked at them.
+            on gold reaches 4.5:1 or more, and every control's fill or edge
+            stands apart from gold. The <code>/contact</code> button's ring
+            reaches 3:1 at 305px. Nobody has tabbed through, zoomed or looked at
+            them.
           </p>
           <p>
             The gold sections have been measured by software, but not yet
@@ -671,12 +674,12 @@ const HAS_TALK = (await getCollection('talks')).length > 0;
 
           <h3>Keyboard Order and Focus Ring</h3>
           <p>
-            SC 2.4.13 Focus Appearance (AAA) and 1.4.11. On every page, with
-            category and tag listings sampled to one per group showing the same
-            posts, at 305 and 1280px, every stop's 4px solid ring covers at
-            least a 2px perimeter. It reaches 3:1 against the ground it paints
-            over. The ring is offset past the control's shadow, at rest and
-            hovered.
+            SC 2.4.13 Focus Appearance (AAA) and 1.4.11. Every page is checked
+            at 305 and 1280px, with category and tag listings sampled to one per
+            group showing the same posts. On each, every stop's 4px solid ring
+            covers at least a 2px perimeter. It reaches 3:1 against the ground
+            it paints over. The ring is offset past the control's shadow, at
+            rest and hovered.
           </p>
           <p>
             When you use the Tab key, a thick outline shows where you are, and

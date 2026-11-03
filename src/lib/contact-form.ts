@@ -73,19 +73,24 @@ const readField = (form: FormData, key: string): string => {
 /* Code points: `length` counts most emoji as two. */
 const characters = (value: string): number => [...value].length;
 
+/** A count in US style, like 5,000, for every limit shown to a visitor. */
+export const formatCount = (count: number): string =>
+  count.toLocaleString('en-US');
+
 /* Each is read alone by a screen reader after the error summary. */
 export const MESSAGES = {
   nameMissing: 'Enter a name. Anything you want to be called is fine.',
-  nameLong: `Use ${LIMITS.nameMax} characters or fewer for the name.`,
+  nameLong: `Use ${formatCount(LIMITS.nameMax)} characters or fewer for the name.`,
   emailMissing: 'Enter an email address so there is a way to reply.',
   emailShape:
-    'Enter an email address in the correct format, like name@example.com',
+    'Enter an email address in the correct format, like name@example.com.',
   emailExtra:
     'Enter one email address on its own, like name@example.com. Remove any spaces, brackets, commas or names.',
-  emailLong: `Use ${LIMITS.emailMax} characters or fewer for the email address.`,
+  emailLong: `Use ${formatCount(LIMITS.emailMax)} characters or fewer for the email address.`,
   bodyMissing: 'Write a message.',
-  bodyShort: `Write a message of at least ${LIMITS.bodyMin} characters.`,
-  bodyLong: `Shorten the message to ${LIMITS.bodyMax} characters or fewer. For anything longer, send an email instead.`,
+  bodyShort: `Write a message of at least ${formatCount(LIMITS.bodyMin)} characters.`,
+  bodyLong: `Shorten the message to ${formatCount(LIMITS.bodyMax)} characters or fewer. For anything longer, send an email instead.`,
+  bodyTooLarge: `It was not kept. Send a message of ${formatCount(LIMITS.bodyMax)} characters or fewer, or email it instead.`,
 } as const;
 
 /** What was typed, trimmed and unchecked, for refilling the form. */

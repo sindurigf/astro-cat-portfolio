@@ -50,8 +50,8 @@
 
   /*
    * A failed photo fades out and the message reads on `background` (15.28),
-   * never over the photo. `loading` draws nothing: the previous photo stays
-   * while the count says "Loading".
+   * never over the photo. `loading` draws nothing: during a step the previous
+   * photo stays while the count says "Loading".
    */
   .photo-viewer-figure[data-state='failed'] img {
     @apply opacity-0;
