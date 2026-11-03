@@ -141,10 +141,10 @@ view (development server only, never published), and forks.
   group in a popover below `md`, and from `md` it is in the Theme menu. Escape closes the popover and returns focus to its
   button, a press outside or Tab out closes it, and it slides away while a
   control in the page has keyboard focus (SC 2.4.11). A step that would scroll
-  the page sideways is taken back and announced (SC 1.4.10), so on a 320px
-  screen some pages stop below 200 percent, where a long word in their text
-  outgrows the column. The breadcrumb, chips, post card labels and footer links
-  break inside a word instead, so they never cause the stop. The browser's own
+  the page sideways is taken back and announced (SC 1.4.10), so some pages at
+  some widths stop below 200 percent, where a long word or a control outgrows
+  its column. The breadcrumb, chips, post card labels and footer links break
+  inside a word instead, so they never cause the stop. The browser's own
   zoom and text-only zoom still work (SC 1.4.4). `tests/reading-tab.spec.ts`.
 - **Target size.** A 44px square centered on every target outside a sentence
   hits only that target, at 305px and 1280px, on every page (listings sampled
