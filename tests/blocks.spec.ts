@@ -144,7 +144,9 @@ for (const colorScheme of ['dark', 'light'] as const) {
         const links = page.locator(
           `${BLOCK} a[href]:not([class*='btn-']):visible`,
         );
-        const count = Math.min(await links.count(), LINKS_PER_PAGE);
+        const found = await links.count();
+        expect(found, `${route} has no link in a block`).toBeGreaterThan(0);
+        const count = Math.min(found, LINKS_PER_PAGE);
         for (let i = 0; i < count; i += 1) {
           const link = links.nth(i);
           await link.scrollIntoViewIfNeeded();
