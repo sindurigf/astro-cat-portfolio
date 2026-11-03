@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { expect, test, type Page } from './test';
 import { defined } from '../src/lib/defined';
 import { gotoSettled, setViewportSettled } from './settle';
-import { NODE } from './tags';
+import { NO_WEBKIT, NODE, WEBKIT_ONLY } from './tags';
 
 /*
  * SC 1.4.4: 2x must be reachable "in some way", not at 200% zoom
@@ -120,51 +120,105 @@ for (const { width, height } of WINDOWS) {
   });
 }
 
-for (const { width, height } of WINDOWS) {
-  test(`every viewport text token reaches 2x by page zoom at ${width}px`, async ({
-    page,
-    browserName,
-  }, testInfo) => {
-    const levels = ZOOM_LEVELS[browserName as keyof typeof ZOOM_LEVELS];
+/* Safari stops at 300%, short of what these tokens need at each width. */
+const WEBKIT_SHORTFALL: Record<(typeof WINDOWS)[number]['width'], string[]> = {
+  390: ['--text-slide-number'],
+  1000: [
+    '--text-deck-cover',
+    '--text-quote-mark',
+    '--text-slide-title',
+    '--text-slide-title-page',
+    '--text-slide-number',
+    '--text-menu',
+  ],
+  1280: [
+    '--text-deck-cover',
+    '--text-quote-mark',
+    '--text-display',
+    '--text-standfirst',
+    '--text-slide-title',
+    '--text-slide-number',
+    '--text-menu',
+  ],
+  1920: [
+    '--text-quote-mark',
+    '--text-display',
+    '--text-standfirst',
+    '--text-slide',
+    '--text-slide-title',
+    '--text-slide-h3',
+    '--text-slide-number',
+    '--text-hero-sticker',
+  ],
+};
 
-    await setViewportSettled(page, { width, height });
-    await gotoSettled(page, '/');
-    const base = await tokenSizes(page);
+/** Tokens that never reach 2x by the engine's highest page zoom; the full report goes in an annotation. */
+const zoomShortfall = async (
+  page: Page,
+  { width, height }: { width: number; height: number },
+  levels: readonly number[],
+  annotations: { type: string; description?: string }[],
+): Promise<string[]> => {
+  await setViewportSettled(page, { width, height });
+  await gotoSettled(page, '/');
+  const base = await tokenSizes(page);
 
-    const lowest: (number | null)[] = base.map(() => null);
-    for (const zoom of levels) {
-      await setViewportSettled(page, {
-        width: Math.round(width / zoom),
-        height: Math.round(height / zoom),
-      });
-      const zoomed = await tokenSizes(page);
-      zoomed.forEach((size, i) => {
-        const before = base[i];
-        if (
-          before !== undefined &&
-          lowest[i] === null &&
-          size * zoom >= TARGET_SCALE * before - ROUNDING_TOLERANCE
-        ) {
-          lowest[i] = zoom;
-        }
-      });
-    }
-
-    const report = VIEWPORT_TEXT_TOKENS.map((token, i) => {
-      const level = lowest[i] ?? null;
-      return `${token}: ${base[i]}px, 2x at ${level === null ? 'none' : `${Math.round(level * 100)}%`}`;
+  const lowest: (number | null)[] = base.map(() => null);
+  for (const zoom of levels) {
+    await setViewportSettled(page, {
+      width: Math.round(width / zoom),
+      height: Math.round(height / zoom),
     });
-    testInfo.annotations.push({
-      type: 'lowest zoom reaching 2x',
-      description: report.join('; '),
+    const zoomed = await tokenSizes(page);
+    zoomed.forEach((size, i) => {
+      const before = base[i];
+      if (
+        before !== undefined &&
+        lowest[i] === null &&
+        size * zoom >= TARGET_SCALE * before - ROUNDING_TOLERANCE
+      ) {
+        lowest[i] = zoom;
+      }
     });
+  }
 
-    /* Safari stops at 300%, short of what some tokens need; recorded, not asserted. */
-    if (browserName === 'webkit') return;
-
-    expect(
-      report.filter((line) => line.endsWith('none')),
-      `text that never reaches 2x by ${Math.round(Math.max(...levels) * 100)}% zoom at ${width}px`,
-    ).toEqual([]);
+  const report = VIEWPORT_TEXT_TOKENS.map((token, i) => {
+    const level = lowest[i] ?? null;
+    return `${token}: ${base[i]}px, 2x at ${level === null ? 'none' : `${Math.round(level * 100)}%`}`;
   });
+  annotations.push({
+    type: 'lowest zoom reaching 2x',
+    description: report.join('; '),
+  });
+  return VIEWPORT_TEXT_TOKENS.filter((_, i) => lowest[i] === null);
+};
+
+for (const window of WINDOWS) {
+  test(
+    `every viewport text token reaches 2x by page zoom at ${window.width}px`,
+    NO_WEBKIT,
+    async ({ page, browserName }, testInfo) => {
+      const levels = ZOOM_LEVELS[browserName as keyof typeof ZOOM_LEVELS];
+      expect(
+        await zoomShortfall(page, window, levels, testInfo.annotations),
+        `text that never reaches 2x by ${Math.round(Math.max(...levels) * 100)}% zoom at ${window.width}px`,
+      ).toEqual([]);
+    },
+  );
+
+  test(
+    `WebKit falls short of 2x by 300% zoom only for its known tokens at ${window.width}px`,
+    WEBKIT_ONLY,
+    async ({ page }, testInfo) => {
+      expect(
+        await zoomShortfall(
+          page,
+          window,
+          ZOOM_LEVELS.webkit,
+          testInfo.annotations,
+        ),
+        'WebKit now reaches 2x for a different set of tokens; update WEBKIT_SHORTFALL and ACCESSIBILITY.md',
+      ).toEqual(WEBKIT_SHORTFALL[window.width]);
+    },
+  );
 }

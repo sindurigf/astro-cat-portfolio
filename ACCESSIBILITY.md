@@ -222,7 +222,7 @@ compared to the default 100% zoom".
   ceiling; the spec's annotation names them.
 - **Safari:** its Page Zoom list stops at 300% on macOS and iOS, not
   confirmed from an Apple or WebKit source. The spec runs WebKit up to 300%
-  and records which tokens reach 2x there without failing. Others reach 2x in
+  and pins which tokens fall short of 2x there, failing if that changes. Others reach 2x in
   Safari only through system magnification (Zoom on macOS and iOS); the site
   does not use Dynamic Type (`-apple-system-body`). Known limit.
 - **Text-only zoom:** Firefox "Zoom Text Only" scales the `rem` parts only,
@@ -361,9 +361,9 @@ Limits:
 - Some checks run in fewer engines, by tag (`tests/tags.ts`): forced colors
   not in WebKit; touch and sized full screen not in Firefox; the contact server
   error pages, layout shift, `@engine-invariant` specs and the WAVE alerts in
-  Chromium only; `tests/text-resize.spec.ts` records
-  WebKit without asserting. Specs tagged `@node` read the build with no
-  browser.
+  Chromium only. WebKit's page zoom stops at 300%, so
+  `tests/text-resize.spec.ts` pins the tokens it leaves short of 2x and fails
+  when that list changes. Specs tagged `@node` read the build with no browser.
 - `tests/contact.spec.ts` needs the Worker and runs in Chromium only
   (`playwright.worker.config.ts`). Specs tagged `@node` read the build with no
   browser.
