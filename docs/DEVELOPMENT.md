@@ -67,7 +67,7 @@ What happens without the `CONTACT_NOTIFY_TO` secret:
 | `npm run test:a11y`            | Playwright suite in Chromium and Firefox; CI adds WebKit                                                                                                  |
 | `npm run test:webkit`          | The same suite in WebKit, in Playwright's Docker image                                                                                                    |
 | `npm run test:a11y:ui`         | The same suite in Playwright's UI mode                                                                                                                    |
-| `npm run test:worker`          | Worker specs, local D1: contact endpoint, byte ranges, types, /blog pager                                                                                 |
+| `npm run test:worker`          | Worker specs, local D1: contact endpoint, byte ranges, types, /blog pager, failed sweeps and missing bindings                                             |
 | `npm run test:demo`            | Demo specs against a `NOINDEX` demo build                                                                                                                 |
 | `npm run test:coverage`        | `test:a11y` in Chromium, with line and branch coverage of `src/`                                                                                          |
 | `npm run check:live`           | Production headers and markup against this repository                                                                                                     |
