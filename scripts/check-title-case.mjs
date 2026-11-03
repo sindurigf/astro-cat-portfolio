@@ -6,15 +6,16 @@
  * The site name and short name in src/site.config.ts are exempt, in their own case.
  */
 import { fileURLToPath } from 'node:url';
-import { existsSync } from 'node:fs';
 import { glob, readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { assertBuildCurrent } from './build-fingerprint.mjs';
 import { visibleMarkup } from './visible-markup.mjs';
 import { titleCaseMiss } from '../src/lib/labels.ts';
 import { SITE_CONFIG } from '../src/site.config.ts';
+import { TITLE_CASE_ALLOWED as ALLOWED } from './check-allow-lists.mjs';
 
-const ROOT = fileURLToPath(new URL('..', import.meta.url));
+const ROOT =
+  process.env.CHECK_ROOT ?? fileURLToPath(new URL('..', import.meta.url));
 const DIST = join(ROOT, 'dist/client');
 
 const HEADING = /<h([1-6])\b[^>]*>([\s\S]*?)<\/h\1>/g;
@@ -43,12 +44,6 @@ const BRAND_TOKENS = new Set([
   SITE_CONFIG.site.name,
   SITE_CONFIG.site.shortName,
 ]);
-
-/*
- * Each entry names why the text stays as written. An entry that no longer
- * matches fails.
- */
-const ALLOWED = [];
 
 const ENTITIES = {
   '&nbsp;': ' ',
@@ -80,15 +75,7 @@ const routeOf = (file) =>
     .replace(/\/index\.html$/, '/');
 
 const run = async () => {
-  if (!existsSync(DIST)) {
-    console.error(
-      'Title case: dist/client does not exist. Run `npm run build` first; ' +
-        'this check reads the build output.',
-    );
-    process.exit(1);
-  }
-
-  await assertBuildCurrent('Title case');
+  await assertBuildCurrent('Title case', DIST);
 
   const misses = [];
   const used = new Set();
@@ -134,7 +121,7 @@ const run = async () => {
   for (const { route, kind, text } of stale) {
     console.error(
       `Title case: ALLOWED entry ${kind} "${text}" on ${route} no longer ` +
-        'matches; remove it from ALLOWED.',
+        'matches; remove it from TITLE_CASE_ALLOWED in scripts/check-allow-lists.mjs.',
     );
   }
 

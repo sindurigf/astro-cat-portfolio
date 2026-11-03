@@ -538,7 +538,7 @@ with a comment beside it.
   lines take `text`. A block,
   the header bar included: `block-ink`, 4px. Inside gold: `gold-border` (ink). A
   gold or light fill: `fill-edge` (ink). Light mode: ink everywhere.
-  `tests/edges.spec.ts` asserts each in both modes.
+  `tests/edges.spec.ts` asserts each reaches 3:1 in both modes.
 - Shadows are hard offsets, no blur. Gold casts none (gold on gold is 1.00).
 - A tilted box with a drawn edge clips its fill to the padding box when the
   edge and fill differ, or the fill shows outside the softened edge as a
