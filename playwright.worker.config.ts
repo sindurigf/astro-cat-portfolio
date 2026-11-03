@@ -1,5 +1,6 @@
 import { defineConfig } from '@playwright/test';
 import { assertPortFree, TEST_WORKER_PORT } from './tests/ports';
+import { INACTIVE_FEATURE_TAGS } from './tests/feature-tags';
 
 /*
  * Specs that need the Worker, served by `astro preview` with local D1 and rate
@@ -10,6 +11,9 @@ import { assertPortFree, TEST_WORKER_PORT } from './tests/ports';
 const PORT = TEST_WORKER_PORT;
 
 assertPortFree(PORT, 'TEST_WORKER_PORT');
+
+/* Both configs report through it, so a skipped test fails the run. */
+export const NO_SKIPS = './tests/reporters/no-skips.ts';
 
 /* playwright.config.ts ignores exactly these. */
 export const WORKER_SPECS = [
@@ -43,13 +47,20 @@ export default defineConfig({
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 1 : 0,
   workers: 1,
-  reporter: process.env.CI ? [['github'], ['list']] : [['list']],
+  reporter: process.env.CI
+    ? [['github'], ['list'], [NO_SKIPS]]
+    : [['list'], [NO_SKIPS]],
 
   use: {
     baseURL: BASE_URL,
   },
 
-  projects: [{ name: 'worker' }],
+  projects: [
+    {
+      name: 'worker',
+      grepInvert: new RegExp(INACTIVE_FEATURE_TAGS.join('|')),
+    },
+  ],
 
   webServer: {
     /*

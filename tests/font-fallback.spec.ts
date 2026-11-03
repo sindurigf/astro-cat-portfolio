@@ -4,7 +4,7 @@ import { expect, test } from './test';
 import { fontsSettled, gotoSettled, usesWebFont } from './settle';
 import { LAYOUT_SHIFT, layoutShiftOf } from './layout-shift';
 import { DIST_DIR, ROUTES } from './routes';
-import { NODE } from './tags';
+import { CHROMIUM_ONLY, NODE } from './tags';
 import { metricsOf } from '../scripts/font-fallback-metrics.mjs';
 
 const WEB_FAMILY = 'Lexend Variable';
@@ -142,11 +142,7 @@ test('settling the fonts fails when Lexend does not load', async ({ page }) => {
   ).rejects.toThrow(/failed to load/);
 });
 
-test.describe('a font that arrives after first paint', () => {
-  test.skip(
-    ({ browserName }) => browserName !== 'chromium',
-    'layout-shift is Chromium-only',
-  );
+test.describe('a font that arrives after first paint', CHROMIUM_ONLY, () => {
   test.use({ viewport: PHONE });
 
   for (const route of ROUTES) {

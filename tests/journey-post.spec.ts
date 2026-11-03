@@ -6,9 +6,10 @@ import {
   postFrontmatter,
   PUBLISHED_POST_ROUTES,
 } from './routes';
-import { NODE } from './tags';
+import { NODE, tagged } from './tags';
 import { SITE_CONFIG, validateSiteConfig } from '../src/site.config';
 import { JOURNEY_POST } from '../src/lib/site';
+import { WITHOUT_JOURNEY_POST, WITH_JOURNEY_POST } from './feature-tags';
 
 /** `journeyPost` in src/site.config.ts: the close row of these pages links it, or nothing in its place. */
 
@@ -49,9 +50,7 @@ const closeRow = (html: string, route: string) => {
   };
 };
 
-test.describe('the journey post, set', NODE, () => {
-  test.skip(JOURNEY_POST === null, 'journeyPost is null in src/site.config.ts');
-
+test.describe('the journey post, set', tagged(NODE, WITH_JOURNEY_POST), () => {
   test('journeyPost names a published post', () => {
     expect(PUBLISHED_POST_ROUTES).toContain(`/blog/${JOURNEY_POST}`);
   });
@@ -71,26 +70,29 @@ test.describe('the journey post, set', NODE, () => {
   });
 });
 
-test.describe('the journey post, unset', NODE, () => {
-  test.skip(JOURNEY_POST !== null, 'journeyPost is set in src/site.config.ts');
-
-  test('each page ends on its next page alone, with no post link or reading prompt', () => {
-    const pages = builtHtml();
-    for (const route of JOURNEY_ROUTES) {
-      const html = pages.get(route) ?? '';
-      const { eyebrow, links } = closeRow(html, route);
-      expect(eyebrow, `${route} close row eyebrow`).toBe('Next');
-      expect(links, `${route} close row links`).toHaveLength(1);
-      expect(
-        links[0]?.href,
-        `${route} close row links a post with no journey post set`,
-      ).not.toMatch(/^\/blog\//);
-      expect(html, `${route} still prompts to continue reading`).not.toContain(
-        'Continue Reading',
-      );
-    }
-  });
-});
+test.describe(
+  'the journey post, unset',
+  tagged(NODE, WITHOUT_JOURNEY_POST),
+  () => {
+    test('each page ends on its next page alone, with no post link or reading prompt', () => {
+      const pages = builtHtml();
+      for (const route of JOURNEY_ROUTES) {
+        const html = pages.get(route) ?? '';
+        const { eyebrow, links } = closeRow(html, route);
+        expect(eyebrow, `${route} close row eyebrow`).toBe('Next');
+        expect(links, `${route} close row links`).toHaveLength(1);
+        expect(
+          links[0]?.href,
+          `${route} close row links a post with no journey post set`,
+        ).not.toMatch(/^\/blog\//);
+        expect(
+          html,
+          `${route} still prompts to continue reading`,
+        ).not.toContain('Continue Reading');
+      }
+    });
+  },
+);
 
 test('journeyPost must be null or a slug', NODE, () => {
   expect(() =>

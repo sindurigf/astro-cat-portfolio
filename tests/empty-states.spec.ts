@@ -74,27 +74,30 @@ test(
   },
 );
 
+const POST_SECTION = /what i write about|featured posts/i;
+const CATEGORY_LINK = /href="\/blog\/(?!tag\/|page\/)[a-z0-9-]+\/"/;
+
 test(
-  'with no published post, the homepage drops its post and category sections',
+  'the homepage shows its post and category sections only while a post is published',
   NODE,
   () => {
-    test.skip(
-      PUBLISHED_POST_ROUTES.length > 0,
-      'there is a published post, so both sections have items',
-    );
+    const published = PUBLISHED_POST_ROUTES.length > 0;
     const home = builtHtml().get('/') ?? '';
     expect(home, 'the homepage was not built').toContain('<main');
+    const headings = captures(home, /<h2\b[^>]*>([\s\S]*?)<\/h2>/g).map(
+      (text) => text.replace(/<[^>]*>/g, '').trim(),
+    );
     expect(
-      captures(home, /<h2\b[^>]*>([\s\S]*?)<\/h2>/g).map((text) =>
-        text.replace(/<[^>]*>/g, '').trim(),
-      ),
-    ).not.toEqual(
-      expect.arrayContaining([
-        expect.stringMatching(/what i write about|featured posts/i),
-      ]),
-    );
-    expect(home, 'the homepage links a category page').not.toMatch(
-      /href="\/blog\/(?!tag\/|page\/)[a-z0-9-]+\/"/,
-    );
+      headings.some((heading) => POST_SECTION.test(heading)),
+      published
+        ? 'a post is published, but the homepage has no post section'
+        : 'no post is published, but the homepage keeps a post section',
+    ).toBe(published);
+    expect(
+      CATEGORY_LINK.test(home),
+      published
+        ? 'a post is published, but the homepage links no category page'
+        : 'no post is published, but the homepage links a category page',
+    ).toBe(published);
   },
 );

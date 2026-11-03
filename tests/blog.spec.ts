@@ -14,10 +14,11 @@ import {
   TAG_ROUTES,
   NO_PUBLISHED_POST,
 } from './routes';
-import { pageCount } from '../src/lib/pagination';
+import { pageCount, POSTS_PER_PAGE } from '../src/lib/pagination';
 import { indexPageHref } from '../src/lib/paths';
 import { CARD_COVER_RATIO } from '../src/lib/image-densities';
 import { ENGINE_INVARIANT, NODE } from './tags';
+import { requireContent } from './content';
 
 const POST_COUNT = PUBLISHED_POST_ROUTES.length;
 const PAGE_COUNT = pageCount(POST_COUNT);
@@ -31,25 +32,30 @@ const cardHrefs = (page: Page): Promise<string[]> =>
     ),
   );
 
-test.describe('the blog index while every post fits on one page', () => {
-  test.skip(
-    PAGINATES,
-    'the index paginates; tests/blog-pages.spec.ts covers the pager',
-  );
-
-  test('lists every post exactly once, with no pager', async ({ page }) => {
+test.describe('the first page of the blog index', () => {
+  test('lists a full page of distinct posts, and a pager only when more follow', async ({
+    page,
+  }) => {
     await gotoSettled(page, '/blog');
 
     const hrefs = await cardHrefs(page);
+    const published = PUBLISHED_POST_ROUTES.map((route) => `${route}/`);
+    expect(new Set(hrefs).size, '/blog lists a post twice').toBe(hrefs.length);
     expect(
-      hrefs.sort(),
-      '/blog should list every post once while they fit on one page',
-    ).toEqual(PUBLISHED_POST_ROUTES.map((route) => `${route}/`).sort());
+      hrefs.filter((href) => !published.includes(href)),
+      '/blog lists a post that is not published',
+    ).toEqual([]);
+    expect(hrefs.length, '/blog does not fill its first page').toBe(
+      Math.min(POST_COUNT, POSTS_PER_PAGE),
+    );
 
+    /* tests/blog-pages.spec.ts walks the pager itself. */
     await expect(
       page.getByRole('navigation', { name: /pagination/i }),
-      'a pager with one page offers a single link to the page you are on',
-    ).toHaveCount(0);
+      PAGINATES
+        ? 'more posts follow, but /blog offers no pager'
+        : 'a pager with one page offers a single link to the page you are on',
+    ).toHaveCount(PAGINATES ? 1 : 0);
   });
 });
 
@@ -158,7 +164,7 @@ test.describe('the category filter', () => {
   test('a filter option is followed by pressing a key on it', async ({
     page,
   }) => {
-    test.skip(CATEGORY_ROUTES.length === 0, NO_PUBLISHED_POST);
+    requireContent(CATEGORY_ROUTES.length > 0, NO_PUBLISHED_POST);
     await gotoSettled(page, '/blog');
 
     const filter = page.getByRole('navigation', {
@@ -217,7 +223,7 @@ const TAGGED = POSTS.find((post) => post.published && post.tags.length > 0);
 
 test.describe('tag listings', () => {
   test("a post's tags are links to their listings", async ({ page }) => {
-    test.skip(!TAGGED, 'no published post has a tag');
+    requireContent(TAGGED, 'no published post has a tag');
     const { route, tags: declared } = TAGGED!;
     await gotoSettled(page, route);
 
@@ -248,7 +254,7 @@ test.describe('tag listings', () => {
   test('a tag listing marks no category filter option current', async ({
     page,
   }) => {
-    test.skip(TAG_ROUTES.length === 0, 'no published post has a tag');
+    requireContent(TAG_ROUTES.length > 0, 'no published post has a tag');
     await gotoSettled(page, itemAt(TAG_ROUTES, 0));
 
     await expect(

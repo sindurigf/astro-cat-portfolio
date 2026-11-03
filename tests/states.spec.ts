@@ -10,6 +10,7 @@ import {
   PUBLISHED_POST_ROUTES,
   ROUTES,
 } from './routes';
+import { requireContent } from './content';
 
 type Look = { paint: string; text: number | null };
 
@@ -73,8 +74,8 @@ const expectHoverReadsAndDiffers = async (
 
 const HOVERED_ON_MAIN = {
   'a linked card': async (page: Page) => {
-    test.skip(
-      PUBLISHED_POST_ROUTES.length < 2,
+    requireContent(
+      PUBLISHED_POST_ROUTES.length >= 2,
       'fewer than two published posts, so /blog has no card beside the feature',
     );
     await gotoSettled(page, '/blog/');
@@ -256,7 +257,7 @@ for (const scheme of ['dark', 'light'] as const) {
 test('a focused chip ring stays clear of the chips beside it', async ({
   page,
 }) => {
-  test.skip(CATEGORY_ROUTES.length === 0, NO_PUBLISHED_POST);
+  requireContent(CATEGORY_ROUTES.length > 0, NO_PUBLISHED_POST);
   await page.setViewportSize(DESKTOP_VIEWPORT);
   await gotoSettled(page, `${CATEGORY_ROUTES[0]}/`);
   const { count, overlaps } = await page.evaluate((tolerance) => {

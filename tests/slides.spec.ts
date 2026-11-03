@@ -4,6 +4,7 @@ import { expect, test } from './test';
 import { builtPages, DIST_DIR, PAIRED_TALKS } from './routes';
 import { NODE } from './tags';
 import { markLeadIns } from '../src/lib/slides';
+import { requireContent } from './content';
 
 /**
  * The format, size and page count beside the slides link are typed into
@@ -85,7 +86,7 @@ const slidesPageCount = (): number => {
 };
 
 test.describe('the talk slides', NODE, () => {
-  test.skip(!PAIRED, 'no post shares a deck name and links its PDF');
+  requireContent(PAIRED, 'no post shares a deck name and links its PDF');
 
   test('the linked PDF is actually in the build', () => {
     slidesParagraph();

@@ -1,6 +1,7 @@
 import { expect, test } from './test';
 import { BLOG_FEATURES_COVER, builtHtml, PHOTO_POST_ROUTES } from './routes';
 import { NODE } from './tags';
+import { requireContent } from './content';
 
 const PRIORITY = /<img\b[^>]*\bfetchpriority="high"[^>]*>/g;
 
@@ -26,8 +27,8 @@ test.describe('image priority', NODE, () => {
 
   test('the blog feature cover and a post’s first photo load eagerly and first', () => {
     const routes = [...BLOG_PHOTO_ROUTES, ...PHOTO_POST_ROUTES];
-    test.skip(
-      routes.length === 0,
+    requireContent(
+      routes.length > 0,
       'no feature cover and no post with a Markdown image',
     );
     const pages = builtHtml();

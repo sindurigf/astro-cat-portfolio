@@ -8,7 +8,6 @@ import {
   PLAUSIBLE_ENDPOINT,
   withoutQuery,
 } from '../src/lib/analytics';
-import { ANALYTICS_ON } from '../src/lib/analytics-site';
 import { CONTACT_EMAIL } from '../src/lib/contact';
 import { SOCIAL_PROFILES } from '../src/lib/profiles';
 import { captures } from './captures';
@@ -19,6 +18,8 @@ import { NODE } from './tags';
 import { configuredSite } from './source';
 import { fakeCollector, type PlausibleSend } from './plausible';
 import { REFLOW_VIEWPORT } from './wcag';
+import { WITHOUT_ANALYTICS, WITH_ANALYTICS } from './feature-tags';
+import { requireContent } from './content';
 
 /**
  * Plausible, held to what /privacy discloses (PAYLOAD_DISCLOSED, EVENT_DATA_DISCLOSED).
@@ -57,8 +58,6 @@ const PAGEVIEW = 'pageview';
 const ENGAGEMENT = 'engagement';
 
 const SEND_TIMEOUT_MS = 10_000;
-
-const ANALYTICS_OFF = 'analytics is off in src/site.config.ts';
 
 /* A post that links its talk's PDF: tests/slides.spec.ts. */
 const [PAIRED] = PAIRED_TALKS;
@@ -230,9 +229,7 @@ test.describe('analytics, either way', () => {
   });
 });
 
-test.describe('analytics off', () => {
-  test.skip(ANALYTICS_ON, 'analytics is on in src/site.config.ts');
-
+test.describe('analytics off', WITHOUT_ANALYTICS, () => {
   test('no page loads the tracker', NODE, () => {
     const loading = builtPages()
       .filter(({ file }) => trackersOn(readFileSync(file, 'utf8')).length > 0)
@@ -261,9 +258,7 @@ test.describe('analytics off', () => {
   });
 });
 
-test.describe('analytics', () => {
-  test.skip(!ANALYTICS_ON, ANALYTICS_OFF);
-
+test.describe('analytics', WITH_ANALYTICS, () => {
   test(
     'every page loads the bundled tracker once, from this origin',
     NODE,
@@ -460,7 +455,7 @@ test.describe('analytics', () => {
     });
 
     test('a download click is counted', async ({ page }) => {
-      test.skip(!PAIRED, 'no post links a talk PDF to download');
+      requireContent(PAIRED, 'no post links a talk PDF to download');
       const paired = defined(PAIRED, 'a post linking a talk PDF');
       const target = `${paired.talk}.pdf`;
       const sent = await openAsProduction(page, `${paired.post}/`);

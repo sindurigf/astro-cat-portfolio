@@ -9,7 +9,7 @@ import {
   DIST_DIR,
   TALK_ROUTES,
 } from './routes';
-import { NODE } from './tags';
+import { NODE, NO_WEBKIT } from './tags';
 import { DESKTOP_VIEWPORT, NARROW_WIDTH, PHONE_VIEWPORT } from './wcag';
 
 /**
@@ -35,8 +35,14 @@ const BLOCK_ROUTES = [
 ];
 /* A few links per page cover each block kind in reasonable time. */
 const LINKS_PER_PAGE = 6;
-/* /brand repeats real cards inside clipped half-width stages; the real pages carry the link walk. */
-const LINK_ROUTES = BLOCK_ROUTES.filter((route) => !route.startsWith('/brand'));
+/* Pages with text links inside blocks; /brand repeats real cards inside clipped stages. */
+const LINK_ROUTES = [
+  '/',
+  '/blog',
+  '/about',
+  '/career',
+  ...(CONTENTS_POST_ROUTE ? [CONTENTS_POST_ROUTE] : []),
+];
 const STEP_WIDTHS = [
   DESKTOP_VIEWPORT.width,
   PHONE_VIEWPORT.width,
@@ -133,20 +139,20 @@ for (const colorScheme of ['dark', 'light'] as const) {
           `${route} has a block edge under ${NON_TEXT}:1 or text under ${AAA_TEXT}:1`,
         ).toEqual([]);
       });
+    }
 
+    for (const route of LINK_ROUTES) {
       test(`${route}: links in blocks read through hover and focus, rings inside their block`, async ({
         page,
       }) => {
-        test.skip(
-          !LINK_ROUTES.includes(route),
-          'a /brand example; the real page walks its links',
-        );
         await gotoSettled(page, route);
         /* Buttons draw their own hover and focus; tests/states.spec.ts covers them. */
         const links = page.locator(
           `${BLOCK} a[href]:not([class*='btn-']):visible`,
         );
-        const count = Math.min(await links.count(), LINKS_PER_PAGE);
+        const found = await links.count();
+        expect(found, `${route} has no link in a block`).toBeGreaterThan(0);
+        const count = Math.min(found, LINKS_PER_PAGE);
         for (let i = 0; i < count; i += 1) {
           const link = links.nth(i);
           await link.scrollIntoViewIfNeeded();
@@ -225,11 +231,7 @@ test.describe('the Step', () => {
     });
   }
 
-  test('forced colors keep every block edge', async ({ page, browserName }) => {
-    test.skip(
-      browserName === 'webkit',
-      'WebKit reports forced colors but paints the author palette (tests/forced-colors.spec.ts)',
-    );
+  test('forced colors keep every block edge', NO_WEBKIT, async ({ page }) => {
     await page.emulateMedia({ forcedColors: 'active' });
     for (const route of ['/', '/blog', '/contact']) {
       await gotoSettled(page, route);

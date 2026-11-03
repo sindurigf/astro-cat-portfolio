@@ -21,9 +21,7 @@ import { NOTIFY_TO } from '../playwright.worker.config';
 import { request as httpRequest } from 'node:http';
 import { headersFor, parseHeadersFile } from './policy-server';
 import type { APIResponse } from '@playwright/test';
-import { CONTACT_FORM_ON } from '../src/lib/contact';
 
-const FORM_OFF = 'contact.form is none in src/site.config.ts';
 import { DAY_MS } from '../src/lib/time';
 import { wranglerConfig } from './source';
 import { getPlatformProxy } from 'wrangler';
@@ -33,6 +31,7 @@ import { obscuredReport, readObscured } from './obscured';
 import { settleFocusScroll, tabWalk } from './tab-walk';
 import { DESKTOP_VIEWPORT, REFLOW_VIEWPORT } from './wcag';
 import { setViewportSettled } from './settle';
+import { WITHOUT_CONTACT_FORM, WITH_CONTACT_FORM } from './feature-tags';
 
 /**
  * `/contact/send/`, the only on-demand route. Runs under
@@ -231,9 +230,7 @@ const sameOrigin = (baseURL: string) => ({
 /* Serial: the tests share the store and the rate limiter. */
 test.describe.configure({ mode: 'serial' });
 
-test.describe('with no contact form', () => {
-  test.skip(CONTACT_FORM_ON, 'contact.form is on in src/site.config.ts');
-
+test.describe('with no contact form', WITHOUT_CONTACT_FORM, () => {
   test('the send route answers 404 to a GET and a POST', async ({
     request,
     baseURL,
@@ -259,9 +256,7 @@ test.describe('with no contact form', () => {
   });
 });
 
-test.describe('the contact endpoint', () => {
-  test.skip(!CONTACT_FORM_ON, FORM_OFF);
-
+test.describe('the contact endpoint', WITH_CONTACT_FORM, () => {
   /* A killed 503 test strands the table its `finally` would have restored. */
   test.beforeAll(async () => {
     const stranded = (
@@ -910,9 +905,7 @@ test.describe('the contact endpoint', () => {
  * The error pages only exist as Worker responses, so the route scans never see
  * them. 422 and 503 cover both summaries; 429 shares the 503 one.
  */
-test.describe('the contact error pages in a browser', () => {
-  test.skip(!CONTACT_FORM_ON, FORM_OFF);
-
+test.describe('the contact error pages in a browser', WITH_CONTACT_FORM, () => {
   /* TEST-NET-3: its own rate-limit key, apart from the request tests above. */
   test.beforeEach(async ({ page }) => {
     await page.setExtraHTTPHeaders({ 'CF-Connecting-IP': '203.0.113.7' });

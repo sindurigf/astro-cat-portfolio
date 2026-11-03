@@ -222,7 +222,7 @@ compared to the default 100% zoom".
   ceiling; the spec's annotation names them.
 - **Safari:** its Page Zoom list stops at 300% on macOS and iOS, not
   confirmed from an Apple or WebKit source. The spec runs WebKit up to 300%
-  and records which tokens reach 2x there without failing. Others reach 2x in
+  and pins which tokens fall short of 2x there, failing if that changes. Others reach 2x in
   Safari only through system magnification (Zoom on macOS and iOS); the site
   does not use Dynamic Type (`-apple-system-body`). Known limit.
 - **Text-only zoom:** Firefox "Zoom Text Only" scales the `rem` parts only,
@@ -355,15 +355,16 @@ Limits:
 - `overflow-wrap: break-word` hides a heading floor that is too large: the
   heading breaks mid-word instead of overflowing. The heading word fit check
   covers this.
-- `tests/forced-colors.spec.ts` skips all but one test on WebKit, which
-  reports `forced-colors: active` and paints the author palette anyway. The
-  remaining test fails if that changes in any engine.
+- WebKit does not run `tests/forced-colors.spec.ts` beyond one test: it
+  reports `forced-colors: active` and paints the author palette anyway. That
+  test fails if this changes in any engine.
 - Headless WebKit is not Safari and says nothing about VoiceOver.
-- Some checks run in one engine: `tests/forced-colors.spec.ts` skips WebKit;
-  the contact server error pages, layout shift, `@engine-invariant` specs and
-  the WAVE alerts run in Chromium only; `tests/text-resize.spec.ts` records
-  WebKit without asserting. Specs tagged `@node` read the build with no
-  browser.
+- Some checks run in fewer engines, by tag (`tests/tags.ts`): forced colors
+  not in WebKit; touch and sized full screen not in Firefox; the contact server
+  error pages, layout shift, `@engine-invariant` specs and the WAVE alerts in
+  Chromium only. WebKit's page zoom stops at 300%, so
+  `tests/text-resize.spec.ts` pins the tokens it leaves short of 2x and fails
+  when that list changes. Specs tagged `@node` read the build with no browser.
 - `tests/contact.spec.ts` needs the Worker and runs in Chromium only
   (`playwright.worker.config.ts`). Specs tagged `@node` read the build with no
   browser.

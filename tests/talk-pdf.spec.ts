@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { expect, test } from './test';
-import { deckOf, TALK_ROUTES, TALKS_DIR } from './routes';
+import { deckOf, DIST_DIR, TALK_ROUTES, TALKS_DIR } from './routes';
 import { pdfPageCount } from '../scripts/pdf-pages.mjs';
 import { DECK_FILE, printedContent, splitDeck } from '../src/lib/slides';
 import { NODE } from './tags';
@@ -14,14 +14,26 @@ import { NODE } from './tags';
 
 const PDF_DIR = 'public/talks';
 
+/** A deck may ship without a PDF; its page must then offer none. */
+const expectNoPdfOffered = (route: string, deck: string): void => {
+  const html = readFileSync(join(DIST_DIR, route, 'index.html'), 'utf8');
+  expect(
+    html,
+    `${route} links /talks/${deck}.pdf, which does not exist`,
+  ).not.toContain(`href="/talks/${deck}.pdf"`);
+};
+
 test.describe('a talk PDF', NODE, () => {
   for (const route of TALK_ROUTES) {
     const deck = deckOf(route);
     const pdf = join(PDF_DIR, `${deck}.pdf`);
     const source = join(TALKS_DIR, deck, DECK_FILE);
 
-    test(`${pdf} is printed from ${source} as it stands`, () => {
-      test.skip(!existsSync(pdf), `${deck} has no PDF`);
+    test(`${pdf} is printed from ${source} as it stands, or is not offered`, () => {
+      if (!existsSync(pdf)) {
+        expectNoPdfOffered(route, deck);
+        return;
+      }
       const bytes = readFileSync(pdf, 'latin1');
       const stored = /\/SlidesSHA256\s*\(([0-9a-f]{64})\)/.exec(bytes)?.[1];
       expect(
@@ -38,8 +50,11 @@ test.describe('a talk PDF', NODE, () => {
       ).toBe(current);
     });
 
-    test(`${pdf} has one page for each slide of ${source}`, () => {
-      test.skip(!existsSync(pdf), `${deck} has no PDF`);
+    test(`${pdf} has one page for each slide of ${source}, or is not offered`, () => {
+      if (!existsSync(pdf)) {
+        expectNoPdfOffered(route, deck);
+        return;
+      }
       const bytes = readFileSync(pdf, 'latin1');
       const pages = pdfPageCount(bytes);
       const slides = splitDeck(readFileSync(source, 'utf8'), source).length;

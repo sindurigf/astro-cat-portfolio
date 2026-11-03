@@ -4,10 +4,8 @@ import { expect, test } from './test';
 import { defined } from '../src/lib/defined';
 import { builtHtml, DIST_DIR } from './routes';
 import { configuredSite } from './source';
-import { NODE } from './tags';
-import { CONTACT_FORM_ON } from '../src/lib/contact';
-
-const CONTACT_FORM_OFF = 'contact.form is none in src/site.config.ts';
+import { NODE, tagged } from './tags';
+import { WITH_CONTACT_FORM } from './feature-tags';
 
 /* Only the error page names no canonical: a canonical 404 claims the URL is a page. */
 const NO_CANONICAL = new Set(['/404']);
@@ -55,21 +53,24 @@ test('every redirect in public/_redirects lands on a built file', NODE, () => {
 });
 
 /* SC 1.3.5: axe checks an autocomplete value only when one is present. */
-test('the contact form names its personal fields for autofill', NODE, () => {
-  test.skip(!CONTACT_FORM_ON, CONTACT_FORM_OFF);
-  const form = builtHtml().get('/contact') ?? '';
-  for (const [field, token] of [
-    ['name', 'name'],
-    ['email', 'email'],
-  ]) {
-    expect(
-      new RegExp(
-        `<input\\b[^>]*name="${field}"[^>]*autocomplete="${token}"|<input\\b[^>]*autocomplete="${token}"[^>]*name="${field}"`,
-      ).test(form),
-      `the ${field} field has lost autocomplete="${token}"`,
-    ).toBe(true);
-  }
-});
+test(
+  'the contact form names its personal fields for autofill',
+  tagged(NODE, WITH_CONTACT_FORM),
+  () => {
+    const form = builtHtml().get('/contact') ?? '';
+    for (const [field, token] of [
+      ['name', 'name'],
+      ['email', 'email'],
+    ]) {
+      expect(
+        new RegExp(
+          `<input\\b[^>]*name="${field}"[^>]*autocomplete="${token}"|<input\\b[^>]*autocomplete="${token}"[^>]*name="${field}"`,
+        ).test(form),
+        `the ${field} field has lost autocomplete="${token}"`,
+      ).toBe(true);
+    }
+  },
+);
 
 /* Google Search Central (Discover): a large image preview needs max-image-preview:large. */
 test('every indexable page allows a large image preview', NODE, () => {

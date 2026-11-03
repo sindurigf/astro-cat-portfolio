@@ -1,7 +1,11 @@
 import { defineConfig, devices } from '@playwright/test';
 import { assertPortFree, TEST_WORKER_PORT } from './tests/ports';
 import { NODE_TAG } from './tests/tags';
-import { BUILD_AND_SERVE_TIMEOUT_MS } from './playwright.worker.config';
+import { FEATURES_ON, inactiveFeatureTags } from './tests/feature-tags';
+import {
+  BUILD_AND_SERVE_TIMEOUT_MS,
+  NO_SKIPS,
+} from './playwright.worker.config';
 
 /*
  * DEMO_SPECS against a build with the demo's variables, served by the Worker
@@ -27,6 +31,14 @@ export const DEMO_ENV = {
 
 const BASE_URL = `http://localhost:${PORT}`;
 const NODE_ONLY = new RegExp(NODE_TAG);
+/* The demo build turns the form off and sets a security contact. */
+const INACTIVE_IN_DEMO = new RegExp(
+  inactiveFeatureTags({
+    ...FEATURES_ON,
+    'contact-form': DEMO_ENV.CONTACT_FORM !== 'none',
+    'security-contact': Boolean(DEMO_ENV.SECURITY_CONTACT),
+  }).join('|'),
+);
 
 export default defineConfig({
   testDir: './tests',
@@ -34,15 +46,17 @@ export default defineConfig({
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 1 : 0,
   workers: 1,
-  reporter: process.env.CI ? [['github'], ['list']] : [['list']],
+  reporter: process.env.CI
+    ? [['github'], ['list'], [NO_SKIPS]]
+    : [['list'], [NO_SKIPS]],
 
   use: { baseURL: BASE_URL },
 
   projects: [
-    { name: 'node', grep: NODE_ONLY },
+    { name: 'node', grep: NODE_ONLY, grepInvert: INACTIVE_IN_DEMO },
     {
       name: 'chromium',
-      grepInvert: NODE_ONLY,
+      grepInvert: new RegExp(`${NODE_TAG}|${INACTIVE_IN_DEMO.source}`),
       use: { ...devices['Desktop Chrome'] },
     },
   ],

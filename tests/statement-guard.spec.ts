@@ -11,7 +11,7 @@ import { tmpdir } from 'node:os';
 import { delimiter, join } from 'node:path';
 import { expect, test } from './test';
 import { defined } from '../src/lib/defined';
-import { NODE } from './tags';
+import { NODE, tagged } from './tags';
 import {
   digest,
   staleStatementNotice,
@@ -20,6 +20,7 @@ import {
 } from '../src/lib/statement-guard';
 import { statementRow } from '../src/lib/statement-rows';
 import { staleStatementGuard } from '../scripts/stale-statement.mjs';
+import { WITH_TEMPLATE_STATEMENT } from './feature-tags';
 
 /*
  * Privacy: a fork that publishes the shipped ACCESSIBILITY.md sends its
@@ -122,90 +123,89 @@ test.describe('a statement with its rows replaced', NODE, () => {
   });
 });
 
-test.describe("the template maintainer's statement rows", NODE, () => {
-  test.skip(
-    templateStatementRows(STATEMENT).length === 0,
-    'ACCESSIBILITY.md names its own owner and reporting routes',
-  );
-
-  test('are all recognized as shipped', () => {
-    expect(templateStatementRows(STATEMENT)).toEqual(ROWS);
-  });
-
-  test('are named, each one left, on a real site with another repository', () => {
-    const site = { siteUrl: REAL_SITE, repositoryUrl: FORK_REPOSITORY };
-
-    const untouched = staleStatementNotice({ ...site, statement: STATEMENT });
-    for (const row of ROWS) {
-      expect(untouched, `the notice does not name ${row}.`).toContain(row);
-    }
-
-    const ownerReplaced = staleStatementNotice({
-      ...site,
-      statement: replacing(['Accessibility owner', 'Public reporting']),
+test.describe(
+  "the template maintainer's statement rows",
+  tagged(NODE, WITH_TEMPLATE_STATEMENT),
+  () => {
+    test('are all recognized as shipped', () => {
+      expect(templateStatementRows(STATEMENT)).toEqual(ROWS);
     });
-    expect(ownerReplaced).toContain('Private reporting');
-    expect(ownerReplaced).not.toContain('Accessibility owner');
-  });
 
-  test('are left alone on an example host', () => {
-    expect(
-      staleStatementNotice({
-        siteUrl: EXAMPLE_SITE,
-        repositoryUrl: FORK_REPOSITORY,
-        statement: STATEMENT,
-      }),
-      'a placeholder site was told its statement is stale.',
-    ).toBeNull();
-  });
+    test('are named, each one left, on a real site with another repository', () => {
+      const site = { siteUrl: REAL_SITE, repositoryUrl: FORK_REPOSITORY };
 
-  test("are left alone on the template's demo host with its repository, and nowhere else", () => {
-    const template = { ...TEMPLATE_STATEMENT, demoHost: digest(DEMO_HOST) };
-    const notice = (siteUrl: string, repositoryUrl: string) =>
-      staleStatementNotice(
-        { siteUrl, repositoryUrl, statement: STATEMENT },
-        template,
-      );
+      const untouched = staleStatementNotice({ ...site, statement: STATEMENT });
+      for (const row of ROWS) {
+        expect(untouched, `the notice does not name ${row}.`).toContain(row);
+      }
 
-    expect(
-      notice(`https://${DEMO_HOST}`, STATEMENT_REPOSITORY),
-      "the template's own demo was told its statement is stale.",
-    ).toBeNull();
-    expect(
-      notice(REAL_SITE, STATEMENT_REPOSITORY),
-      "another host passed as the template's demo by naming its repository.",
-    ).not.toBeNull();
-    expect(
-      notice(`https://${DEMO_HOST}`, FORK_REPOSITORY),
-      "the demo's host passed with another repository.",
-    ).not.toBeNull();
-  });
+      const ownerReplaced = staleStatementNotice({
+        ...site,
+        statement: replacing(['Accessibility owner', 'Public reporting']),
+      });
+      expect(ownerReplaced).toContain('Private reporting');
+      expect(ownerReplaced).not.toContain('Accessibility owner');
+    });
 
-  test('pass for no host but the recorded demo, even with the template repository', () => {
-    expect(
-      staleStatementNotice({
-        siteUrl: REAL_SITE,
-        repositoryUrl: STATEMENT_REPOSITORY,
-        statement: STATEMENT,
-      }),
-    ).not.toBeNull();
-  });
+    test('are left alone on an example host', () => {
+      expect(
+        staleStatementNotice({
+          siteUrl: EXAMPLE_SITE,
+          repositoryUrl: FORK_REPOSITORY,
+          statement: STATEMENT,
+        }),
+        'a placeholder site was told its statement is stale.',
+      ).toBeNull();
+    });
 
-  test('fail the build of a real site, naming each row, and not of a placeholder', () => {
-    const failure = buildFailure(REAL_SITE, STATEMENT_REPOSITORY);
-    for (const row of ROWS) {
-      expect(failure, `the build error does not name ${row}.`).toContain(row);
-    }
-    expect(buildFailure(EXAMPLE_SITE, FORK_REPOSITORY)).toBeNull();
-  });
+    test("are left alone on the template's demo host with its repository, and nowhere else", () => {
+      const template = { ...TEMPLATE_STATEMENT, demoHost: digest(DEMO_HOST) };
+      const notice = (siteUrl: string, repositoryUrl: string) =>
+        staleStatementNotice(
+          { siteUrl, repositoryUrl, statement: STATEMENT },
+          template,
+        );
 
-  test('stop the live check of a real site before it requests anything', () => {
-    const { status, stderr, requests } = runLiveCheck(STATEMENT_REPOSITORY);
+      expect(
+        notice(`https://${DEMO_HOST}`, STATEMENT_REPOSITORY),
+        "the template's own demo was told its statement is stale.",
+      ).toBeNull();
+      expect(
+        notice(REAL_SITE, STATEMENT_REPOSITORY),
+        "another host passed as the template's demo by naming its repository.",
+      ).not.toBeNull();
+      expect(
+        notice(`https://${DEMO_HOST}`, FORK_REPOSITORY),
+        "the demo's host passed with another repository.",
+      ).not.toBeNull();
+    });
 
-    for (const row of ROWS) {
-      expect(stderr, `the check does not name ${row}.`).toContain(row);
-    }
-    expect(status).toBe(CHECK_COULD_NOT_RUN);
-    expect(requests, 'the check fetched before stopping.').toBe('');
-  });
-});
+    test('pass for no host but the recorded demo, even with the template repository', () => {
+      expect(
+        staleStatementNotice({
+          siteUrl: REAL_SITE,
+          repositoryUrl: STATEMENT_REPOSITORY,
+          statement: STATEMENT,
+        }),
+      ).not.toBeNull();
+    });
+
+    test('fail the build of a real site, naming each row, and not of a placeholder', () => {
+      const failure = buildFailure(REAL_SITE, STATEMENT_REPOSITORY);
+      for (const row of ROWS) {
+        expect(failure, `the build error does not name ${row}.`).toContain(row);
+      }
+      expect(buildFailure(EXAMPLE_SITE, FORK_REPOSITORY)).toBeNull();
+    });
+
+    test('stop the live check of a real site before it requests anything', () => {
+      const { status, stderr, requests } = runLiveCheck(STATEMENT_REPOSITORY);
+
+      for (const row of ROWS) {
+        expect(stderr, `the check does not name ${row}.`).toContain(row);
+      }
+      expect(status).toBe(CHECK_COULD_NOT_RUN);
+      expect(requests, 'the check fetched before stopping.').toBe('');
+    });
+  },
+);
