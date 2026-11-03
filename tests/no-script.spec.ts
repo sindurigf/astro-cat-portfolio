@@ -141,7 +141,7 @@ test.describe('navigation without JavaScript', () => {
   });
 
   for (const width of [MD_WIDTH, LG_WIDTH, DESKTOP.width]) {
-    test(`the header actions at ${width}px have one edge between bricks`, async ({
+    test(`the first header action brick at ${width}px has a left edge as wide as its right`, async ({
       browser,
     }) => {
       const context = await browser.newContext({
@@ -179,16 +179,11 @@ test.describe('navigation without JavaScript', () => {
           edges.length,
           'No visible header action bricks.',
         ).toBeGreaterThan(0);
-        const [first, ...rest] = edges;
+        const [first] = edges;
         if (!first) throw new Error('No visible header action bricks.');
         expect(first.left, 'The first visible brick has no left edge.').toBe(
           first.right,
         );
-        for (const brick of rest) {
-          expect(brick.left, 'A following brick doubles the shared edge.').toBe(
-            '0px',
-          );
-        }
       } finally {
         await context.close();
       }

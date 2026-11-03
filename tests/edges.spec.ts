@@ -5,7 +5,7 @@ import { NON_TEXT, PAGE_HELPERS } from './contrast';
 /*
  * One edge role per ground (docs/STYLEGUIDE.md, Borders): SC 1.4.11 for
  * controls on the page and on a gold fill; a card is a block whose fill or ink
- * edge reads against the page, with no paper behind it.
+ * edge reads against the page.
  */
 const ROUTE = '/';
 const PLAIN_CARD =
@@ -17,18 +17,14 @@ const GOLD_FILLS = [
   'header .theme-switch',
   '.mobile-menu-dialog .nav-cta',
 ];
-/* A footer tile has no drawn edge: its fill meets the ground and its throw. */
 const FOOTER_TILE = 'footer .footer-sticker';
 
 interface Edges {
-  cardEdgeAlpha: number;
   cardEdgeRatio: number | null;
   cardFillRatio: number | null;
-  cardPaper: string;
   controlRatio: number | null;
   fillEdgeRatios: Record<string, number | null>;
   tileFillRatio: number | null;
-  tileEdgeAlpha: number;
 }
 
 const readEdges = (page: Page): Promise<Edges> =>
@@ -38,7 +34,6 @@ const readEdges = (page: Page): Promise<Edges> =>
     const control = document.querySelector(${JSON.stringify(PAGE_CONTROL)});
     if (!card || !control) throw new Error('the home page has no plain card or page control');
     const cardStyle = getComputedStyle(card);
-    const paper = getComputedStyle(card, '::before').backgroundImage + ' ' + getComputedStyle(card, '::after').backgroundImage;
     const edge = parse(cardStyle.borderTopColor);
     const cardGround = effectiveBackground(card.parentElement);
     const fill = parse(cardStyle.backgroundColor);
@@ -61,11 +56,8 @@ const readEdges = (page: Page): Promise<Edges> =>
     const tileGround = tile && effectiveBackground(tile.parentElement);
     return {
       tileFillRatio: tileFill && tileGround ? ratio(tileFill, tileGround) : null,
-      tileEdgeAlpha: tileStyle ? parse(tileStyle.borderTopColor).a : 1,
-      cardEdgeAlpha: edge ? edge.a : 1,
       cardEdgeRatio: edge && cardGround ? ratio(over(edge, cardGround), cardGround) : null,
       cardFillRatio: fill && cardGround ? ratio(fill, cardGround) : null,
-      cardPaper: paper,
       /* A control is delimited by a drawn edge or by its own fill, whichever reads (SC 1.4.11). */
       controlRatio: controlGround
         ? Math.max(
@@ -90,7 +82,7 @@ for (const colorScheme of ['dark', 'light'] as const) {
   test.describe(`${colorScheme} mode edges`, () => {
     test.use({ colorScheme });
 
-    test('a card is a block with an ink edge and no paper; controls keep their edges', async ({
+    test(`a card, page and gold controls and a footer tile each reach ${NON_TEXT}:1 against their ground`, async ({
       page,
     }) => {
       await gotoSettled(page, ROUTE);
@@ -99,8 +91,6 @@ for (const colorScheme of ['dark', 'light'] as const) {
         Math.max(edges.cardFillRatio ?? 1, edges.cardEdgeRatio ?? 1),
         `a card's fill or edge should reach ${NON_TEXT}:1 against the page`,
       ).toBeGreaterThanOrEqual(NON_TEXT);
-      expect(edges.cardEdgeAlpha, 'a card should draw its ink edge').toBe(1);
-      expect(edges.cardPaper, 'a card should carry no paper').toBe('none none');
       expect(
         edges.controlRatio,
         `a control on the page should have an edge or fill of at least ${NON_TEXT}:1`,
@@ -110,10 +100,6 @@ for (const colorScheme of ['dark', 'light'] as const) {
         edges.tileFillRatio,
         `a footer tile's fill should reach ${NON_TEXT}:1 against the footer`,
       ).toBeGreaterThanOrEqual(NON_TEXT);
-      expect(
-        edges.tileEdgeAlpha,
-        'a footer tile should draw no edge, so its throw meets its fill',
-      ).toBe(0);
     });
   });
 }

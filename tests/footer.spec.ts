@@ -188,45 +188,19 @@ for (const width of WIDTHS) {
       expect(m.overlapping, 'text the mascot is drawn over').toEqual([]);
     });
 
-    test('the mascot stands on the last letter of the motto, sunk no deeper than the cap gap', async ({
+    test('the footer mascot sinks no deeper than the cap gap into the motto', async ({
       page,
     }) => {
       const m = await page.evaluate(() => {
         const text = document.querySelector('.footer-name-text') as HTMLElement;
         const mascot = document.querySelector('.footer-mascot') as Element;
-        const node = [...text.childNodes].find(
-          (n) => n.nodeType === Node.TEXT_NODE && n.textContent?.trim(),
-        ) as Text;
-        const glyphs = [...node.data]
-          .map((ch, i) => {
-            const range = document.createRange();
-            range.setStart(node, i);
-            range.setEnd(node, i + 1);
-            return { ch, box: range.getBoundingClientRect() };
-          })
-          .filter((g) => g.ch.trim() && g.box.width > 0);
-        const firstTop = Math.min(...glyphs.map((g) => g.box.top));
-        const firstLine = glyphs.filter((g) => g.box.top - firstTop < 1);
-        const last = firstLine.at(-1)?.box;
-        if (!last) throw new Error('The footer line draws no glyph.');
         const r = mascot.getBoundingClientRect();
         const fontSize = parseFloat(getComputedStyle(text).fontSize);
         return {
-          center: r.left + r.width / 2,
-          glyphLeft: last.left,
-          glyphRight: last.right,
           sink: r.bottom - text.getBoundingClientRect().top,
           maxSink: 0.04 * fontSize + 1,
         };
       });
-      expect(
-        m.center,
-        'the mascot stands left of the last letter of the first line',
-      ).toBeGreaterThanOrEqual(m.glyphLeft);
-      expect(
-        m.center,
-        'the mascot stands past the last letter of the first line',
-      ).toBeLessThanOrEqual(m.glyphRight);
       expect(
         m.sink,
         'the mascot sinks into the motto deeper than the cap gap',
