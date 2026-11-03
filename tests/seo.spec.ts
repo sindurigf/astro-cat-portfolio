@@ -9,6 +9,7 @@ import { configuredSite, pngSize } from './source';
 import {
   postFrontmatter,
   builtHtml as builtHtmlByRoute,
+  CATEGORY_ROUTES,
   DIST_DIR,
   POST_ROUTES,
   PUBLISHED_POST_ROUTES,
@@ -504,20 +505,31 @@ test.describe(
     });
 
     // llms.txt lists placeholders on purpose, and is not HTML.
-    test('nothing links to a placeholder post', () => {
+    test('every built link to a post leads to a published post that is not a placeholder', () => {
       const placeholders = placeholderPosts();
-      const offered: string[] = [];
+      const offered = new Set(
+        PUBLISHED_POST_ROUTES.filter((route) => !placeholders.has(route)),
+      );
+      const listings = new Set(CATEGORY_ROUTES);
+      const postLinks: string[] = [];
+      const wrong: string[] = [];
 
       for (const [route, html] of builtHtmlByRoute()) {
         if (placeholders.has(route)) continue;
-        for (const placeholder of placeholders) {
-          if (html.includes(`href="${placeholder}/"`)) {
-            offered.push(`${route} links ${placeholder}`);
-          }
+        for (const [, target] of html.matchAll(
+          /href="(\/blog\/[a-z0-9-]+)\/"/g,
+        )) {
+          if (!target || listings.has(target)) continue;
+          postLinks.push(target);
+          if (!offered.has(target)) wrong.push(`${route} links ${target}`);
         }
       }
 
-      expect(offered, 'a listing links a placeholder post.').toEqual([]);
+      expect(postLinks.length, 'no built page links a post').toBeGreaterThan(0);
+      expect(
+        wrong,
+        'a page links a placeholder, unpublished or missing post.',
+      ).toEqual([]);
     });
 
     test('the sitemap lists a post only while it is not a placeholder', () => {
