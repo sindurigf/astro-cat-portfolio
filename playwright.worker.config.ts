@@ -1,5 +1,6 @@
 import { defineConfig } from '@playwright/test';
 import { assertPortFree, TEST_WORKER_PORT } from './tests/ports';
+import { INACTIVE_FEATURE_TAGS } from './tests/feature-tags';
 
 /*
  * Specs that need the Worker, served by `astro preview` with local D1 and rate
@@ -53,7 +54,12 @@ export default defineConfig({
     baseURL: BASE_URL,
   },
 
-  projects: [{ name: 'worker' }],
+  projects: [
+    {
+      name: 'worker',
+      grepInvert: new RegExp(INACTIVE_FEATURE_TAGS.join('|')),
+    },
+  ],
 
   webServer: {
     /*

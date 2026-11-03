@@ -1,7 +1,7 @@
 import { expect, test, type Page } from './test';
 import { gotoSettled } from './settle';
 import { TALK_ROUTES } from './routes';
-import { ENGINE_INVARIANT } from './tags';
+import { CHROMIUM_ONLY, ENGINE_INVARIANT } from './tags';
 import { timedScan } from './axe';
 
 /**
@@ -614,41 +614,38 @@ const PHONE_CPU_SLOWDOWN = 4;
 const LONG_TASK_MS = 50;
 
 for (const width of [390, DESKTOP] as const) {
-  test(`at ${width}px on a slow phone CPU, no task runs over ${LONG_TASK_MS}ms while the heap settles and the climb is planned`, async ({
-    page,
-    browserName,
-  }) => {
-    test.skip(
-      browserName !== 'chromium',
-      'CPU throttling and long-task timing are Chromium-only',
-    );
-    await seedRandom(page, HEAP_SEED);
-    await page.setViewportSize({ width, height: HEIGHT });
-    await gotoSettled(page, ROUTE);
-    const cdp = await page.context().newCDPSession(page);
-    await press(page);
-    await page.evaluate(() => {
-      const seen: number[] = [];
-      (window as unknown as { longTasks: number[] }).longTasks = seen;
-      new PerformanceObserver((list) => {
-        for (const entry of list.getEntries()) seen.push(entry.duration);
-      }).observe({ type: 'longtask' });
-    });
-    await cdp.send('Emulation.setCPUThrottlingRate', {
-      rate: PHONE_CPU_SLOWDOWN,
-    });
-    await expect(page.locator('.fall-hopper[data-settled]')).toBeAttached({
-      timeout: CLIMB_MS,
-    });
-    await cdp.send('Emulation.setCPUThrottlingRate', { rate: 1 });
-    const tasks = await page.evaluate(
-      () => (window as unknown as { longTasks: number[] }).longTasks,
-    );
-    expect(
-      tasks.filter((ms) => ms > LONG_TASK_MS).map(Math.round),
-      'a task blocks the page while the heap settles and the climb is planned',
-    ).toEqual([]);
-  });
+  test(
+    `at ${width}px on a slow phone CPU, no task runs over ${LONG_TASK_MS}ms while the heap settles and the climb is planned`,
+    CHROMIUM_ONLY,
+    async ({ page }) => {
+      await seedRandom(page, HEAP_SEED);
+      await page.setViewportSize({ width, height: HEIGHT });
+      await gotoSettled(page, ROUTE);
+      const cdp = await page.context().newCDPSession(page);
+      await press(page);
+      await page.evaluate(() => {
+        const seen: number[] = [];
+        (window as unknown as { longTasks: number[] }).longTasks = seen;
+        new PerformanceObserver((list) => {
+          for (const entry of list.getEntries()) seen.push(entry.duration);
+        }).observe({ type: 'longtask' });
+      });
+      await cdp.send('Emulation.setCPUThrottlingRate', {
+        rate: PHONE_CPU_SLOWDOWN,
+      });
+      await expect(page.locator('.fall-hopper[data-settled]')).toBeAttached({
+        timeout: CLIMB_MS,
+      });
+      await cdp.send('Emulation.setCPUThrottlingRate', { rate: 1 });
+      const tasks = await page.evaluate(
+        () => (window as unknown as { longTasks: number[] }).longTasks,
+      );
+      expect(
+        tasks.filter((ms) => ms > LONG_TASK_MS).map(Math.round),
+        'a task blocks the page while the heap settles and the climb is planned',
+      ).toEqual([]);
+    },
+  );
 }
 
 /* px kept clear under the risen Put It Back: twice its focus ring's reach, from the tokens let-it-fall.ts ringReach reads; the two must agree. */

@@ -8,6 +8,7 @@ import {
   SITE_LANGUAGE,
 } from '../src/lib/site-language';
 import { NODE } from './tags';
+import { WITH_MOTTO_MEANING, WITHOUT_MOTTO_MEANING } from './feature-tags';
 import { SITE_CONFIG, validateSiteConfig } from '../src/site.config';
 import { MOTTO_LANGUAGE } from '../src/lib/site';
 import { LD_JSON } from './html';
@@ -117,14 +118,28 @@ test.describe('the motto declares a real language', NODE, () => {
     expect(() => motto('la', 'read the stones')).not.toThrow();
   });
 
-  test('/about names the motto language and meaning from the config', () => {
-    const about = builtHtml().get('/about')!;
-    const { meaning } = SITE_CONFIG.site.motto;
-    test.skip(meaning === null, 'the motto has no translation to state');
+  test(
+    '/about names the motto language and meaning from the config',
+    WITH_MOTTO_MEANING,
+    () => {
+      const about = builtHtml().get('/about')!;
+      const { meaning } = SITE_CONFIG.site.motto;
 
-    expect(
-      about,
-      `/about does not say "${MOTTO_LANGUAGE} for “${meaning}”".`,
-    ).toContain(`${MOTTO_LANGUAGE} for &ldquo;${meaning}&rdquo;`);
-  });
+      expect(
+        about,
+        `/about does not say "${MOTTO_LANGUAGE} for “${meaning}”".`,
+      ).toContain(`${MOTTO_LANGUAGE} for &ldquo;${meaning}&rdquo;`);
+    },
+  );
+
+  test(
+    '/about states no motto translation when the config has none',
+    WITHOUT_MOTTO_MEANING,
+    () => {
+      expect(
+        builtHtml().get('/about'),
+        `/about translates a motto whose meaning is null.`,
+      ).not.toContain(`${MOTTO_LANGUAGE} for &ldquo;`);
+    },
+  );
 });

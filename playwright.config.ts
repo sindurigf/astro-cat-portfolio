@@ -6,7 +6,15 @@ import {
   WORKER_SPECS,
 } from './playwright.worker.config';
 import { DEMO_SPECS } from './playwright.demo.config';
-import { ENGINE_INVARIANT_TAG, NODE_TAG } from './tests/tags';
+import { INACTIVE_FEATURE_TAGS } from './tests/feature-tags';
+import {
+  CHROMIUM_ONLY_TAG,
+  ENGINE_INVARIANT_TAG,
+  NO_FIREFOX_TAG,
+  NO_WEBKIT_TAG,
+  NODE_TAG,
+  WEBKIT_ONLY_TAG,
+} from './tests/tags';
 
 /*
  * WebKit needs ICU 74 (Ubuntu 24.04), absent on newer hosts, so it runs in CI
@@ -28,8 +36,29 @@ const PORT = TEST_PORT;
 assertPortFree(PORT, 'TEST_PORT');
 const BASE_URL = `http://localhost:${PORT}`;
 
-const NODE_ONLY = new RegExp(NODE_TAG);
-const NODE_OR_INVARIANT = new RegExp(`${NODE_TAG}|${ENGINE_INVARIANT_TAG}`);
+const anyTag = (...tags: string[]) => new RegExp(tags.join('|'));
+const NODE_ONLY = anyTag(NODE_TAG);
+const INACTIVE_FEATURES = anyTag(...INACTIVE_FEATURE_TAGS);
+const OUTSIDE_CHROMIUM = anyTag(
+  ...INACTIVE_FEATURE_TAGS,
+  NODE_TAG,
+  WEBKIT_ONLY_TAG,
+);
+const OUTSIDE_FIREFOX = anyTag(
+  ...INACTIVE_FEATURE_TAGS,
+  NODE_TAG,
+  ENGINE_INVARIANT_TAG,
+  CHROMIUM_ONLY_TAG,
+  WEBKIT_ONLY_TAG,
+  NO_FIREFOX_TAG,
+);
+const OUTSIDE_WEBKIT = anyTag(
+  ...INACTIVE_FEATURE_TAGS,
+  NODE_TAG,
+  ENGINE_INVARIANT_TAG,
+  CHROMIUM_ONLY_TAG,
+  NO_WEBKIT_TAG,
+);
 
 export default defineConfig({
   testDir: './tests',
@@ -55,19 +84,19 @@ export default defineConfig({
 
   /*
    * Forced colors differ: Chromium follows `colorScheme`, Firefox is always
-   * dark, WebKit forces nothing and is skipped in tests/forced-colors.spec.ts.
+   * dark, WebKit forces nothing, so forced-colors tests carry NO_WEBKIT.
    */
   projects: [
-    /* Tests tagged NODE run once; tests/test.ts fails one that asks for a browser. ENGINE_INVARIANT runs in Chromium only. */
-    { name: 'node', grep: NODE_ONLY },
+    /* Tests tagged NODE run once; tests/test.ts fails one that asks for a browser. Engine tags: tests/tags.ts. */
+    { name: 'node', grep: NODE_ONLY, grepInvert: INACTIVE_FEATURES },
     {
       name: 'chromium',
-      grepInvert: NODE_ONLY,
+      grepInvert: OUTSIDE_CHROMIUM,
       use: { ...devices['Desktop Chrome'] },
     },
     {
       name: 'firefox',
-      grepInvert: NODE_OR_INVARIANT,
+      grepInvert: OUTSIDE_FIREFOX,
       use: {
         ...devices['Desktop Firefox'],
         launchOptions: { firefoxUserPrefs: FIREFOX_PREFS },
@@ -77,7 +106,7 @@ export default defineConfig({
       ? [
           {
             name: 'webkit',
-            grepInvert: NODE_OR_INVARIANT,
+            grepInvert: OUTSIDE_WEBKIT,
             use: { ...devices['Desktop Safari'] },
           },
         ]

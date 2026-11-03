@@ -5,6 +5,7 @@ import { GLOBAL_CSS, cssColorToken } from './source';
 import { DESKTOP_VIEWPORT, REFLOW_VIEWPORT } from './wcag';
 import { PAGE_HELPERS } from './contrast';
 import { tabWalk } from './tab-walk';
+import { NO_WEBKIT } from './tags';
 
 /**
  * `forced-colors: active` drops box-shadow, so a control bounded only by `shadow-hard-*`
@@ -253,14 +254,10 @@ const CURRENT_MARKS = [
   },
 ] as const;
 
-test.describe('forced colors', () => {
+test.describe('forced colors', NO_WEBKIT, () => {
   // WebKit matches (forced-colors: active) yet paints `--color-text`: it ships the
   // media query only (https://bugs.webkit.org/show_bug.cgi?id=225281). Skipped by
   // engine name, not capability, so a chromium or firefox regression still fails.
-  test.skip(
-    ({ browserName }) => browserName === 'webkit',
-    'webkit reports forced-colors as active but paints the author palette; see the note above',
-  );
 
   for (const route of SAMPLED_ROUTES) {
     test(`${route} holds up in forced colors`, async ({ page }) => {

@@ -6,13 +6,17 @@ import { builtPages, DIST_DIR, pagesNotLinking } from './routes';
 import { configuredSite } from './source';
 import { RETENTION_DAYS } from '../src/lib/contact-form';
 import { PLAUSIBLE_ORIGIN } from '../src/lib/analytics';
-import { ANALYTICS_ON } from '../src/lib/analytics-site';
-import { CONTACT_FORM_ON } from '../src/lib/contact';
 import {
   PLAUSIBLE_RETENTION_YEARS,
   WORKER_LOG_RETENTION_DAYS,
 } from '../src/lib/platform-facts';
 import { NODE } from './tags';
+import {
+  WITHOUT_ANALYTICS,
+  WITHOUT_CONTACT_FORM,
+  WITH_ANALYTICS,
+  WITH_CONTACT_FORM,
+} from './feature-tags';
 
 /**
  * Every factual claim on /privacy, checked against the build. Anything that
@@ -247,8 +251,7 @@ test.describe('the privacy policy is true', NODE, () => {
     }
   });
 
-  test('the page says no visits are counted', () => {
-    test.skip(ANALYTICS_ON, 'analytics is on in src/site.config.ts');
+  test('the page says no visits are counted', WITHOUT_ANALYTICS, () => {
     const text = privacyBodyText();
 
     expect(text, '/privacy no longer says it counts no visits.').toContain(
@@ -260,8 +263,7 @@ test.describe('the privacy policy is true', NODE, () => {
     ).not.toMatch(/Visit Counts|Plausible|plausible/);
   });
 
-  test('the page discloses the visit counting', () => {
-    test.skip(!ANALYTICS_ON, 'analytics is off in src/site.config.ts');
+  test('the page discloses the visit counting', WITH_ANALYTICS, () => {
     const text = privacyBodyText();
 
     const section = text.slice(text.indexOf('Visit Counts'));
@@ -311,33 +313,39 @@ test.describe('the privacy policy is true', NODE, () => {
     );
   });
 
-  test('the page mentions no contact form when there is none', () => {
-    test.skip(CONTACT_FORM_ON, 'contact.form is on in src/site.config.ts');
-    expect(
-      privacyBodyText(),
-      '/privacy describes a contact form the site does not have.',
-    ).not.toContain('contact form');
-  });
+  test(
+    'the page mentions no contact form when there is none',
+    WITHOUT_CONTACT_FORM,
+    () => {
+      expect(
+        privacyBodyText(),
+        '/privacy describes a contact form the site does not have.',
+      ).not.toContain('contact form');
+    },
+  );
 
-  test('the page discloses what the contact form stores', () => {
-    test.skip(!CONTACT_FORM_ON, 'contact.form is none in src/site.config.ts');
-    const text = privacyBodyText();
+  test(
+    'the page discloses what the contact form stores',
+    WITH_CONTACT_FORM,
+    () => {
+      const text = privacyBodyText();
 
-    expect(text, '/privacy no longer names the contact form.').toContain(
-      'contact form',
-    );
+      expect(text, '/privacy no longer names the contact form.').toContain(
+        'contact form',
+      );
 
-    expect(
-      text,
-      `/privacy no longer states the ${RETENTION_DAYS}-day message retention.`,
-    ).toContain(`${RETENTION_DAYS} days`);
+      expect(
+        text,
+        `/privacy no longer states the ${RETENTION_DAYS}-day message retention.`,
+      ).toContain(`${RETENTION_DAYS} days`);
 
-    // Fixed: D1 cannot change a database's EU jurisdiction after creation.
-    expect(
-      privacySectionText('The Contact Form'),
-      '/privacy no longer says stored messages are kept in the EU.',
-    ).toContain('European Union');
+      // Fixed: D1 cannot change a database's EU jurisdiction after creation.
+      expect(
+        privacySectionText('The Contact Form'),
+        '/privacy no longer says stored messages are kept in the EU.',
+      ).toContain('European Union');
 
-    expectCopiesDisclosed(text);
-  });
+      expectCopiesDisclosed(text);
+    },
+  );
 });

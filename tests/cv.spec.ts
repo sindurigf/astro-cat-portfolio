@@ -5,6 +5,7 @@ import { DIST_DIR } from './routes';
 import { NODE } from './tags';
 import { CV_PATH as CONFIGURED_CV } from '../src/lib/profiles';
 import { SITE_LANGUAGE } from '../src/lib/site-language';
+import { WITHOUT_CV, WITH_CV } from './feature-tags';
 
 /**
  * The CV PDF set by `person.cv`. Leftover export metadata is invisible on the
@@ -12,7 +13,6 @@ import { SITE_LANGUAGE } from '../src/lib/site-language';
  * SC 2.4.2).
  */
 const CV_PATH = (CONFIGURED_CV ?? '').replace(/^\//, '');
-const NO_CV = 'no CV is set in src/site.config.ts';
 const BYTES_PER_KB = 1024;
 
 const builtCv = () => join(DIST_DIR, CV_PATH);
@@ -53,8 +53,7 @@ test(
   },
 );
 
-test.describe('the CV file', () => {
-  test.skip(CONFIGURED_CV === null, NO_CV);
+test.describe('the CV file', WITH_CV, () => {
   test('is in the build, where the button points', NODE, () => {
     expect(
       existsSync(builtCv()),
@@ -111,8 +110,7 @@ test.describe('the CV file', () => {
   });
 });
 
-test.describe('the CV link on /career', () => {
-  test.skip(CONFIGURED_CV === null, NO_CV);
+test.describe('the CV link on /career', WITH_CV, () => {
   test('names the format and the real size of the file', async ({ page }) => {
     await page.goto('/career');
 
@@ -128,11 +126,14 @@ test.describe('the CV link on /career', () => {
   });
 });
 
-test('with no CV configured, /career offers no download', async ({ page }) => {
-  test.skip(CONFIGURED_CV !== null, 'a CV is set in src/site.config.ts');
-  await page.goto('/career');
-  await expect(page.getByRole('link', { name: /download my cv/i })).toHaveCount(
-    0,
-  );
-  await expect(page.locator('a[href$=".pdf"]')).toHaveCount(0);
-});
+test(
+  'with no CV configured, /career offers no download',
+  WITHOUT_CV,
+  async ({ page }) => {
+    await page.goto('/career');
+    await expect(
+      page.getByRole('link', { name: /download my cv/i }),
+    ).toHaveCount(0);
+    await expect(page.locator('a[href$=".pdf"]')).toHaveCount(0);
+  },
+);

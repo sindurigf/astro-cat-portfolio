@@ -1,6 +1,7 @@
 import { expect, test } from './test';
 import { gotoSettled } from './settle';
 import { CONTENTS_POST_ROUTE, NO_CONTENTS_POST, TALK_ROUTES } from './routes';
+import { CHROMIUM_ONLY } from './tags';
 
 /** A4 at 96 dpi, the page a talk prints on in tests; any page size behaves the same. */
 const A4 = { width: 794, height: 1123 } as const;
@@ -37,24 +38,21 @@ for (const route of TALK_ROUTES) {
     });
   });
 
-  test(`${route} prints no page that holds no slide`, async ({
-    page,
-    browserName,
-  }) => {
-    test.skip(
-      browserName !== 'chromium',
-      'Only Chromium prints to PDF in Playwright',
-    );
-    await gotoSettled(page, route);
-    const slides = await page.locator('.slide').count();
-    const pdf = (
-      await page.pdf({ width: `${A4.width}px`, height: `${A4.height}px` })
-    ).toString('latin1');
-    expect(
-      pdf.match(PDF_PAGE)?.length,
-      `${route} prints a page that holds no slide`,
-    ).toBe(slides);
-  });
+  test(
+    `${route} prints no page that holds no slide`,
+    CHROMIUM_ONLY,
+    async ({ page }) => {
+      await gotoSettled(page, route);
+      const slides = await page.locator('.slide').count();
+      const pdf = (
+        await page.pdf({ width: `${A4.width}px`, height: `${A4.height}px` })
+      ).toString('latin1');
+      expect(
+        pdf.match(PDF_PAGE)?.length,
+        `${route} prints a page that holds no slide`,
+      ).toBe(slides);
+    },
+  );
 }
 
 /* SC 1.3.1: a printed post keeps its contents list; a closed disclosure would print only its summary. */

@@ -4,7 +4,7 @@ import { expect, test, type Page } from './test';
 import { gotoSettled } from './settle';
 import { builtHtml, DIST_DIR, ROUTES } from './routes';
 import { LAYOUT_SHIFT, layoutShiftOf } from './layout-shift';
-import { NODE } from './tags';
+import { CHROMIUM_ONLY, NODE } from './tags';
 import { ANALYTICS_ON } from '../src/lib/analytics-site';
 
 /*
@@ -80,12 +80,7 @@ test.describe('style weight', NODE, () => {
   });
 });
 
-test.describe('page weight and stability', () => {
-  test.skip(
-    ({ browserName }) => browserName !== 'chromium',
-    'layout-shift is Chromium-only, and script bytes do not vary by engine',
-  );
-
+test.describe('page weight and stability', CHROMIUM_ONLY, () => {
   for (const route of ROUTES) {
     test(`${route} stays within its script budget`, async ({ page }) => {
       const scripts = await scriptsFetched(page, route);

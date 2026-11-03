@@ -13,6 +13,7 @@ import {
   REFLOW_VIEWPORT,
 } from './wcag';
 import { THEME_CHOICES, THEME_STORAGE_KEY } from '../src/lib/theme';
+import { NO_WEBKIT } from './tags';
 
 /** SC 2.4.13's minimum ring thickness. */
 const MIN_RING_PX = 2;
@@ -518,32 +519,29 @@ test.describe('the theme menu', () => {
     });
   }
 
-  test('forced colors keep the menu edged and the choices visible', async ({
-    page,
-    browserName,
-  }) => {
-    test.skip(
-      browserName === 'webkit',
-      'webkit ships the forced-colors query only; see tests/forced-colors.spec.ts',
-    );
-    await gotoSettled(page, '/about');
-    await page.emulateMedia({ forcedColors: 'active' });
-    await switchButton(page).click();
-    const edge = await headerMenu(page).evaluate((menu) => {
-      const cs = getComputedStyle(menu);
-      return {
-        width: parseFloat(cs.borderTopWidth),
-        style: cs.borderTopStyle,
-        differs: cs.borderTopColor !== cs.backgroundColor,
-      };
-    });
-    expect(edge.width, 'the menu loses its edge').toBeGreaterThan(0);
-    expect(edge.style).not.toBe('none');
-    expect(edge.differs, 'the edge is the menu fill').toBe(true);
-    for (const choice of THEME_CHOICES) {
-      await expect(radio(page, choice.value)).toBeVisible();
-    }
-  });
+  test(
+    'forced colors keep the menu edged and the choices visible',
+    NO_WEBKIT,
+    async ({ page }) => {
+      await gotoSettled(page, '/about');
+      await page.emulateMedia({ forcedColors: 'active' });
+      await switchButton(page).click();
+      const edge = await headerMenu(page).evaluate((menu) => {
+        const cs = getComputedStyle(menu);
+        return {
+          width: parseFloat(cs.borderTopWidth),
+          style: cs.borderTopStyle,
+          differs: cs.borderTopColor !== cs.backgroundColor,
+        };
+      });
+      expect(edge.width, 'the menu loses its edge').toBeGreaterThan(0);
+      expect(edge.style).not.toBe('none');
+      expect(edge.differs, 'the edge is the menu fill').toBe(true);
+      for (const choice of THEME_CHOICES) {
+        await expect(radio(page, choice.value)).toBeVisible();
+      }
+    },
+  );
 
   /* SC 1.3.1: the glyph says the theme in use; the name stays fixed. */
   test('the icon follows the theme in use', async ({ page }) => {

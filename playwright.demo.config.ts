@@ -1,7 +1,10 @@
 import { defineConfig, devices } from '@playwright/test';
 import { assertPortFree, TEST_WORKER_PORT } from './tests/ports';
 import { NODE_TAG } from './tests/tags';
-import { BUILD_AND_SERVE_TIMEOUT_MS } from './playwright.worker.config';
+import {
+  BUILD_AND_SERVE_TIMEOUT_MS,
+  NO_SKIPS,
+} from './playwright.worker.config';
 
 /*
  * DEMO_SPECS against a build with the demo's variables, served by the Worker
@@ -34,7 +37,9 @@ export default defineConfig({
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 1 : 0,
   workers: 1,
-  reporter: process.env.CI ? [['github'], ['list']] : [['list']],
+  reporter: process.env.CI
+    ? [['github'], ['list'], [NO_SKIPS]]
+    : [['list'], [NO_SKIPS]],
 
   use: { baseURL: BASE_URL },
 

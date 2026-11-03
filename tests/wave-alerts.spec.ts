@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { expect, test, type Page } from './test';
 import { builtPages, ROUTES } from './routes';
 import { gotoSettled } from './settle';
-import { NODE } from './tags';
+import { ENGINE_INVARIANT, NODE } from './tags';
 
 /**
  * Three WAVE alert heuristics as a gate, not a WCAG 1.3.1 check: F2 sets no
@@ -90,12 +90,8 @@ const scanAdjacentLinks = async (page: Page): Promise<string[]> =>
     });
   });
 
-test.describe('WAVE alerts: possible heading', () => {
+test.describe('WAVE alerts: possible heading', ENGINE_INVARIANT, () => {
   // Font size and link order do not vary by engine; WAVE itself runs in Chromium.
-  test.skip(
-    ({ browserName }) => browserName !== 'chromium',
-    'engine-invariant',
-  );
   for (const width of HEADING_WIDTHS) {
     test.describe(`at ${width}px`, () => {
       test.use({ viewport: { width, height: VIEWPORT_HEIGHT } });
@@ -121,12 +117,8 @@ test.describe('WAVE alerts: possible heading', () => {
   }
 });
 
-test.describe('WAVE alerts: redundant link', () => {
+test.describe('WAVE alerts: redundant link', ENGINE_INVARIANT, () => {
   // Font size and link order do not vary by engine; WAVE itself runs in Chromium.
-  test.skip(
-    ({ browserName }) => browserName !== 'chromium',
-    'engine-invariant',
-  );
   test.use({ viewport: { width: LINK_WIDTH, height: VIEWPORT_HEIGHT } });
 
   for (const route of ROUTES) {

@@ -3,6 +3,7 @@ import { gotoSettled } from './settle';
 import { DESKTOP_VIEWPORT, PHONE_VIEWPORT } from './wcag';
 import { CONTACT_FORM_ON } from '../src/lib/contact';
 import { CATEGORY_ROUTES, NO_PUBLISHED_POST } from './routes';
+import { NO_FIREFOX } from './tags';
 
 /* The form's send button, or the 404 page's link when there is no form. */
 const PRIMARY_ROUTE = CONTACT_FORM_ON ? '/contact' : '/404';
@@ -410,11 +411,7 @@ test.describe('a hover lift', () => {
   }
 });
 
-test.describe('on a touch screen', () => {
-  test.skip(
-    ({ browserName }) => browserName === 'firefox',
-    'Firefox has no isMobile emulation, so it always reports hover: hover',
-  );
+test.describe('on a touch screen', NO_FIREFOX, () => {
   test.use({ isMobile: true, hasTouch: true });
 
   // A tap leaves :hover set on a phone, so a lift would stay on after the finger leaves.

@@ -7,6 +7,7 @@ import {
   SAMPLE_PERSONA,
   personaNotice,
 } from '../src/lib/persona';
+import { WITH_PERSONA } from './feature-tags';
 
 /** The sample persona's ownership notice and story sources: first on /credits, linked from /, gone with the persona. */
 
@@ -23,9 +24,7 @@ test('a persona renders its tribute and its rights', NODE, () => {
   expect(personaNotice(persona)).toBe('A tribute. Owned elsewhere.');
 });
 
-test.describe('with the shipped sample persona', () => {
-  test.skip(SAMPLE_PERSONA === null, 'no sample persona is configured');
-
+test.describe('with the shipped sample persona', WITH_PERSONA, () => {
   test('the notice is the first paragraph on /credits', async ({ page }) => {
     await gotoSettled(page, '/credits');
     const first = page.locator('main p').first();
@@ -45,8 +44,7 @@ test.describe('with the shipped sample persona', () => {
   });
 });
 
-test.describe('the sample persona sources', () => {
-  test.skip(SAMPLE_PERSONA === null, 'no sample persona is configured');
+test.describe('the sample persona sources', WITH_PERSONA, () => {
   const sources = SAMPLE_PERSONA?.sources ?? [];
 
   test('every source has its own link name and address', NODE, () => {

@@ -1,5 +1,6 @@
 import { expect, test, type Page } from './test';
 import { gotoSettled } from './settle';
+import { CHROMIUM_ONLY } from './tags';
 
 /*
  * The hero canvases follow media changes that resize nothing: a window moved
@@ -38,62 +39,59 @@ const backStore = (page: Page) =>
 test.describe('the hero after a media change', () => {
   test.use({ viewport: VIEWPORT, reducedMotion: 'reduce' });
 
-  test('repaints at the new pixel ratio when only the ratio changes', async ({
-    page,
-    browserName,
-  }) => {
-    test.skip(
-      browserName !== 'chromium',
-      'only Chromium can change the device pixel ratio of an open page (CDP)',
-    );
-    /* CDP's override flips a resolution query's `matches` but dispatches no `change`. */
-    await page.addInitScript(() => {
-      const queries: MediaQueryList[] = [];
-      const native = window.matchMedia.bind(window);
-      window.matchMedia = (query: string) => {
-        const list = native(query);
-        if (query.includes('resolution')) queries.push(list);
-        return list;
-      };
-      Object.assign(window, { resolutionQueries: queries });
-    });
-    await gotoSettled(page, HERO_ROUTE);
-    const before = await backStore(page);
-    expect(before, 'the hero canvases are not in the page').not.toBeNull();
-    expect(before!.ratio, 'the page did not start at 1x').toBe(1);
+  test(
+    'repaints at the new pixel ratio when only the ratio changes',
+    CHROMIUM_ONLY,
+    async ({ page }) => {
+      /* CDP's override flips a resolution query's `matches` but dispatches no `change`. */
+      await page.addInitScript(() => {
+        const queries: MediaQueryList[] = [];
+        const native = window.matchMedia.bind(window);
+        window.matchMedia = (query: string) => {
+          const list = native(query);
+          if (query.includes('resolution')) queries.push(list);
+          return list;
+        };
+        Object.assign(window, { resolutionQueries: queries });
+      });
+      await gotoSettled(page, HERO_ROUTE);
+      const before = await backStore(page);
+      expect(before, 'the hero canvases are not in the page').not.toBeNull();
+      expect(before!.ratio, 'the page did not start at 1x').toBe(1);
 
-    const cdp = await page.context().newCDPSession(page);
-    await cdp.send('Emulation.setDeviceMetricsOverride', {
-      ...VIEWPORT,
-      deviceScaleFactor: DENSER,
-      mobile: false,
-    });
-    const changed = await page.evaluate(() => {
-      const queries = (
-        window as unknown as { resolutionQueries: MediaQueryList[] }
-      ).resolutionQueries;
-      const stale = queries.filter((query) => !query.matches);
-      stale.forEach((query) => query.dispatchEvent(new Event('change')));
-      return { dpr: window.devicePixelRatio, stale: stale.length };
-    });
-    expect(changed.dpr, 'the override did not change the pixel ratio').toBe(
-      DENSER,
-    );
-    expect(
-      changed.stale,
-      'the hero watches no resolution query the new ratio stopped matching',
-    ).toBeGreaterThan(0);
+      const cdp = await page.context().newCDPSession(page);
+      await cdp.send('Emulation.setDeviceMetricsOverride', {
+        ...VIEWPORT,
+        deviceScaleFactor: DENSER,
+        mobile: false,
+      });
+      const changed = await page.evaluate(() => {
+        const queries = (
+          window as unknown as { resolutionQueries: MediaQueryList[] }
+        ).resolutionQueries;
+        const stale = queries.filter((query) => !query.matches);
+        stale.forEach((query) => query.dispatchEvent(new Event('change')));
+        return { dpr: window.devicePixelRatio, stale: stale.length };
+      });
+      expect(changed.dpr, 'the override did not change the pixel ratio').toBe(
+        DENSER,
+      );
+      expect(
+        changed.stale,
+        'the hero watches no resolution query the new ratio stopped matching',
+      ).toBeGreaterThan(0);
 
-    await expect
-      .poll(async () => (await backStore(page))!.width, {
-        message: 'the backing store kept its old pixel ratio',
-      })
-      .toBe(Math.round(before!.cssWidth * DENSER));
-    expect(
-      (await backStore(page))!.ink,
-      'the field is blank after the pixel ratio changed',
-    ).toBeGreaterThan(0);
-  });
+      await expect
+        .poll(async () => (await backStore(page))!.width, {
+          message: 'the backing store kept its old pixel ratio',
+        })
+        .toBe(Math.round(before!.cssWidth * DENSER));
+      expect(
+        (await backStore(page))!.ink,
+        'the field is blank after the pixel ratio changed',
+      ).toBeGreaterThan(0);
+    },
+  );
 
   test('is hidden in forced colors and painted again after them', async ({
     page,

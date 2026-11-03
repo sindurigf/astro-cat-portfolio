@@ -14,6 +14,7 @@ import {
 import { AA_TEXT, NON_TEXT, PAGE_HELPERS } from './contrast';
 import { DECK_READY_TIMEOUT_MS } from '../src/lib/deck-ready';
 import { DECK_FILE, splitDeck } from '../src/lib/slides';
+import { NO_FIREFOX } from './tags';
 
 /** src/scripts/slideshow.ts driven by buttons, keys, slide links, full screen, print, and without JavaScript. */
 
@@ -102,13 +103,6 @@ const PAST_IDLE_MS = 5_000;
 
 /* PROJECTOR at 200% zoom, in CSS px, as failed-images.spec.ts models it. */
 const ZOOMED_PROJECTOR = { width: 640, height: 360 };
-
-/* Headless Firefox's full screen takes its 1366x768 screen whatever the viewport or `screen` option. */
-const skipUnsizedFullScreen = (browserName: string) =>
-  test.skip(
-    browserName === 'firefox',
-    'Firefox full screen ignores the test viewport, so the size under test is not the one measured.',
-  );
 
 const ids = (page: Page) =>
   page.$$eval('.slide[id]', (all) => all.map((slide) => slide.id));
@@ -544,108 +538,108 @@ test.describe('the talk slideshow in full screen', () => {
   });
 
   for (const screen of [PROJECTOR, FOUR_BY_THREE]) {
-    test(`on a ${screen.width}x${screen.height} screen the full-screen controls are 44px targets, Exit inside the card's top right, and no slide's content or focus ring runs under them`, async ({
-      page,
-      browserName,
-    }) => {
-      skipUnsizedFullScreen(browserName);
-      await page.setViewportSize(screen);
-      await open(page);
-      await enterFullScreen(page);
-      await page.keyboard.press('ArrowRight');
-      await page.keyboard.press('ArrowLeft');
-      await page.mouse.move(100, 100);
-      const controls = await slideControls(page).getByRole('button').all();
-      for (const control of controls) {
-        const box = await control.boundingBox();
-        expect(
-          Math.min(box?.width ?? 0, box?.height ?? 0),
-          'a full-screen control is under 44px',
-        ).toBeGreaterThanOrEqual(MIN_TARGET - SUBPIXEL_TOLERANCE);
-      }
-      const exit = await exitFullScreen(page).boundingBox();
-      const card = await visible(page).boundingBox();
-      const border = await visible(page).evaluate((slide) =>
-        parseFloat(getComputedStyle(slide).borderTopWidth),
-      );
-      expect(
-        exit !== null &&
-          card !== null &&
-          exit.x > card.x + card.width / 2 &&
-          exit.y + exit.height < card.y + card.height / 2 &&
-          exit.x + exit.width < card.x + card.width - border &&
-          exit.y > card.y + border,
-        "Exit Full Screen is not inside the card's border, in its top right",
-      ).toBe(true);
-      const under: string[] = [];
-      for (const id of await ids(page)) {
-        await expect(visible(page)).toHaveId(id);
-        const covered = await page.evaluate(() => {
-          const boxes = [
-            ...document.querySelectorAll(
-              '[data-deck-bar] button, [data-deck-count]',
-            ),
-          ]
-            .map((control) => control.getBoundingClientRect())
-            .filter((box) => box.width > 0);
-          const slide = document.querySelector('.slide[data-current]');
-          if (!slide) return true;
-          const card = slide.getBoundingClientRect();
-          const style = getComputedStyle(slide);
-          const reach =
-            parseFloat(style.outlineOffset) + parseFloat(style.outlineWidth);
-          const exit = document
-            .querySelector('[data-deck-exit]')
-            ?.getBoundingClientRect();
-          const within =
-            exit !== undefined &&
-            exit.left >= card.left &&
-            exit.right <= card.right &&
-            exit.top >= card.top &&
-            exit.bottom <= card.bottom;
-          if (style.outlineStyle !== 'solid' || reach < 0 || !within)
-            return true;
-          const ring = {
-            left: card.left - reach,
-            right: card.right + reach,
-            top: card.top - reach,
-            bottom: card.bottom + reach,
-          };
-          const inCard = (box: DOMRect) =>
-            box.left >= card.left &&
-            box.right <= card.right &&
-            box.top >= card.top &&
-            box.bottom <= card.bottom;
-          const onRing = boxes.some(
-            (box) =>
-              !inCard(box) &&
-              ring.left < box.right &&
-              box.left < ring.right &&
-              ring.top < box.bottom &&
-              box.top < ring.bottom,
-          );
-          if (onRing) return true;
-          const content = [...slide.children].map((child) =>
-            child.getBoundingClientRect(),
-          );
-          return content.some((text) =>
-            boxes.some(
-              (box) =>
-                text.left < box.right &&
-                box.left < text.right &&
-                text.top < box.bottom &&
-                box.top < text.bottom,
-            ),
-          );
-        });
-        if (covered) under.push(id);
+    test(
+      `on a ${screen.width}x${screen.height} screen the full-screen controls are 44px targets, Exit inside the card's top right, and no slide's content or focus ring runs under them`,
+      NO_FIREFOX,
+      async ({ page }) => {
+        await page.setViewportSize(screen);
+        await open(page);
+        await enterFullScreen(page);
         await page.keyboard.press('ArrowRight');
-      }
-      expect(
-        under,
-        'slides whose content or focus ring runs under a control',
-      ).toEqual([]);
-    });
+        await page.keyboard.press('ArrowLeft');
+        await page.mouse.move(100, 100);
+        const controls = await slideControls(page).getByRole('button').all();
+        for (const control of controls) {
+          const box = await control.boundingBox();
+          expect(
+            Math.min(box?.width ?? 0, box?.height ?? 0),
+            'a full-screen control is under 44px',
+          ).toBeGreaterThanOrEqual(MIN_TARGET - SUBPIXEL_TOLERANCE);
+        }
+        const exit = await exitFullScreen(page).boundingBox();
+        const card = await visible(page).boundingBox();
+        const border = await visible(page).evaluate((slide) =>
+          parseFloat(getComputedStyle(slide).borderTopWidth),
+        );
+        expect(
+          exit !== null &&
+            card !== null &&
+            exit.x > card.x + card.width / 2 &&
+            exit.y + exit.height < card.y + card.height / 2 &&
+            exit.x + exit.width < card.x + card.width - border &&
+            exit.y > card.y + border,
+          "Exit Full Screen is not inside the card's border, in its top right",
+        ).toBe(true);
+        const under: string[] = [];
+        for (const id of await ids(page)) {
+          await expect(visible(page)).toHaveId(id);
+          const covered = await page.evaluate(() => {
+            const boxes = [
+              ...document.querySelectorAll(
+                '[data-deck-bar] button, [data-deck-count]',
+              ),
+            ]
+              .map((control) => control.getBoundingClientRect())
+              .filter((box) => box.width > 0);
+            const slide = document.querySelector('.slide[data-current]');
+            if (!slide) return true;
+            const card = slide.getBoundingClientRect();
+            const style = getComputedStyle(slide);
+            const reach =
+              parseFloat(style.outlineOffset) + parseFloat(style.outlineWidth);
+            const exit = document
+              .querySelector('[data-deck-exit]')
+              ?.getBoundingClientRect();
+            const within =
+              exit !== undefined &&
+              exit.left >= card.left &&
+              exit.right <= card.right &&
+              exit.top >= card.top &&
+              exit.bottom <= card.bottom;
+            if (style.outlineStyle !== 'solid' || reach < 0 || !within)
+              return true;
+            const ring = {
+              left: card.left - reach,
+              right: card.right + reach,
+              top: card.top - reach,
+              bottom: card.bottom + reach,
+            };
+            const inCard = (box: DOMRect) =>
+              box.left >= card.left &&
+              box.right <= card.right &&
+              box.top >= card.top &&
+              box.bottom <= card.bottom;
+            const onRing = boxes.some(
+              (box) =>
+                !inCard(box) &&
+                ring.left < box.right &&
+                box.left < ring.right &&
+                ring.top < box.bottom &&
+                box.top < ring.bottom,
+            );
+            if (onRing) return true;
+            const content = [...slide.children].map((child) =>
+              child.getBoundingClientRect(),
+            );
+            return content.some((text) =>
+              boxes.some(
+                (box) =>
+                  text.left < box.right &&
+                  box.left < text.right &&
+                  text.top < box.bottom &&
+                  box.top < text.bottom,
+              ),
+            );
+          });
+          if (covered) under.push(id);
+          await page.keyboard.press('ArrowRight');
+        }
+        expect(
+          under,
+          'slides whose content or focus ring runs under a control',
+        ).toEqual([]);
+      },
+    );
   }
 
   for (const theme of ['dark', 'light'] as const) {
@@ -891,30 +885,30 @@ test.describe('the talk slideshow in full screen', () => {
   // A room cannot scroll a projected slide: a 16:9 and a 4:3 projector, the
   // smallest the slideshow serves (`lg`).
   for (const screen of [PROJECTOR, FOUR_BY_THREE]) {
-    test(`every slide fits its frame on a ${screen.width}x${screen.height} screen`, async ({
-      page,
-      browserName,
-    }) => {
-      skipUnsizedFullScreen(browserName);
-      await page.setViewportSize(screen);
-      await open(page);
-      await enterFullScreen(page);
-      const all = await ids(page);
-      expect(all.length, 'the deck has no slides').toBeGreaterThan(1);
-      const over: string[] = [];
-      for (const id of all) {
-        await expect(
-          visible(page),
-          'ArrowRight did not reach the slide',
-        ).toHaveId(id);
-        const overflow = await visible(page).evaluate(
-          (slide) => slide.scrollHeight - slide.clientHeight,
-        );
-        if (overflow > 1) over.push(`${id} +${overflow}px`);
-        await page.keyboard.press('ArrowRight');
-      }
-      expect(over, 'slides that run past their frame').toEqual([]);
-    });
+    test(
+      `every slide fits its frame on a ${screen.width}x${screen.height} screen`,
+      NO_FIREFOX,
+      async ({ page }) => {
+        await page.setViewportSize(screen);
+        await open(page);
+        await enterFullScreen(page);
+        const all = await ids(page);
+        expect(all.length, 'the deck has no slides').toBeGreaterThan(1);
+        const over: string[] = [];
+        for (const id of all) {
+          await expect(
+            visible(page),
+            'ArrowRight did not reach the slide',
+          ).toHaveId(id);
+          const overflow = await visible(page).evaluate(
+            (slide) => slide.scrollHeight - slide.clientHeight,
+          );
+          if (overflow > 1) over.push(`${id} +${overflow}px`);
+          await page.keyboard.press('ArrowRight');
+        }
+        expect(over, 'slides that run past their frame').toEqual([]);
+      },
+    );
   }
 
   test('the SC 1.4.12 text spacing cuts nothing off', async ({ page }) => {
@@ -928,67 +922,67 @@ test.describe('the talk slideshow in full screen', () => {
   });
 
   // Asserts no sideways clipping only, not 2x text: ACCESSIBILITY.md section 7 records the SC 1.4.4 gap.
-  test('at 200% zoom no slide is cut off sideways', async ({
-    page,
-    browserName,
-  }) => {
-    skipUnsizedFullScreen(browserName);
-    await page.setViewportSize(ZOOMED_PROJECTOR);
-    await open(page);
-    await enterFullScreenZoomed(page);
-    expect(
-      await sidewaysOverflow(page),
-      'slides wider than their frame',
-    ).toEqual([]);
-  });
-
-  test('at 200% zoom, Space scrolls a slide taller than its frame before it turns, and Shift+Space back', async ({
-    page,
-    browserName,
-  }) => {
-    skipUnsizedFullScreen(browserName);
-    await page.setViewportSize(ZOOMED_PROJECTOR);
-    await open(page);
-    await enterFullScreenZoomed(page);
-    const position = () =>
-      visible(page).evaluate((slide) => ({
-        id: slide.id,
-        atEnd: slide.scrollTop + slide.clientHeight >= slide.scrollHeight - 1,
-        atStart: slide.scrollTop === 0,
-      }));
-    const count = await page.locator('.slide').count();
-    for (let turn = 1; turn < count && (await position()).atEnd; turn++) {
-      await page.keyboard.press('ArrowRight');
-    }
-    const { id, atEnd } = await position();
-    expect(atEnd, 'every slide fits, so this measures nothing').toBe(false);
-    const after = await page.evaluate(
-      (slide) => document.getElementById(slide)!.nextElementSibling!.id,
-      id,
-    );
-    const pressUntil = async (key: string, edge: 'atEnd' | 'atStart') => {
-      for (
-        let press = 0;
-        press < MAX_PAGE_PRESSES && !(await position())[edge];
-        press++
-      ) {
-        await page.keyboard.press(key);
-        await expect(
-          visible(page),
-          `${key} turned before the slide's edge was in view`,
-        ).toHaveId(id);
-      }
+  test(
+    'at 200% zoom no slide is cut off sideways',
+    NO_FIREFOX,
+    async ({ page }) => {
+      await page.setViewportSize(ZOOMED_PROJECTOR);
+      await open(page);
+      await enterFullScreenZoomed(page);
       expect(
-        (await position())[edge],
-        `${key} never reached the edge of ${id}`,
-      ).toBe(true);
-    };
-    await pressUntil('Space', 'atEnd');
-    await pressUntil('Shift+Space', 'atStart');
-    await pressUntil('Space', 'atEnd');
-    await page.keyboard.press('Space');
-    await expect(visible(page)).toHaveId(after);
-  });
+        await sidewaysOverflow(page),
+        'slides wider than their frame',
+      ).toEqual([]);
+    },
+  );
+
+  test(
+    'at 200% zoom, Space scrolls a slide taller than its frame before it turns, and Shift+Space back',
+    NO_FIREFOX,
+    async ({ page }) => {
+      await page.setViewportSize(ZOOMED_PROJECTOR);
+      await open(page);
+      await enterFullScreenZoomed(page);
+      const position = () =>
+        visible(page).evaluate((slide) => ({
+          id: slide.id,
+          atEnd: slide.scrollTop + slide.clientHeight >= slide.scrollHeight - 1,
+          atStart: slide.scrollTop === 0,
+        }));
+      const count = await page.locator('.slide').count();
+      for (let turn = 1; turn < count && (await position()).atEnd; turn++) {
+        await page.keyboard.press('ArrowRight');
+      }
+      const { id, atEnd } = await position();
+      expect(atEnd, 'every slide fits, so this measures nothing').toBe(false);
+      const after = await page.evaluate(
+        (slide) => document.getElementById(slide)!.nextElementSibling!.id,
+        id,
+      );
+      const pressUntil = async (key: string, edge: 'atEnd' | 'atStart') => {
+        for (
+          let press = 0;
+          press < MAX_PAGE_PRESSES && !(await position())[edge];
+          press++
+        ) {
+          await page.keyboard.press(key);
+          await expect(
+            visible(page),
+            `${key} turned before the slide's edge was in view`,
+          ).toHaveId(id);
+        }
+        expect(
+          (await position())[edge],
+          `${key} never reached the edge of ${id}`,
+        ).toBe(true);
+      };
+      await pressUntil('Space', 'atEnd');
+      await pressUntil('Shift+Space', 'atStart');
+      await pressUntil('Space', 'atEnd');
+      await page.keyboard.press('Space');
+      await expect(visible(page)).toHaveId(after);
+    },
+  );
 });
 
 /** Body text doubles at 200% below 1920, where `--text-body` caps (ACCESSIBILITY.md section 7). */

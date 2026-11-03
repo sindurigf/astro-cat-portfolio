@@ -9,7 +9,7 @@ import {
   DIST_DIR,
   TALK_ROUTES,
 } from './routes';
-import { NODE } from './tags';
+import { NODE, NO_WEBKIT } from './tags';
 import { DESKTOP_VIEWPORT, NARROW_WIDTH, PHONE_VIEWPORT } from './wcag';
 
 /**
@@ -225,11 +225,7 @@ test.describe('the Step', () => {
     });
   }
 
-  test('forced colors keep every block edge', async ({ page, browserName }) => {
-    test.skip(
-      browserName === 'webkit',
-      'WebKit reports forced colors but paints the author palette (tests/forced-colors.spec.ts)',
-    );
+  test('forced colors keep every block edge', NO_WEBKIT, async ({ page }) => {
     await page.emulateMedia({ forcedColors: 'active' });
     for (const route of ['/', '/blog', '/contact']) {
       await gotoSettled(page, route);

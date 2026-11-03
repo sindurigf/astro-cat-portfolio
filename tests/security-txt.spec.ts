@@ -11,6 +11,7 @@ import {
   securityContactFor,
 } from '../src/lib/contact';
 import { securityTxt as securityTxtFor } from '../src/pages/.well-known/[file]';
+import { WITHOUT_SECURITY_CONTACT } from './feature-tags';
 
 /**
  * /.well-known/security.txt, per https://www.rfc-editor.org/rfc/rfc9116.
@@ -84,19 +85,22 @@ test.describe('security.txt', NODE, () => {
     ).toBe('mailto:security@notexample.com');
   });
 
-  test('no built page or llms.txt points at a file that is not there', () => {
-    test.skip(SECURITY_CONTACT !== null, 'security.txt is published');
-
-    const mentions = [...builtHtml()]
-      .filter(([, html]) => html.includes('security.txt'))
-      .map(([route]) => route);
-    expect(mentions, 'page(s) naming a security.txt that is not built').toEqual(
-      [],
-    );
-    expect(readFileSync(join(DIST_DIR, 'llms.txt'), 'utf8')).not.toContain(
-      'security.txt',
-    );
-  });
+  test(
+    'no built page or llms.txt points at a file that is not there',
+    WITHOUT_SECURITY_CONTACT,
+    () => {
+      const mentions = [...builtHtml()]
+        .filter(([, html]) => html.includes('security.txt'))
+        .map(([route]) => route);
+      expect(
+        mentions,
+        'page(s) naming a security.txt that is not built',
+      ).toEqual([]);
+      expect(readFileSync(join(DIST_DIR, 'llms.txt'), 'utf8')).not.toContain(
+        'security.txt',
+      );
+    },
+  );
 
   for (const formOn of [true, false]) {
     test(`the Worker routes end in a full stop, with semicolons between, contact form ${formOn ? 'on' : 'off'}`, () => {
