@@ -82,9 +82,9 @@ const AWAITED = /(?:\bawait|\breturn|=>)\s*$/;
 /** A return behind an engine, device or environment test: the usual way to skip a test quietly. */
 const GUARDED_RETURN =
   /\bif\s*\([^)]*\b(?:browserName|isMobile|channel|project|process\.env|testInfo)\b[^)]*\)\s*\{?\s*return\b/g;
-/** A tag from tests/tags.ts that keeps a test out of one or more engines, by name or as its literal. */
+/** An engine or feature tag (tests/tags.ts, tests/feature-tags.ts) that narrows where a test runs, by name or as its literal. */
 const ENGINE_SCOPE =
-  /\b(?:ENGINE_INVARIANT|CHROMIUM_ONLY|WEBKIT_ONLY|NO_WEBKIT|NO_FIREFOX)\b|['"`]@(?:engine-invariant|chromium-only|webkit-only|no-webkit|no-firefox)\b/;
+  /\b(?:ENGINE_INVARIANT|CHROMIUM_ONLY|WEBKIT_ONLY|NO_WEBKIT|NO_FIREFOX|WITH(?:OUT)?_[A-Z][A-Z_]*)\b|['"`]@(?:engine-invariant|chromium-only|webkit-only|no-webkit|no-firefox|with-|without-)/;
 const TEST_CALL = /\b(?:test|describe)(?:\.describe)?\s*\(/g;
 const GATE_SCRIPT = /^(?:pre|post)?(?:test|check|build)\b/;
 const GATE_HOOK = /^(?:pre|post)(?:test|check|build)\b/;

@@ -187,6 +187,8 @@ test.describe('test-weakening guard', NODE, () => {
       ['WEBKIT', 'ONLY'],
       ['NO', 'WEBKIT'],
       ['NO', 'FIREFOX'],
+      ['WITH', 'ANALYTICS'],
+      ['WITHOUT', 'CONTACT', 'FORM'],
     ].map((parts) => parts.join('_'));
     for (const tag of [...tags, `{ tag: '@chromium-only' }`]) {
       expect(
