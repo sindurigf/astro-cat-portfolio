@@ -354,13 +354,14 @@ Limits:
 - `overflow-wrap: break-word` hides a heading floor that is too large: the
   heading breaks mid-word instead of overflowing. The heading word fit check
   covers this.
-- `tests/forced-colors.spec.ts` skips all but one test on WebKit, which
-  reports `forced-colors: active` and paints the author palette anyway. The
-  remaining test fails if that changes in any engine.
+- WebKit does not run `tests/forced-colors.spec.ts` beyond one test: it
+  reports `forced-colors: active` and paints the author palette anyway. That
+  test fails if this changes in any engine.
 - Headless WebKit is not Safari and says nothing about VoiceOver.
-- Some checks run in one engine: `tests/forced-colors.spec.ts` skips WebKit;
-  the contact server error pages, layout shift, `@engine-invariant` specs and
-  the WAVE alerts run in Chromium only; `tests/text-resize.spec.ts` records
+- Some checks run in fewer engines, by tag (`tests/tags.ts`): forced colors
+  not in WebKit; touch and sized full screen not in Firefox; the contact server
+  error pages, layout shift, `@engine-invariant` specs and the WAVE alerts in
+  Chromium only; `tests/text-resize.spec.ts` records
   WebKit without asserting. Specs tagged `@node` read the build with no
   browser.
 - `tests/contact.spec.ts` needs the Worker and runs in Chromium only

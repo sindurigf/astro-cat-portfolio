@@ -135,11 +135,23 @@ do ([AGENTS.md](../AGENTS.md#what-a-test-is-for)).
 
 ### Other notes
 
-- A test that never opens a page takes `NODE` from `tests/tags.ts`: it runs
-  once, in the `node` project, and the browser projects skip it.
+- No test skips. `tests/reporters/no-skips.ts` fails any run whose summary
+  reports a skipped test; a test that cannot run in an engine takes a tag from
+  `tests/tags.ts`, and `playwright.config.ts` leaves it out of that project.
+- A test that never opens a page takes `NODE`: it runs once, in the `node`
+  project.
 - A browser test that reads only markup and attributes takes `ENGINE_INVARIANT`:
-  Chromium runs it, Firefox and WebKit skip it. Anything reading computed
-  styles, layout, focus, scrolling or role and name stays in every engine.
+  only Chromium runs it. Anything reading computed styles, layout, focus,
+  scrolling or role and name stays in every engine.
+- `CHROMIUM_ONLY`, `WEBKIT_ONLY`, `NO_WEBKIT` and `NO_FIREFOX` scope a test
+  that needs an engine's API or meets an engine bug; each says why in
+  `tests/tags.ts`.
+- A test of a configurable feature takes `WITH_<FEATURE>` or
+  `WITHOUT_<FEATURE>` from `tests/feature-tags.ts`; every config leaves out the
+  state `src/site.config.ts` does not have, so `--list` shows what runs.
+- A test that needs sample content calls `requireContent` (`tests/content.ts`):
+  a fork without that content adds some or deletes the test. Content that may
+  be absent is asserted absent: a talk with no PDF offers no PDF link.
 - `.github/workflows/scheduled.yml` runs weekly, never on pull requests:
   `npm audit --omit=dev --audit-level=high`, `check:live` and
   `tests/security-txt.spec.ts`. After a deploy:

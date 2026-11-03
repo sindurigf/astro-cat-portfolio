@@ -77,8 +77,8 @@ validated on import, so a bad value fails the build and the tests.
   those, not the config.
 - The browser bundle never imports the config: the click tracker reads
   `analytics.ts`, which does not.
-- Tests read the same constants, and the ones for analytics, the contact form,
-  the journey post and the CV skip when the feature is off.
+- Tests read the same constants. Tests for a feature carry a
+  `tests/feature-tags.ts` tag, so only the state the config has is registered.
 
 ## Browser support
 
@@ -440,7 +440,8 @@ Rejected:
   fetched as git objects; nothing from it is installed or run. It flags:
   - a new or widened skip, fixme or fail, `describe.configure`, a return
     behind an engine or environment test, and an existing test given an
-    engine tag from `tests/tags.ts`;
+    engine tag from `tests/tags.ts` or a feature tag from
+    `tests/feature-tags.ts`;
   - axe narrowing: `disableRules`, `exclude`, `include`, `withRules`,
     `withTags`, `runOnly`, `enabled: false`, filtered results, a `timedScan`
     tag list, a dropped `AXE_*` entry, any edit to `tests/axe.ts`;
