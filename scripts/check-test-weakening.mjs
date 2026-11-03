@@ -84,7 +84,7 @@ const GUARDED_RETURN =
   /\bif\s*\([^)]*\b(?:browserName|isMobile|channel|project|process\.env|testInfo)\b[^)]*\)\s*\{?\s*return\b/g;
 /** An engine or feature tag (tests/tags.ts, tests/feature-tags.ts) that narrows where a test runs, by name or as its literal. */
 const ENGINE_SCOPE =
-  /\b(?:ENGINE_INVARIANT|CHROMIUM_ONLY|WEBKIT_ONLY|NO_WEBKIT|NO_FIREFOX|WITH(?:OUT)?_[A-Z][A-Z_]*)\b|['"`]@(?:engine-invariant|chromium-only|webkit-only|no-webkit|no-firefox|with-|without-)/;
+  /\b(?:NODE|ENGINE_INVARIANT|CHROMIUM_ONLY|WEBKIT_ONLY|NO_WEBKIT|NO_FIREFOX|WITH(?:OUT)?_[A-Z][A-Z_]*?)(?:_TAG)?\b|['"`]@(?:node|engine-invariant|chromium-only|webkit-only|no-webkit|no-firefox|with-|without-)/;
 const TEST_CALL = /\b(?:test|describe)(?:\.describe)?\s*\(/g;
 const GATE_SCRIPT = /^(?:pre|post)?(?:test|check|build)\b/;
 const GATE_HOOK = /^(?:pre|post)(?:test|check|build)\b/;
@@ -332,6 +332,8 @@ const testHeaders = (text, code) =>
     }
     return {
       line: lineAt(code, match.index),
+      start: match.index,
+      end,
       title: {
         key: normalize(text.slice(open + 1, comma)),
         tagged: ENGINE_SCOPE.test(text.slice(open, headerEnd)),
@@ -617,9 +619,18 @@ export const fileFindings = ({ path, oldPath = path, oldText, newText }) => {
         'returns early behind an engine or environment test',
       );
     const headersBefore = testHeaders(oldText, oldCode);
-    for (const { title, line } of testHeaders(runs, newCode)) {
-      const was = headersBefore.find(({ title: old }) => old.key === title.key);
-      if (title.tagged && was && !was.title.tagged)
+    const headersNow = testHeaders(runs, newCode);
+    const existed = (key) =>
+      headersBefore.find(({ title: old }) => old.key === key);
+    for (const { title, line, start, end } of headersNow) {
+      if (!title.tagged) continue;
+      const was = existed(title.key);
+      if (was?.title.tagged) continue;
+      const wrapsExisting = headersNow.some(
+        (inner) =>
+          inner.start > start && inner.end <= end && existed(inner.title.key),
+      );
+      if (was || wrapsExisting)
         add(line, 'runs an existing test in fewer engines');
     }
   }

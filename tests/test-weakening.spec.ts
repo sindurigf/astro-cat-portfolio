@@ -189,8 +189,15 @@ test.describe('test-weakening guard', NODE, () => {
       ['NO', 'FIREFOX'],
       ['WITH', 'ANALYTICS'],
       ['WITHOUT', 'CONTACT', 'FORM'],
+      ['NODE'],
     ].map((parts) => parts.join('_'));
-    for (const tag of [...tags, `{ tag: '@chromium-only' }`]) {
+    const constant = ['CHROMIUM', 'ONLY', 'TAG'].join('_');
+    for (const tag of [
+      ...tags,
+      `{ tag: '@chromium-only' }`,
+      `{ tag: ${constant} }`,
+      `{ tag: ['@slow', '@no-webkit'] }`,
+    ]) {
       expect(
         inSpec(
           BASE.replace(`test('one', () => {`, `test('one', ${tag}, () => {`),
@@ -204,6 +211,21 @@ test.describe('test-weakening guard', NODE, () => {
         `${tag} on a new test is flagged`,
       ).toEqual([]);
     }
+  });
+
+  test('flags an existing test wrapped in a newly tagged describe, not new tests', () => {
+    const tag = ['NO', 'FIREFOX'].join('_');
+    const wrap = (body: string) =>
+      spec(`test.describe('group', ${tag}, () => {`, body, `});`);
+    const one = BASE.split('\n').slice(1).join('\n');
+    expect(inSpec(wrap(one))).toEqual([
+      'runs an existing test in fewer engines',
+    ]);
+    expect(
+      inSpec(
+        `${BASE}\n${wrap(`test('two', () => {\n  ${E}(3).toBe(3);\n});`).split('\n').slice(1).join('\n')}`,
+      ),
+    ).toEqual([]);
   });
 
   test('flags a changed number in an assertion and a changed test constant', () => {
