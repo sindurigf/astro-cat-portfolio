@@ -2,6 +2,7 @@
 import { CONTACT_EMAIL, CONTACT_MAILTO } from '../lib/contact';
 import {
   FIELDS,
+  formatCount,
   LIMITS,
   type ContactSubmission,
   type FieldError,
@@ -165,7 +166,8 @@ const BODY = idsFor('body');
     >{values.body ?? ''}</textarea>
     {/* No field has maxlength: it cuts pasted text silently; the server names each limit instead. */}
     <p class="mt-3 text-body text-text" id={BODY.hint}>
-      Between {LIMITS.bodyMin} and {LIMITS.bodyMax} characters.
+      Between {formatCount(LIMITS.bodyMin)} and {formatCount(LIMITS.bodyMax)}{' '}
+      characters.
     </p>
     {bodyError && (
       <p class="field-error" id={BODY.error}>

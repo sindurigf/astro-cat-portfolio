@@ -4,10 +4,13 @@
  */
 
 import { fileURLToPath } from 'node:url';
-import { glob, readFile } from 'node:fs/promises';
+import { readFile } from 'node:fs/promises';
 import { join, relative } from 'node:path';
+import { TOKEN_EXCEPTIONS as EXCEPTIONS } from './check-allow-lists.mjs';
+import { filesUnder } from './files-under.mjs';
 
-const ROOT = fileURLToPath(new URL('..', import.meta.url));
+const ROOT =
+  process.env.CHECK_ROOT ?? fileURLToPath(new URL('..', import.meta.url));
 const SRC = join(ROOT, 'src');
 
 /* The only file allowed to name a color literally. */
@@ -71,15 +74,6 @@ const GRID_COLUMNS = /(?<![\w-])(?:([a-z0-9]+):)?grid-cols-(\d+)(?![\w-])/g;
 const GRID_ALLOWED = new Set(['1', '2', '3']);
 const GRID_SPLIT = '12';
 
-/* False positives, each with its reason; an entry that no longer matches fails. */
-const EXCEPTIONS = [
-  {
-    file: 'src/lib/brand.ts',
-    text: 'light-[a-z-]',
-    reason: 'a regex character class naming light-mode tokens, not a class',
-  },
-];
-
 /* Blanks, not deletes, so reported line and column numbers stay true. */
 const blankComments = (source) => {
   const keepNewlines = (match) => match.replace(/[^\n]/g, ' ');
@@ -90,16 +84,6 @@ const blankComments = (source) => {
     .replace(/^[ \t]*\/\/.*$/gm, keepNewlines); /* whole-line // only, so a
                                                    URL is never truncated */
 };
-
-/* Skips node_modules, including a stale one under src/content/talks/. */
-const walk = (dir) =>
-  Array.fromAsync(
-    glob(
-      EXTENSIONS.map((ext) => `**/*${ext}`),
-      { cwd: dir, exclude: ['**/node_modules/**'] },
-    ),
-    (path) => join(dir, path),
-  );
 
 const locate = (source, index) => {
   const before = source.slice(0, index);
@@ -174,7 +158,7 @@ const isException = (name, text) =>
     return hit;
   });
 
-const sourceFiles = await walk(SRC);
+const sourceFiles = filesUnder(SRC, EXTENSIONS);
 if (sourceFiles.length === 0) {
   failures.push(`${relative(ROOT, SRC)}  no source file found to check`);
 }
@@ -307,7 +291,7 @@ if (fluidTokens === 0) {
 EXCEPTIONS.forEach((entry, i) => {
   if (!exceptionsSeen.has(i)) {
     failures.push(
-      `${entry.file}  exception "${entry.text}" no longer matches; remove it from EXCEPTIONS`,
+      `${entry.file}  exception "${entry.text}" no longer matches; remove it from TOKEN_EXCEPTIONS in scripts/check-allow-lists.mjs`,
     );
   }
 });

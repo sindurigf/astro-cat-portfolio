@@ -9,11 +9,16 @@ test.describe('a blog card', () => {
     await gotoSettled(page, '/blog/');
     const teaser = page.locator('.card:has(.card-link) p').first();
     await teaser.scrollIntoViewIfNeeded();
-    const box = (await teaser.boundingBox())!;
-    const y = box.y + box.height / 2;
-    await page.mouse.move(box.x + 2, y);
+    /* Along the first line: the box's middle falls between two lines and selects nothing. */
+    const line = await teaser.evaluate((element) => {
+      const range = document.createRange();
+      range.selectNodeContents(element);
+      const { left, right, top, bottom } = range.getClientRects()[0]!;
+      return { left, right, y: (top + bottom) / 2 };
+    });
+    await page.mouse.move(line.left + 2, line.y);
     await page.mouse.down();
-    await page.mouse.move(box.x + box.width - 2, y, { steps: 8 });
+    await page.mouse.move(line.right - 2, line.y, { steps: 8 });
     await page.mouse.up();
     expect(
       await page.evaluate(() => String(getSelection()).trim().length),
