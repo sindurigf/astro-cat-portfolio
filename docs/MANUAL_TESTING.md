@@ -716,8 +716,7 @@ drawings are `aria-hidden`.
       wakes it first. → SC 2.2.2
 - [ ] Rudra climbs between his two bricks, and a click on him opens his card
       on either brick. → SC 2.5.5
-- [ ] Under reduced motion Rudra sits on the brick under him, never in the
-      air above it. → SC 2.3.3
+- [ ] Under reduced motion Rudra stops climbing. → SC 2.3.3
 - [ ] The drawings announce nothing. → SC 1.1.1
 - [ ] While the trick list loads, or if it fails, its note is read once, as
       a status. → SC 4.1.3
