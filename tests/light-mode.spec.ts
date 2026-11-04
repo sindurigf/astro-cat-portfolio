@@ -211,7 +211,9 @@ test.describe('light mode focus ring stands out from the page, and from the cont
 });
 
 const switchButton = (page: Page) =>
-  page.locator('header').getByRole('button', { name: 'Theme', exact: true });
+  page
+    .locator('header')
+    .getByRole('button', { name: /^Theme( and Text Size)?$/ });
 const headerMenu = (page: Page) => page.locator('header #theme-menu');
 const radio = (page: Page, value: string) =>
   headerMenu(page).locator(`input[value="${value}"]`);
@@ -592,6 +594,9 @@ test.describe('the theme menu', () => {
   /* SC 1.3.1: the glyph says the theme in use; the name stays fixed. */
   test('the icon follows the theme in use', async ({ page }) => {
     await gotoSettled(page, '/about');
+    const name = await switchButton(page).evaluate((el) =>
+      el.textContent?.replace(/\s+/g, ' ').trim(),
+    );
     const sun = page.locator('header .theme-switch-sun');
     const moon = page.locator('header .theme-switch-moon');
     await expect(moon).toBeVisible();
@@ -599,7 +604,15 @@ test.describe('the theme menu', () => {
     await choose(page, 'Light');
     await expect(sun).toBeVisible();
     await expect(moon).toBeHidden();
-    await expect(switchButton(page)).toHaveAccessibleName('Theme');
+    await expect(switchButton(page)).toHaveAccessibleName(
+      /^Theme( and Text Size)?$/,
+    );
+    expect(
+      await switchButton(page).evaluate((el) =>
+        el.textContent?.replace(/\s+/g, ' ').trim(),
+      ),
+      'the Theme button changed its name with the theme.',
+    ).toBe(name);
   });
 
   /* SC 1.4.3: no dark frame of <main> before a saved light choice applies. */
