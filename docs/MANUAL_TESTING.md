@@ -55,7 +55,7 @@ Setup: Chrome, 1280px, `/`, focus in the address bar.
 - [ ] Enter on it: focus moves to main, which shows a cyan outline. → SC 2.4.1
 - [ ] Next Tab reaches the first control in the page (the hero pause control on `/`), not the header. → SC 2.4.1
 - [ ] Reload and Tab through: skip link, logo, About, Career, Blog, the
-      "Theme" button, Get in Touch, the page, footer Social (GitHub, LinkedIn,
+      "Theme and Text Size" button, Get in Touch, the "Aa Text Size" tab at 86rem and up, the page, footer Social (GitHub, LinkedIn,
       Instagram, Bluesky, Mastodon, Email), Site (Home, About, Career, Blog),
       About this site (in the order of `POLICY_LINKS` in `Footer.astro`), Let
       It Fall, the Made with AI link. Re-read `Footer.astro` when a footer
@@ -189,7 +189,7 @@ reload and `/career`, System removing the key and following the device live,
 its place at 320 and 1280px, its ring, forced colors, the theme set before
 `<body>`, and no switch without JavaScript. These checks are the rest.
 
-- [ ] By ear: the button is announced "Theme", "button", collapsed or
+- [ ] By ear: the button is announced "Theme and Text Size", "button", collapsed or
       expanded; open, the group "Theme" and each radio, "System", "Light",
       "Dark", with its checked state. → SC 4.1.2
 - [ ] Tab to the button: a ring shows with a gap, on the dark header. → SC 2.4.7

@@ -310,7 +310,7 @@ const walkFor = async (page: Page, colorScheme: (typeof SCHEMES)[number]) => {
 
   /* Backward: the direction that lands controls under the sticky header. */
   await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
-  /* The no-script fallback link is not rendered when scripts run; the reading tab follows the footer. */
+  /* The no-script fallback link is not rendered when scripts run. */
   const last = await page.evaluateHandle(
     (selector) =>
       [...document.querySelectorAll(selector)]

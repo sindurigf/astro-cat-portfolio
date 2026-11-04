@@ -725,3 +725,100 @@ test.describe(`at ${REFLOW_WIDTH}px and the largest text size (SC 1.4.4, 1.4.10)
     });
   }
 });
+
+/* SC 2.4.3 and 2.4.6: a keyboard finds a control named for text size among the header's own stops, at every width. */
+test.describe('finding the text size control from the keyboard', () => {
+  for (const width of [390, 768, 1024, 1280, 1920]) {
+    test(`at ${width}px a control named Text Size comes right after the header`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width, height: 800 });
+      await gotoSettled(page, '/about/');
+      const entry = page.locator(
+        width >= TAB_WIDTH
+          ? '.reading-tab-button'
+          : width < 768
+            ? 'header .aa-switch'
+            : 'header .theme-switch:not(.aa-switch)',
+      );
+      await expect(
+        entry,
+        `no text size entry is shown at ${width}px`,
+      ).toBeVisible();
+
+      /* The skip link, every stop in the header, then the edge tab. */
+      const limit =
+        (await page
+          .locator('header')
+          .evaluate(
+            (header, selector) =>
+              [...header.querySelectorAll(selector)].filter((el) =>
+                el.checkVisibility(),
+              ).length,
+            'a[href], button, input, select, textarea, [tabindex]:not([tabindex="-1"])',
+          )) + 2;
+      let found = false;
+      for (let stop = 0; stop < limit && !found; stop += 1) {
+        await page.keyboard.press('Tab');
+        found = await page.evaluate(() => {
+          const el = document.activeElement;
+          return el instanceof HTMLElement && /Text Size/.test(el.innerText);
+        });
+      }
+      expect(
+        found,
+        `no control named Text Size within the first ${limit} tab stops at ${width}px.`,
+      ).toBe(true);
+      const focused = page.locator(':focus');
+      await expect(focused).toHaveAccessibleName(/Text Size/);
+
+      await page.keyboard.press('Enter');
+      await expect(
+        page.getByRole('group', { name: 'Text Size' }).locator('visible=true'),
+        `the control at ${width}px does not open the Text Size group.`,
+      ).toHaveCount(1);
+    });
+  }
+
+  test('the edge tab comes before the main content in focus order', async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: TAB_WIDTH, height: 800 });
+    await gotoSettled(page, '/about/');
+    await expect(tab(page), 'the edge tab is missing').toBeAttached();
+    expect(
+      await tab(page).evaluate((el) =>
+        Boolean(
+          el.compareDocumentPosition(document.querySelector('main') as Node) &
+          Node.DOCUMENT_POSITION_FOLLOWING,
+        ),
+      ),
+      'the edge tab comes after <main>, so a keyboard reaches it only after the page.',
+    ).toBe(true);
+  });
+
+  test('the Theme button names the text size group only where it holds it', async ({
+    page,
+  }) => {
+    for (const [width, name] of [
+      [390, 'Theme'],
+      [1024, 'Theme and Text Size'],
+      [1920, 'Theme'],
+    ] as const) {
+      await page.setViewportSize({ width, height: 800 });
+      await gotoSettled(page, '/about/');
+      const theme = page.locator('header .theme-switch:not(.aa-switch)');
+      await expect(theme, 'the Theme button is missing').toBeAttached();
+      await expect(
+        theme,
+        `the Theme button at ${width}px does not say what its menu holds.`,
+      ).toHaveAccessibleName(name);
+      const group = page.locator('#theme-menu .popover-text-size');
+      await expect(group, 'the Theme menu has no size group').toBeAttached();
+      expect(
+        await group.evaluate((el) => getComputedStyle(el).display !== 'none'),
+        `at ${width}px the Theme menu's size group does not match its name.`,
+      ).toBe(name !== 'Theme');
+    }
+  });
+});

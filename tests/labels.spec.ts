@@ -77,11 +77,14 @@ test.describe('titleCaseMiss', NODE, () => {
 
 /* scripts/check-title-case.mjs reads headings and titles, not a button's hidden name. */
 test('the theme switch is named in title case on every page', NODE, () => {
+  /* The label may hold one inner span, the part shown only where the popover holds the text size group. */
   const SWITCH_NAME =
-    /<button\b[^>]*class="theme-switch"[^>]*>\s*<span class="sr-only">([^<]*)<\/span>/;
+    /<button\b[^>]*class="theme-switch"[^>]*>\s*<span class="sr-only">((?:[^<]|<span\b[^>]*>[^<]*<\/span>)*)<\/span>/;
 
   for (const [route, html] of builtHtml()) {
-    const name = SWITCH_NAME.exec(html)?.[1]?.trim();
+    const name = SWITCH_NAME.exec(html)?.[1]
+      ?.replace(/<[^>]+>/g, '')
+      .trim();
 
     expect(name, `${route} has no named theme switch.`).toBeTruthy();
     expect(
