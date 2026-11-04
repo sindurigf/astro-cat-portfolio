@@ -569,6 +569,10 @@
   --size-sticker-lg: 56px;
   --size-sticker-icon: 22px;
   --border-width-sticker: 4px;
+  /* Light mode's edge on post modules and the code in them: the full edge reads too heavy on white. */
+  --border-width-thin: 2px;
+  /* A post module's Steps toggle: "STEPS" and its marker with padding, grown with Text Size like the label. */
+  --size-module-toggle: calc(8.5rem * var(--text-scale, 1));
   --size-footer-mascot: clamp(72px, 9vw, 120px);
   /* How far the mascot drops below the type's top: the cap gap. */
   --footer-mascot-sink: 0.04em;

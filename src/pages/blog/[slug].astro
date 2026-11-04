@@ -1,5 +1,7 @@
 ---
 import ProseScrollFit from '../../components/ProseScrollFit.astro';
+import PostFolds from '../../components/PostFolds.astro';
+import { hasFoldMarkup } from '../../lib/post-folds';
 import { hasCodeBlock, hasTable } from '../../lib/code-blocks';
 import Breadcrumbs from '../../components/Breadcrumbs.astro';
 import { formatPostDate, isoDateTime } from '../../lib/post-date';
@@ -14,6 +16,8 @@ import { PHOTOGRAPHERS, PHOTO_CREDIT_PREFIX } from '../../lib/credits';
 import type { GetStaticPaths, InferGetStaticPropsType } from 'astro';
 import { getCollection, render } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
+/* After BaseLayout, so global.css declares the layer order first. */
+import '../../styles/components/post-folds.css';
 import { tagLabel } from '../../lib/blog';
 import PersonaSources from '../../components/PersonaSources.astro';
 import { PERSONA_SOURCES_ID, SAMPLE_PERSONA } from '../../lib/persona';
@@ -31,6 +35,10 @@ type Props = InferGetStaticPropsType<typeof getStaticPaths>;
 
 const { post } = Astro.props;
 const { Content, headings } = await render(post);
+if (post.rendered?.html === undefined) {
+  throw new Error(`${post.id} has no rendered HTML to look for folds in.`);
+}
+const foldInPost = hasFoldMarkup(post.rendered.html);
 const scrollerInPost =
   hasCodeBlock(post.body ?? '') || hasTable(post.body ?? '');
 
@@ -178,6 +186,7 @@ const article = placeholder
         <div class="prose">
           <Content />
           {scrollerInPost && <ProseScrollFit />}
+          {foldInPost && <PostFolds />}
           {sources.length > 0 && (
             <>
               <h2 id={PERSONA_SOURCES_ID}>Sources</h2>
