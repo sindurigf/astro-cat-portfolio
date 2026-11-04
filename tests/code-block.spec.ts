@@ -570,12 +570,16 @@ test.describe('post code with its label and Copy button', () => {
     }, FRAMED);
     await page.addScriptTag({ content: COPY_SCRIPT, type: 'module' });
 
-    const counts = await page.evaluate(() =>
-      [...document.querySelectorAll('[data-copy]')].map(
-        (source) => source.parentElement!.querySelectorAll('button').length,
-      ),
-    );
-    expect(counts).toEqual([1, 1]);
+    /* An inline module script runs after `addScriptTag` returns. */
+    await expect
+      .poll(() =>
+        page.evaluate(() =>
+          [...document.querySelectorAll('[data-copy]')].map(
+            (source) => source.parentElement!.querySelectorAll('button').length,
+          ),
+        ),
+      )
+      .toEqual([1, 1]);
   });
 });
 
