@@ -50,10 +50,8 @@ const EXEMPT_LINE = join(
 );
 const EXEMPT_LINE_FILE = 'src/pages/credits.astro';
 
-/*
- * The template maintainer's own contacts and repositories, so a report about
- * the template reaches her: these exact values, in these files only. Longest first.
- */
+/* Maintainer contacts and linked repositories: these exact values, in these
+ * files only. Longest first. */
 const MAINTAINER_EMAIL = join('lol', '@sin', 'duri.lol');
 const MAINTAINER_VALUES = {
   'ACCESSIBILITY.md': [
