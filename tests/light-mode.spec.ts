@@ -210,6 +210,10 @@ test.describe('light mode focus ring stands out from the page, and from the cont
   }
 });
 
+/* `md` and the `tab` variant (86rem) in px. */
+const MD_PX = 768;
+const TAB_PX = 1376;
+
 const switchButton = (page: Page) =>
   page
     .locator('header')
@@ -594,9 +598,10 @@ test.describe('the theme menu', () => {
   /* SC 1.3.1: the glyph says the theme in use; the name stays fixed. */
   test('the icon follows the theme in use', async ({ page }) => {
     await gotoSettled(page, '/about');
-    const name = await switchButton(page).evaluate((el) =>
-      el.textContent?.replace(/\s+/g, ' ').trim(),
-    );
+    /* From `md` until the edge tab its popover also holds the text size group. */
+    const width = page.viewportSize()?.width ?? 0;
+    const name =
+      width >= MD_PX && width < TAB_PX ? 'Theme and Text Size' : 'Theme';
     const sun = page.locator('header .theme-switch-sun');
     const moon = page.locator('header .theme-switch-moon');
     await expect(moon).toBeVisible();
@@ -604,15 +609,7 @@ test.describe('the theme menu', () => {
     await choose(page, 'Light');
     await expect(sun).toBeVisible();
     await expect(moon).toBeHidden();
-    await expect(switchButton(page)).toHaveAccessibleName(
-      /^Theme( and Text Size)?$/,
-    );
-    expect(
-      await switchButton(page).evaluate((el) =>
-        el.textContent?.replace(/\s+/g, ' ').trim(),
-      ),
-      'the Theme button changed its name with the theme.',
-    ).toBe(name);
+    await expect(switchButton(page)).toHaveAccessibleName(name);
   });
 
   /* SC 1.4.3: no dark frame of <main> before a saved light choice applies. */

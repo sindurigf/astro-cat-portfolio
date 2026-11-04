@@ -735,12 +735,16 @@ test.describe('finding the text size control from the keyboard', () => {
       await page.setViewportSize({ width, height: 800 });
       await gotoSettled(page, '/about/');
       const entry = page.locator(
-        '.reading-tab-button:visible, header .theme-switch:visible',
+        width >= TAB_WIDTH
+          ? '.reading-tab-button'
+          : width < 768
+            ? 'header .aa-switch'
+            : 'header .theme-switch:not(.aa-switch)',
       );
       await expect(
-        entry.first(),
+        entry,
         `no text size entry is shown at ${width}px`,
-      ).toBeAttached();
+      ).toBeVisible();
 
       /* The skip link, every stop in the header, then the edge tab. */
       const limit =

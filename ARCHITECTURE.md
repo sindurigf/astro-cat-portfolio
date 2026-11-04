@@ -142,7 +142,8 @@ Dark is the default. Colors and rules:
   as `light` or `dark` under `THEME_STORAGE_KEY` in `src/lib/theme.ts`).
   `data-theme` always holds the resolved `light` or `dark`.
 - `src/components/ThemeSwitch.astro` is a 44px `<button popovertarget>` named
-  "Theme" showing the theme in use, and a popover with a "Theme" `<fieldset>`
+  "Theme" showing the theme in use (from `md` until the edge tab, "Theme and
+  Text Size", where its popover also holds the text size group), and a popover with a "Theme" `<fieldset>`
   of three native radios. Its `id` prop names the popover and the radio group,
   so two on a page do not clash.
 - `src/scripts/theme-switch.ts` applies a choice at once, removes the key for
