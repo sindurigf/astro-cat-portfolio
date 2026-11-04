@@ -10,6 +10,18 @@ import { hasCodeBlock } from '../src/lib/code-blocks';
 import { REFLOW_VIEWPORT } from './wcag';
 import { NODE } from './tags';
 import { requireContent } from './content';
+import ts from 'typescript';
+import type { Page } from '@playwright/test';
+import { NON_TEXT, PAGE_HELPERS } from './contrast';
+import { pathToFileURL } from 'node:url';
+import { createSatteriMarkdownProcessor } from '@astrojs/markdown-satteri';
+import { linkListItem } from '../src/plugins/link-list-item.mjs';
+import { postFigure } from '../src/plugins/post-figure.mjs';
+import { moduleFold } from '../src/plugins/post-fold.mjs';
+import { tableScope } from '../src/plugins/table-scope.mjs';
+import { tableStack } from '../src/plugins/table-stack.mjs';
+import { tableScroll } from '../src/plugins/table-scroll.mjs';
+import { BLOG_CONTENT_DIR } from '../src/lib/paths';
 
 /**
  * `src/plugins/code-block.mjs` and the `.prose code` / `.prose pre` rules. No
@@ -17,12 +29,22 @@ import { requireContent } from './content';
  * markup injected into a real post's `.prose`.
  */
 
-/** The visitor's `ctx`, reduced to the one method it uses. */
-const visitorContext = () => ({
-  setProperty: (node: Record<string, any>, key: string, value: unknown) => {
-    node.properties = { ...(node.properties ?? {}), [key]: value };
-  },
-});
+/** The visitor's `ctx`, reduced to what it uses; records the frame that replaces a post block. */
+const visitorContext = () => {
+  const replaced: Record<string, any>[] = [];
+  return {
+    replaced,
+    setProperty: (node: Record<string, any>, key: string, value: unknown) => {
+      node.properties = { ...(node.properties ?? {}), [key]: value };
+    },
+    replaceNode: (_node: unknown, by: Record<string, any>) => {
+      replaced.push(by);
+    },
+  };
+};
+
+const POST = { fileURL: 'file:///site/src/content/blog/a.md' };
+const TALK = { fileURL: 'file:///site/src/content/talks/a/slides.md' };
 
 const preNode = (child: Record<string, unknown>) => ({
   type: 'element',
@@ -67,19 +89,65 @@ test(
 test.describe('the code-block visitor', () => {
   test('makes a fenced block a named tab stop', NODE, () => {
     const node = preNode(codeChild);
-    codeBlock.element.visit(node, visitorContext());
+    codeBlock(POST).element.visit(node, visitorContext());
 
     expect(node.properties.tabIndex).toBe(0);
     expect(node.properties.role).toBe('group');
     expect(node.properties.ariaLabel).toBe('Code, scrolls sideways');
   });
 
+  /* Function: a post block gets its frame, its language label and the copy name. */
+  test('frames a post block with its fence language as the label', NODE, () => {
+    const code = {
+      ...codeChild,
+      properties: { className: ['language-bash'] } as Record<string, unknown>,
+    };
+    const node = preNode(code);
+    const ctx = visitorContext();
+    codeBlock(POST).element.visit(node, ctx);
+
+    const [frame] = ctx.replaced;
+    expect(frame?.properties.className).toEqual(['code-block']);
+    expect(frame?.children.map((child: any) => child.tagName)).toEqual([
+      'span',
+      'pre',
+    ]);
+    expect(frame?.children[0].children[0].value).toBe('bash');
+    expect(
+      frame?.children[0].properties.ariaHidden,
+      'the visible label is read twice: it is in the name',
+    ).toBe('true');
+    expect(node.properties.ariaLabel).toBe('bash code, scrolls sideways');
+    expect(node.properties.dataCopy).toBe('bash code');
+  });
+
+  test('frames a block without a language with no label', NODE, () => {
+    const node = preNode(codeChild);
+    const ctx = visitorContext();
+    codeBlock(POST).element.visit(node, ctx);
+
+    expect(
+      ctx.replaced[0]?.children.map((child: any) => child.tagName),
+    ).toEqual(['pre']);
+    expect(node.properties.dataCopy).toBe('code');
+  });
+
+  /* Function: a slide sizes its own code and loads no copy script. */
+  test('leaves a slide block unframed', NODE, () => {
+    const node = preNode(codeChild);
+    const ctx = visitorContext();
+    codeBlock(TALK).element.visit(node, ctx);
+
+    expect(ctx.replaced).toEqual([]);
+    expect(node.properties.dataCopy).toBeUndefined();
+  });
+
   test('drops the fence language class, which nothing styles', NODE, () => {
     const code = {
       ...codeChild,
-      properties: { className: ['language-sh'] } as Record<string, unknown>,
+      properties: { className: ['language-bash'] } as Record<string, unknown>,
     };
-    codeBlock.element.visit(preNode(code), visitorContext());
+    codeBlock(POST).element.visit(preNode(code), visitorContext());
 
     expect(
       code.properties.className,
@@ -89,7 +157,7 @@ test.describe('the code-block visitor', () => {
 
   test('leaves preformatted text that is not code alone', NODE, () => {
     const node = preNode({ type: 'text', value: 'a receipt, not code' });
-    codeBlock.element.visit(node, visitorContext());
+    codeBlock(POST).element.visit(node, visitorContext());
 
     expect(
       node.properties,
@@ -100,7 +168,7 @@ test.describe('the code-block visitor', () => {
   test('does not write a second tabindex over one already there', NODE, () => {
     const node = preNode(codeChild);
     node.properties.tabIndex = -1;
-    codeBlock.element.visit(node, visitorContext());
+    codeBlock(POST).element.visit(node, visitorContext());
 
     expect(
       node.properties.tabIndex,
@@ -118,8 +186,8 @@ const SAMPLE = `
 test.describe('code in a post, as it renders', () => {
   for (const width of [1280, REFLOW_VIEWPORT.width]) {
     test(`keeps its overflow to itself at ${width}px`, async ({ page }) => {
-      requireContent(POST_ROUTES.length > 0, NO_POST);
       await page.setViewportSize({ width, height: 900 });
+      requireContent(POST_ROUTES.length > 0, NO_POST);
       await gotoSettled(page, itemAt(POST_ROUTES, 0));
 
       const measured = await page.evaluate((html) => {
@@ -162,6 +230,7 @@ test('inline code in a paragraph wraps inside its column at 320px', async ({
   page,
 }) => {
   await page.setViewportSize(REFLOW_VIEWPORT);
+  requireContent(POST_ROUTES.length > 0, NO_POST);
   await gotoSettled(page, itemAt(POST_ROUTES, 0));
 
   const pageScrolls = await page.evaluate(() => {
@@ -200,7 +269,7 @@ test.describe('a code block is a tab stop only while it scrolls', () => {
         () => stateOf(page),
         'a block that fits is still a tab stop, or named as scrolling',
       )
-      .toMatchObject({ scrolls: false, tabIndex: -1, name: 'Code' });
+      .toMatchObject({ scrolls: false, tabIndex: -1, name: 'bash code' });
   });
 
   /* SC 1.4.12: letter and word spacing widen the text, not the block's box. */
@@ -240,7 +309,7 @@ test.describe('a code block is a tab stop only while it scrolls', () => {
       .toMatchObject({
         scrolls: true,
         tabIndex: 0,
-        name: 'Code, scrolls sideways',
+        name: 'bash code, scrolls sideways',
       });
   });
 
@@ -257,13 +326,13 @@ test.describe('a code block is a tab stop only while it scrolls', () => {
       .toMatchObject({
         scrolls: true,
         tabIndex: 0,
-        name: 'Code, scrolls sideways',
+        name: 'bash code, scrolls sideways',
       });
 
     await page.setViewportSize({ width: 1280, height: 900 });
     await expect
       .poll(() => stateOf(page), 'widened, the block kept its tab stop')
-      .toMatchObject({ scrolls: false, tabIndex: -1, name: 'Code' });
+      .toMatchObject({ scrolls: false, tabIndex: -1, name: 'bash code' });
   });
 });
 
@@ -318,4 +387,290 @@ test.describe('the code-block fit script', NODE, () => {
     expect(hasCodeBlock('Text.\n\n    indented code\n')).toBe(true);
     expect(hasCodeBlock('A paragraph with `inline code` only.\n')).toBe(false);
   });
+});
+
+/* Post code as src/plugins/code-block.mjs frames it, with src/scripts/copy.ts run after it. */
+const FRAMED = `
+  <div class="code-block"><span class="code-lang" aria-hidden="true">bash</span><pre tabindex="0" role="group" aria-label="bash code, scrolls sideways" data-copy="bash code" data-copy-word><code>make app
+    indented by four spaces
+	indented by a tab
+drush --uri=https://example.test sql:query "SELECT nid, title FROM node_field_data WHERE status = 1;"
+</code></pre></div>
+`;
+
+const COPY_SCRIPT = ts.transpileModule(
+  readFileSync('src/scripts/copy.ts', 'utf8'),
+  { compilerOptions: { target: ts.ScriptTarget.ES2022 } },
+).outputText;
+
+/** A real post with the framed sample last in its prose and the copy script run on it. */
+const gotoFramed = async (page: Page, { script = true } = {}) => {
+  requireContent(POST_ROUTES.length > 0, NO_POST);
+  await gotoSettled(page, itemAt(POST_ROUTES, 0));
+  await page.evaluate((html) => {
+    document.querySelector('.prose')!.insertAdjacentHTML('beforeend', html);
+  }, FRAMED);
+  if (script) await page.addScriptTag({ content: COPY_SCRIPT, type: 'module' });
+  return page.locator('.code-block').last();
+};
+
+test.describe('post code with its label and Copy button', () => {
+  /* Function, SC 4.1.3, 2.5.3, 2.5.5: copies the code without the fence's last newline, says Copied, keeps a name that starts with its visible word, 44px. */
+  test('copies the code and announces Copied', async ({ page }) => {
+    await page.addInitScript(() => {
+      const copied: string[] = [];
+      Object.defineProperty(window, '__copied', { value: copied });
+      Object.defineProperty(navigator, 'clipboard', {
+        value: { writeText: async (text: string) => void copied.push(text) },
+      });
+    });
+    const frame = await gotoFramed(page);
+    const button = frame.getByRole('button', { name: 'Copy bash code' });
+
+    await expect(button).toBeVisible();
+    const word = button.locator('span[aria-hidden="true"]');
+    await expect(word, 'the visible word is hidden').toBeVisible();
+    await expect(word).toHaveText('Copy');
+    const box = (await button.boundingBox())!;
+    expect(Math.min(box.width, box.height)).toBeGreaterThanOrEqual(44);
+    await button.click();
+    await expect(page.getByRole('status').last()).toHaveText('Copied');
+    expect(
+      await page.evaluate(
+        () => (window as never as { __copied: string[] }).__copied,
+      ),
+    ).toEqual([(await frame.locator('pre').textContent())!.replace(/\n$/, '')]);
+    await expect(
+      frame.getByRole('button', { name: 'Copy bash code' }),
+      'the name changed after the press',
+    ).toHaveCount(1);
+  });
+
+  /* SC 3.3.1: a refused copy is shown on the page, says how to copy instead, and selects the code. */
+  test('shows a refused copy and selects the code', async ({ page }) => {
+    await page.addInitScript(() => {
+      Object.defineProperty(navigator, 'clipboard', { value: undefined });
+    });
+    const frame = await gotoFramed(page);
+    await frame.getByRole('button', { name: 'Copy bash code' }).click();
+
+    const error = page.locator('.code-block + .copy-error').last();
+    await expect(error).toBeVisible();
+    expect(
+      await error.evaluate(
+        (el) =>
+          getComputedStyle(el).color !==
+          getComputedStyle(document.querySelector('.prose p')!).color,
+      ),
+      'the error reads in the body text color, not as an error',
+    ).toBe(true);
+    await expect(error).toHaveText(
+      'Copy failed. The code is selected: press Ctrl+C or Command+C.',
+    );
+    /* A selection's text drops a trailing newline; compare without it. */
+    expect(
+      (await page.evaluate(() => getSelection()?.toString() ?? '')).replace(
+        /\n$/,
+        '',
+      ),
+    ).toBe((await frame.locator('pre').textContent())!.replace(/\n$/, ''));
+  });
+
+  /* SC 1.4.10: the label and the button never sit on the code's text. */
+  for (const width of [REFLOW_VIEWPORT.width, 1280]) {
+    test(`keeps the label and button off the code at ${width}px`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width, height: 900 });
+      const frame = await gotoFramed(page);
+      await expect(frame.getByRole('button')).toBeVisible();
+
+      const covered = await frame.evaluate((block) => {
+        const range = document.createRange();
+        range.selectNodeContents(block.querySelector('pre code')!);
+        const lines = [...range.getClientRects()];
+        return [...block.querySelectorAll('.code-lang, button')].filter(
+          (el) => {
+            const box = el.getBoundingClientRect();
+            return lines.some(
+              (line) =>
+                line.right > box.left &&
+                line.left < box.right &&
+                line.bottom > box.top &&
+                line.top < box.bottom,
+            );
+          },
+        ).length;
+      });
+
+      expect(covered, 'the label or button covers code text').toBe(0);
+    });
+  }
+
+  /* SC 1.4.11, docs/STYLEGUIDE.md borders at 3:1: the grey edge against the page and the code fill. */
+  for (const colorScheme of ['dark', 'light'] as const) {
+    test(`draws the frame edge at 3:1 in ${colorScheme} mode`, async ({
+      browser,
+    }) => {
+      const context = await browser.newContext({ colorScheme });
+      const page = await context.newPage();
+      await gotoFramed(page);
+
+      const ratios: number[] = await page.evaluate(`(() => {
+        ${PAGE_HELPERS}
+        const block = [...document.querySelectorAll('.code-block')].at(-1);
+        const style = getComputedStyle(block);
+        const edge = parse(style.borderTopColor);
+        const fill = parse(style.backgroundColor);
+        const ground = effectiveBackground(block.parentElement);
+        return [ratio(over(edge, ground), ground), ratio(over(edge, fill), fill)];
+      })()`);
+
+      expect(
+        ratios.filter((value) => value < NON_TEXT),
+        'edge ratios under 3:1 (page, fill)',
+      ).toEqual([]);
+      await context.close();
+    });
+  }
+
+  /* SC 3.3.1: a refusal from the browser, not a missing API, is shown the same way. */
+  test('shows a copy the browser refuses', async ({ page }) => {
+    await page.addInitScript(() => {
+      Object.defineProperty(navigator, 'clipboard', {
+        value: {
+          writeText: async () => {
+            throw new DOMException('Denied', 'NotAllowedError');
+          },
+        },
+      });
+    });
+    const frame = await gotoFramed(page);
+    await frame.getByRole('button', { name: 'Copy bash code' }).click();
+
+    await expect(page.locator('.code-block + .copy-error').last()).toHaveText(
+      'Copy failed. The code is selected: press Ctrl+C or Command+C.',
+    );
+  });
+
+  /* Function: post code and a /brand Markup panel on one page each get one button. */
+  test('draws one button per block when post and /brand markup meet', async ({
+    page,
+  }) => {
+    requireContent(POST_ROUTES.length > 0, NO_POST);
+    await gotoSettled(page, itemAt(POST_ROUTES, 0));
+    await page.evaluate((html) => {
+      document
+        .querySelector('.prose')!
+        .insertAdjacentHTML(
+          'beforeend',
+          html +
+            '<div class="brand-code-frame"><pre class="brand-code" data-copy="markup for a part"><code>&lt;p&gt;</code></pre></div>',
+        );
+    }, FRAMED);
+    await page.addScriptTag({ content: COPY_SCRIPT, type: 'module' });
+
+    const counts = await page.evaluate(() =>
+      [...document.querySelectorAll('[data-copy]')].map(
+        (source) => source.parentElement!.querySelectorAll('button').length,
+      ),
+    );
+    expect(counts).toEqual([1, 1]);
+  });
+});
+
+/* The site's own pipeline, so the fixture renders as a post would. */
+const PLUGINS: Record<string, unknown> = {
+  linkListItem,
+  postFigure,
+  codeBlock,
+  moduleFold,
+  tableScope,
+  tableStack,
+  tableScroll,
+};
+
+const configPlugins = (): string[] =>
+  (
+    /hastPlugins:\s*\[([^\]]*)\]/.exec(
+      readFileSync('astro.config.mjs', 'utf8'),
+    )?.[1] ?? ''
+  )
+    .split(',')
+    .map((name) => name.trim())
+    .filter(Boolean);
+
+const FENCE_BODY =
+  'Text.\n\n```bash\nmake app\n    four spaces\n\tone tab\n```\n';
+
+/* Build correctness: a fence goes through the configured plugins into the frame the browser tests assume. */
+test(
+  'frames a fence through the configured Markdown pipeline',
+  NODE,
+  async () => {
+    const names = configPlugins();
+    expect(
+      names.filter((name) => !(name in PLUGINS)),
+      'hastPlugins has a plugin this spec does not import',
+    ).toEqual([]);
+    const processor = await createSatteriMarkdownProcessor({
+      hastPlugins: names.map((name) => PLUGINS[name]) as never,
+      syntaxHighlight: false,
+    });
+    const { code } = await processor.render(FENCE_BODY, {
+      fileURL: pathToFileURL(join(BLOG_CONTENT_DIR, 'code.md')),
+    });
+
+    expect(code).toContain(
+      '<div class="code-block"><span class="code-lang" aria-hidden="true">bash</span><pre',
+    );
+    expect(code).toContain('aria-label="bash code, scrolls sideways"');
+    expect(code).toContain('data-copy="bash code"');
+    expect(code, 'whitespace inside the code changed').toContain(
+      'make app\n    four spaces\n\tone tab\n</code>',
+    );
+  },
+);
+
+/* Build correctness: the post page loads the frame styles, and the copy script where code can be. */
+test(
+  'the post page wires the code frame styles and the copy script',
+  NODE,
+  () => {
+    const postPage = readFileSync('src/pages/blog/[slug].astro', 'utf8');
+
+    expect(postPage).toContain(
+      "import '../../styles/components/code-block.css';",
+    );
+    expect(postPage).toMatch(/const codeInPost = hasCodeBlock\(/);
+    expect(postPage).toContain('{codeInPost && <CodeCopy />}');
+    expect(readFileSync('src/components/CodeCopy.astro', 'utf8')).toContain(
+      "import '../scripts/copy';",
+    );
+  },
+);
+
+/* Build correctness: /brand ships the framed sample with no button in its HTML. */
+test('/brand ships the framed sample without a static button', NODE, () => {
+  const html = builtHtml().get('/brand');
+  expect(html, '/brand was not built').toBeDefined();
+
+  expect(html).toContain('class="code-block"');
+  expect(html).toMatch(/<pre[^>]*data-copy="bash code"[^>]*data-copy-word/);
+  expect(html, 'a Copy button is in the static HTML').not.toContain(
+    'copy-word-button',
+  );
+});
+
+/* Function: without a script, /brand's code sample has no Copy button. */
+test('/brand draws no Copy button on its code sample without a script', async ({
+  browser,
+}) => {
+  const context = await browser.newContext({ javaScriptEnabled: false });
+  const page = await context.newPage();
+  await page.goto('/brand');
+
+  await expect(page.locator('.code-block pre').first()).toBeVisible();
+  await expect(page.locator('.copy-word-button')).toHaveCount(0);
+  await context.close();
 });

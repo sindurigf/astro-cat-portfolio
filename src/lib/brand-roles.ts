@@ -31,6 +31,7 @@ export const SWATCH: Record<string, Swatch> = {
   surface: { paint: 'fill', cls: 'bg-surface' },
   border: { paint: 'fill', cls: 'bg-border' },
   'fill-edge': { paint: 'fill', cls: 'bg-fill-edge' },
+  'code-edge': { paint: 'fill', cls: 'bg-code-edge' },
   text: { paint: 'glyph', cls: 'text-text' },
   subtle: { paint: 'glyph', cls: 'text-subtle' },
   gold: { paint: 'fill', cls: 'bg-gold' },

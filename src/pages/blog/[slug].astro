@@ -1,5 +1,6 @@
 ---
 import ProseScrollFit from '../../components/ProseScrollFit.astro';
+import CodeCopy from '../../components/CodeCopy.astro';
 import PostFolds from '../../components/PostFolds.astro';
 import { hasFoldMarkup } from '../../lib/post-folds';
 import { hasCodeBlock, hasTable } from '../../lib/code-blocks';
@@ -17,6 +18,7 @@ import type { GetStaticPaths, InferGetStaticPropsType } from 'astro';
 import { getCollection, render } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 /* After BaseLayout, so global.css declares the layer order first. */
+import '../../styles/components/code-block.css';
 import '../../styles/components/post-folds.css';
 import { tagLabel } from '../../lib/blog';
 import PersonaSources from '../../components/PersonaSources.astro';
@@ -39,8 +41,8 @@ if (post.rendered?.html === undefined) {
   throw new Error(`${post.id} has no rendered HTML to look for folds in.`);
 }
 const foldInPost = hasFoldMarkup(post.rendered.html);
-const scrollerInPost =
-  hasCodeBlock(post.body ?? '') || hasTable(post.body ?? '');
+const codeInPost = hasCodeBlock(post.body ?? '');
+const scrollerInPost = codeInPost || hasTable(post.body ?? '');
 
 const {
   title,
@@ -186,6 +188,7 @@ const article = placeholder
         <div class="prose">
           <Content />
           {scrollerInPost && <ProseScrollFit />}
+          {codeInPost && <CodeCopy />}
           {foldInPost && <PostFolds />}
           {sources.length > 0 && (
             <>

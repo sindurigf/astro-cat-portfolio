@@ -2,7 +2,7 @@
 import ProseScrollFit from '../ProseScrollFit.astro';
 import ComponentRow from './ComponentRow.astro';
 
-const CODE_LABEL = 'Code, scrolls sideways';
+const CODE_LABEL = 'bash code, scrolls sideways';
 ---
 
 <ul role="list" class="brand-parts">
@@ -39,14 +39,21 @@ const CODE_LABEL = 'Code, scrolls sideways';
   <ComponentRow
     id="code-block"
     use="code a reader may copy."
-    rule="Scrolls sideways, never wraps, and takes keyboard focus while it overflows, so a keyboard can scroll it."
+    rule="A grey-edged frame with its language in a gold label and a Copy button. Scrolls sideways, never wraps, and takes keyboard focus while it overflows, so a keyboard can scroll it."
   >
     <div class="prose">
-      <pre
-        tabindex="0"
-        role="group"
-        aria-label={CODE_LABEL}
-      ><code>npm run build && npm run check</code></pre>
+      <div class="code-block">
+        <span class="code-lang" aria-hidden="true">
+          bash
+        </span>
+        <pre
+          tabindex="0"
+          role="group"
+          aria-label={CODE_LABEL}
+          data-copy="bash code"
+          data-copy-word
+        ><code>npm run build && npm run check</code></pre>
+      </div>
     </div>
     <ProseScrollFit />
   </ComponentRow>
