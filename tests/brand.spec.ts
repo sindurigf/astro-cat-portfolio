@@ -364,10 +364,9 @@ test.describe('/brand', () => {
     /* Measured once scrolled: at the top the header sits lower, under the report band. */
     const stuckHeader = async () =>
       (await page.locator('header').first().boundingBox())!;
-    let header = await stuckHeader();
     for (const y of [SCROLLED, SCROLLED * 2]) {
       await page.evaluate((to) => window.scrollTo(0, to), y);
-      header = await stuckHeader();
+      const header = await stuckHeader();
       const box = (await menu.boundingBox())!;
       expect(
         box.y,
@@ -388,6 +387,7 @@ test.describe('/brand', () => {
       .locator('visible=true')
       .last();
     await last.focus();
+    const header = await stuckHeader();
     const link = (await last.boundingBox())!;
     const list = (await menu.boundingBox())!;
     expect(
