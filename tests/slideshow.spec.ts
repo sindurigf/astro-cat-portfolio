@@ -235,10 +235,19 @@ test.describe('the talk slideshow', () => {
     await expect(previous(page)).not.toHaveAttribute('aria-disabled');
   });
 
-  test('the arrow keys, Page Up and Down, Home and End move between slides', async ({
+  test('the arrow keys, Page Up and Down, Home and End move between slides once the deck sits under the header', async ({
     page,
   }) => {
     await open(page);
+    /* Slide 2 is taller than the space under the band, so from the top Page Down scrolls first by design. */
+    await page.evaluate(() =>
+      window.scrollTo(
+        0,
+        document
+          .querySelector('aside[aria-label="Accessibility help"]')!
+          .getBoundingClientRect().bottom,
+      ),
+    );
     const last = await page.locator('.slide').count();
     await page.keyboard.press('ArrowRight');
     await expect(visible(page)).toHaveId('slide-2');
@@ -257,6 +266,32 @@ test.describe('the talk slideshow', () => {
     );
     await page.keyboard.press('Home');
     await expect(visible(page)).toHaveId('slide-1');
+  });
+
+  test('turning a slide on a scrolled page keeps the new slide below the header (SC 2.4.11)', async ({
+    page,
+  }) => {
+    await open(page);
+    await page.evaluate(() =>
+      window.scrollTo(
+        0,
+        document
+          .querySelector('aside[aria-label="Accessibility help"]')!
+          .getBoundingClientRect().bottom,
+      ),
+    );
+    const header = page.locator('header.site-header');
+    for (const key of ['ArrowRight', 'ArrowRight', 'ArrowLeft']) {
+      await page.keyboard.press(key);
+      const [slideTop, headerBottom] = await Promise.all([
+        visible(page).evaluate((el) => el.getBoundingClientRect().top),
+        header.evaluate((el) => el.getBoundingClientRect().bottom),
+      ]);
+      expect(
+        slideTop,
+        `after ${key} the new slide starts under the sticky header.`,
+      ).toBeGreaterThanOrEqual(headerBottom);
+    }
   });
 
   test('keys pressed outside the deck keep their own meaning', async ({

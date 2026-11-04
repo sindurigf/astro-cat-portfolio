@@ -303,6 +303,17 @@
     --page-cyan: var(--color-cyan);
   }
 
+  /* The gold hero's edges (`.gold-column` in layout.css): from the rail, out to the screen clearance. The band's link ends where the bar does. */
+  :is(.header-slab, .report-band-row) {
+    --hero-column-rail: max(0px, calc((100% - var(--container-page)) / 2));
+
+    margin-inline: var(--hero-column-rail)
+      min(
+        var(--hero-column-rail),
+        calc(var(--hero-column-screen-clear) - --spacing(6))
+      );
+  }
+
   /*
    * The bar is gold in both modes, edged in ink and thrown like a card (pink,
    * ink in light mode). Inside it the bricks take light fills and ink lines, and
@@ -317,14 +328,6 @@
     --shadow-brick: var(--brick-throw) var(--brick-throw) 0
       var(--color-block-ink);
 
-    /* The gold hero's edges (`.gold-column` in layout.css): from the rail, out to the screen clearance. */
-    --hero-column-rail: max(0px, calc((100% - var(--container-page)) / 2));
-
-    margin-inline: var(--hero-column-rail)
-      min(
-        var(--hero-column-rail),
-        calc(var(--hero-column-screen-clear) - --spacing(6))
-      );
     border: var(--block-edge) solid var(--color-block-ink);
     background-color: var(--color-block-gold);
 

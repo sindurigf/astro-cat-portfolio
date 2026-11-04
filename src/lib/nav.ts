@@ -1,4 +1,10 @@
-import { ABOUT_PATH, BLOG_PATH, CAREER_PATH, CONTACT_PATH } from './paths';
+import {
+  ABOUT_PATH,
+  BLOG_PATH,
+  CAREER_PATH,
+  CONTACT_PATH,
+  REPORT_BARRIER_HREF,
+} from './paths';
 
 /* Shared by Header.astro's three navigations so they agree on "current". */
 
@@ -25,6 +31,12 @@ export const HEADER_LINKS: readonly NavLink[] = NAV_LINKS.filter(
 export const CTA: NavLink = {
   href: CONTACT_PATH,
   label: 'Get in Touch',
+};
+
+/** The band above the header: the same place on every page (SC 3.2.6). */
+export const REPORT_LINK: NavLink = {
+  href: REPORT_BARRIER_HREF,
+  label: 'Report an Accessibility Problem',
 };
 
 /*

@@ -24,7 +24,7 @@ export const TEMPLATE_STATEMENT: TemplateStatement = {
     'Accessibility owner':
       '94491d0682f10b6b08326e0ccfde9acaebdef2875c0bd3140ff7505e1d041f5a',
     'Public reporting':
-      '393cad2da441ada869f49273b7f0a0ef9058bc27be10718d0151a6051e25cbd2',
+      '0d4635c389be482d3ec6bd65ed3c62ab0ea31c9dec52ab4ae6ca8898fa10ab3e',
     'Private reporting':
       '88df032ad8640fb3f2e2c6ef30bc3d113615fe83731c5171cafd07a7637456e8',
   },

@@ -41,7 +41,7 @@ const CHECK_COULD_NOT_RUN = 2;
 const STATEMENT_REPOSITORY = statementRow(
   STATEMENT,
   'Public reporting',
-).replace(/\/issues$/, '');
+).replace(/\/issues(?:\/.*)?$/, '');
 
 const withRow = (statement: string, field: string, value: string): string =>
   statement.replace(
