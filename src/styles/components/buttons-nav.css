@@ -314,10 +314,6 @@
       );
   }
 
-  .report-band-sentinel {
-    height: calc(100% + var(--spacing-header));
-  }
-
   /*
    * The bar is gold in both modes, edged in ink and thrown like a card (pink,
    * ink in light mode). Inside it the bricks take light fills and ink lines, and

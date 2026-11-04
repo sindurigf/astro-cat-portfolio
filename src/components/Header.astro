@@ -37,13 +37,13 @@ const current = (href: string) => ariaCurrent(currentPath, href);
   class="page-gutter relative bg-background"
   aria-label="Accessibility help"
 >
-  {/* The slim header's trigger: covers the band and the full header below it, so it leaves view once both have scrolled past (header-compact.ts). */}
+  {/* The slim header's trigger: the full header's place under the band, out of view once the page scrolls past it (header-compact.ts). */}
   <div
-    class="report-band-sentinel pointer-events-none absolute inset-x-0 top-0"
+    class="pointer-events-none absolute inset-x-0 top-full h-header"
     aria-hidden="true"
     data-header-sentinel
   ></div>
-  <div class="report-band-row flex min-h-report-band items-center justify-end py-2">
+  <div class="report-band-row flex min-h-target items-center justify-end py-2">
     <a
       href={REPORT_LINK.href}
       class="link hit-target text-label font-black text-text"

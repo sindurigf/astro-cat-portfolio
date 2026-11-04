@@ -1247,11 +1247,11 @@ Enforced by `tests/nav-current.spec.ts`, `tests/mobile-menu.spec.ts`,
   Problem", to Report a Barrier on `/accessibility`, on that page too. Second
   in tab order, after the skip link (SC 2.4.1, 3.2.6).
 - `text-label`, `font-black`, `.link` underline in `text` (15.28), cyan on
-  hover. `.hit-target` makes the 44px target. The band is at least 48px
-  (`--spacing-report-band`) and grows as the link wraps at larger text; its
+  hover. `.hit-target` makes the 44px target. The band is at least 44px
+  (`--spacing-target`) and grows as the link wraps at larger text; its
   8px padding keeps the ring inside it, clear of the header.
 - Its row takes the bar's margins, so the link ends where the bar does.
-- The slim header's sentinel spans the band and the full header.
+- The slim header's sentinel marks the full header's place under the band.
 - Print hides it with everything outside `<main>`.
 
 ### By width
