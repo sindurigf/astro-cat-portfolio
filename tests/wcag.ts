@@ -55,6 +55,10 @@ export const AXE_EXPERIMENTAL_RULES = [
 /** Hard ceiling for one axe scan, above the 30s default: a scan under load runs past it. */
 export const AXE_TIMEOUT_MS = 120_000;
 
+/** The `md` breakpoint and the `tab` variant (86rem) in global.css, in px. */
+export const MD_WIDTH = 768;
+export const TAB_WIDTH = 1376;
+
 /** SC 1.4.10 Reflow width: 1280px at 400% zoom. */
 export const REFLOW_VIEWPORT = { width: 320, height: 720 };
 

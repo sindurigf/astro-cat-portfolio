@@ -1,5 +1,6 @@
 import { expect, test, type Page } from './test';
 import { gotoSettled } from './settle';
+import { reportBand } from './report-band';
 
 /**
  * Tightest header widths: 336px (`--breakpoint-xs`), 768px (primary nav appears),
@@ -233,10 +234,7 @@ const FAR_ANCHOR = 'sources';
 
 /** Where the full header ends in the document, in px: the report band above it, then `--spacing-header`. */
 const fullHeader = (page: Page): Promise<number> =>
-  page.evaluate(() => {
-    const band = document.querySelector(
-      'aside[aria-label="Accessibility help"]',
-    )!;
+  reportBand(page).evaluate((band) => {
     const height = parseFloat(
       getComputedStyle(document.documentElement).getPropertyValue(
         '--spacing-header',
