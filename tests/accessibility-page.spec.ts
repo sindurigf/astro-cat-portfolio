@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { expect, test } from './test';
 import { defined } from '../src/lib/defined';
 import { builtPages, pagesNotLinking } from './routes';
@@ -155,8 +155,15 @@ test(
 );
 
 test('public reporting opens the accessibility issue form', NODE, () => {
-  expect(
+  const form = /\/issues\/new\?template=([\w.-]+\.yml)$/.exec(
     tableValue('Public reporting'),
-    `${RECORD} public reporting does not open the accessibility issue form, so a report starts blank.`,
-  ).toMatch(/\/issues\/new\?template=accessibility\.yml$/);
+  )?.[1];
+  expect(
+    form,
+    `${RECORD} public reporting does not open an issue form, so a report starts blank.`,
+  ).toBe('accessibility.yml');
+  expect(
+    existsSync(`.github/ISSUE_TEMPLATE/${form}`),
+    `${RECORD} public reporting opens .github/ISSUE_TEMPLATE/${form}, which does not exist.`,
+  ).toBe(true);
 });
