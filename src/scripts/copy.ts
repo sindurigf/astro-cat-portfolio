@@ -14,68 +14,87 @@ document.body.append(announcer);
 const drawIcon = (path: string): SVGSVGElement => {
   const icon = document.createElementNS(SVG_NS, 'svg');
   icon.setAttribute('viewBox', '0 0 24 24');
-  icon.setAttribute('aria-hidden', 'true');
   icon.setAttribute('focusable', 'false');
   const shape = document.createElementNS(SVG_NS, 'path');
   shape.setAttribute('d', path);
   shape.setAttribute('fill', 'currentColor');
   icon.append(shape);
-  return icon;
+  return mute(icon);
 };
 
 const timers = new WeakMap<Element, number>();
 
+const COPY = 'Copy';
+
+const mute = <T extends Element>(node: T): T => {
+  node.setAttribute('aria-hidden', 'true');
+  return node;
+};
+
+const make = <K extends keyof HTMLElementTagNameMap>(
+  tag: K,
+  className: string,
+  text = '',
+): HTMLElementTagNameMap[K] => {
+  const node = document.createElement(tag);
+  node.className = className;
+  node.textContent = text;
+  return node;
+};
+
+/*
+ * Two looks: an icon with a tip (/brand), or with `data-copy-word` the word
+ * "Copy" beside the icon (post code). Both keep one name, "Copy <data-copy>".
+ */
 for (const source of document.querySelectorAll<HTMLElement>('[data-copy]')) {
-  const wrap = document.createElement('div');
-  wrap.className = 'copy-wrap';
-  const tip = document.createElement('span');
-  tip.className = 'copy-tip';
-  tip.setAttribute('aria-hidden', 'true');
-  tip.textContent = 'Copy';
-  const button = document.createElement('button');
+  const withWord = source.dataset.copyWord !== undefined;
+  const wrap = make('div', 'copy-wrap');
+  const button = make('button', withWord ? 'copy-word-button' : 'copy-button');
   button.type = 'button';
-  button.className = 'copy-button';
-  const word = document.createElement('span');
-  word.setAttribute('aria-hidden', 'true');
-  word.hidden = true;
-  const name = document.createElement('span');
-  name.className = 'sr-only';
-  name.textContent = `Copy ${source.dataset.copy}`;
-  button.append(drawIcon(COPY_ICON), word, name);
-  wrap.append(button, tip);
+  const word = mute(make('span', '', COPY));
+  button.append(
+    drawIcon(COPY_ICON),
+    word,
+    make('span', 'sr-only', `Copy ${source.dataset.copy}`),
+  );
+  wrap.append(button);
+  if (!withWord) {
+    wrap.append(mute(make('span', 'copy-tip', COPY)));
+  }
   source.parentElement?.append(wrap);
+  source.parentElement?.after(make('p', 'copy-error'));
 }
+
+const FAILED = 'Copy failed. The code is selected: press Ctrl+C or Command+C.';
 
 document.addEventListener('click', async (event) => {
   const button = (event.target as Element).closest<HTMLButtonElement>(
-    '.copy-button',
+    '.copy-wrap button',
   );
   const wrap = button?.parentElement;
-  const source = wrap?.parentElement?.querySelector('[data-copy]');
-  const word = button?.querySelector<HTMLElement>('span');
-  const icon = button?.querySelector('svg');
-  if (!button || !wrap || !source || !word || !icon) return;
-  announcer.textContent = '';
+  const frame = wrap?.parentElement;
+  const source = frame?.querySelector<HTMLElement>('[data-copy]');
+  const error = frame?.nextElementSibling as HTMLElement | null | undefined;
+  const word = button?.querySelector('span');
+  if (!button || !wrap || !source || !word || !error) return;
+  const reset = (): void => {
+    clearTimeout(timers.get(wrap));
+    word.textContent = COPY;
+    delete wrap.dataset.copied;
+    button.querySelector('svg')?.replaceWith(drawIcon(COPY_ICON));
+  };
+  reset();
+  announcer.textContent = error.textContent = '';
   try {
-    await navigator.clipboard.writeText(source.textContent ?? '');
-    announcer.textContent = 'Copied';
-    word.textContent = 'Copied';
-    word.hidden = false;
+    /* The fence's last newline would run the last line on a paste into a shell. */
+    await navigator.clipboard.writeText(source.textContent!.replace(/\n$/, ''));
+    announcer.textContent = word.textContent = 'Copied';
     wrap.dataset.copied = '';
     button.querySelector('svg')?.replaceWith(drawIcon(CHECK_ICON));
-    clearTimeout(timers.get(wrap));
-    timers.set(
-      wrap,
-      window.setTimeout(() => {
-        word.hidden = true;
-        delete wrap.dataset.copied;
-        button.querySelector('svg')?.replaceWith(drawIcon(COPY_ICON));
-      }, COPIED_VISIBLE_MS),
-    );
+    timers.set(wrap, window.setTimeout(reset, COPIED_VISIBLE_MS));
   } catch {
     getSelection()?.selectAllChildren(source);
-    announcer.textContent =
-      'Copy failed. The code is selected: press Ctrl+C or Command+C.';
+    announcer.textContent = error.textContent = FAILED;
   }
 });
 
