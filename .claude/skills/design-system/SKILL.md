@@ -70,6 +70,8 @@ before changing anything it covers.
   [Empty, loading and error states](../../../docs/STYLEGUIDE.md#empty-loading-and-error-states).
 - Header and menu: [Navigation](../../../docs/STYLEGUIDE.md#navigation). The
   bar is a gold block in both modes, ink edge, pink throw (ink in light mode).
+  Above it, the report band on the page ground holds one link
+  ([Report band](../../../docs/STYLEGUIDE.md#report-band)).
 - Footer: [Footer](../../../docs/STYLEGUIDE.md#footer).
 - Animation: [Motion](../../../docs/STYLEGUIDE.md#motion).
 - Focus rings: [Focus](../../../docs/STYLEGUIDE.md#focus).

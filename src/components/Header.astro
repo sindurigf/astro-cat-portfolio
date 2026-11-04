@@ -4,6 +4,7 @@ import {
   HEADER_LINKS,
   HOME_HREF,
   NAV_LINKS,
+  REPORT_LINK,
   ariaCurrent,
 } from '../lib/nav';
 import { SITE_NAME } from '../lib/site';
@@ -31,12 +32,26 @@ const sizeControls = !currentPath.startsWith(TALKS_PATH);
 const current = (href: string) => ariaCurrent(currentPath, href);
 ---
 
-{/* The slim header's trigger: out of view once the page scrolls past the full header (header-compact.ts). */}
-<div
-  class="pointer-events-none absolute inset-x-0 top-0 h-header"
-  aria-hidden="true"
-  data-header-sentinel
-></div>
+{/* Before the header and outside it, so it scrolls away while the header sticks. Second in tab order, after the skip link. */}
+<aside
+  class="page-gutter relative bg-background"
+  aria-label="Accessibility help"
+>
+  {/* The slim header's trigger: covers the band and the full header below it, so it leaves view once both have scrolled past (header-compact.ts). */}
+  <div
+    class="report-band-sentinel pointer-events-none absolute inset-x-0 top-0"
+    aria-hidden="true"
+    data-header-sentinel
+  ></div>
+  <div class="report-band-row flex min-h-report-band items-center justify-end py-2">
+    <a
+      href={REPORT_LINK.href}
+      class="link hit-target text-label font-black text-text"
+    >
+      {REPORT_LINK.label}
+    </a>
+  </div>
+</aside>
 {/* Gutter on <header>, not the column, so its content box matches <main> and the footer. */}
 <header class="site-header page-gutter sticky top-0 z-50 h-header py-3 bg-background short:static">
   {/* Grid from `lg`, not `md`: between 768 and 1023px the row barely fits and centering wastes slack. */}

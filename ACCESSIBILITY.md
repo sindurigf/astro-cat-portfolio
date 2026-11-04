@@ -18,16 +18,16 @@ The statement is voluntary for a personal site and follows the
 
 <!-- TODO(fork): Replace the Project, Accessibility owner and both reporting rows with your own, and set Last reviewed once you have reviewed this file. -->
 
-| Field               | Value                                                     |
-| ------------------- | --------------------------------------------------------- |
-| Project             | astro-cat-portfolio                                       |
-| Project type        | Static personal website (Astro, one Vue island, Tailwind) |
-| Accessibility owner | Sinduri Guntupalli                                        |
-| Public reporting    | <https://github.com/sindurigf/astro-cat-portfolio/issues> |
-| Private reporting   | <lol@sinduri.lol>                                         |
-| Target standard     | WCAG 2.2 Level AA, with AAA text contrast                 |
-| Conformance status  | **Target only. No claim that the site meets it.**         |
-| Last reviewed       | 2026-10-16                                                |
+| Field               | Value                                                                                    |
+| ------------------- | ---------------------------------------------------------------------------------------- |
+| Project             | astro-cat-portfolio                                                                      |
+| Project type        | Static personal website (Astro, one Vue island, Tailwind)                                |
+| Accessibility owner | Sinduri Guntupalli                                                                       |
+| Public reporting    | <https://github.com/sindurigf/astro-cat-portfolio/issues/new?template=accessibility.yml> |
+| Private reporting   | <lol@sinduri.lol>                                                                        |
+| Target standard     | WCAG 2.2 Level AA, with AAA text contrast                                                |
+| Conformance status  | **Target only. No claim that the site meets it.**                                        |
+| Last reviewed       | 2026-10-16                                                                               |
 
 `src/lib/accessibility-facts.ts` reads the Target standard, Conformance status,
 Last reviewed and both reporting rows into `/accessibility` at build time and
@@ -171,8 +171,12 @@ view (development server only, never published), and forks.
   never color alone: a gold brick with an inset ink ring in the header, a brick
   pressed into its shadow in the menu, a filled block in the no-JavaScript
   navigation, an underline in the footer.
-- **Help.** Every page has the Get in Touch link: in the header from 48rem,
-  in the menu below it (SC 3.2.6).
+- **Help.** Every page opens with the same "Report an Accessibility Problem"
+  link in a band above the header, second in tab order after the skip link,
+  with and without JavaScript. It leads to Report a Barrier on
+  `/accessibility`, which offers email and, once set, GitHub. Every page also
+  has the Get in Touch link: in the header from 48rem, in the menu below it
+  (SC 2.4.1, 3.2.6).
 - **Headings and titles.** One `h1`, no skipped level, nothing under 19px
   outside a dialog.
   Every `<title>` is distinct, and every one but the homepage's names the
@@ -303,6 +307,7 @@ merge.
 | `tests/ring-clearance.spec.ts`      | 1.4.11                                                           | A focus ring outside its control never starts inside that control's own shadow, at rest or hovered                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
 | `tests/focus-obscured.spec.ts`      | 2.4.12                                                           | Every stop in the open cat card, photo viewer and menu, each About cat control, and every stop reached from an open trick list, wholly uncovered                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
 | `tests/sticky-header.spec.ts`       | 2.4.11                                                           | Header static under 30rem; no focused control under it                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| `tests/report-band.spec.ts`         | 2.4.1, 2.4.7, 2.4.11, 3.2.6                                      | On every page the skip link and the report link are the only stops before the header, in that order, with and without JavaScript; the link reaches Report a Barrier below the header; its ring stays inside the band at every text size                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
 | `tests/edge-contrast.spec.ts`       | 1.4.11                                                           | Every drawn edge 3:1 against its ground unless its fill is, every route, dark and light, 390px and 1280px; at rest only                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
 | `tests/edges.spec.ts`               | 1.4.11                                                           | One edge role per ground on `/`: a card's fill or edge, page controls, gold-fill edges and footer tiles reach 3:1, dark and light                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | `tests/states.spec.ts`              | 1.4.1, 1.4.6, 1.4.11                                             | Hover drawn; dark-mode hovered text at 7:1 on every route; current page is a shape; chip rings clear neighbors                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |

@@ -239,6 +239,15 @@ test.describe('the talk slideshow', () => {
     page,
   }) => {
     await open(page);
+    /* Past the report band, so each slide fits under the header and Page Down turns rather than scrolls. */
+    await page.evaluate(() =>
+      window.scrollTo(
+        0,
+        document
+          .querySelector('aside[aria-label="Accessibility help"]')!
+          .getBoundingClientRect().bottom,
+      ),
+    );
     const last = await page.locator('.slide').count();
     await page.keyboard.press('ArrowRight');
     await expect(visible(page)).toHaveId('slide-2');

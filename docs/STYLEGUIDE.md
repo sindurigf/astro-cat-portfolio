@@ -1236,7 +1236,23 @@ No rule or divider joins the footer to the page.
 `src/scripts/mobile-menu.ts`, `src/lib/nav.ts`.
 Enforced by `tests/nav-current.spec.ts`, `tests/mobile-menu.spec.ts`,
 `tests/no-script.spec.ts`, `tests/states.spec.ts`, `tests/focus.spec.ts`,
-`tests/header-fit.spec.ts` and `tests/sticky-header.spec.ts`.
+`tests/header-fit.spec.ts`, `tests/sticky-header.spec.ts` and
+`tests/report-band.spec.ts`.
+
+### Report band
+
+- An `<aside>` named "Accessibility help" above `<header>`, on the page ground
+  in both modes. It scrolls away; the header still sticks.
+- One link, `REPORT_LINK` in `src/lib/nav.ts`: "Report an Accessibility
+  Problem", to Report a Barrier on `/accessibility`, on that page too. Second
+  in tab order, after the skip link (SC 2.4.1, 3.2.6).
+- `text-label`, `font-black`, `.link` underline in `text` (15.28), cyan on
+  hover. `.hit-target` makes the 44px target. The band is at least 48px
+  (`--spacing-report-band`) and grows as the link wraps at larger text; its
+  8px padding keeps the ring inside it, clear of the header.
+- Its row takes the bar's margins, so the link ends where the bar does.
+- The slim header's sentinel spans the band and the full header.
+- Print hides it with everything outside `<main>`.
 
 ### By width
 
@@ -1275,7 +1291,7 @@ Enforced by `tests/nav-current.spec.ts`, `tests/mobile-menu.spec.ts`,
 
 ### By height
 
-- Sticky, 104px (`--spacing-header`): the 80px bar and 12px above and below;
+- Sticky, 104px (`--spacing-header`), under the report band: the 80px bar and 12px above and below;
   `tests/header-fit.spec.ts` holds both.
 - Once the page scrolls past it, the header goes slim
   (`src/scripts/header-compact.ts`): 80px (`--spacing-header-compact`), a 68px

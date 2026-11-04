@@ -54,7 +54,7 @@ Setup: Chrome, 1280px, `/`, focus in the address bar.
 - [ ] First Tab lands on "Skip to Main Content", visible at top left. → SC 2.4.1, 2.4.7
 - [ ] Enter on it: focus moves to main, which shows a cyan outline. → SC 2.4.1
 - [ ] Next Tab reaches the first control in the page (the hero pause control on `/`), not the header. → SC 2.4.1
-- [ ] Reload and Tab through: skip link, logo, About, Career, Blog, the
+- [ ] Reload and Tab through: skip link, Report an Accessibility Problem, logo, About, Career, Blog, the
       "Theme" button, Get in Touch, the page, footer Social (GitHub, LinkedIn,
       Instagram, Bluesky, Mastodon, Email), Site (Home, About, Career, Blog),
       About this site (in the order of `POLICY_LINKS` in `Footer.astro`), Let
@@ -317,6 +317,9 @@ No outcome changes the practice: real case in markup ([case rule](STYLEGUIDE.md#
 Setup: Firefox, 1280px, `/`, click the address bar, Tab once.
 
 - [ ] It is the first thing announced, as "Skip to Main Content". → SC 2.4.1, 2.4.4
+- [ ] Reload and Tab twice: "Report an Accessibility Problem", a link in the
+      "Accessibility help" landmark; Enter opens Report a Barrier on
+      `/accessibility`. → SC 2.4.1, 3.2.6
 - [ ] Enter: something is announced. → SC 2.4.1
 - [ ] `Down` reads from inside main (pause control or `h1`), not the header:
       the reading cursor moved. → SC 2.4.1
@@ -352,8 +355,8 @@ Heard / listed: `________________________`
 ### 6.7 The mobile menu at 320px
 
 Setup: Firefox at 320px (window, or Responsive Design Mode with DevTools
-detached), `/`, `Ctrl+Home`, Tab four times to the menu button (skip link, logo, theme
-switch, menu).
+detached), `/`, `Ctrl+Home`, Tab six times to the menu button (skip link, Report an
+Accessibility Problem, logo, theme switch, Aa, menu).
 
 - [ ] The button says "Menu", "button" and collapsed. → SC 4.1.2
 - [ ] Enter: "Menu" and "dialog" announced. → SC 4.1.2

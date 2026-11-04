@@ -493,6 +493,8 @@
    * Its flow box keeps `--spacing-header`, so nothing below moves.
    */
   --spacing-header-compact: 80px;
+  /* The report band above the header: room for its 44px link target. */
+  --spacing-report-band: 48px;
   /* The slideshow's control row: a ~59px button plus its 4px shadow. */
   --spacing-deck-bar: 4.5rem;
 

@@ -153,3 +153,10 @@ test(
     ).not.toThrow();
   },
 );
+
+test('public reporting opens the accessibility issue form', NODE, () => {
+  expect(
+    tableValue('Public reporting'),
+    `${RECORD} public reporting does not open the accessibility issue form, so a report starts blank.`,
+  ).toMatch(/\/issues\/new\?template=accessibility\.yml$/);
+});
