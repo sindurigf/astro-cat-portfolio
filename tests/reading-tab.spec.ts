@@ -12,10 +12,10 @@ import {
   TEXT_SCALE_STEPS,
 } from '../src/lib/text-scale';
 import { builtHtml } from './routes';
+import { MD_WIDTH, TAB_WIDTH } from './wcag';
 
 const WIDE_ROUTES = ['/', '/about/', '/blog/', '/credits/', '/career/'];
-/** From 86rem the page leaves a free gutter and the control is the edge tab (the `tab` variant in global.css). */
-const TAB_WIDTH = 1376;
+/** From TAB_WIDTH the page leaves a free gutter and the control is the edge tab. */
 const TAB_WIDTHS = [TAB_WIDTH, 1440, 1920];
 const BELOW_TAB_WIDTHS = [1375, 1280, 1024, 768, 390, 320];
 const SCRIPTS = ['src/scripts/text-size.ts'];
@@ -167,7 +167,9 @@ test.describe('The reading tab: Smaller, Larger and Reset', () => {
         'the edge tab shows below its width',
       ).toBeHidden();
       await page
-        .getByRole('button', { name: width < 768 ? 'Aa Text Size' : 'Theme' })
+        .getByRole('button', {
+          name: width < MD_WIDTH ? 'Aa Text Size' : 'Theme',
+        })
         .click();
       const group = page
         .getByRole('group', { name: 'Text Size' })
@@ -737,7 +739,7 @@ test.describe('finding the text size control from the keyboard', () => {
       const entry = page.locator(
         width >= TAB_WIDTH
           ? '.reading-tab-button'
-          : width < 768
+          : width < MD_WIDTH
             ? 'header .aa-switch'
             : 'header .theme-switch:not(.aa-switch)',
       );
