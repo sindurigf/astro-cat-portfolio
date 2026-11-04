@@ -317,14 +317,14 @@ No outcome changes the practice: real case in markup ([case rule](STYLEGUIDE.md#
 Setup: Firefox, 1280px, `/`, click the address bar, Tab once.
 
 - [ ] It is the first thing announced, as "Skip to Main Content". → SC 2.4.1, 2.4.4
-- [ ] Reload and Tab twice: "Report an Accessibility Problem", a link in the
-      "Accessibility help" landmark; Enter opens Report a Barrier on
-      `/accessibility`. → SC 2.4.1, 3.2.6
 - [ ] Enter: something is announced. → SC 2.4.1
 - [ ] `Down` reads from inside main (pause control or `h1`), not the header:
       the reading cursor moved. → SC 2.4.1
 - [ ] Tab lands on the hero pause control (reduced motion off; with it on,
       there is no pause control). → SC 2.4.1
+- [ ] Reload and Tab twice: "Report an Accessibility Problem", a link in the
+      "Accessibility help" landmark; Enter opens Report a Barrier on
+      `/accessibility`. → SC 2.4.1, 3.2.6
 
 Heard: `________________________`
 
