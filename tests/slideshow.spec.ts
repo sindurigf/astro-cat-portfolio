@@ -235,11 +235,11 @@ test.describe('the talk slideshow', () => {
     await expect(previous(page)).not.toHaveAttribute('aria-disabled');
   });
 
-  test('the arrow keys, Page Up and Down, Home and End move between slides', async ({
+  test('the arrow keys, Page Up and Down, Home and End move between slides once the deck sits under the header', async ({
     page,
   }) => {
     await open(page);
-    /* Past the report band, so each slide fits under the header and Page Down turns rather than scrolls. */
+    /* Slide 2 is taller than the space under the band, so from the top Page Down scrolls first by design. */
     await page.evaluate(() =>
       window.scrollTo(
         0,
