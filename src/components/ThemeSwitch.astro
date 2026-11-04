@@ -19,7 +19,11 @@ const { id = 'theme-menu', textSize = false } = Astro.props;
   popovertarget={id}
   aria-expanded="false"
 >
-  <span class="sr-only">Theme</span>
+  {/* Names the size group only where the popover shows it, from `md` until the edge tab (SC 2.4.6). */}
+  <span class="sr-only">
+    Theme
+    {textSize && <span class="max-md:hidden tab:hidden"> and Text Size</span>}
+  </span>
   <svg
     class="theme-switch-sun"
     viewBox="0 0 24 24"
