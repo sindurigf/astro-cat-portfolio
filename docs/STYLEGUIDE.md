@@ -1293,8 +1293,8 @@ Enforced by `tests/nav-current.spec.ts`, `tests/mobile-menu.spec.ts`,
 
 ### By height
 
-- Sticky, 104px (`--spacing-header`), under the report band: the 80px bar and 12px above and below;
-  `tests/header-fit.spec.ts` holds both.
+- Sticky, 104px (`--spacing-header`), under the report band: the 80px bar and
+  12px above and below; `tests/header-fit.spec.ts` holds both.
 - Once the page scrolls past it, the header goes slim
   (`src/scripts/header-compact.ts`): 80px (`--spacing-header-compact`), a 68px
   bar, the logo tile at three quarters, bricks still 44px with their throw. A
