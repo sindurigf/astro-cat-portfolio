@@ -488,11 +488,15 @@ test.describe('the theme menu', () => {
     expect(button?.height).toBeGreaterThanOrEqual(MIN_TARGET);
     await switchButton(page).click();
     for (const row of await headerMenu(page).locator('label').all()) {
-      const box = await row.boundingBox();
-      expect(box?.height, 'a choice is under 44px tall').toBeGreaterThanOrEqual(
+      /* The layout box, not boundingBox(): Firefox reports a 44px row placed at 157.8px as 43.99998. */
+      const box = await row.evaluate((el) => {
+        const { width, height } = el.getBoundingClientRect();
+        return { width, height };
+      });
+      expect(box.height, 'a choice is under 44px tall').toBeGreaterThanOrEqual(
         MIN_TARGET,
       );
-      expect(box?.width).toBeGreaterThanOrEqual(MIN_TARGET);
+      expect(box.width).toBeGreaterThanOrEqual(MIN_TARGET);
     }
   });
 

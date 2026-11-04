@@ -231,15 +231,19 @@ for (const width of SLIM_WIDTHS) {
 /* An /about section far below the first screen. */
 const FAR_ANCHOR = 'sources';
 
-/* The full header's height in px: the slim header starts past it. */
+/** Where the full header ends in the document, in px: the report band above it, then `--spacing-header`. */
 const fullHeader = (page: Page): Promise<number> =>
-  page.evaluate(() =>
-    parseFloat(
+  page.evaluate(() => {
+    const band = document.querySelector(
+      'aside[aria-label="Accessibility help"]',
+    )!;
+    const height = parseFloat(
       getComputedStyle(document.documentElement).getPropertyValue(
         '--spacing-header',
       ),
-    ),
-  );
+    );
+    return band.getBoundingClientRect().bottom + window.scrollY + height;
+  });
 
 /* Tab stops walked under the slim header: past the opening of /about and into its body. */
 const SLIM_WALK_STOPS = 30;

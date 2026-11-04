@@ -746,17 +746,23 @@ test.describe('finding the text size control from the keyboard', () => {
         `no text size entry is shown at ${width}px`,
       ).toBeVisible();
 
-      /* The skip link, every stop in the header, then the edge tab. */
+      /* Every stop up to the header's end (skip link, report link, header), then the edge tab. */
       const limit =
         (await page
           .locator('header')
           .evaluate(
             (header, selector) =>
-              [...header.querySelectorAll(selector)].filter((el) =>
-                el.checkVisibility(),
+              [...document.querySelectorAll(selector)].filter(
+                (el) =>
+                  el.checkVisibility() &&
+                  (header.contains(el) ||
+                    Boolean(
+                      el.compareDocumentPosition(header) &
+                      Node.DOCUMENT_POSITION_FOLLOWING,
+                    )),
               ).length,
             'a[href], button, input, select, textarea, [tabindex]:not([tabindex="-1"])',
-          )) + 2;
+          )) + 1;
       let found = false;
       for (let stop = 0; stop < limit && !found; stop += 1) {
         await page.keyboard.press('Tab');
