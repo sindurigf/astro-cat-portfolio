@@ -13,7 +13,7 @@ import { gotoSettled } from './settle';
 
 /* The band above the header: one report link, the same place on every page (SC 3.2.6). */
 
-const SKIP_HREF = '#main-content';
+const MAIN_CONTENT_HREF = '#main-content';
 
 /** Every link, button and tabindex stop before <header>, in source order. */
 const stopsBeforeHeader = (html: string): string[] => {
@@ -34,7 +34,7 @@ test.describe('the report band', () => {
         expect(
           stopsBeforeHeader(html),
           `${route}: the skip link and the report link must be the only stops before the header, in that order (SC 2.4.1, 3.2.6).`,
-        ).toEqual([SKIP_HREF, REPORT_LINK.href]);
+        ).toEqual([MAIN_CONTENT_HREF, REPORT_LINK.href]);
         expect(
           html,
           `${route}: the report link text is not "${REPORT_LINK.label}".`,
