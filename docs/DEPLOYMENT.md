@@ -283,44 +283,5 @@ Dashboard settings that change what ships without a file change.
   notifications in production D1. Scope the token to D1 Read on your account.
   Without both, the workflow sets `CHECK_LIVE_SKIP_D1=1` and `check:live`
   prints a skip line for the D1 check.
-- Optional variables `DISCOURSE_URL` and `DISCOURSE_CATEGORY_ID` and secrets
-  `DISCOURSE_API_KEY` and `DISCOURSE_API_USERNAME` link issues and pull
-  requests to a Discourse forum. Without both variables the jobs are skipped.
-  - `issue-to-discourse.yml` opens a topic for each new issue and links it in
-    a comment.
-  - `pr-to-discourse.yml` does the same for each pull request once it is ready
-    for review, skipping drafts and bots. It runs on `pull_request_target`
-    from the default branch and never checks out the pull request's code.
-  - Each topic has the `external_id` `github-issue-<n>` or `github-pr-<n>`. A
-    re-run links the existing topic instead of opening a second one.
-  - `discourse-comment-to-topic.yml` posts each new issue or pull request
-    conversation comment as a reply. Review comments on code lines and review
-    summary bodies (`pull_request_review`) are not mirrored.
-  - `discourse-state.yml` mirrors a close, merge or reopen: it replies in the
-    topic, closes or reopens it, and marks a completed issue's or merged pull
-    request's reply as the solution, unless a person already chose one; a
-    reopen unaccepts only close or merge replies. Marking needs Solved on the category: the
-    Support category type, the site setting `allow_solved_on_all_topics`, or
-    in older versions the category setting "Allow topic owner and staff to
-    mark a reply as the solution".
-    Without it the topic still closes.
-  - The API user opens each topic, so it may mark the solution while the topic
-    is open. Closing and reopening need it to be staff, trust level 4 or a
-    category moderator.
-  - Changing `DISCOURSE_API_USERNAME` leaves the old user's replies in place;
-    they are not copied to GitHub again. A reopen still unaccepts the old
-    user's close or merge reply, and a re-run reuses it.
-  - `discourse-topic-to-issue.yml` copies forum replies from topics active in
-    the last 48 hours to their issue or pull request, every 15 minutes.
-    GitHub turns the schedule off after 60 days without repository activity.
-  - Granular API key scopes: `topics` `write`, `read`, `read_lists` and
-    `status`, and `solved` `answer`; a missing scope fails the job with its
-    name.
-  - Anyone can open an issue, a pull request from a fork, or a comment on a
-    public repository, so anyone can open a topic or post to the forum.
-    Mirrored text breaks `@mentions` on both sides.
-  - Forum replies in `DISCOURSE_CATEGORY_ID` become public on GitHub, even on
-    a forum that needs a login.
-  - Edits and deletions are not mirrored.
-  - Runs for one issue or pull request queue in order (`queue: max`), up to
-    GitHub's 100 pending runs; a run beyond that is canceled and not retried.
+- Discourse sync for issues and pull requests lives in
+  [github-discourse-sync](https://github.com/sindurigf/github-discourse-sync).

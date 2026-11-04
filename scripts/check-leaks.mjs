@@ -51,8 +51,8 @@ const EXEMPT_LINE = join(
 const EXEMPT_LINE_FILE = 'src/pages/credits.astro';
 
 /*
- * The template maintainer's own contacts, so a report about the template
- * reaches her: these exact values, in these files only. Longest first.
+ * The template maintainer's own contacts and repositories, so a report about
+ * the template reaches her: these exact values, in these files only. Longest first.
  */
 const MAINTAINER_EMAIL = join('lol', '@sin', 'duri.lol');
 const MAINTAINER_VALUES = {
@@ -62,6 +62,9 @@ const MAINTAINER_VALUES = {
     MAINTAINER_EMAIL,
   ],
   'SECURITY.md': [MAINTAINER_EMAIL],
+  'docs/DEPLOYMENT.md': [
+    join('https://github.com/sin', 'durigf/github-discourse-sync'),
+  ],
 };
 
 const withoutMaintainerValues = (path, line) =>
