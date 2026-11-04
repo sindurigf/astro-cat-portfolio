@@ -15,6 +15,9 @@ import { gotoSettled } from './settle';
 
 const MAIN_CONTENT_HREF = '#main-content';
 
+/** A phone held upright at the narrowest width measured. */
+const NARROW_HEIGHT = 640;
+
 /** Every link, button and tabindex stop before <header>, in source order. */
 const stopsBeforeHeader = (html: string): string[] => {
   const body = html.slice(html.indexOf('<body'), html.indexOf('<header'));
@@ -145,7 +148,10 @@ test.describe('the report band', () => {
     test(`at ${NARROW_WIDTH}px and text ${step}% the focused link's ring stays inside the band (SC 2.4.7, 2.4.11)`, async ({
       page,
     }) => {
-      await page.setViewportSize({ width: NARROW_WIDTH, height: 640 });
+      await page.setViewportSize({
+        width: NARROW_WIDTH,
+        height: NARROW_HEIGHT,
+      });
       await gotoSettled(page, '/');
       await page.evaluate(
         ([property, scale]) =>
@@ -157,7 +163,7 @@ test.describe('the report band', () => {
       });
       const link = band.getByRole('link', { name: REPORT_LINK.label });
       await link.focus();
-      const { ring, box } = await link.evaluate((el) => {
+      const { ring, box, outline } = await link.evaluate((el) => {
         const style = getComputedStyle(el);
         const rect = el.getBoundingClientRect();
         const reach =
@@ -166,8 +172,12 @@ test.describe('the report band', () => {
         return {
           ring: { top: rect.top - reach, bottom: rect.bottom + reach },
           box: { top: area.top, bottom: area.bottom },
+          outline: style.outlineStyle,
         };
       });
+      expect(outline, `at ${step}% the focused link shows no ring.`).not.toBe(
+        'none',
+      );
       expect(
         ring.top,
         `at ${step}% the ring runs above the band.`,
