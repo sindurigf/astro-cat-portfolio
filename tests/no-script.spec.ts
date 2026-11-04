@@ -2,7 +2,12 @@ import { expect, test } from './test';
 import { builtHtml, POST_ROUTES, TALK_ROUTES } from './routes';
 import { CTA, NAV_LINKS } from '../src/lib/nav';
 import { NODE } from './tags';
-import { DESKTOP_VIEWPORT, NARROW_WIDTH, PHONE_VIEWPORT } from './wcag';
+import {
+  DESKTOP_VIEWPORT,
+  MD_WIDTH,
+  NARROW_WIDTH,
+  PHONE_VIEWPORT,
+} from './wcag';
 
 /**
  * A <dialog> is display:none until showModal() runs, so below `md` with
@@ -13,8 +18,7 @@ import { DESKTOP_VIEWPORT, NARROW_WIDTH, PHONE_VIEWPORT } from './wcag';
 /** Narrowest viewport measured, where the primary nav is hidden. */
 const MOBILE = { width: NARROW_WIDTH, height: 800 };
 
-/** `md` and `lg`: below `md` the header shows no action brick without JavaScript. */
-const MD_WIDTH = 768;
+/** `lg`; below `md` the header shows no action brick without JavaScript. */
 const LG_WIDTH = 1024;
 
 /** A width where the primary nav is visible, so the fallback can collide with it. */

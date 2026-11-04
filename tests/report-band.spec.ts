@@ -10,6 +10,7 @@ import {
 import { NARROW_WIDTH } from './wcag';
 import { NODE } from './tags';
 import { gotoSettled } from './settle';
+import { reportBand } from './report-band';
 
 /* The band above the header: one report link, the same place on every page (SC 3.2.6). */
 
@@ -68,12 +69,10 @@ test.describe('the report band', () => {
       await page.locator('body').press('Tab');
       await page.keyboard.press('Tab');
       await expect(
-        page
-          .getByRole('complementary', { name: 'Accessibility help' })
-          .getByRole('link', {
-            name: REPORT_LINK.label,
-            exact: true,
-          }),
+        reportBand(page).getByRole('link', {
+          name: REPORT_LINK.label,
+          exact: true,
+        }),
         'the second Tab should reach the report link, right after the skip link.',
       ).toBeFocused();
     });
@@ -119,9 +118,9 @@ test.describe('the report band', () => {
     page,
   }) => {
     await gotoSettled(page, '/');
-    const link = page
-      .getByRole('complementary', { name: 'Accessibility help' })
-      .getByRole('link', { name: REPORT_LINK.label });
+    const link = reportBand(page).getByRole('link', {
+      name: REPORT_LINK.label,
+    });
     const look = () =>
       link.evaluate((el) => {
         const style = getComputedStyle(el);
@@ -158,9 +157,7 @@ test.describe('the report band', () => {
           document.documentElement.style.setProperty(property, String(scale)),
         [TEXT_SCALE_PROPERTY, step / PERCENT] as const,
       );
-      const band = page.getByRole('complementary', {
-        name: 'Accessibility help',
-      });
+      const band = reportBand(page);
       const link = band.getByRole('link', { name: REPORT_LINK.label });
       await link.focus();
       const { ring, box, outline } = await link.evaluate((el) => {
