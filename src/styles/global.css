@@ -493,6 +493,8 @@
    * Its flow box keeps `--spacing-header`, so nothing below moves.
    */
   --spacing-header-compact: 80px;
+  /* The report band's minimum (`min-h-target`) plus the full header: where a first screen's content starts. */
+  --spacing-page-top: calc(var(--spacing-target) + var(--spacing-header));
   /* The slideshow's control row: a ~59px button plus its 4px shadow. */
   --spacing-deck-bar: 4.5rem;
 
