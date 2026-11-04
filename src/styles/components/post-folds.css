@@ -1,0 +1,156 @@
+@reference '../global.css';
+
+/* Post pages only (src/pages/blog/[slug].astro): the fold tests host their fixture in a built post. */
+@layer components {
+  /*
+   * A post module (src/plugins/post-fold.mjs): one edged panel, its h2 the top
+   * bar, the Steps toggle joined at the bar's right end. The h2 stays outside
+   * the summary, so it stays in heading navigation.
+   */
+  .prose .module-panel {
+    --module-bar: calc(
+      var(--text-post-h2) * var(--text-post-h2--line-height) + --spacing(8)
+    );
+    --module-edge: var(--edge);
+
+    @apply relative mt-16 border-border;
+
+    border-width: var(--module-edge);
+
+    container: module-panel / inline-size;
+    anchor-scope: --module-heading;
+  }
+
+  .prose .module-panel > h2 {
+    @apply m-0 flex items-center bg-surface py-4 pl-card-tight;
+
+    min-height: var(--module-bar);
+    padding-inline-end: calc(var(--size-module-toggle) + --spacing(4));
+    anchor-name: --module-heading;
+  }
+
+  .module-controls {
+    @apply mt-6 flex flex-wrap gap-4;
+  }
+
+  /* A control, so a `border` edge (STYLEGUIDE color 9) on a `surface` fill; the panel draws its top and right. */
+  .module-panel > .post-fold > .post-contents-summary {
+    @apply absolute top-0 right-0 border-border bg-surface;
+
+    width: var(--size-module-toggle);
+    height: var(--module-bar);
+    border-width: 0 0 var(--module-edge) var(--module-edge);
+
+    /* As tall as the h2 when it wraps; a panel's own h2 is the only anchor inside it. */
+    @supports (anchor-name: --module-heading) {
+      top: anchor(--module-heading top);
+      bottom: anchor(--module-heading bottom);
+      height: auto;
+    }
+  }
+
+  /* Closed, the panel's own bottom edge is the bar's. */
+  .module-panel > .post-fold:not([open]) > .post-contents-summary {
+    border-bottom-width: 0;
+  }
+
+  /* Inside the toggle: outside, the ring would cross the panel's edge. */
+  .module-panel > .post-fold > .post-contents-summary:focus-visible {
+    outline-offset: calc(-1 * (var(--module-edge) + var(--focus-gap)));
+  }
+
+  /*
+   * Too narrow for a long word beside the toggle, without JavaScript; with it,
+   * src/scripts/post-folds.ts stacks any panel whose bar is crowded (Text Size).
+   */
+  @container module-panel (width < 20rem) {
+    .prose .module-panel > h2 {
+      @apply pr-card-tight;
+    }
+
+    .module-panel > .post-fold > .post-contents-summary {
+      @apply static w-auto;
+
+      height: auto;
+      border-width: var(--module-edge) 0 0;
+    }
+  }
+
+  .prose .module-panel-stacked > h2 {
+    @apply pr-card-tight;
+  }
+
+  .module-panel-stacked > .post-fold > .post-contents-summary {
+    @apply static w-auto;
+
+    height: auto;
+    border-width: var(--module-edge) 0 0;
+  }
+
+  /* The inset sits on the body, not the fold, so a dropped toggle spans the panel. */
+  .module-panel > .post-fold[open] {
+    @apply pb-card-tight;
+  }
+
+  .module-panel > .post-fold > :not(summary) {
+    @apply mx-card-tight;
+  }
+
+  /* The panel is the one gold edge: code inside takes a card's edge (none in dark mode, ink in light). */
+  .prose .module-panel pre {
+    @apply border-card-edge;
+
+    border-width: var(--border-width-thin);
+  }
+
+  /* Quote and rule inside a module: `subtle`, thin, so no gold line runs inside the panel. */
+  .prose .module-panel blockquote {
+    @apply border-subtle;
+
+    border-left-width: var(--border-width-thin);
+  }
+
+  .prose .module-panel hr {
+    @apply border-subtle;
+
+    border-top-width: var(--border-width-thin);
+  }
+
+  /* Light mode: the panel and its toggle take the thin edge. */
+  :is(:root[data-theme='light'] main, main .mode-light)
+    .module-panel:not(.mode-dark *) {
+    --module-edge: var(--border-width-thin);
+  }
+
+  /* No breakout from a panel: its container query would zero the outdent and start it at the edge. */
+  .post-layout .prose .module-panel > .post-fold > figure {
+    @apply mx-card-tight w-auto;
+  }
+
+  /* Zero specificity on the child, so the prose spacing (h3, figure) still wins as it does outside a fold. */
+  .post-fold > :where(:not(summary)) {
+    @apply mt-6;
+  }
+
+  .fold-label {
+    @apply min-w-0;
+  }
+
+  /* Print shows every fold; beforeprint in src/scripts/post-folds.ts covers browsers without ::details-content. */
+  @media print {
+    .post-fold::details-content {
+      content-visibility: visible;
+    }
+
+    /* Without ::details-content a closed fold's body stays hidden, so its summary must still print. */
+    @supports selector(::details-content) {
+      .post-fold > summary {
+        display: none;
+      }
+    }
+
+    .module-controls {
+      display: none;
+    }
+  }
+}
