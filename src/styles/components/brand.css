@@ -149,6 +149,11 @@
     right: 0;
   }
 
+  /* The word shows only while "Copied" stands (src/scripts/copy.ts sets data-copied). */
+  .copy-wrap:not([data-copied]) > .copy-button > span[aria-hidden] {
+    display: none;
+  }
+
   .copy-button {
     @apply inline-flex min-h-target min-w-target items-center justify-center gap-2 border-4 border-border bg-surface px-2 text-label font-black uppercase tracking-label text-text;
 

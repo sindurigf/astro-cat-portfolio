@@ -17,6 +17,8 @@
     --dark-pink-text: var(--color-pink-text);
     --dark-gold-border: var(--color-gold-border);
     --dark-card-edge: var(--color-card-edge);
+    --dark-code-edge: var(--color-code-edge);
+    --dark-code-fill: var(--color-code-fill);
     --dark-gold-bud: var(--color-gold-bud);
     --dark-hero-ground: var(--color-hero-ground);
     --dark-hero-glow: var(--color-hero-glow);
@@ -36,6 +38,8 @@
     --color-pink-text: var(--color-light-pink-text);
     --color-gold-border: var(--color-light-ink);
     --color-card-edge: var(--color-light-ink);
+    --color-code-edge: var(--color-light-code-edge);
+    --color-code-fill: var(--color-block-light);
     --color-gold-bud: var(--color-light-ink);
     --color-hero-ground: var(--color-light-ground);
     --color-hero-glow: var(--color-gold);
@@ -72,6 +76,8 @@
     --color-pink-text: var(--dark-pink-text);
     --color-gold-border: var(--dark-gold-border);
     --color-card-edge: var(--dark-card-edge);
+    --color-code-edge: var(--dark-code-edge);
+    --color-code-fill: var(--dark-code-fill);
     --color-gold-bud: var(--dark-gold-bud);
     --color-hero-ground: var(--dark-hero-ground);
     --color-hero-glow: var(--dark-hero-glow);
