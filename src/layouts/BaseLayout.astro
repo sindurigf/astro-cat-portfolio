@@ -257,12 +257,13 @@ const articleData = article && {
       Skip to Main Content
     </a>
     <Header />
+    {/* Fixed to the right edge, so its place here only sets focus order: right after the header (SC 2.4.3). */}
+    <ReadingTab />
     {/* tabindex="-1": without it the skip link leaves focus on <body>. */}
     <main id="main-content" tabindex="-1" class="page-gutter flex-1">
       <slot />
     </main>
     <Footer />
-    <ReadingTab />
     {/* Its own module: a blocked or failing tracker leaves the others running. */}
     {ANALYTICS_ON && <script>
       import '../scripts/analytics';

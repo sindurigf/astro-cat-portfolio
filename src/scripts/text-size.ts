@@ -103,7 +103,7 @@ if (tab && invoker && panel) {
   sync();
   panel.addEventListener('toggle', sync);
 
-  /* Firefox keeps focus on the last button when Tab leaves the page, so no focusout arrives. */
+  /* Tab past the last button closes the panel even where no focusout arrives, as in Firefox at the end of the page. */
   panel.addEventListener('keydown', (event) => {
     const last = panel.querySelector('[data-size-action="reset"]');
     if (event.key === 'Tab' && !event.shiftKey && event.target === last)
