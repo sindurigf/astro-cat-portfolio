@@ -261,9 +261,10 @@ for (const colorScheme of SCHEMES) {
           const measure = new Function(
             'args',
             `${SHADOW_REACH}
-          const controls = document.querySelectorAll(args.selector);
+          const control = (index) =>
+            document.querySelector('[data-ring-control="' + index + '"]');
           const found = args.read.map((index) => {
-            const el = controls[index];
+            const el = control(index);
             el.focus();
             const s = getComputedStyle(el);
             return {
@@ -273,7 +274,7 @@ for (const colorScheme of SCHEMES) {
               shadow: shadowReach(el),
             };
           });
-          const next = controls[args.aim];
+          const next = control(args.aim);
           if (!next) return { found, at: null };
           next.scrollIntoView({ block: 'center', inline: 'center' });
           const r = next.getBoundingClientRect();
@@ -289,9 +290,13 @@ for (const colorScheme of SCHEMES) {
           };
           const visible = await page.evaluate(
             (selector) =>
-              [...document.querySelectorAll(selector)].flatMap((el, index) =>
-                el.checkVisibility({ visibilityProperty: true }) ? [index] : [],
-              ),
+              [...document.querySelectorAll(selector)].flatMap((el, index) => {
+                /* Tagged once: scroll-fit.ts may take a fitting table or code block out of the tab order after load, which shifts a live list's indexes. */
+                el.setAttribute('data-ring-control', String(index));
+                return el.checkVisibility({ visibilityProperty: true })
+                  ? [index]
+                  : [];
+              }),
             FOCUSABLE_SELECTOR,
           );
           const short: string[] = [];
