@@ -1250,6 +1250,8 @@ Enforced by `tests/nav-current.spec.ts`, `tests/mobile-menu.spec.ts`,
   hover. `.hit-target` makes the 44px target. The band is at least 44px
   (`--spacing-target`) and grows as the link wraps at larger text; its
   8px padding keeps the ring inside it, clear of the header.
+- First-screen heights (`--spacing-page-top`) count the band at its 44px
+  minimum, so at larger text sizes a wrapped band pushes the fold down.
 - Its row takes the bar's margins, so the link ends where the bar does.
 - The slim header's sentinel marks the full header's place under the band.
 - Print hides it with everything outside `<main>`.
