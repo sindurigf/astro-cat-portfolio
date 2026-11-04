@@ -112,6 +112,34 @@ test.describe('the report band', () => {
     await context.close();
   });
 
+  test('the report link changes on hover in more than color alone (SC 1.4.1)', async ({
+    page,
+  }) => {
+    await gotoSettled(page, '/');
+    const link = page
+      .getByRole('complementary', { name: 'Accessibility help' })
+      .getByRole('link', { name: REPORT_LINK.label });
+    const look = () =>
+      link.evaluate((el) => {
+        const style = getComputedStyle(el);
+        return {
+          color: style.color,
+          underline: style.textDecorationThickness,
+        };
+      });
+    const rest = await look();
+    await link.hover();
+    const hover = await look();
+    expect(
+      hover.color,
+      'the report link keeps its rest color on hover.',
+    ).not.toBe(rest.color);
+    expect(
+      hover.underline,
+      'the report link underline keeps its rest thickness on hover.',
+    ).not.toBe(rest.underline);
+  });
+
   /* The band grows when the link wraps; its padding keeps the whole ring inside it, clear of the header. */
   for (const step of TEXT_SCALE_STEPS) {
     test(`at ${NARROW_WIDTH}px and text ${step}% the focused link's ring stays inside the band (SC 2.4.7, 2.4.11)`, async ({
