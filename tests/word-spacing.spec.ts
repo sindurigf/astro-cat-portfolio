@@ -15,12 +15,13 @@ const INLINE =
 // `span` only on the opening side: the blog filter's empty marker `</span>` precedes text.
 const OPENING = `${INLINE}|span`;
 
-// src/components/Abbr.astro closes on its tooltip span, then its wrapper span.
-const ABBR_END = '<span class="abbr-tip"[^>]*>[^<]*</span>\\s*</span>';
+// src/components/Abbr.astro: tooltip span, its `after` punctuation, wrapper span, then its script on first use.
+const ABBR_END =
+  '<span class="abbr-tip"[^>]*>[^<]*</span>[.,;:!?)]?\\s*</span>(?:<script\\b[^>]*></script>)?';
 
 // An element whose text opens with a space, such as hidden "&nbsp;Posts", is not glued.
 const GLUED = new RegExp(
-  `(?:</(?:${INLINE})>|${ABBR_END})[A-Za-z]|[A-Za-z,;:.!?)]<(?:${OPENING})(?:\\s[^>]*)?>(?![\\s\u00a0]|&nbsp;)`,
+  `</(?:${INLINE})>[A-Za-z]|${ABBR_END}[A-Za-z0-9]|[A-Za-z,;:.!?)]<(?:${OPENING})(?:\\s[^>]*)?>(?![\\s\u00a0]|&nbsp;)`,
   'g',
 );
 
