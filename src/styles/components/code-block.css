@@ -1,0 +1,80 @@
+@reference '../global.css';
+
+/* Post pages and /brand only, imported after BaseLayout so global.css sets the layer order. */
+@layer components {
+  /*
+   * Post code (src/plugins/code-block.mjs): a grey-edged frame, the fence
+   * language a gold label brick on its top edge, the Copy button in its top
+   * right corner (src/scripts/copy.ts); the code starts below both.
+   */
+  .prose .code-block {
+    @apply relative mt-12 border-code-edge bg-code-fill;
+
+    border-width: var(--border-width-thin);
+  }
+
+  /* Below the label, its ring inside the frame: outside, it would touch the gold label. */
+  .prose .code-block > pre {
+    @apply mt-2 border-0 bg-transparent;
+
+    &:focus-visible {
+      outline-offset: calc(-1 * (var(--focus-width) + var(--focus-gap)));
+    }
+  }
+
+  /* Room for the Copy button, which only a script draws (`js` from the head script). */
+  .js .prose .code-block > pre {
+    @apply mt-code-head;
+  }
+
+  .code-block > .copy-wrap {
+    @apply absolute top-0 right-0;
+  }
+
+  .code-lang {
+    @apply absolute top-0 left-4 -translate-y-1/2 border-4 border-fill-edge bg-block-gold px-3 font-mono text-code text-gold-text;
+  }
+
+  /* Light mode: the label's ink edge thins to match the frame. */
+  :is(:root[data-theme='light'] main, main .mode-light)
+    .code-lang:not(.mode-dark *) {
+    border-width: var(--border-width-thin);
+  }
+
+  .copy-word-button {
+    @apply inline-flex min-h-target min-w-target items-center gap-2 px-3 text-label font-black uppercase tracking-label text-text;
+
+    & svg {
+      @apply size-5 shrink-0;
+    }
+
+    & :is(svg, path) {
+      forced-color-adjust: auto;
+    }
+
+    /* Underline only: light mode's cyan on the light fill is under 7:1 as text. */
+    &:hover {
+      @apply underline;
+    }
+
+    /* Inside the frame: outside, the ring would cross its edge. */
+    &:focus-visible {
+      outline-offset: calc(-1 * (var(--focus-width) + var(--focus-gap)));
+    }
+
+    /* Forced colors drop the frame's look: the button needs its own boundary there. */
+    @media (forced-colors: active) {
+      border: var(--border-width-thin) solid ButtonText;
+    }
+  }
+
+  /* After the frame, on the page ground, on posts and /brand; empty until a copy fails (src/scripts/copy.ts). */
+  .copy-error,
+  .prose .copy-error {
+    @apply mt-3 text-body text-pink-text;
+
+    &:empty {
+      display: none;
+    }
+  }
+}

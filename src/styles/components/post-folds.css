@@ -96,13 +96,6 @@
     @apply mx-card-tight;
   }
 
-  /* The panel is the one gold edge: code inside takes a card's edge (none in dark mode, ink in light). */
-  .prose .module-panel pre {
-    @apply border-card-edge;
-
-    border-width: var(--border-width-thin);
-  }
-
   /* Quote and rule inside a module: `subtle`, thin, so no gold line runs inside the panel. */
   .prose .module-panel blockquote {
     @apply border-subtle;
