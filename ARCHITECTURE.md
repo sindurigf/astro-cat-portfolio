@@ -49,24 +49,24 @@ conventions for this template. Design rules and values are in
 `src/site.config.ts` holds everything that names the site or its owner. It is
 validated on import, so a bad value fails the build and the tests.
 
-| Key                          | Used by                                                                                                                               |
-| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
-| `site.name`, `shortName`     | Titles, header wordmark, feeds, manifest, footer copyright                                                                            |
-| `site.url`                   | `site` in `astro.config.mjs`: canonicals, sitemap, feeds, JSON-LD                                                                     |
-| `site.locale`                | `<html lang>`, `og:locale`, JSON-LD `inLanguage`, the feed `<language>`                                                               |
-| `site.tagline`               | The default share image and its alt text                                                                                              |
-| `site.motto`                 | Homepage stickers, the footer name and `/about`, marked with its `lang`; `meaning` gives `/about`'s "Latin for …" line, null omits it |
-| `site.firstPublished`        | The footer copyright year                                                                                                             |
-| `site.repository`            | `/accessibility`'s link to the full statement                                                                                         |
-| `person.*`                   | Homepage `<h1>` (one name per line), JSON-LD `Person`, contact address, CV                                                            |
-| `profiles`                   | Footer tiles and JSON-LD `sameAs`; each label needs an icon                                                                           |
-| `journeyPost`                | The close row of `/about`, `/career`, `/contact/sent`; must name a published post, or `null`                                          |
-| `openingFeedTag`             | The tag feed that carries each post's opening, not its teaser ([Feeds](#feeds)); a tag, or `null`                                     |
-| `analytics`                  | `false` loads no tracker; `true` turns on Plausible ([Plausible](docs/DEPLOYMENT.md#plausible))                                       |
-| `bingSiteVerification`       | `null` adds no tag; a [Bing](docs/DEPLOYMENT.md#bing-webmaster-tools) code adds one to `/`                                            |
-| `contact.form`               | `cloudflare-d1` (the form) or `none` (email only)                                                                                     |
-| `contact.notificationSender` | Must equal `allowed_sender_addresses` in `wrangler.jsonc`                                                                             |
-| `accessibility.responseDays` | The reply aim on `/accessibility`, in whole days                                                                                      |
+| Key                          | Used by                                                                                                            |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| `site.name`, `shortName`     | Titles, header wordmark, feeds, manifest, footer copyright                                                         |
+| `site.url`                   | `site` in `astro.config.mjs`: canonicals, sitemap, feeds, JSON-LD                                                  |
+| `site.locale`                | `<html lang>`, `og:locale`, JSON-LD `inLanguage`, the feed `<language>`                                            |
+| `site.tagline`               | The default share image and its alt text                                                                           |
+| `site.motto`                 | The footer name and `/about`, marked with its `lang`; `meaning` gives `/about`'s "Latin for …" line, null omits it |
+| `site.firstPublished`        | The footer copyright year                                                                                          |
+| `site.repository`            | `/accessibility`'s link to the full statement                                                                      |
+| `person.*`                   | Homepage `<h1>` (one name per line), JSON-LD `Person`, contact address, CV                                         |
+| `profiles`                   | Footer tiles and JSON-LD `sameAs`; each label needs an icon                                                        |
+| `journeyPost`                | The close row of `/about`, `/career`, `/contact/sent`; must name a published post, or `null`                       |
+| `openingFeedTag`             | The tag feed that carries each post's opening, not its teaser ([Feeds](#feeds)); a tag, or `null`                  |
+| `analytics`                  | `false` loads no tracker; `true` turns on Plausible ([Plausible](docs/DEPLOYMENT.md#plausible))                    |
+| `bingSiteVerification`       | `null` adds no tag; a [Bing](docs/DEPLOYMENT.md#bing-webmaster-tools) code adds one to `/`                         |
+| `contact.form`               | `cloudflare-d1` (the form) or `none` (email only)                                                                  |
+| `contact.notificationSender` | Must equal `allowed_sender_addresses` in `wrangler.jsonc`                                                          |
+| `accessibility.responseDays` | The reply aim on `/accessibility`, in whole days                                                                   |
 
 - Libraries re-export these as constants (`src/lib/site.ts`, `profiles.ts`,
   `contact.ts`, `analytics-site.ts`, `site-language.ts`); `og-image.ts` and
@@ -868,8 +868,7 @@ evidence.
   ([H67](https://www.w3.org/WAI/WCAG22/Techniques/html/H67)). Text there would
   be announced twice.
 - **AccessLint engine hits, each checked against the live DOM:**
-  `color-contrast` on the homepage name is read against a gold ancestor the
-  text does not sit on; `landmark-unique` counts the no-JavaScript nav, which
+  `landmark-unique` counts the no-JavaScript nav, which
   is `display: none` with scripts on; `aria-hidden-focus` flags the controls
   in `/brand`'s light halves, which are `inert` and so never take focus.
   `ACCESSLINT_FALSE_POSITIVES` in `tests/accesslint.ts` drops each only on

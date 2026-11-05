@@ -130,6 +130,8 @@ The drawings are code; the cards show a photo.
   `ICON_ART` in `scripts/make-icons.mjs`: run `npm run icons`.
 - The drawings stay AI-made: keep their lines in `AI_DISCLOSURE.md` and on
   `/credits`.
+- The homepage cat that dives down the page is one of the three, drawn from
+  its sheet: `HOME_CAT` in `src/lib/home-cat.ts` picks which.
 
 A different number of cats means changing the drawing code in
 `src/lib/about-cats-*.ts` and `src/scripts/about-cats.ts`; this guide
@@ -138,9 +140,12 @@ does not cover it.
 **No cats.** `/about` keeps its photos and text.
 
 - Delete `src/components/AboutCats.astro`, `src/scripts/about-cats.ts`,
-  every `src/lib/about-cats*` file, `src/styles/components/about-cats.css`,
-  `tests/about-cats.spec.ts`, the three `src/assets/photos/cat-card-*.jpg`
-  photos and `src/scripts/motion-loop.ts`, which only the cats use.
+  every `src/lib/about-cats*` file except `about-cats-sheet.ts`,
+  `about-cats-frames.ts` and `about-cats-types.ts`, which draw the homepage
+  cat, `src/styles/components/about-cats.css`, `tests/about-cats.spec.ts` and
+  the three `src/assets/photos/cat-card-*.jpg` photos. Keep the
+  `src/assets/about-cats-*.avif` sheet `HOME_CAT` in `src/lib/home-cat.ts`
+  names.
 - `src/styles/global.css`: keep the `--color-cat-` colors: the logo cat
   uses them.
 - `src/pages/about.astro`: remove the `about-cats.css`, `AboutCats`, `CatInfo`

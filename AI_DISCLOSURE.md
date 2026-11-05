@@ -21,7 +21,13 @@ AI-drawn art, by Claude or Canva AI:
 - The animated About cats, drawn by Canva AI from the cats' photos
   (`artwork/about-cats/`, packed by `scripts/make-about-cats.mjs`), their sleep,
   wake and trick-list icons (`src/components/AboutCats.astro`) and their trick
-  icons (`src/lib/about-cats-tricks.json`).
+  icons (`src/lib/about-cats-tricks.json`). Hela's frames also draw the cat
+  that dives on the homepage (`src/lib/home-cat.ts`).
+- The homepage meadow's grasses and dark buds, Canva AI drawings cut out and
+  packed into one atlas (`src/assets/home-meadow.webp`).
+- The cat toys down the homepage (yarn ball, toy mouse, feather wand, bell
+  ball, fish), drawn by Canva AI and cut into die-cut stickers with a pink or
+  ink throw (`src/assets/home-toys/`).
 - The box cat: an open cardboard box (`src/lib/box-cat.ts`, by Claude) with a
   cat sitting in it, drawn by Canva AI (`artwork/cats/*-sit.png`) and set in
   the box by `scripts/make-box-cat.mjs`:

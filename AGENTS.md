@@ -36,7 +36,9 @@ security and privacy, or build correctness. "Looks as designed" is not one.
 - A review that finds a decorative test weak deletes it; it never strengthens
   it.
 - Accessibility rules about decoration are tested: reduced motion, pause
-  control, hidden from assistive technology, never covering text.
+  control, hidden from assistive technology, never resting on text. Moving
+  decoration may pass in front of text; pause and reduced motion stop it clear
+  of text.
 - Interaction states (hover, focus, active, visited, current, disabled) are
   accessibility: SC 1.4.3, 1.4.11, 1.4.1.
 - Assert the property ("at least 4.5:1 and differs from rest"), not the value

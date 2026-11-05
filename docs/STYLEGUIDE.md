@@ -41,11 +41,11 @@ blur, uppercase headings, tilted marks.
 | 1b  | Ground, thin slab: `/contact/sent`, every post                                                                                     | 6 routes                               |
 | 1c  | Ground, mid-page: a `Section surface="gold"`, the About quote, `/contact`'s closing band                                           | `/career`, `/about`, `/`, `/contact`   |
 | 2   | The primary action: `.nav-cta`, `.btn-primary`                                                                                     | 11 routes, 4 routes                    |
-| 3   | the logo marks: the homepage sticker; the box cat and the logo cat are cardboard and the cats' coats, not gold                     | `/`                                    |
+| 3   | the logo marks: none; the box cat and the logo cat are cardboard and the cats' coats, not gold                                     | none                                   |
 | 4   | Card labels, `.label text-gold`; a form's field labels are `text`                                                                  | `/about`, `/accessibility`, `/contact` |
 | 4a  | A talk slide's label, bold words, part number and lead-in term before a colon; its text links, still underlined                    | `/talks/<deck>/`                       |
 | 5   | Category: the blog label and the homepage glyph tiles, ink-edged on gold                                                           | 3 routes                               |
-| 6   | Display words: the homepage family name                                                                                            | `/`                                    |
+| 6   | Homepage: the fall's section title bricks                                                                                          | `/`                                    |
 | 7   | List markers in `.bullet-list`                                                                                                     | wherever a bulleted list is            |
 | 8   | The `gold` swatch and the contrast samples on gold; fills, hex in both modes                                                       | `/brand`                               |
 | 9   | Edges in dark mode: `border` on fields, controls, chips, rules and the outer edge of a gold area                                   | every route                            |
@@ -131,8 +131,10 @@ The gold-ground set is in [Gold surface](#gold-surface), light values in
   input on an older build and cost raster time (`tests/filter-layers.spec.ts`).
 - The Step Up: the throw falls down and right, so a wall only climbs right.
   Bricks in one row rise by `--step-y` (48px from 1120px; half for the second
-  of three or more); stacked rows bring their right edge in by `--step-x`, at
-  most twice. A drop would end the throw against a brick face. The
+  of three or more). A wall of short bricks (the homepage taglines and stats)
+  rises `--step-y-short-share` of that, through `wallClasses(…, { short })`;
+  the wall's room above always equals its rise. Stacked rows bring their right
+  edge in by `--step-x`, at most twice. A drop would end the throw against a brick face. The
   post contents juts right and the contact submit and talk slides jut left
   by `--step-x` (24px).
   Both are 0 below 640px. Juts are translates or margins that never widen
@@ -273,8 +275,7 @@ set; hex values and ratios are in the generated [Contrast](#contrast) table:
   beats the subtree default and is a bug. axe misses it;
   `tests/gold-surface.spec.ts` catches it.
 - No single line of text crosses the gold's edge: nothing clears 4.5 on both
-  grounds. The homepage name breaks on the rule, `text` above and `gold-text`
-  below; `tests/hero-fit.spec.ts` keeps it two lines.
+  grounds.
 
 ### Buttons on gold
 
@@ -316,7 +317,8 @@ The switch and what it scopes: [ARCHITECTURE.md](../ARCHITECTURE.md#light-mode).
 
 - Every hard shadow and edge turns `#131313`.
 - Hover fills are dark mode's `#00dcfd` under `#131313` (11.20).
-- `.surface-gold` and `.v-column` go white. Buttons, tiles and stickers keep
+- `.surface-gold` goes white, except the homepage meadow, which stays gold.
+  Buttons, tiles and stickers keep
   their `#FFC000` fill, always under `#131313` (11.32).
 - Gold text turns ink; a `.label.text-gold` and a slide label gain a gold
   square before the word, ink on a gold block (`--label-mark`).
@@ -330,7 +332,7 @@ The switch and what it scopes: [ARCHITECTURE.md](../ARCHITECTURE.md#light-mode).
   they do not change with the mode.
 - The label on a gold fill is `gold-text`, never `background` (white in
   light).
-- The homepage's second sticker and `.sticker` are black blocks.
+- `.sticker` is a black block.
 - `tests/light-mode.spec.ts` scans every route in light at WCAG 2.2 AA.
 
 ## Type scale
@@ -342,7 +344,7 @@ copyright and contents list are fixed, and `text-code` is `max(1rem, 0.92em)`,
 
 | Token                     | Min px | Max px | Line height | Weight | Use                                   |
 | ------------------------- | ------ | ------ | ----------- | ------ | ------------------------------------- |
-| `text-hero-h1`            | 36     | 36     | 0.94        | 900    | Homepage name only                    |
+| `text-home-name`          | 32     | 32     | 0.98        | 900    | Homepage name only                    |
 | `text-h1`                 | 48     | 48     | 0.94        | 900    | Page title                            |
 | `text-deck-cover`         | 33     | 80     | 0.94        | 900    | Talk cover title                      |
 | `text-reading-h1`         | 40     | 40     | 0.94        | 900    | Privacy, Accessibility title          |
@@ -362,7 +364,6 @@ copyright and contents list are fixed, and `text-code` is `max(1rem, 0.92em)`,
 | `text-code`               | 16     | none   | 1.5         | 400    | Code, `--font-mono`; tracks body      |
 | `text-button`             | 14     | 16     | 1.2         | 900    | Buttons; same as `text-label`         |
 | `text-label`              | 14     | 16     | 1.2         | 900    | Labels; 16 to 40rem, 14 at 48rem      |
-| `text-hero-sticker`       | 18     | 30     | 1.02        | 900    | Homepage hero stickers                |
 | `text-menu`               | 34     | 56     | 1           | 900    | Mobile menu links                     |
 | `text-slide`              | 17     | 34     | 1.35        | 400    | Slide text: full screen, print        |
 | `text-slide-title`        | 26     | 65     | 1           | 900    | Talk slide title, its own case        |
@@ -410,7 +411,7 @@ copyright and contents list are fixed, and `text-code` is `max(1rem, 0.92em)`,
 - Headings never skip levels; one `<h1>` per page. No heading is larger than
   the level above it (`tests/headings.spec.ts`); a /brand example, shown at
   another page's size, is exempt.
-- `text-hero-h1` is 36px so the homepage name stays two lines.
+- `text-home-name` is the homepage name only: 32px, two lines.
 - `text-reading-h1` is for the Privacy and Accessibility titles only.
 - The talk cover keeps the fluid `text-deck-cover`; the deck has its own
   rule ([ACCESSIBILITY.md](../ACCESSIBILITY.md) gap 7).
@@ -429,7 +430,8 @@ longest word fits there; `tests/reflow.spec.ts` holds them.
 
 - `text-h1` 48px: `CREDITS` fits 273px.
 - `text-reading-h1` 40px: `ACCES-SIBILITY` breaks at its soft hyphen.
-- `text-hero-h1` 36px: a ten-letter family name fits the name's 241px window.
+- `text-home-name` 32px: a ten-letter family name fits the meadow's 225px
+  column; the name's brick starts at `sm`.
 - `text-h2` 28px: `ARCHAEOLOGY` fits. `text-h3` 22px, 0.8 of it.
 - `text-post-title` 32px.
 - A longer word in a heading fails `reflow.spec.ts`'s heading-word fit on
@@ -557,7 +559,7 @@ with a comment beside it.
 | `shadow-hard-cyan-object`   | A hovered linked card, in place of pink; a contact link brick fills cyan instead, its ring inside in ink              |
 | `shadow-hard-gold-border-4` | A card on gold                                                                                                        |
 | `shadow-hard-mark-4`        | `.sticker`, `.btn-gold-primary`                                                                                       |
-| `shadow-hard-mark-8`        | The homepage stickers                                                                                                 |
+| `shadow-hard-mark-8`        | No page use; its sample on `/brand`                                                                                   |
 | `mark-throw`                | The logo tile in the header and on `/about`, following its ears; `--lift-mark` (8px), `mark-throw-large` 12px         |
 
 - `mark` is `pink`'s hex but stays pink in light mode, where `pink` turns
@@ -788,7 +790,7 @@ The grid rule in `scripts/check-tokens.mjs` enforces the grid;
 `src/components/PageHero.astro`. Enforced by `tests/page-hero.spec.ts` and
 `tests/gold-surface.spec.ts`.
 
-Four openings, no fifth: Home's own hero, a talk's cover slide, a post's
+Four openings, no fifth: Home's meadow, a talk's cover slide, a post's
 `.post-slab`, and `PageHero` everywhere else.
 
 ### The slab tiers
@@ -819,7 +821,7 @@ how important the page is.
 
 | Variant  | Where                                                        | Title                            | Column                             |
 | -------- | ------------------------------------------------------------ | -------------------------------- | ---------------------------------- |
-| Home     | `/` only                                                     | its own hero                     | its own composition                |
+| Home     | `/` only                                                     | its own meadow, `#home-name`     | its own composition                |
 | Standard | About, Career, Contact, Blog, Credits, Brand, `/404`         | `text-h1`                        | `max-w-page`; 6 of 12 with a photo |
 | Reading  | Privacy, Accessibility (`measure="reading"`)                 | `text-reading-h1`                | `max-w-measure`, the prose column  |
 | Compact  | category and tag listings, `/contact/send`, `/blog/page/<n>` | `text-h2`, still the page's `h1` | `max-w-page`                       |
@@ -866,7 +868,7 @@ roundel.**
 
 - `PageHero` renders the roundel whenever it has no `image`. There is no prop.
 - About and every post have a photo, so no roundel.
-- The homepage is not a PageHero and has no roundel on its window.
+- The homepage is not a PageHero and has no roundel.
 - The roundel is the box cat: Rudra sitting in an open cardboard box, with the
   box's own ink edge and pink throw, tilted 3deg (`src/assets/box-cat-roundel.svg`).
 - `variant="hero"` is `--spacing-roundel` square; the page variant is 96px,
@@ -934,6 +936,49 @@ text-gold-muted` under the standfirst. Color
 
 None. Gold buttons lift and press like every control
 ([Control states](#control-states)). The roundel's tilt is static.
+
+### The homepage meadow and fall
+
+Homepage only (`src/pages/index.astro`, `src/styles/components/home.css`).
+Enforced by `tests/home-hero.spec.ts`, `tests/home-cat.spec.ts` and
+`tests/motion.spec.ts`.
+
+- The meadow is the gold column, gold in both modes: the name as a light brick
+  (from `sm`), the two taglines as two stepped bricks, the photo, the stats,
+  then the meadow: thin die-cut grasses and small dark buds from one atlas
+  (`src/scripts/home-meadow.ts`). Two back rows are grey silhouettes painted
+  opaque (ink toward light, never faded over gold) and drawn once; the front
+  row leans in one travelling wind wave and bends away from the cat. They
+  stand on a row of joined bricks with the hole cut away beside them
+  (`src/scripts/home-hole.ts`): a rugged brick shaft that runs on below the
+  hero, dark inside in both modes. Without JavaScript the bricks carry a few
+  planted stems and the hole is a plain notch between two posts.
+- The cat is one About cat (`HOME_CAT` in `src/lib/home-cat.ts`) drawn from
+  its own sheet: `POSE_FRAMES` maps sit, look, crouch, leap and landing to its
+  frames, mirrored to face the way it goes.
+- The fall: every section after it steps sideways (`--spacing-home-tumble`,
+  `--spacing-home-phone-step` below `md`) and its title is a gold label brick,
+  so all text sits in an opaque brick.
+- Below `sm` every wall still climbs right: each higher brick steps
+  `--spacing-home-phone-step` (16px, 32px for a third) right, with room for its
+  throw. From `pair` (22.5rem) the taglines and stats stay side by side, the
+  first `--spacing-home-phone-climb` lower. Homepage only.
+- The cat toys (yarn ball, toy mouse, feather wand, bell ball, fish) are
+  die-cut stickers with a pink throw baked into the image (an ink-throw image
+  in light mode) rising in the left lane beside the column
+  (`--spacing-home-lane`). Below `md` there are no lanes and they pass behind
+  the bricks; the yarn ball rests at the top of the fall, beside its pause
+  control.
+- Two controls among the decoration: the yarn ball ("Toss the Yarn Ball") and
+  the cat ("Follow the Cat"), which dives into the shaft, drops to its floor
+  and hops onto the first heading (`src/scripts/home-faller.ts`). As the reader
+  scrolls it hops from section to section, side to side, to the Next card, at
+  every width. A hop may pass in front of a section; it rests only in the gap
+  above one, clear of text, and pausing sets it down there. Every later
+  section has room above it for the sitting cat.
+  Everything else is `aria-hidden`.
+- Two pause controls, one beside the stats and one at the top of the fall,
+  named "Pause animations" / "Play animations" and kept in step.
 
 ## Posts
 
