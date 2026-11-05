@@ -51,4 +51,18 @@ test.describe('check:csp', NODE, () => {
       hash(INLINE_SCRIPT),
     );
   });
+
+  test('--write drops a hash the build no longer needs without leaving a space before the semicolon', () => {
+    const root = builtFixture({
+      'dist/client/index.html': `<!doctype html><html><head><script>${INLINE_SCRIPT}</script></head><body></body></html>`,
+      [HEADERS]: headers([hash(INLINE_SCRIPT)]),
+    });
+    const { status, output } = runCheck(SCRIPT, root, ['--write']);
+    expect(status, output).toBe(0);
+    const written = readFileSync(join(root, HEADERS), 'utf8');
+    expect(written, 'the stale style hash is still listed').not.toContain(
+      hash(INLINE_STYLE),
+    );
+    expect(written).toContain("style-src 'self';");
+  });
 });

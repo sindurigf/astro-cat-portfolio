@@ -35,7 +35,7 @@ for (const [name, expected] of Object.entries(wanted)) {
     const listed = (hashes.match(HASH) ?? []).sort();
     if (listed.join(' ') === expected.join(' ')) return whole;
     stale.push(`${name}: ${expected.join(' ')}`);
-    return `${head.trimEnd()} ${expected.join(' ')}${end}`;
+    return `${[head.trimEnd(), ...expected].join(' ')}${end}`;
   });
 }
 
