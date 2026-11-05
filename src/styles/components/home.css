@@ -93,6 +93,11 @@
     flex: none;
   }
 
+  /* Not `hidden`: preflight's `display: none !important` would collapse its place. */
+  .home-pause[data-off] {
+    visibility: hidden;
+  }
+
   .home-band {
     position: absolute;
     inset: auto 0 0;

@@ -1,7 +1,8 @@
 ---
 /*
  * One of the homepage's two SC 2.2.2 controls; home-motion.ts shows them,
- * keeps them in step and swaps the glyph and name. Hidden until the script runs.
+ * keeps them in step and swaps the glyph and name. `data-off` until the script
+ * runs: invisible but holding its place, so showing it shifts nothing.
  */
 ---
 
@@ -10,7 +11,7 @@
   class="motion-toggle home-pause"
   data-home-pause
   data-state="playing"
-  hidden
+  data-off
 >
   <span
     aria-hidden="true"

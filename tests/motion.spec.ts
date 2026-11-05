@@ -147,7 +147,7 @@ test.describe('the homepage motion', () => {
         expect(
           control,
           'a pause control is shown before the script that makes it work.',
-        ).toMatch(/\shidden(\s|>|=)/);
+        ).toMatch(/\sdata-off(\s|>|=)/);
       }
     },
   );
