@@ -344,22 +344,6 @@ export const builtHtml = (distDir = DIST_DIR): Map<string, string> =>
     ]),
   );
 
-/**
- * Routes whose HTML hydrates `component` (matched on `component-url`), to guard a
- * spec's hardcoded subset of ROUTES. Call inside a test body, never at module scope.
- */
-export const islandRoutesFromBuild = (
-  component: string,
-  distDir = DIST_DIR,
-): string[] => {
-  const marker = new RegExp(`component-url="[^"]*/${component}\\.[^"]*\\.js"`);
-
-  return builtPages(distDir)
-    .filter((page) => marker.test(readFileSync(page.file, 'utf8')))
-    .map((page) => page.route)
-    .sort();
-};
-
 let goldRoutes: string[] | undefined;
 
 /**

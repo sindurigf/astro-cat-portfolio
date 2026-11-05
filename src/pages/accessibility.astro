@@ -204,16 +204,14 @@ const HAS_TALK = (await getCollection('talks')).length > 0;
 
           <h3>Motion</h3>
           <p>
-            SC 2.2.2 Pause, Stop, Hide (A): the homepage field has one pause
-            control. Each of the three About cats has its own sleep control, and
-            a cat also naps after 30 seconds on screen. SC 2.3.3 Animation from
-            Interactions (AAA): under{' '}
-            <code>prefers-reduced-motion: reduce</code>, the field is drawn once
-            and held. Under the same setting, the cats sit still on the brick
-            under them with no controls. A pressed button does not move, and the
-            photo strip scrolls without smooth scrolling. Let It Fall in the
-            footer moves the page at once, without animation. Nothing else
-            animates.
+            SC 2.2.2 Pause, Stop, Hide (A): each of the three About cats has its
+            own sleep control, and a cat also naps after 30 seconds on screen.
+            SC 2.3.3 Animation from Interactions (AAA): under{' '}
+            <code>prefers-reduced-motion: reduce</code>, the cats sit still on
+            the brick under them with no controls. A pressed button does not
+            move, and the photo strip scrolls without smooth scrolling. Let It
+            Fall in the footer moves the page at once, without animation.
+            Nothing else animates.
           </p>
           <p>
             You can pause the moving pictures. If your device asks for less
@@ -512,8 +510,8 @@ const HAS_TALK = (await getCollection('talks')).length > 0;
           <p>
             The tab walk proves every control is reached and visible. Only some
             controls are tested by pressing them with Enter or Space. They are
-            the menu, skip link, slides, cat buttons, theme switch, hero pause
-            control, photo viewer and contact form.
+            the menu, skip link, slides, cat buttons, theme switch, photo viewer
+            and contact form.
           </p>
           <p>
             Tests check that you can reach every control by keyboard, but not

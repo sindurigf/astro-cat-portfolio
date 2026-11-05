@@ -7,7 +7,7 @@ import { NODE } from './tags';
  * one was detected. `@media (hover: hover)` from Tailwind's `hover:` only adds
  * hover where it exists, so it is not matched.
  */
-const SOURCE = globSync('src/**/*.{css,ts,vue,astro,mjs}');
+const SOURCE = globSync('src/**/*.{css,ts,astro,mjs}');
 
 const RESTRICTIONS: readonly { pattern: RegExp; what: string }[] = [
   { pattern: /\(\s*(?:any-)?pointer\s*:/, what: 'a pointer media query' },

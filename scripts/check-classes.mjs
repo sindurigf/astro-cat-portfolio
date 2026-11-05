@@ -14,7 +14,7 @@ const ROOT =
   process.env.CHECK_ROOT ?? fileURLToPath(new URL('..', import.meta.url));
 const DIST = join(ROOT, 'dist/client');
 const SRC = join(ROOT, 'src');
-const SOURCE_EXTENSIONS = ['.astro', '.vue', '.ts', '.md', '.mjs'];
+const SOURCE_EXTENSIONS = ['.astro', '.ts', '.md', '.mjs'];
 
 /* `.hover\:text-cyan` → `hover:text-cyan`, `.w-1\/2` → `w-1/2`. */
 const unescape = (name) =>

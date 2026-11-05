@@ -39,7 +39,7 @@ import {
   idleNextDrawAt,
   tickIdle,
 } from '../src/lib/about-cats-idle';
-import { random } from '../src/lib/hero-field-scene';
+import { random } from './seeded-random';
 import { isTricksData, tricksOf } from '../src/lib/about-cats-tricks';
 import tricksData from '../src/lib/about-cats-tricks.json' with { type: 'json' };
 import {

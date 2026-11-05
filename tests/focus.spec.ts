@@ -21,10 +21,7 @@ const WIDTHS = [
  */
 const MAX_STOPS = 300;
 
-/*
- * Per step, scaled by control count. `/` has few controls and an animated
- * HeroField canvas; webkit under load measured up to 441ms a step there.
- */
+/* Per step, scaled by control count; webkit under load measured up to 441ms a step on `/`. */
 const WALK_BUDGET_PER_STEP_MS = 600;
 
 /* light-mode.css swaps the focus color, so the rings are measured in both. */
@@ -110,7 +107,7 @@ const FOCUS_RING = `
     /*
      * SC 1.4.11: the ring sits in the offset gap, so it is measured against the
      * ground behind the control, not its fill (gold on gold is 1.00:1), nor an
-     * ancestor the ring's reach misses, such as the hero pause control's window.
+     * ancestor the ring's reach misses.
      */
     const ringContrast = (el, style) => {
       let ringRatio = null;

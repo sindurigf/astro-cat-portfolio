@@ -152,8 +152,8 @@
 
   /*
    * `vh` fallback; `.v-column .hero` sets the real height. `min-height` so it
-   * grows at 200% zoom. `svh`: `dvh` reflows mid-scroll, `lvh` hides the pause
-   * control under the toolbar.
+   * grows at 200% zoom. `svh`: `dvh` reflows mid-scroll, `lvh` runs under the
+   * toolbar.
    */
   .hero {
     min-height: calc(100vh - var(--spacing-page-top));
@@ -162,10 +162,7 @@
     @apply isolate flex flex-col;
   }
 
-  /*
-   * A region of the column: no border, extrusion or ground. `isolate` because
-   * the canvases stack inside.
-   */
+  /* A region of the column: no border, extrusion or ground. */
   .hero-window {
     @apply relative isolate flex-1;
   }
@@ -268,68 +265,6 @@
     }
   }
   /*
-   * Front canvas sits between the poneglyph and the type; the large h1 holds SC
-   * 1.4.3 at worst over the field. No `z-index`: a stacking context would cap
-   * the pause control's `z-30` (tests/motion.spec.ts).
-   */
-  .hero-field {
-    @apply pointer-events-none absolute inset-0;
-  }
-
-  .hero-field-layer {
-    @apply absolute inset-0 block h-full w-full;
-  }
-
-  /*
-   * The reduced-motion frame where no script draws it (scripts/make-hero-still.mjs).
-   * Its sky is cut and `contain` keeps all of the field in a short window.
-   */
-  @media (scripting: none) {
-    .hero-field {
-      background: url('../../assets/hero-still-tall.webp') left bottom / contain
-        no-repeat;
-    }
-
-    @media (width < theme(--breakpoint-md)) and (orientation: landscape) {
-      .hero-field {
-        background-image: url('../../assets/hero-still-short.webp');
-      }
-    }
-
-    @media (width >= theme(--breakpoint-md)) {
-      .hero-field {
-        background-image: url('../../assets/hero-still-wide.webp');
-      }
-    }
-  }
-
-  /*
-   * The SC 2.2.2 pause control, beside the first name above the window, which
-   * can be too low to hold it clear of the name. `z-40`: above the name's line
-   * box, empty there. `pointer-events-auto`: `.hero-field` disables them.
-   */
-  .hero-motion-toggle {
-    @apply pointer-events-auto top-auto right-0 z-40;
-
-    bottom: calc(100% + --spacing(4));
-  }
-
-  /* It sits on the page, not the gold: the page's ring, which `.surface-gold` would darken to 1:1. */
-  .surface-gold .hero-motion-toggle:focus-visible {
-    outline-color: var(--color-cyan);
-  }
-
-  /*
-   * Hidden in forced colors: a canvas is a bitmap the mode cannot repaint.
-   * With nothing moving, the pause control goes too.
-   */
-  @media (forced-colors: active) {
-    .hero-field {
-      @apply hidden;
-    }
-  }
-
-  /*
    * Line gap: the 12px rule plus clearance each side, less the line boxes'
    * empty leading; not `em` alone because the rule is px. `top` offsets by half
    * the leading difference so the letters, not the boxes, center on the rule.
@@ -360,7 +295,7 @@
   }
 
   /*
-   * Top right, below the rule; never at the foot, over the field. The box ends
+   * Top right, below the rule; never at the foot. The box ends
    * at the window's foot, one column wide, and clips: a sticker that does not
    * fit wraps out of sight, so at 400% zoom none hangs over the words below
    * (SC 1.4.10). The padding is the room the throw and tilt need; a column gap

@@ -1,7 +1,7 @@
 /*
- * Backstop for anything animated. SC 2.2.2 needs a real control, which the hero
- * field has (HeroField.vue); the field also reads this preference itself and
- * draws once.
+ * Backstop for anything animated. SC 2.2.2 needs a real control, which each
+ * About cat has (about-cats.ts); the cats also read this preference themselves
+ * and draw once.
  */
 
 @media (prefers-reduced-motion: reduce) {

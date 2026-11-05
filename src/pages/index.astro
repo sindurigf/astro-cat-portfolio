@@ -6,7 +6,6 @@ import BlogCard from '../components/BlogCard.astro';
 import CloseRow from '../components/CloseRow.astro';
 import Roundel from '../components/Roundel.astro';
 import Section from '../components/Section.astro';
-import HeroField from '../components/ui/HeroField.vue';
 import portrait from '../assets/photos/tabby-duvet.jpg';
 import { BLOG_CATEGORIES, type BlogCategory } from '../content.config';
 import {
@@ -124,12 +123,6 @@ const statWall = wallClasses({ sm: [[0, 1]] }, STATS.length);
     <section class="band hero relative">
       <div class="hero-window surface-gold">
         {/*
-        Motion starts on mount only, so it never runs without its SC 2.2.2
-        pause control. client:load: `client:visible` fires at once above the fold.
-      */}
-        <HeroField client:load />
-
-        {/*
         Spans, not <p>: WAVE reads short bold paragraphs as headings. No
         `border-border`: it fails SC 1.4.11 here and would beat `.surface-gold`'s.
       */}
@@ -158,7 +151,7 @@ const statWall = wallClasses({ sm: [[0, 1]] }, STATS.length);
 
     {/* `surface="gold"` is what swaps the heading's `text-text` utility. */}
     <Section surface="gold">
-      {/* Not in the hero: over the moving field it fails SC 1.4.3. The sr-only comma separates the roles. */}
+      {/* The sr-only comma separates the roles. */}
       <Fragment slot="title">
         <span class="block">Reading the Past</span>
         <span class="sr-only">,</span>{' '}

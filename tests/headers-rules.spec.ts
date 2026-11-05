@@ -144,8 +144,8 @@ const expectOutboundDirectives = (csp: string): void => {
   ).toBe("require-trusted-types-for 'script'");
   expect(
     directive(csp, 'trusted-types'),
-    "the CSP allows a Trusted Types policy other than Vue's.",
-  ).toBe('trusted-types vue');
+    'the CSP allows a Trusted Types policy, and no script on the site creates one.',
+  ).toBe("trusted-types 'none'");
 };
 
 test.describe('security headers as declared and served', NODE, () => {

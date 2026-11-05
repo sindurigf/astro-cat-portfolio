@@ -391,7 +391,7 @@ check_elements() {
   [ "$complete" -eq 1 ] || [ "$truncated" -eq 1 ] ||
     fail "$1" "the element scan did not finish, so the page was not fully checked"
 
-  # Floors: every page has a stylesheet and Astro's inline island loader.
+  # Floors: every page has a stylesheet and the inline theme script.
   [ "$refs" -gt 0 ] ||
     fail "$1" "no fetching element was found; the parser matched nothing"
   [ "$inlines" -gt 0 ] ||

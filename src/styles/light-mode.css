@@ -19,11 +19,6 @@
     --dark-card-edge: var(--color-card-edge);
     --dark-code-edge: var(--color-code-edge);
     --dark-code-fill: var(--color-code-fill);
-    --dark-gold-bud: var(--color-gold-bud);
-    --dark-hero-ground: var(--color-hero-ground);
-    --dark-hero-glow: var(--color-hero-glow);
-    --dark-hero-veil: var(--color-hero-veil);
-    --dark-hero-floor: var(--color-hero-floor);
   }
 
   :root[data-theme='light'] :is(main, header, footer),
@@ -40,11 +35,6 @@
     --color-card-edge: var(--color-light-ink);
     --color-code-edge: var(--color-light-code-edge);
     --color-code-fill: var(--color-block-light);
-    --color-gold-bud: var(--color-light-ink);
-    --color-hero-ground: var(--color-light-ground);
-    --color-hero-glow: var(--color-gold);
-    --color-hero-veil: var(--color-light-hero-veil);
-    --color-hero-floor: var(--color-light-hero-floor);
     color-scheme: light;
     color: var(--color-text);
     background-color: var(--color-background);
@@ -78,11 +68,6 @@
     --color-card-edge: var(--dark-card-edge);
     --color-code-edge: var(--dark-code-edge);
     --color-code-fill: var(--dark-code-fill);
-    --color-gold-bud: var(--dark-gold-bud);
-    --color-hero-ground: var(--dark-hero-ground);
-    --color-hero-glow: var(--dark-hero-glow);
-    --color-hero-veil: var(--dark-hero-veil);
-    --color-hero-floor: var(--dark-hero-floor);
     color-scheme: dark;
     color: var(--color-text);
     background-color: var(--color-background);

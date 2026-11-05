@@ -111,7 +111,6 @@ blur, uppercase headings, tilted marks.
 | `mark`       | `#FF007A` | Logo marks; same in both modes                                  |
 | `tile-edge`  | `#5A87A8` | Logo tile copies' edge; both modes                              |
 | `cat-*`      | 6 fills   | Logo cat coat and About cat props; decoration, never a boundary |
-| `hero-*`     | 6 values  | Homepage canvas ground, veil, floor and glyph glow; decoration  |
 
 The gold-ground set is in [Gold surface](#gold-surface), light values in
 [Light mode](#light-mode).
@@ -201,7 +200,6 @@ every size (SC 1.4.6, as /accessibility claims); non-text needs 3.0 (SC
 | `gold-muted` #3A3020      | `gold` #FFC000         | text       | Secondary text on gold                                    | 7.0   | 7.88  | pass       |
 | `gold-link` #1E0D16       | `gold` #FFC000         | text       | Links on gold                                             | 7.0   | 11.38 | pass       |
 | `gold` #FFC000            | `gold-link` #1E0D16    | text       | A link filled under the pointer                           | 7.0   | 11.38 | pass       |
-| `gold-bud` #00363F        | `gold` #FFC000         | decoration | The canvas buds on gold                                   | n/a   | 8.00  | decoration |
 | `gold-border` #131313     | `gold` #FFC000         | non-text   | Boundaries on gold                                        | 3.0   | 11.32 | pass       |
 | `fill-edge` #131313       | `gold` #FFC000         | non-text   | Edge of a gold fill                                       | 3.0   | 11.32 | pass       |
 | `fill-edge` #131313       | `text` #E5E2E1         | non-text   | Edge of a light fill                                      | 3.0   | 14.42 | pass       |
@@ -247,7 +245,6 @@ set; hex values and ratios are in the generated [Contrast](#contrast) table:
 | `gold-border`    | Structural rules, dividers, card edges and shadows      |
 | `fill-edge`      | Edge of a gold or light fill, on gold or off it         |
 | `gold-link`      | Links, underlined; the block on hover                   |
-| `gold-bud`       | The canvas buds on gold. Decoration                     |
 | `gold-btn-label` | Label and inner ring on `.btn-gold-primary`'s fill only |
 
 - Build gold with `.surface-gold`, never `bg-gold` by hand. It repaints text,
@@ -305,17 +302,17 @@ The switch and what it scopes: [ARCHITECTURE.md](../ARCHITECTURE.md#light-mode).
 - A click, Enter or Space on a choice picks it, closes the menu and returns
   focus to the switch (SC 2.4.3). Arrow keys move the choice and keep it open.
 
-| Token                                               | Light     | on `#ffffff` |
-| --------------------------------------------------- | --------- | ------------ |
-| `background`, `surface`, `hero-ground`              | `#ffffff` | ground       |
-| `text`, `border`, `pink`, `gold-border`, `gold-bud` | `#131313` | 18.58        |
-| `card-edge`                                         | `#131313` | 18.58        |
-| gold as text, `.text-gold`                          | `#131313` | 18.58        |
-| `subtle`                                            | `#3f4650` | 9.53         |
-| `pink-text`                                         | `#b00054` | 7.06         |
-| `code-edge`                                         | `#767676` | 4.54         |
-| `code-fill`                                         | `#e5e2e1` | 1.29         |
-| `cyan` (focus ring and hover text)                  | `#0047b3` | 8.23         |
+| Token                                   | Light     | on `#ffffff` |
+| --------------------------------------- | --------- | ------------ |
+| `background`, `surface`                 | `#ffffff` | ground       |
+| `text`, `border`, `pink`, `gold-border` | `#131313` | 18.58        |
+| `card-edge`                             | `#131313` | 18.58        |
+| gold as text, `.text-gold`              | `#131313` | 18.58        |
+| `subtle`                                | `#3f4650` | 9.53         |
+| `pink-text`                             | `#b00054` | 7.06         |
+| `code-edge`                             | `#767676` | 4.54         |
+| `code-fill`                             | `#e5e2e1` | 1.29         |
+| `cyan` (focus ring and hover text)      | `#0047b3` | 8.23         |
 
 - Every hard shadow and edge turns `#131313`.
 - Hover fills are dark mode's `#00dcfd` under `#131313` (11.20).
@@ -791,7 +788,7 @@ The grid rule in `scripts/check-tokens.mjs` enforces the grid;
 `src/components/PageHero.astro`. Enforced by `tests/page-hero.spec.ts` and
 `tests/gold-surface.spec.ts`.
 
-Four openings, no fifth: Home's canvas hero, a talk's cover slide, a post's
+Four openings, no fifth: Home's own hero, a talk's cover slide, a post's
 `.post-slab`, and `PageHero` everywhere else.
 
 ### The slab tiers
@@ -822,7 +819,7 @@ how important the page is.
 
 | Variant  | Where                                                        | Title                            | Column                             |
 | -------- | ------------------------------------------------------------ | -------------------------------- | ---------------------------------- |
-| Home     | `/` only                                                     | its own hero, `HeroField.vue`    | its own composition                |
+| Home     | `/` only                                                     | its own hero                     | its own composition                |
 | Standard | About, Career, Contact, Blog, Credits, Brand, `/404`         | `text-h1`                        | `max-w-page`; 6 of 12 with a photo |
 | Reading  | Privacy, Accessibility (`measure="reading"`)                 | `text-reading-h1`                | `max-w-measure`, the prose column  |
 | Compact  | category and tag listings, `/contact/send`, `/blog/page/<n>` | `text-h2`, still the page's `h1` | `max-w-page`                       |
@@ -937,16 +934,6 @@ text-gold-muted` under the standfirst. Color
 
 None. Gold buttons lift and press like every control
 ([Control states](#control-states)). The roundel's tilt is static.
-
-### The hero pause control
-
-- Beside the first name at every size (`.hero-motion-toggle`): right edge on
-  the window's, `--spacing(4)` above its top rule. The window can be too low to
-  hold it clear of the name.
-- It sits on the page, not the gold, so its focus ring is the page's `cyan`.
-- A first name long enough to reach it would sit under it:
-  `tests/hero-fit.spec.ts` measures the letters against its box.
-- It is the first stop in `<main>` at every size.
 
 ## Posts
 
@@ -1341,19 +1328,11 @@ Enforced by `tests/nav-current.spec.ts`, `tests/mobile-menu.spec.ts`,
 
 - Every animation respects `prefers-reduced-motion: reduce`.
 - Anything moving automatically for over five seconds needs a pause control
-  (SC 2.2.2): the homepage hero field and each About cat.
+  (SC 2.2.2): each About cat.
 - Nothing flashes more than three times per second (SC 2.3.1).
 - Controls lift off their shadow under a hovering pointer and press into it at
   once ([Control states](#control-states)); no movement under reduced motion.
 - No marquee.
-- Pattern (`src/components/ui/HeroField.vue`, its logic in
-  `src/composables/use-hero-field.ts`): start the animation on mount,
-  never in server HTML. Under reduced motion render one still frame and no
-  button. The state lives in the accessible name ("Play the hero animation" /
-  "Pause the hero animation"), no `aria-pressed`. Without JavaScript the hero
-  shows that still frame as a WebP (`npm run hero-still` after a change to the
-  field).
-- `HeroField` loads `client:load`.
 - The About cats (`src/components/AboutCats.astro`, `src/scripts/about-cats.ts`) wake when their band is
   first on screen, play along it (games like the yarn and the fly carry them),
   and sit still under reduced motion. Each cat's button
@@ -1407,20 +1386,8 @@ Enforced by `tests/nav-current.spec.ts`, `tests/mobile-menu.spec.ts`,
 - A band is never a scroll anchor (`overflow-anchor: none` on `.cat-spot`):
   WebKit would scroll the page with a moving cat and carry a focused control
   out of view (SC 2.4.11).
-- The hero's poneglyph is line art in the field's inks, drawn to match its
-  grass lines; the About cats are stickers, flat fills with a hard edge, like
-  the logo tile. Keep each in its own style.
-- The poneglyph stands right of center, below the stickers and clear of the
-  name: a broad block with a lit carved face, a shaded side and top, a plinth,
-  a soft contact shadow and a short cast shadow. On a narrow frame it moves
-  left to stay inside. Stems stand behind it and beside it, never in front.
-- A slow light reads its script glyph by glyph, left to right and top to
-  bottom, in a loop: each glyph's strokes thicken into a full-ink rim with the
-  glow color inside, rising over 0.6 s and fading over 0.6 s as the next
-  glyph rises, then wrapping to the start. The rim keeps 6.60:1 on the dark
-  face and 16.43:1 on the light (SC 1.4.11). One glyph is far below the general
-  flash area and makes one rise and fall a cycle (SC 2.3.1). The pause control
-  freezes it; under reduced motion the script stays unlit.
+- The About cats are stickers, flat fills with a hard edge, like the logo
+  tile.
 
 ## Focus
 

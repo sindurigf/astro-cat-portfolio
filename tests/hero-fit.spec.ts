@@ -1,7 +1,6 @@
 import { test, expect, type Page } from './test';
-import { HYDRATION_TIMEOUT, fontsSettled, waitForHydration } from './settle';
+import { fontsSettled } from './settle';
 import { TEXT_SPACING_OVERRIDE } from './wcag';
-import { NON_TEXT, PAGE_HELPERS } from './contrast';
 
 // 200% text-only zoom is a by-hand check (docs/MANUAL_TESTING.md section 7):
 // Playwright's zoom scales `svh` with it.
@@ -30,14 +29,8 @@ const SHORT_WINDOWS = [
 /** CSS px. Boxes are fractional and the stickers tilt three degrees; half a pixel hides no mark. */
 const SUBPIXEL_TOLERANCE = 0.5;
 
-/* The island wait and waitForHydration each take up to HYDRATION_TIMEOUT, more than the 30s default. */
 const openHero = async (page: Page): Promise<void> => {
-  test.slow();
   await page.goto('/', { waitUntil: 'load' });
-  await expect(page.locator('.hero-motion-toggle')).toBeVisible({
-    timeout: HYDRATION_TIMEOUT,
-  });
-  await waitForHydration(page);
   await fontsSettled(page);
 };
 
@@ -46,13 +39,12 @@ const HERO_PARTS = `
       const hero = document.querySelector('section.hero');
       const windowEl = document.querySelector('.hero-window');
       const plate = document.querySelector('.hero-plate');
-      const control = document.querySelector('.hero-motion-toggle');
-      if (!hero || !windowEl || !plate || !control) {
+      if (!hero || !windowEl || !plate) {
         throw new Error(
-          'the homepage hero is missing its section, window, name or pause control.',
+          'the homepage hero is missing its section, window or name.',
         );
       }
-      return { hero, windowEl, plate, control };
+      return { hero, windowEl, plate };
     };
 `;
 
@@ -70,36 +62,6 @@ const HIGHEST_EDGE = `
 `;
 
 test.describe('the homepage hero fits the screen it opens on', () => {
-  for (const [width, height] of VIEWPORTS) {
-    test(`the pause control is on screen at ${width}x${height}`, async ({
-      page,
-    }) => {
-      await page.setViewportSize({ width, height });
-      await openHero(page);
-
-      const off = (await page.evaluate(
-        `(() => {
-          ${HERO_PARTS}
-          const r = heroParts().control.getBoundingClientRect();
-          return {
-            above: -r.top,
-            below: r.bottom - window.innerHeight,
-            left: -r.left,
-            right: r.right - document.documentElement.clientWidth,
-          };
-        })()`,
-      )) as Record<string, number>;
-
-      for (const [side, past] of Object.entries(off)) {
-        expect(
-          past,
-          `the pause control is ${past.toFixed(1)}px off screen ${side} at ` +
-            `${width}x${height}`,
-        ).toBeLessThanOrEqual(SUBPIXEL_TOLERANCE);
-      }
-    });
-  }
-
   for (const [width, height] of VIEWPORTS) {
     test(`the name clears the header at ${width}x${height}`, async ({
       page,
@@ -164,131 +126,6 @@ test.describe('the homepage hero fits the screen it opens on', () => {
           `text-spacing override at ${width}x${height}`,
       ).toBeLessThanOrEqual(0);
     });
-  }
-});
-
-/** 320px at 400% zoom down to the lowest window, both phone orientations, a tablet and desktops; 305 is the narrowest name gap. */
-const PAUSE_VIEWPORTS = [
-  [320, 256],
-  [320, 240],
-  [320, 225],
-  [305, 568],
-  [667, 375],
-  [390, 844],
-  [768, 1024],
-  [1280, 800],
-  [1920, 1080],
-] as const;
-
-/** Points probed per side of the control: a 6 by 6 grid. */
-const PROBE_GRID = 6;
-
-interface ControlProbe {
-  missed: number;
-  offScreen: boolean;
-  overName: boolean;
-  aboveWindow: boolean;
-  edge: number;
-  ring: number;
-}
-
-const probeControl = (page: Page) =>
-  page.evaluate(
-    `((grid) => {
-      ${HERO_PARTS}
-      ${PAGE_HELPERS}
-      const { control, plate, windowEl } = heroParts();
-      const box = control.getBoundingClientRect();
-      let missed = 0;
-      for (let column = 0; column < grid; column += 1) {
-        for (let row = 0; row < grid; row += 1) {
-          const hit = document.elementFromPoint(
-            box.x + (box.width * (column + 0.5)) / grid,
-            box.y + (box.height * (row + 0.5)) / grid,
-          );
-          if (!hit || !control.contains(hit)) missed += 1;
-        }
-      }
-      const letters = [...plate.querySelectorAll('span')].map((line) => {
-        const range = document.createRange();
-        range.selectNodeContents(line);
-        return range.getBoundingClientRect();
-      });
-      const style = getComputedStyle(control);
-      const fill = control.style.background;
-      control.style.background = 'transparent';
-      const ground = effectiveBackground(control);
-      control.style.background = fill;
-      const against = (color) => {
-        const parsed = parse(color);
-        return ground && parsed ? ratio(parsed, ground) : 0;
-      };
-      return {
-        missed,
-        offScreen:
-          box.top < 0 ||
-          box.left < 0 ||
-          box.bottom > window.innerHeight ||
-          box.right > document.documentElement.clientWidth,
-        overName: letters.some(
-          (text) =>
-            text.left < box.right &&
-            box.left < text.right &&
-            text.top < box.bottom &&
-            box.top < text.bottom,
-        ),
-        aboveWindow: box.bottom <= windowEl.getBoundingClientRect().top,
-        edge: against(style.borderTopColor),
-        ring: against(style.outlineColor),
-      };
-    })(${PROBE_GRID})`,
-  ) as Promise<ControlProbe>;
-
-test.describe('the pause control sits beside the first name', () => {
-  for (const theme of ['dark', 'light'] as const) {
-    for (const [width, height] of PAUSE_VIEWPORTS) {
-      test(`in ${theme} mode at ${width}x${height} every point of the pause control reaches it, a click toggles it, and it is on the first screen above the window, clear of the name (SC 2.2.2, 2.4.11, 1.4.11)`, async ({
-        page,
-      }) => {
-        await page.addInitScript((value) => {
-          localStorage.setItem('theme', value);
-        }, theme);
-        await page.setViewportSize({ width, height });
-        await openHero(page);
-        const control = page.locator('.hero-motion-toggle');
-        await expect(control).toHaveAccessibleName('Pause the hero animation');
-        await control.click();
-        await expect(
-          control,
-          'a click on the pause control did not pause',
-        ).toHaveAccessibleName('Play the hero animation');
-        await page.keyboard.press('Tab');
-        await page.keyboard.press('Shift+Tab');
-        await expect(control, 'Tab did not return to it').toBeFocused();
-        const probe = await probeControl(page);
-        expect(
-          probe.missed,
-          'points of the pause control that something else covers',
-        ).toBe(0);
-        expect(
-          probe.offScreen,
-          'the pause control is off the first screen',
-        ).toBe(false);
-        expect(probe.overName, 'the pause control covers the name').toBe(false);
-        expect(
-          probe.aboveWindow,
-          'the pause control is not in the strip above the window',
-        ).toBe(true);
-        expect(
-          probe.edge,
-          "the pause control's edge is under 3:1 against its ground",
-        ).toBeGreaterThanOrEqual(NON_TEXT);
-        expect(
-          probe.ring,
-          "the pause control's focus ring is under 3:1 against its ground",
-        ).toBeGreaterThanOrEqual(NON_TEXT);
-      });
-    }
   }
 });
 

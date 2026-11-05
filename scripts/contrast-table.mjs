@@ -48,7 +48,6 @@ const PAIRS = [
   ['gold-muted', 'gold', 'text', 'Secondary text on gold'],
   ['gold-link', 'gold', 'text', 'Links on gold'],
   ['gold', 'gold-link', 'text', 'A link filled under the pointer'],
-  ['gold-bud', 'gold', 'decoration', 'The canvas buds on gold'],
   ['gold-border', 'gold', 'non-text', 'Boundaries on gold'],
   ['fill-edge', 'gold', 'non-text', 'Edge of a gold fill'],
   ['fill-edge', 'text', 'non-text', 'Edge of a light fill'],

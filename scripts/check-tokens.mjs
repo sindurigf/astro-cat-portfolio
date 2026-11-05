@@ -16,7 +16,7 @@ const SRC = join(ROOT, 'src');
 /* The only file allowed to name a color literally. */
 const TOKEN_SOURCE = join(SRC, 'styles/global.css');
 
-const EXTENSIONS = ['.astro', '.vue', '.ts', '.mjs', '.css'];
+const EXTENSIONS = ['.astro', '.ts', '.mjs', '.css'];
 
 /* `h-[3px]`; the dash-separated chain keeps `items[0]` from matching. */
 const ARBITRARY_VALUE = /\b[a-z][a-z0-9]*(?:-[a-z0-9]+)*-\[[^\]\s]+\]/g;
@@ -246,7 +246,7 @@ for (const path of sourceFiles) {
     );
   }
 
-  if (path.endsWith('.astro') || path.endsWith('.vue')) {
+  if (path.endsWith('.astro')) {
     for (const hit of scan(source, INLINE_STYLE)) {
       failures.push(`${name}:${hit.at}  inline style`);
     }

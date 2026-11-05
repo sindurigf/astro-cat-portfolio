@@ -8,7 +8,7 @@ import { NODE } from './tags';
  * Interruptions: nothing interrupts but the result of the user's own action.
  * The presenter view is development-only and never built, so it is not read.
  */
-const PUBLISHED_SOURCE = globSync('src/**/*.{ts,vue,astro,mjs}').filter(
+const PUBLISHED_SOURCE = globSync('src/**/*.{ts,astro,mjs}').filter(
   (file) => !file.startsWith('src/presenter/'),
 );
 

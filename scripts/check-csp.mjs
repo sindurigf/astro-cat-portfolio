@@ -1,8 +1,8 @@
 /*
  * Fails if the script-src or style-src hashes in public/_headers differ from
  * the inline blocks the build emits: a framework bump that changes its inline
- * script otherwise ships pages whose islands never hydrate. `--write` puts the
- * right hashes in.
+ * script otherwise ships pages whose inline scripts never run. `--write` puts
+ * the right hashes in.
  *
  *   npm run build && npm run check:csp [-- --write]
  */

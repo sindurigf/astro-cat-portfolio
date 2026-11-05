@@ -11,7 +11,7 @@
     "prebuild": "node scripts/seed-image-cache.mjs",
     "build": "astro build --force",
     "preview": "astro preview",
-    "typecheck": "astro check --minimumFailingSeverity hint && vue-tsc --noEmit -p tsconfig.vue.json",
+    "typecheck": "astro check --minimumFailingSeverity hint",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "npm run test:a11y && npm run test:worker",
@@ -38,7 +38,6 @@
     "check:live:console": "playwright test -c playwright.live.config.ts",
     "publish:talk": "node scripts/publish-talk.mjs",
     "og": "node scripts/make-og.mjs",
-    "hero-still": "node scripts/make-hero-still.mjs",
     "about-cats": "node scripts/make-about-cats.mjs",
     "icons": "node scripts/make-icons.mjs",
     "box-cat": "node scripts/make-box-cat.mjs",
@@ -49,14 +48,12 @@
     "@astrojs/markdown-satteri": "^0.4.5",
     "@astrojs/rss": "^4.0.19",
     "@astrojs/sitemap": "^3.7.4",
-    "@astrojs/vue": "^7.1.2",
     "@fontsource-variable/lexend": "^5.3.0",
     "@plausible-analytics/tracker": "0.4.6",
     "@tailwindcss/vite": "^4.3.3",
     "astro": "^7.4.2",
     "js-yaml": "^5.5.0",
-    "tailwindcss": "^4.3.3",
-    "vue": "^3.5.44"
+    "tailwindcss": "^4.3.3"
   },
   "allowScripts": {
     "esbuild": true,
@@ -74,7 +71,6 @@
     "prettier": "^3.9.10",
     "prettier-plugin-astro": "^1.1.2",
     "typescript": "^6.0.3",
-    "vue-tsc": "3.3.13",
     "wrangler": "4.152.0"
   },
   "overrides": {

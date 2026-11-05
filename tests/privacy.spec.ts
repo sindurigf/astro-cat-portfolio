@@ -103,7 +103,7 @@ const sourceFiles = (dir: string): string[] => {
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
     const full = join(dir, entry.name);
     if (entry.isDirectory()) out.push(...sourceFiles(full));
-    else if (/\.(astro|vue|ts|js|css)$/.test(entry.name)) out.push(full);
+    else if (/\.(astro|ts|js|css)$/.test(entry.name)) out.push(full);
   }
   return out;
 };

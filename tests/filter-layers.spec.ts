@@ -5,9 +5,7 @@ import { gotoSettled } from './settle';
 /*
  * Performance and test stability: filter layers over walls stalled Playwright input on an older build.
  * Every sheet rule counts, whatever state its selector waits on.
- * Only the hero's near canvas, with no text or controls, may take a filter (set by script).
  */
-const ALLOWED_FILTER = '.hero-field > canvas:last-of-type';
 
 interface Scan {
   rules: number;
@@ -16,12 +14,10 @@ interface Scan {
 }
 
 for (const route of ROUTES) {
-  test(`${route} has no filter or backdrop-filter outside the hero canvas`, async ({
-    page,
-  }) => {
+  test(`${route} has no filter or backdrop-filter`, async ({ page }) => {
     await gotoSettled(page, route);
 
-    const scan: Scan = await page.evaluate((allowed) => {
+    const scan: Scan = await page.evaluate(() => {
       const result: Scan = { rules: 0, sheetFilters: [], elementFilters: [] };
       const filtersOf = (style: CSSStyleDeclaration) =>
         [
@@ -49,7 +45,6 @@ for (const route of ROUTES) {
       for (const sheet of document.styleSheets) walk(sheet.cssRules);
 
       for (const element of document.querySelectorAll('*')) {
-        if (element.matches(allowed)) continue;
         for (const filter of filtersOf(getComputedStyle(element))) {
           const name = element.id
             ? `#${element.id}`
@@ -58,7 +53,7 @@ for (const route of ROUTES) {
         }
       }
       return result;
-    }, ALLOWED_FILTER);
+    });
 
     expect(scan.rules, `${route} exposes no CSS rules to scan`).toBeGreaterThan(
       0,
@@ -69,7 +64,7 @@ for (const route of ROUTES) {
     ).toEqual([]);
     expect(
       scan.elementFilters,
-      `${route} has an element with a filter outside the hero canvas`,
+      `${route} has an element with a filter`,
     ).toEqual([]);
   });
 }
