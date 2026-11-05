@@ -5,12 +5,22 @@ import { AAA_TEXT, PAGE_HELPERS } from './contrast';
 const SAMPLES_PER_KIND = 3;
 const CONTROLS = 'a[href], button, summary';
 
+/*
+ * The homepage's yarn ball and cat move without end, so they can fail Playwright's
+ * stability wait; paused, every control holds still and the pause controls are still sampled.
+ */
+const holdMotion = async (page: Page): Promise<void> => {
+  const pause = page.locator('[data-home-pause]:visible').first();
+  if ((await pause.count()) > 0) await pause.click();
+};
+
 /** Marks up to a few visible elements of each tag and class matching `selector`; returns their sample ids. */
-export const sampleControls = (
+export const sampleControls = async (
   page: Page,
   selector: string,
-): Promise<string[]> =>
-  page.evaluate(
+): Promise<string[]> => {
+  await holdMotion(page);
+  return page.evaluate(
     ({ selector, perKind }) => {
       const seen = new Map<string, number>();
       return [...document.querySelectorAll<HTMLElement>(selector)]
@@ -26,6 +36,7 @@ export const sampleControls = (
     },
     { selector, perKind: SAMPLES_PER_KIND },
   );
+};
 
 export const sampled = (id: string): string => `[data-hover-sample="${id}"]`;
 
