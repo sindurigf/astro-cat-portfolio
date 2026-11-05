@@ -151,48 +151,6 @@
   }
 
   /*
-   * `vh` fallback; `.v-column .hero` sets the real height. `min-height` so it
-   * grows at 200% zoom. `svh`: `dvh` reflows mid-scroll, `lvh` runs under the
-   * toolbar.
-   */
-  .hero {
-    min-height: calc(100vh - var(--spacing-page-top));
-    min-height: calc(100svh - var(--spacing-page-top));
-
-    @apply isolate flex flex-col;
-  }
-
-  /* A region of the column: no border, extrusion or ground. */
-  .hero-window {
-    @apply relative isolate flex-1;
-  }
-
-  /*
-   * Hero plus the section under it, one gold area. Two rings, since no color
-   * clears SC 1.4.11 on both sides: gold-border inside, `border` outside for
-   * the page. Top margin is the name's overhang.
-   */
-  .v-column {
-    position: relative;
-    background-color: var(--color-gold);
-    /*
-     * Smaller name in the column: a wrapped family name moves the break off the
-     * rule.
-     */
-    --text-hero-h1: var(--text-hero-h1-column);
-    /*
-     * Rule, clearance and the given name's line box above its letters. Here, not
-     * @theme, because it reads the column's own --text-hero-h1.
-     */
-    --hero-name-overhang: calc(
-      var(--hero-rule) + var(--hero-name-clearance) +
-        (var(--text-hero-h1--line-height) - var(--hero-name-ink-foot)) *
-        var(--text-hero-h1)
-    );
-    margin-block-start: calc(var(--hero-name-overhang) + var(--hero-pad-block));
-  }
-
-  /*
    * Every whole-section gold area: starts at the rail, ends
    * --hero-column-screen-clear from the screen edge or at the rail, whichever
    * is further out. Drawn like a block: the 4px ink edge and the pink throw.
@@ -230,28 +188,6 @@
   }
 
   /*
-   * The column's top margin and edge come off the hero's height so the window's
-   * bottom rule lands on the fold; the final --spacing(1) absorbs rounding.
-   */
-  .v-column .hero {
-    padding-block: 0;
-    min-height: calc(
-      100svh - var(--spacing-page-top) - var(--hero-name-overhang) -
-        var(--hero-pad-block) - var(--hero-column-edge) - --spacing(1)
-    );
-  }
-
-  /*
-   * Cancel `.band`'s negative margins and padding inside the column, or the
-   * gold spills over the column edge.
-   */
-  .v-column section.hero + section {
-    margin-inline: 0;
-    padding-inline: 0;
-    padding-block: var(--hero-column-pad-block);
-  }
-
-  /*
    * Phone: the column sits inside the band gutter, the 16px its shadow needs.
    * tests/reflow.spec.ts checks sideways scroll.
    */
@@ -259,90 +195,5 @@
     .gold-column {
       margin-inline: 0;
     }
-
-    .v-column {
-      --text-hero-h1: var(--text-hero-h1-column-phone);
-    }
-  }
-  /*
-   * Line gap: the 12px rule plus clearance each side, less the line boxes'
-   * empty leading; not `em` alone because the rule is px. `top` offsets by half
-   * the leading difference so the letters, not the boxes, center on the rule.
-   */
-  .hero-plate span:last-child {
-    margin-top: calc(
-      var(--hero-rule) + 2 * var(--hero-name-clearance) -
-        (var(--hero-name-ink-foot) + var(--hero-name-ink-head)) *
-        var(--text-hero-h1)
-    );
-  }
-
-  /*
-   * `translateY(-50%)` puts the line break on the column's top rule only while
-   * the name is two lines (tests/hero-fit.spec.ts). `right` reserves the stickers.
-   */
-  .hero-plate {
-    top: calc(
-      var(--hero-rule) / -2 +
-        (var(--hero-name-ink-foot) - var(--hero-name-ink-head)) / 2 *
-        var(--text-hero-h1)
-    );
-    right: calc(var(--hero-marks-reserve) + var(--hero-inset));
-    left: var(--hero-inset);
-    transform: translateY(-50%);
-
-    @apply absolute z-30 flex min-w-0 flex-col;
-  }
-
-  /*
-   * Top right, below the rule; never at the foot. The box ends
-   * at the window's foot, one column wide, and clips: a sticker that does not
-   * fit wraps out of sight, so at 400% zoom none hangs over the words below
-   * (SC 1.4.10). The padding is the room the throw and tilt need; a column gap
-   * wider than the box puts a wrapped sticker wholly past the clip, never half a word.
-   */
-  .hero-marks {
-    --marks-room: --spacing(4);
-
-    top: calc(var(--hero-gap) - var(--marks-room));
-    right: calc(var(--hero-inset) - var(--marks-room));
-    bottom: 0;
-    width: calc(var(--hero-marks-reserve) + 2 * var(--marks-room));
-    padding: var(--marks-room);
-    overflow: clip;
-
-    column-gap: calc(100% + 2 * var(--marks-room));
-
-    @apply absolute z-20 flex flex-col flex-wrap-reverse content-start items-start gap-y-4;
-  }
-
-  /*
-   * A flex column never wraps its first item, so an empty first item lets a
-   * sticker taller than the room wrap out of sight too. The margin cancels its gap.
-   */
-  .hero-marks::before {
-    content: '';
-    margin-top: calc(-1 * --spacing(4));
-  }
-
-  /*
-   * Below `sm` the name takes full width and the words drop under it, still at
-   * the top.
-   */
-  @media (width < 40rem) {
-    .hero-plate {
-      right: var(--hero-inset);
-    }
-
-    .hero-marks {
-      top: calc(var(--hero-gap) + var(--text-hero-h1) - var(--marks-room));
-    }
-  }
-
-  .hero-sticker {
-    font-size: var(--text-hero-sticker);
-    line-height: var(--text-hero-sticker--line-height);
-
-    @apply border-4 px-4 py-2 font-black uppercase;
   }
 }

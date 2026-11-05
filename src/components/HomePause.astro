@@ -1,0 +1,25 @@
+---
+/*
+ * One of the homepage's two SC 2.2.2 controls; home-motion.ts shows them,
+ * keeps them in step and swaps the glyph and name. Hidden until the script runs.
+ */
+---
+
+<button
+  type="button"
+  class="motion-toggle home-pause"
+  data-home-pause
+  data-state="playing"
+  hidden
+>
+  <span
+    aria-hidden="true"
+    class="text-label leading-none"
+    data-home-pause-glyph
+  >
+    ❚❚
+  </span>
+  <span class="sr-only" data-home-pause-name>
+    Pause animations
+  </span>
+</button>

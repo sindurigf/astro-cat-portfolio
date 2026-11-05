@@ -1,0 +1,95 @@
+---
+/*
+ * The meadow's floor: stems drawn by src/scripts/home-meadow.ts from the
+ * art atlas, over a row of joined bricks and the hole. The planted SVGs are
+ * the no-JS meadow.
+ */
+import meadowArt from '../assets/home-meadow.webp';
+type Plant = 'stem' | 'flower' | 'sprout' | null;
+/* One entry per brick; a plant sits on top of the brick that names it. */
+const LEFT: Plant[] = [
+  null,
+  'sprout',
+  null,
+  null,
+  'stem',
+  null,
+  null,
+  'flower',
+  null,
+  'stem',
+];
+const RIGHT: Plant[] = ['sprout', null];
+---
+
+<div class="home-band" data-home-band data-home-art={meadowArt.src}>
+  <canvas class="home-stems" aria-hidden="true" data-home-stems="haze"></canvas>
+  <canvas class="home-stems" aria-hidden="true" data-home-stems="back"></canvas>
+  <span class="home-hopper" data-home-hopper>
+    <span class="home-cat" data-pose="sit" aria-hidden="true">
+      <i></i>
+    </span>
+    <button type="button" class="home-hopper-press" data-home-follow hidden>
+      <span class="sr-only">Follow the Cat</span>
+    </button>
+  </span>
+  {[
+    ['l', LEFT],
+    ['r', RIGHT],
+  ].map(([side, bricks]) => (
+    <span class:list={['home-wall', `home-wall-${side}`]} aria-hidden="true">
+      {(bricks as Plant[]).map((plant) => (
+        <span class="home-brick">
+          {plant === 'stem' && (
+            <svg class="home-plant" aria-hidden="true" viewBox="0 0 24 44">
+              <path
+                class="home-plant-line"
+                d="M12 44Q11 28 13 10M12.4 26Q8 22 5 16"
+              />
+              <ellipse
+                class="home-plant-bud"
+                cx="13"
+                cy="7"
+                rx="2.6"
+                ry="4.2"
+              />
+              <ellipse
+                class="home-plant-bud"
+                cx="4.6"
+                cy="13.5"
+                rx="2"
+                ry="3.2"
+                transform="rotate(-30 4.6 13.5)"
+              />
+            </svg>
+          )}
+          {plant === 'flower' && (
+            <svg class="home-plant" aria-hidden="true" viewBox="0 0 24 40">
+              <path class="home-plant-line" d="M12 40Q12.5 26 12 16" />
+              <path
+                class="home-plant-petal"
+                d="M7 14Q7 4 12 2Q17 4 17 14Q12 17 7 14Z"
+              />
+            </svg>
+          )}
+          {plant === 'sprout' && (
+            <svg
+              class="home-plant home-plant-small"
+              aria-hidden="true"
+              viewBox="0 0 24 24"
+            >
+              <path class="home-plant-line" d="M12 24V12" />
+              <path
+                class="home-plant-leaf"
+                d="M12 13Q4 13 3 6Q10 6 12 13ZM12 11Q19 10 21 3Q14 3 12 11Z"
+              />
+            </svg>
+          )}
+        </span>
+      ))}
+    </span>
+  ))}
+  <span class="home-post home-post-l" aria-hidden="true"></span>
+  <span class="home-post home-post-r" aria-hidden="true"></span>
+</div>
+<span class="home-mouth" aria-hidden="true" data-home-mouth></span>

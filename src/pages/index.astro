@@ -4,9 +4,12 @@ import { PHOTO_FORMATS } from '../lib/photo-formats';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import BlogCard from '../components/BlogCard.astro';
 import CloseRow from '../components/CloseRow.astro';
-import Roundel from '../components/Roundel.astro';
 import Section from '../components/Section.astro';
+import HomeDrift from '../components/HomeDrift.astro';
+import HomeMeadowBand from '../components/HomeMeadowBand.astro';
+import HomePause from '../components/HomePause.astro';
 import portrait from '../assets/photos/tabby-duvet.jpg';
+import '../styles/components/home.css';
 import { BLOG_CATEGORIES, type BlogCategory } from '../content.config';
 import {
   cardProps,
@@ -15,9 +18,8 @@ import {
   getFeaturedPosts,
   getSortedPosts,
 } from '../lib/blog';
-import { CARD_COVER_SIZES, WIDTHS } from '../lib/image-densities';
+import { WIDTHS } from '../lib/image-densities';
 import { PERSONA_NOTICE_ID, SAMPLE_PERSONA } from '../lib/persona';
-import { MOTTO } from '../lib/site';
 import { CATEGORIES, CATEGORY_TILE } from '../lib/categories';
 import { packRows, wallClasses } from '../lib/wall';
 import { BLOG_PATH, categoryHref } from '../lib/paths';
@@ -32,17 +34,20 @@ import {
 
 const FEATURED_LIMIT = 3;
 const featured = await getFeaturedPosts(FEATURED_LIMIT);
-/* Matches the `lg:grid-cols-*` choice on the list below. */
-const FEWER_FEATURED_COLUMNS = 2;
 const [newest] = await getSortedPosts();
-const featuredColumns =
-  featured.length >= FEATURED_LIMIT ? FEATURED_LIMIT : FEWER_FEATURED_COLUMNS;
-const featuredCoverSizes = CARD_COVER_SIZES[featuredColumns];
+/* Two columns at most: the lanes beside the fall leave too little room for three. */
+const FEATURED_COLUMNS = 2;
+/*
+ * Measured in the fall's column, which leaves --spacing-home-lane-md each side
+ * from `md` and --spacing-home-lane from `xl` (tests/image-size.spec.ts).
+ */
+const featuredCoverSizes =
+  '(min-width: 80rem) min(calc(50vw - 302px), 546px), (min-width: 64rem) calc(50vw - 246px), (min-width: 48rem) calc(100vw - 400px), (min-width: 40rem) calc(100vw - 9rem), calc(100vw - 6rem)';
 const featuredWall = wallClasses(
   {
     lg: packRows(
       featured.map(() => 1),
-      featuredColumns,
+      FEATURED_COLUMNS,
     ),
   },
   featured.length,
@@ -78,19 +83,17 @@ const categoryWall = wallClasses(
   CATEGORY_CARDS.length,
 );
 
-/*
- * Fitted to measured drawn widths (320 to 2560px, within 1.00 to 1.05). The
- * photo shrinks between 83rem and 1396px as the gold column's `vw` padding
- * grows. tests/image-size.spec.ts fails on drift.
- */
-const TEASER_PHOTO_SIZES =
-  '(min-width: 1829px) calc(25vw + 198px), (min-width: 1396px) calc(21.5vw + 262px), (min-width: 83rem) 562px, (min-width: 64rem) calc(45.7vw - 45px), (min-width: 40rem) calc(93vw - 64px), calc(100vw - 5.5rem)';
+/* The photo's drawn width inside its 4px frame: --size-home-photo from `xl`, -lg from `lg`, the phone size or the column below (tests/image-size.spec.ts). */
+const HOME_PHOTO_SIZES =
+  '(min-width: 80rem) 29.5rem, (min-width: 64rem) 25.5rem, min(31.5rem, calc(100vw - 5.5rem))';
 
-/* The motto across the two stickers: its first word, then the rest. */
-const [firstWord = '', ...restWords] = MOTTO.text.split(' ');
-const MOTTO_STICKERS = [firstWord, restWords.join(' ')] as const;
+// TODO(fork): Replace Robin's taglines and numbers with your own, and her text in the page below.
+const TAGLINES = ['Reading the Past', 'One Stone at a Time'] as const;
+/* Side by side from `sm`, the second climbing (the Step). */
+const tagWall = wallClasses({ sm: [[0, 1]] }, TAGLINES.length, {
+  short: true,
+});
 
-// TODO(fork): Replace Robin's numbers with your own, and her text in the page below.
 const STATS = [
   {
     value: '1 crew',
@@ -102,7 +105,9 @@ const STATS = [
   },
 ] as const;
 /* The two stats sit side by side from `sm`, the second climbing (the Step). */
-const statWall = wallClasses({ sm: [[0, 1]] }, STATS.length);
+const statWall = wallClasses({ sm: [[0, 1]] }, STATS.length, {
+  short: true,
+});
 ---
 
 <BaseLayout
@@ -110,78 +115,69 @@ const statWall = wallClasses({ sm: [[0, 1]] }, STATS.length);
   titleSuffix={false}
   description={`${PERSON_NAME}, archaeologist of the Straw Hat Pirates and the last scholar of Ohara. Notes on Poneglyphs, history and life at sea.`}
 >
-  {/*
-    One gold area for the hero and the section below. No `.surface-gold` on the
-    column: its halves carry it, and nesting double-counts controls in
-    tests/gold-surface.spec.ts.
-  */}
-  <div class="v-column gold-column">
-    {/*
-    The name's line break sits on the window's top rule: no color clears 4.5:1
-    on both grounds, so each line takes its own.
-  */}
-    <section class="band hero relative">
-      <div class="hero-window surface-gold">
-        {/*
-        Spans, not <p>: WAVE reads short bold paragraphs as headings. No
-        `border-border`: it fails SC 1.4.11 here and would beat `.surface-gold`'s.
-      */}
-        <div class="hero-marks" aria-hidden="true" lang={MOTTO.lang}>
-          <span class="hero-sticker -rotate-3 bg-block-gold text-gold-text shadow-hard-mark-8">
-            {MOTTO_STICKERS[0]}
-          </span>
-          <span class="hero-sticker rotate-3 bg-surface text-pink-text shadow-hard-mark-8">
-            {MOTTO_STICKERS[1]}
-          </span>
-        </div>
+  <div class="gold-column surface-gold home-meadow">
+    <div class="home-hero">
+      <div class="home-hero-text">
+        <h1 id="home-name" class="home-name">
+          <span class="block">{PERSON_GIVEN_NAME}</span>{' '}
+          <span class="block">{PERSON_FAMILY_NAME}</span>
+        </h1>
 
-        {/*
-        Engines that inherit ancestor backgrounds report the first line below 4.5:1, a
-        false positive: it is drawn on the page (tests/hero-fit.spec.ts).
-        `w-full` lets reflow tests measure the real box; `{' '}` keeps the words apart.
-      */}
-        <div class="hero-plate">
-          <h1 class="w-full text-hero-h1">
-            <span class="block text-text">{PERSON_GIVEN_NAME}</span>{' '}
-            <span class="block text-gold-text">{PERSON_FAMILY_NAME}</span>
-          </h1>
-        </div>
-      </div>
-    </section>
-
-    {/* `surface="gold"` is what swaps the heading's `text-text` utility. */}
-    <Section surface="gold">
-      {/* The sr-only comma separates the roles. */}
-      <Fragment slot="title">
-        <span class="block">Reading the Past</span>
-        <span class="sr-only">,</span>{' '}
-        <span class="block">One Stone at a Time</span>
-      </Fragment>
-
-      <div class="grid gap-grid lg:grid-cols-2 lg:items-start">
-        <div class="relative">
+        <div class="home-photo">
           <div class="aspect-frame aspect-square border-4">
             <Picture
               {...PHOTO_FORMATS}
               src={portrait}
               alt="A tabby cat lying on a white duvet, looking at the camera."
               widths={WIDTHS}
-              sizes={TEASER_PHOTO_SIZES}
+              sizes={HOME_PHOTO_SIZES}
             />
           </div>
-          {/* The tilted box and its throw reach past the image box; these offsets keep it in the gutter (tests/reflow.spec.ts). */}
-          <Roundel class="absolute -bottom-8 right-0 sm:-right-3" />
         </div>
 
-        <div class="card lg:mt-16">
+        <ul
+          role="list"
+          class:list={[
+            'card-block home-tags home-pair grid sm:grid-cols-2',
+            tagWall.wall,
+          ]}
+        >
+          {TAGLINES.map((tag, index) => (
+            <li class:list={['edge home-tag', tagWall.bricks[index]]}>{tag}</li>
+          ))}
+        </ul>
+
+        <p class="text-body text-pretty">
+          I learned to read Poneglyphs as a child on Ohara. Now I read them with
+          the Straw Hat Pirates, wherever we land. This site is where my notes
+          live.
+        </p>
+
+        {SAMPLE_PERSONA !== null && (
+          <p class="text-body text-pretty">
+            {SAMPLE_PERSONA.tribute}{' '}
+            <a href={`/credits/#${PERSONA_NOTICE_ID}`}>Read the Full Notice</a>.
+          </p>
+        )}
+
+        <p>
+          <a href="/about/" class="btn-gold-secondary">
+            Learn More About Me
+          </a>
+        </p>
+
+        <div class="home-hero-row">
           <ul
             role="list"
-            class:list={['card-block grid sm:grid-cols-2', statWall.wall]}
+            class:list={[
+              'card-block home-pair grid sm:grid-cols-2',
+              statWall.wall,
+            ]}
           >
             {STATS.map((stat, index) => (
               <li
                 class:list={[
-                  'flex min-w-0 flex-col items-center edge p-card-tight text-center',
+                  'flex min-w-0 flex-col edge p-card-tight',
                   statWall.bricks[index],
                 ]}
               >
@@ -190,118 +186,99 @@ const statWall = wallClasses({ sm: [[0, 1]] }, STATS.length);
               </li>
             ))}
           </ul>
-
-          <p class="mt-8 text-body text-pretty">
-            I learned to read Poneglyphs as a child on Ohara. Now I read them
-            with the Straw Hat Pirates, wherever we land. This site is where my
-            notes live.
-          </p>
-
-          {SAMPLE_PERSONA !== null && (
-            <p class="mt-paragraph text-body text-pretty">
-              {SAMPLE_PERSONA.tribute}{' '}
-              <a href={`/credits/#${PERSONA_NOTICE_ID}`}>
-                Read the Full Notice
-              </a>
-              .
-            </p>
-          )}
-
-          <p class="mt-head">
-            <a href="/about/" class="btn-gold-secondary">
-              Learn More About Me
-            </a>
-          </p>
+          <HomePause />
         </div>
       </div>
-    </Section>
+    </div>
+
+    <HomeMeadowBand />
   </div>
 
-  {CATEGORY_CARDS.length > 0 && (
-    <Section title="What I Write About">
-      <ul
-        role="list"
-        class:list={[
-          'card-block grid gap-grid sm:grid-cols-2 lg:grid-cols-3',
-          categoryWall.wall,
-        ]}
-      >
-        {CATEGORY_CARDS.map((card, index) => (
-          <li
-            class:list={[
-              'card flex flex-col',
-              categoryWall.bricks[index],
-              index === 0 && leadSpansSm && 'sm:col-span-2',
-              index === 0 && leadSpansLg && 'lg:col-span-2',
-            ]}
-          >
-            <span
-              aria-hidden="true"
+  <div class="home-fall">
+    <HomeDrift />
+    {CATEGORY_CARDS.length > 0 && (
+      <Section title="What I Write About">
+        <ul
+          role="list"
+          class:list={[
+            'card-block grid gap-grid sm:grid-cols-2 lg:grid-cols-3',
+            categoryWall.wall,
+          ]}
+        >
+          {CATEGORY_CARDS.map((card, index) => (
+            <li
               class:list={[
-                'flex size-16 -rotate-3 items-center justify-center edge text-section-number font-black leading-none',
-                CATEGORY_TILE,
+                'card flex flex-col',
+                categoryWall.bricks[index],
+                index === 0 && leadSpansSm && 'sm:col-span-2',
+                index === 0 && leadSpansLg && 'lg:col-span-2',
               ]}
             >
-              {card.glyph}
-            </span>
+              <span
+                aria-hidden="true"
+                class:list={[
+                  'flex size-16 -rotate-3 items-center justify-center edge text-section-number font-black leading-none',
+                  CATEGORY_TILE,
+                ]}
+              >
+                {card.glyph}
+              </span>
 
-            <h3 class="card-title mt-8">
-              <a href={categoryHref(card.category)} class="card-link">
-                {categoryLabel(card.category)}
-                <span class="sr-only">&nbsp;Posts</span>
-              </a>
-            </h3>
+              <h3 class="card-title mt-8">
+                <a href={categoryHref(card.category)} class="card-link">
+                  {categoryLabel(card.category)}
+                  <span class="sr-only">&nbsp;Posts</span>
+                </a>
+              </h3>
 
-            <p class="mt-4 text-body text-pretty">{card.teaser}</p>
-          </li>
-        ))}
-      </ul>
+              <p class="mt-4 text-body text-pretty">{card.teaser}</p>
+            </li>
+          ))}
+        </ul>
 
-      <p class="mt-head">
-        <a href={BLOG_PATH} class="btn-secondary">
-          View All Posts
-        </a>
-      </p>
-    </Section>
-  )}
+        <p class="mt-head">
+          <a href={BLOG_PATH} class="btn-secondary">
+            View All Posts
+          </a>
+        </p>
+      </Section>
+    )}
 
-  {featured.length > 0 && (
-    <Section title="Featured Posts">
-      {/* Class names written out in full: Tailwind scans source text. */}
-      <ul
-        role="list"
-        class:list={[
-          'card-block grid gap-grid',
-          featured.length >= FEATURED_LIMIT
-            ? 'lg:grid-cols-3'
-            : 'lg:grid-cols-2',
-          featuredWall.wall,
-        ]}
-      >
-        {featured.map((post, index) => (
-          <li class:list={['flex min-w-0', featuredWall.bricks[index]]}>
-            <BlogCard
-              {...cardProps(post)}
-              coverSizes={featuredCoverSizes}
-              describeCover={post.id === newest?.id}
-              headingLevel={3}
-              class="w-full"
-            />
-          </li>
-        ))}
-      </ul>
-    </Section>
-  )}
+    {featured.length > 0 && (
+      <Section title="Featured Posts">
+        <ul
+          role="list"
+          class:list={[
+            'card-block grid gap-grid lg:grid-cols-2',
+            featuredWall.wall,
+          ]}
+        >
+          {featured.map((post, index) => (
+            <li class:list={['flex min-w-0', featuredWall.bricks[index]]}>
+              <BlogCard
+                {...cardProps(post)}
+                coverSizes={featuredCoverSizes}
+                describeCover={post.id === newest?.id}
+                headingLevel={3}
+                class="w-full"
+              />
+            </li>
+          ))}
+        </ul>
+      </Section>
+    )}
 
-  <CloseRow
-    eyebrow="Next"
-    readHref="/career/"
-    readLabel="Career"
-    actionHref="/contact/"
-    actionLabel="Get in Touch"
-  />
+    <CloseRow
+      eyebrow="Next"
+      readHref="/career/"
+      readLabel="Career"
+      actionHref="/contact/"
+      actionLabel="Get in Touch"
+    />
+  </div>
 </BaseLayout>
 
 <script>
   import '../scripts/card-click';
+  import '../scripts/home-motion';
 </script>

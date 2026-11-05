@@ -1,7 +1,7 @@
 /*
  * Backstop for anything animated. SC 2.2.2 needs a real control, which each
- * About cat has (about-cats.ts); the cats also read this preference themselves
- * and draw once.
+ * About cat (about-cats.ts) and the homepage motion (home-motion.ts) have; both
+ * also read this preference themselves and draw once.
  */
 
 @media (prefers-reduced-motion: reduce) {

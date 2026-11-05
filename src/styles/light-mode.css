@@ -74,7 +74,7 @@
   }
 
   :is(:root[data-theme='light'] main, main .mode-light)
-    :is(.surface-gold, .v-column):not(.mode-dark *) {
+    .surface-gold:not(.mode-dark *) {
     background-color: var(--color-background);
   }
 
@@ -121,9 +121,7 @@
     @apply mr-2 inline-block size-2.5;
   }
 
-  /* The homepage's second sticker and `.sticker` are black blocks in light mode. */
-  :is(:root[data-theme='light'] main, main .mode-light)
-    .hero-sticker:not(.bg-block-gold):not(.mode-dark *),
+  /* `.sticker` is a black block in light mode. */
   :is(:root[data-theme='light'] main, main .mode-light)
     .sticker:not(.mode-dark *) {
     @apply border-text bg-text text-background;

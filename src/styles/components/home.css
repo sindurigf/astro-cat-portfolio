@@ -1,0 +1,725 @@
+@reference '../global.css';
+
+@layer components {
+  /*
+   * The homepage: a gold meadow with the cat, then the fall down the hole,
+   * where the sections drop as stepped bricks past the toys.
+   */
+  .home-meadow {
+    position: relative;
+    margin-block-start: var(--hero-pad-block);
+    padding-block-end: var(--size-home-band-phone);
+
+    @variant md {
+      padding-block-end: var(--size-home-band);
+    }
+  }
+
+  /* One grid: below `lg` the photo follows the name; from `lg` it takes the right column. */
+  .home-hero {
+    display: grid;
+    justify-items: start;
+    gap: --spacing(6);
+    padding: var(--hero-column-pad-block);
+    padding-inline: var(--hero-column-pad-inline);
+
+    @variant lg {
+      grid-template-columns: minmax(0, 1fr) auto;
+      column-gap: --spacing(12);
+      align-items: start;
+    }
+  }
+
+  .home-hero-text {
+    display: contents;
+  }
+
+  .home-hero-text > * {
+    min-width: 0;
+
+    @variant lg {
+      grid-column: 1;
+    }
+  }
+
+  .home-name {
+    @apply max-w-full font-black text-gold-text sm:edge sm:border-fill-edge sm:bg-block-light sm:px-6 sm:pt-3 sm:pb-4 sm:shadow-hard-pink-object;
+
+    font-size: var(--text-home-name);
+    line-height: var(--text-home-name--line-height);
+  }
+
+  .home-tags {
+    max-width: 100%;
+  }
+
+  .home-tag {
+    @apply px-4 py-2 font-black;
+  }
+
+  .home-hero-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: --spacing(6);
+    max-width: 100%;
+  }
+
+  .home-hero-row > ul {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .home-photo {
+    position: relative;
+    z-index: 2;
+    width: min(var(--size-home-photo-phone), 100%);
+
+    @variant lg {
+      grid-column: 2;
+      grid-row: 1 / span 6;
+      width: var(--size-home-photo-lg);
+    }
+
+    @variant xl {
+      width: var(--size-home-photo);
+    }
+  }
+
+  /* In flow beside the stats or at the top of the fall, never over text. */
+  .home-pause {
+    position: relative;
+    flex: none;
+  }
+
+  .home-band {
+    position: absolute;
+    inset: auto 0 0;
+    z-index: 3;
+    height: var(--size-home-band-phone);
+    overflow: hidden;
+    pointer-events: none;
+
+    @variant md {
+      height: var(--size-home-band);
+    }
+  }
+
+  /* The walls meet the hole's opening; values match .home-mouth. */
+  .home-band,
+  .home-mouth {
+    --mouth-l: var(--home-mouth-at);
+    --mouth-w: var(--home-mouth-w-phone);
+    --ledge-h: var(--size-home-ledge-h-phone);
+    --post-w: var(--size-home-post-w-phone);
+    --plant-w: var(--size-home-plant-w-phone);
+    --plant-h: var(--size-home-plant-h-phone);
+
+    @variant md {
+      --mouth-w: var(--home-mouth-w);
+      --ledge-h: var(--size-home-ledge-h);
+      --post-w: var(--size-home-post-w);
+      --plant-w: var(--size-home-plant-w);
+      --plant-h: var(--size-home-plant-h);
+    }
+  }
+
+  /* Joined bricks: each draws its top and left edge, the wall closes the right. */
+  .home-wall {
+    position: absolute;
+    bottom: 0;
+    z-index: 4;
+    display: flex;
+    height: var(--ledge-h);
+    border-right: var(--block-edge) solid var(--color-block-ink);
+  }
+
+  .home-wall-l {
+    left: calc(var(--block-edge) * -1);
+    width: calc(var(--mouth-l) - var(--post-w) + var(--block-edge));
+  }
+
+  .home-wall-r {
+    left: calc(var(--mouth-l) + var(--mouth-w) + var(--post-w));
+    right: calc(var(--block-edge) * -1);
+    border-right: 0;
+  }
+
+  .home-brick {
+    position: relative;
+    flex: 1 1 0;
+    border: var(--block-edge) solid var(--color-block-ink);
+    border-width: var(--block-edge) 0 0 var(--block-edge);
+    background: var(--color-block-light);
+  }
+
+  .home-brick:nth-child(3n + 1) {
+    flex-grow: 1.3;
+  }
+
+  .home-brick:nth-child(4n + 2) {
+    flex-grow: 0.8;
+  }
+
+  /* Fewer, wider bricks on a phone: only the planted ones and the first stay. */
+  .home-brick:not(:first-child, :has(svg)) {
+    @variant max-md {
+      display: none;
+    }
+  }
+
+  /* The posts stand a brick higher either side of the hole, so the gap reads as a door. */
+  /* With the script, the shaft (home-hole.ts) replaces the posts and the notch's fill. */
+  [data-hole] .home-post {
+    display: none;
+  }
+
+  [data-hole] ~ .home-mouth {
+    background: none;
+  }
+
+  /* Own layers: the masked shaft is costly to paint, and the stems redraw beside it every frame. */
+  .home-hole,
+  .home-hole-lip {
+    position: absolute;
+    overflow: visible;
+    pointer-events: none;
+    will-change: transform;
+  }
+
+  .home-hole {
+    z-index: 0;
+  }
+
+  /* `auto`, not Chromium's `preserve-parent-color` default for SVG, as for the plants. */
+  .home-hole,
+  .home-hole *,
+  .home-hole-lip,
+  .home-hole-lip * {
+    forced-color-adjust: auto;
+  }
+
+  .home-hole-lip {
+    left: 0;
+    z-index: 5;
+  }
+
+  .home-post {
+    position: absolute;
+    bottom: 0;
+    z-index: 2;
+    width: var(--post-w);
+    height: calc(var(--ledge-h) * 2);
+    border: var(--block-edge) solid var(--color-block-ink);
+    border-bottom: 0;
+    background: var(--color-block-light);
+  }
+
+  .home-post-l {
+    left: calc(var(--mouth-l) - var(--post-w));
+    box-shadow: var(--hard-throw) 0 0 var(--color-pink);
+  }
+
+  .home-post-r {
+    left: calc(var(--mouth-l) + var(--mouth-w));
+  }
+
+  .home-plant {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    width: var(--plant-w);
+    height: var(--plant-h);
+    margin-left: calc(var(--plant-w) / -2);
+    overflow: visible;
+    transform-origin: 50% 100%;
+  }
+
+  .home-plant-small {
+    height: var(--plant-w);
+  }
+
+  /* `auto`, not Chromium's `preserve-parent-color` default for SVG: forced colors repaint the plants too. */
+  .home-plant,
+  .home-plant * {
+    forced-color-adjust: auto;
+  }
+
+  /* Stroke widths in SVG user units: each plant's viewBox is 24 wide. */
+  .home-plant-line {
+    fill: none;
+    stroke: var(--color-block-ink);
+    stroke-width: 1.6;
+    stroke-linecap: round;
+  }
+
+  /* Dark buds and leaves, like the meadow's drawn ones: no olive. */
+  .home-plant-bud,
+  .home-plant-leaf {
+    fill: var(--color-block-ink);
+    stroke: var(--color-block-ink);
+    stroke-width: 1.2;
+  }
+
+  .home-plant-petal {
+    fill: var(--color-pink);
+    stroke: var(--color-block-ink);
+    stroke-width: 1.4;
+  }
+
+  /* Back stems sit behind the cat, front stems over it; both under the bricks. */
+  .home-stems {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+  }
+
+  /* The canvases replace the planted SVGs once they draw. */
+  .home-band[data-stems-live] .home-plant {
+    display: none;
+  }
+
+  @media (forced-colors: active) {
+    .home-plant :is(path, ellipse) {
+      stroke: CanvasText;
+    }
+  }
+
+  /* Where the cat rests without a script; home-motion.ts moves it from the left edge. */
+  .home-hopper {
+    position: absolute;
+    bottom: var(--ledge-h);
+    left: 30%;
+    z-index: 3;
+    width: var(--size-home-hopper-w-phone);
+    height: var(--size-home-hopper-h-phone);
+    margin-left: calc(var(--size-home-hopper-w-phone) / -2);
+
+    @variant md {
+      width: var(--size-home-hopper-w);
+      height: var(--size-home-hopper-h);
+      margin-left: calc(var(--size-home-hopper-w) / -2);
+    }
+  }
+
+  /*
+   * The cat: one frame of its About sheet at a time, each aligned on its
+   * foot point so a pose swap never jumps. Frames match POSE_FRAMES in
+   * src/lib/home-cat.ts and the sheet's numbers in about-cats-sheet.ts.
+   */
+  .home-cat {
+    --scale: var(--home-cat-scale-phone);
+
+    position: absolute;
+    top: 100%;
+    left: 50%;
+
+    @variant md {
+      --scale: var(--home-cat-scale);
+    }
+  }
+
+  .home-cat > i {
+    --k: calc(var(--scale) * var(--home-atlas-px));
+
+    position: absolute;
+    display: block;
+    width: calc(var(--w) * var(--k));
+    height: calc(var(--h) * var(--k));
+    left: calc(var(--fx) * var(--k) * -1);
+    top: calc(var(--fy) * var(--k) * -1);
+    background: url('../../assets/about-cats-hela.avif') no-repeat;
+    background-size: calc(1284 * var(--k)) auto;
+    background-position: calc(var(--x) * var(--k) * -1)
+      calc(var(--y) * var(--k) * -1);
+    transform: scaleX(var(--face, -1));
+    transform-origin: calc(var(--fx) * var(--k)) calc(var(--fy) * var(--k));
+  }
+
+  .home-cat[data-pose='sit'] > i {
+    --x: 856;
+    --y: 142;
+    --w: 100;
+    --h: 136;
+    --fx: 50;
+    --fy: 122;
+  }
+
+  .home-cat[data-pose='look'] > i {
+    --x: 856;
+    --y: 584;
+    --w: 104;
+    --h: 136;
+    --fx: 52;
+    --fy: 122;
+  }
+
+  .home-cat[data-pose='crouch'] > i {
+    --x: 428;
+    --y: 280;
+    --w: 164;
+    --h: 84;
+    --fx: 82;
+    --fy: 68.6;
+  }
+
+  .home-cat[data-pose='leap'] > i {
+    --x: 856;
+    --y: 280;
+    --w: 182;
+    --h: 82;
+    --fx: 91;
+    --fy: 67.8;
+  }
+
+  .home-cat[data-pose='landing'] > i {
+    --x: 1070;
+    --y: 280;
+    --w: 154;
+    --h: 144;
+    --fx: 77;
+    --fy: 129.6;
+  }
+
+  /* The cat itself is the button; it hops, so its target is the whole sprite box. */
+  .home-hopper-press {
+    position: absolute;
+    inset: auto 0 0;
+    height: 100%;
+    min-width: var(--spacing-target);
+    min-height: var(--spacing-target);
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+    pointer-events: auto;
+  }
+
+  .home-hopper[data-gone] {
+    visibility: hidden;
+  }
+
+  /*
+   * After the dive the cat goes down the page from section to section;
+   * home-faller.ts places it from the fall's top-left corner, above the
+   * bricks so it can stand on their edges.
+   */
+  .home-faller {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 2;
+    width: 0;
+    height: 0;
+
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  [data-cat-fell] .home-faller {
+    visibility: visible;
+  }
+
+  /* Placed and measured by home-faller.ts each frame; the reduced-motion backstop's transitions would lag its box. */
+  .home-faller-spin,
+  .home-faller-spin * {
+    transition: none !important;
+  }
+
+  .home-faller-spin {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: var(--size-home-hopper-w);
+    height: var(--size-home-hopper-h);
+  }
+
+  .home-faller .home-cat {
+    --scale: var(--home-cat-scale-phone);
+
+    @variant md {
+      --scale: var(--home-cat-scale);
+    }
+  }
+
+  /* The hole: a notch cut through the ledge, dark down into the ground. */
+  .home-mouth {
+    position: absolute;
+    bottom: 0;
+    left: var(--mouth-l);
+    z-index: 2;
+    width: var(--mouth-w);
+    height: var(--ledge-h);
+    background: var(--color-block-ink);
+  }
+
+  /*
+   * The Step below `sm`: a stacked wall climbs right, so the higher brick sits
+   * further right; from `pair` the taglines and stats climb side by side.
+   */
+  @variant max-sm {
+    main .card-block {
+      padding-right: var(--hard-throw);
+    }
+
+    main .card-block > :nth-child(2) {
+      margin-right: var(--spacing-home-phone-step);
+    }
+
+    main .card-block > :nth-child(n + 3) {
+      margin-right: calc(var(--spacing-home-phone-step) * 2);
+    }
+
+    main .card-block > :nth-last-child(2) {
+      margin-left: var(--spacing-home-phone-step);
+    }
+
+    main .card-block > :nth-last-child(n + 3) {
+      margin-left: calc(var(--spacing-home-phone-step) * 2);
+    }
+
+    @variant pair {
+      .home-pair {
+        grid-template-columns: 1fr 1fr;
+        align-items: start;
+      }
+
+      .home-pair > * {
+        margin-inline: 0;
+      }
+
+      .home-pair > :first-child {
+        margin-top: var(--spacing-home-phone-climb);
+      }
+    }
+  }
+
+  /*
+   * The fall. Every word in it sits in an opaque brick, so the toys
+   * can pass behind any of it.
+   */
+  .home-fall {
+    --lane: var(--spacing-home-phone-step);
+    --tumble: var(--spacing-home-phone-step);
+    --prop: var(--size-home-prop-phone);
+
+    position: relative;
+    isolation: isolate;
+    overflow-x: clip;
+
+    @variant md {
+      --lane: var(--spacing-home-lane-md);
+      --tumble: var(--spacing-home-tumble-md);
+      --prop: var(--size-home-prop-md);
+    }
+
+    @variant xl {
+      --lane: var(--spacing-home-lane);
+      --tumble: var(--spacing-home-tumble);
+      --prop: var(--size-home-prop);
+    }
+  }
+
+  /* The bands span the page; only their bricks take the pointer, so the yarn ball stays pressable beside them. */
+  .home-fall > .band {
+    position: relative;
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  /* Room above each later section for the sitting cat's head; laptops need only a little. */
+  .home-fall > .band ~ .band {
+    margin-block-start: --spacing(6);
+
+    @variant md {
+      margin-block-start: --spacing(10);
+    }
+
+    @variant xl {
+      margin-block-start: --spacing(2);
+    }
+  }
+
+  .home-fall > .band > * {
+    pointer-events: auto;
+  }
+
+  .home-fall > :nth-child(1 of .band) {
+    translate: calc(var(--tumble) * -1) 0;
+  }
+
+  .home-fall > :nth-child(2 of .band) {
+    translate: var(--tumble) 0;
+  }
+
+  .home-fall > :nth-child(3 of .band) {
+    translate: calc(var(--tumble) * -0.5) 0;
+  }
+
+  /* In flow above the first section, so it never sits on a heading. */
+  .home-fall-pause {
+    position: relative;
+    z-index: 3;
+    width: min(var(--container-page), calc(100% - 2 * var(--lane)));
+    margin-inline: auto;
+    padding-block-start: --spacing(6);
+    pointer-events: none;
+  }
+
+  .home-fall-pause > * {
+    pointer-events: auto;
+  }
+
+  .home-drift {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+  }
+
+  /* Each toy's `top` below is where it rests without a script; home-motion.ts rises them from 0. */
+  /*
+   * Every toy rises on the left: the right side, beside the mouth, is the
+   * falling cat's. Below `md` there are no lanes, so they pass behind the bricks.
+   */
+  .home-prop {
+    position: absolute;
+    left: 4%;
+    width: var(--prop);
+    height: var(--prop);
+    padding: 0;
+    border: 0;
+    background: none;
+
+    @variant md {
+      left: calc(var(--lane) / 2 - var(--prop) / 2);
+    }
+  }
+
+  button.home-prop {
+    cursor: pointer;
+  }
+
+  /* Moved only by home-motion.ts; the reduced-motion backstop's brief transitions would still count as moving on a press. */
+  .home-prop,
+  .home-prop * {
+    transition: none !important;
+  }
+
+  /*
+   * Below `md` there are no lanes, so the yarn ball would pass behind the bricks:
+   * it rests in the open ground just right of the pause control instead,
+   * clear of the shaft's foot on the right. It sits over the other toys, so
+   * none rising past covers it while it holds still with focus (SC 2.4.11).
+   */
+  .home-prop-yarn {
+    z-index: 1;
+
+    @variant max-md {
+      top: --spacing(4) !important;
+      left: calc(var(--spacing-target) + --spacing(4));
+      z-index: 2;
+      transform: none !important;
+    }
+  }
+
+  .home-prop-spin,
+  .home-prop-face {
+    position: relative;
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  /* A die-cut sticker with its pink throw baked in, so each frame paints one image, never a mask. */
+  .home-prop-face {
+    background: var(--print) center / contain no-repeat;
+  }
+
+  .home-prop[data-flipped] .home-prop-face {
+    rotate: 180deg;
+  }
+
+  .home-prop-yarn {
+    --print: url('../../assets/home-toys/yarn.webp');
+
+    top: 4%;
+  }
+
+  .home-prop-mouse {
+    --print: url('../../assets/home-toys/mouse.webp');
+
+    top: 22%;
+  }
+
+  .home-prop-feather {
+    --print: url('../../assets/home-toys/feather.webp');
+
+    top: 42%;
+  }
+
+  .home-prop-bell {
+    --print: url('../../assets/home-toys/bell.webp');
+
+    top: 62%;
+  }
+
+  .home-prop-fish {
+    --print: url('../../assets/home-toys/fish.webp');
+
+    top: 80%;
+  }
+
+  /* The toys are decoration; in forced colors the yarn ball keeps its button edge. */
+  @media (forced-colors: active) {
+    button.home-prop,
+    .home-hopper-press {
+      border: var(--block-edge) solid ButtonText;
+    }
+  }
+}
+
+/* Utilities layer: these replace the column width and heading color utilities in the fall. */
+@layer utilities {
+  .home-fall > .band > .max-w-page {
+    max-width: min(var(--container-page), calc(100% - 2 * var(--lane)));
+  }
+
+  /* A section's title is a gold label brick, so nothing prints under its words. */
+  .home-fall h2 {
+    @apply edge inline-block border-fill-edge bg-block-gold px-6 py-3 text-gold-text shadow-hard-pink-object;
+  }
+}
+
+/* Light mode throws ink, like every other shadow there; the image swaps because the throw is baked in. */
+@layer components {
+  :is(:root[data-theme='light'] main, main .mode-light) .home-prop-yarn {
+    --print: url('../../assets/home-toys/yarn-ink.webp');
+  }
+
+  :is(:root[data-theme='light'] main, main .mode-light) .home-prop-mouse {
+    --print: url('../../assets/home-toys/mouse-ink.webp');
+  }
+
+  :is(:root[data-theme='light'] main, main .mode-light) .home-prop-feather {
+    --print: url('../../assets/home-toys/feather-ink.webp');
+  }
+
+  :is(:root[data-theme='light'] main, main .mode-light) .home-prop-bell {
+    --print: url('../../assets/home-toys/bell-ink.webp');
+  }
+
+  :is(:root[data-theme='light'] main, main .mode-light) .home-prop-fish {
+    --print: url('../../assets/home-toys/fish-ink.webp');
+  }
+}
+
+/* The meadow stays gold in light mode: the hole needs ground above it in both. */
+@layer utilities {
+  :is(:root[data-theme='light'] main, main .mode-light)
+    .home-meadow.surface-gold:not(.mode-dark *) {
+    background-color: var(--color-block-gold);
+  }
+}

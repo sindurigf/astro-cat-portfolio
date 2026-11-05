@@ -1,0 +1,56 @@
+---
+/*
+ * Cat toys as die-cut stickers, rising past as the cat falls, and the cat
+ * once it has dived. The yarn ball is a control: pressing it tosses it; it
+ * stays hidden until home-motion.ts runs, since it does nothing without it.
+ * home-motion.ts moves them.
+ */
+import HomePause from './HomePause.astro';
+
+/* Degrees each toy leans at rest. */
+const QUIET = [
+  { name: 'mouse', tilt: 7 },
+  { name: 'feather', tilt: 6 },
+  { name: 'bell', tilt: -7 },
+  { name: 'fish', tilt: -4 },
+] as const;
+const YARN_TILT = -8;
+---
+
+<div class="home-faller" aria-hidden="true" data-home-faller>
+  <span class="home-faller-spin">
+    <span class="home-cat" data-pose="leap">
+      <i></i>
+    </span>
+  </span>
+</div>
+<div class="home-drift" data-home-drift>
+  <button
+    type="button"
+    class="home-prop home-prop-yarn"
+    data-home-prop
+    data-home-yarn
+    data-tilt={YARN_TILT}
+    hidden
+  >
+    <span class="home-prop-spin">
+      <span class="home-prop-face"></span>
+    </span>
+    <span class="sr-only">Toss the Yarn Ball</span>
+  </button>
+  {QUIET.map(({ name, tilt }) => (
+    <span
+      class:list={['home-prop', `home-prop-${name}`]}
+      aria-hidden="true"
+      data-home-prop
+      data-tilt={tilt}
+    >
+      <span class="home-prop-spin">
+        <span class="home-prop-face" />
+      </span>
+    </span>
+  ))}
+</div>
+<div class="home-fall-pause">
+  <HomePause />
+</div>

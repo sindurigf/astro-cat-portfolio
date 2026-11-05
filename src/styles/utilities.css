@@ -40,8 +40,7 @@
 
   .surface-gold :is(.rotate-3, .-rotate-3).sticker,
   :is(:root[data-theme='light'] main, main .mode-light)
-    :is(.rotate-3, .-rotate-3).sticker:not(.mode-dark *),
-  :is(.rotate-3, .-rotate-3).hero-sticker.bg-surface {
+    :is(.rotate-3, .-rotate-3).sticker:not(.mode-dark *) {
     background-clip: border-box;
   }
 
@@ -151,7 +150,7 @@
 /*
  * Step Up (src/lib/wall.ts sets these): bricks in one row rise, rows below the
  * first bring their right edge in. `&:is(.card-block > *)` beats the wall's
- * margin reset.
+ * margin reset. `--wall-rise` is set on the wall, so its room and rise agree.
  */
 @utility mark-throw-large {
   --mark-throw-offset: var(--lift-mark-large);
@@ -159,8 +158,12 @@
 
 @utility card-rise-room {
   &.card-block {
-    padding-top: var(--step-y);
+    padding-top: var(--wall-rise, var(--step-y));
   }
+}
+
+@utility card-rise-short {
+  --wall-rise: calc(var(--step-y) * var(--step-y-short-share));
 }
 
 @utility card-rise-room-0 {
@@ -174,11 +177,11 @@
 }
 
 @utility card-rise-half {
-  translate: 0 calc(var(--step-y) / -2);
+  translate: 0 calc(var(--wall-rise, var(--step-y)) / -2);
 }
 
 @utility card-rise-full {
-  translate: 0 calc(var(--step-y) * -1);
+  translate: 0 calc(var(--wall-rise, var(--step-y)) * -1);
 }
 
 @utility card-step-0 {

@@ -235,19 +235,6 @@
   --text-deck-cover: clamp(2.0625rem, 9vw, 5rem);
   --text-deck-cover--line-height: 0.94;
   /*
-   * The homepage h1 only. A ten-letter family name must stay one line in the
-   * window's 241px at 305px, and a third line breaks the layout.
-   */
-  --text-hero-h1: 2.25rem;
-  --text-hero-h1--line-height: 0.94;
-  /*
-   * Ink offsets inside the name's 0.94 line boxes, as fractions of font size,
-   * for Lexend 900 uppercase only. tests/hero-fit.spec.ts fails if face, weight
-   * or line height changes.
-   */
-  --hero-name-ink-foot: 0.0831;
-  --hero-name-ink-head: 0.1188;
-  /*
    * Titles of Privacy and Accessibility. ACCES-SIBILITY breaks at its soft
    * hyphen at 305px.
    */
@@ -331,9 +318,6 @@
   /* A part opener's number, height-aware like the two above. */
   --text-slide-number: clamp(4.5rem, 16svh, 10rem);
   --text-slide-number--line-height: 1;
-  /* Height-aware, so the stickers shrink on a short window. */
-  --text-hero-sticker: clamp(1.125rem, min(2.1vw, 3.4svh), 1.875rem);
-  --text-hero-sticker--line-height: 1.02;
   --text-menu: clamp(2.125rem, 8vw, 3.5rem);
   --text-body: calc(clamp(1.125rem, 1.2vw, 1.1875rem) * var(--text-scale, 1));
   --text-body--line-height: 1.62;
@@ -399,6 +383,8 @@
    */
   --step-x: clamp(0px, calc((100vw - 640px) / 16), 24px);
   --step-y: clamp(0px, calc((100vw - 640px) / 10), 48px);
+  /* Share of `--step-y` a wall of short bricks (taglines, stats) rises. */
+  --step-y-short-share: 1 / 3;
   /* Card, panel, field, header and rule edges (`edge` utilities); controls, chips, photos and stickers keep `border-4`. */
   --edge: 6px;
   /* Table rules only (`hairline` utilities). */
@@ -440,6 +426,8 @@
    * 273px box at 305px, so they step down. tests/header-fit.spec.ts.
    */
   --breakpoint-xs: 21rem;
+  /* From here the homepage taglines and stats fit side by side with the SC 1.4.12 spacing. */
+  --breakpoint-pair: 22.5rem;
   /*
    * Reading measure: at most 75 characters per line at 17px in Chromium and
    * Firefox. rem, not `ch`: Lexend's `ch` differs by engine, which an image's
@@ -505,42 +493,20 @@
    */
   --gold-marker-pad: 4px;
 
-  /*
-   * Homepage hero padding, gap and inset. `--hero-pad-block` also spaces a
-   * page's opening slab below the header (layout.css).
-   */
+  /* Space between the header and a page's opening slab (layout.css). */
   --hero-pad-block: clamp(12px, 3svh, 144px);
-  --hero-gap: clamp(10px, 2.2svh, 40px);
-  --hero-inset: clamp(8px, 3vw, 56px);
 
   /*
    * 48px from the screen edge to the extrusion tip, plus the column's shadow.
    */
   --hero-column-screen-clear: calc(48px + var(--hard-throw));
 
-  --hero-column-pad-block: clamp(32px, 5vw, 72px) clamp(32px, 5vw, 80px);
+  /* The top also follows the height, so the stats wall and its throw fit a 1366x768 first screen. */
+  --hero-column-pad-block: clamp(24px, min(5vw, 3svh), 72px)
+    clamp(32px, 5vw, 80px);
   --hero-column-pad-inline: clamp(20px, 3.5vw, 64px);
 
   --hero-column-edge: var(--block-edge);
-  --hero-rule: var(--hero-column-edge);
-  /*
-   * At least the given name's leading under its letters (0.0831em, 7px at 84px), or
-   * its line box reaches the gold at 1.27. tests/hero-fit.spec.ts.
-   */
-  --hero-name-clearance: 8px;
-
-  /*
-   * The name in the column and below `sm`; layout.css swaps them into
-   * --text-hero-h1, so they hold literal values. tests/hero-fit.spec.ts.
-   */
-  --text-hero-h1-column: 2.25rem;
-  --text-hero-h1-column-phone: 2.25rem;
-  /*
-   * Reserved for the two sticker words at the top right, since `max-width` on
-   * the name cannot see them. Holds the widest sticker plus border, padding,
-   * shadow and tilt.
-   */
-  --hero-marks-reserve: clamp(9rem, 14vw, 13rem);
 
   /*
    * Footer profile tiles (48px, 56px from `lg`, each past SC 2.5.5's 44px),
@@ -603,6 +569,53 @@
   --spacing-target: 44px;
   /* Room above post code for the Copy button and its label, so neither sits on a line. */
   --spacing-code-head: calc(var(--spacing-target) + 8px);
+
+  /*
+   * Homepage meadow and fall (components/home.css). Each phone value applies
+   * below `md`, the middle one from `md`, the wide one from `xl`.
+   */
+  /* Fixed, so it reaches 2x at 200% zoom (SC 1.4.4); a ten-letter family name fits 225px at 305px. */
+  --text-home-name: 2rem;
+  --text-home-name--line-height: 0.98;
+  --size-home-photo: 30rem;
+  --size-home-photo-lg: 26rem;
+  --size-home-photo-phone: 32rem;
+  --size-home-band: 220px;
+  --size-home-band-phone: 150px;
+  /* The sitting cat's box: its frame at --home-cat-scale, rounded up. */
+  --size-home-hopper-w: 70px;
+  --size-home-hopper-h: 96px;
+  --size-home-hopper-w-phone: 53px;
+  --size-home-hopper-h-phone: 72px;
+  --size-home-ledge-h: 36px;
+  --size-home-ledge-h-phone: 24px;
+  --size-home-post-w: 24px;
+  --size-home-post-w-phone: 14px;
+  --size-home-plant-w: 36px;
+  --size-home-plant-h: 66px;
+  --size-home-plant-w-phone: 24px;
+  --size-home-plant-h-phone: 44px;
+  --size-home-prop: 88px;
+  --size-home-prop-md: 72px;
+  --size-home-prop-phone: 64px;
+  /* Room each side of the fall's column where the cat toys drift. */
+  --spacing-home-lane: 184px;
+  --spacing-home-lane-md: 128px;
+  /* Below `sm`: how far each joined brick steps sideways, and how far a pair's first brick sits lower. */
+  --spacing-home-phone-step: 16px;
+  --spacing-home-phone-climb: 32px;
+  /* How far each section steps sideways as it falls. */
+  --spacing-home-tumble: 32px;
+  --spacing-home-tumble-md: 16px;
+  /* One sheet pixel: the About sheets are drawn at twice their size, so a frame at scale 1 is half its pixels. */
+  --home-atlas-px: 0.5px;
+  /* The cat's scale of its sheet: phones, then from `md`; the hopping and falling cat share it. */
+  --home-cat-scale-phone: 1.05;
+  --home-cat-scale: 1.4;
+  /* The hole's opening: its left edge, and its width on phones and from `md`, as shares of the meadow. */
+  --home-mouth-at: 66%;
+  --home-mouth-w-phone: 16.5%;
+  --home-mouth-w: 14%;
 
   /*
    * Menu bars in a 24x16 box; they end at 17px, so they are absolutely
