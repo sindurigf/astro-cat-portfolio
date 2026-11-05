@@ -168,7 +168,7 @@ export const createFaller = ({
       );
       return { x, y, room: y - ceiling - artSize.h };
     }
-    /* The first of `xs` with head room, else the roomiest. */
+    /* The first of `xs` with head room; a section with none is skipped, so it never rests on text. */
     const firstFree = (
       xs: readonly number[],
       list: readonly { box: DOMRect }[],
@@ -176,10 +176,7 @@ export const createFaller = ({
       const found = xs
         .map((x) => standOn(x, list))
         .filter((s): s is Spot => s !== undefined);
-      return (
-        found.find((s) => s.room >= 0) ??
-        found.sort((a, b) => b.room - a.room)[0]
-      );
+      return found.find((s) => s.room >= 0);
     };
     const firstBricks = bricks[0] ?? [];
     if (all.length === 0 || firstBricks.length === 0) {
