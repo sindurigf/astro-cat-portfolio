@@ -53,7 +53,7 @@ Setup: Chrome, 1280px, `/`, focus in the address bar.
 
 - [ ] First Tab lands on "Skip to Main Content", visible at top left. → SC 2.4.1, 2.4.7
 - [ ] Enter on it: focus moves to main, which shows a cyan outline. → SC 2.4.1
-- [ ] Next Tab reaches the first control in the page (the hero pause control on `/`), not the header. → SC 2.4.1
+- [ ] Next Tab reaches the first link in the page, not the header. → SC 2.4.1
 - [ ] Reload and Tab through: skip link, Report an Accessibility Problem, logo, About, Career, Blog, the
       "Theme and Text Size" button, Get in Touch, the "Aa Text Size" tab at 86rem and up, the page, footer Social (GitHub, LinkedIn,
       Instagram, Bluesky, Mastodon, Email), Site (Home, About, Career, Blog),
@@ -120,10 +120,8 @@ Setup: `gsettings set org.gnome.desktop.interface enable-animations false`.
 - [ ] Press and hold a primary button, a `/blog` chip, a footer sticker and
       the logo: each loses its shadow but does not move. → SC 2.3.3
 - [ ] Nothing else moves, fades or slides. → SC 2.3.3
-- [ ] `/`: the hero field is drawn once, reads as a picture, the poneglyph's
-      script is unlit, and there is no pause control. → SC 2.3.3, 2.2.2
 - [ ] `/about`: the cats sit still and have no sleep controls or trick buttons. → SC 2.3.3, 2.2.2
-- [ ] Turn it back on: the button moves and the field animates. → SC 2.3.3
+- [ ] Turn it back on: the button moves and the cats animate. → SC 2.3.3
 
 ## 5. Focus indicator visibility
 
@@ -318,10 +316,9 @@ Setup: Firefox, 1280px, `/`, click the address bar, Tab once.
 
 - [ ] It is the first thing announced, as "Skip to Main Content". → SC 2.4.1, 2.4.4
 - [ ] Enter: something is announced. → SC 2.4.1
-- [ ] `Down` reads from inside main (pause control or `h1`), not the header:
+- [ ] `Down` reads from inside main (the `h1`), not the header:
       the reading cursor moved. → SC 2.4.1
-- [ ] Tab lands on the hero pause control (reduced motion off; with it on,
-      there is no pause control). → SC 2.4.1
+- [ ] Tab lands on the first link in main. → SC 2.4.1
 - [ ] Reload and Tab twice: "Report an Accessibility Problem", a link in the
       "Accessibility help" landmark; Enter opens Report a Barrier on
       `/accessibility`. → SC 2.4.1, 3.2.6
@@ -761,7 +758,7 @@ the browser.
       opens. → SC 2.5.3
 - [ ] On `/contact`, say "click Name", "click Email" and "click Message": each
       field takes focus; dictate into it; say "click Send Message". → SC 2.5.3
-- [ ] Icon-only controls (footer profiles, theme switch, hero pause): reachable
+- [ ] Icon-only controls (footer profiles, theme switch, cat sleep): reachable
       by the tool's numbers or grid overlay. → SC 2.1.1
 - [ ] Note any command that did nothing, and the words that were said.
 
@@ -804,9 +801,6 @@ Chromium, Firefox and WebKit run the automated suite (WebKit in CI, or
 - [ ] Firefox: §2 by hand.
 - [ ] Firefox: the focus ring is visible on every stop, by eye.
 - [ ] Safari on macOS: needs hardware. It applies and is not covered by CI.
-- [ ] Safari on a Mac and an iPhone: the homepage hero moves smoothly and its
-      pause control stops it. Headless WebKit has no GPU, so CI cannot judge
-      this. → needs Apple hardware
 - WebKit: covered by CI, not a check by hand.
 
 ## 9. Target size → SC 2.5.5
@@ -870,7 +864,6 @@ From the Accessible Astro checklist and
 - Contact form criteria (SC 1.3.5, 3.3.1, 3.3.2, 3.3.3, 4.1.3) by a person:
   ACCESSIBILITY.md §7 gap 1.
 - Plain language: gap 5.
-- Whether the hero field's still frame reads as a picture: §4.
 - Routes with no check of their own: `/contact/sent`, the tag listings, and
   the category listing beyond §3. `/accessibility`, `/credits` and `/brand`
   are read only in §9a; `/privacy` also in §6.4 and §6.12.1a.

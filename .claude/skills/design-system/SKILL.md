@@ -27,8 +27,7 @@ before changing anything it covers.
 - A shadow class on a brick in a `.card-block`, or a brick that drops:
   `.card-block` gives each brick its throw and the wall only climbs right;
   take the classes from `src/lib/wall.ts`.
-- A `filter` or `backdrop-filter` outside the hero canvas
-  (`tests/filter-layers.spec.ts`).
+- A `filter` or `backdrop-filter` (`tests/filter-layers.spec.ts`).
 - A removed outline, `outline-none`, `:focus` styles or `outline-offset: 0`.
 - A shadow on a focusable element without its lift.
 - A ring outside a joined brick: it crosses the next one. Draw it inside.

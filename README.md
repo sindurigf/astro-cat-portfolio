@@ -2,8 +2,8 @@
 
 <!-- TODO(fork): Rewrite this file for your own site. -->
 
-A personal website template: Astro, a Vue island, Tailwind CSS and TypeScript on
-Cloudflare Workers. Neo-brutalist, dark by default with a light mode, a blog
+A personal website template: Astro, Tailwind CSS and TypeScript on Cloudflare
+Workers. Neo-brutalist, dark by default with a light mode, a blog
 with feeds, a talk slideshow, a contact form, and animated cats on the About
 page. Tested for WCAG 2.2 AA in Chromium, Firefox and WebKit.
 
@@ -118,8 +118,7 @@ The drawings are code; the cards show a photo.
   one-line role, photo and photo description. Put the photos in
   `src/assets/photos/` and import them at the top of the file.
 - Coat colors: the `--color-cat-` colors in `src/styles/global.css`. The
-  logo cat and the homepage hero's glow (`--color-hero-glow`) use the second
-  cat's colors, so changing them changes both.
+  logo cat uses the second cat's colors, so changing them changes it too.
 - The cats' names in tests: the list of names at the top of
   `tests/about-cats.spec.ts`, and the first cat's name in
   `tests/failed-images.spec.ts` and `tests/analytics.spec.ts`. The About
@@ -140,8 +139,8 @@ does not cover it.
 
 - Delete `src/components/AboutCats.astro`, `src/scripts/about-cats.ts`,
   every `src/lib/about-cats*` file, `src/styles/components/about-cats.css`,
-  `tests/about-cats.spec.ts` and the three `src/assets/photos/cat-card-*.jpg`
-  photos. Keep `src/scripts/motion-loop.ts`: the hero uses it.
+  `tests/about-cats.spec.ts`, the three `src/assets/photos/cat-card-*.jpg`
+  photos and `src/scripts/motion-loop.ts`, which only the cats use.
 - `src/styles/global.css`: keep the `--color-cat-` colors: the logo cat
   uses them.
 - `src/pages/about.astro`: remove the `about-cats.css`, `AboutCats`, `CatInfo`

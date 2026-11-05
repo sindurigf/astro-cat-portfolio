@@ -22,9 +22,6 @@ AI-drawn art, by Claude or Canva AI:
   (`artwork/about-cats/`, packed by `scripts/make-about-cats.mjs`), their sleep,
   wake and trick-list icons (`src/components/AboutCats.astro`) and their trick
   icons (`src/lib/about-cats-tricks.json`).
-- The poneglyph and its lighting script in the homepage field
-  (`src/lib/hero-field-poneglyph.ts`), and its stills shown without JavaScript
-  (`src/assets/hero-still-*.webp`).
 - The box cat: an open cardboard box (`src/lib/box-cat.ts`, by Claude) with a
   cat sitting in it, drawn by Canva AI (`artwork/cats/*-sit.png`) and set in
   the box by `scripts/make-box-cat.mjs`:

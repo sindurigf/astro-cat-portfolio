@@ -52,7 +52,7 @@ What happens without the `CONTACT_NOTIFY_TO` secret:
 | `npm test`                     | `test:a11y`, then `test:worker`; each builds first                                                                                                        |
 | `npm run build`                | Build to `dist/client` (assets) and `dist/server` (Worker)                                                                                                |
 | `npm run preview`              | Serve the build through the Worker runtime                                                                                                                |
-| `npm run typecheck`            | `astro check` (fails on hints), then `vue-tsc` on `.vue` files                                                                                            |
+| `npm run typecheck`            | `astro check` (fails on hints)                                                                                                                            |
 | `npm run format`               | Prettier, write                                                                                                                                           |
 | `npm run check`                | `check:tokens`, `links`, `pins`, `classes`, `csp`, `untransformed`, `title-case`, `exif`, `format:check`, `commits`, `leaks`; needs `npm run build` first |
 | `npm run format:check`         | Prettier, check only                                                                                                                                      |
@@ -79,7 +79,6 @@ What happens without the `CONTACT_NOTIFY_TO` secret:
 | `npm run check:live:console`   | Every production route in a browser, failing on console errors                                                                                            |
 | `npm run publish:talk`         | Print a talk's slideshow to its tagged PDF in `public/talks/`                                                                                             |
 | `npm run og`                   | After a build, render `public/images/og-default.png` and every page's card in `public/images/og/`                                                         |
-| `npm run hero-still`           | After a build, redraws the hero stills in `src/assets/hero-still-*.webp` shown without JavaScript                                                         |
 | `npm run about-cats`           | Packs the About cats' drawings in `artwork/about-cats/` into `src/assets/about-cats-*.avif` and `src/lib/about-cats-sheet.ts`                             |
 | `npm run icons`                | Render `src/assets/logo-cat.svg` from `src/lib/brand-mark.ts`, and the favicons and app icons from `artwork/cats/minerva-head.png`                        |
 | `npm run box-cat`              | Render the box cat logo, roundel and footer mascot SVGs in `src/assets/` from `src/lib/box-cat.ts` and the cut-outs in `artwork/cats/`                    |
@@ -174,7 +173,7 @@ Agents never post that review
   where it occurs, and in ARCHITECTURE.md "Rejected findings". An AccessLint
   entry also names a reason the page checks.
 - `test:coverage` writes `coverage/` (`index.html`, `lcov.info`). It covers
-  browser JavaScript only (the Vue island and page scripts). It builds with source
+  browser JavaScript only (the page scripts). It builds with source
   maps: run a plain `npm run build` before anything else reads `dist/`.
 - `dev` and `build` pass `--force` to clear Astro's content cache, which does
   not invalidate when a plugin in `src/plugins/` changes. The resulting
@@ -230,8 +229,7 @@ suites in parallel from separate worktrees.
 ```text
 src/
   assets/           Images, processed by the build
-  components/       Astro components; ui/ holds the Vue island
-  composables/      Vue composables for the island
+  components/       Astro components
   content/blog/     Blog posts as Markdown
   content/talks/    One Slidev Markdown deck per talk
   content.config.ts Content collection schema
@@ -240,7 +238,7 @@ src/
   pages/            File-based routes
   plugins/          Markdown plugins
   presenter/        Dev-only presenter view for talks
-  scripts/          Browser modules that are not islands
+  scripts/          Browser modules
   styles/           global.css (tokens, imports), base, components/, light mode
   worker.ts         Worker entry: Astro's handler and the retention sweep
 public/             Static files served from the site root, including _headers

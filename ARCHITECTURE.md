@@ -9,18 +9,15 @@ conventions for this template. Design rules and values are in
 | Concern     | Choice                                                                                                                |
 | ----------- | --------------------------------------------------------------------------------------------------------------------- |
 | Framework   | Astro 7, static output; `/contact/send/` renders on demand in the Worker                                              |
-| Interactive | Vue 3 via `@astrojs/vue`, islands only (the homepage canvas hero)                                                     |
-| Scripts     | Plain modules for everything that is not an island                                                                    |
+| Interactive | Plain modules; no framework islands                                                                                   |
 | Styling     | Tailwind CSS 4 via `@tailwindcss/vite`                                                                                |
-| Language    | TypeScript, `astro/tsconfigs/strictest`, checked with `astro check` and `vue-tsc`                                     |
+| Language    | TypeScript, `astro/tsconfigs/strictest`, checked with `astro check`                                                   |
 | Content     | Astro Content Collections, Markdown in repo, rendered by Sätteri                                                      |
 | Font        | Lexend, self-hosted through Fontsource                                                                                |
 | Hosting     | Cloudflare Workers static assets, D1 (EU), Rate Limiting, Email Routing, Workers Builds                               |
 | Tests       | Playwright in Chromium, Firefox and WebKit, with axe-core and AccessLint for WCAG 2.2 AA, HTML_CodeSniffer for 2.1 AA |
 | Runtime     | Node.js from `.nvmrc`                                                                                                 |
 
-- Vue runs with `features: { optionsAPI: false }`; every component uses
-  `<script setup>`.
 - No `trailingSlash` in `astro.config.mjs`: `'always'` makes `astro preview`
   404 on `/about`.
 - No `tailwind.config.mjs`. Tokens live in the `@theme static` block in
@@ -153,11 +150,7 @@ Dark is the default. Colors and rules:
   when focus leaves.
 - Without JavaScript the page is dark and the switch hidden; without popovers
   the switch is hidden and the page follows the system.
-- `HeroField.vue` (through `use-hero-field.ts`) reads its palette from its own element and rebuilds when a
-  `MutationObserver` sees `data-theme` change. Its ground is `hero-ground`.
-  A `(resolution)` media query resizes its canvases when only the pixel ratio
-  changes; in forced colors it is hidden (`tests/hero-media.spec.ts`).
-- The About cats (`src/scripts/about-cats.ts`) need neither: the cats are drawings with their outline
+- The About cats (`src/scripts/about-cats.ts`) read no theme: the cats are drawings with their outline
   baked in, the same in both themes, and the toys' SVG parts carry classes
   that `about-cats.css` maps to tokens.
 - `playwright.config.ts` sets `colorScheme: 'dark'`; specs that measure light
@@ -537,13 +530,11 @@ in `wrangler.jsonc`).
 | `src/assets/box-cat-roundel.svg` | Rudra   | `Roundel.astro`, 112x112                       |
 | `src/assets/box-cat-footer.svg`  | Hela    | `Footer.astro` mascot on the motto band        |
 
-- The marks, icons, sharing image and hero poneglyph are drawn by AI
+- The marks, icons and sharing image are drawn by AI
   ([AI_DISCLOSURE.md](AI_DISCLOSURE.md)).
 - Every box cat file and `logo-cat.svg` load as an `<img alt="">` imported with
   `?url`, cached once for every page. The roundel is sized by
   `size-24 lg:size-32` (page) or `size-roundel` (hero) and tilted 3deg.
-- A `.vue` component cannot reach `astro:assets`: call `getImage()` in Astro
-  and pass the result as a prop.
 - Footer links: one sticker tile per profile plus Email (six as shipped), with
   Simple Icons (CC0) paths, one `<symbol>` per link label in
   `src/assets/social-icons.svg`. The footer runs JavaScript only for features
@@ -702,7 +693,7 @@ The policy is the `Content-Security-Policy` line in `public/_headers`.
 
 - No `'unsafe-inline'`, no `'unsafe-eval'`. Everything is same-origin: fonts in
   `/_astro/`, the Plausible tracker bundled from npm, no embeds, no `data:`
-  URIs, Vue runtime-only build.
+  URIs.
 - `connect-src` is `'self'` while analytics is off. With analytics on it also
   names Plausible's collector URL, `PLAUSIBLE_ENDPOINT` in
   `src/lib/analytics.ts`;
@@ -713,22 +704,19 @@ The policy is the `Content-Security-Policy` line in `public/_headers`.
   form. Never `*`. A form posting to a new origin widens it to that exact
   origin and updates `tests/headers-rules.spec.ts` and this section in the same
   commit; so does loosening any directive now `'none'`.
-- Trusted Types: no script of ours writes HTML; Vue's runtime on `/` does,
-  through its own `vue` policy, the only one allowed. `tests/headers.spec.ts`
-  opens every page with a script and its dialogs under the policy.
+- Trusted Types: no script writes HTML, so `trusted-types 'none'` allows no
+  policy. `tests/headers.spec.ts` opens every page with a script and its
+  dialogs under the policy.
 - `tests/headers-rules.spec.ts` asserts each directive.
 
 ### The hashes go stale
 
 Hashed inline blocks:
 
-- On `/` (the `HeroField.vue` island, `client:load`): the `client:load`
-  loader, the `<astro-island>` hydration script, and the
-  `astro-island,astro-slot,astro-static-slot{display:contents}` style.
 - On every page: the theme script in `BaseLayout.astro`'s `<head>`.
 - JSON-LD needs no hash (not executed).
 
-An Astro upgrade can change a hash; the island then silently fails to hydrate
+An Astro upgrade can change a hash; the script then silently fails to run
 (console only). `npm run check:csp` fails on a stale hash; regenerate with
 `npm run build && npm run check:csp -- --write`. Never hand-edit a hash.
 
@@ -812,7 +800,7 @@ evidence.
   image and head specs gate formats, priority and font preload; Lighthouse runs
   by hand after a deploy ([DEPLOYMENT.md](docs/DEPLOYMENT.md)).
 - **Add ESLint, or `checkJs` for the `.mjs` scripts:** the strictest tsconfig,
-  `astro check` at hint level, `vue-tsc`, Prettier and the `check:*` scripts
+  `astro check` at hint level, Prettier and the `check:*` scripts
   cover what a linter would. `checkJs` reports untyped code (implicit `any`,
   untyped `catch`, loose DOM and Node types), not bugs.
 - **Fetch external links in CI:** the result depends on other sites' uptime,
