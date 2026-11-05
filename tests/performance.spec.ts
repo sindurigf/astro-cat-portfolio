@@ -12,8 +12,9 @@ import { ANALYTICS_ON } from '../src/lib/analytics-site';
  * so it is checked with Lighthouse on the live site (docs/DEPLOYMENT.md).
  */
 
-/* Decoded script bytes. `/about` carries the cats. */
+/* Decoded script bytes. `/` carries the meadow, the shaft, the falling cat and the motion (27,595 measured), `/about` the cats. */
 const ROUTE_SCRIPT_BUDGETS: Readonly<Record<string, number>> = {
+  '/': 31_000,
   '/about': 125_000,
 };
 const PAGE_SCRIPT_BUDGET = 14_000;
