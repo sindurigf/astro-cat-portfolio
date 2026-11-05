@@ -65,8 +65,9 @@
     max-width: 100%;
   }
 
+  /* No grow: the pause control appears once the script runs, and a growing wall would shift as it wraps below (tests/performance.spec.ts). */
   .home-hero-row > ul {
-    flex: 1 1 auto;
+    flex: 0 1 auto;
     min-width: 0;
   }
 
