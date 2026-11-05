@@ -164,7 +164,7 @@
 
   /* A region of the column: no border, extrusion or ground. */
   .hero-window {
-    @apply relative isolate flex-1;
+    @apply relative flex-1;
   }
 
   /*
