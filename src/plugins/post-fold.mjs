@@ -1,6 +1,6 @@
 /* Folds each module body of a post in a native <details>, its h2 outside, both in one panel. Not slides. */
 
-import { TALKS_PATH } from './post-figure.mjs';
+import { isTalk } from './post-figure.mjs';
 import {
   FOLD_CLASS,
   MODULE_PANEL_CLASS,
@@ -102,7 +102,7 @@ export const moduleFold = ({ fileURL } = {}) => {
       filter: ['h2'],
 
       visit(node, ctx) {
-        if (done || String(fileURL ?? '').includes(TALKS_PATH)) return;
+        if (done || isTalk(fileURL)) return;
         if (!moduleName(ctx.textContent(node))) return;
         done = true;
         const parent = ctx.parent(node);
