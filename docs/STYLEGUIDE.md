@@ -520,11 +520,9 @@ with a comment beside it.
 
 ### The roundel's size
 
-- `--spacing-roundel` is `2 × --spacing-section − 56px`: 56px on a phone,
-  128px from about 1150px.
-- Derived so the roundel keeps at least 24px to the hero's last line and 32px
-  to the next content; it is lifted `--spacing(1)` above the edge to split the
-  space 24 and 32.
+- `--spacing-roundel` is `clamp(3.5rem, 16vw - 3.5rem, 8rem)`: 56px at the
+  narrowest, capped at 128px from about 1150px. It is not tied to
+  `--spacing-section`.
 - `tests/page-hero.spec.ts` checks the roundel and the photo cover no text at
   320, 640, 768, 1023, 1024 and 1280px.
 

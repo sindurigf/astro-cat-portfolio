@@ -605,9 +605,8 @@
   --spacing-section: clamp(56px, 8vw, 96px);
 
   /*
-   * PageHero roundel: twice --spacing-section less 56px, so it keeps 24px from
-   * the hero text and 32px from the next section. Floor in rem so it zooms.
-   * tests/page-hero.spec.ts fails if it covers any text.
+   * PageHero roundel: 16vw less 3.5rem, from 3.5rem up to 8rem, so it keeps clear
+   * of the hero text. The rem bounds zoom. tests/page-hero.spec.ts fails if it covers text.
    */
   --spacing-roundel: clamp(3.5rem, 16vw - 3.5rem, 8rem);
   /* Heading to content, and content to the actions under it. */
