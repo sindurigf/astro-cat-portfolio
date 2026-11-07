@@ -41,18 +41,25 @@ const isDownload = (url: URL): boolean =>
     url.pathname.toLowerCase().endsWith(extension),
   );
 
+/* An SVG <a> is not an HTMLAnchorElement, so the attribute is resolved by hand. */
+const resolvedHref = (link: Element): URL | null => {
+  const href = link.getAttribute('href');
+  return href !== null && URL.canParse(href, document.baseURI)
+    ? new URL(href, document.baseURI)
+    : null;
+};
+
 const describeLink = (
-  link: HTMLAnchorElement,
+  link: Element,
+  url: URL,
   origin: string,
 ): { name: ClickEventName; label?: string; target?: string } | null => {
-  const url = new URL(link.href);
-
   /* Fixed label: /privacy says an email click never sends the address. */
   if (url.protocol === 'mailto:') {
     return { name: CLICK_EVENTS.email, label: CLICK_EVENTS.email };
   }
 
-  /* tel: and other schemes have no origin, and a tel: label is the number: /privacy lists no such event. */
+  /* tel:, blob: and other schemes have no usable origin, and a tel: label is the number: /privacy lists no such event. */
   if (!WEB_PROTOCOLS.includes(url.protocol)) return null;
 
   /* No query string: it can carry another site's tokens. */
@@ -86,8 +93,9 @@ const describeClick = (
     area: areaOf(element),
   };
 
-  if (element instanceof HTMLAnchorElement) {
-    const link = describeLink(element, origin);
+  if (element.matches('a[href]')) {
+    const url = resolvedHref(element);
+    const link = url && describeLink(element, url, origin);
     if (!link) return null;
     const { name, label, target: destination } = link;
     const linkData = label === undefined ? data : { ...data, label };

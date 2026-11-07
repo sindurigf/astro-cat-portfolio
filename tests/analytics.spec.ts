@@ -591,6 +591,46 @@ test.describe('analytics', WITH_ANALYTICS, () => {
       ).not.toMatch(/null|1234567/);
     });
 
+    test('an SVG link counts as a link and an unparseable href throws nothing', async ({
+      page,
+    }) => {
+      const errors: string[] = [];
+      page.on('pageerror', (error) => errors.push(error.message));
+      const sent = await openAsProduction(page, '/contact/');
+      await page.locator('main').evaluate((main) => {
+        const namespace = 'http://www.w3.org/2000/svg';
+        const svg = document.createElementNS(namespace, 'svg');
+        svg.setAttribute('width', '60');
+        svg.setAttribute('height', '30');
+        const link = document.createElementNS(namespace, 'a');
+        link.setAttribute('href', '/privacy/');
+        link.id = 'svg-link';
+        const box = document.createElementNS(namespace, 'rect');
+        box.setAttribute('width', '60');
+        box.setAttribute('height', '30');
+        link.append(box);
+        svg.append(link);
+        const broken = document.createElement('a');
+        broken.href = 'http://[broken';
+        broken.id = 'broken-link';
+        broken.textContent = 'Broken';
+        main.prepend(svg, broken);
+        for (const element of [link, broken]) {
+          element.addEventListener('click', (event) => event.preventDefault());
+        }
+      });
+      await page.locator('#broken-link').click();
+      await page.locator('#svg-link').click();
+
+      await expect
+        .poll(() => events(sent).length, { timeout: SEND_TIMEOUT_MS })
+        .toBeGreaterThan(0);
+      expect(events(sent)).toMatchObject([
+        { name: CLICK_EVENTS.internalLink, data: { target: '/privacy/' } },
+      ]);
+      expect(errors, 'a click listener threw').toEqual([]);
+    });
+
     test('typing into the contact form sends nothing', async ({ page }) => {
       const sent = await openAsProduction(page, '/contact/');
       await expect
