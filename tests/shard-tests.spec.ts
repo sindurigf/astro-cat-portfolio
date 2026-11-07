@@ -13,10 +13,7 @@ const LIST_TIMEOUT_MS = 180_000;
 const TOTAL_LINE = /^Total: (\d+) tests? in \d+ files?$/m;
 
 const run = (args: string[]): string =>
-  execFileSync(process.execPath, args, {
-    encoding: 'utf8',
-    env: { ...process.env, CI: '' },
-  });
+  execFileSync(process.execPath, args, { encoding: 'utf8' });
 
 const listedTotal = (): number => {
   const out = execFileSync(
