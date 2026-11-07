@@ -520,9 +520,11 @@ with a comment beside it.
 
 ### The roundel's size
 
-- `--spacing-roundel` is `clamp(3.5rem, 16vw - 3.5rem, 8rem)`: 56px at the
-  narrowest, capped at 128px from about 1150px. It is not tied to
+- `--spacing-roundel` is `clamp(3.5rem, 16vw - 3.5rem, 8rem)`: 56px
+  up to about 700px, capped at 128px from about 1150px. It is not tied to
   `--spacing-section`.
+- It is sized so the roundel keeps clear of the hero title and the next
+  content at every width.
 - `tests/page-hero.spec.ts` checks the roundel and the photo cover no text at
   320, 640, 768, 1023, 1024 and 1280px.
 
