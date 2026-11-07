@@ -31,6 +31,7 @@ const NAMED_ENTITIES: Record<string, string> = {
 };
 
 const SOFT_HYPHEN = 0xad;
+const MAX_CODE_POINT = 0x10ffff;
 
 const decodeEntity = (entity: string, name: string): string => {
   const digits = /^#(x[0-9a-f]+|\d+)$/i.exec(name)?.[1];
@@ -39,6 +40,11 @@ const decodeEntity = (entity: string, name: string): string => {
       digits.startsWith('x') || digits.startsWith('X')
         ? parseInt(digits.slice(1), 16)
         : parseInt(digits, 10);
+    if (code > MAX_CODE_POINT) {
+      throw new Error(
+        `A post's opening uses ${entity}, which is not a Unicode code point; use a number up to ${MAX_CODE_POINT}.`,
+      );
+    }
     return code === SOFT_HYPHEN ? '' : String.fromCodePoint(code);
   }
   const named = NAMED_ENTITIES[name];

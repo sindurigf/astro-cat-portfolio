@@ -345,6 +345,14 @@ test.describe('the opening feed', () => {
       expect(() => feedExcerpt('A &bogus; entity.')).toThrow(/&bogus;/);
     });
 
+    test('names a numeric entity outside Unicode instead of a RangeError', () => {
+      for (const entity of ['&#9999999999;', '&#x110000;', '&#xFFFFFFFFF;']) {
+        expect(() => feedExcerpt(`A bad ${entity} entity.`)).toThrow(
+          new RegExp(entity),
+        );
+      }
+    });
+
     test('keeps titles and initials inside their sentence', () => {
       expect(
         feedExcerpt('I met Dr. Clover in the W.B. archive. It went well.', 40),
