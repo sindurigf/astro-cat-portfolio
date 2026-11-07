@@ -8,8 +8,9 @@ system and conventions: [ARCHITECTURE.md](ARCHITECTURE.md).
 ```sh
 npm run build
 npm run typecheck
-npm run check        # tokens, links, pins, classes, csp, images, title-case, format, commits, leaks
-npm run test:a11y    # Chromium, Firefox; WebKit in CI or with WEBKIT=1
+npm run check        # steps: docs/DEVELOPMENT.md#commands
+npm run check:pdf    # PDFs in public/ against PDF/UA, in Docker
+npm run test:a11y    # node, Chromium, Firefox; WebKit in CI or with WEBKIT=1
 npm run test:webkit  # CI's WebKit run, locally via Docker: only to debug CI
 npm run test:worker  # WORKER_SPECS through the Worker
 npm run test:demo    # DEMO_SPECS against a NOINDEX demo build
@@ -18,7 +19,8 @@ npm run test:demo    # DEMO_SPECS against a NOINDEX demo build
 - CI runs all of it; `Required checks` is the one required status, and
   `Test weakening` once the ruleset lists it
   ([DEPLOYMENT.md](docs/DEPLOYMENT.md#repository-settings)).
-- A suite passed only if its summary total matches `npx playwright test --list`.
+- A suite passed only if its summary total matches `npx playwright test --list`
+  (`-c playwright.worker.config.ts` for `test:worker`).
 - Green means the steps ran, not that the tests assert the right things.
 - Report and fix every warning, hint, error and flaky test, pre-existing or
   not, in its own commit. A false positive is named with its reason.
@@ -54,7 +56,8 @@ It is the test of record. Locally:
 - Every change: `build`, `typecheck` and `check`.
 - A change to the Worker: also `test:worker`; to the demo build: `test:demo`.
 - A major change to code, CSS or tests: the specs it touches, in Chromium only,
-  while iterating: `npx playwright test <specs> --project=chromium`.
+  while iterating:
+  `npx playwright test <specs> --project=chromium --project=node`.
 - No full suites and no other engines locally. Run
   `npm run test:webkit -- <specs>` only to debug a failure CI reported.
 
@@ -107,8 +110,8 @@ Types: `feat`, `fix`, `docs`, `style`, `refactor`, `chore`, `perf`, `security`,
 `config`, `revert`, `test`.
 
 No AI attribution trailers in commits or PRs. [AI_DISCLOSURE.md](AI_DISCLOSURE.md)
-covers attribution once. `scripts/check-commits.sh` enforces it in CI;
-`.githooks/commit-msg` strips trailers locally once
+covers attribution once. `scripts/check-commits.sh` rejects Claude and Anthropic
+trailers in CI; `.githooks/commit-msg` strips them locally once
 [enabled](docs/DEVELOPMENT.md#setup).
 
 ## Code
