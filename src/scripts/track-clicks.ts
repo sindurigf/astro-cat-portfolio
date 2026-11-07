@@ -10,18 +10,16 @@ import {
 const CLICKABLE =
   'a[href], button, summary, input[type="submit"], input[type="button"]';
 
-/* `closest` finds the nearest: a menu link reports `menu`, not `header`. */
+/* Inner areas first: a menu link reports `menu`, not `header`. */
 const AREAS: Readonly<Record<string, string>> = {
   '#mobile-menu-panel': 'menu',
   header: 'header',
   footer: 'footer',
   main: 'main',
 };
-const AREA_SELECTOR = Object.keys(AREAS).join(', ');
 const NO_AREA = 'page';
 
 const MIDDLE_BUTTON = 1;
-const WEB_PROTOCOLS = ['http:', 'https:'];
 
 const labelOf = (element: Element): string => {
   const text =
@@ -31,8 +29,7 @@ const labelOf = (element: Element): string => {
 };
 
 const areaOf = (element: Element): string => {
-  const area = element.closest(AREA_SELECTOR);
-  const selector = Object.keys(AREAS).find((key) => area?.matches(key));
+  const selector = Object.keys(AREAS).find((key) => element.closest(key));
   return (selector && AREAS[selector]) ?? NO_AREA;
 };
 
@@ -41,26 +38,25 @@ const isDownload = (url: URL): boolean =>
     url.pathname.toLowerCase().endsWith(extension),
   );
 
-/* An SVG <a> is not an HTMLAnchorElement, so the attribute is resolved by hand. */
-const resolvedHref = (link: Element): URL | null => {
-  const href = link.getAttribute('href');
-  return href !== null && URL.canParse(href, document.baseURI)
-    ? new URL(href, document.baseURI)
-    : null;
-};
-
+/* An SVG <a> is not an HTMLAnchorElement, so its attribute is resolved by hand. */
 const describeLink = (
   link: Element,
-  url: URL,
   origin: string,
 ): { name: ClickEventName; label?: string; target?: string } | null => {
+  let url: URL;
+  try {
+    url = new URL(link.getAttribute('href') ?? '', document.baseURI);
+  } catch {
+    return null;
+  }
+
   /* Fixed label: /privacy says an email click never sends the address. */
   if (url.protocol === 'mailto:') {
     return { name: CLICK_EVENTS.email, label: CLICK_EVENTS.email };
   }
 
   /* tel:, blob: and other schemes have no usable origin, and a tel: label is the number: /privacy lists no such event. */
-  if (!WEB_PROTOCOLS.includes(url.protocol)) return null;
+  if (!url.protocol.startsWith('http')) return null;
 
   /* No query string: it can carry another site's tokens. */
   if (url.origin !== origin) {
@@ -83,9 +79,7 @@ const describeClick = (
   target: EventTarget | null,
   origin: string,
 ): { name: ClickEventName; data: ClickEventData } | null => {
-  if (!(target instanceof Element)) return null;
-
-  const element = target.closest(CLICKABLE);
+  const element = target instanceof Element ? target.closest(CLICKABLE) : null;
   if (!element) return null;
 
   const data: ClickEventData = {
@@ -93,22 +87,12 @@ const describeClick = (
     area: areaOf(element),
   };
 
-  if (element.matches('a[href]')) {
-    const url = resolvedHref(element);
-    const link = url && describeLink(element, url, origin);
-    if (!link) return null;
-    const { name, label, target: destination } = link;
-    const linkData = label === undefined ? data : { ...data, label };
-    return {
-      name,
-      data:
-        destination === undefined
-          ? linkData
-          : { ...linkData, target: destination },
-    };
-  }
+  if (!element.matches('a[href]')) return { name: CLICK_EVENTS.button, data };
 
-  return { name: CLICK_EVENTS.button, data };
+  const link = describeLink(element, origin);
+  if (!link) return null;
+  const { name, ...fields } = link;
+  return { name, data: { ...data, ...fields } };
 };
 
 const send = (event: MouseEvent): void => {
