@@ -1,11 +1,11 @@
 name: Re-run test weakening on approval
 
 # The guard runs on pull_request_target, which a review does not start. This
-# re-runs it, still from the default branch, when the owner reviews with the
-# marker. It checks out nothing from the pull request.
+# re-runs it, still from the default branch, when the owner approves, comments
+# with the marker, requests changes or has a review dismissed. It checks out nothing from the pull request.
 on:
   pull_request_review:
-    types: [submitted]
+    types: [submitted, dismissed]
 
 permissions:
   actions: write
@@ -21,7 +21,9 @@ jobs:
     # contains() ignores case; the guard itself matches the marker exactly.
     if: >-
       github.event.review.user.login == github.repository_owner &&
-      (github.event.review.state == 'approved' ||
+      (github.event.action == 'dismissed' ||
+      github.event.review.state == 'approved' ||
+      github.event.review.state == 'changes_requested' ||
       (github.event.review.state == 'commented' &&
       contains(github.event.review.body, 'Approved test change:')))
     runs-on: ubuntu-24.04
