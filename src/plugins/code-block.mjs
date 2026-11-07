@@ -5,7 +5,7 @@
  * needs a role, and `region` would add a landmark per block.
  */
 
-import { TALKS_PATH } from './post-figure.mjs';
+import { isTalk } from './post-figure.mjs';
 
 const LABEL = 'Code, scrolls sideways';
 /* After the language: "bash code, scrolls sideways". */
@@ -69,7 +69,7 @@ export const codeBlock = ({ fileURL } = {}) => ({
         ctx.setProperty(child, 'className', null);
       }
 
-      if (String(fileURL ?? '').includes(TALKS_PATH)) return;
+      if (isTalk(fileURL)) return;
       if (language)
         ctx.setProperty(node, 'ariaLabel', `${language} ${LABEL_IN_POST}`);
       ctx.setProperty(node, 'dataCopy', language ? `${language} code` : 'code');
