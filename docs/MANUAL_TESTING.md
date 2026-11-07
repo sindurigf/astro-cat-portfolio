@@ -75,11 +75,12 @@ Setup: Chrome, 1280px, `/`, focus in the address bar.
 ## 2. The mobile menu, keyboard only
 
 Setup: Chrome at 375px. No mouse. `tests/mobile-menu.spec.ts` covers opening,
-focus on open, Escape and Close returning focus, every link reachable and every
-ring on screen. These checks are the rest.
+focus moving into the panel, Escape and Close returning focus, every link
+reachable and every ring on screen. These checks are the rest.
 
 - [ ] The menu button shows a focus ring. → SC 2.4.7
 - [ ] Space reopens the panel. → SC 2.1.1
+- [ ] On open, focus is on the first link. → SC 2.4.3
 - [ ] Tab cycles Home, About, Career, Blog, Get in Touch, Close, one stop in
       the browser UI (correct `<dialog>` behavior), Home. The theme switch is
       not in the dialog. Focus never reaches the page behind. → SC 2.1.2
