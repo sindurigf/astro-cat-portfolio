@@ -21,6 +21,7 @@ const AREA_SELECTOR = Object.keys(AREAS).join(', ');
 const NO_AREA = 'page';
 
 const MIDDLE_BUTTON = 1;
+const WEB_PROTOCOLS = ['http:', 'https:'];
 
 const labelOf = (element: Element): string => {
   const text =
@@ -43,13 +44,16 @@ const isDownload = (url: URL): boolean =>
 const describeLink = (
   link: HTMLAnchorElement,
   origin: string,
-): { name: ClickEventName; label?: string; target?: string } => {
+): { name: ClickEventName; label?: string; target?: string } | null => {
   const url = new URL(link.href);
 
   /* Fixed label: /privacy says an email click never sends the address. */
   if (url.protocol === 'mailto:') {
     return { name: CLICK_EVENTS.email, label: CLICK_EVENTS.email };
   }
+
+  /* tel: and other schemes have no origin, and a tel: label is the number: /privacy lists no such event. */
+  if (!WEB_PROTOCOLS.includes(url.protocol)) return null;
 
   /* No query string: it can carry another site's tokens. */
   if (url.origin !== origin) {
@@ -83,7 +87,9 @@ const describeClick = (
   };
 
   if (element instanceof HTMLAnchorElement) {
-    const { name, label, target: destination } = describeLink(element, origin);
+    const link = describeLink(element, origin);
+    if (!link) return null;
+    const { name, label, target: destination } = link;
     const linkData = label === undefined ? data : { ...data, label };
     return {
       name,

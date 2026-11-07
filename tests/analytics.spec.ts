@@ -562,6 +562,35 @@ test.describe('analytics', WITH_ANALYTICS, () => {
       ).not.toContain(CONTACT_EMAIL);
     });
 
+    test('a tel link sends no event and no phone number', async ({ page }) => {
+      const phone = '+43 660 1234567';
+      const sent = await openAsProduction(page, '/contact/');
+      await page.locator('main').evaluate((main, number) => {
+        const link = document.createElement('a');
+        link.href = `tel:${number.replace(/\s/g, '')}`;
+        link.textContent = number;
+        link.addEventListener('click', (event) => event.preventDefault());
+        main.prepend(link);
+      }, phone);
+      await page.locator('main a[href^="tel:"]').click();
+
+      const sentinel = 'footer a[href^="/"]';
+      await holdNavigation(page, sentinel);
+      await page.locator(sentinel).first().click();
+      await expect
+        .poll(() => events(sent).length, { timeout: SEND_TIMEOUT_MS })
+        .toBeGreaterThan(0);
+
+      expect(
+        events(sent).map(({ name }) => name),
+        'only the sentinel link click should be sent',
+      ).toEqual([CLICK_EVENTS.internalLink]);
+      expect(
+        JSON.stringify(events(sent)),
+        '/privacy lists no phone number or "null" address',
+      ).not.toMatch(/null|1234567/);
+    });
+
     test('typing into the contact form sends nothing', async ({ page }) => {
       const sent = await openAsProduction(page, '/contact/');
       await expect
