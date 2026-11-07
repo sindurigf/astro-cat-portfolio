@@ -22,6 +22,7 @@ import {
   WIND_FORCE,
   WIND_WAVE,
   breezeWave,
+  DENSITY_CAP,
   FIELD_OF_VIEW_FLOOR,
   FIELD_SEED,
   FRONT_DEPTH,
@@ -144,7 +145,10 @@ const makeStem = (
 /* Density is per scene width, not pixels: a stepped-back camera shows more. */
 const buildStems = (scene: Scene): Stem[] => {
   const { world, view } = scene;
-  const density = scene.boxWidth / world / REFERENCE_WIDTH;
+  const density = Math.min(
+    DENSITY_CAP,
+    scene.boxWidth / world / REFERENCE_WIDTH,
+  );
   const rng = random(FIELD_SEED);
   const clumped = clumpPlacer(scene, rng, density, CLUMP_SPREAD * world);
   const built: Stem[] = [];
