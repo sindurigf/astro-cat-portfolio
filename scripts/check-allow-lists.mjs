@@ -93,7 +93,7 @@ export const WORDING_EXCEPTIONS = [
   {
     file: 'tests/about-cats.spec.ts',
     rule: 'she-her',
-    text: /./,
+    text: /NAMES\[id\]/,
     reason: 'the About cats are female.',
   },
   {

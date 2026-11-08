@@ -12,7 +12,8 @@ const EXCEPTION_LINES: Files = {
   'src/content/blog/sample-post.md': 'Nico Olvia gave her the first camera.\n',
   'src/pages/about.astro': '  description={`${PERSON_NAME} and her cat.`}\n',
   'src/pages/credits.astro': '<a href={PERSONA_SOURCES_PATH}>Her stories</a>\n',
-  'tests/about-cats.spec.ts': "expect(open, 'her card').toBe(true);\n",
+  'tests/about-cats.spec.ts':
+    "expect(open, `${NAMES[id]}'s card covers her`).toBe(true);\n",
   'src/lib/feed-excerpt.ts': "  mdash: '—',\n",
 };
 
