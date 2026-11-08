@@ -43,6 +43,7 @@ test.describe('CI docs-only fast path', NODE, () => {
   const READS_FILES = /readFileSync|readFile|\?raw/;
   const DOC_LITERAL =
     /['"`]((?:\.\.?\/)*(?:docs\/|\.github\/)?[\w.-]+\.md)(?:\?raw)?['"`]/g;
+  const DOT_RELATIVE = /^\.\.?\//;
   const SELF = /docs-only\.(?:spec\.ts|mjs)$/;
 
   const docsRead = (file: string): string[] => {
@@ -51,7 +52,7 @@ test.describe('CI docs-only fast path', NODE, () => {
     return [...source.matchAll(DOC_LITERAL)]
       .flatMap((match) => (match[1] ? [match[1]] : []))
       .map((literal) =>
-        literal.startsWith('.')
+        DOT_RELATIVE.test(literal)
           ? relative('.', resolve(dirname(file), literal))
           : literal,
       )
