@@ -906,6 +906,15 @@ evidence.
   in `/brand`'s light halves, which are `inert` and so never take focus.
   `ACCESSLINT_FALSE_POSITIVES` in `tests/accesslint.ts` drops each only on
   those elements and while its reason holds.
+- **Drop `#hash` from click-tracking targets:** the privacy page promises only
+  that page and referrer addresses lose `?` and `#`.
+- **Dedupe the two miniflare and workerd copies in `package-lock.json`:** npm
+  resolution, harmless; both run only locally.
+- **Remove the canonical from `noindex, follow` tag pages:** it names the
+  page's own address, so it does not conflict; `BaseLayout.astro` sets the
+  two independently.
+- **Fix Lighthouse `is-crawlable` on tag listings and `/contact/sent/`:** both
+  are `noindex` on purpose, above.
 
 ## Content notes
 
