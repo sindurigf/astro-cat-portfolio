@@ -88,7 +88,6 @@ const DENIED_FEATURES = [
   'unload',
   'local-fonts',
   'window-management',
-  'fullscreen',
 ] as const;
 
 /** 180 days, pinned exactly: browsers remember HSTS for `max-age`. */
@@ -390,6 +389,10 @@ test.describe('security headers as declared and served', NODE, () => {
         `Permissions-Policy no longer denies ${feature} to every origin`,
       ).toBe('()');
     }
+    expect(
+      allowlists.get('fullscreen'),
+      'Permissions-Policy must keep fullscreen for this origin: videos in public/videos/ use it',
+    ).toBe('(self)');
   });
 
   /**
