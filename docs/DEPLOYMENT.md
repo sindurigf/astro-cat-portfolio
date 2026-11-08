@@ -256,7 +256,7 @@ Dashboard settings that change what ships without a file change.
 | Web Analytics             | Off            | Injects a script from another domain                       |
 | Email Address Obfuscation | Off            | Rewrites `mailto:` links into a script-dependent page      |
 | JavaScript Detections     | On, forced     | Free plan; `no-transform` in `_headers` keeps it off pages |
-| Compression               | Default        | Assets only; `no-transform` on pages switches it off there |
+| Compression               | Default        | Assets only; the Worker gzips `/about/` and `/brand/`      |
 | Bot Fight Mode            | Off            | Challenges the search engine crawlers the site wants       |
 | Zone HSTS                 | Off            | Replaces the `Strict-Transport-Security` in `_headers`     |
 | Minimum TLS version       | 1.2            | 1.3 alone locks out older devices that cannot update       |

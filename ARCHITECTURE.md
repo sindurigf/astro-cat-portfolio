@@ -645,7 +645,8 @@ in `public/`.
   navigation request (`Sec-Fetch-Mode: navigate`) to it is answered by the
   asset layer, and a POST gets 405. `tests/contact.spec.ts` sends that header.
 - `/videos/*` is in `run_worker_first` for byte ranges
-  ([Photos and video](#photos-and-video)).
+  ([Photos and video](#photos-and-video)); `/about/` and `/brand/` for gzip
+  ([Rules and caching](#rules-and-caching)).
 - `/_image` is in `run_worker_first`: on-demand pages (the contact error pages)
   point images at the adapter's passthrough endpoint, which serves the original
   from `/_astro/`. Without it the asset layer answers with `404.html`.
@@ -665,9 +666,14 @@ in `public/`.
   compresses them; sitemaps and `llms.txt` would save under 1 KB.
 - `no-transform` keeps JavaScript Detections (forced on the Free plan) off
   pages: its inline script carries a per-request token no CSP hash allows, and
-  it strips the ETag. The cost is uncompressed HTML, since no pattern
-  separates page paths from assets. `npm run check:live` fails if the script
-  returns or an asset arrives unencoded.
+  it strips the ETag. The cost is uncompressed HTML, bar the pages below,
+  since no pattern separates page paths from assets. `npm run check:live`
+  fails if the script returns or an asset or those pages arrive unencoded.
+- The Worker gzips the largest pages itself (`COMPRESSED_PAGE_PATHS` in
+  `src/lib/html-compression.ts`, each also in `run_worker_first`), with
+  `encodeBody: "manual"` and a weak ETag (RFC 9110 8.8.3). Each view of them
+  is a billed Worker request: on the Free plan 10 ms CPU and 100,000 requests
+  a day, past which those paths answer 429 instead of falling back to assets.
 
 ### Other headers
 
