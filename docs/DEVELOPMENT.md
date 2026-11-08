@@ -133,7 +133,9 @@ The `Test weakening` check
 1. Review the pull request's changes, choose Approve or, on your own pull
    request, Comment, and write the line `Approved test change: <reason>`.
 2. `.github/workflows/rerun-test-weakening.yml` re-runs `Test weakening` on
-   that review. A new push needs a new review.
+   that review, and when the owner requests changes or a review is
+   dismissed, so a revoked approval fails it again. A new push needs a new
+   review.
 3. On a pull request from a fork, the review's token is read-only and cannot
    re-run it: re-run the `Test weakening` run by hand.
 

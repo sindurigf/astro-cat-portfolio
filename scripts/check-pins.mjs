@@ -10,6 +10,7 @@ import { join } from 'node:path';
 const ROOT =
   process.env.CHECK_ROOT ?? fileURLToPath(new URL('..', import.meta.url));
 const WORKFLOWS = join(ROOT, '.github', 'workflows');
+const ACTIONS = join(ROOT, '.github', 'actions');
 const MCP_CONFIG = join(ROOT, '.mcp.json');
 
 /* `uses: owner/repo[/path]@<sha> # vX[.Y[.Z]]`, the shape Dependabot keeps. */
@@ -27,8 +28,28 @@ const workflowFiles = (await readdir(WORKFLOWS)).filter((name) =>
   /\.ya?ml$/.test(name),
 );
 
-for (const name of workflowFiles) {
-  const lines = (await readFile(join(WORKFLOWS, name), 'utf8')).split('\n');
+/* Composite actions: .github/actions/<name>/action.yml. */
+const COMPOSITE_ACTION = /(?:^|\/)action\.ya?ml$/;
+const actionFiles = (
+  await readdir(ACTIONS, { recursive: true }).catch((error) => {
+    if (error.code === 'ENOENT') return [];
+    throw error;
+  })
+).filter((path) => COMPOSITE_ACTION.test(path));
+
+const scanned = [
+  ...workflowFiles.map((name) => ({
+    label: `.github/workflows/${name}`,
+    path: join(WORKFLOWS, name),
+  })),
+  ...actionFiles.map((path) => ({
+    label: `.github/actions/${path}`,
+    path: join(ACTIONS, path),
+  })),
+];
+
+for (const { label, path } of scanned) {
+  const lines = (await readFile(path, 'utf8')).split('\n');
   lines.forEach((line, index) => {
     const match = line.match(USES);
     if (!match) return;
@@ -36,7 +57,7 @@ for (const name of workflowFiles) {
     if (value.startsWith('./')) return;
     if (PINNED_ACTION.test(value) || PINNED_IMAGE.test(value)) return;
     failures.push(
-      `.github/workflows/${name}:${index + 1}  uses: ${value}\n` +
+      `${label}:${index + 1}  uses: ${value}\n` +
         '    expected owner/repo@<40-character SHA> # vX.Y.Z',
     );
   });
@@ -92,5 +113,5 @@ if (failures.length > 0) {
 }
 
 console.log(
-  `Pins: every action in ${workflowFiles.length} workflow file(s) names a SHA, the veraPDF and WebKit images a digest, and every MCP server an exact version.`,
+  `Pins: every action in ${scanned.length} workflow and composite action file(s) names a SHA, the veraPDF and WebKit images a digest, and every MCP server an exact version.`,
 );
