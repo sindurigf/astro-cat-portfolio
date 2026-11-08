@@ -235,13 +235,6 @@ const OPEN_STATES: readonly {
     scope: '#text-menu:popover-open',
     open: (page) => page.locator('[popovertarget="text-menu"]').click(),
   },
-  {
-    name: 'the trick list',
-    route: '/about',
-    narrowOnly: false,
-    scope: '.cat-tricks:popover-open',
-    open: (page) => page.locator('.cat-tricks-button').first().click(),
-  },
 ];
 
 for (const { width, height, note } of VIEWPORTS) {

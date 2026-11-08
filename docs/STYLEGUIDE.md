@@ -1104,7 +1104,7 @@ A heading, a sentence, one way on. Enforced by `tests/empty-states.spec.ts`,
   readers read an alert twice).
 - A status region exists, empty, before anything is written to it.
 - The only live regions: the contact form's status, the photo viewer's count
-  and caption, the slideshow's status and the About cats' trick note. Every
+  and caption and the slideshow's status. Every
   other state is its own page.
 - The photo viewer decodes before it swaps, then writes `src`, caption and
   count together, so nothing is announced before it is painted.
@@ -1379,16 +1379,6 @@ Enforced by `tests/nav-current.spec.ts`, `tests/mobile-menu.spec.ts`,
 - The cat's SC 2.2.2 control sits in its band's corner: Zz ("Let Rudra nap")
   while it plays, an eye ("Wake Rudra") while it sleeps.
   Hidden under reduced motion, where nothing moves.
-- A paw button under Zz ("Choose a trick for Rudra") opens that cat's tricks:
-  Random first, then its own moves, each an icon and a name
-  (`src/lib/about-cats-tricks.ts`, fetched from its JSON after load, so `/about`
-  stays within its script budget). A pick plays once, wakes a sleeping cat
-  first, and trots the cat to room if the move needs it; the cat then plays on
-  at random. The list leaves out moves that cannot fit the band's width.
-- The list opens under the band, its right edge on the paw's. With no room
-  below it opens beside the paw and Zz, never over them, and it closes when
-  focus leaves it and its paw (SC 2.4.12). The paw shows only where the
-  browser has popovers.
 - A talk in full screen (`src/components/DeckBar.astro`,
   `src/styles/components/slides.css`) shows one slide, arrows named Previous
   and Next with the count at the foot, and ✕ named Exit Full Screen in the

@@ -147,8 +147,6 @@ and `src/scripts/about-cats.ts`; this guide does not cover it.
   photo, `getImage` from the `astro:assets` import, the `cat-spot`
   element, and the `<AboutCats>` element at the end. Remove the `cat-perch`
   wrapper, keeping its contents.
-- `src/styles/light-mode.css`: remove `.cat-tricks-button` from the list of
-  gold text turned to ink.
 - Tests:
   - `tests/focus-obscured.spec.ts`: the cat card entry in the list of open
     dialogs, and the two groups of About cat tests with their loop.

@@ -92,7 +92,7 @@ passed to `vite.build.cssTarget`.
   ([compatibility](https://tailwindcss.com/docs/compatibility)).
 - Chrome, Edge and Safari are set by two features in use (versions from
   `@mdn/browser-compat-data`, an external source, not a dependency):
-  `popover`, for the About cats' trick list and every abbreviation (Chrome
+  `popover`, for every abbreviation (Chrome
   114, Firefox 125, Safari 17), and `@media (scripting: none)`, without which
   the no-JavaScript nav is not shown (Chrome 120, Safari 17). `:has()`
   (Firefox 121) and ARIA reflection (Firefox 119) are inside the floor.

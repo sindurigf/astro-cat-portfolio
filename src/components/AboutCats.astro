@@ -31,36 +31,6 @@ const { cats, inspiration } = Astro.props;
       <button type="button" class="motion-toggle cat-nap" data-motion-control>
         <span class="sr-only" />
       </button>
-      <button
-        type="button"
-        class="cat-tricks-button"
-        aria-expanded="false"
-        popovertarget={`cat-tricks-${cat.id}`}
-        data-motion-control
-      >
-        <svg
-          class="cat-trick-icon"
-          viewBox="0 0 24 24"
-          aria-hidden="true"
-          focusable="false"
-        >
-          <ellipse cx="12" cy="16" rx="5" ry="4" />
-          <circle cx="5" cy="10" r="2" />
-          <circle cx="9.5" cy="5.5" r="2" />
-          <circle cx="14.5" cy="5.5" r="2" />
-          <circle cx="19" cy="10" r="2" />
-        </svg>
-        <span class="sr-only">Choose a trick for {cat.name}</span>
-      </button>
-      <div
-        id={`cat-tricks-${cat.id}`}
-        popover
-        tabindex="-1"
-        class="cat-tricks"
-        data-motion-control
-      >
-        <p role="status" class="cat-tricks-note" />
-      </div>
     </template>
     <template data-cat-card={cat.id}>
       <div class="cat-dialog-body">
