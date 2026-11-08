@@ -1,0 +1,48 @@
+name: Pull request text
+
+# Separate from CI so an edited title or description re-runs only this job,
+# not the whole gate.
+on:
+  pull_request:
+    types: [opened, edited, reopened, synchronize]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  text:
+    name: Pull request text
+    # Dependabot writes its own descriptions, em dashes included.
+    if: ${{ github.event.pull_request.user.login != 'dependabot[bot]' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+
+    steps:
+      - name: Check out
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: '.nvmrc'
+
+      - name: Verify the pull request title and description
+        env:
+          # Via env, never `${{ }}` in the script: user text would be injected.
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: |
+          printf '%s\n%s\n' "$PR_TITLE" "$PR_BODY" > "$RUNNER_TEMP/pull-request.txt"
+          if grep -qiE 'co-authored-by:.*(claude|anthropic)|generated with \[?claude code' "$RUNNER_TEMP/pull-request.txt"
+          then
+            echo "::error::The pull request title or description carries AI attribution."
+            exit 1
+          fi
+          echo "Pull request description: no AI attribution."
+          node scripts/check-wording.mjs --text "$RUNNER_TEMP/pull-request.txt"

@@ -22,6 +22,7 @@
     "test:a11y:ui": "playwright test --ui",
     "test:coverage": "COVERAGE=1 playwright test -c playwright.coverage.config.ts",
     "check:tokens": "node scripts/check-tokens.mjs",
+    "check:wording": "node scripts/check-wording.mjs",
     "check:links": "node scripts/check-links.mjs",
     "check:pins": "node scripts/check-pins.mjs",
     "check:pdf": "node scripts/check-pdf.mjs",
@@ -42,7 +43,7 @@
     "about-cats": "node scripts/make-about-cats.mjs",
     "icons": "node scripts/make-icons.mjs",
     "box-cat": "node scripts/make-box-cat.mjs",
-    "check": "npm run check:tokens && npm run check:links && npm run check:pins && npm run check:classes && npm run check:csp && npm run check:untransformed && npm run check:title-case && npm run check:exif && npm run check:images-of-text && npm run format:check && npm run check:commits && npm run check:leaks && npm run check:fork"
+    "check": "npm run check:tokens && npm run check:wording && npm run check:links && npm run check:pins && npm run check:classes && npm run check:csp && npm run check:untransformed && npm run check:title-case && npm run check:exif && npm run check:images-of-text && npm run format:check && npm run check:commits && npm run check:leaks && npm run check:fork"
   },
   "dependencies": {
     "@astrojs/cloudflare": "^14.4.2",
