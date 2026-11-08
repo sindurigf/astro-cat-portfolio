@@ -1,8 +1,10 @@
 import { expect, test, type Page } from './test';
 import { fontsSettled, gotoSettled } from './settle';
-import { TALK_ROUTES, ROUTES } from './routes';
+import { ROUTES } from './routes';
 import {
+  DESKTOP_VIEWPORT,
   FOCUSABLE_SELECTOR,
+  MD_WIDTH,
   NARROW_WIDTH,
   TEXT_SPACING_OVERRIDE,
 } from './wcag';
@@ -188,8 +190,8 @@ const expectNoHorizontalOverflow = async (
 };
 
 /**
- * Under text spacing a long word in a fixed-layout slide table spills into the
- * next column without the page scrolling, so the document-level check cannot see it.
+ * Under text spacing a long word in a table cell can spill into the next column
+ * without the page scrolling, so the document-level check cannot see it.
  */
 const expectCellsHoldTheirText = async (
   page: Page,
@@ -317,6 +319,49 @@ for (const { width, contentBox, note } of REFLOW_WIDTHS) {
   });
 }
 
+/* From md the footer motto sits on one line, so the added spacing has the least room. */
+const SPACING_WIDE_WIDTHS = [MD_WIDTH, DESKTOP_VIEWPORT.width] as const;
+
+const expectFooterMottoInBand = async (
+  page: Page,
+  route: string,
+): Promise<void> => {
+  const { text, band } = await page
+    .locator('footer .footer-name')
+    .evaluate((name) => {
+      const box = name.getBoundingClientRect();
+      const words = name
+        .querySelector('.footer-name-text')!
+        .getBoundingClientRect();
+      return {
+        text: { left: words.left, right: words.right },
+        band: { left: box.left, right: box.right },
+      };
+    });
+  expect(
+    text.left >= band.left - EDGE_TOLERANCE_PX &&
+      text.right <= band.right + EDGE_TOLERANCE_PX,
+    `${route} runs the footer motto past its band under text spacing: ` +
+      `text ${Math.round(text.left)}..${Math.round(text.right)}, ` +
+      `band ${Math.round(band.left)}..${Math.round(band.right)}`,
+  ).toBe(true);
+};
+
+for (const width of SPACING_WIDE_WIDTHS) {
+  test.describe(`no sideways scroll at ${width}px with the SC 1.4.12 text-spacing override`, () => {
+    test.use({ viewport: { width, height: REFLOW_HEIGHT } });
+
+    for (const route of ROUTES) {
+      test(`${route} does not scroll sideways and keeps the footer motto in its band`, async ({
+        page,
+      }) => {
+        await expectNoHorizontalOverflow(page, route, width, true);
+        await expectFooterMottoInBand(page, route);
+      });
+    }
+  });
+}
+
 /* /brand shows every button kind in <main> without JavaScript. */
 const BUTTON_ROUTE = '/brand';
 
@@ -364,37 +409,3 @@ test.describe('button labels reflow at 305px (SC 1.4.10)', () => {
     });
   }
 });
-
-/* Below `lg` the deck stacks every slide, so one page holds them all. */
-for (const route of TALK_ROUTES) {
-  test.describe(`every slide of ${route} reflows at 305px`, () => {
-    test.use({ viewport: { width: NARROW_WIDTH, height: REFLOW_HEIGHT } });
-
-    for (const spacing of [false, true]) {
-      test(`without sideways scroll${spacing ? ' under the SC 1.4.12 override' : ''}`, async ({
-        page,
-      }) => {
-        await gotoSettled(page, `${route}/`);
-        await page.waitForSelector('[data-deck-ready]');
-        if (spacing) await page.addStyleTag({ content: TEXT_SPACING_OVERRIDE });
-        const count = await page.locator('.slide[id]').count();
-        expect(count, `${route} has no slides`).toBeGreaterThan(1);
-        await expect(page.locator('.slide:visible')).toHaveCount(count);
-
-        const wide = await page.$$eval('.slide[id]', (all) => {
-          const page = document.documentElement;
-          const out = all
-            .filter((slide) => slide.scrollWidth > slide.clientWidth)
-            .map((slide) => `${slide.id}: ${slide.scrollWidth}px`);
-          if (page.scrollWidth > page.clientWidth) {
-            out.push(`page: ${page.scrollWidth}px`);
-          }
-          return out;
-        });
-        expect(wide, `${route} slides that scroll sideways at 305px`).toEqual(
-          [],
-        );
-      });
-    }
-  });
-}

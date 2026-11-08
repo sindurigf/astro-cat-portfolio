@@ -5,8 +5,6 @@
  * needs a role, and `region` would add a landmark per block.
  */
 
-import { isTalk } from './post-figure.mjs';
-
 const LABEL = 'Code, scrolls sideways';
 /* After the language: "bash code, scrolls sideways". */
 const LABEL_IN_POST = 'code, scrolls sideways';
@@ -22,8 +20,7 @@ const languageOf = (code) =>
 
 /*
  * In a post, the block sits in a frame with its fence language as a label;
- * src/scripts/copy.ts adds the Copy button from `data-copy`. Not slides: a
- * slide sizes its code itself.
+ * src/scripts/copy.ts adds the Copy button from `data-copy`.
  */
 const frame = (node, language) => ({
   type: 'element',
@@ -45,7 +42,7 @@ const frame = (node, language) => ({
   ],
 });
 
-export const codeBlock = ({ fileURL } = {}) => ({
+export const codeBlock = () => ({
   name: 'code-block',
 
   element: {
@@ -69,7 +66,6 @@ export const codeBlock = ({ fileURL } = {}) => ({
         ctx.setProperty(child, 'className', null);
       }
 
-      if (isTalk(fileURL)) return;
       if (language)
         ctx.setProperty(node, 'ariaLabel', `${language} ${LABEL_IN_POST}`);
       ctx.setProperty(node, 'dataCopy', language ? `${language} code` : 'code');

@@ -5,6 +5,7 @@ import { NODE } from './tags';
 const SCRIPT = 'scripts/check-pins.mjs';
 const WORKFLOW = '.github/workflows/ci.yml';
 const MCP = '.mcp.json';
+const COMPOSITE = '.github/actions/setup/action.yml';
 
 const SHA = 'a'.repeat(40);
 const DIGEST = `sha256:${'b'.repeat(64)}`;
@@ -19,6 +20,11 @@ const workflow = (action: string): string =>
     '',
   ].join('\n');
 
+const composite = (action: string): string =>
+  ['runs:', '  using: composite', '  steps:', `    - uses: ${action}`, ''].join(
+    '\n',
+  );
+
 const mcp = (spec: string): string =>
   JSON.stringify({
     mcpServers: { devtools: { command: 'npx', args: ['-y', spec] } },
@@ -27,8 +33,10 @@ const mcp = (spec: string): string =>
 const tree = ({
   action = `actions/checkout@${SHA} # v4.2.2`,
   server = 'chrome-devtools-mcp@1.2.3',
+  compositeAction = `actions/setup-node@${SHA} # v4.1.0`,
 } = {}): Files => ({
   [WORKFLOW]: workflow(action),
+  [COMPOSITE]: composite(compositeAction),
   [MCP]: mcp(server),
   'scripts/check-pdf.mjs': `const IMAGE = 'verapdf/cli:v1@${DIGEST}';\n`,
   'scripts/test-webkit.sh': `IMAGE='mcr.microsoft.com/playwright:v1@${DIGEST}'\n`,
@@ -56,5 +64,12 @@ test.describe('check:pins', NODE, () => {
     const { status, output } = runCheck(SCRIPT, root);
     expect(status, output).not.toBe(0);
     expect(output).toContain(`${MCP}  devtools`);
+  });
+
+  test('fails a composite action pinned to a tag and names its line', () => {
+    const root = fixture(tree({ compositeAction: 'actions/setup-node@v4' }));
+    const { status, output } = runCheck(SCRIPT, root);
+    expect(status, output).not.toBe(0);
+    expect(output).toContain(`${COMPOSITE}:4`);
   });
 });

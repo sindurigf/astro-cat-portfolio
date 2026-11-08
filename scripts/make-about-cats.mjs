@@ -15,7 +15,7 @@ import sharp from 'sharp';
 import { cssColorToken } from '../src/lib/css-token.ts';
 import { FRAMES, frameHeight } from '../src/lib/about-cats-frames.ts';
 
-const CATS = ['minerva', 'rudra', 'hela'];
+const CATS = ['rudra'];
 const paint = (token) => cssColorToken(`--color-${token}`);
 /* Die-cut layers in drawn px: white rim, ink edge, and the pink block behind, offset down-right. */
 const RIM = 2;

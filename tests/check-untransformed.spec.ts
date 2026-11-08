@@ -19,7 +19,6 @@ const tree = (extra: Files = {}): Files => ({
   ...servedAsIs(),
   [`src/assets/${SHIPPED}`]: 'original photo',
   'dist/client/_astro/photo.hash.webp': 'transformed photo',
-  'src/content/talks/talk/slide.png': 'original slide',
   ...extra,
 });
 

@@ -26,6 +26,9 @@ const SET_ON_SEPARATE_PATHS = new Set(['x-robots-tag']);
 
 const NOINDEX = 'noindex';
 
+/* The template ships no PDF; a fork's lands anywhere in public/. */
+const SAMPLE_PDF = '/files/sample.pdf';
+
 /** A robots.txt path rule as a matcher: a prefix, with `*` for any run and a closing `$` for the end. */
 const robotsPattern = (rule: string): RegExp => {
   const anchored = rule.endsWith('$');
@@ -279,10 +282,12 @@ test.describe('security headers as declared and served', NODE, () => {
   });
 
   test('every PDF is kept out of search, keeps the site-wide headers and stays crawlable', () => {
-    const pdfs = builtFiles(DIST_DIR)
-      .filter((file) => file.endsWith('.pdf'))
-      .map(servedPath);
-    requireContent(pdfs.length > 0, 'the build has no PDF');
+    const pdfs = [
+      SAMPLE_PDF,
+      ...builtFiles(DIST_DIR)
+        .filter((file) => file.endsWith('.pdf'))
+        .map(servedPath),
+    ];
 
     const page = headersFor(rules, '/');
     for (const path of pdfs) {
@@ -386,7 +391,7 @@ test.describe('security headers as declared and served', NODE, () => {
     }
     expect(
       allowlists.get('fullscreen'),
-      'Permissions-Policy must keep fullscreen for this origin: the slideshow and videos use it',
+      'Permissions-Policy must keep fullscreen for this origin: videos in public/videos/ use it',
     ).toBe('(self)');
   });
 

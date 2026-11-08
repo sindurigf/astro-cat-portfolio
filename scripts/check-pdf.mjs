@@ -231,11 +231,14 @@ const report = (pdfPath, { compliant, rules, warnings }, { quiet } = {}) => {
   return compliant ? 0 : Math.max(failed, 1);
 };
 
-requireDocker();
-
 const targets = process.argv.slice(2);
 const pdfs = targets.length > 0 ? [...targets].sort() : findPdfs(PDF_DIR);
-if (pdfs.length === 0) fail(`No PDF found under ${PDF_DIR}/.`);
+if (pdfs.length === 0 && EXPECTED_FAILURES.length === 0) {
+  console.log(`No PDF under ${PDF_DIR}/, so there is nothing to validate.`);
+  process.exit(0);
+}
+
+requireDocker();
 
 console.log(
   `Validating ${pdfs.length} PDF${pdfs.length === 1 ? '' : 's'} against PDF/UA-1 with ${IMAGE}.`,

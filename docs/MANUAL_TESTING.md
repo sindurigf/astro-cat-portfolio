@@ -118,7 +118,7 @@ Resizing is not zooming, so this stays manual even though
 Setup: `gsettings set org.gnome.desktop.interface enable-animations false`.
 `matchMedia('(prefers-reduced-motion: reduce)').matches` returns `true`.
 `tests/motion.spec.ts` and `tests/about-cats.spec.ts` cover the hero field drawn
-once with no pause control and the cats still with no sleep control.
+once with no pause control and the cat still with no sleep control.
 
 - [ ] Press and hold a primary button, a `/blog` chip, a footer sticker and
       the logo: each loses its shadow but does not move. → SC 2.3.3
@@ -703,25 +703,21 @@ and no dialog remain.
 
 Heard: `________________________`
 
-#### 6.12.6 The About cats
+#### 6.12.6 The About cat
 
-Setup: `/about` at 1280px, the cats' band on screen. Each cat is a "Meet"
-button with a sleep control beside it; one `<dialog>` holds the card. The
-drawings are `aria-hidden`. `tests/about-cats.spec.ts` covers focus order,
-focus return, the sleep control, the trick list's keys and Rudra's climb.
+Setup: `/about` at 1280px, the cat's band on screen. The cat is a "Meet"
+button with a sleep control beside it; a `<dialog>` holds the card. The
+drawing is `aria-hidden`. `tests/about-cats.spec.ts` covers focus order,
+focus return, the sleep control and Rudra's climb.
 These checks are by ear.
 
-- [ ] Each cat is a button named "Meet Minerva", "Meet Hela" or "Meet Rudra". → SC 4.1.2
+- [ ] The cat is a button named "Meet Rudra". → SC 4.1.2
 - [ ] Enter opens the card: focus is on Close, and the dialog is named after
       the cat. → SC 2.4.3, 4.1.2
 - [ ] Tab stays on Close, never the page behind. → SC 2.1.2
-- [ ] The sleep control is heard as "Let Minerva nap", then "Wake Minerva"
+- [ ] The sleep control is heard as "Let Rudra nap", then "Wake Rudra"
       once pressed. → SC 4.1.2
-- [ ] The paw is heard as "Choose a trick for Minerva"; open, the list is read
-      with Random first. → SC 4.1.2
-- [ ] The drawings announce nothing. → SC 1.1.1
-- [ ] While the trick list loads, or if it fails, its note is read once, as
-      a status. → SC 4.1.3
+- [ ] The drawing announces nothing. → SC 1.1.1
 
 Heard: `________________________`
 
@@ -874,8 +870,8 @@ From the Accessible Astro checklist and
 
 ## 13. Published PDFs
 
-`public/talks/sample-talk.pdf` (from `/blog/sample-talk`), and a CV when
-`person.cv` is set (from `/career`).
+Every PDF under `public/`: a CV when `person.cv` is set (from `/career`). The
+template ships none.
 
 1. Run `npm run check:pdf` first
    ([DEVELOPMENT.md](DEVELOPMENT.md#published-pdfs)). Fix what it reports
@@ -896,62 +892,14 @@ Arrow through with Orca. Fail: caption before its figure, columns read across,
 page numbers or running headers read as content, decoration announced.
 
 - [ ] CV read in full, order recorded.
-- [ ] Deck read in full, order recorded.
 
 ### 13.3 Alternative texts → SC 1.1.1
 
 "Image", a file name or a repeated caption is a failure a validator passes.
 
 - [ ] CV: the portrait is not announced; it is decoration.
-- [ ] Deck: same.
 
 ### 13.4 Headings and tables
 
 - [ ] CV: heading tags match the visual hierarchy.
-- [ ] Deck: heading tags match the visual hierarchy.
 - [ ] Any table has tagged, scoped header cells.
-
-### 13.5 The talk slideshow and the deck
-
-`/talks/sample-talk/` carries the same `slides.md` as the PDF.
-`tests/slideshow.spec.ts` drives controls, keys, the live region and focus.
-
-- [ ] The PDF in a screen reader: each slide's heading, cards in order, links
-      by text, any image by its alt text.
-- [ ] A phone and a tablet (under 1024px): no slide controls, the PDF link
-      opens the PDF in place, every slide reads in order, and a screen reader
-      hears each slide once. → SC 1.4.10, 1.3.2, 3.2.5
-- [ ] Orca and NVDA: Next, Previous and arrow keys speak "Slide N of" the
-      deck's slide count and the title once; the slide text can be read after.
-- [ ] Full Screen: one 16:9 slide. Every slide fits a projector screen
-      without scrolling. → SC 1.4.10
-- [ ] In full screen a pointer move or a tap shows arrows named Previous and
-      Next with the count at the foot, and ✕ named Exit Full Screen inside the
-      slide's top right corner; no control is named Full Screen. A tap that shows them turns
-      no slide. They hide with the pointer when still, never while the
-      pointer is on one or one has keyboard focus (Shift+Tab from the slide
-      reaches Next, then Previous, then Exit), and they do not fade or slide.
-      They cover no slide content. A click on ✕ leaves full screen.
-      → SC 2.1.1, 2.3.3, 2.4.7, 2.5.6
-- [ ] In full screen: Space, Enter, Right, Down and Page Down go on;
-      Shift+Space, Left, Up and Page Up go back. Space and Page keys first
-      scroll a slide taller than its frame. Focus is on the slide, with the
-      ring around the card; Escape leaves and focus is on Full Screen. Real
-      full screen needs a click, so check by hand in Firefox and Safari too:
-      headless Firefox ignores the test screen size. → SC 2.1.1, 2.4.3, 2.4.7
-- [ ] Full screen at 200% zoom and with the text-spacing bookmarklet: nothing
-      is cut off, long slides scroll. Titles reach 2x only at higher zoom
-      ([ACCESSIBILITY.md §7](../ACCESSIBILITY.md#7-known-gaps)). → SC 1.4.4, 1.4.12
-- [ ] Page view at 200% zoom: slide text doubles; titles double at 200% from
-      1280, by 500% from narrower screens. At 320px no title word is cut
-      without a hyphen and nothing scrolls sideways. → SC 1.4.4, 1.4.10
-- [ ] Print preview: one page per slide, no controls. Matches the PDF.
-- [ ] Presenter view (`astro dev` only, `/talks/<deck>/presenter/`): the
-      timer button reads "Start Timer" then "Pause Timer", the time is not
-      announced every second, and Next follows the slideshow in the other tab.
-      `tests/presenter.spec.ts` checks only that the notes glob matches the
-      deck file. → SC 2.2.2, 4.1.3
-- [ ] VoiceOver on iOS: slides can be moved through and read without a
-      keyboard.
-- [ ] At 400% zoom a slide reads down the page and the controls stay
-      reachable.

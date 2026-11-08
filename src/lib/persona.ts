@@ -220,7 +220,7 @@ export const SAMPLE_PERSONA: Persona | null = {
 export const primaryCitation = (source: PersonaSource): string =>
   `One Piece, ${source.chapters} (Eiichiro Oda, Shueisha)`;
 
-/** Where the sources are listed; /credits and the talk link here. */
+/** Where the sources are listed; /credits links here. */
 export const PERSONA_SOURCES_ID = 'sources';
 
 export const PERSONA_SOURCES_PATH = `/about/#${PERSONA_SOURCES_ID}`;

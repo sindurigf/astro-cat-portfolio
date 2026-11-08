@@ -3,12 +3,7 @@ import { expect, test, type Page } from './test';
 import { captures } from './captures';
 import { gotoSettled } from './settle';
 import { AAA_TEXT, NON_TEXT, PAGE_HELPERS } from './contrast';
-import {
-  builtPages,
-  CONTENTS_POST_ROUTE,
-  DIST_DIR,
-  TALK_ROUTES,
-} from './routes';
+import { builtPages, CONTENTS_POST_ROUTE, DIST_DIR } from './routes';
 import { NODE, NO_WEBKIT } from './tags';
 import { DESKTOP_VIEWPORT, NARROW_WIDTH, PHONE_VIEWPORT } from './wcag';
 
@@ -17,11 +12,10 @@ import { DESKTOP_VIEWPORT, NARROW_WIDTH, PHONE_VIEWPORT } from './wcag';
  * and the post contents, gold or light with an ink edge. Inside, the color
  * tokens are remapped, so each block is measured as a ground of its own.
  */
-/* A talk slide is no block, but it is an edged ground of its own, held to the same ratios. */
 const BLOCK =
-  ':is(.card, .plain-slab, .post-contents, .slide):not(.surface-gold *, :is(.card, .plain-slab, .post-contents) *)';
+  ':is(.card, .plain-slab, .post-contents):not(.surface-gold *, :is(.card, .plain-slab, .post-contents) *)';
 
-/* Every kind of block: card blocks, a lone card, a hero slab, the contents, slides, a form. */
+/* Every kind of block: card blocks, a lone card, a hero slab, the contents, a form. */
 const BLOCK_ROUTES = [
   '/',
   '/blog',
@@ -30,7 +24,6 @@ const BLOCK_ROUTES = [
   '/contact',
   '/accessibility',
   ...(CONTENTS_POST_ROUTE ? [CONTENTS_POST_ROUTE] : []),
-  ...TALK_ROUTES,
   '/brand',
 ];
 /* A few links per page cover each block kind in reasonable time. */

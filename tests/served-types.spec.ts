@@ -3,6 +3,7 @@ import { test, expect } from './test';
 import { PUBLISHED_POST_ROUTES } from './routes';
 import { SITE_FEED_PATH } from '../src/lib/paths';
 import { requireContent } from './content';
+import { PDF_FIXTURE_NAME } from '../playwright.worker.config';
 
 /* Run by playwright.worker.config.ts: only the Worker applies _headers and _redirects. HTTP only, no browser. */
 
@@ -52,8 +53,7 @@ test.describe('served types', () => {
   test('every PDF is served, kept out of search and keeps the discovery links', async ({
     request,
   }) => {
-    const pdfs = publishedPdfs();
-    requireContent(pdfs.length > 0, 'public/ has no PDF');
+    const pdfs = [`/files/${PDF_FIXTURE_NAME}`, ...publishedPdfs()];
     for (const path of pdfs) {
       const response = await request.get(path);
       expect(response.status(), `${path} status`).toBe(200);

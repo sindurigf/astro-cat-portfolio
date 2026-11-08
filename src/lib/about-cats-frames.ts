@@ -174,11 +174,9 @@ export const GROUND_DRAWINGS: ReadonlySet<Frame> = new Set([
 export const walkFrame = (step: number): Frame =>
   WALK[step % WALK.length] ?? 'walk';
 
-/** A sitting cat's drawn height in px; Hela is the smallest of the three. */
+/** A sitting cat's drawn height in px. */
 const SIT_HEIGHT: Record<CatId, number> = {
-  minerva: 80,
   rudra: 80,
-  hela: 60,
 };
 
 /**
@@ -221,9 +219,8 @@ const SIZE: Record<Frame, ['h' | 'w', number]> = {
   hold: ['w', 1.05],
 };
 
-/** Per cat, how much larger a frame is drawn than SIZE says: each drawing is framed a little differently. Reared and swatting, each cat keeps Minerva's size against its own sit. */
+/** Per cat, how much larger a frame is drawn than SIZE says: each drawing is framed a little differently. */
 const ADJUST: Record<CatId, Partial<Record<Frame, number>>> = {
-  minerva: { pawrise: 0.9, swat: 0.9, scratch: 0.9, loaf: 0.85, hold: 1.05 },
   rudra: {
     pawrise: 0.945,
     swat: 0.945,
@@ -238,23 +235,6 @@ const ADJUST: Record<CatId, Partial<Record<Frame, number>>> = {
     risehalf: 1.05,
     risehigh: 1.12,
     stand: 1.2,
-  },
-  hela: {
-    pawrise: 0.9,
-    swat: 0.9,
-    scratch: 0.9,
-    risehigh: 1.09,
-    stand: 1.2,
-    walk: 1.1,
-    walk2: 1.1,
-    walk3: 1.1,
-    walk4: 1.1,
-    walk5: 1.1,
-    walk6: 1.1,
-    walk7: 1.1,
-    walk8: 1.1,
-    belly: 0.8,
-    hold: 1.45,
   },
 };
 

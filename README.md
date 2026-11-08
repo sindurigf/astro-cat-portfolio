@@ -4,16 +4,16 @@
 
 A personal website template: Astro, a Vue island, Tailwind CSS and TypeScript on
 Cloudflare Workers. Neo-brutalist, dark by default with a light mode, a blog
-with feeds, a talk slideshow, a contact form, and animated cats on the About
-page. Tested for WCAG 2.2 AA in Chromium, Firefox and WebKit.
+with feeds, a contact form, and an animated cat on the About page. Tested for
+WCAG 2.2 AA in Chromium, Firefox and WebKit.
 
 ## What you get
 
 A portfolio that ships with a sample theme: the persona Robin Ohara, an
-archaeologist, and her three cats, so the site builds, passes its tests and
+archaeologist, and her cat, so the site builds, passes its tests and
 looks finished before you change anything. Making it yours means replacing
-the theme with your own person, words and pictures. The animated cats on
-`/about` are a feature you keep with your own cats, or remove.
+the theme with your own person, words and pictures. The animated cat on
+`/about` is a feature you keep with your own cat, or remove.
 
 ## First steps
 
@@ -47,12 +47,8 @@ it is done.
      translation `/about` gives after its language ("Latin for …"); `null`
      for a motto in the site's own language.
    - Category descriptions: `src/lib/categories.ts`.
-   - Posts: replace the two in `src/content/blog/`
+   - Posts: replace the samples in `src/content/blog/`
      ([writing a post](docs/DEVELOPMENT.md#writing-a-post)).
-   - The talk: replace `src/content/talks/sample-talk/` with your own deck,
-     then run `npm run publish:talk` for its PDF
-     ([writing a talk](docs/DEVELOPMENT.md#writing-a-talk)). Two tests list
-     the sample deck by name; their `TODO(fork)` comments say what to change.
    - Robin's notice: set `SAMPLE_PERSONA` in `src/lib/persona.ts` to `null`.
      It removes the fan-tribute notice from the homepage and `/credits`.
    - Credits: `src/lib/credits.ts` and `src/pages/credits.astro`. Keep the
@@ -66,7 +62,7 @@ it is done.
      `public/images/og-default.png` and every page's card
      ([The sharing images](docs/DEVELOPMENT.md#the-sharing-images)); describe
      the site card in `src/lib/og-image.ts`.
-4. **Your cats, or none**: [Your cats, or none](#your-cats-or-none).
+4. **Your cat, or none**: [Your cat, or none](#your-cat-or-none).
 5. **Your site**
    - Address and repository: `site.url` and `site.repository` in
      `src/site.config.ts`. Until `site.url` leaves `example.com`, `.net`,
@@ -107,50 +103,46 @@ It lists every `TODO(fork)` comment with its file and line, and the count
 in [AGENTS.md](AGENTS.md#done-means): build, typecheck, check and every test
 suite. CI runs the same on every pull request and needs no secrets.
 
-### Your cats, or none
+### Your cat, or none
 
-`/about` has three animated cats, each with a card that opens on a click.
-The drawings are code; the cards show a photo.
+`/about` has an animated cat with a card that opens on a click. The drawing
+is code; the card shows a photo.
 
-**Your own cats.** The page has three cat places; keep all three.
+**Your own cat.**
 
-- `src/pages/about.astro`, the list of cats near the top: each cat's name,
-  one-line role, photo and photo description. Put the photos in
-  `src/assets/photos/` and import them at the top of the file.
-- Coat colors: the `--color-cat-` colors in `src/styles/global.css`. The
-  logo cat and the homepage hero's glow (`--color-hero-glow`) use the second
-  cat's colors, so changing them changes both.
-- The cats' names in tests: the list of names at the top of
-  `tests/about-cats.spec.ts`, and the first cat's name in
-  `tests/failed-images.spec.ts` and `tests/analytics.spec.ts`. The About
-  tests fail until these match the page.
-- The contact page's list of topics names the cats: `src/pages/contact.astro`.
+- `src/pages/about.astro`, the cat near the top: its name, one-line role,
+  photo and photo description. Put the photo in `src/assets/photos/` and
+  import it at the top of the file.
+- The cat's name in tests: the name at the top of `tests/about-cats.spec.ts`,
+  `tests/no-script.spec.ts`, `tests/failed-images.spec.ts` and
+  `tests/analytics.spec.ts`. The About tests fail until these match the page.
+- The contact page's list of topics names the cat: `src/pages/contact.astro`.
 - The box cats in the logo, roundels and footer are pictures of the sample
   cats: replace `artwork/cats/*.png` with cut-outs of yours (transparent
   background) and run `npm run box-cat`; the favicon and app icons come from
-  `ICON_ART` in `scripts/make-icons.mjs`: run `npm run icons`.
-- The drawings stay AI-made: keep their lines in `AI_DISCLOSURE.md` and on
+  `ICON_ART` in `scripts/make-icons.mjs`: run `npm run icons`. The logo
+  cat's coat is the `--color-cat-` colors in `src/styles/global.css`; the
+  homepage hero's glow (`--color-hero-glow`) uses them too.
+- The drawing stays AI-made: keep its line in `AI_DISCLOSURE.md` and on
   `/credits`.
 
-A different number of cats means changing the drawing code in
-`src/lib/about-cats-*.ts` and `src/scripts/about-cats.ts`; this guide
-does not cover it.
+More cats means new drawing frames and changes to `src/lib/about-cats-*.ts`
+and `src/scripts/about-cats.ts`; this guide does not cover it.
 
 **No cats.** `/about` keeps its photos and text.
 
 - Delete `src/components/AboutCats.astro`, `src/scripts/about-cats.ts`,
   every `src/lib/about-cats*` file, `src/styles/components/about-cats.css`,
-  `tests/about-cats.spec.ts` and the three `src/assets/photos/cat-card-*.jpg`
-  photos. Keep `src/scripts/motion-loop.ts`: the hero uses it.
+  `tests/about-cats.spec.ts`, `tests/no-script.spec.ts`'s About cat tests and
+  `src/assets/photos/cat-card-black.jpg`. Keep `src/scripts/motion-loop.ts`:
+  the hero uses it.
 - `src/styles/global.css`: keep the `--color-cat-` colors: the logo cat
   uses them.
 - `src/pages/about.astro`: remove the `about-cats.css`, `AboutCats`, `CatInfo`
-  and cat photo imports, the cat list and the code under it that loads their
-  photos, `getImage` from the `astro:assets` import, the three `cat-spot`
-  elements, and the `<AboutCats>` element at the end. Change each `cat-perch` wrapper to a
-  plain `<div>`, keeping `mt-head` on the first.
-- `src/styles/light-mode.css`: remove `.cat-tricks-button` from the list of
-  gold text turned to ink.
+  and cat photo imports, the cat list and the code under it that loads its
+  photo, `getImage` from the `astro:assets` import, the `cat-spot`
+  element, and the `<AboutCats>` element at the end. Remove the `cat-perch`
+  wrapper, keeping its contents.
 - Tests:
   - `tests/focus-obscured.spec.ts`: the cat card entry in the list of open
     dialogs, and the two groups of About cat tests with their loop.
@@ -158,10 +150,10 @@ does not cover it.
     dialogs.
   - `tests/failed-images.spec.ts`: the cat card test.
   - `tests/analytics.spec.ts`: the lines that open a cat card.
-  - `tests/credits-ai.spec.ts`: the About cats entry.
-- `/credits` and `AI_DISCLOSURE.md`: remove the About cats entry. The
-  contact page's topic about the cats goes too.
-- `ACCESSIBILITY.md`: remove every mention of the cats and the cat card, or
+  - `tests/credits-ai.spec.ts`: the About cat entry.
+- `/credits` and `AI_DISCLOSURE.md`: remove the About cat entry. The
+  contact page's topic about the cat goes too.
+- `ACCESSIBILITY.md`: remove every mention of the cat and the cat card, or
   the statement claims tests that no longer exist. They are in section 2
   (motion), the 1.4.8, 2.3.3 and 2.4.12 rows, the target size, focus ring,
   motion and forced colors lines in section 4, and the
@@ -176,7 +168,7 @@ does not cover it.
 `/brand` shows your design system and links to your `repository`; it is
 optional. To drop it:
 
-- Delete `src/pages/brand.astro`, `src/components/brand/` and
+- Delete `src/pages/brand/index.astro`, `src/components/brand/` and
   `tests/brand.spec.ts`. Keep `src/lib/brand.ts`: `scripts/check-tokens.mjs`
   names it.
 - Remove the Brand link in `src/components/Footer.astro`.
@@ -195,12 +187,14 @@ form answers 503 until its D1 database is created and migrated
 ## Documentation
 
 - [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md): requirements, commands, layout,
-  posts, talks
+  posts
 - [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md): Cloudflare, D1, email, contact
   options, Plausible, dashboard and repository settings
 - [ARCHITECTURE.md](ARCHITECTURE.md): stack, site config, tokens, content,
   assets, headers
 - [docs/STYLEGUIDE.md](docs/STYLEGUIDE.md): visual rules and page patterns
+- [.claude/skills/design-system/SKILL.md](.claude/skills/design-system/SKILL.md):
+  the design system for agents
 - [ACCESSIBILITY.md](ACCESSIBILITY.md): accessibility statement, automated
   coverage, known gaps, reporting a barrier
 - [docs/MANUAL_TESTING.md](docs/MANUAL_TESTING.md): by-hand accessibility

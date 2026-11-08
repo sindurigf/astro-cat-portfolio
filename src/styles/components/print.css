@@ -1,4 +1,4 @@
-/* Every page prints its main content only, edge to edge; slides.css adds a slide per page. */
+/* Every page prints its main content only, edge to edge. */
 @layer components {
   @media print {
     @page {
