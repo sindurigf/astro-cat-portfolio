@@ -545,7 +545,6 @@
    */
   --hero-column-screen-clear: calc(48px + var(--hard-throw));
 
-  --hero-column-pad-block: clamp(32px, 5vw, 72px) clamp(32px, 5vw, 80px);
   --hero-column-pad-inline: clamp(20px, 3.5vw, 64px);
 
   --hero-column-edge: var(--block-edge);
