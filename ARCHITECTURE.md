@@ -32,13 +32,15 @@ conventions for this template. Design rules and values are in
   `utilities.css`, `light-mode.css`. Reordering the imports reorders the
   cascade.
 - Page-only partials are not in that list: `slides.css` (the talk page and the
-  presenter), `about-cats.css` (`/about`) and `not-found.css` (`/404`) are
-  imported by the page that uses them, so each builds as its own sheet, linked
-  after the shared one. Each opens with `@reference '../global.css'` so
-  `@apply` and the tokens resolve; Tailwind then writes token values as `var()`
-  fallbacks and repeats its `@property` block in that sheet.
-  `tests/head.spec.ts` holds the link order, which sets the layer order, and
-  `check:classes` fails a page that uses a class from a sheet it does not link.
+  presenter), `about-cats.css` (`/about`), `not-found.css` (`/404`),
+  `code-block.css` and `post-folds.css` (posts) and `brand.css` (`/brand`,
+  which also takes `code-block.css`) are imported by the page that uses them,
+  so each builds as its own sheet, linked after the shared one. Each opens
+  with `@reference '../global.css'` so `@apply` and the tokens resolve;
+  Tailwind then writes token values as `var()` fallbacks and repeats its
+  `@property` block in that sheet. `tests/head.spec.ts` holds the link order,
+  which sets the layer order, and `check:classes` fails a page that uses a
+  class from a sheet it does not link.
 - `@astrojs/tailwind` peers at `astro ^3 || ^4 || ^5` and cannot be used.
 - `overrides.miniflare.undici` lifts miniflare's exact `undici@7.29.1` pin to
   7.30.1, the fix for GHSA-xjj6-f33q-929c, GHSA-4qv8-2p9j-2685 and
@@ -131,13 +133,14 @@ Dark is the default. Colors and rules:
   its throw turns ink. The no-JS nav stays dark.
 - `mark` and `tile-edge` hold the mode-independent logo-tile colors.
 - An inline script in `BaseLayout.astro`'s `<head>` sets `data-theme` from the
-  saved choice or `prefers-color-scheme` before the body parses, and adds the
-  `js` class the slideshow's pre-hide keys on. After `DECK_READY_TIMEOUT_MS` it
-  sets `data-deck-failed` on a deck that is not ready, and the deck then shows
-  every slide. Its hash is in `script-src`; `npm run check:csp` fails when a
-  build changes any inline block, and `-- --write` updates the hashes.
-  It sits in `<head>`, not beside the switch, so nothing paints in the wrong
-  theme first.
+  saved choice or `prefers-color-scheme` before the body parses, rereads it on
+  a back-forward cache restore (`pageshow`), applies a saved `--text-scale`,
+  and adds the `js` class the slideshow's pre-hide keys on. After
+  `DECK_READY_TIMEOUT_MS` it sets `data-deck-failed` on a deck that is not
+  ready, and the deck then shows every slide. Its hash is in `script-src`;
+  `npm run check:csp` fails when a build changes any inline block, and
+  `-- --write` updates the hashes. It sits in `<head>`, not beside the switch,
+  so nothing paints in the wrong theme first.
 - Three choices: System (the default, nothing stored), Light and Dark (stored
   as `light` or `dark` under `THEME_STORAGE_KEY` in `src/lib/theme.ts`).
   `data-theme` always holds the resolved `light` or `dark`.
@@ -161,8 +164,7 @@ Dark is the default. Colors and rules:
   baked in, the same in both themes, and the toys' SVG parts carry classes
   that `about-cats.css` maps to tokens.
 - `playwright.config.ts` sets `colorScheme: 'dark'`; specs that measure light
-  set `colorScheme: 'light'` themselves (`light-mode.spec.ts`, `focus.spec.ts`,
-  `states.spec.ts`, `about-cats.spec.ts`, the talk scan in `a11y.spec.ts`).
+  set `colorScheme: 'light'` themselves.
 
 ### Token enforcement
 
@@ -182,6 +184,8 @@ Dark is the default. Colors and rules:
 - an inline `style` attribute in a component
 - a grid column count or split other than those in
   [STYLEGUIDE Grid](docs/STYLEGUIDE.md#grid)
+- a fluid `--text-*` `clamp()` in `global.css` with bounds not in rem, or a
+  max over 2.5 times its min (SC 1.4.4)
 
 `TOKEN_EXCEPTIONS` in `scripts/check-allow-lists.mjs` lists false positives,
 each with its reason, and fails when one no longer matches.
@@ -242,7 +246,7 @@ Headings, alt text, focus rings and axe are checked on the rendered page by
 - A category page is built only once it has a published post. Tag listings
   are `noindex, follow` and excluded from the sitemap by
   `src/lib/sitemap-filter.ts` (`tests/sitemap.spec.ts`).
-  `/contact/sent/` is `noindex`.
+  `/contact/sent/`, `/404` and placeholder posts are `noindex`.
   Every other page sends `robots` `max-image-preview:large`, so Google may
   show its share image large (`tests/canonical.spec.ts`).
 - Non-placeholder posts get `og:type` `article`,
@@ -280,15 +284,15 @@ Sätteri hast visitors in `astro.config.mjs` `hastPlugins`.
 `markdown.rehypePlugins` does nothing without `@astrojs/markdown-remark`,
 which is not installed.
 
-| Visitor                          | Marks                                                                                                                                                                                                                                                                                                                                                                                                          |
-| -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `src/plugins/link-list-item.mjs` | a list item that is only a link (SC 2.5.5)                                                                                                                                                                                                                                                                                                                                                                     |
-| `src/plugins/post-figure.mjs`    | a post image: frame, sizer, `widths`, `sizes`                                                                                                                                                                                                                                                                                                                                                                  |
-| `src/plugins/code-block.mjs`     | `<pre>` as `tabindex="0"` `role="group"` (SC 2.1.1); in a post, also a `.code-block` frame with the fence language as a `.code-lang` label and `data-copy`, so `src/scripts/copy.ts` adds a Copy button. The post page loads the script when its Markdown may hold code (`hasCodeBlock`)                                                                                                                       |
-| `src/plugins/table-scope.mjs`    | a Markdown header cell as `scope="col"` (H63)                                                                                                                                                                                                                                                                                                                                                                  |
-| `src/plugins/table-scroll.mjs`   | a post table, wrapped in a `tabindex="0"` `role="group"` box that scrolls (SC 1.4.10)                                                                                                                                                                                                                                                                                                                          |
-| `src/plugins/table-stack.mjs`    | a post table's explicit table roles and `.table-stack` class, and an `aria-hidden` column label in each value cell for the stacked rows below 640px (SC 1.3.1)                                                                                                                                                                                                                                                 |
-| `src/plugins/post-fold.mjs`      | puts each `## Module N:` or `## Side Path:` h2 and its body, up to the next h2 or the footnotes, in one `.module-panel`; the body is a `<details>` (open on load, with Close All and Open All buttons) and the h2 stays outside it. Nothing folds inside a module. The post page loads the fold script when its rendered HTML has a fold (`hasFoldMarkup`). Only these headings fold (`src/lib/post-folds.ts`) |
+| Visitor                          | Marks                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `src/plugins/link-list-item.mjs` | a list item that is only a link (SC 2.5.5)                                                                                                                                                                                                                                                                                                                                                                                     |
+| `src/plugins/post-figure.mjs`    | a post image: frame, sizer, `widths`, `sizes`                                                                                                                                                                                                                                                                                                                                                                                  |
+| `src/plugins/code-block.mjs`     | `<pre>` as `tabindex="0"` `role="group"` (SC 2.1.1); in a post, also a `.code-block` frame with the fence language as a `.code-lang` label and `data-copy`, so `src/scripts/copy.ts` adds a Copy button. The post page loads the script when its Markdown may hold code (`hasCodeBlock`)                                                                                                                                       |
+| `src/plugins/table-scope.mjs`    | a Markdown header cell as `scope="col"` (H63)                                                                                                                                                                                                                                                                                                                                                                                  |
+| `src/plugins/table-scroll.mjs`   | a post table, wrapped in a `tabindex="0"` `role="group"` box that scrolls (SC 1.4.10)                                                                                                                                                                                                                                                                                                                                          |
+| `src/plugins/table-stack.mjs`    | a post table's explicit table roles and `.table-stack` class, and an `aria-hidden` column label in each value cell for the stacked rows below 640px (SC 1.3.1)                                                                                                                                                                                                                                                                 |
+| `src/plugins/post-fold.mjs`      | puts each `## Module N:` or `## Side Path:` h2 and its body, up to the next h2 or the footnotes, in one `.module-panel`; the body is a `<details>` (open on load, with Close All Modules and Open All Modules buttons) and the h2 stays outside it. Nothing folds inside a module. The post page loads the fold script when its rendered HTML has a fold (`hasFoldMarkup`). Only these headings fold (`src/lib/post-folds.ts`) |
 
 `group`, not `region`, so code blocks and tables are not landmarks.
 
@@ -700,9 +704,10 @@ in `public/`.
 
 The policy is the `Content-Security-Policy` line in `public/_headers`.
 
-- No `'unsafe-inline'`, no `'unsafe-eval'`. Everything is same-origin: fonts in
-  `/_astro/`, the Plausible tracker bundled from npm, no embeds, no `data:`
-  URIs, Vue runtime-only build.
+- No `'unsafe-inline'`, no `'unsafe-eval'`. Every resource loads from the
+  site: fonts in `/_astro/`, the Plausible tracker bundled from npm, no embeds,
+  no `data:` URIs, Vue runtime-only build. With analytics on, the one other
+  origin is Plausible's collector in `connect-src`.
 - `connect-src` is `'self'` while analytics is off. With analytics on it also
   names Plausible's collector URL, `PLAUSIBLE_ENDPOINT` in
   `src/lib/analytics.ts`;
@@ -715,7 +720,7 @@ The policy is the `Content-Security-Policy` line in `public/_headers`.
   commit; so does loosening any directive now `'none'`.
 - Trusted Types: no script of ours writes HTML; Vue's runtime on `/` does,
   through its own `vue` policy, the only one allowed. `tests/headers.spec.ts`
-  opens every page with a script and its dialogs under the policy.
+  opens the `POLICY_ROUTES` pages and their dialogs under the policy.
 - `tests/headers-rules.spec.ts` asserts each directive.
 
 ### The hashes go stale
@@ -726,7 +731,8 @@ Hashed inline blocks:
   loader, the `<astro-island>` hydration script, and the
   `astro-island,astro-slot,astro-static-slot{display:contents}` style.
 - On every page: the theme script in `BaseLayout.astro`'s `<head>`.
-- JSON-LD needs no hash (not executed).
+- JSON-LD and the `/404` page list (`application/json`) need no hash (not
+  executed).
 
 An Astro upgrade can change a hash; the island then silently fails to hydrate
 (console only). `npm run check:csp` fails on a stale hash; regenerate with
@@ -900,6 +906,15 @@ evidence.
   in `/brand`'s light halves, which are `inert` and so never take focus.
   `ACCESSLINT_FALSE_POSITIVES` in `tests/accesslint.ts` drops each only on
   those elements and while its reason holds.
+- **Drop `#hash` from click-tracking targets:** the privacy page promises only
+  that page and referrer addresses lose `?` and `#`.
+- **Dedupe the two miniflare and workerd copies in `package-lock.json`:** npm
+  resolution, harmless; both run only locally.
+- **Remove the canonical from `noindex, follow` tag pages:** it names the
+  page's own address, so it does not conflict; `BaseLayout.astro` sets the
+  two independently.
+- **Fix Lighthouse `is-crawlable` on tag listings and `/contact/sent/`:** both
+  are `noindex` on purpose, above.
 
 ## Content notes
 
