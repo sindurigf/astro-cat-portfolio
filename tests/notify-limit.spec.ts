@@ -9,8 +9,9 @@ import { NODE } from './tags';
 
 /**
  * Past the hourly limit a message is stored but not emailed, so a flood from
- * many addresses cannot fill the owner's inbox. Called directly: the Worker
- * suite cannot store that many messages without tripping the per-address limit.
+ * many addresses cannot fill the `CONTACT_NOTIFY_TO` inbox. Called directly:
+ * the Worker suite cannot store that many messages without tripping the
+ * per-address limit.
  */
 
 const NOW = Date.UTC(2026, 8, 25);

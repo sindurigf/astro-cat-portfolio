@@ -404,10 +404,11 @@ Rejected:
 - A count in a comment states its unit.
 - A fact duplicated across Markdown files needs a check that fails when the
   copies disagree; otherwise keep one copy and link.
-- **Test weakening needs the owner, out of band.** The `Test weakening`
-  workflow runs on `pull_request_target`, so the default branch's copy of
-  `scripts/check-test-weakening.mjs` judges each pull request. The head is
-  fetched as git objects; nothing from it is installed or run. It flags:
+- **Test weakening passes only with the maintainer's GitHub review.** The
+  `Test weakening` workflow runs on `pull_request_target`, so the default
+  branch's copy of `scripts/check-test-weakening.mjs` judges each pull request.
+  The head is fetched as git objects; nothing from it is installed or run. It
+  flags:
   - a new or widened skip, fixme or fail, `describe.configure`, a return
     behind an engine or environment test, and an existing test given an
     engine tag from `tests/tags.ts` or a feature tag from
@@ -565,11 +566,11 @@ in `wrangler.jsonc`).
 ### The favicon set
 
 All written by `npm run icons` (`scripts/make-icons.mjs`) from
-`artwork/cats/minerva-head.png`, her head cut from the full-size Canva AI
+`artwork/cats/minerva-head.png`, the cat's head cut from the full-size Canva AI
 drawing behind `artwork/cats/minerva-sit.png`, in Chromium with the color tokens.
 
 - Tab icons (`favicon.*`, `artwork/favicon-*`): Minerva's head as a die-cut
-  sticker: white rim, ink edge and a pink block behind her, on a transparent
+  sticker: white rim, ink edge and a pink block behind it, on a transparent
   ground. The ink edge holds 3:1 on a light tab strip and the white rim on a
   dark one (`tests/brand-mark.spec.ts`). Each is scaled down from one 512px
   render with a clear 1px border. No SVG favicon: at tab size Chromium rounds
@@ -874,7 +875,7 @@ evidence.
   persona, a tribute to Nico Robin, written with AI ([AI_DISCLOSURE.md](AI_DISCLOSURE.md)).
   The sample posts show every Markdown feature the site renders.
 - Homepage section headings, category descriptions and the `/blog` heading
-  and standfirst are hers too.
+  and standfirst are the persona's too.
 - **CV PDF.** Set `person.cv` in `src/site.config.ts` to a PDF under
   `public/`, and `/career` links it with its size; `tests/cv.spec.ts` then
   checks the file's metadata and tags. No CV ships.

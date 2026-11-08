@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /*
  * Fails on anything left from the project this template was extracted from:
- * its owner's names, art names, addresses and service ids, in tracked file
+ * its maintainer's names, art names, addresses and service ids, in tracked file
  * names and contents. Lists every hit as file:line. PDFs are scanned raw and
  * with every FlateDecode stream inflated, and fail on an /Author or dc:creator.
  *

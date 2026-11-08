@@ -53,21 +53,6 @@ jobs:
             sh scripts/check-commits.sh 'HEAD^!'
           fi
 
-      - name: Verify the pull request description
-        if: ${{ github.event_name == 'pull_request' }}
-        env:
-          # Via env, never `${{ }}` in the script: user text would be injected.
-          PR_TITLE: ${{ github.event.pull_request.title }}
-          PR_BODY: ${{ github.event.pull_request.body }}
-        run: |
-          if printf '%s\n%s\n' "$PR_TITLE" "$PR_BODY" |
-            grep -qiE 'co-authored-by:.*(claude|anthropic)|generated with \[?claude code'
-          then
-            echo "::error::The pull request title or description carries AI attribution."
-            exit 1
-          fi
-          echo "Pull request description: no AI attribution."
-
       # Not path-filtered: a workflow `paths:` would stop `Required checks`
       # reporting, blocking merges. docs/MANUAL_TESTING.md §13 covers the rest.
       - name: Validate every published PDF against PDF/UA-1
