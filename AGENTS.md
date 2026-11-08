@@ -44,9 +44,9 @@ security and privacy, or build correctness. "Looks as designed" is not one.
 - Assert the property ("at least 4.5:1 and differs from rest"), not the value
   (`rgb(0, 255, 255)`).
 - A skip, an axe exclusion, fewer `expect` calls, a changed threshold or a new
-  rejected finding fails the `Test weakening` check until the owner approves
-  the head commit with the line `Approved test change: <reason>`. Agents never
-  write it.
+  rejected finding fails the `Test weakening` check. It passes once the
+  maintainer approves the head commit with the line
+  `Approved test change: <reason>`. Agents never write that line.
 
 ### Which suites to run
 

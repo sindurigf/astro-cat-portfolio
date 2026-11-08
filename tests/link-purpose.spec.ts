@@ -7,7 +7,7 @@ import { gotoSettled } from './settle';
  * page. Destinations compare without the hash or a trailing slash.
  */
 
-/** Post copy is the owner's to reword (AGENTS.md "Copy"); remove an entry once it passes. */
+/** Post copy is reworded only with the maintainer's approval (AGENTS.md "Copy"); remove an entry once it passes. */
 const OWNER_COPY: readonly { route: string; name: string }[] = [];
 
 /* Names that fit any destination: WCAG failure F84, a non-specific link name. */

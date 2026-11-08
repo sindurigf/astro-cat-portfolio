@@ -127,14 +127,14 @@ WEBKIT_CPUS=8 npm run test:webkit
 
 ### Approving a test change
 
-The `Test weakening` check
-([rules](../ARCHITECTURE.md#tests)) fails until the owner approves:
+The `Test weakening` check ([rules](../ARCHITECTURE.md#tests)) fails until the
+maintainer approves it from the account named in `GITHUB_REPOSITORY_OWNER`:
 
 1. Review the pull request's changes, choose Approve or, on your own pull
    request, Comment, and write the line `Approved test change: <reason>`.
-2. `.github/workflows/rerun-test-weakening.yml` re-runs `Test weakening` on
-   that review, and when the owner requests changes or a review is
-   dismissed, so a revoked approval fails it again. A new push needs a new
+2. `.github/workflows/rerun-test-weakening.yml` re-runs `Test weakening` on that
+   review, and when the maintainer requests changes or the maintainer's review
+   is dismissed, so a revoked approval fails it again. A new push needs a new
    review.
 3. On a pull request from a fork, the review's token is read-only and cannot
    re-run it: re-run the `Test weakening` run by hand.
@@ -258,18 +258,18 @@ docs/               Development, deployment, style guide, manual testing
 
 ## Where the copy lives
 
-| File                                                                                  | Holds                                                            |
-| ------------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
-| `src/site.config.ts`                                                                  | Site name, URL, tagline, motto, name, job title, email, profiles |
-| `src/pages/index.astro`, `src/pages/about.astro`, `src/pages/career.astro`            | The persona's text; names and links come from the config         |
-| `src/content/blog/*.md`                                                               | The sample posts, one per category                               |
-| `src/lib/persona.ts`, `src/lib/credits.ts`                                            | The sample persona's notice; the `/credits` entries              |
-| `src/lib/categories.ts`                                                               | Each category's teaser, also its page's meta description         |
-| `src/pages/contact.astro`, `src/pages/privacy.astro`, `src/pages/accessibility.astro` | Mostly config values; check the wording against your site        |
-| `src/lib/categories.ts`, `src/lib/og-image.ts`, `src/pages/credits.astro`             | Category teasers; the sharing image's alt text; the credit lists |
-| `wrangler.jsonc`, `SECURITY.md`, `AI_DISCLOSURE.md`                                   | Worker, domain and database names; your contacts; your AI record |
-| `src/assets/photos/`, `src/assets/blog/`                                              | Sample photos, credited in [LICENSE-photos](../LICENSE-photos)   |
-| `ACCESSIBILITY.md` section 1                                                          | The owner and reporting rows `/accessibility` publishes          |
+| File                                                                                  | Holds                                                                 |
+| ------------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
+| `src/site.config.ts`                                                                  | Site name, URL, tagline, motto, name, job title, email, profiles      |
+| `src/pages/index.astro`, `src/pages/about.astro`, `src/pages/career.astro`            | The persona's text; names and links come from the config              |
+| `src/content/blog/*.md`                                                               | The sample posts, one per category                                    |
+| `src/lib/persona.ts`, `src/lib/credits.ts`                                            | The sample persona's notice; the `/credits` entries                   |
+| `src/lib/categories.ts`                                                               | Each category's teaser, also its page's meta description              |
+| `src/pages/contact.astro`, `src/pages/privacy.astro`, `src/pages/accessibility.astro` | Mostly config values; check the wording against your site             |
+| `src/lib/categories.ts`, `src/lib/og-image.ts`, `src/pages/credits.astro`             | Category teasers; the sharing image's alt text; the credit lists      |
+| `wrangler.jsonc`, `SECURITY.md`, `AI_DISCLOSURE.md`                                   | Worker, domain and database names; your contacts; your AI record      |
+| `src/assets/photos/`, `src/assets/blog/`                                              | Sample photos, credited in [LICENSE-photos](../LICENSE-photos)        |
+| `ACCESSIBILITY.md` section 1                                                          | The Accessibility owner and reporting rows `/accessibility` publishes |
 
 - `npm run check:fork` lists the `TODO(fork)` comment at each of these.
 - Replacing the photos: update `LICENSE-photos`, or remove it and its row in

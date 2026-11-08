@@ -24,7 +24,8 @@ const SENT: SubmissionResult = { kind: 'sent', values: {}, errors: [] };
 /*
  * The per-address limit does nothing against many addresses. Past this many
  * messages in an hour, new ones are stored but not emailed, and the daily
- * resend sends them in batches, so a flood cannot fill the owner's inbox.
+ * resend sends them in batches, so a flood cannot fill the `CONTACT_NOTIFY_TO`
+ * inbox.
  */
 export const HOURLY_NOTIFY_LIMIT = 20;
 
