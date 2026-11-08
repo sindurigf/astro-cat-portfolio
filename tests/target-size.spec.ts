@@ -68,7 +68,7 @@ interface TargetWalk {
   judged: number;
 }
 
-/** `scope` limits the walk to an open dialog, where the page behind takes no pointer. */
+/** `scope` limits the walk to an open dialog or popover, whose controls are hidden while it is closed. */
 const undersizedTargets = (page: Page, scope = 'body'): Promise<TargetWalk> =>
   page.evaluate(`(() => {
     ${TARGET_DESCRIBE}
@@ -81,12 +81,14 @@ const undersizedTargets = (page: Page, scope = 'body'): Promise<TargetWalk> =>
     const out = [];
     let judged = 0;
 
-    for (const el of document.querySelector(${JSON.stringify(scope)}).querySelectorAll(${JSON.stringify(FOCUSABLE_SELECTOR)})) {
-      const box = el.getBoundingClientRect();
+    for (const control of document.querySelector(${JSON.stringify(scope)}).querySelectorAll(${JSON.stringify(FOCUSABLE_SELECTOR)})) {
+      const box = control.getBoundingClientRect();
       if (box.width === 0 && box.height === 0) continue;
-      if (!el.checkVisibility()) continue;
-      if (isInlineInText(el)) continue;
+      if (!control.checkVisibility()) continue;
+      if (isInlineInText(control)) continue;
       judged += 1;
+      /* A click on a wrapping label activates its control, so the label is the target. */
+      const el = control.closest('label') ?? control;
 
       el.scrollIntoView({ block: 'center', inline: 'nearest' });
       /* A control that ignores the pointer, such as an About cat's band, is hit through its own live part. */
@@ -182,17 +184,22 @@ for (const { width, height, note } of VIEWPORTS) {
   });
 }
 
+const DIALOG = 'dialog[open]';
+
 const OPEN_STATES: readonly {
   name: string;
   route: string;
-  /** The menu button only shows below 48rem. */
+  /** The Menu and Aa buttons only show below 48rem. */
   narrowOnly: boolean;
+  /** The open layer the walk measures. */
+  scope: string;
   open: (page: Page) => Promise<void>;
 }[] = [
   {
     name: 'the cat card',
     route: '/about',
     narrowOnly: false,
+    scope: DIALOG,
     /* The button takes no pointer, only the moving drawn cat does, so open it from the keyboard. */
     open: async (page) => {
       await page.locator('.cat-button').first().focus();
@@ -203,6 +210,7 @@ const OPEN_STATES: readonly {
     name: 'the photo viewer',
     route: '/about',
     narrowOnly: false,
+    scope: DIALOG,
     open: (page) =>
       page.locator('#people-photos a[data-photo]').first().click(),
   },
@@ -210,12 +218,34 @@ const OPEN_STATES: readonly {
     name: 'the mobile menu',
     route: '/',
     narrowOnly: true,
+    scope: DIALOG,
     open: (page) => page.getByRole('button', { name: /menu/i }).click(),
+  },
+  {
+    name: 'the theme menu',
+    route: '/',
+    narrowOnly: false,
+    scope: '#theme-menu:popover-open',
+    open: (page) => page.locator('[popovertarget="theme-menu"]').click(),
+  },
+  {
+    name: 'the Aa text size menu',
+    route: '/',
+    narrowOnly: true,
+    scope: '#text-menu:popover-open',
+    open: (page) => page.locator('[popovertarget="text-menu"]').click(),
+  },
+  {
+    name: 'the trick list',
+    route: '/about',
+    narrowOnly: false,
+    scope: '.cat-tricks:popover-open',
+    open: (page) => page.locator('.cat-tricks-button').first().click(),
   },
 ];
 
 for (const { width, height, note } of VIEWPORTS) {
-  test.describe(`SC 2.5.5 target size in open dialogs at ${width}px (${note})`, () => {
+  test.describe(`SC 2.5.5 target size in open dialogs and popovers at ${width}px (${note})`, () => {
     test.use({ viewport: { width, height } });
 
     for (const state of OPEN_STATES.filter(
@@ -224,11 +254,11 @@ for (const { width, height, note } of VIEWPORTS) {
       test(`${state.name} has no undersized target`, async ({ page }) => {
         await gotoSettled(page, state.route);
         await state.open(page);
-        await expect(page.locator('dialog[open]')).toBeVisible();
+        await expect(page.locator(state.scope)).toBeVisible();
 
         const { undersized, judged } = await undersizedTargets(
           page,
-          'dialog[open]',
+          state.scope,
         );
         expect(judged, `${state.name} has no control to judge`).toBeGreaterThan(
           0,
