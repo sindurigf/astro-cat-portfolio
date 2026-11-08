@@ -388,8 +388,9 @@
   /*
    * The motto on the footer band, sized by the band: its width less padding
    * over the motto's width in em, plus room for SC 1.4.12 letter spacing. One
-   * word a line below 48rem, one line from 48rem. TODO(fork): set both
-   * divisors from your motto's longest word and full width in em.
+   * word a line below 48rem, one line from 48rem that wraps under that
+   * spacing. TODO(fork): set both divisors from your motto's longest word and
+   * full width in em.
    */
   --text-footer-name-fluid: calc((100cqi - 3rem) / 3.3);
   --text-footer-name-fluid-md: calc((100cqi - 3rem) / 6.15);
@@ -604,9 +605,8 @@
   --spacing-section: clamp(56px, 8vw, 96px);
 
   /*
-   * PageHero roundel: twice --spacing-section less 56px, so it keeps 24px from
-   * the hero text and 32px from the next section. Floor in rem so it zooms.
-   * tests/page-hero.spec.ts fails if it covers any text.
+   * PageHero roundel: the rem bounds zoom with the text.
+   * tests/page-hero.spec.ts fails if the roundel covers any text.
    */
   --spacing-roundel: clamp(3.5rem, 16vw - 3.5rem, 8rem);
   /* Heading to content, and content to the actions under it. */

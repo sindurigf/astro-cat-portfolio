@@ -201,6 +201,8 @@ form answers 503 until its D1 database is created and migrated
 - [ARCHITECTURE.md](ARCHITECTURE.md): stack, site config, tokens, content,
   assets, headers
 - [docs/STYLEGUIDE.md](docs/STYLEGUIDE.md): visual rules and page patterns
+- [.claude/skills/design-system/SKILL.md](.claude/skills/design-system/SKILL.md):
+  the design system for agents
 - [ACCESSIBILITY.md](ACCESSIBILITY.md): accessibility statement, automated
   coverage, known gaps, reporting a barrier
 - [docs/MANUAL_TESTING.md](docs/MANUAL_TESTING.md): by-hand accessibility
