@@ -47,7 +47,7 @@ it is done.
      translation `/about` gives after its language ("Latin for …"); `null`
      for a motto in the site's own language.
    - Category descriptions: `src/lib/categories.ts`.
-   - Posts: replace the two in `src/content/blog/`
+   - Posts: replace the samples in `src/content/blog/`
      ([writing a post](docs/DEVELOPMENT.md#writing-a-post)).
    - Robin's notice: set `SAMPLE_PERSONA` in `src/lib/persona.ts` to `null`.
      It removes the fan-tribute notice from the homepage and `/credits`.
