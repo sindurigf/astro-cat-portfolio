@@ -266,22 +266,17 @@ const drawBuds = (
       BUD_START + i * spacing,
     );
     const side = i % 2 ? 1 : -1;
-    ctx.save();
-    ctx.translate(bx + side * BUD_SHAPE.offset * bud, by);
-    ctx.rotate(side * BUD_SHAPE.tilt + nod);
     ctx.beginPath();
     ctx.ellipse(
-      0,
-      0,
+      bx + side * BUD_SHAPE.offset * bud,
+      by,
       BUD_SHAPE.rx * bud,
       BUD_SHAPE.ry * bud,
-      0,
+      side * BUD_SHAPE.tilt + nod,
       0,
       Math.PI * 2,
     );
-    ctx.fillStyle = ctx.strokeStyle;
     ctx.fill();
-    ctx.restore();
   }
 };
 
@@ -302,7 +297,6 @@ const drawHead = (
     0,
     Math.PI * 2,
   );
-  ctx.fillStyle = ctx.strokeStyle;
   ctx.fill();
 };
 
@@ -325,8 +319,7 @@ const drawStem = (
 
   const bud = Math.max(BUD_SIZE.min, stem.size * BUD_SIZE.bySize);
   ctx.globalAlpha = Math.min(BUD_ALPHA.max, alpha + BUD_ALPHA.lift);
-  /* Buds and head fill from strokeStyle. */
-  ctx.strokeStyle = budTone(palette, stem.tone);
+  ctx.fillStyle = budTone(palette, stem.tone);
   drawBuds(ctx, stem, lean, bud, seconds, world);
   drawHead(ctx, stem, lean, bud);
 };

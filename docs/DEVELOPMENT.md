@@ -7,8 +7,7 @@
   no older Node. Local `test:webkit` can run an older minor ([WebKit](#webkit)).
 - Docker for `test:webkit` and `check:pdf`.
 - No Cloudflare account or secrets for `dev`, `build`, `check` or any test
-  suite. Only `check:live`'s D1 count needs `npx wrangler login` or
-  `CLOUDFLARE_API_TOKEN` with `CLOUDFLARE_ACCOUNT_ID`.
+  suite. Only `check:live`'s D1 count needs them ([variables](#other-notes)).
 - Python 3 with pikepdf for `publish:talk`: `apt install python3-pikepdf`.
 
 ## Setup
@@ -46,43 +45,43 @@ What happens without the `CONTACT_NOTIFY_TO` secret:
 
 ## Commands
 
-| Command                        | Does                                                                                                                                                      |
-| ------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `npm run dev`                  | Dev server at `http://localhost:4340`                                                                                                                     |
-| `npm test`                     | `test:a11y`, then `test:worker`; each builds first                                                                                                        |
-| `npm run build`                | Build to `dist/client` (assets) and `dist/server` (Worker)                                                                                                |
-| `npm run preview`              | Serve the build through the Worker runtime                                                                                                                |
-| `npm run typecheck`            | `astro check` (fails on hints), then `vue-tsc` on `.vue` files                                                                                            |
-| `npm run format`               | Prettier, write                                                                                                                                           |
-| `npm run check`                | `check:tokens`, `links`, `pins`, `classes`, `csp`, `untransformed`, `title-case`, `exif`, `format:check`, `commits`, `leaks`; needs `npm run build` first |
-| `npm run format:check`         | Prettier, check only                                                                                                                                      |
-| `npm run check:tokens`         | No raw color, length or off-scale utility in `src/` bypasses the tokens in `src/styles/global.css`                                                        |
-| `npm run check:links`          | Relative Markdown links and `#heading` anchors resolve; no link names a gitignored path; no network                                                       |
-| `npm run check:pins`           | Actions pinned by SHA, Docker images by digest, MCP servers to an exact version                                                                           |
-| `npm run check:classes`        | Every class in the built HTML has a CSS rule                                                                                                              |
-| `npm run check:csp`            | `script-src` and `style-src` in `public/_headers` hash exactly the build's inline blocks; `-- --write` fixes them; needs `npm run build`                  |
-| `npm run check:untransformed`  | No built file is byte-identical to a source image                                                                                                         |
-| `npm run check:title-case`     | Built headings, titles, summaries, `og:title` and button labels are in Chicago title case; needs `npm run build`                                          |
-| `npm run check:exif`           | No EXIF, XMP or IPTC in JPEG, PNG or WebP under `src/assets`, `public` and `artwork`; AVIF is not read                                                    |
-| `npm run check:pdf`            | Every PDF in `public/` against PDF/UA-1, veraPDF in Docker                                                                                                |
-| `npm run check:commits`        | Commit subjects match `type: Sentence.` and carry no AI attribution, against `origin/main`                                                                |
-| `npm run check:test-weakening` | Test weakening against `origin/main`, working tree included; CI runs it as the `Test weakening` check                                                     |
-| `npm run check:fork`           | Every `TODO(fork)` marker left, as `file:line` with the count; fails on any other TODO comment in code and config; `--strict` fails while one is left     |
-| `npm run check:leaks`          | No names or ids from the project this template came from; `--pdf <file>` checks one PDF                                                                   |
-| `npm run test:a11y`            | Playwright suite in Chromium and Firefox; CI adds WebKit                                                                                                  |
-| `npm run test:webkit`          | The same suite in WebKit, in Playwright's Docker image                                                                                                    |
-| `npm run test:a11y:ui`         | The same suite in Playwright's UI mode                                                                                                                    |
-| `npm run test:worker`          | Worker specs, local D1: contact endpoint, byte ranges, types, /blog pager, failed sweeps and missing bindings                                             |
-| `npm run test:demo`            | Demo specs against a `NOINDEX` demo build                                                                                                                 |
-| `npm run test:coverage`        | `test:a11y` in Chromium, with line and branch coverage of `src/`                                                                                          |
-| `npm run check:live`           | Production headers and markup against this repository                                                                                                     |
-| `npm run check:live:console`   | Every production route in a browser, failing on console errors                                                                                            |
-| `npm run publish:talk`         | Print a talk's slideshow to its tagged PDF in `public/talks/`                                                                                             |
-| `npm run og`                   | After a build, render `public/images/og-default.png` and every page's card in `public/images/og/`                                                         |
-| `npm run hero-still`           | After a build, redraws the hero stills in `src/assets/hero-still-*.webp` shown without JavaScript                                                         |
-| `npm run about-cats`           | Packs the About cats' drawings in `artwork/about-cats/` into `src/assets/about-cats-*.avif` and `src/lib/about-cats-sheet.ts`                             |
-| `npm run icons`                | Render `src/assets/logo-cat.svg` from `src/lib/brand-mark.ts`, and the favicons and app icons from `artwork/cats/minerva-head.png`                        |
-| `npm run box-cat`              | Render the box cat logo, roundel and footer mascot SVGs in `src/assets/` from `src/lib/box-cat.ts` and the cut-outs in `artwork/cats/`                    |
+| Command                        | Does                                                                                                                                                              |
+| ------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `npm run dev`                  | Dev server at `http://localhost:4340`                                                                                                                             |
+| `npm test`                     | `test:a11y`, then `test:worker`; each builds first                                                                                                                |
+| `npm run build`                | Build to `dist/client` (assets) and `dist/server` (Worker)                                                                                                        |
+| `npm run preview`              | Serve the build through the Worker runtime                                                                                                                        |
+| `npm run typecheck`            | `astro check` (fails on hints), then `vue-tsc` on `.vue` files                                                                                                    |
+| `npm run format`               | Prettier, write                                                                                                                                                   |
+| `npm run check`                | `check:tokens`, `links`, `pins`, `classes`, `csp`, `untransformed`, `title-case`, `exif`, `format:check`, `commits`, `leaks`, `fork`; needs `npm run build` first |
+| `npm run format:check`         | Prettier, check only                                                                                                                                              |
+| `npm run check:tokens`         | No raw color, length or off-scale utility in `src/` bypasses the tokens in `src/styles/global.css`                                                                |
+| `npm run check:links`          | Relative Markdown links and `#heading` anchors resolve; no link names a gitignored path; no network                                                               |
+| `npm run check:pins`           | Actions pinned by SHA, Docker images by digest, MCP servers to an exact version                                                                                   |
+| `npm run check:classes`        | Every class in the built HTML has a CSS rule                                                                                                                      |
+| `npm run check:csp`            | `script-src` and `style-src` in `public/_headers` hash exactly the build's inline blocks; `-- --write` fixes them; needs `npm run build`                          |
+| `npm run check:untransformed`  | No built file is byte-identical to a source image outside `SERVED_AS_IS` in `scripts/check-allow-lists.mjs`                                                       |
+| `npm run check:title-case`     | Built headings, titles, summaries, `og:title` and button labels are in Chicago title case; needs `npm run build`                                                  |
+| `npm run check:exif`           | No EXIF, XMP or IPTC in JPEG, PNG or WebP under `src/assets`, `public` and `artwork`; AVIF is not read                                                            |
+| `npm run check:pdf`            | Every PDF in `public/` against PDF/UA-1, veraPDF in Docker                                                                                                        |
+| `npm run check:commits`        | Commit subjects match `type: Sentence.` and carry no AI attribution, against `origin/main`                                                                        |
+| `npm run check:test-weakening` | Test weakening against `origin/main`, working tree included; CI runs it as the `Test weakening` check                                                             |
+| `npm run check:fork`           | Every `TODO(fork)` marker left, as `file:line` with the count; fails on any other TODO comment in code and config; `--strict` fails while one is left             |
+| `npm run check:leaks`          | No names or ids from the project this template came from; `--pdf <file>` checks one PDF                                                                           |
+| `npm run test:a11y`            | Playwright suite in Chromium and Firefox; CI adds WebKit                                                                                                          |
+| `npm run test:webkit`          | The same suite in WebKit, in Playwright's Docker image                                                                                                            |
+| `npm run test:a11y:ui`         | The same suite in Playwright's UI mode                                                                                                                            |
+| `npm run test:worker`          | Worker specs, local D1: contact endpoint, byte ranges, types, /blog pager, failed sweeps and missing bindings                                                     |
+| `npm run test:demo`            | Demo specs against a `NOINDEX` demo build                                                                                                                         |
+| `npm run test:coverage`        | `test:a11y` in Chromium, with line and branch coverage of `src/`                                                                                                  |
+| `npm run check:live`           | Production headers and markup against this repository                                                                                                             |
+| `npm run check:live:console`   | Every production route in a browser, failing on console errors                                                                                                    |
+| `npm run publish:talk`         | Print a talk's slideshow to its tagged PDF in `public/talks/`                                                                                                     |
+| `npm run og`                   | After a build, render `public/images/og-default.png` and every page's card in `public/images/og/`                                                                 |
+| `npm run hero-still`           | After a build, redraws the hero stills in `src/assets/hero-still-*.webp` shown without JavaScript                                                                 |
+| `npm run about-cats`           | Packs the About cats' drawings in `artwork/about-cats/` into `src/assets/about-cats-*.avif` and `src/lib/about-cats-sheet.ts`                                     |
+| `npm run icons`                | Render `src/assets/logo-cat.svg` from `src/lib/brand-mark.ts`, and the favicons and app icons from `artwork/cats/minerva-head.png`                                |
+| `npm run box-cat`              | Render the box cat logo, roundel and footer mascot SVGs in `src/assets/` from `src/lib/box-cat.ts` and the cut-outs in `artwork/cats/`                            |
 
 `CHECK_ROOT=<dir>` points `check:tokens`, `pins`, `classes`, `csp`,
 `untransformed` and `title-case` at another tree. The `tests/check-*.spec.ts`
@@ -193,7 +192,11 @@ Agents never post that review
   opens one page per browser in CI before the tests, so no worker's first page
   builds the browser caches inside a test;
   `scripts/shard-tests.mjs` deals CI's tests to the shards in turn and checks
-  each shard's `--test-list` selects exactly its share.
+  each shard's `--test-list` selects exactly its share;
+  `scripts/csp-hashes.mjs` hashes the build's inline blocks for `check:csp`
+  and `tests/headers-rules.spec.ts`; `scripts/visible-markup.mjs` drops hidden
+  elements before `check:title-case`; `scripts/check-allow-lists.mjs` holds
+  the checks' allow-lists, each entry with its reason.
 - [AGENTS.md](../AGENTS.md) lists what must pass before a change is done.
 
 | Variable                        | Default                  | Effect                                                         |
@@ -208,8 +211,9 @@ Agents never post that review
 | `CI`                            | unset                    | Adds the WebKit project and one retry; set by CI               |
 | `TRUST_DEPENDABOT`              | unset                    | `1` skips `check:commits` for Dependabot's commits             |
 | `APPROVED_TEST_CHANGE`          | unset                    | Any value passes `check:test-weakening` locally; CI ignores it |
-| `GITHUB_BASE_REF`               | unset                    | `check:commits` checks from `origin/<it>`, else `main`         |
+| `GITHUB_BASE_REF`               | unset                    | `check:commits` checks from `origin/<it>`, else `origin/main`  |
 | `COVERAGE`                      | unset                    | `1` builds source maps; set by `test:coverage`                 |
+| `POSTS_PER_PAGE`                | 9                        | Posts per `/blog` page, read by the build                      |
 | `WORKERS_CI`                    | unset                    | `1` skips the build fingerprint, set in Workers Builds         |
 
 `check:live` takes an optional origin argument (`sh scripts/check-live.sh <origin>`),
@@ -242,13 +246,13 @@ src/
   presenter/        Dev-only presenter view for talks
   scripts/          Browser modules that are not islands
   styles/           global.css (tokens, imports), base, components/, light mode
-  worker.ts         Worker entry: Astro's handler and the retention sweep
+  worker.ts         Worker entry: Astro's handler, /videos/* byte ranges, the retention sweep and resend
 public/             Static files served from the site root, including _headers
 artwork/            Source artwork the build never reads
 migrations/         D1 schema
 scripts/            Convention and live-site checks, PDF publishing, test helpers
 tests/              Playwright specs; fixtures/ holds files the specs serve
-.github/            CI workflows, Dependabot, pull request template
+.github/            CI workflows and actions, Dependabot, issue and pull request templates
 .githooks/          commit-msg and pre-push hooks
 docs/               Development, deployment, style guide, manual testing
 ```
