@@ -1,7 +1,6 @@
 /*
- * Fails on text drawn as an image (SC 1.4.5, 1.4.9): <text> or <tspan> in an
- * SVG under src/assets, public or the build, inline or as a file, and canvas
- * fillText or strokeText in src. Raster images are not read; review covers them.
+ * Fails on text drawn as an image (SC 1.4.5, 1.4.9): SVG <text>/<tspan> in files
+ * or built HTML, canvas fillText/strokeText in src. Raster images are left to review.
  */
 import { fileURLToPath } from 'node:url';
 import { readFileSync } from 'node:fs';
