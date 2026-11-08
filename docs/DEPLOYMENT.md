@@ -55,8 +55,12 @@ npm run build && npx wrangler deploy --dry-run
   with this repository. The console check stubs Plausible, so it counts no visits.
 - To run `check:live` weekly from `.github/workflows/scheduled.yml`, set the
   repository variable `CHECK_LIVE` to `1`.
-- After a change to the hero or to what a page loads, run Lighthouse (mobile)
-  on the home page and the changed page. `tests/performance.spec.ts` covers
+- After a change to the hero or to what a page loads, run Lighthouse (mobile:
+  412px, 4x CPU, Slow 4G) 5 times on the home page and the changed page, and
+  note the median LCP and Total Blocking Time. For a changed control, also note
+  INP from a timespan run that uses it. The bar is Google's
+  [good](https://web.dev/articles/vitals) line: LCP 2500 ms, INP 200 ms.
+  `tests/performance.spec.ts` covers
   script and CSS bytes and layout shift; load time depends on the runner, so CI
   does not test it.
 
