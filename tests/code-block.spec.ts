@@ -43,9 +43,6 @@ const visitorContext = () => {
   };
 };
 
-const POST = { fileURL: 'file:///site/src/content/blog/a.md' };
-const TALK = { fileURL: 'file:///site/src/content/talks/a/slides.md' };
-
 const preNode = (child: Record<string, unknown>) => ({
   type: 'element',
   tagName: 'pre',
@@ -89,7 +86,7 @@ test(
 test.describe('the code-block visitor', () => {
   test('makes a fenced block a named tab stop', NODE, () => {
     const node = preNode(codeChild);
-    codeBlock(POST).element.visit(node, visitorContext());
+    codeBlock().element.visit(node, visitorContext());
 
     expect(node.properties.tabIndex).toBe(0);
     expect(node.properties.role).toBe('group');
@@ -104,7 +101,7 @@ test.describe('the code-block visitor', () => {
     };
     const node = preNode(code);
     const ctx = visitorContext();
-    codeBlock(POST).element.visit(node, ctx);
+    codeBlock().element.visit(node, ctx);
 
     const [frame] = ctx.replaced;
     expect(frame?.properties.className).toEqual(['code-block']);
@@ -124,7 +121,7 @@ test.describe('the code-block visitor', () => {
   test('frames a block without a language with no label', NODE, () => {
     const node = preNode(codeChild);
     const ctx = visitorContext();
-    codeBlock(POST).element.visit(node, ctx);
+    codeBlock().element.visit(node, ctx);
 
     expect(
       ctx.replaced[0]?.children.map((child: any) => child.tagName),
@@ -132,22 +129,12 @@ test.describe('the code-block visitor', () => {
     expect(node.properties.dataCopy).toBe('code');
   });
 
-  /* Function: a slide sizes its own code and loads no copy script. */
-  test('leaves a slide block unframed', NODE, () => {
-    const node = preNode(codeChild);
-    const ctx = visitorContext();
-    codeBlock(TALK).element.visit(node, ctx);
-
-    expect(ctx.replaced).toEqual([]);
-    expect(node.properties.dataCopy).toBeUndefined();
-  });
-
   test('drops the fence language class, which nothing styles', NODE, () => {
     const code = {
       ...codeChild,
       properties: { className: ['language-bash'] } as Record<string, unknown>,
     };
-    codeBlock(POST).element.visit(preNode(code), visitorContext());
+    codeBlock().element.visit(preNode(code), visitorContext());
 
     expect(
       code.properties.className,
@@ -157,7 +144,7 @@ test.describe('the code-block visitor', () => {
 
   test('leaves preformatted text that is not code alone', NODE, () => {
     const node = preNode({ type: 'text', value: 'a receipt, not code' });
-    codeBlock(POST).element.visit(node, visitorContext());
+    codeBlock().element.visit(node, visitorContext());
 
     expect(
       node.properties,
@@ -168,7 +155,7 @@ test.describe('the code-block visitor', () => {
   test('does not write a second tabindex over one already there', NODE, () => {
     const node = preNode(codeChild);
     node.properties.tabIndex = -1;
-    codeBlock(POST).element.visit(node, visitorContext());
+    codeBlock().element.visit(node, visitorContext());
 
     expect(
       node.properties.tabIndex,

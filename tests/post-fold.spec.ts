@@ -57,8 +57,6 @@ const context = (root: Node) => {
   };
 };
 
-const POST = { fileURL: 'file:///site/src/content/blog/a.md' };
-
 /** The hast plugin names in `astro.config.mjs`, in order. */
 const configPlugins = (): string[] =>
   (
@@ -98,7 +96,7 @@ test.describe('the module-fold visitor', () => {
       ]);
       const { swapped, ctx } = context(root);
 
-      moduleFold(POST).element.visit(one, ctx);
+      moduleFold().element.visit(one, ctx);
 
       const isPanel = (node: Node) =>
         node.properties?.className?.includes('module-panel');
@@ -124,17 +122,6 @@ test.describe('the module-fold visitor', () => {
       expect(folds.every((fold) => fold.properties.open === true)).toBe(true);
     },
   );
-
-  test('leaves slides alone', NODE, () => {
-    const one = h2('Module 1: Set Up');
-    const { swapped, ctx } = context(element('div', [one, p()]));
-
-    moduleFold({
-      fileURL: 'file:///site/src/content/talks/a/slides.md',
-    }).element.visit(one, ctx);
-
-    expect(swapped()).toBeUndefined();
-  });
 });
 
 /* The site's own pipeline, so the fixture renders as a post would. */

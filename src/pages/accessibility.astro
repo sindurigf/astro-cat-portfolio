@@ -1,6 +1,5 @@
 ---
 // TODO(fork): Check each line of this page against your own site.
-import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Abbr from '../components/Abbr.astro';
 import PageHero from '../components/PageHero.astro';
@@ -32,8 +31,6 @@ const FULL_RECORD = REPOSITORY && `${REPOSITORY}/blob/main/ACCESSIBILITY.md`;
 const WAI = 'https://www.w3.org/WAI';
 const understanding = (slug: string): string =>
   `${WAI}/WCAG22/Understanding/${slug}.html`;
-
-const HAS_TALK = (await getCollection('talks')).length > 0;
 ---
 
 <BaseLayout
@@ -100,7 +97,7 @@ const HAS_TALK = (await getCollection('talks')).length > 0;
           <p>
             Scope: every page the build produces, the contact form's server
             error pages, and the published PDFs. Out of scope: third-party
-            sites, and the talk presenter view, which is development only.
+            sites.
           </p>
 
           <h2>Commitment</h2>
@@ -205,15 +202,14 @@ const HAS_TALK = (await getCollection('talks')).length > 0;
           <h3>Motion</h3>
           <p>
             SC 2.2.2 Pause, Stop, Hide (A): the homepage field has one pause
-            control. Each of the three About cats has its own sleep control, and
-            a cat also naps after 30 seconds on screen. SC 2.3.3 Animation from
-            Interactions (AAA): under{' '}
-            <code>prefers-reduced-motion: reduce</code>, the field is drawn once
-            and held. Under the same setting, the cats sit still on the brick
-            under them with no controls. A pressed button does not move, and the
-            photo strip scrolls without smooth scrolling. Let It Fall in the
-            footer moves the page at once, without animation. Nothing else
-            animates.
+            control. The About cat has its own sleep control, and it also naps
+            after 30 seconds on screen. SC 2.3.3 Animation from Interactions
+            (AAA): under <code>prefers-reduced-motion: reduce</code>, the field
+            is drawn once and held. Under the same setting, the cat sits still
+            on the brick under it with no controls. A pressed button does not
+            move, and the photo strip scrolls without smooth scrolling. Let It
+            Fall in the footer moves the page at once, without animation.
+            Nothing else animates.
           </p>
           <p>
             You can pause the moving pictures. If your device asks for less
@@ -239,9 +235,9 @@ const HAS_TALK = (await getCollection('talks')).length > 0;
             navigation (<code>@media (scripting: none)</code>) replaces the
             mobile menu. Every built page is checked for it in its{' '}
             <Abbr short="HTML" long="HyperText Markup Language" after="," /> and
-            four page layouts are checked in a browser at phone width. The talk
-            slides, abbreviations, photo viewer and cats have their own checks
-            with JavaScript off.
+            four page layouts are checked in a browser at phone width. The
+            abbreviations, photo viewer and About cat have their own checks with
+            JavaScript off.
           </p>
           <p>With JavaScript turned off, you can still move between pages.</p>
 
@@ -417,50 +413,16 @@ const HAS_TALK = (await getCollection('talks')).length > 0;
             </>
           )}
 
-          {HAS_TALK && (
-            <>
-              <h3>Talk Slides on Small Screens</h3>
-              <p>
-                SC 1.4.10 Reflow: below 1024px the talk page drops the slide
-                controls. It shows every slide once, in order, as text that
-                reflows, with and without the 1.4.12 override at 305px. The page
-                also links the PDF with its size. The PDF passes veraPDF's
-                machine checks for PDF/
-                <Abbr
-                  short="UA-1"
-                  long="Universal Accessibility, part 1"
-                  after="."
-                />
-              </p>
-              <p>
-                On a phone or narrow window, the talk shows as text you can
-                scroll. You can also download it.
-              </p>
-              <p>
-                Learn more:{' '}
-                <a href={understanding('reflow')}>
-                  Understanding 1.4.10 Reflow
-                </a>{' '}
-                and{' '}
-                <a href={`${WAI}/WCAG22/Techniques/#pdf`}>
-                  PDF Techniques for WCAG 2.2
-                </a>
-                .
-              </p>
-            </>
-          )}
-
           <h2>Supported Browsers</h2>
 
           <h3>Browser Versions</h3>
           <p>
             Chrome and Edge 120, Firefox 128 and Safari 17 or later, on desktop
             and mobile. The site uses three features that need these versions.{' '}
-            <code>popover</code> is used for the cat trick lists and
-            abbreviations (Chrome 114, Firefox 125, Safari 17).{' '}
-            <code>@media (scripting: none)</code> shows the navigation when
-            JavaScript is off (Chrome 120, Safari 17). Tailwind 4 needs Firefox
-            128.
+            <code>popover</code> is used for abbreviations (Chrome 114, Firefox
+            125, Safari 17). <code>@media (scripting: none)</code> shows the
+            navigation when JavaScript is off (Chrome 120, Safari 17). Tailwind
+            4 needs Firefox 128.
           </p>
           <p>
             It works in Chrome, Edge, Firefox and Safari versions from mid-2024
@@ -514,8 +476,8 @@ const HAS_TALK = (await getCollection('talks')).length > 0;
           <p>
             The tab walk proves every control is reached and visible. Only some
             controls are tested by pressing them with Enter or Space. They are
-            the menu, skip link, slides, cat buttons, theme switch, hero pause
-            control, photo viewer and contact form.
+            the menu, skip link, cat buttons, theme switch, hero pause control,
+            photo viewer and contact form.
           </p>
           <p>
             Tests check that you can reach every control by keyboard, but not
@@ -564,53 +526,6 @@ const HAS_TALK = (await getCollection('talks')).length > 0;
             checked by a person.
           </p>
 
-          {HAS_TALK && (
-            <>
-              <h3>PDF Files</h3>
-              <p>
-                The talk PDF passes veraPDF's machine-checkable PDF/UA-1 rules.
-                Reading order, the quality of alt text, and how viewers expose
-                the structure are unchecked.
-              </p>
-              <p>
-                The PDF files pass an automatic check, but nobody has read them
-                with a screen reader.
-              </p>
-              <p>
-                Learn more:{' '}
-                <a href={`${WAI}/WCAG22/Techniques/#pdf`}>
-                  PDF Techniques for WCAG 2.2
-                </a>
-                .
-              </p>
-            </>
-          )}
-
-          {HAS_TALK && (
-            <>
-              <h3>Talk Slide Titles at Zoom</h3>
-              <p>
-                SC 1.4.4 Resize Text (AA). Fixed-size headings reach 2x at 200%
-                zoom at 390, 1000, 1280 and 1920px in every engine. Text sized
-                by the screen width or height reaches 2x by page zoom up to 500%
-                in Chromium and Firefox. Talk slide titles follow the screen so
-                every word fits a 305px slide, so some reach 2x only between
-                250% and 500%. WebKit is checked to 300% and not asserted.
-              </p>
-              <p>
-                Most text doubles in size at 200% zoom. Some talk slide titles
-                need up to 500% zoom to double.
-              </p>
-              <p>
-                Learn more:{' '}
-                <a href={understanding('resize-text')}>
-                  Understanding 1.4.4 Resize Text
-                </a>
-                .
-              </p>
-            </>
-          )}
-
           <p>
             If any content here does not work for you, email{' '}
             <a href={CONTACT_MAILTO}>{CONTACT_EMAIL}</a> and we can send it
@@ -645,9 +560,9 @@ const HAS_TALK = (await getCollection('talks')).length > 0;
             <code>wcag2aa</code>, <code>wcag21a</code>, <code>wcag21aa</code>{' '}
             and <code>wcag22aa</code>. No rule is disabled and no result is
             excluded. In dark mode it scans at 1280 and 320px, with the menu,
-            photo viewer, contents and a talk slide open. In light mode it scans
-            at 1280 and 320px. Five experimental rules are on,{' '}
-            <code>best-practice</code> runs in dark mode, and no AAA rules run.
+            photo viewer and contents open. In light mode it scans at 1280 and
+            320px. Five experimental rules are on, <code>best-practice</code>{' '}
+            runs in dark mode, and no AAA rules run.
           </p>
           <p>
             A free checking tool called axe scans every page in both color modes

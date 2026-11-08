@@ -18,18 +18,6 @@ const MIN_SENTENCES = 2;
 const NEW_LINE_SHARE = 0.5;
 const WIDTHS = [390, 1280, 1920] as const;
 const VIEWPORT_HEIGHT = 900;
-/* Routes with no block of two sentences and no paragraph pair, and why. */
-// TODO(fork): Name your own talk here and in the list just below.
-const NOTHING_TO_MEASURE: Readonly<Record<string, string>> = {
-  '/talks/sample-talk':
-    'one slide of headings, one-sentence bullets or a lone one-sentence paragraph',
-};
-
-/** Below Tailwind's `lg` the talk stacks every slide, so there is text to measure. */
-const EXEMPT_FROM: Readonly<Record<string, number>> = {
-  '/talks/sample-talk': 1024,
-};
-
 interface Block {
   name: string;
   longest: number;
@@ -184,16 +172,10 @@ for (const width of WIDTHS) {
         await gotoSettled(page, route);
         const measured = await measure(page, 'body');
 
-        const exemption =
-          width >= (EXEMPT_FROM[route] ?? 0)
-            ? NOTHING_TO_MEASURE[route]
-            : undefined;
         expect(
-          measured.blocks.length + measured.pairs.length > 0,
-          exemption
-            ? `${route} at ${width}px now has text to measure, so its NOTHING_TO_MEASURE entry (${exemption}) is stale.`
-            : `${route} at ${width}px has no block of two sentences and no paragraph pair to measure.`,
-        ).toBe(exemption === undefined);
+          measured.blocks.length + measured.pairs.length,
+          `${route} at ${width}px has no block of two sentences and no paragraph pair to measure.`,
+        ).toBeGreaterThan(0);
 
         const problems = problemsOf(measured);
         expect(problems, `${route} at ${width}px fails SC 1.4.8`).toEqual([]);

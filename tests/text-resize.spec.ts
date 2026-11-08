@@ -57,8 +57,12 @@ const PLAIN_ZOOM_TOKENS = [
 
 const PLAIN_ZOOM = 2;
 
-/** Fewer tokens than this means the pattern stopped matching global.css. */
-const FEWEST_TOKENS = 10;
+/** Text tokens naming vw or svh anywhere in their value. */
+const TOKENS_NAMING_VIEWPORT = [
+  ...GLOBAL_CSS.matchAll(/^\s*(--text-[a-z0-9-]+):([^;]*);/gm),
+]
+  .filter(([, , value]) => /vw|svh/.test(defined(value, 'token value')))
+  .map(([declaration, token]) => defined(token, `token in ${declaration}`));
 
 const tokenSizes = (
   page: Page,
@@ -77,9 +81,13 @@ const tokenSizes = (
 
 test('the viewport text tokens are found in global.css', NODE, () => {
   expect(
+    VIEWPORT_TEXT_TOKENS,
+    'the size pattern misses a viewport text token in global.css',
+  ).toEqual(TOKENS_NAMING_VIEWPORT);
+  expect(
     VIEWPORT_TEXT_TOKENS.length,
-    `only ${VIEWPORT_TEXT_TOKENS.length} viewport text tokens matched in global.css`,
-  ).toBeGreaterThanOrEqual(FEWEST_TOKENS);
+    'no viewport text token matched in global.css',
+  ).toBeGreaterThan(0);
 });
 
 test('every plain-zoom heading token is defined in global.css', NODE, () => {
@@ -122,32 +130,18 @@ for (const { width, height } of WINDOWS) {
 
 /* Safari stops at 300%, short of what these tokens need at each width. */
 const WEBKIT_SHORTFALL: Record<(typeof WINDOWS)[number]['width'], string[]> = {
-  390: ['--text-slide-number'],
-  1000: [
-    '--text-deck-cover',
-    '--text-quote-mark',
-    '--text-slide-title',
-    '--text-slide-title-page',
-    '--text-slide-number',
-    '--text-menu',
-  ],
+  390: [],
+  1000: ['--text-quote-mark', '--text-menu'],
   1280: [
-    '--text-deck-cover',
     '--text-quote-mark',
     '--text-display',
     '--text-standfirst',
-    '--text-slide-title',
-    '--text-slide-number',
     '--text-menu',
   ],
   1920: [
     '--text-quote-mark',
     '--text-display',
     '--text-standfirst',
-    '--text-slide',
-    '--text-slide-title',
-    '--text-slide-h3',
-    '--text-slide-number',
     '--text-hero-sticker',
   ],
 };

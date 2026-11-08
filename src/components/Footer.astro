@@ -6,7 +6,6 @@ import {
   SOCIAL_PROFILES,
   profileLinkName,
 } from '../lib/profiles';
-import { TALKS_PATH } from '../lib/paths';
 import { FIRST_PUBLISHED, MOTTO, REPOSITORY_URL, SITE_NAME } from '../lib/site';
 import boxCatFooter from '../assets/box-cat-footer.svg?url';
 /* Hashed under /_astro/ and cached once, instead of inline on every page. */
@@ -39,9 +38,6 @@ const current = (href: string) => ariaCurrent(Astro.url.pathname, href);
 const AI_DISCLOSURE_HREF = `${REPOSITORY_URL}/blob/main/AI_DISCLOSURE.md`;
 
 /* Not inline: Astro drops the space between two expressions on separate lines. */
-/* A slide deck keeps its script budget for the deck, and gets no footer controls. */
-const onDemand = !Astro.url.pathname.startsWith(TALKS_PATH);
-
 const copyright = `© ${FIRST_PUBLISHED} ${SITE_NAME}`;
 
 /* The mascot file's size; the CSS draws it --size-footer-mascot wide. */
@@ -104,24 +100,18 @@ const MASCOT_SIZE = { width: 120, height: 104 } as const;
       </div>
 
       <div class="footer-notes">
-        {onDemand && (
-          <script is:inline type="module" src={onDemandRegistry}></script>
-        )}
-        {onDemand && (
-          <button
-            type="button"
-            class="btn-secondary let-it-fall"
-            data-on-demand={letItFall}
-            data-let-it-fall
-            hidden
-          >
-            Let It Fall
-          </button>
-        )}
+        <script is:inline type="module" src={onDemandRegistry}></script>
+        <button
+          type="button"
+          class="btn-secondary let-it-fall"
+          data-on-demand={letItFall}
+          data-let-it-fall
+          hidden
+        >
+          Let It Fall
+        </button>
         {/* In the page from the start, so its first message is announced (SC 4.1.3). */}
-        {onDemand && (
-          <p class="sr-only" role="status" data-let-it-fall-status />
-        )}
+        <p class="sr-only" role="status" data-let-it-fall-status />
 
         <small class="footer-copyright">{copyright}</small>
         {/* EU AI Act Art. 50: the one label for the AI-drawn cats and the AI-written sample text. */}

@@ -43,7 +43,7 @@ const shared = (ours: readonly string[], theirs: readonly string[]): string[] =>
 /*
  * What a control does, so two controls compare only when they do the same thing:
  * a link by region and destination, a button by what it opens or marks, and a
- * popover button also by the groups inside, since Theme drops Text Size on a deck.
+ * popover button also by the groups inside, since a Theme popover can leave out Text Size.
  */
 const roleOf = (control: Element): string => {
   const landmark = control.closest(

@@ -2,7 +2,6 @@ import { defineCollection } from 'astro:content';
 import { glob } from 'astro/loaders';
 /* `z` from `astro:content` is deprecated and removed in Astro 8. */
 import { z } from 'astro/zod';
-import { talkLoader } from './lib/talk-loader';
 import { BLOG_CONTENT_DIR } from './lib/paths';
 
 /* Top level only: `[slug].astro` is one path segment, and sitemap-filter.ts reads the same files. */
@@ -59,25 +58,4 @@ const blog = defineCollection({
     }),
 });
 
-const TALKS_CONTENT_DIR = 'src/content/talks';
-
-/* A Slidev layout is listed only once the slideshow renders it. */
-const TALK_LAYOUTS = ['cover', 'section', 'default'] as const;
-
-const talks = defineCollection({
-  loader: talkLoader({ base: TALKS_CONTENT_DIR }),
-  /* Strict, so a misspelt key fails the build. Cross-slide rules are in src/lib/talk-loader.ts. */
-  schema: z.strictObject({
-    deck: z.string(),
-    number: z.number().int().positive(),
-    title: z.string(),
-    layout: z.enum(TALK_LAYOUTS).default('default'),
-    part: z.string().optional(),
-    /* E.g. a pillar number, rendered inside the slide heading. */
-    label: z.string().optional(),
-    /* Slide 1 only: meta description, 50 to 160 characters. */
-    info: z.string().optional(),
-  }),
-});
-
-export const collections = { blog, talks };
+export const collections = { blog };

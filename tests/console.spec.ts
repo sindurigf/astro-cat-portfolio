@@ -4,7 +4,6 @@ import { waitForHydration } from './settle';
 import { usePolicyServer } from './headers-fixture';
 import { collectViolations } from './policy-server';
 import { fakeCollector } from './plausible';
-import tricksData from '../src/lib/about-cats-tricks.json' with { type: 'json' };
 
 /**
  * Runs under public/_headers via tests/policy-server.ts, since the static server
@@ -70,7 +69,7 @@ test.describe('the browser console', () => {
     });
   }
 
-  test('/about plays a trick and opens and closes a cat card without errors', async ({
+  test('/about opens and closes the cat card without errors', async ({
     page,
   }) => {
     const problems = watchProblems(page);
@@ -80,22 +79,11 @@ test.describe('the browser console', () => {
     await page.goto(`${origin}/about`);
     await waitForHydration(page);
 
-    const spot = page.locator('#cat-spot-minerva');
+    const spot = page.locator('#cat-spot-rudra');
     await spot.scrollIntoViewIfNeeded();
-    await spot.locator('.cat-tricks-button').click();
-    await page
-      .locator('#cat-tricks-minerva')
-      .getByRole('button', { name: tricksData.tricks.fly.label })
-      .click();
-    await page.mouse.move(0, 0);
-    await expect(
-      spot.locator('.cat-prop-wing').first(),
-      'the picked trick never started',
-    ).toBeAttached();
-
     await spot.locator('.cat-button').focus();
     await page.keyboard.press('Enter');
-    const dialog = page.getByRole('dialog', { name: 'Minerva' });
+    const dialog = page.getByRole('dialog', { name: 'Rudra' });
     await expect(dialog).toBeVisible();
     await expect(
       dialog.locator('img'),
@@ -112,7 +100,7 @@ test.describe('the browser console', () => {
 
     expect(
       [...problems, ...violations.map((v) => `CSP violation: ${v}`)],
-      `/about on ${origin} logged errors or CSP violations while a cat played and its card opened.`,
+      `/about on ${origin} logged errors or CSP violations while the cat card opened.`,
     ).toEqual([]);
   });
 });

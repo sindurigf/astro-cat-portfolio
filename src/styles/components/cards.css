@@ -243,11 +243,6 @@
     @apply mb-paragraph;
   }
 
-  /* A talk cover's subtitle and speaker as separate blocks (TalkSlide.astro). */
-  .talk-cover > * + * {
-    @apply mt-4;
-  }
-
   /*
    * A whole-brick link in a wall (/contact): it holds still, fills cyan under
    * the pointer and draws its ring inside, so it never crosses the next brick.
