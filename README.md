@@ -168,7 +168,7 @@ and `src/scripts/about-cats.ts`; this guide does not cover it.
 `/brand` shows your design system and links to your `repository`; it is
 optional. To drop it:
 
-- Delete `src/pages/brand.astro`, `src/components/brand/` and
+- Delete `src/pages/brand/index.astro`, `src/components/brand/` and
   `tests/brand.spec.ts`. Keep `src/lib/brand.ts`: `scripts/check-tokens.mjs`
   names it.
 - Remove the Brand link in `src/components/Footer.astro`.
