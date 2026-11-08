@@ -131,7 +131,8 @@ The `Test weakening` check
 ([rules](../ARCHITECTURE.md#tests)) fails until the owner approves:
 
 1. Review the pull request's changes, choose Approve or, on your own pull
-   request, Comment, and write the line `Approved test change: <reason>`.
+   request, Comment (GitHub blocks approving your own), and write the line
+   `Approved test change: <reason>`.
 2. `.github/workflows/rerun-test-weakening.yml` re-runs `Test weakening` on
    that review. A new push needs a new review.
 3. On a pull request from a fork, the review's token is read-only and cannot

@@ -94,8 +94,9 @@ passed to `vite.build.cssTarget`.
   `@mdn/browser-compat-data`, an external source, not a dependency):
   `popover`, for the About cats' trick list and every abbreviation (Chrome
   114, Firefox 125, Safari 17), and `@media (scripting: none)`, without which
-  the no-JavaScript nav is not shown (Chrome 120, Safari 17). `:has()`
-  (Firefox 121) and ARIA reflection (Firefox 119) are inside the floor.
+  the no-JavaScript nav and fallbacks are not shown (Chrome 120, Safari 17).
+  `:has()` (Firefox 121) and ARIA reflection (Firefox 119) are inside the
+  floor.
 - Pinned, not left to the bundler default, which moves between releases.
 - No `browserslist` key: neither Tailwind 4 nor Vite reads it.
 - `tests/css-target.spec.ts` asserts the list and the prefixes it implies
@@ -290,8 +291,8 @@ which is not installed.
 | `src/plugins/post-figure.mjs`    | a post image: frame, sizer, `widths`, `sizes`                                                                                                                                                                                                                                                                                                                                                                                  |
 | `src/plugins/code-block.mjs`     | `<pre>` as `tabindex="0"` `role="group"` (SC 2.1.1); in a post, also a `.code-block` frame with the fence language as a `.code-lang` label and `data-copy`, so `src/scripts/copy.ts` adds a Copy button. The post page loads the script when its Markdown may hold code (`hasCodeBlock`)                                                                                                                                       |
 | `src/plugins/table-scope.mjs`    | a Markdown header cell as `scope="col"` (H63)                                                                                                                                                                                                                                                                                                                                                                                  |
-| `src/plugins/table-scroll.mjs`   | a post table, wrapped in a `tabindex="0"` `role="group"` box that scrolls (SC 1.4.10)                                                                                                                                                                                                                                                                                                                                          |
 | `src/plugins/table-stack.mjs`    | a post table's explicit table roles and `.table-stack` class, and an `aria-hidden` column label in each value cell for the stacked rows below 640px (SC 1.3.1)                                                                                                                                                                                                                                                                 |
+| `src/plugins/table-scroll.mjs`   | a post table, wrapped in a `tabindex="0"` `role="group"` box that scrolls (SC 1.4.10)                                                                                                                                                                                                                                                                                                                                          |
 | `src/plugins/post-fold.mjs`      | puts each `## Module N:` or `## Side Path:` h2 and its body, up to the next h2 or the footnotes, in one `.module-panel`; the body is a `<details>` (open on load, with Close All Modules and Open All Modules buttons) and the h2 stays outside it. Nothing folds inside a module. The post page loads the fold script when its rendered HTML has a fold (`hasFoldMarkup`). Only these headings fold (`src/lib/post-folds.ts`) |
 
 `group`, not `region`, so code blocks and tables are not landmarks.
@@ -311,6 +312,7 @@ which is not installed.
   Search, AI Overviews and AI Mode use Googlebot and are unaffected; Search
   Console's Search generative AI control stays on Include. Cloudflare's managed
   robots.txt stays off so it cannot contradict this. `tests/sitemap.spec.ts`.
+- `/.well-known/security.txt`: [SECURITY.md](SECURITY.md).
 
 ### Talks
 
@@ -377,7 +379,7 @@ queries ignore it, so layouts overflowed at widths such as 768px.
 footer's columns up to 1100px), so the breadcrumb, chips, post card labels and
 footer links take `wrap-anywhere`; a
 page-wide rule was rejected because it reflows shrink-to-fit text at 100%. The
-control is the reading tab (`ReadingTab.astro`).
+control: [STYLEGUIDE.md](docs/STYLEGUIDE.md#text-size).
 
 ### Scripts loaded on demand
 
@@ -478,8 +480,7 @@ Rejected:
   A finding passes only with an `APPROVED` or `COMMENTED` review by
   `GITHUB_REPOSITORY_OWNER` on the head commit carrying
   `Approved test change: <reason>`; a later dismissal or change request revokes
-  it. GitHub blocks approving your own pull request, so a comment review
-  counts. It matches text, so indirection evades it. How to approve:
+  it. It matches text, so indirection evades it. How to approve:
   [DEVELOPMENT.md](docs/DEVELOPMENT.md#approving-a-test-change).
 
 ### Claims that rest on a platform setting
@@ -498,8 +499,9 @@ in `wrangler.jsonc`).
 - `src/assets/`: rendered artwork, through `astro:assets`, WebP, hashed into
   `/_astro/`, cached immutably. Unimported files are not emitted.
 - `public/images/`: stable URLs for outside consumers (Open Graph images).
-- `artwork/`: source artwork the build never reads (the badge, the
-  `favicon.ico` frames). Nothing in it ships.
+- `artwork/`: source artwork the build never reads (the badge, the cat
+  cut-outs, the About cats' drawings, the `favicon.ico` frames). Nothing in it
+  ships.
 
 | Path                           | Artwork   | Goes on       | Used by                                      |
 | ------------------------------ | --------- | ------------- | -------------------------------------------- |
@@ -665,8 +667,8 @@ in `public/`.
 - `immutable` for a year on `/_astro/*` only: Vite content-hashes those names.
   An unhashed file there stays stale for a year in every browser that has it.
 - Everything else gets `Cache-Control: no-transform` alone, so browsers
-  revalidate against the ETag. Favicons and feeds detach it so Cloudflare
-  compresses them; sitemaps and `llms.txt` would save under 1 KB.
+  revalidate against the ETag. `/favicon.*` and the feeds detach it so
+  Cloudflare compresses them; sitemaps and `llms.txt` are too small to gain.
 - `no-transform` keeps JavaScript Detections (forced on the Free plan) off
   pages: its inline script carries a per-request token no CSP hash allows, and
   it strips the ETag. The cost is uncompressed HTML, since no pattern
