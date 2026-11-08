@@ -1,5 +1,5 @@
 import { expect, test, type Page } from './test';
-import { builtHtml, POST_ROUTES, ROUTES, TALK_ROUTES } from './routes';
+import { builtHtml, POST_ROUTES, ROUTES } from './routes';
 import { gotoSettled } from './settle';
 import { NODE } from './tags';
 
@@ -8,9 +8,9 @@ import { NODE } from './tags';
  * colors the slab's bottom border still separates it from what follows.
  */
 
-/** Home keeps its canvas hero, a post its article, a talk its cover slide. */
+/** Home keeps its canvas hero, a post its article. */
 const HERO_ROUTES = ROUTES.filter(
-  (route) => !['/', ...POST_ROUTES, ...TALK_ROUTES].includes(route),
+  (route) => !['/', ...POST_ROUTES].includes(route),
 );
 
 /**

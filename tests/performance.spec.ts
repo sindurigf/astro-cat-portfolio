@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { expect, test, type Page } from './test';
 import { gotoSettled } from './settle';
-import { builtHtml, DIST_DIR, ROUTES, TALK_ROUTES } from './routes';
+import { builtHtml, DIST_DIR, ROUTES } from './routes';
 import { LAYOUT_SHIFT, layoutShiftOf } from './layout-shift';
 import { CHROMIUM_ONLY, NODE } from './tags';
 import { ANALYTICS_ON } from '../src/lib/analytics-site';
@@ -25,13 +25,8 @@ const scriptBudget = (route: string): number =>
   (ROUTE_SCRIPT_BUDGETS[route] ?? PAGE_SCRIPT_BUDGET) +
   (ANALYTICS_ON ? ANALYTICS_SCRIPT_BUDGET : 0);
 
-/* Decoded bytes of the stylesheets a page links plus its inline `<style>`. A talk also links the deck's sheet. */
-const TALK_STYLE_BUDGET = 120_500;
+/* Decoded bytes of the stylesheets a page links plus its inline `<style>`. */
 const PAGE_STYLE_BUDGET = 120_000;
-const ROUTE_STYLE_BUDGETS: Readonly<Record<string, number>> =
-  Object.fromEntries(TALK_ROUTES.map((route) => [route, TALK_STYLE_BUDGET]));
-const styleBudget = (route: string): number =>
-  ROUTE_STYLE_BUDGETS[route] ?? PAGE_STYLE_BUDGET;
 
 const STYLESHEET_HREF = /<link\b[^>]*\brel="stylesheet"[^>]*\bhref="([^"]+)"/g;
 const INLINE_STYLE = /<style\b[^>]*>([\s\S]*?)<\/style>/g;
@@ -78,10 +73,8 @@ test.describe('style weight', NODE, () => {
     ).toBe(true);
     expect(
       pages
-        .filter((page) => page.bytes > styleBudget(page.route))
-        .map(
-          (page) => `${page.route} ${page.bytes} of ${styleBudget(page.route)}`,
-        ),
+        .filter((page) => page.bytes > PAGE_STYLE_BUDGET)
+        .map((page) => `${page.route} ${page.bytes} of ${PAGE_STYLE_BUDGET}`),
       'these pages ship more CSS than their budget.',
     ).toEqual([]);
   });

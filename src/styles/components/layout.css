@@ -251,7 +251,6 @@
   .v-column section.hero + section {
     margin-inline: 0;
     padding-inline: 0;
-    padding-block: var(--hero-column-pad-block);
   }
 
   /*

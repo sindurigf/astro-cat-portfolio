@@ -256,18 +256,6 @@ for (const route of SAMPLED_ROUTES) {
     };
     await measureAtEveryWidth();
 
-    // A scripted slideshow draws one slide at a time, so open each slide with a photo.
-    const slides = await page.evaluate(() =>
-      [...document.querySelectorAll('.slide[id]')]
-        .filter((slide) => slide.querySelector('img[sizes]') !== null)
-        .map((slide) => slide.id),
-    );
-    for (const slide of slides) {
-      await gotoSettled(page, `${route}/#${slide}`);
-      await page.waitForSelector('[data-deck-ready]');
-      await measureAtEveryWidth();
-    }
-
     // Every fluid image the build ships must have been drawn and measured.
     /* A <template>'s images are inert until a script clones them, as the About cats' card photos are. */
     const drawable = (builtHtml().get(route) ?? '').replace(

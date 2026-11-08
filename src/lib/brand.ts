@@ -130,7 +130,7 @@ if (lightContrast.length === 0) {
   fail(`${STYLEGUIDE} "Light mode" gives no pairing on ${LIGHT_GROUND}`);
 }
 
-/** The type steps a page uses, by token; posts, slides and one-off sizes are in STYLEGUIDE. */
+/** The type steps a page uses, by token; posts and one-off sizes are in STYLEGUIDE. */
 const TYPE_STEPS = [
   'text-h1',
   'text-h2',

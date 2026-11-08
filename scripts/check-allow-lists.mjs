@@ -20,10 +20,10 @@ export const CLASS_HOOKS = new Map();
  * fails.
  */
 export const SERVED_AS_IS = new Map([
-  ...['minerva', 'rudra', 'hela'].map((cat) => [
-    `about-cats-${cat}.avif`,
-    'the About cats draw their frames from it with SVG <image>; it is an AVIF atlas already.',
-  ]),
+  [
+    'about-cats-rudra.avif',
+    'the About cat draws its frames from it with SVG <image>; it is an AVIF atlas already.',
+  ],
   [
     'box-cat-logo.svg',
     'Header.astro and 404.astro import it with `?url`: one file with its picture inside, cached once for every page.',

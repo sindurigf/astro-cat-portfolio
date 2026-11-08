@@ -1,4 +1,4 @@
-/* Pure, no imports: posts and slides read it with their raw Markdown. */
+/* Pure, no imports: posts read it with their raw Markdown. */
 
 /** Whether Markdown may hold a table, the ones src/plugins/table-scroll.mjs wraps: a GFM delimiter row such as `| --- | :-: |`, also in a blockquote, or an HTML `<table>`. */
 export const hasTable = (markdown: string): boolean =>

@@ -10,7 +10,6 @@ export const REPORT_BARRIER_ID = 'report-a-barrier';
 export const REPORT_BARRIER_HREF = `${ACCESSIBILITY_PATH}#${REPORT_BARRIER_ID}`;
 export const PRIVACY_PATH = '/privacy/';
 export const CREDITS_PATH = '/credits/';
-export const TALKS_PATH = '/talks/';
 export const SITEMAP_PATH = '/sitemap-index.xml';
 export const SITE_FEED_PATH = '/rss.xml';
 

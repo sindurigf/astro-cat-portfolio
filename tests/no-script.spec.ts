@@ -1,5 +1,5 @@
 import { expect, test } from './test';
-import { builtHtml, POST_ROUTES, TALK_ROUTES } from './routes';
+import { builtHtml, POST_ROUTES } from './routes';
 import { CTA, NAV_LINKS } from '../src/lib/nav';
 import { NODE } from './tags';
 import {
@@ -29,10 +29,10 @@ const FALLBACK_WIDTHS = [NARROW_WIDTH, PHONE_VIEWPORT.width, 767] as const;
 
 /*
  * One route per layout the fallback renders in: the home page, the error page,
- * and a post and a talk when there are any. The build check below holds every
+ * and a post when there is one. The build check below holds every
  * other page to the markup.
  */
-const LAYOUT_ROUTES = ['/', '/404', POST_ROUTES[0], TALK_ROUTES[0]].filter(
+const LAYOUT_ROUTES = ['/', '/404', POST_ROUTES[0]].filter(
   (route) => route !== undefined,
 );
 
@@ -295,9 +295,9 @@ test.describe('navigation without JavaScript', () => {
   });
 });
 
-/* A11Y.md "Content Held Hostage by JavaScript": the cats are drawn by a script, their words are not. */
-test.describe('the About cats without JavaScript', () => {
-  const NAMES = ['Minerva', 'Hela', 'Rudra'];
+/* A11Y.md "Content Held Hostage by JavaScript": the cat is drawn by a script, its words are not. */
+test.describe('the About cat without JavaScript', () => {
+  const NAMES = ['Rudra'];
 
   test('each cat is named in text', async ({ browser }) => {
     const context = await browser.newContext({ javaScriptEnabled: false });

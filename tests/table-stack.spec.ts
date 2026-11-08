@@ -109,10 +109,7 @@ const tableOf = (body: HastNode[], properties = {}) =>
   );
 
 const visitTable = (table: HastNode) =>
-  tableStack({ fileURL: 'file:///src/content/blog/post.md' }).element.visit(
-    table,
-    visitorContext(table) as never,
-  );
+  tableStack().element.visit(table, visitorContext(table) as never);
 
 const labelCount = (node: HastNode): number =>
   Number(node.properties?.ariaHidden === 'true') +
@@ -385,20 +382,8 @@ for (const colorScheme of ['dark', 'light'] as const) {
 
       /* SC 1.4.11: the lines are what separate rows and fields, so each must read against the page. */
       test(`reach ${NON_TEXT}:1 against the page`, async ({ page }) => {
-        const slides = [...builtHtml()]
-          .filter(
-            ([, html]) =>
-              html.includes('slide-body') && html.includes('<table'),
-          )
-          .map(([route]) => route);
-        expect(slides, 'no built slide has a table').not.toEqual([]);
-        for (const route of [...routesWith('table-scroll'), ...slides]) {
+        for (const route of routesWith('table-scroll')) {
           await visit(page, route);
-          /* From lg the deck shows one slide; open the one with the table. */
-          await page.evaluate(() => {
-            const slide = document.querySelector('table')?.closest('.slide');
-            if (slide?.id) location.hash = slide.id;
-          });
           await expect(page.locator('main table').first()).toBeVisible();
           const edges = await tableEdges(page);
           expect(edges, `${route} draws no table line`).not.toEqual([]);

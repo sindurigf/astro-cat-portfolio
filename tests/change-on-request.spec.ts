@@ -6,11 +6,8 @@ import { NODE } from './tags';
 /**
  * SC 3.2.5 Change on Request: context changes only when the user asks. SC 2.2.4
  * Interruptions: nothing interrupts but the result of the user's own action.
- * The presenter view is development-only and never built, so it is not read.
  */
-const PUBLISHED_SOURCE = globSync('src/**/*.{ts,vue,astro,mjs}').filter(
-  (file) => !file.startsWith('src/presenter/'),
-);
+const PUBLISHED_SOURCE = globSync('src/**/*.{ts,vue,astro,mjs}');
 
 const IN_BUILT_HTML: readonly { pattern: RegExp; why: string }[] = [
   {

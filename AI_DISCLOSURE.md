@@ -13,15 +13,14 @@ current once the site is yours.
 | Tool      | Claude Code                                                                               |
 | Code      | Components, scripts, design tokens, tests and docs, written with Claude Code and reviewed |
 | Microcopy | Functional microcopy (labels, errors, alt text, empty states) and the policy pages        |
-| Editorial | The sample persona's text: every page, every post, the talk and its slides                |
+| Editorial | The sample persona's text: every page and every post                                      |
 | Art       | Drawn by Claude as SVG and canvas code, or by Canva AI; see below                         |
 
 AI-drawn art, by Claude or Canva AI:
 
-- The animated About cats, drawn by Canva AI from the cats' photos
-  (`artwork/about-cats/`, packed by `scripts/make-about-cats.mjs`), their sleep,
-  wake and trick-list icons (`src/components/AboutCats.astro`) and their trick
-  icons (`src/lib/about-cats-tricks.json`).
+- The animated About cat, drawn by Canva AI from the cat's photos
+  (`artwork/about-cats/`, packed by `scripts/make-about-cats.mjs`), and its sleep
+  and wake icons (`src/components/AboutCats.astro`).
 - The poneglyph and its lighting script in the homepage field
   (`src/lib/hero-field-poneglyph.ts`), and its stills shown without JavaScript
   (`src/assets/hero-still-*.webp`).
