@@ -4,7 +4,7 @@
 
 A personal website template: Astro, a Vue island, Tailwind CSS and TypeScript on
 Cloudflare Workers. Neo-brutalist, dark by default with a light mode, a blog
-with feeds, a contact form, and animated cats on the About page. Tested for
+with feeds, a contact form, and an animated cat on the About page. Tested for
 WCAG 2.2 AA in Chromium, Firefox and WebKit.
 
 ## What you get
@@ -12,8 +12,8 @@ WCAG 2.2 AA in Chromium, Firefox and WebKit.
 A portfolio that ships with a sample theme: the persona Robin Ohara, an
 archaeologist, and her cat, so the site builds, passes its tests and
 looks finished before you change anything. Making it yours means replacing
-the theme with your own person, words and pictures. The animated cats on
-`/about` are a feature you keep with your own cats, or remove.
+the theme with your own person, words and pictures. The animated cat on
+`/about` is a feature you keep with your own cat, or remove.
 
 ## First steps
 
