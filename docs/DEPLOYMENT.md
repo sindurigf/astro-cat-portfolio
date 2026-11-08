@@ -289,6 +289,12 @@ Dashboard settings that change what ships without a file change.
      `/.github/` and `/scripts/check-test-weakening.mjs`, and turn on Require
      review from Code Owners in the `main` ruleset. A workflow could report a
      job also named `Test weakening`; this keeps such a change from merging.
+- `Pull request text` (`.github/workflows/pr-text.yml`) checks the title and
+  description for AI attribution and with `check:wording`, and re-runs on each
+  edit. To require it, in both repositories: Settings, Rules, Rulesets, the
+  `main` ruleset, Require status checks to pass, Add checks, type
+  `Pull request text`, pick the GitHub Actions source, Save. Dependabot pull
+  requests skip it, which counts as passed.
 - Agents run `gh` with the maintainer's token, so they can post the marker. Fix:
   a machine account with write access and a fine-grained token (Contents, Pull
   requests: read and write) for both repositories; log agents in with it and
