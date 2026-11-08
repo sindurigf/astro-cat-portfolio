@@ -2,7 +2,9 @@ import { expect, test, type Page } from './test';
 import { fontsSettled, gotoSettled } from './settle';
 import { TALK_ROUTES, ROUTES } from './routes';
 import {
+  DESKTOP_VIEWPORT,
   FOCUSABLE_SELECTOR,
+  MD_WIDTH,
   NARROW_WIDTH,
   TEXT_SPACING_OVERRIDE,
 } from './wcag';
@@ -312,6 +314,49 @@ for (const { width, contentBox, note } of REFLOW_WIDTHS) {
       test(`${route} does not scroll sideways`, async ({ page }) => {
         await expectNoHorizontalOverflow(page, route, width, true);
         await expectCellsHoldTheirText(page, route);
+      });
+    }
+  });
+}
+
+/* From md the footer motto sits on one line, so the added spacing has the least room. */
+const SPACING_WIDE_WIDTHS = [MD_WIDTH, DESKTOP_VIEWPORT.width] as const;
+
+const expectFooterMottoInBand = async (
+  page: Page,
+  route: string,
+): Promise<void> => {
+  const { text, band } = await page
+    .locator('footer .footer-name')
+    .evaluate((name) => {
+      const box = name.getBoundingClientRect();
+      const words = name
+        .querySelector('.footer-name-text')!
+        .getBoundingClientRect();
+      return {
+        text: { left: words.left, right: words.right },
+        band: { left: box.left, right: box.right },
+      };
+    });
+  expect(
+    text.left >= band.left - EDGE_TOLERANCE_PX &&
+      text.right <= band.right + EDGE_TOLERANCE_PX,
+    `${route} runs the footer motto past its band under text spacing: ` +
+      `text ${Math.round(text.left)}..${Math.round(text.right)}, ` +
+      `band ${Math.round(band.left)}..${Math.round(band.right)}`,
+  ).toBe(true);
+};
+
+for (const width of SPACING_WIDE_WIDTHS) {
+  test.describe(`no sideways scroll at ${width}px with the SC 1.4.12 text-spacing override`, () => {
+    test.use({ viewport: { width, height: REFLOW_HEIGHT } });
+
+    for (const route of ROUTES) {
+      test(`${route} does not scroll sideways and keeps the footer motto in its band`, async ({
+        page,
+      }) => {
+        await expectNoHorizontalOverflow(page, route, width, true);
+        await expectFooterMottoInBand(page, route);
       });
     }
   });
