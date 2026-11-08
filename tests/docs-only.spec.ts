@@ -1,5 +1,5 @@
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { dirname, join, relative, resolve } from 'node:path';
 import { expect, test } from './test';
 import { NODE } from './tags';
 import { COUPLED_DOCS, isDocsOnly } from '../scripts/docs-only.mjs';
@@ -38,25 +38,34 @@ test.describe('CI docs-only fast path', NODE, () => {
     expect(isDocsOnly([])).toBe(false);
   });
 
-  test('every document that code reads is listed as coupled', () => {
-    const SOURCE_ROOTS = ['src', 'tests', 'scripts'];
-    const SOURCE_FILE = /\.(?:ts|astro|mjs)$/;
-    const READS_FILES = /readFileSync|readFile|\?raw/;
-    const DOC_LITERAL =
-      /['"`]((?:docs\/|\.github\/)?[\w.-]+\.md)(?:\?raw)?['"`]/g;
-    const SELF = /docs-only\.(?:spec\.ts|mjs)$/;
+  const SOURCE_ROOTS = ['src', 'tests', 'scripts'];
+  const SOURCE_FILE = /\.(?:ts|astro|mjs)$/;
+  const READS_FILES = /readFileSync|readFile|\?raw/;
+  const DOC_LITERAL =
+    /['"`]((?:\.\.?\/)*(?:docs\/|\.github\/)?[\w.-]+\.md)(?:\?raw)?['"`]/g;
+  const SELF = /docs-only\.(?:spec\.ts|mjs)$/;
 
+  const docsRead = (file: string): string[] => {
+    const source = readFileSync(file, 'utf8');
+    if (!READS_FILES.test(source)) return [];
+    return [...source.matchAll(DOC_LITERAL)]
+      .flatMap((match) => (match[1] ? [match[1]] : []))
+      .map((literal) => relative('.', resolve(dirname(file), literal)))
+      .filter((doc) => existsSync(doc));
+  };
+
+  test('a relative ?raw import is found', () => {
+    expect(docsRead('src/lib/accessibility-facts.ts')).toContain(
+      'ACCESSIBILITY.md',
+    );
+  });
+
+  test('every document that code reads is listed as coupled', () => {
     const read = SOURCE_ROOTS.flatMap((root) =>
       readdirSync(root, { recursive: true, encoding: 'utf8' })
         .map((path) => join(root, path))
         .filter((path) => SOURCE_FILE.test(path) && !SELF.test(path)),
-    ).flatMap((path) => {
-      const source = readFileSync(path, 'utf8');
-      if (!READS_FILES.test(source)) return [];
-      return [...source.matchAll(DOC_LITERAL)]
-        .flatMap((match) => (match[1] ? [match[1]] : []))
-        .filter((doc) => existsSync(doc));
-    });
+    ).flatMap(docsRead);
 
     const unlisted = [...new Set(read)].filter((doc) => !COUPLED_DOCS.has(doc));
     expect(unlisted, 'add to COUPLED_DOCS in scripts/docs-only.mjs').toEqual(
