@@ -42,7 +42,7 @@ npm run build && npm run preview   # http://localhost:4340
 | Orca and its log            | §6.1                                               | `Super+Alt+S`, `rm /tmp/orca-pass.log`                                  |
 | GTK `toolkit-accessibility` | §6.1 fallback only                                 | `gsettings set org.gnome.desktop.interface toolkit-accessibility false` |
 | DevTools Offline            | Network panel, §6.12.1                             | Untick Offline                                                          |
-| `*.webp` request blocking   | Network panel, §6.12.3                             | Remove the pattern, reload                                              |
+| `*.avif`, `*.webp` blocking | Network panel, §6.12.3                             | Remove the patterns, reload                                             |
 | Firefox 320px window        | Window or Responsive Design Mode, §6.7 and §6.12.5 | Close Responsive Design Mode, restore the window size                   |
 
 - [ ] Teardown done.
@@ -74,18 +74,18 @@ Setup: Chrome, 1280px, `/`, focus in the address bar.
 
 ## 2. The mobile menu, keyboard only
 
-Setup: Chrome at 375px. No mouse.
+Setup: Chrome at 375px. No mouse. `tests/mobile-menu.spec.ts` covers opening,
+focus moving into the panel, Escape and Close returning focus, every link
+reachable and every ring on screen. These checks are the rest.
 
 - [ ] The menu button shows a focus ring. → SC 2.4.7
-- [ ] Enter opens the panel; Escape closes; Space reopens. → SC 2.1.1
+- [ ] Space reopens the panel. → SC 2.1.1
 - [ ] On open, focus is on the first link. → SC 2.4.3
 - [ ] Tab cycles Home, About, Career, Blog, Get in Touch, Close, one stop in
       the browser UI (correct `<dialog>` behavior), Home. The theme switch is
       not in the dialog. Focus never reaches the page behind. → SC 2.1.2
 - [ ] Shift+Tab from the first item stays in the dialog: the browser's own stop
       or the dialog itself (Firefox), then Close. → SC 2.1.2
-- [ ] Escape closes and focus returns to the menu button. → SC 2.1.2, 2.4.3
-- [ ] Close button: focus returns to the menu button. → SC 2.4.3
 - [ ] A nav link activated with Enter navigates. → SC 2.1.1
 - [ ] Arrow keys and Page Down do not scroll the page behind. → SC 2.1.1
 - [ ] Repeat in Firefox. → SC 2.1.2
@@ -106,7 +106,8 @@ Resizing is not zooming, so this stays manual even though
 - [ ] The mobile menu button replaces the desktop nav and the menu is fully
       operable. → SC 1.4.10
 - [ ] Nothing overlaps or is cut off. → SC 1.4.10
-- [ ] Tab through: the 104px sticky header never covers the focused element. → SC 2.4.11
+- [ ] Tab through: the header never covers the focused element. Under 30rem
+      (480 CSS px) tall it scrolls away with the page. → SC 2.4.11
 - [ ] Repeat on `/blog/sample-talk`. → SC 1.4.10, 2.4.11
 - [ ] Repeat at 200% and 250%. → SC 1.4.10
 - [ ] Repeat at 400% in a window 1024px tall (256px CSS): the header does not
@@ -116,19 +117,21 @@ Resizing is not zooming, so this stays manual even though
 
 Setup: `gsettings set org.gnome.desktop.interface enable-animations false`.
 `matchMedia('(prefers-reduced-motion: reduce)').matches` returns `true`.
+`tests/motion.spec.ts` and `tests/about-cats.spec.ts` cover the hero field drawn
+once with no pause control and the cats still with no sleep control.
 
 - [ ] Press and hold a primary button, a `/blog` chip, a footer sticker and
       the logo: each loses its shadow but does not move. → SC 2.3.3
 - [ ] Nothing else moves, fades or slides. → SC 2.3.3
-- [ ] `/`: the hero field is drawn once, reads as a picture, the poneglyph's
-      script is unlit, and there is no pause control. → SC 2.3.3, 2.2.2
-- [ ] `/about`: the cats sit still and have no sleep controls or trick buttons. → SC 2.3.3, 2.2.2
+- [ ] `/`: the hero field's still frame reads as a picture, and the
+      poneglyph's script is unlit. → SC 2.3.3
 - [ ] Turn it back on: the button moves and the field animates. → SC 2.3.3
 
 ## 5. Focus indicator visibility
 
-The ring is 4px cyan at a 4px offset plus the element's shadow (4px, or 8px for the logo tile);
-`#131313` on gold. Look, do not measure.
+The ring is 4px cyan at a 4px offset plus the element's shadow (4px, or 8px for
+the logo tile); `#131313` on gold. The `/contact` bricks draw an ink ring inside
+the brick instead. Look, do not measure.
 
 - [ ] On `#0B0B0B`: header links, footer. → SC 1.4.11, 2.4.7
 - [ ] On a gold and a light block: a link in a card. → SC 1.4.11, 2.4.7
@@ -136,9 +139,10 @@ The ring is 4px cyan at a 4px offset plus the element's shadow (4px, or 8px for 
       tilt, and never touches the next chip. → SC 1.4.11, 2.4.7
 - [ ] Current nav item and current chip: the ring reads as separate from the
       block. → SC 1.4.11, 2.4.7
-- [ ] Logo and contact cards (8px shadow, ring 12px out): the ring still
-      reads
-      as belonging to the control. → SC 1.4.11, 2.4.7
+- [ ] Logo (8px shadow, ring 12px out): the ring still reads as belonging to
+      the control. → SC 1.4.11, 2.4.7
+- [ ] `/contact` bricks: the ink ring sits inside the brick, reads against
+      its fill and never crosses the next brick. → SC 1.4.11, 2.4.7
 - [ ] Gold skip link and "Get in Touch": the ring is on the dark ground, never
       on gold. → SC 1.4.11
 - [ ] On a gold slab or band: the `#131313` ring is visible. → SC 1.4.11
@@ -192,9 +196,6 @@ its place at 320 and 1280px, its ring, forced colors, the theme set before
 - [ ] By ear: the button is announced "Theme and Text Size", "button", collapsed or
       expanded; open, the group "Theme" and each radio, "System", "Light",
       "Dark", with its checked state. → SC 4.1.2
-- [ ] Tab to the button: a ring shows with a gap, on the dark header. → SC 2.4.7
-- [ ] Choose System, then switch the device between light and dark: the page
-      follows without a reload. → SC 1.4.3
 - [ ] In light, Tab through `<main>`: every ring reads against white and
       against its control (`#0047b3`). → SC 1.4.11, 2.4.7
 - [ ] A focused tag chip, the current chip, the current nav link in the dark
@@ -279,22 +280,28 @@ not transform it. What a reader says for an all-caps name is unverified. The
 answer applies to every heading, `.label`, `.badge`, button, `.nav-cta`, menu
 link and the skip link.
 
-**6.4.1** Record Orca's Capitalization style, then set it to None.
+#### 6.4.1 Capitalization style
+
+Record Orca's Capitalization style, then set it to None.
 
 - [ ] It was: `________________________`
 
-**6.4.2 Firefox (control).** `/about` at 1280px, click the page, `Ctrl+Home`,
-`K` to the header link Career, then `Orca+Return`.
+#### 6.4.2 Firefox (control)
+
+`/about` at 1280px, click the page, `Ctrl+Home`, `K` to the header link Career,
+then `Orca+Return`.
 
 - [ ] Heard: `________________________`
 - [ ] `SPEECH OUTPUT:` `________________________`
 
-**6.4.3 Chrome.** The same steps.
+#### 6.4.3 Chrome
+
+The same steps.
 
 - [ ] Heard: `________________________`
 - [ ] `SPEECH OUTPUT:` `________________________`
 
-**6.4.4 Outcomes.**
+#### 6.4.4 Outcomes
 
 1. Both read "career": replace "untested" in STYLEGUIDE.md
    [Uppercase](STYLEGUIDE.md#uppercase) with both quotes, and narrow
@@ -306,7 +313,7 @@ link and the skip link.
 No outcome changes the practice: real case in markup ([case rule](STYLEGUIDE.md#uppercase)),
 `text-transform` in CSS. Dropping uppercase would be a design decision, not a fix.
 
-**6.4.5 Chrome, other elements.**
+#### 6.4.5 Chrome, other elements
 
 - [ ] `/privacy` `h1` ("Privacy"): `________________________`
 - [ ] `/404` "Follow Me" (`.btn-primary`): `________________________`
@@ -375,8 +382,7 @@ Heard: `________________________`
 
 ### 6.8 A blog post
 
-Setup: Firefox, 1280px, `/blog/sample-talk` (25 headings:
-1 `h1`, 12 `h2`, 12 `h3`).
+Setup: Firefox, 1280px, `/blog/sample-talk`.
 
 `tests/structure.spec.ts` covers the heading outline and the landmark set.
 
@@ -506,7 +512,7 @@ Wording and recording work as in §6.10.1.
 Header:
 
 - [ ] Open your site in Firefox. Press Ctrl+Home, then Down Arrow through the header. Expect: your site name and “link”, with no separate image announced for the mark. → SC 1.1.1, 4.1.2
-- [ ] Zoom in with Ctrl and + until the Menu button shows (about 250 to 300%), then press Tab through the header. Expect: “Theme”, “Aa Text Size” and “Menu”, each with “button” and “collapsed”. → SC 4.1.2
+- [ ] Zoom in with Ctrl and + until the Menu button shows (under 768 CSS px wide: 170% in a 1280px window), then press Tab through the header. Expect: “Theme”, “Aa Text Size” and “Menu”, each with “button” and “collapsed”. → SC 4.1.2
 
 Menu:
 
@@ -652,7 +658,7 @@ Setup: `/blog/sample-talk` at 1280px (open), then below 1280px
 - [ ] The landmark is named "In This Post". → SC 1.3.1
 - [ ] The summary announces a state (collapsed or expanded). → SC 4.1.2
 - [ ] No "plus", "minus" or stray character in the name. → SC 4.1.2
-- [ ] Enter: state flips; an ordered list of 12 items. → SC 1.3.1
+- [ ] Enter: state flips; an ordered list, one item per `h2`. → SC 1.3.1
 - [ ] At 1280px it is announced expanded on arrival. → SC 4.1.2
 - [ ] An entry moves to its heading, which is announced. → SC 2.4.1
 
@@ -660,8 +666,8 @@ Heard: `________________________`
 
 #### 6.12.3 A failed photo's alt text
 
-Setup: `/about`, DevTools → Network → block `*.webp`, reload. The visible copy
-of the alt text is `aria-hidden`.
+Setup: `/about`, DevTools → Network → block `*.avif` and `*.webp`, reload. The
+visible copy of the alt text is `aria-hidden`.
 
 `tests/failed-images.spec.ts` checks, with and without JavaScript, that each
 failed photo's alt is the name of one image, never also text, and that the
@@ -674,8 +680,9 @@ Heard: `________________________`
 
 #### 6.12.4 The contact error summary
 
-Setup: a rate-limited or server-failed submit (`npm run test:worker` serves
-it, or submit on preview until the limit trips).
+Setup: a rate-limited submit: `npm run preview` after the local D1 setup
+([DEVELOPMENT.md](DEVELOPMENT.md#setup)), or a preview deploy, submitting until
+the limit trips.
 
 - [ ] The summary is announced on arrival without a key press. → SC 3.3.1
 - [ ] "Your Message Was Not Sent" comes before the reason. → SC 3.3.1
@@ -700,27 +707,18 @@ Heard: `________________________`
 
 Setup: `/about` at 1280px, the cats' band on screen. Each cat is a "Meet"
 button with a sleep control beside it; one `<dialog>` holds the card. The
-drawings are `aria-hidden`.
+drawings are `aria-hidden`. `tests/about-cats.spec.ts` covers focus order,
+focus return, the sleep control, the trick list's keys and Rudra's climb.
+These checks are by ear.
 
-- [ ] Tab reaches each cat, then its sleep control; a focused cat holds
-      still. → SC 2.4.3, 2.2.2
 - [ ] Each cat is a button named "Meet Minerva", "Meet Hela" or "Meet Rudra". → SC 4.1.2
 - [ ] Enter opens the card: focus is on Close, and the dialog is named after
       the cat. → SC 2.4.3, 4.1.2
 - [ ] Tab stays on Close, never the page behind. → SC 2.1.2
-- [ ] Escape closes the card and focus returns to the same cat. → SC 2.4.3
-- [ ] The sleep control reads "Let Minerva nap"; Enter stops the cat
-      within 5 s and the control then reads "Wake Minerva". → SC 2.2.2, 4.1.2
-- [ ] Tab reaches the paw "Choose a trick for Minerva" after the sleep control;
-      Enter opens a list, Random first, and Escape closes it with focus back on
-      the paw. → SC 2.4.3, 4.1.2
-- [ ] With the list open near the window's end, Shift+Tab reaches the paw,
-      uncovered, and the list closes once focus is past the paw. → SC 2.4.12
-- [ ] Choosing "Chase the Fly" plays it; choosing a trick for a sleeping cat
-      wakes it first. → SC 2.2.2
-- [ ] Rudra climbs between his two bricks, and a click on him opens his card
-      on either brick. → SC 2.5.5
-- [ ] Under reduced motion Rudra stops climbing. → SC 2.3.3
+- [ ] The sleep control is heard as "Let Minerva nap", then "Wake Minerva"
+      once pressed. → SC 4.1.2
+- [ ] The paw is heard as "Choose a trick for Minerva"; open, the list is read
+      with Random first. → SC 4.1.2
 - [ ] The drawings announce nothing. → SC 1.1.1
 - [ ] While the trick list loads, or if it fails, its note is read once, as
       a status. → SC 4.1.3
@@ -732,7 +730,7 @@ Heard: `________________________`
 Setup: a post with a photo strip at 1280px. Open a photo, then press Next
 twice.
 
-- [ ] Each step is heard once: the count ("Photo 2 of N") and the caption,
+- [ ] Each step is heard once: the count ("2 of N") and the caption,
       neither cut off nor doubled. → SC 4.1.3
 - [ ] Nothing is read before the new photo shows. → SC 4.1.3
 
@@ -773,7 +771,7 @@ Setup: Firefox, Settings → General → Zoom → "Zoom text only", Ctrl+`+` to 
 
 - [ ] No text clipped, truncated or hidden.
 - [ ] Header and footer labels fit their boxes, the current-page box included.
-- [ ] Nothing spills out of the 104px header.
+- [ ] Nothing spills out of the header, full height or slim once scrolled.
 - [ ] The mobile menu, if shown, works.
 - [ ] Repeat on `/blog/sample-talk`.
 
@@ -870,7 +868,6 @@ From the Accessible Astro checklist and
 - Contact form criteria (SC 1.3.5, 3.3.1, 3.3.2, 3.3.3, 4.1.3) by a person:
   ACCESSIBILITY.md §7 gap 1.
 - Plain language: gap 5.
-- Whether the hero field's still frame reads as a picture: §4.
 - Routes with no check of their own: `/contact/sent`, the tag listings, and
   the category listing beyond §3. `/accessibility`, `/credits` and `/brand`
   are read only in §9a; `/privacy` also in §6.4 and §6.12.1a.
@@ -926,11 +923,6 @@ page numbers or running headers read as content, decoration announced.
       hears each slide once. → SC 1.4.10, 1.3.2, 3.2.5
 - [ ] Orca and NVDA: Next, Previous and arrow keys speak "Slide N of" the
       deck's slide count and the title once; the slide text can be read after.
-- [ ] Home and End go to the first and last slide; Page Up and Page Down turn
-      the slide, or first scroll one taller than the screen. → SC 2.1.1
-- [ ] A link to one slide opens on it; a `#slide-N` link followed within the
-      page moves focus to its heading. Focus inside a slide that turns moves
-      to the new heading. → SC 2.4.3
 - [ ] Full Screen: one 16:9 slide. Every slide fits a projector screen
       without scrolling. → SC 1.4.10
 - [ ] In full screen a pointer move or a tap shows arrows named Previous and
@@ -949,7 +941,7 @@ page numbers or running headers read as content, decoration announced.
       headless Firefox ignores the test screen size. → SC 2.1.1, 2.4.3, 2.4.7
 - [ ] Full screen at 200% zoom and with the text-spacing bookmarklet: nothing
       is cut off, long slides scroll. Titles reach 2x only at higher zoom
-      ([ACCESSIBILITY.md](../ACCESSIBILITY.md) §7). → SC 1.4.4, 1.4.12
+      ([ACCESSIBILITY.md §7](../ACCESSIBILITY.md#7-known-gaps)). → SC 1.4.4, 1.4.12
 - [ ] Page view at 200% zoom: slide text doubles; titles double at 200% from
       1280, by 500% from narrower screens. At 320px no title word is cut
       without a hyphen and nothing scrolls sideways. → SC 1.4.4, 1.4.10
