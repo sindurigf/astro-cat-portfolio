@@ -48,7 +48,7 @@ export const talkLoader = ({ base }: { base: string }): Loader => ({
 });
 
 /* Cross-slide rules: a slide before the first part would skip a level. */
-const checkDeck = (
+export const checkDeck = (
   slides: ReadonlyArray<{ number: number; data: Record<string, unknown> }>,
   fail: (number: number, message: string) => Error,
 ) => {
