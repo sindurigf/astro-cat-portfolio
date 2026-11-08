@@ -32,6 +32,18 @@ const NAMED_ENTITIES: Record<string, string> = {
 
 const SOFT_HYPHEN = 0xad;
 
+/* XML 1.0 Char production, https://www.w3.org/TR/xml/#charsets */
+const XML_CHAR_RANGES: ReadonlyArray<readonly [number, number]> = [
+  [0x9, 0xa],
+  [0xd, 0xd],
+  [0x20, 0xd7ff],
+  [0xe000, 0xfffd],
+  [0x10000, 0x10ffff],
+];
+
+const isXmlChar = (code: number): boolean =>
+  XML_CHAR_RANGES.some(([first, last]) => code >= first && code <= last);
+
 const decodeEntity = (entity: string, name: string): string => {
   const digits = /^#(x[0-9a-f]+|\d+)$/i.exec(name)?.[1];
   if (digits !== undefined) {
@@ -39,6 +51,11 @@ const decodeEntity = (entity: string, name: string): string => {
       digits.startsWith('x') || digits.startsWith('X')
         ? parseInt(digits.slice(1), 16)
         : parseInt(digits, 10);
+    if (!isXmlChar(code)) {
+      throw new Error(
+        `A post's opening uses ${entity}, which is not a character XML 1.0 allows in a feed; use a printable character.`,
+      );
+    }
     return code === SOFT_HYPHEN ? '' : String.fromCodePoint(code);
   }
   const named = NAMED_ENTITIES[name];
