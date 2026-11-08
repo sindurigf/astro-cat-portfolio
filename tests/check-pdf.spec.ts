@@ -88,11 +88,13 @@ test.describe('check:pdf', NODE, () => {
     expect(output).toContain('needs Docker');
   });
 
-  test('cannot run when public/ holds no PDF', () => {
+  test('passes with nothing to validate when public/ holds no PDF', () => {
     const root = fixture({ 'public/readme.txt': 'x' });
     const { status, output } = run(root, withDocker(COMPLIANT));
-    expect(status, output).toBe(EXIT_UNUSABLE);
-    expect(output).toContain('No PDF found');
+    expect(status, output).toBe(0);
+    expect(output).toContain(
+      'No PDF under public/, so there is nothing to validate.',
+    );
   });
 
   test('refuses a path outside the repository', () => {
