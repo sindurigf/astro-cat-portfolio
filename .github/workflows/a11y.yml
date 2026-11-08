@@ -17,6 +17,35 @@ permissions:
   contents: read
 
 jobs:
+  # Decides whether the browser shards run. Only a pull request can skip them.
+  changes:
+    name: Changed files
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    outputs:
+      docs_only: ${{ steps.docs.outputs.docs_only }}
+
+    steps:
+      - name: Check out
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # The merge commit's first parent is the base branch tip.
+          fetch-depth: 2
+
+      - name: Set up Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: '.nvmrc'
+
+      - name: Detect a documentation-only change
+        id: docs
+        run: |
+          docs_only=false
+          if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
+            docs_only=$(git diff --name-only HEAD^1 HEAD | node scripts/docs-only.mjs)
+          fi
+          echo "docs_only=$docs_only" >> "$GITHUB_OUTPUT"
+
   # Runs beside the shards, not before them, so both report together.
   checks:
     name: Conventions, build, typecheck, format and contact endpoint
@@ -141,6 +170,9 @@ jobs:
 
   # Shards take `--list` in turn, test by test (scripts/shard-tests.mjs), not in runs of whole specs.
   test:
+    needs: changes
+    # Skipped for a documentation-only pull request; `Required checks` allows that.
+    if: ${{ needs.changes.outputs.docs_only != 'true' }}
     name: Playwright (${{ matrix.shard }}/${{ strategy.job-total }})
     # Not ubuntu-latest: WebKit needs ICU 74, which only 24.04 has.
     runs-on: ubuntu-24.04
@@ -336,7 +368,7 @@ jobs:
     # together, or every pull request stops being mergeable.
     name: Required checks
     runs-on: ubuntu-24.04
-    needs: [checks, test, demo]
+    needs: [changes, checks, test, demo]
 
     # A skipped required check counts as passed; `always()` stops a red shard
     # from skipping this job.
@@ -349,10 +381,15 @@ jobs:
           CHECKS: ${{ needs.checks.result }}
           TESTS: ${{ needs.test.result }}
           DEMO: ${{ needs.demo.result }}
+          DOCS_ONLY: ${{ needs.changes.outputs.docs_only }}
         run: |
           echo "checks: $CHECKS"
           echo "tests:  $TESTS"
           echo "demo:   $DEMO"
+          echo "docs only: $DOCS_ONLY"
+          if [ "$DOCS_ONLY" = "true" ] && [ "$TESTS" = "skipped" ]; then
+            TESTS=success
+          fi
           if [ "$CHECKS" != "success" ] || [ "$TESTS" != "success" ] || [ "$DEMO" != "success" ]; then
             echo "::error::A required job did not succeed (checks=$CHECKS, tests=$TESTS, demo=$DEMO)."
             exit 1
