@@ -42,7 +42,7 @@ jobs:
         run: |
           docs_only=false
           if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
-            docs_only=$(git diff --name-only HEAD^1 HEAD | node scripts/docs-only.mjs)
+            docs_only=$(git diff --name-only --no-renames HEAD^1 HEAD | node scripts/docs-only.mjs)
           fi
           echo "docs_only=$docs_only" >> "$GITHUB_OUTPUT"
 
