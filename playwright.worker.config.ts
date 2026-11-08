@@ -39,6 +39,10 @@ export const NOTIFY_TO = 'owner@example.com';
 /* Bytes served as a video, so the byte-range tests run while no real video ships. */
 export const VIDEO_FIXTURE_NAME = 'range-fixture.webm';
 const VIDEO_FIXTURE = `tests/fixtures/${VIDEO_FIXTURE_NAME}`;
+
+/* A blank page served as a PDF, so the PDF header tests run while the template ships none. */
+export const PDF_FIXTURE_NAME = 'served-fixture.pdf';
+const PDF_FIXTURE = `tests/fixtures/${PDF_FIXTURE_NAME}`;
 const BASE_URL = `http://localhost:${PORT}`;
 
 export default defineConfig({
@@ -64,13 +68,13 @@ export default defineConfig({
 
   webServer: {
     /*
-     * The range fixture is in public/videos/ only for this build, so the build
-     * records its size and ships it to dist/; it, and the folder if left empty, are
-     * removed even if the build fails.
+     * The fixtures are in public/ only for this build, so the build records
+     * their sizes and ships them to dist/; they, and their folders if left
+     * empty, are removed even if the build fails.
      */
     command:
-      `mkdir -p public/videos && cp ${VIDEO_FIXTURE} public/videos/` +
-      ` && (npm run build; built=$?; rm -f public/videos/${VIDEO_FIXTURE_NAME}; rmdir public/videos 2>/dev/null; exit $built)` +
+      `mkdir -p public/videos public/files && cp ${VIDEO_FIXTURE} public/videos/ && cp ${PDF_FIXTURE} public/files/` +
+      ` && (npm run build; built=$?; rm -f public/videos/${VIDEO_FIXTURE_NAME} public/files/${PDF_FIXTURE_NAME}; rmdir public/videos public/files 2>/dev/null; exit $built)` +
       ' && npx wrangler d1 migrations apply MESSAGES_DB --local' +
       ` && npm run preview -- --port ${PORT} --ignore-lock`,
     url: BASE_URL,
