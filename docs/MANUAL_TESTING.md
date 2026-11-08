@@ -870,8 +870,8 @@ From the Accessible Astro checklist and
 
 ## 13. Published PDFs
 
-`public/talks/sample-talk.pdf` (from `/blog/sample-talk`), and a CV when
-`person.cv` is set (from `/career`).
+Every PDF under `public/`: a CV when `person.cv` is set (from `/career`). The
+template ships none.
 
 1. Run `npm run check:pdf` first
    ([DEVELOPMENT.md](DEVELOPMENT.md#published-pdfs)). Fix what it reports
@@ -892,62 +892,14 @@ Arrow through with Orca. Fail: caption before its figure, columns read across,
 page numbers or running headers read as content, decoration announced.
 
 - [ ] CV read in full, order recorded.
-- [ ] Deck read in full, order recorded.
 
 ### 13.3 Alternative texts → SC 1.1.1
 
 "Image", a file name or a repeated caption is a failure a validator passes.
 
 - [ ] CV: the portrait is not announced; it is decoration.
-- [ ] Deck: same.
 
 ### 13.4 Headings and tables
 
 - [ ] CV: heading tags match the visual hierarchy.
-- [ ] Deck: heading tags match the visual hierarchy.
 - [ ] Any table has tagged, scoped header cells.
-
-### 13.5 The talk slideshow and the deck
-
-`/talks/sample-talk/` carries the same `slides.md` as the PDF.
-`tests/slideshow.spec.ts` drives controls, keys, the live region and focus.
-
-- [ ] The PDF in a screen reader: each slide's heading, cards in order, links
-      by text, any image by its alt text.
-- [ ] A phone and a tablet (under 1024px): no slide controls, the PDF link
-      opens the PDF in place, every slide reads in order, and a screen reader
-      hears each slide once. → SC 1.4.10, 1.3.2, 3.2.5
-- [ ] Orca and NVDA: Next, Previous and arrow keys speak "Slide N of" the
-      deck's slide count and the title once; the slide text can be read after.
-- [ ] Full Screen: one 16:9 slide. Every slide fits a projector screen
-      without scrolling. → SC 1.4.10
-- [ ] In full screen a pointer move or a tap shows arrows named Previous and
-      Next with the count at the foot, and ✕ named Exit Full Screen inside the
-      slide's top right corner; no control is named Full Screen. A tap that shows them turns
-      no slide. They hide with the pointer when still, never while the
-      pointer is on one or one has keyboard focus (Shift+Tab from the slide
-      reaches Next, then Previous, then Exit), and they do not fade or slide.
-      They cover no slide content. A click on ✕ leaves full screen.
-      → SC 2.1.1, 2.3.3, 2.4.7, 2.5.6
-- [ ] In full screen: Space, Enter, Right, Down and Page Down go on;
-      Shift+Space, Left, Up and Page Up go back. Space and Page keys first
-      scroll a slide taller than its frame. Focus is on the slide, with the
-      ring around the card; Escape leaves and focus is on Full Screen. Real
-      full screen needs a click, so check by hand in Firefox and Safari too:
-      headless Firefox ignores the test screen size. → SC 2.1.1, 2.4.3, 2.4.7
-- [ ] Full screen at 200% zoom and with the text-spacing bookmarklet: nothing
-      is cut off, long slides scroll. Titles reach 2x only at higher zoom
-      ([ACCESSIBILITY.md §7](../ACCESSIBILITY.md#7-known-gaps)). → SC 1.4.4, 1.4.12
-- [ ] Page view at 200% zoom: slide text doubles; titles double at 200% from
-      1280, by 500% from narrower screens. At 320px no title word is cut
-      without a hyphen and nothing scrolls sideways. → SC 1.4.4, 1.4.10
-- [ ] Print preview: one page per slide, no controls. Matches the PDF.
-- [ ] Presenter view (`astro dev` only, `/talks/<deck>/presenter/`): the
-      timer button reads "Start Timer" then "Pause Timer", the time is not
-      announced every second, and Next follows the slideshow in the other tab.
-      `tests/presenter.spec.ts` checks only that the notes glob matches the
-      deck file. → SC 2.2.2, 4.1.3
-- [ ] VoiceOver on iOS: slides can be moved through and read without a
-      keyboard.
-- [ ] At 400% zoom a slide reads down the page and the controls stay
-      reachable.

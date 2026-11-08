@@ -4,8 +4,6 @@
  * https://adrianroselli.com/2018/02/tables-css-display-properties-and-aria.html
  */
 
-import { isTalk } from './post-figure.mjs';
-
 const STACK_CLASS = 'table-stack';
 const LABEL_CLASS = 'table-label';
 
@@ -39,14 +37,13 @@ const labelFor = (text) => ({
   children: [{ type: 'text', value: text }],
 });
 
-export const tableStack = ({ fileURL } = {}) => ({
+export const tableStack = () => ({
   name: 'table-stack',
 
   element: {
     filter: ['table'],
 
     visit(table, ctx) {
-      if (isTalk(fileURL)) return;
       ctx.setProperty(table, 'role', 'table');
 
       /* Labels follow cell position, which spanned cells shift; such a table scrolls. */

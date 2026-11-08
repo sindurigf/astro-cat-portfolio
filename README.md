@@ -4,8 +4,8 @@
 
 A personal website template: Astro, a Vue island, Tailwind CSS and TypeScript on
 Cloudflare Workers. Neo-brutalist, dark by default with a light mode, a blog
-with feeds, a talk slideshow, a contact form, and animated cats on the About
-page. Tested for WCAG 2.2 AA in Chromium, Firefox and WebKit.
+with feeds, a contact form, and animated cats on the About page. Tested for
+WCAG 2.2 AA in Chromium, Firefox and WebKit.
 
 ## What you get
 
@@ -49,10 +49,6 @@ it is done.
    - Category descriptions: `src/lib/categories.ts`.
    - Posts: replace the two in `src/content/blog/`
      ([writing a post](docs/DEVELOPMENT.md#writing-a-post)).
-   - The talk: replace `src/content/talks/sample-talk/` with your own deck,
-     then run `npm run publish:talk` for its PDF
-     ([writing a talk](docs/DEVELOPMENT.md#writing-a-talk)). Two tests list
-     the sample deck by name; their `TODO(fork)` comments say what to change.
    - Robin's notice: set `SAMPLE_PERSONA` in `src/lib/persona.ts` to `null`.
      It removes the fan-tribute notice from the homepage and `/credits`.
    - Credits: `src/lib/credits.ts` and `src/pages/credits.astro`. Keep the
@@ -191,7 +187,7 @@ form answers 503 until its D1 database is created and migrated
 ## Documentation
 
 - [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md): requirements, commands, layout,
-  posts, talks
+  posts
 - [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md): Cloudflare, D1, email, contact
   options, Plausible, dashboard and repository settings
 - [ARCHITECTURE.md](ARCHITECTURE.md): stack, site config, tokens, content,

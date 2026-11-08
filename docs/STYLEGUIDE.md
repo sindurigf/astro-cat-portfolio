@@ -47,7 +47,6 @@ blur, uppercase headings, tilted marks.
 | 2   | The primary action: `.nav-cta`, `.btn-primary`                                                                                     | 11 routes, 4 routes                    |
 | 3   | the logo marks: the homepage sticker; the box cat and the logo cat are cardboard and the cats' coats, not gold                     | `/`                                    |
 | 4   | Card labels, `.label text-gold`; a form's field labels are `text`                                                                  | `/about`, `/accessibility`, `/contact` |
-| 4a  | A talk slide's label, bold words, part number and lead-in term before a colon; its text links, still underlined                    | `/talks/<deck>/`                       |
 | 5   | Category: the blog label and the homepage glyph tiles, ink-edged on gold                                                           | 3 routes                               |
 | 6   | Display words: the homepage family name                                                                                            | `/`                                    |
 | 7   | List markers in `.bullet-list`                                                                                                     | wherever a bulleted list is            |
@@ -63,8 +62,6 @@ blur, uppercase headings, tilted marks.
 - 11 closes every page the way the header (10) opens it: the site's own
   motto in ink on gold.
 
-- 4a's lead-in terms and links make a projected slide's key words readable at
-  a glance; light mode turns them ink, like bold words.
 - A use with a replacement takes it: a `/career` date is `subtle`; the
   homepage stat numbers are ink on a wall of light blocks (gold on gold is
   1.00).
@@ -139,7 +136,7 @@ The gold-ground set is in [Gold surface](#gold-surface), light values in
   Bricks in one row rise by `--step-y` (48px from 1120px; half for the second
   of three or more); stacked rows bring their right edge in by `--step-x`, at
   most twice. A drop would end the throw against a brick face. The
-  post contents juts right and the contact submit and talk slides jut left
+  post contents juts right and the contact submit juts left
   by `--step-x` (24px).
   Both are 0 below 640px. Juts are translates or margins that never widen
   the page.
@@ -330,7 +327,7 @@ The switch and what it scopes: [ARCHITECTURE.md](../ARCHITECTURE.md#light-mode).
 - Hover fills are dark mode's `#00dcfd` under `#131313` (11.20).
 - `.surface-gold` and `.v-column` go white. Buttons, tiles and stickers keep
   their `#FFC000` fill, always under `#131313` (11.32).
-- Gold text turns ink; a `.label.text-gold` and a slide label gain a gold
+- Gold text turns ink; a `.label.text-gold` gains a gold
   square before the word, ink on a gold block (`--label-mark`).
 - Blocks stay gold or light in light mode, with the `#131313` edge (18.58 on white).
 - The header bar keeps its `#FFC000` fill and `#131313` edge; its throw
@@ -352,43 +349,33 @@ zoom doubles them (SC 1.4.4); other sizes are `clamp()` tokens; the
 copyright and contents list are fixed, and `text-code` is `max(1rem, 0.92em)`,
 0.92 of the text around it with a 16px floor.
 
-| Token                     | Min px | Max px | Line height | Weight | Use                                   |
-| ------------------------- | ------ | ------ | ----------- | ------ | ------------------------------------- |
-| `text-hero-h1`            | 36     | 36     | 0.94        | 900    | Homepage name only                    |
-| `text-h1`                 | 48     | 48     | 0.94        | 900    | Page title                            |
-| `text-deck-cover`         | 33     | 80     | 0.94        | 900    | Talk cover title                      |
-| `text-reading-h1`         | 40     | 40     | 0.94        | 900    | Privacy, Accessibility title          |
-| `text-h2`                 | 28     | 28     | 0.96        | 900    | Section and panel heading             |
-| `text-h3`                 | 22     | 22     | 1.1         | 900    | Third-level heading, card title       |
-| `text-display`            | 20     | 32     | 1.1         | 900    | Links, values and stats, not headings |
-| `text-lead`               | 24     | 24     | 1.55        | 400    | Lead; card paragraph                  |
-| `text-post-title`         | 32     | 32     | 1.06        | 900    | Post title, in its own case           |
-| `text-post-h2`            | 28     | 28     | 1.02        | 900    | Post section; `.reading-layout`       |
-| `text-post-h3`            | 22     | 22     | 1.15        | 900    | Post subsection, last level           |
-| `text-post-card`          | 24     | 24     | 1.15        | 900    | Post card title (an `h2`)             |
-| `text-post-card-feature`  | 28     | 28     | 1.02        | 900    | Featured post card title              |
-| `text-contents`           | 16     | 16     | 1.35        | 400    | A post's contents list                |
-| `text-standfirst`         | 20     | 36     | 1.55        | 400    | Slab aside, `.standfirst`             |
-| `text-post-teaser`        | 21     | 26     | 1.55        | 400    | Post and plain-tier aside             |
-| `text-body`               | 18     | 19     | 1.62        | 400    | Reading text                          |
-| `text-code`               | 16     | none   | 1.5         | 400    | Code, `--font-mono`; tracks body      |
-| `text-button`             | 14     | 16     | 1.2         | 900    | Buttons; same as `text-label`         |
-| `text-label`              | 14     | 16     | 1.2         | 900    | Labels; 16 to 40rem, 14 at 48rem      |
-| `text-hero-sticker`       | 18     | 30     | 1.02        | 900    | Homepage hero stickers                |
-| `text-menu`               | 34     | 56     | 1           | 900    | Mobile menu links                     |
-| `text-slide`              | 17     | 34     | 1.35        | 400    | Slide text: full screen, print        |
-| `text-slide-title`        | 26     | 65     | 1           | 900    | Talk slide title, its own case        |
-| `text-slide-title-page`   | 24     | 56     | 1           | 900    | Slide title on the page               |
-| `text-slide-h3`           | 22     | 42     | 1.1         | 900    | Slide group label: full screen, print |
-| `text-slide-number`       | 72     | 160    | 1           | 900    | Talk part number                      |
-| `text-slide-frame`        | 17     | 34     | 1.35        | 400    | Slide text in full screen, by frame   |
-| `text-slide-title-frame`  | 26     | 65     | 1           | 900    | Slide title in full screen, by frame  |
-| `text-slide-h3-frame`     | 22     | 42     | 1.1         | 900    | Slide label in full screen, by frame  |
-| `text-slide-number-frame` | 72     | 160    | 1           | 900    | Part number in full screen, by frame  |
-| `text-copyright`          | 20     | 20     | 1.2         | 900    | Footer copyright                      |
-| `text-footer-name-fluid`  | fills  | fills  | 0.82        | 900    | Footer motto band, sized to its width |
-| `text-section-number`     | 21     | 28     | 1           | 900    | Category glyph tile                   |
-| `text-quote-mark`         | 64     | 144    | 0.75        | 900    | About quote mark                      |
+| Token                    | Min px | Max px | Line height | Weight | Use                                   |
+| ------------------------ | ------ | ------ | ----------- | ------ | ------------------------------------- |
+| `text-hero-h1`           | 36     | 36     | 0.94        | 900    | Homepage name only                    |
+| `text-h1`                | 48     | 48     | 0.94        | 900    | Page title                            |
+| `text-reading-h1`        | 40     | 40     | 0.94        | 900    | Privacy, Accessibility title          |
+| `text-h2`                | 28     | 28     | 0.96        | 900    | Section and panel heading             |
+| `text-h3`                | 22     | 22     | 1.1         | 900    | Third-level heading, card title       |
+| `text-display`           | 20     | 32     | 1.1         | 900    | Links, values and stats, not headings |
+| `text-lead`              | 24     | 24     | 1.55        | 400    | Lead; card paragraph                  |
+| `text-post-title`        | 32     | 32     | 1.06        | 900    | Post title, in its own case           |
+| `text-post-h2`           | 28     | 28     | 1.02        | 900    | Post section; `.reading-layout`       |
+| `text-post-h3`           | 22     | 22     | 1.15        | 900    | Post subsection, last level           |
+| `text-post-card`         | 24     | 24     | 1.15        | 900    | Post card title (an `h2`)             |
+| `text-post-card-feature` | 28     | 28     | 1.02        | 900    | Featured post card title              |
+| `text-contents`          | 16     | 16     | 1.35        | 400    | A post's contents list                |
+| `text-standfirst`        | 20     | 36     | 1.55        | 400    | Slab aside, `.standfirst`             |
+| `text-post-teaser`       | 21     | 26     | 1.55        | 400    | Post and plain-tier aside             |
+| `text-body`              | 18     | 19     | 1.62        | 400    | Reading text                          |
+| `text-code`              | 16     | none   | 1.5         | 400    | Code, `--font-mono`; tracks body      |
+| `text-button`            | 14     | 16     | 1.2         | 900    | Buttons; same as `text-label`         |
+| `text-label`             | 14     | 16     | 1.2         | 900    | Labels; 16 to 40rem, 14 at 48rem      |
+| `text-hero-sticker`      | 18     | 30     | 1.02        | 900    | Homepage hero stickers                |
+| `text-menu`              | 34     | 56     | 1           | 900    | Mobile menu links                     |
+| `text-copyright`         | 20     | 20     | 1.2         | 900    | Footer copyright                      |
+| `text-footer-name-fluid` | fills  | fills  | 0.82        | 900    | Footer motto band, sized to its width |
+| `text-section-number`    | 21     | 28     | 1           | 900    | Category glyph tile                   |
+| `text-quote-mark`        | 64     | 144    | 0.75        | 900    | About quote mark                      |
 
 - Lexend, self-hosted from `@fontsource-variable/lexend` (OFL-1.1), family
   `'Lexend Variable'`. Only the latin subset is declared, in the `@font-face`
@@ -429,12 +416,10 @@ copyright and contents list are fixed, and `text-code` is `max(1rem, 0.92em)`,
   swaps in `--text-hero-h1-column` and `--text-hero-h1-column-phone`, both
   36px (`tests/hero-fit.spec.ts`).
 - `text-reading-h1` is for the Privacy and Accessibility titles only.
-- The talk cover keeps the fluid `text-deck-cover`; the deck has its own
-  rule ([ACCESSIBILITY.md](../ACCESSIBILITY.md) gap 7).
 - Posts use `text-post-*`. Do not raise them to the page scale.
 - The footer motto fills its band by container width (`--text-footer-name-fluid`, `-md`), one word a line below 48rem, one line from 48rem that wraps under SC 1.4.12 text spacing; no rem floor, so a larger default font never pushes it past the band. A fork sets both divisors from its motto.
 - Tracking: `--tracking-heading` -0.05em on h1 and h2, `--tracking-title`
-  -0.02em on h3, post and slide titles, `--tracking-label`
+  -0.02em on h3 and post titles, `--tracking-label`
   0.1em on labels and buttons.
 - The standfirst is `max-w-2xl`, `--spacing` step 8 under the title.
 
@@ -473,11 +458,11 @@ longest word fits there; `tests/reflow.spec.ts` holds them.
   (`scripts/check-allow-lists.mjs`) keep their own case. It does not scan
   `.label` or `.badge` text, which is sentence case, except where the element
   is a heading or a button: those stay title case.
-  It cannot see server-rendered `/contact/send` or the dev-only presenter;
-  check their headings and buttons by hand.
+  It cannot see server-rendered `/contact/send`; check its headings and
+  buttons by hand.
 - `.label`, `.badge`, the buttons and every heading apply
-  `text-transform: uppercase`. A post title and a talk slide title keep their
-  written case (`.post-title`, `.slide-title`).
+  `text-transform: uppercase`. A post title keeps its written case
+  (`.post-title`).
 - Chromium exposes the uppercased string in the accessible name (`About`
   becomes `"ABOUT"`); Firefox and WebKit do not. Real case in the markup is the
   one input correct under both, and keeps copy, search and previews in real
@@ -552,7 +537,7 @@ with a comment beside it.
   fact-strip rules, a prose `hr` and blockquote: the
   `edge`, `edge-t`, `edge-b` and `edge-l` utilities. Photos, controls, chips, the theme
   switch, stickers and code blocks keep `border-4`. No rule between sections.
-- Every prose table (posts, `/brand`, slides) draws only `--hairline` (1px)
+- Every prose table (posts, `/brand`) draws only `--hairline` (1px)
   lines, the `hairline`, `hairline-t` and `hairline-b` utilities, all in
   `text`, never gold. Nothing else uses `--hairline`.
 - The default border color is `border`, set in the base layer (Tailwind 4
@@ -570,8 +555,8 @@ with a comment beside it.
 
 | Utility                     | Casts it                                                                                                              |
 | --------------------------- | --------------------------------------------------------------------------------------------------------------------- |
-| `shadow-hard-pink-object`   | Cards, post contents, gold areas, popovers, slide cards, the header bar; `--hard-throw` (8px)                         |
-| `shadow-hard-pink-4`        | The PageHero photo, `.btn-primary`, `.btn-secondary`, link chips, footer stickers, slide cards                        |
+| `shadow-hard-pink-object`   | Cards, post contents, gold areas, popovers, the header bar; `--hard-throw` (8px)                                      |
+| `shadow-hard-pink-4`        | The PageHero photo, `.btn-primary`, `.btn-secondary`, link chips, footer stickers                                     |
 | `shadow-brick`              | The header's brick rows (in `block-ink`), the menu's links, call to action and Close; `--brick-throw` (6px) in `text` |
 | `shadow-hard-cyan-object`   | A hovered linked card, in place of pink; a contact link brick fills cyan instead, its ring inside in ink              |
 | `shadow-hard-gold-border-4` | A card on gold                                                                                                        |
@@ -808,7 +793,7 @@ Kept by review: no spec compares instances across pages.
 `src/components/PageHero.astro`. Enforced by `tests/page-hero.spec.ts` and
 `tests/gold-surface.spec.ts`.
 
-Four openings, no fifth: Home's canvas hero, a talk's cover slide, a post's
+Three openings, no fourth: Home's canvas hero, a post's
 `.post-slab`, and `PageHero` everywhere else.
 
 ### The slab tiers
@@ -1036,7 +1021,7 @@ Enforced by `tests/post-page.spec.ts`.
 | Code block  | `.prose pre`: mono, scrolls sideways, a named tab stop while it overflows. In a post, `.code-block` (`src/styles/components/code-block.css`): a `--border-width-thin` `code-edge` frame on `code-fill`, the fence language in a gold label brick on its top edge (`block-gold`, `fill-edge`, thin in light mode), and a Copy button in its top-right corner, the word beside the icon, named "Copy <language> code", 44px, its ring inside. The code group is named "<language> code"; the label is hidden from assistive technology. The room for the button is kept only with JavaScript (`.js`). A failed copy (no clipboard, or the browser refuses) selects the code and says how to copy it, in `pink-text` under the block, on the page ground. No script, no button                                                                                                                                                                                                                                                           |
 | Lists       | `mt-6 pl-6`, items `mt-3`, gold markers; a link-only item is 44px tall                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
 | Blockquote  | `mt-6`, `edge-l border-border`, `pl-6`, its text at weight 900                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-| Table       | In a `.table-scroll` box (`mt-6`) that scrolls sideways from 640px, a named tab stop while it overflows; auto layout, words never break, cells `px-4 py-3` with `hairline` lines in `text`, column headers bold on no fill. Below 640px a post table's rows stack (`.table-stack`; `/brand`'s and any with a spanned cell keep scrolling): the first cell bold as its title, each other value under its column name, and in a two-column table the first value too, in a `text-label` `subtle` label (`aria-hidden`, from `table-stack.mjs`), `hairline` lines between rows and fields, long code breaking anywhere. Markdown headers get `scope="col"`, a table with row headers is HTML. Slide tables take the same lines, in fixed layout with no scroller and no stacking; below about 390px a long word in a two-column slide cell can still split                                                                                                                                                                               |
+| Table       | In a `.table-scroll` box (`mt-6`) that scrolls sideways from 640px, a named tab stop while it overflows; auto layout, words never break, cells `px-4 py-3` with `hairline` lines in `text`, column headers bold on no fill. Below 640px a post table's rows stack (`.table-stack`; `/brand`'s and any with a spanned cell keep scrolling): the first cell bold as its title, each other value under its column name, and in a two-column table the first value too, in a `text-label` `subtle` label (`aria-hidden`, from `table-stack.mjs`), `hairline` lines between rows and fields, long code breaking anywhere. Markdown headers get `scope="col"`, a table with row headers is HTML.                                                                                                                                                                                                                                                                                                                                            |
 | Fold        | `.module-panel` (`src/plugins/post-fold.mjs`): a module as one panel with a `border` edge. Its h2 is the top bar on `surface`; the Steps toggle (`details.post-fold > summary`, `data-module`) is joined at the bar's right end, `--size-module-toggle` wide and the bar's one-line height, with its own `border` edge on the sides it does not share (color 9; 3:1 in both modes). Named "Steps for Module N", its state in the +/- marker and the native expanded state, 44px tall. Open on load; Close All Modules and Open All Modules buttons shown with JavaScript. The toggle drops below the bar on a panel under 20rem, or when Text Size crowds the bar (`src/scripts/post-folds.ts`); its focus ring sits inside it. Figures in a module keep the body's inset. In light mode the panel and toggle edges are `--border-width-thin`. Inside a module, code keeps its `code-edge` frame and quotes and rules take `subtle` at `--border-width-thin`, so no gold line runs inside. Nothing folds inside a module. Prints open |
 | Figure      | `mt-8`, wider than the text ([Measure](#measure)), an `.aspect-frame` sized by the file with a 4px `border` ring; caption `mt-4 text-label text-subtle`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
 | `hr`        | `mt-16`, a 6px `border` rule                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
@@ -1103,8 +1088,8 @@ A heading, a sentence, one way on. Enforced by `tests/empty-states.spec.ts`,
   `autofocus`, no `role="alert"` (focus already announces it; some screen
   readers read an alert twice).
 - A status region exists, empty, before anything is written to it.
-- The only live regions: the contact form's status, the photo viewer's count
-  and caption and the slideshow's status. Every
+- The only live regions: the contact form's status and the photo viewer's count
+  and caption. Every
   other state is its own page.
 - The photo viewer decodes before it swaps, then writes `src`, caption and
   count together, so nothing is announced before it is painted.
@@ -1180,7 +1165,7 @@ Enforced by `tests/footer.spec.ts`.
   sideways. The name swaps between Let It Fall and Put It Back, no
   `aria-pressed`; a polite status, in the page from the start, says what
   happened. Under reduced motion the blocks and mascot move at once; in print
-  they stand still. Hidden without JavaScript and not on talk decks
+  they stand still. Hidden without JavaScript
   (`tests/let-it-fall.spec.ts`).
 - the motto, `site.motto` (a `div` with its `lang`, not a heading), as display
   type on a gold band, the mascot (the box cat, `alt=""`) standing on its last letter
@@ -1193,7 +1178,7 @@ by `tests/reading-tab.spec.ts`.
 
 - One group, "Text Size": Smaller (smaller), Larger (larger) and Reset
   (100 percent), each 44px at least, hints as descriptions, and a polite
-  status. Hidden without a script, and absent on talk decks and in print.
+  status. Hidden without a script, and absent in print.
 - Where it sits depends on the width. From 86rem (the `tab` variant) the page
   leaves a free gutter beside its 80rem column, and the control is an edge tab
   in it: a `popover` button named "Aa Text Size", fixed to the right at
@@ -1379,16 +1364,6 @@ Enforced by `tests/nav-current.spec.ts`, `tests/mobile-menu.spec.ts`,
 - The cat's SC 2.2.2 control sits in its band's corner: Zz ("Let Rudra nap")
   while it plays, an eye ("Wake Rudra") while it sleeps.
   Hidden under reduced motion, where nothing moves.
-- A talk in full screen (`src/components/DeckBar.astro`,
-  `src/styles/components/slides.css`) shows one slide, arrows named Previous
-  and Next with the count at the foot, and ✕ named Exit Full Screen in the
-  card's top right corner. No control there is named Full Screen. They show on
-  a pointer move or a tap, hide with the pointer once it rests, and stay while
-  the pointer is on one or one has keyboard focus. No transition. The foot row
-  sits in a row reserved under the slide (`--deck-bar-room`), clear of the
-  slide and its focus ring; ✕ sits inside the card's border by `--focus-gap`,
-  in its corner padding, clear of slide content on 16:9 and 4:3 screens. Exit is first in the DOM, so Tab goes from
-  the top down.
 - A cat naps after `NAP_AFTER_MS` of on-screen play (`src/lib/about-cats.ts`).
   Lying down, and the "z" after it, end within 5 s, then the cat is
   still.

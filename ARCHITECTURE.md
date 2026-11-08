@@ -31,8 +31,7 @@ conventions for this template. Design rules and values are in
   `components/*.css` by area with `reduced-motion.css` among them,
   `utilities.css`, `light-mode.css`. Reordering the imports reorders the
   cascade.
-- Page-only partials are not in that list: `slides.css` (the talk page and the
-  presenter), `about-cats.css` (`/about`), `not-found.css` (`/404`),
+- Page-only partials are not in that list: `about-cats.css` (`/about`), `not-found.css` (`/404`),
   `code-block.css` and `post-folds.css` (posts) and `brand.css` (`/brand`,
   which also takes `code-block.css`) are imported by the page that uses them,
   so each builds as its own sheet, linked after the shared one. Each opens
@@ -135,12 +134,10 @@ Dark is the default. Colors and rules:
 - An inline script in `BaseLayout.astro`'s `<head>` sets `data-theme` from the
   saved choice or `prefers-color-scheme` before the body parses, rereads it on
   a back-forward cache restore (`pageshow`), applies a saved `--text-scale`,
-  and adds the `js` class the slideshow's pre-hide keys on. After
-  `DECK_READY_TIMEOUT_MS` it sets `data-deck-failed` on a deck that is not
-  ready, and the deck then shows every slide. Its hash is in `script-src`;
-  `npm run check:csp` fails when a build changes any inline block, and
-  `-- --write` updates the hashes. It sits in `<head>`, not beside the switch,
-  so nothing paints in the wrong theme first.
+  and adds the `js` class that script-only styles key on. Its hash is in
+  `script-src`; `npm run check:csp` fails when a build changes any inline
+  block, and `-- --write` updates the hashes. It sits in `<head>`, not beside
+  the switch, so nothing paints in the wrong theme first.
 - Three choices: System (the default, nothing stored), Light and Dark (stored
   as `light` or `dark` under `THEME_STORAGE_KEY` in `src/lib/theme.ts`).
   `data-theme` always holds the resolved `light` or `dark`.
@@ -214,7 +211,7 @@ Headings, alt text, focus rings and axe are checked on the rendered page by
 ## Content collection
 
 `src/content.config.ts` defines `blog` (`glob()` over
-`src/content/blog/*.md`, top level only) and [`talks`](#talks).
+`src/content/blog/*.md`, top level only).
 
 | Field            | Type              | Required | Default  |
 | ---------------- | ----------------- | -------- | -------- |
@@ -312,44 +309,6 @@ which is not installed.
   Console's Search generative AI control stays on Include. Cloudflare's managed
   robots.txt stays off so it cannot contradict this. `tests/sitemap.spec.ts`.
 
-### Talks
-
-One deck per talk, `src/content/talks/<deck>/slides.md`, Slidev Markdown
-format, rendered by the site as a slideshow at `/talks/<deck>/`, a dev-only
-presenter view and a PDF. Authoring rules:
-[docs/DEVELOPMENT.md](docs/DEVELOPMENT.md#writing-a-talk).
-
-- **Not Slidev.** Its output has no `<main>`, no slide-change announcement,
-  nested buttons, a scaled fixed canvas, no reduced motion, nothing without JS,
-  a public `/presenter/` and notes in the bundle, and an untagged PDF with no
-  `/Lang` ([slidev#2426](https://github.com/slidevjs/slidev/issues/2426),
-  [slidev#2273](https://github.com/slidevjs/slidev/pull/2273)).
-- **Loader.** `src/lib/talk-loader.ts`, one entry per slide
-  (`<deck>/<number>`). `src/lib/slides.ts` splits the file first (following
-  Slidev's `packages/parser/src/core.ts`), then `renderMarkdown` runs the
-  visitors above, with a strict schema
-  ([what fails the build](docs/DEVELOPMENT.md#writing-a-talk)).
-- **Slideshow.** Every slide is a `.slide` on the page's ground in `<section id="slide-N">`, all in
-  the HTML. `DeckBar.astro` holds the controls and a polite live region;
-  `src/scripts/slideshow.ts` wires them and the keys. Hidden slides use
-  `data-current`, not `hidden`: Tailwind's `[hidden]` `!important` would stop
-  print showing them. Focus stays on a bar control as a slide turns (APG
-  carousel), scrolled back into view when a taller slide pushes it off screen.
-  Below `lg` a media query stacks every slide and hides the controls, the
-  script ignores slide keys, and a card links the talk PDF with its size.
-  `tests/slideshow.spec.ts`, which also checks every slide fits 1280x720.
-- **Presenter view.** `src/presenter/integration.mjs`, `astro dev` only, synced
-  over `BroadcastChannel`. Notes load via `import.meta.glob` (no `node:fs` in
-  the Cloudflare dev runtime). `tests/talk.spec.ts` checks no note is in the
-  build.
-- **PDF.** `scripts/publish-talk.mjs` prints one slide per 1280x720 page,
-  then `scripts/tag-pdf.py` fixes tags for PDF/UA-1. It prints with static
-  Lexend 400/900 from `@fontsource/lexend` (dev only): the variable font
-  becomes Type 3 and stalls veraPDF past CI's timeout. The PDF stores a
-  SHA-256 of the deck; `tests/talk-pdf.spec.ts` fails on drift.
-- **Images.** `scripts/check-untransformed.mjs` covers deck images, symlinked
-  site images included ([where images go](docs/DEVELOPMENT.md#writing-a-talk)).
-
 ## Conventions
 
 Commits, copy rules and process: [AGENTS.md](AGENTS.md).
@@ -385,7 +344,7 @@ control is the reading tab (`ReadingTab.astro`).
 it stays out of the per-page script budgets (`tests/performance.spec.ts`).
 
 - A feature is a `?worker&url` file. `Footer.astro` renders the registry on
-  every page except under `/talks/`.
+  every page.
 - A trigger is `[data-on-demand="<feature file URL>"]`, shipped `hidden`; the
   registry unhides it. Without JavaScript nothing shows. A trigger that takes
   room in the layout is drawn from first paint instead, so nothing moves when
@@ -684,7 +643,7 @@ in `public/`.
   `alternate` (RFC 8288). `sitemap` is not a registered relation;
   specification.website's discovery checklist names it.
 - `X-Robots-Tag: noindex` on `/blog/*.md`, a copy of each page, and on
-  `/*.pdf` (the talk slides), whose pages are the search results. To close the
+  `/*.pdf`, whose pages are the search results. To close the
   whole site, use this header rather than `Disallow`: a crawler barred from a
   page never sees its noindex and can still list the URL.
 - No `Cross-Origin-Embedder-Policy`: nothing uses `SharedArrayBuffer`, and it
@@ -806,18 +765,9 @@ evidence.
 - **Place the cat card with CSS anchor positioning, not JS:** the anchor is an
   SVG `<rect>` in a transformed group, and `anchor-name` needs an element with
   a CSS box.
-- **Swap the cover's `<p>` for `<div>` in a rehype plugin, not a regex in
-  `TalkSlide.astro`:** the input is the site's own cover, which the loader
-  holds to text only; a plugin for one tag swap costs more than it saves.
 - **Store a message and count the last hour in one D1 `batch()`:** a batch
   is one transaction, so a failed count would roll back the stored message;
   apart, a failed count only skips the hourly cap.
-- **Give the talk page one `h1` above the slides:** the cover slide's heading
-  is the `h1` and every other slide carries its own `h2`; another would repeat
-  the title.
-- **Add a `BreadcrumbList` to the talk page:** pages outside `/blog` carry no
-  breadcrumbs (`tests/breadcrumbs.spec.ts`); the link to the talk's post
-  covers the way back.
 - **Move every `href` in page markup into `paths.ts`:** a route used by code
   (redirects, nav, sitemap, `llms.txt`) is a constant there; a link in prose
   stays markup, and `tests/internal-links.spec.ts` fails on a broken one.
@@ -838,8 +788,8 @@ evidence.
 - **Fetch external links in CI:** the result depends on other sites' uptime,
   so the gate would fail for reasons outside the repository.
   `tests/internal-links.spec.ts` covers every same-origin link.
-- **Emulate touch in the browser projects:** the menu, photo strip and
-  slideshow use native buttons and links, which fire the same events for
+- **Emulate touch in the browser projects:** the menu and photo strip use
+  native buttons and links, which fire the same events for
   touch; pointer and keyboard runs already cover them.
 - **Drop the About cat card's "beside its cat, not over it" checks as
   decoration:** the card opens beside its cat by design, so where it opens is

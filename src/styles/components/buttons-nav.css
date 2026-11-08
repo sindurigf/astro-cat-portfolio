@@ -125,7 +125,7 @@
 
   /*
    * The `::after`s' containing block, at no weight, so a control placed
-   * `fixed` (the slideshow's Exit Full Screen) keeps its place mid-click.
+   * `fixed` keeps its place mid-click.
    */
   @media (prefers-reduced-motion: no-preference) {
     :where(

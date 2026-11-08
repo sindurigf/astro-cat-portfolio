@@ -1,7 +1,6 @@
 import { expect, test, type Page } from './test';
 import { gotoSettled } from './settle';
-import { TALK_ROUTES } from './routes';
-import { CHROMIUM_ONLY, ENGINE_INVARIANT } from './tags';
+import { CHROMIUM_ONLY } from './tags';
 import { timedScan } from './axe';
 
 /**
@@ -757,16 +756,3 @@ test('without JavaScript there is no button', async ({ browser }) => {
   await expect(page.getByRole('button', FALL)).toHaveCount(0);
   await context.close();
 });
-
-test(
-  'a talk deck has no button (script budget)',
-  ENGINE_INVARIANT,
-  async ({ request }) => {
-    for (const route of TALK_ROUTES) {
-      const html = await (await request.get(`${route}/`)).text();
-      expect(html, `${route} ships Let It Fall`).not.toContain(
-        'data-let-it-fall',
-      );
-    }
-  },
-);

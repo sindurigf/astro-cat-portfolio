@@ -1,8 +1,8 @@
 /*
  * Adds `layout` and `sizes` to markdown images for getImage(). A lone image gets
  * an SVG-viewBox `.aspect-frame`: WebKit drops a failed image's size and the CSP
- * bars inline styles. In a post it becomes a figure, its title a figcaption
- * credited via CREDITS; on a slide only a titled image does.
+ * bars inline styles. It becomes a figure, its title a figcaption credited via
+ * CREDITS.
  */
 
 import { readFile } from 'node:fs/promises';
@@ -24,23 +24,6 @@ const CREDITS = [
 /* `--container-measure`, less the gutter on narrow viewports. */
 const SIZES =
   '(min-width: 40rem) min(calc(100vw - 3rem), 36rem), min(calc(100vw - 2rem), 36rem)';
-
-/*
- * A slide picture's column in slides.css (`.slide-body > p:has(> .aspect-frame)`);
- * `vh` not `svh` so the slot is never too small.
- * tests/image-size.spec.ts fails when this and the CSS drift apart.
- */
-const SLIDE_SIZES =
-  '(min-width: 64rem) min(calc((min(100vw - 11.5rem, 71.5rem) - 33rem) * 5 / 12 + 12rem), 55vh, 28rem), ' +
-  '(min-width: 40rem) min(calc(100vw - 8.5rem), 55vh, 28rem), ' +
-  'min(calc(100vw - 5.5rem), 55vh, 28rem)';
-
-/* Must match where src/lib/talk-loader.ts reads the slides from. */
-const TALKS_PATH = '/src/content/talks/';
-
-export const isTalk = (fileURL) => String(fileURL ?? '').includes(TALKS_PATH);
-
-const sizesFor = (fileURL) => (isTalk(fileURL) ? SLIDE_SIZES : SIZES);
 
 /*
  * A post figure's slot, `.post-layout .prose figure` in prose.css: a landscape
@@ -167,7 +150,7 @@ export const captionChildren = (caption, src, photos = LICENSED_PHOTOS) => {
   return [text(prefix), link(sources[name], name)];
 };
 
-/* No body image takes priority: a post opens on its cover, which loads first, and each slide compiles alone. */
+/* No body image takes priority: a post opens on its cover, which loads first. */
 export const postFigure = () => {
   return {
     name: 'post-figure',
@@ -188,12 +171,11 @@ export const postFigure = () => {
 
         if (!aloneInParagraph) {
           ctx.setProperty(node, 'layout', LAYOUT);
-          ctx.setProperty(node, 'sizes', sizesFor(ctx.fileURL));
+          ctx.setProperty(node, 'sizes', SIZES);
           return;
         }
 
         const size = await sizeOf(String(properties.src), ctx.fileURL);
-        const talk = isTalk(ctx.fileURL);
         const frame = framed(
           {
             type: 'element',
@@ -201,17 +183,12 @@ export const postFigure = () => {
             properties: {
               ...properties,
               layout: LAYOUT,
-              sizes: talk ? SLIDE_SIZES : figureSizes(size),
+              sizes: figureSizes(size),
             },
             children: [],
           },
           size,
         );
-
-        if (talk && caption === '') {
-          ctx.replaceNode(node, frame);
-          return;
-        }
 
         ctx.replaceNode(parent, {
           type: 'element',

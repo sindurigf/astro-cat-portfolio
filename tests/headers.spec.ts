@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { expect, test, type Page, type Response } from './test';
-import { DIST_DIR, PUBLISHED_POST_ROUTES, TALK_ROUTES } from './routes';
+import { DIST_DIR, PUBLISHED_POST_ROUTES } from './routes';
 import { fontsSettled, waitForHydration } from './settle';
 import { collectViolations } from './policy-server';
 import { REFLOW_VIEWPORT } from './wcag';
@@ -17,7 +17,6 @@ const POLICY_ROUTES = [
   '/blog/',
   '/brand/',
   ...PUBLISHED_POST_ROUTES.slice(0, 1),
-  ...TALK_ROUTES,
 ];
 
 /** Under the 30s test budget, so the named assertion fires, not a timeout. */

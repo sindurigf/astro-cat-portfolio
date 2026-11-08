@@ -41,9 +41,7 @@ test('the visitor is registered with the markdown processor', NODE, () => {
 test.describe('the table-scroll visitor', () => {
   test('wraps a post table in a named tab stop', NODE, () => {
     const { wrappers, ctx } = wrapping();
-    tableScroll({
-      fileURL: 'file:///site/src/content/blog/a.md',
-    }).element.visit(tableNode(), ctx);
+    tableScroll().element.visit(tableNode(), ctx);
 
     expect(wrappers).toHaveLength(1);
     expect(wrappers[0]?.tagName).toBe('div');
@@ -52,17 +50,6 @@ test.describe('the table-scroll visitor', () => {
       role: 'group',
       ariaLabel: 'Table, scrolls sideways',
     });
-  });
-
-  test('leaves a slide table alone', NODE, () => {
-    const { wrappers, ctx } = wrapping();
-    tableScroll({
-      fileURL: 'file:///site/src/content/talks/a/slides.md',
-    }).element.visit(tableNode(), ctx);
-
-    expect(wrappers, 'a slide sizes its own table and has no scroller').toEqual(
-      [],
-    );
   });
 });
 
@@ -75,10 +62,9 @@ test('hasTable finds a GFM table and passes plain prose', NODE, () => {
   expect(hasTable('- a list item\n- another\n')).toBe(false);
 });
 
-/* SC 1.4.10: outside a slide, a table only scrolls in its own box, never clipped or pushing the page. */
-test('every table outside a slide sits in a table scroller', NODE, () => {
+/* SC 1.4.10: a table only scrolls in its own box, never clipped or pushing the page. */
+test('every table sits in a table scroller', NODE, () => {
   const bare = [...builtHtml()]
-    .filter(([route]) => !route.startsWith('/talks/'))
     .filter(
       ([, html]) =>
         (html.match(/<table\b/g) ?? []).length !==

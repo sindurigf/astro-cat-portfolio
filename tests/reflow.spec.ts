@@ -1,6 +1,6 @@
 import { expect, test, type Page } from './test';
 import { fontsSettled, gotoSettled } from './settle';
-import { TALK_ROUTES, ROUTES } from './routes';
+import { ROUTES } from './routes';
 import {
   DESKTOP_VIEWPORT,
   FOCUSABLE_SELECTOR,
@@ -190,8 +190,8 @@ const expectNoHorizontalOverflow = async (
 };
 
 /**
- * Under text spacing a long word in a fixed-layout slide table spills into the
- * next column without the page scrolling, so the document-level check cannot see it.
+ * Under text spacing a long word in a table cell can spill into the next column
+ * without the page scrolling, so the document-level check cannot see it.
  */
 const expectCellsHoldTheirText = async (
   page: Page,
@@ -409,37 +409,3 @@ test.describe('button labels reflow at 305px (SC 1.4.10)', () => {
     });
   }
 });
-
-/* Below `lg` the deck stacks every slide, so one page holds them all. */
-for (const route of TALK_ROUTES) {
-  test.describe(`every slide of ${route} reflows at 305px`, () => {
-    test.use({ viewport: { width: NARROW_WIDTH, height: REFLOW_HEIGHT } });
-
-    for (const spacing of [false, true]) {
-      test(`without sideways scroll${spacing ? ' under the SC 1.4.12 override' : ''}`, async ({
-        page,
-      }) => {
-        await gotoSettled(page, `${route}/`);
-        await page.waitForSelector('[data-deck-ready]');
-        if (spacing) await page.addStyleTag({ content: TEXT_SPACING_OVERRIDE });
-        const count = await page.locator('.slide[id]').count();
-        expect(count, `${route} has no slides`).toBeGreaterThan(1);
-        await expect(page.locator('.slide:visible')).toHaveCount(count);
-
-        const wide = await page.$$eval('.slide[id]', (all) => {
-          const page = document.documentElement;
-          const out = all
-            .filter((slide) => slide.scrollWidth > slide.clientWidth)
-            .map((slide) => `${slide.id}: ${slide.scrollWidth}px`);
-          if (page.scrollWidth > page.clientWidth) {
-            out.push(`page: ${page.scrollWidth}px`);
-          }
-          return out;
-        });
-        expect(wide, `${route} slides that scroll sideways at 305px`).toEqual(
-          [],
-        );
-      });
-    }
-  });
-}

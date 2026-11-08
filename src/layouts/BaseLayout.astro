@@ -2,7 +2,6 @@
 import '../styles/global.css';
 import { OG_LOCALE, SITE_LANGUAGE } from '../lib/site-language';
 import { themeColor } from '../lib/theme-color';
-import { DECK_READY_TIMEOUT_MS } from '../lib/deck-ready';
 import { THEME_STORAGE_KEY } from '../lib/theme';
 import {
   PERCENT,
@@ -106,13 +105,12 @@ const articleData = article && {
     {/*
       Theme, `js` class and --text-scale before first paint; a header script paints half-built.
       Blocked storage throws; the empty catches keep the system theme and default size.
-      A back-forward cache restore rereads the theme; the timer flags a deck that never started.
+      A back-forward cache restore rereads the theme.
     */}
     <script
       is:inline
       define:vars={{
         key: THEME_STORAGE_KEY,
-        deckTimeout: DECK_READY_TIMEOUT_MS,
         scaleKey: TEXT_SCALE_KEY,
         scaleProperty: TEXT_SCALE_PROPERTY,
         scaleSteps: TEXT_SCALE_STEPS,
@@ -121,11 +119,6 @@ const articleData = article && {
       }}
     >
       document.documentElement.classList.add('js');
-      setTimeout(() => {
-        document
-          .querySelector('[data-deck]:not([data-deck-ready])')
-          ?.setAttribute('data-deck-failed', '');
-      }, deckTimeout);
       const applyTheme = () => {
         let saved = null;
         try {

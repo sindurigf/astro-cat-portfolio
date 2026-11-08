@@ -19,7 +19,6 @@ const DOWN_EVENT = /['"](?:pointerdown|mousedown|touchstart)['"]/;
 const DOWN_LISTENER_FILES: readonly string[] = [
   'src/scripts/about-cats.ts',
   'src/scripts/card-click.ts',
-  'src/scripts/slideshow.ts',
   'src/scripts/text-size.ts',
 ];
 

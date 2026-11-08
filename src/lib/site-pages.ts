@@ -19,14 +19,9 @@ import {
 } from './paths';
 import type { MatchablePage } from './page-match';
 import { CV_PATH } from './profiles';
-import { talkDecks } from './talk-deck';
 
 /* The pages a lost visitor may have meant: the 404 page matches the address against these. */
 export const sitePages = async (): Promise<MatchablePage[]> => {
-  const talks = [...(await talkDecks())].map(([deck, slides]) => ({
-    title: slides[0]?.slide.data.title ?? deck,
-    path: `/talks/${deck}/`,
-  }));
   return [
     ...NAV_LINKS.map(({ label, href }) => ({ title: label, path: href })),
     { title: 'Contact', path: CONTACT_PATH },
@@ -52,6 +47,5 @@ export const sitePages = async (): Promise<MatchablePage[]> => {
       title,
       path: brandHref(slug),
     })),
-    ...talks,
   ];
 };

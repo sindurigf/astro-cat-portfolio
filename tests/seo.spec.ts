@@ -14,7 +14,6 @@ import {
   POST_ROUTES,
   PUBLISHED_POST_ROUTES,
   TAG_ROUTES,
-  TALK_ROUTES,
   postFileNames,
 } from './routes';
 import { NODE } from './tags';
@@ -618,20 +617,6 @@ test.describe('profile verification', NODE, () => {
       expect(() =>
         validateSiteConfig({ ...SITE_CONFIG, bingSiteVerification }),
       ).not.toThrow();
-    }
-  });
-});
-
-test.describe('talks', NODE, () => {
-  test('each talk page links back to its post', () => {
-    const pages = new Map(builtHtml().map(({ route, html }) => [route, html]));
-    for (const route of TALK_ROUTES) {
-      const slug = route.split('/').pop()!;
-      const html = pages.get(route) ?? pages.get(`${route}/`) ?? '';
-      expect(
-        html.includes(`<a href="/blog/${slug}/">`),
-        `${route} does not link its post, so it leads nowhere but the slides.`,
-      ).toBe(true);
     }
   });
 });

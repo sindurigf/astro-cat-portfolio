@@ -117,31 +117,9 @@ const loadEveryPhoto = async (page: Page) => {
   await page.waitForFunction(settled, `main :is(${PHOTO})`);
 };
 
-/* A talk hides inactive slides, so each slide with a photo is opened by hash. */
-const framesOnEveryScreen = async (page: Page): Promise<Frame[]> => {
-  if (await page.locator('[data-deck]').count()) {
-    await page.waitForSelector('[data-deck-ready]');
-  }
-  const slides = await page.$$eval('[data-deck-ready] .slide', (all) =>
-    all.filter((s) => s.querySelector('.aspect-frame')).map((s) => s.id),
-  );
-  if (slides.length === 0) {
-    await loadEveryPhoto(page);
-    return readFrames(page);
-  }
-  const frames: Frame[] = [];
-  for (const id of slides) {
-    await page.evaluate((hash) => (location.hash = hash), id);
-    await page.waitForFunction(
-      (slide) =>
-        [...document.querySelectorAll(`#${slide} img`)].every(
-          (img) => (img as HTMLImageElement).complete,
-        ),
-      id,
-    );
-    frames.push(...(await readFrames(page)));
-  }
-  return frames;
+const loadedFrames = async (page: Page): Promise<Frame[]> => {
+  await loadEveryPhoto(page);
+  return readFrames(page);
 };
 
 /*
@@ -184,7 +162,7 @@ for (const { label, width, scale } of VIEWS) {
         await expect
           .poll(
             async () => {
-              frames = await framesOnEveryScreen(page);
+              frames = await loadedFrames(page);
               return frames.filter((f) => !f.marked).map((f) => f.alt);
             },
             { message: `${route} has a failed photo the script never marked` },
@@ -371,7 +349,7 @@ test.describe('the failed-photo script', () => {
     test(`${route} never marks a photo that loaded`, async ({ browser }) => {
       const { page } = await open(browser, DESKTOP_VIEWPORT.width, 1);
       await gotoSettled(page, route);
-      const marked = (await framesOnEveryScreen(page)).filter((f) => f.marked);
+      const marked = (await loadedFrames(page)).filter((f) => f.marked);
       expect(marked.map((f) => f.alt)).toEqual([]);
     });
   }

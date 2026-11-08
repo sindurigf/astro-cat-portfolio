@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { expect, test, type Page } from './test';
-import { defined, itemAt } from '../src/lib/defined';
+import { itemAt } from '../src/lib/defined';
 import {
   CLICK_EVENTS,
   filterPayload,
@@ -12,14 +12,13 @@ import { CONTACT_EMAIL } from '../src/lib/contact';
 import { SOCIAL_PROFILES } from '../src/lib/profiles';
 import { captures } from './captures';
 import { usePolicyServer } from './headers-fixture';
-import { builtPages, DIST_DIR, PAIRED_TALKS } from './routes';
+import { builtPages, DIST_DIR } from './routes';
 import { waitForHydration } from './settle';
 import { NODE } from './tags';
 import { configuredSite } from './source';
 import { fakeCollector, type PlausibleSend } from './plausible';
 import { REFLOW_VIEWPORT } from './wcag';
 import { WITHOUT_ANALYTICS, WITH_ANALYTICS } from './feature-tags';
-import { requireContent } from './content';
 
 /**
  * Plausible, held to what /privacy discloses (PAYLOAD_DISCLOSED, EVENT_DATA_DISCLOSED).
@@ -59,8 +58,8 @@ const ENGAGEMENT = 'engagement';
 
 const SEND_TIMEOUT_MS = 10_000;
 
-/* A post that links its talk's PDF: tests/slides.spec.ts. */
-const [PAIRED] = PAIRED_TALKS;
+/* The site publishes no download, so the test adds a link to one. */
+const DOWNLOAD_TARGET = '/files/sample.pdf';
 
 const policy = usePolicyServer();
 
@@ -455,12 +454,14 @@ test.describe('analytics', WITH_ANALYTICS, () => {
     });
 
     test('a download click is counted', async ({ page }) => {
-      requireContent(PAIRED, 'no post links a talk PDF to download');
-      const paired = defined(PAIRED, 'a post linking a talk PDF');
-      const target = `${paired.talk}.pdf`;
-      const sent = await openAsProduction(page, `${paired.post}/`);
-
-      const download = `a[href="${target}"]`;
+      const sent = await openAsProduction(page, '/about/');
+      const download = `a[href="${DOWNLOAD_TARGET}"]`;
+      await page.evaluate((href) => {
+        const link = document.createElement('a');
+        link.href = href;
+        link.textContent = 'Download';
+        document.querySelector('main')?.append(link);
+      }, DOWNLOAD_TARGET);
       await holdNavigation(page, download);
       await page.locator(download).first().click();
 
@@ -470,7 +471,7 @@ test.describe('analytics', WITH_ANALYTICS, () => {
             events(sent).find((event) => event.name === CLICK_EVENTS.download),
           { timeout: SEND_TIMEOUT_MS },
         )
-        .toMatchObject({ data: { target } });
+        .toMatchObject({ data: { target: DOWNLOAD_TARGET } });
       expectOnlyDisclosedData(events(sent));
     });
 

@@ -98,37 +98,15 @@
    * the word.
    */
   :is(:root[data-theme='light'] main, main .mode-light)
-    :is(
-      .text-gold,
-      .motion-toggle,
-      .slide-label,
-      .slide-number,
-      .slide-body strong,
-      .slide-lead,
-      .slide-body a:not([class])
-    ):not(.mode-dark *),
+    :is(.text-gold, .motion-toggle):not(.mode-dark *),
   :is(:root[data-theme='light'] main, main .mode-light)
     :is(.prose, .bullet-list)
     li:not(.mode-dark *)::marker {
     color: var(--color-text);
   }
 
-  /* The underline follows the ink, as on every other link. */
   :is(:root[data-theme='light'] main, main .mode-light)
-    .slide-body
-    a:not([class]):not(.mode-dark *) {
-    text-decoration-color: currentColor;
-  }
-
-  /* Hover takes the light page's link hover color, as every other link does. */
-  :is(:root[data-theme='light'] main, main .mode-light)
-    .slide-body
-    a:not([class]):hover:not(.mode-dark *) {
-    color: var(--color-cyan);
-  }
-
-  :is(:root[data-theme='light'] main, main .mode-light)
-    :is(.label.text-gold, .slide-label):not(.mode-dark *)::before {
+    .label.text-gold:not(.mode-dark *)::before {
     content: '';
     background-color: var(--label-mark, var(--color-block-gold));
 

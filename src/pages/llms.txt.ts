@@ -22,7 +22,6 @@ import {
 } from '../lib/paths';
 import { CV_PATH, PERSON_NAME } from '../lib/profiles';
 import { ANALYTICS_ON } from '../lib/analytics-site';
-import { talkDecks } from '../lib/talk-deck';
 import { BUILD_ENV } from '../lib/build-env';
 import { BRAND_PATH, BRAND_SECTIONS, brandHref } from '../lib/brand-sections';
 
@@ -118,14 +117,6 @@ export const GET: APIRoute = async ({ site: configuredSite }) => {
   const absolute: Absolute = (path) => new URL(path, site).href;
   /* Not getSortedPosts: it drops placeholders, which this file must list. */
   const posts = sortByNewest(await getCollection('blog'));
-  const talks = [...(await talkDecks())].map(([deck, slides]) => {
-    const cover = slides[0]?.slide;
-    if (!cover) throw new Error(`Talk deck ${deck} has no slides.`);
-    return (
-      `- [${cover.data.title}](${absolute(`/talks/${deck}/`)}): ` +
-      'the slides, as a page.'
-    );
-  });
 
   const lines = [
     `# ${site.host}`,
@@ -148,10 +139,6 @@ export const GET: APIRoute = async ({ site: configuredSite }) => {
     '## Posts',
     '',
     ...posts.map((post) => postLine(post, absolute)),
-    '',
-    '## Talks',
-    '',
-    ...talks,
     '',
     '## Notes',
     '',
