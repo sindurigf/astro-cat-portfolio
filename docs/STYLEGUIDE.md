@@ -432,7 +432,7 @@ copyright and contents list are fixed, and `text-code` is `max(1rem, 0.92em)`,
 - The talk cover keeps the fluid `text-deck-cover`; the deck has its own
   rule ([ACCESSIBILITY.md](../ACCESSIBILITY.md) gap 7).
 - Posts use `text-post-*`. Do not raise them to the page scale.
-- The footer motto fills its band by container width (`--text-footer-name-fluid`, `-md`), one word a line below 48rem, one line from 48rem; no rem floor, so a larger default font never pushes it past the band. A fork sets both divisors from its motto.
+- The footer motto fills its band by container width (`--text-footer-name-fluid`, `-md`), one word a line below 48rem, one line from 48rem that wraps under SC 1.4.12 text spacing; no rem floor, so a larger default font never pushes it past the band. A fork sets both divisors from its motto.
 - Tracking: `--tracking-heading` -0.05em on h1 and h2, `--tracking-title`
   -0.02em on h3, post and slide titles, `--tracking-label`
   0.1em on labels and buttons.
