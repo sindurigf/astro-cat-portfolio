@@ -48,6 +48,15 @@ export const REFERENCE_HEIGHT = 780;
 export const REFERENCE_WIDTH = 1440;
 export const REFERENCE_ASPECT = REFERENCE_WIDTH / REFERENCE_HEIGHT;
 
+/** Hero width over height, rounded up, at 1280x720: the widest desktop hero. */
+const WIDEST_DESKTOP_ASPECT = 3;
+
+/*
+ * Stem density is the box aspect over REFERENCE_ASPECT, so without a cap a
+ * landscape phone's short hero sows several desktops' worth.
+ */
+export const DENSITY_CAP = WIDEST_DESKTOP_ASPECT / REFERENCE_ASPECT;
+
 const HORIZON_RATIO = 398 / REFERENCE_HEIGHT;
 
 const GROUND_RATIO = 930 / REFERENCE_HEIGHT;
