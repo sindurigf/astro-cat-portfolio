@@ -44,7 +44,7 @@ const ROUTE_NOTES: { path: string; label: string; note: string }[] = [
   {
     path: ABOUT_PATH,
     label: 'About',
-    note: 'Who runs the site, with photos and the About cat.',
+    note: 'Who runs the website, with photos and the About cat.',
   },
   {
     path: CAREER_PATH,
