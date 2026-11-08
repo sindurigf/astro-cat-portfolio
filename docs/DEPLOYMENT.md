@@ -291,10 +291,11 @@ Dashboard settings that change what ships without a file change.
      job also named `Test weakening`; this keeps such a change from merging.
 - `Pull request text` (`.github/workflows/pr-text.yml`) checks the title and
   description for AI attribution and with `check:wording`, and re-runs on each
-  edit. To require it, in both repositories: Settings, Rules, Rulesets, the
-  `main` ruleset, Require status checks to pass, Add checks, type
-  `Pull request text`, pick the GitHub Actions source, Save. Dependabot pull
-  requests skip it, which counts as passed.
+  edit. Once the workflow is on `main`, require it in both repositories (a
+  required check a branch cannot run blocks its pull request): Settings,
+  Rules, Rulesets, the `main` ruleset, Require status checks to pass, Add
+  checks, type `Pull request text`, pick the GitHub Actions source, Save.
+  Dependabot pull requests skip it, which counts as passed.
 - Agents run `gh` with the maintainer's token, so they can post the marker. Fix:
   a machine account with write access and a fine-grained token (Contents, Pull
   requests: read and write) for both repositories; log agents in with it and
