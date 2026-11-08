@@ -25,8 +25,6 @@ import stripBed from '../assets/photos/tabby-round-bed.jpg';
 import stripDuvet from '../assets/photos/calico-floral-duvet.jpg';
 import food from '../assets/photos/calico-fabric-bed.jpg';
 import videoStill from '../assets/photos/tabby-parquet.jpg';
-import catCardTabby from '../assets/photos/cat-card-tabby.jpg';
-import catCardCalico from '../assets/photos/cat-card-calico.jpg';
 import catCardBlack from '../assets/photos/cat-card-black.jpg';
 import { photographerHref, type Photographer } from '../lib/credits';
 import { WIDTHS } from '../lib/image-densities';
@@ -90,22 +88,8 @@ const PLACES = [
   },
 ] as const;
 
-// TODO(fork): Replace Robin's three cats with your own (names, photos, photo descriptions), or remove the cats: README "Your cats, or none".
+// TODO(fork): Replace Robin's cat with your own (name, photo, photo description), or remove the cat: README "Your cat, or none".
 const CATS = [
-  {
-    id: 'minerva',
-    src: catCardTabby,
-    name: 'Minerva',
-    role: 'Reads over my shoulder.',
-    alt: 'A tabby cat asleep with its face pressed into a blue blanket.',
-  },
-  {
-    id: 'hela',
-    src: catCardCalico,
-    name: 'Hela',
-    role: 'Guards the map drawer.',
-    alt: 'A calico cat lying on a paisley pillow, mouth open.',
-  },
   {
     id: 'rudra',
     src: catCardBlack,
@@ -229,18 +213,15 @@ const closeRow = await closeRowLinks({
       </div>
     </div>
 
-    <div class="cat-perch mt-head">
-      <div class="cat-spot" id="cat-spot-minerva"></div>
-      <div class="card">
-        <p class="mb-paragraph max-w-2xl text-lead font-black text-text text-pretty">
-          The scholars of Ohara read stones that most of the world cannot. I am
-          the one who is left, so I keep reading them.
-        </p>
-        <p class="mt-4 max-w-measure text-body text-text text-pretty">
-          It reminds me to start with what is carved, and only then tell the
-          story.
-        </p>
-      </div>
+    <div class="card mt-head">
+      <p class="mb-paragraph max-w-2xl text-lead font-black text-text text-pretty">
+        The scholars of Ohara read stones that most of the world cannot. I am
+        the one who is left, so I keep reading them.
+      </p>
+      <p class="mt-4 max-w-measure text-body text-text text-pretty">
+        It reminds me to start with what is carved, and only then tell the
+        story.
+      </p>
     </div>
   </Section>
 
@@ -281,32 +262,29 @@ const closeRow = await closeRowLinks({
     title={SECTIONS[2].title}
     lead="I was alone for twenty years. After Arabasta I asked the Straw Hat Pirates to let me join, and their captain said yes."
   >
-    <div class="cat-perch">
-      <div class="cat-spot" id="cat-spot-hela"></div>
-      <div class="card">
-        <div class="photo-pair">
-          <PhotoTile
-            image={halfBlack}
-            alt="A black cat lying on its back in a round cat bed, eyes wide."
-            group="people"
-            sizes={halfBlackSizes}
-          />
-          <PhotoTile
-            image={halfTabby}
-            alt="A tabby cat asleep with its chin on a blue blanket."
-            group="people"
-            sizes={halfTabbySizes}
-          />
-        </div>
-
-        <PhotoStrip
-          id="people-photos"
-          label="More Photos"
-          noun="photos"
+    <div class="card">
+      <div class="photo-pair">
+        <PhotoTile
+          image={halfBlack}
+          alt="A black cat lying on its back in a round cat bed, eyes wide."
           group="people"
-          photos={PLACES}
+          sizes={halfBlackSizes}
+        />
+        <PhotoTile
+          image={halfTabby}
+          alt="A tabby cat asleep with its chin on a blue blanket."
+          group="people"
+          sizes={halfTabbySizes}
         />
       </div>
+
+      <PhotoStrip
+        id="people-photos"
+        label="More Photos"
+        noun="photos"
+        group="people"
+        photos={PLACES}
+      />
     </div>
   </Section>
 
@@ -419,8 +397,8 @@ const closeRow = await closeRowLinks({
     </Section>
   )}
 
-  {/* The cats are drawn by a script; without one, their names and lines are still on the page (ACCESSIBILITY.md, Scripts). */}
-  <Section title="The Cats" class="cats-noscript">
+  {/* The cat is drawn by a script; without one, its name and line are still on the page (ACCESSIBILITY.md, Scripts). */}
+  <Section title="The Cat" class="cats-noscript">
     <ul role="list" class="flex flex-col gap-4">
       {CATS.map((cat) => (
         <li class="text-body text-text">

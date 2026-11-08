@@ -159,7 +159,7 @@
   --color-tile-edge: #5a87a8;
   /* The system color forced-colors mode pairs with the button face; bars on it use `forced-colors:bg-button-text`. */
   --color-button-text: ButtonText;
-  /* TODO(fork): The logo cat's coat colors. README "Your cats, or none". */
+  /* TODO(fork): The logo cat's coat colors. README "Your cat, or none". */
   --color-cat-hela: #f4efe8;
   --color-cat-hela-far: #cfc6ba;
   --color-cat-hela-orange: #d38b45;
@@ -257,9 +257,6 @@
   /* CREDITS fits the 273px box at 305px. */
   --text-h1: 3rem;
   --text-h1--line-height: 0.94;
-  /* The talk cover keeps the fluid title; the deck has its own rule (ACCESSIBILITY.md gap 7). */
-  --text-deck-cover: clamp(2.0625rem, 9vw, 5rem);
-  --text-deck-cover--line-height: 0.94;
   /*
    * The homepage h1 only. A ten-letter family name must stay one line in the
    * window's 241px at 305px, and a third line breaks the layout.
@@ -329,34 +326,6 @@
     clamp(1.25rem, 2.8vw, 2.25rem) * var(--text-scale, 1)
   );
   --text-standfirst--line-height: var(--leading-paragraph);
-  /*
-   * Talk slides, height-aware for 16:9 projectors: 23px text and 56px title at
-   * 1280x720. Floors are --text-body's and --text-h2's.
-   */
-  --text-slide: clamp(1.0625rem, min(1.9vw, 3.2svh), 2.125rem);
-  --text-slide--line-height: 1.35;
-  --text-slide-title: clamp(1.625rem, min(4.4vw, 7.8svh), 4.0625rem);
-  --text-slide-title--line-height: 1;
-  /* A slide's group label: --text-h3's 22px over --text-body's 18px, kept against --text-slide. */
-  --text-slide-h3: clamp(1.375rem, min(2.32vw, 3.9svh), 2.625rem);
-  --text-slide-h3--line-height: 1.1;
-  /*
-   * Page-view slide title. The rem floor lets page zoom reach 2x (SC 1.4.4);
-   * 24px keeps every title word inside a 305px slide (STYLEGUIDE soft hyphens).
-   */
-  --text-slide-title-page: clamp(1.5rem, 9.25vw - 0.1875rem, 3.5rem);
-  --text-slide-title-page--line-height: 1;
-  /*
-   * The three slide sizes in full screen, from the frame's height (`cqh` of
-   * the 16:9 stage); the same at 1280x720, same floors and caps.
-   */
-  --text-slide-frame: clamp(1.0625rem, 3.46cqh, 2.125rem);
-  --text-slide-title-frame: clamp(1.625rem, 8.44cqh, 4.0625rem);
-  --text-slide-h3-frame: clamp(1.375rem, 4.23cqh, 2.625rem);
-  --text-slide-number-frame: clamp(4.5rem, 17.3cqh, 10rem);
-  /* A part opener's number, height-aware like the two above. */
-  --text-slide-number: clamp(4.5rem, 16svh, 10rem);
-  --text-slide-number--line-height: 1;
   /* Height-aware, so the stickers shrink on a short window. */
   --text-hero-sticker: clamp(1.125rem, min(2.1vw, 3.4svh), 1.875rem);
   --text-hero-sticker--line-height: 1.02;
@@ -388,8 +357,9 @@
   /*
    * The motto on the footer band, sized by the band: its width less padding
    * over the motto's width in em, plus room for SC 1.4.12 letter spacing. One
-   * word a line below 48rem, one line from 48rem. TODO(fork): set both
-   * divisors from your motto's longest word and full width in em.
+   * word a line below 48rem, one line from 48rem that wraps under that
+   * spacing. TODO(fork): set both divisors from your motto's longest word and
+   * full width in em.
    */
   --text-footer-name-fluid: calc((100cqi - 3rem) / 3.3);
   --text-footer-name-fluid-md: calc((100cqi - 3rem) / 6.15);
@@ -478,11 +448,6 @@
    */
   --container-rail: 18rem;
   /*
-   * Narrowest slide card before wrapping: three per row down to a 1024x768
-   * projector.
-   */
-  --container-slide-card: 13rem;
-  /*
    * The 80px header slab and 12px above and below it. Fixed px so it
    * stays small at 400% zoom; html's scroll-padding-top derives from it (SC
    * 2.4.11).
@@ -495,8 +460,6 @@
   --spacing-header-compact: 80px;
   /* The report band's minimum (`min-h-target`) plus the full header: where a first screen's content starts. */
   --spacing-page-top: calc(var(--spacing-target) + var(--spacing-header));
-  /* The slideshow's control row: a ~59px button plus its 4px shadow. */
-  --spacing-deck-bar: 4.5rem;
 
   /*
    * Focus ring: 4px cyan, clearing SC 1.4.11 on background and surface. A
@@ -544,7 +507,6 @@
    */
   --hero-column-screen-clear: calc(48px + var(--hard-throw));
 
-  --hero-column-pad-block: clamp(32px, 5vw, 72px) clamp(32px, 5vw, 80px);
   --hero-column-pad-inline: clamp(20px, 3.5vw, 64px);
 
   --hero-column-edge: var(--block-edge);

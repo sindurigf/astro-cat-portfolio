@@ -62,14 +62,6 @@ test.describe('The reading tab: Smaller, Larger and Reset', () => {
     await context.close();
   });
 
-  test('a slide deck has no reading tab, to keep its script budget', async ({
-    page,
-  }) => {
-    await gotoSettled(page, '/talks/sample-talk/');
-    await expect(page.locator('[data-text-size]')).toHaveCount(0);
-    await expect(page.locator('[data-on-demand]')).toHaveCount(0);
-  });
-
   test('Smaller and Larger step the text size, stop at the ends and say so, and the size is remembered', async ({
     page,
   }) => {

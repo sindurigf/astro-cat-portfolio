@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { expect, test, type Page } from './test';
 import { FUNCTIONAL_ROUTES, firstUse, mainText } from './first-use';
-import { builtHtml, builtPages, TALK_ROUTES } from './routes';
+import { builtHtml, builtPages } from './routes';
 import { gotoSettled } from './settle';
 import { NODE } from './tags';
 
@@ -51,15 +51,6 @@ const FIRST_USES: readonly {
     abbreviation: 'CSS',
     expansion: 'Cascading Style Sheets',
   },
-  ...(TALK_ROUTES.length > 0
-    ? [
-        {
-          route: '/accessibility',
-          abbreviation: 'UA-1',
-          expansion: 'Universal Accessibility, part 1',
-        },
-      ]
-    : []),
   {
     route: '/accessibility',
     abbreviation: 'NVDA',

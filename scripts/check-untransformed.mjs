@@ -14,7 +14,6 @@ const ROOT =
   process.env.CHECK_ROOT ?? fileURLToPath(new URL('..', import.meta.url));
 const DIST = join(ROOT, 'dist/client');
 const ASSETS = join(ROOT, 'src/assets');
-const TALKS = join(ROOT, 'src/content/talks');
 
 const digest = async (file) =>
   createHash('sha256')
@@ -27,7 +26,7 @@ const run = async () => {
   const built = filesUnder(DIST);
 
   const sources = new Map();
-  for (const file of [...filesUnder(ASSETS), ...filesUnder(TALKS)]) {
+  for (const file of filesUnder(ASSETS)) {
     sources.set(await digest(file), file);
   }
   if (built.length === 0 || sources.size === 0) {

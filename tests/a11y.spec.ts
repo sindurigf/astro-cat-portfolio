@@ -6,9 +6,7 @@ import { gotoSettled } from './settle';
 import {
   CONTENTS_POST_ROUTE,
   NO_CONTENTS_POST,
-  NO_TALK,
   ROUTES,
-  TALK_ROUTES,
   routesFromBuild,
 } from './routes';
 import {
@@ -165,7 +163,7 @@ test.describe('axe: WCAG 2.2 AA with the mobile menu open at 320px', () => {
   }
 });
 
-/* The states the route scans never open: the photo viewer, a post's contents, the scripted deck. */
+/* The states the route scans never open: the photo viewer, a post's contents. */
 test.describe('axe: WCAG 2.2 AA with interactive states open', () => {
   const scanOpen = async (page: Page, label: string) => {
     const results = await timedScan(page, label);
@@ -195,45 +193,4 @@ test.describe('axe: WCAG 2.2 AA with interactive states open', () => {
     );
     await scanOpen(page, `${CONTENTS_POST_ROUTE} (contents open)`);
   });
-
-  test('the talk after moving to the next slide', async ({ page }) => {
-    requireContent(TALK_ROUTES.length > 0, NO_TALK);
-    await gotoSettled(page, `${TALK_ROUTES[0]}/`);
-    await page.waitForSelector('[data-deck-ready]');
-    await page.getByRole('button', { name: 'Next' }).click();
-    await expect(page.locator('.slide:visible')).toHaveId('slide-2');
-    await scanOpen(page, `${TALK_ROUTES[0]} (slide 2)`);
-  });
 });
-
-/*
- * The scripted deck hides all but one slide. axe cannot run with JavaScript off,
- * so the page is put back in its no-JavaScript state, where every slide shows.
- */
-for (const colorScheme of ['dark', 'light'] as const) {
-  test.describe(`axe: every slide in the no-JavaScript deck, ${colorScheme}`, () => {
-    test.use({ colorScheme });
-
-    for (const route of TALK_ROUTES) {
-      test(`${route}`, async ({ page }) => {
-        await gotoSettled(page, `${route}/`);
-        await page.waitForSelector('[data-deck-ready]');
-        await page.evaluate(() => {
-          document.documentElement.classList.remove('js');
-          document.querySelector('.deck')?.removeAttribute('data-deck-ready');
-        });
-        await expect(
-          page.locator('.slide:visible'),
-          `${route} should show every slide in its no-JavaScript state`,
-        ).toHaveCount(await page.locator('.slide').count());
-        const label = `${route} (all slides, ${colorScheme})`;
-        const results = await timedScan(page, label);
-        expect(
-          results.violations,
-          formatViolations(label, results.violations),
-        ).toEqual([]);
-        await expectIncompleteDecided(page, label, results);
-      });
-    }
-  });
-}

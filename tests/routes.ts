@@ -1,7 +1,6 @@
 import { readdirSync, existsSync, readFileSync } from 'node:fs';
 import { join, relative, sep } from 'node:path';
 import { BLOG_CONTENT_DIR } from '../src/lib/paths';
-import { DECK_FILE } from '../src/lib/slides';
 
 const FRONTMATTER = /^---\r?\n([\s\S]*?)\r?\n---/;
 
@@ -195,38 +194,6 @@ export const NO_CONTENTS_POST =
 /** Posts with a Markdown image, which post-figure.mjs frames and loads first. */
 export const PHOTO_POST_ROUTES = postsMatching(/!\[[^\]]*\]\(/);
 
-export const TALKS_DIR = 'src/content/talks';
-
-/** One per deck directory holding a deck file, as `src/lib/talk-loader.ts` reads them. */
-export const TALK_ROUTES: readonly string[] = existsSync(TALKS_DIR)
-  ? readdirSync(TALKS_DIR, { withFileTypes: true })
-      .filter(
-        (entry) =>
-          entry.isDirectory() &&
-          existsSync(join(TALKS_DIR, entry.name, DECK_FILE)),
-      )
-      .map((entry) => `/talks/${entry.name}`)
-      .sort()
-  : [];
-
-export const NO_TALK = `no deck in ${TALKS_DIR}`;
-
-/** The deck directory a talk route is built from. */
-export const deckOf = (route: string): string =>
-  route.slice(route.lastIndexOf('/') + 1);
-
-/** A talk and the post sharing its deck's name that links the talk's PDF. */
-export interface PairedTalk {
-  talk: string;
-  post: string;
-}
-
-export const PAIRED_TALKS: readonly PairedTalk[] = TALK_ROUTES.flatMap((talk) =>
-  postsWhere((source) => source.includes(`](${talk}.pdf)`))
-    .filter((post) => deckOf(post) === deckOf(talk))
-    .map((post) => ({ talk, post })),
-);
-
 /**
  * No `/blog/page/2` until a tenth post (POSTS_PER_PAGE). The `page` segment keeps
  * `/blog/2` from clashing with a numeric category or slug.
@@ -239,7 +206,6 @@ export const ROUTES = [
   ...CATEGORY_ROUTES,
   ...TAG_ROUTES,
   ...POST_ROUTES,
-  ...TALK_ROUTES,
 ] as const;
 
 export const DIST_DIR = 'dist/client';

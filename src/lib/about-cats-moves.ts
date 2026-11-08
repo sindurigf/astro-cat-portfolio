@@ -319,8 +319,6 @@ export const POST_HEIGHT = 126;
 export const POST_CAP_OVERHANG = 5;
 /** px ahead of the cat's middle and up from its feet where each cat's scratch drawing hooks its claws. */
 const SCRATCH_CLAWS: Record<CatId, Pair> = {
-  minerva: [32, 97],
-  hela: [21, 70],
   rudra: [29, 100],
 };
 /** px the claws sink into the post's face. */
@@ -405,9 +403,7 @@ const BAT_PUSH_MS = 90;
 const BAT_PUSH = 4;
 /** Just past where each cat's swat drawing reaches, px ahead and up from its feet: the feather hangs there, so each swat meets it. */
 const SWAT_TIP: Record<CatId, Pair> = {
-  minerva: [35, 79],
   rudra: [25, 83],
-  hela: [27, 59],
 };
 export const CAT_IDS = Object.keys(SWAT_TIP) as CatId[];
 /** The feather swings back towards the cat by this share of its swing away, so each swat finds it. */
@@ -416,8 +412,6 @@ const TOY_BACKSWING = 0.25;
 export const TRACK_MARGIN = 48;
 /** The cup's middle, px ahead of the cat's: its near side 1.5px inside where each cat's patting paw comes down. */
 const CUP_AT_PAW: Record<CatId, number> = {
-  minerva: 21.5,
-  hela: 19,
   rudra: 22,
 };
 /** Half the cup's width, as drawn in about-cats-rig.ts: it tips over the edge by this much. */
@@ -474,8 +468,6 @@ const YARN_KICKS = 7;
 const GET_UP_MS = 300;
 /** The ring of each cat's paws in its hold drawing, px ahead and up from its place: the ball sits there. */
 const YARN_HELD: Record<CatId, Pair> = {
-  minerva: [1, 38],
-  hela: [0, 31],
   rudra: [0, 34],
 };
 const YARN_RADIUS = 6;
@@ -1038,32 +1030,8 @@ export const scaledExtent = (
   return found;
 };
 
-/*
- * Relative weights per cat, so each plays a little differently. Every cat can
- * play every shared move; Rudra alone has the wand. Sleep and wake come from
- * the nap clock.
- */
+/* Relative weights per cat. Sleep and wake come from the nap clock. */
 export const CAT_WEIGHTS: Record<CatId, Partial<Record<MoveName, number>>> = {
-  /* The queen: the calmest, but she chases too. */
-  minerva: {
-    look: 6,
-    yarn: 5,
-    fly: 5,
-    stretch: 5,
-    post: 4,
-    knock: 4,
-    toy: 3,
-  },
-  /* The conspirator: knocks the cup off, and chases yarn. */
-  hela: {
-    knock: 9,
-    yarn: 7,
-    fly: 6,
-    look: 3,
-    toy: 3,
-    post: 2,
-    stretch: 2,
-  },
   /* The baby: chases everything, yarn and flies most. */
   rudra: {
     wand: 10,

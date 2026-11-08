@@ -10,8 +10,7 @@ import {
   type LicensedPhoto,
 } from '../src/lib/credits';
 import { NODE } from './tags';
-import { BLOG_CONTENT_DIR, TALKS_DIR } from './routes';
-import { DECK_FILE } from '../src/lib/slides';
+import { BLOG_CONTENT_DIR } from './routes';
 
 type Node = {
   type: string;
@@ -85,7 +84,6 @@ test.describe('link-list-item', NODE, () => {
 
 /* Paths only, unless passed as `fileURL`: then the plugin reads the post for a `cover`. */
 const POST_URL = pathToFileURL(resolve(BLOG_CONTENT_DIR, 'any-post.md'));
-const TALK_URL = pathToFileURL(resolve(TALKS_DIR, 'any-deck', DECK_FILE));
 const PHOTO = relative(
   dirname(fileURLToPath(POST_URL)),
   resolve('tests/fixtures/photo-4x3.png'),
@@ -306,19 +304,6 @@ test.describe('post-figure', NODE, () => {
     expect(img.properties?.sizes).toBeTruthy();
   });
 
-  test('a talk slide photo takes the slide column sizes, a post photo the post column', async () => {
-    const sizes = async (url: URL) => {
-      const img = el('img', [], { src: PHOTO, alt: 'x' });
-      const p = el('p', [text('in '), img]);
-      await postFigure().element.visit(img, contextFor(el('root', [p]), url));
-      return String(img.properties?.sizes);
-    };
-    const post = await sizes(POST_URL);
-    const talk = await sizes(TALK_URL);
-    expect(talk).not.toBe(post);
-    expect(talk).toContain('55vh');
-  });
-
   const priorities = async (url: URL): Promise<boolean[]> => {
     const plugin = postFigure();
     const images = [1, 2].map(() => el('img', [], { src: PHOTO, alt: 'x' }));
@@ -337,15 +322,5 @@ test.describe('post-figure', NODE, () => {
       await priorities(POST_URL),
       'the cover is the first image; a body image would compete with it.',
     ).toEqual([false, false]);
-  });
-
-  test('a talk slide image never takes priority', async () => {
-    const img = el('img', [], { src: PHOTO, alt: 'x' });
-    const root = el('root', [el('p', [text('in '), img])]);
-    await postFigure().element.visit(img, contextFor(root, TALK_URL));
-    expect(
-      img.properties?.priority,
-      'each slide compiles alone, so every slide would claim priority.',
-    ).toBeUndefined();
   });
 });

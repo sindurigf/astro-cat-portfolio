@@ -12,17 +12,9 @@ import {
   loadSheet,
   type Sheet,
 } from '../lib/about-cats-rig';
-import minervaSheet from '../assets/about-cats-minerva.avif';
 import rudraSheet from '../assets/about-cats-rudra.avif';
-import helaSheet from '../assets/about-cats-hela.avif';
 import type { CatId, Ledge } from '../lib/about-cats-types';
-import tricksUrl from '../lib/about-cats-tricks-url';
-import {
-  isTricksData,
-  type PlayMove,
-  type TricksData,
-} from '../lib/about-cats-tricks';
-import { CAT_WEIGHTS, EXTENT_WARMUPS } from '../lib/about-cats-moves';
+import { EXTENT_WARMUPS } from '../lib/about-cats-moves';
 import {
   createColony,
   type CatSpot,
@@ -31,15 +23,11 @@ import {
 } from '../lib/about-cats';
 
 const SHEETS: Record<CatId, Sheet> = {
-  minerva: minervaSheet,
   rudra: rudraSheet,
-  hela: helaSheet,
 };
 
 /* Where each cat starts on its card, 0 to 1, and which way it faces. */
 const PLACES: Record<CatId, { start: number; facing: 1 | -1 }> = {
-  minerva: { start: 0.85, facing: -1 },
-  hela: { start: 0.8, facing: -1 },
   rudra: { start: 0.8, facing: -1 },
 };
 
@@ -64,12 +52,6 @@ const warmExtents = (jobs: readonly (() => unknown)[]): void => {
 
 /* A cat's frames start loading this far before its band scrolls into view. */
 const SHEET_AHEAD = '50% 0px';
-/** The trick list's distance from its band and from the viewport's edges. */
-const TRICKS_MARGIN = 16;
-/** A list placed lower than this would be too short to use; it moves up instead. */
-const TRICKS_MIN_HEIGHT = 176;
-const LOADING_NOTE = 'Loading tricks.';
-const FAILED_NOTE = 'The tricks did not load. Open the list again.';
 /** Brick tops within this many px of each other are one floor. */
 const SAME_FLOOR = 1;
 /** Space between the card and its cat, or the band on narrow screens. */
@@ -78,7 +60,6 @@ const CARD_GAP = 16;
 const CARD_MARGIN = 16;
 /** From here the card sits beside the cat; below it, above or below the band. */
 const SIDE_BY_SIDE = '(min-width: 40rem)';
-const SVG_NS = 'http://www.w3.org/2000/svg';
 
 interface Cat {
   id: CatId;
@@ -86,17 +67,12 @@ interface Cat {
   spot: HTMLElement;
   button: HTMLButtonElement;
   svg: SVGSVGElement;
-  /** The sleep control, the paw and its list: gone under reduced motion. */
+  /** The sleep control: gone under reduced motion. */
   controls: HTMLElement[];
   nap: HTMLButtonElement;
   napLabel: HTMLElement;
-  paw: HTMLButtonElement;
-  list: HTMLElement;
-  note: HTMLElement;
   card: HTMLTemplateElement;
   asleep: boolean;
-  /** The tricks shown in its list, in order. */
-  listed: PlayMove[];
 }
 
 const setUp = (): void => {
@@ -128,9 +104,6 @@ const setUp = (): void => {
     const svg = required(parts, '.cat-svg', SVGSVGElement);
     const nap = required(parts, '.cat-nap', HTMLButtonElement);
     const napLabel = required(nap, '.sr-only', HTMLElement);
-    const paw = required(parts, '.cat-tricks-button', HTMLButtonElement);
-    const list = required(parts, '.cat-tricks', HTMLElement);
-    const note = required(list, '.cat-tricks-note', HTMLElement);
     cats.push({
       id,
       name: template.dataset.catName ?? id,
@@ -142,12 +115,8 @@ const setUp = (): void => {
       ],
       nap,
       napLabel,
-      paw,
-      list,
-      note,
       card: cardTemplate,
       asleep: false,
-      listed: [],
     });
     spot.append(button);
   }
@@ -171,8 +140,6 @@ const setUp = (): void => {
   };
 
   const showControls = (on: boolean): void => {
-    /* Removing an open popover fires no toggle, so its paw would stay expanded. */
-    if (!on) closeTricks();
     for (const cat of cats) {
       if (on) cat.spot.append(...cat.controls);
       else for (const node of cat.controls) node.remove();
@@ -183,157 +150,6 @@ const setUp = (): void => {
     if (!colony) return;
     if (cat.asleep) colony.wake(cat.id, performance.now());
     else colony.nap(cat.id);
-    loop.start();
-  };
-
-  /* Names and icons are data, fetched after load, so /about's script carries none of them. */
-  let tricks: TricksData | null = null;
-  let tricksNote = LOADING_NOTE;
-
-  const icon = (name: string): SVGSVGElement => {
-    const svg = document.createElementNS(SVG_NS, 'svg');
-    svg.setAttribute('class', 'cat-trick-icon');
-    svg.setAttribute('viewBox', '0 0 24 24');
-    svg.setAttribute('aria-hidden', 'true');
-    svg.setAttribute('focusable', 'false');
-    for (const shape of tricks?.icons[name] ?? []) {
-      const path = document.createElementNS(SVG_NS, 'path');
-      path.setAttribute('d', shape.d);
-      if (shape.solid) path.setAttribute('class', 'cat-trick-solid');
-      svg.append(path);
-    }
-    return svg;
-  };
-
-  /** Draws a cat's list once the tricks are in: Random first, then each trick that fits its band. */
-  const showTricks = (cat: Cat): void => {
-    const data = tricks;
-    cat.note.textContent = data ? '' : tricksNote;
-    if (!data) return;
-    const names: (PlayMove | 'random')[] = ['random', ...cat.listed];
-    const current = cat.list.querySelector('ul');
-    if (current && names.join() === current.dataset.names) return;
-    const ul = document.createElement('ul');
-    ul.setAttribute('role', 'list');
-    ul.className = 'cat-trick-list';
-    ul.dataset.names = names.join();
-    names.forEach((name, i) => {
-      const trick = data.tricks[name];
-      const button = document.createElement('button');
-      button.type = 'button';
-      button.className = 'cat-trick';
-      button.autofocus = i === 0;
-      button.append(icon(trick.icon), ` ${trick.label} `);
-      button.addEventListener('click', () => pickTrick(cat, name));
-      const li = document.createElement('li');
-      li.append(button);
-      ul.append(li);
-    });
-    if (current) current.replaceWith(ul);
-    else cat.list.prepend(ul);
-  };
-
-  /* A list that finished loading while its popover was open and focus had not left the paw: `autofocus` only runs on open. */
-  const focusFirstTrickIfOnPaw = (): void => {
-    if (!document.activeElement?.matches('.cat-tricks-button')) return;
-    document
-      .querySelector<HTMLElement>('.cat-tricks:popover-open .cat-trick')
-      ?.focus();
-  };
-
-  const loadTricks = (): void => {
-    if (tricks) return;
-    tricksNote = LOADING_NOTE;
-    cats.forEach(showTricks);
-    fetch(tricksUrl)
-      .then((response) =>
-        response.ok ? response.json() : Promise.reject(response.status),
-      )
-      .then((data: unknown) => {
-        if (!isTricksData(data)) throw new Error('Unexpected tricks data');
-        tricks = data;
-        cats.forEach(showTricks);
-        focusFirstTrickIfOnPaw();
-      })
-      .catch((error: unknown) => {
-        console.error(error);
-        tricksNote = FAILED_NOTE;
-        cats.forEach(showTricks);
-      });
-  };
-
-  const closeTricks = (): void =>
-    document
-      .querySelectorAll<HTMLElement>('.cat-tricks:popover-open')
-      .forEach((list) => list.hidePopover());
-
-  /** The open list's paw and where it stood when the list opened. */
-  let openPaw: Element | null | undefined;
-  let openPawTop = 0;
-
-  /*
-   * A viewport-fixed list would stay behind a scrolled page; its own scrolling
-   * does not bubble here. A scroll that leaves the paw in place is the one that
-   * brought a just-focused paw into view, reported a frame after the list opened.
-   */
-  const closeTricksScrolledAway = (): void => {
-    if (openPaw?.getBoundingClientRect().top !== openPawTop) closeTricks();
-  };
-
-  const onTricksToggle = (cat: Cat, event: Event): void => {
-    const open = (event as ToggleEvent).newState === 'open';
-    const { spot, paw, list } = cat;
-    paw.setAttribute('aria-expanded', String(open));
-    /* Another list opening reports here before this one closing. */
-    if (open) openPaw = paw;
-    else if (openPaw === paw) openPaw = null;
-    openPawTop = openPaw?.getBoundingClientRect().top ?? 0;
-    const method = openPaw ? 'addEventListener' : 'removeEventListener';
-    window[method]('scroll', closeTricksScrolledAway);
-    if (!open || !colony) return;
-    loadTricks();
-    const current = colony;
-    cat.listed = (Object.keys(CAT_WEIGHTS[cat.id]) as PlayMove[]).filter(
-      (name) => current.playable(cat.id, name),
-    );
-    showTricks(cat);
-    const top = clamp(
-      spot.getBoundingClientRect().bottom + TRICKS_MARGIN,
-      TRICKS_MARGIN,
-      window.innerHeight - TRICKS_MIN_HEIGHT - TRICKS_MARGIN,
-    );
-    const pawBox = paw.getBoundingClientRect();
-    /* Moved up onto its paw and sleep control, it would cover them focused (SC 2.4.12): it goes beside them. */
-    const right =
-      top < pawBox.bottom + TRICKS_MARGIN
-        ? pawBox.left - TRICKS_MARGIN
-        : pawBox.right;
-    /* CSSOM custom properties: the CSP refuses style attributes, not these. */
-    list.style.setProperty(
-      '--tricks-right',
-      `${document.documentElement.clientWidth - right}px`,
-    );
-    list.style.setProperty('--tricks-top', `${top}px`);
-    list.style.setProperty(
-      '--tricks-max',
-      `${window.innerHeight - top - TRICKS_MARGIN}px`,
-    );
-  };
-
-  /*
-   * An open list would cover the control focus moved on to (SC 2.4.12). After
-   * the move: hidePopover() on a list that still holds focus sends it back.
-   */
-  const onTricksFocusOut = (): void => {
-    setTimeout(() => {
-      if (!document.activeElement?.closest('.cat-tricks, .cat-tricks-button'))
-        closeTricks();
-    });
-  };
-
-  const pickTrick = (cat: Cat, name: PlayMove | 'random'): void => {
-    closeTricks();
-    colony?.trick(cat.id, name, performance.now());
     loop.start();
   };
 
@@ -476,10 +292,7 @@ const setUp = (): void => {
     if (reduced) {
       /* The cat's controls go; focus on one moves to its cat rather than the page. */
       const focused = document.activeElement;
-      if (
-        focused instanceof HTMLElement &&
-        focused.matches('.cat-nap, .cat-tricks-button, .cat-trick')
-      )
+      if (focused instanceof HTMLElement && focused.matches('.cat-nap'))
         focused
           .closest('.cat-spot')
           ?.querySelector<HTMLElement>('.cat-button')
@@ -648,13 +461,7 @@ const setUp = (): void => {
       hold(cat, 'pointer', false),
     );
     cat.nap.addEventListener('click', () => toggleNap(cat));
-    cat.paw.addEventListener('focusout', onTricksFocusOut);
-    cat.list.addEventListener('beforetoggle', (event) =>
-      onTricksToggle(cat, event),
-    );
-    cat.list.addEventListener('focusout', onTricksFocusOut);
     showNap(cat);
-    showTricks(cat);
   }
 
   loop.connect();
@@ -675,10 +482,7 @@ const setUp = (): void => {
   });
   layout();
   if (loop.reducedMotion()) colony.still();
-  else {
-    warmExtents(EXTENT_WARMUPS);
-    loadTricks();
-  }
+  else warmExtents(EXTENT_WARMUPS);
 
   const resizeObserver = new ResizeObserver(layout);
   for (const { spot } of cats) resizeObserver.observe(spot);
