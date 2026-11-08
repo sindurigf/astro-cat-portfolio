@@ -3,7 +3,7 @@ import { ROUTES } from './routes';
 import { gotoSettled } from './settle';
 
 /*
- * Performance and test stability: filter layers over walls stalled Playwright input on an older build.
+ * Performance and test stability: a filter layer costs raster time and can stall Playwright input.
  * Every sheet rule counts, whatever state its selector waits on.
  * Only the hero's near canvas, with no text or controls, may take a filter (set by script).
  */
