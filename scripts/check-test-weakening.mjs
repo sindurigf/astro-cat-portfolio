@@ -2,7 +2,8 @@
  * Fails when a change weakens the tests: a skip, an axe narrowing, fewer or
  * hollow assertions, a changed threshold, a new rejected finding, or an edit to
  * the gate itself. CI runs the default branch's copy
- * (.github/workflows/test-weakening.yml); the owner approves the head commit.
+ * (.github/workflows/test-weakening.yml); a review of the head commit by
+ * GITHUB_REPOSITORY_OWNER approves a finding.
  */
 import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
@@ -793,14 +794,15 @@ const approvalReason = (body) => {
   return null;
 };
 
-/* GitHub blocks approving your own pull request, so the owner's comment review counts too. */
+/* GitHub blocks approving your own pull request, so a comment review counts too. */
 const MARKER_STATES = new Set([APPROVED, 'COMMENTED']);
 const REVOKING_STATES = new Set(['CHANGES_REQUESTED', 'DISMISSED']);
 
 /**
- * The reason from the owner's latest approving or comment review of `headSha`
- * that carries the marker and that no one else edited, unless a later owner
- * review requests changes or was dismissed; `null` otherwise. Oldest first.
+ * The reason from the latest approving or comment review of `headSha` by
+ * `GITHUB_REPOSITORY_OWNER` that carries the marker and that no one else
+ * edited, unless a later review by that account requests changes or was
+ * dismissed; `null` otherwise. Oldest first.
  */
 export const ownerApproval = (reviews, owner, headSha) => {
   const isOwner = (login) =>
@@ -952,7 +954,7 @@ export const main = async ({
       return 0;
     }
     log(
-      '\nTest weakening: the owner approves in the pull request. Set APPROVED_TEST_CHANGE to pass locally.',
+      '\nTest weakening: in CI, a review with "Approved test change: <reason>" passes it. Set APPROVED_TEST_CHANGE to pass locally.',
     );
     return 1;
   }

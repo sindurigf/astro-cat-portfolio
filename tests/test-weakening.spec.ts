@@ -533,7 +533,7 @@ test.describe('test-weakening guard', NODE, () => {
     expect(inSpec(withLine(`  ${call('photos', 'fail')});`))).toEqual([]);
   });
 
-  test("accepts the marker only in the owner's approving or comment review of the tested commit, outside code", () => {
+  test('accepts the marker only in an approving or comment review by GITHUB_REPOSITORY_OWNER of the tested commit, outside code', () => {
     const HEAD = 'abc123';
     const review = (
       login: string,
@@ -649,7 +649,7 @@ test.describe('test-weakening guard in CI', NODE, () => {
     return { code, output: lines.join('\n') };
   };
 
-  test("fails a finding without approval and passes it with the owner's approving review", async () => {
+  test('fails a finding without approval and passes it with an approving review by GITHUB_REPOSITORY_OWNER', async () => {
     const unapproved = await run();
     expect(unapproved.code).toBe(1);
     expect(unapproved.output).toContain(`${SPEC}:`);

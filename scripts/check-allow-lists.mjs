@@ -66,3 +66,41 @@ export const SERVED_AS_IS = new Map([
  * matches fails.
  */
 export const TITLE_CASE_ALLOWED = [];
+
+/*
+ * Lines check:wording lets through: `file` is a path or a RegExp, `text` a
+ * RegExp the line must match. An entry that no longer matches fails.
+ */
+export const WORDING_EXCEPTIONS = [
+  {
+    file: 'src/content/blog/sample-post.md',
+    rule: 'she-her',
+    text: /Nico Olvia/,
+    reason: "the sample persona writes about the persona's mother.",
+  },
+  {
+    file: 'src/pages/about.astro',
+    rule: 'she-her',
+    text: /PERSON_NAME/,
+    reason: "the sample persona's page description names the persona.",
+  },
+  {
+    file: 'src/pages/credits.astro',
+    rule: 'she-her',
+    text: /PERSONA_SOURCES_PATH/,
+    reason: "the link to the sources of the sample persona's stories.",
+  },
+  {
+    file: 'tests/about-cats.spec.ts',
+    rule: 'she-her',
+    text: /NAMES\[id\]/,
+    reason: 'the About cats are female.',
+  },
+  {
+    file: 'src/lib/feed-excerpt.ts',
+    rule: 'em-dash',
+    text: /mdash:/,
+    reason:
+      'the HTML entity table decodes the em dash entity in feed excerpts.',
+  },
+];
