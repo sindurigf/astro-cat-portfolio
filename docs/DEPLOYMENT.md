@@ -124,6 +124,20 @@ CLOUDFLARE_ENV=demo SITE_URL=https://demo.example.com CONTACT_FORM=none NOINDEX=
 - A hosted service changes the CSP's `form-action`:
   [ARCHITECTURE.md](../ARCHITECTURE.md#the-csp).
 
+## Bindings
+
+The Worker's bindings, declared in [`wrangler.jsonc`](../wrangler.jsonc)
+except `ASSETS`, which the Astro adapter adds, and the secret
+([pipeline](../ARCHITECTURE.md#the-contact-endpoint)).
+
+| Binding              | Type          | Used by                                           |
+| -------------------- | ------------- | ------------------------------------------------- |
+| `MESSAGES_DB`        | D1            | Contact messages, the retention sweep, resend     |
+| `CONTACT_MAILER`     | Send Email    | Notification email ([setup](#contact-form-email)) |
+| `CONTACT_RATE_LIMIT` | Rate Limiting | Submissions per sender key ([setup](#rate-limit)) |
+| `ASSETS`             | Static assets | `/videos/*` byte ranges                           |
+| `CONTACT_NOTIFY_TO`  | Secret        | Notification recipient                            |
+
 ## D1
 
 `wrangler.jsonc` names the database but carries no `database_id`. On

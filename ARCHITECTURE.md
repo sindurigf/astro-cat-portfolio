@@ -740,6 +740,19 @@ An Astro upgrade can change a hash; the island then silently fails to hydrate
 
 `npm run check:live` checks what Cloudflare actually sends.
 
+## The contact endpoint
+
+- `/contact/send/` is the one on-demand page (`src/pages/contact/send.astro`);
+  bindings: [DEPLOYMENT.md](docs/DEPLOYMENT.md#bindings).
+- Order: honeypot, rate limit, validation, D1 insert, notification email, then
+  a 303 to `/contact/sent/`. Errors answer 429, 422 or 503 with the form
+  refilled, and 413 without it.
+- The email goes only while the last hour holds at most `HOURLY_NOTIFY_LIMIT`
+  messages (`src/lib/contact-submission.ts`); an unsent one stays unmarked.
+- The cron in `wrangler.jsonc` runs `scheduled` in `src/worker.ts`: the
+  retention sweep (`RETENTION_DAYS`), then the resend of unmarked messages. A
+  failed sweep does not stop the resend.
+
 ## The contact form's honeypot
 
 - A filled honeypot gets an identical success response and is discarded;
@@ -748,7 +761,8 @@ An Astro upgrade can change a hash; the island then silently fails to hydrate
   catches naive fillers only; the no-JS form and static `/contact/` rule out
   timing checks and tokens.
 - Volume is bounded by the `CONTACT_RATE_LIMIT` binding (`wrangler.jsonc`) per
-  /64; fail-open paths are logged.
+  IPv4 address or IPv6 /64, keyed on a SHA-256 that rotates daily
+  (`src/lib/rate-limit-key.ts`); fail-open paths are logged.
 
 ## Rejected findings
 
