@@ -50,13 +50,23 @@ test.describe('CI docs-only fast path', NODE, () => {
     if (!READS_FILES.test(source)) return [];
     return [...source.matchAll(DOC_LITERAL)]
       .flatMap((match) => (match[1] ? [match[1]] : []))
-      .map((literal) => relative('.', resolve(dirname(file), literal)))
+      .map((literal) =>
+        literal.startsWith('.')
+          ? relative('.', resolve(dirname(file), literal))
+          : literal,
+      )
       .filter((doc) => existsSync(doc));
   };
 
   test('a relative ?raw import is found', () => {
     expect(docsRead('src/lib/accessibility-facts.ts')).toContain(
       'ACCESSIBILITY.md',
+    );
+  });
+
+  test('a bare root literal is found', () => {
+    expect(docsRead('scripts/check-test-weakening.mjs')).toContain(
+      'ARCHITECTURE.md',
     );
   });
 
