@@ -335,7 +335,7 @@ test.describe('the failed-photo script', () => {
     expect(hero, 'the eager hero photo failed early and was missed').toBe(true);
   });
 
-  // TODO(fork): Use your first cat's name in this test, or delete it with the cats.
+  // TODO(fork): Use your cat's name in this test, or delete it with the cat.
   test('marks the About cat card photo, rendered after load', async ({
     browser,
   }) => {
@@ -343,15 +343,15 @@ test.describe('the failed-photo script', () => {
     await page.route(
       (url) =>
         IMAGE_REQUEST.test(url.pathname) &&
-        url.pathname.includes('cat-card-tabby'),
+        url.pathname.includes('cat-card-black'),
       (request) => request.abort(),
     );
     await gotoSettled(page, '/about');
-    await page.locator('#cat-spot-minerva .cat-button').focus();
+    await page.locator('#cat-spot-rudra .cat-button').focus();
     await page.keyboard.press('Enter');
 
     const frame = page
-      .getByRole('dialog', { name: 'Minerva' })
+      .getByRole('dialog', { name: 'Rudra' })
       .locator('.aspect-frame');
     await expect(
       frame,

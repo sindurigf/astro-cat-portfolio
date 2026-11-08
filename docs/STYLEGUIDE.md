@@ -1371,15 +1371,15 @@ Enforced by `tests/nav-current.spec.ts`, `tests/mobile-menu.spec.ts`,
   shows that still frame as a WebP (`npm run hero-still` after a change to the
   field).
 - `HeroField` loads `client:load`.
-- The About cats (`src/components/AboutCats.astro`, `src/scripts/about-cats.ts`) wake when their band is
-  first on screen, play along it (games like the yarn and the fly carry them),
-  and sit still under reduced motion. Each cat's button
-  ("Meet Minerva") opens its card; while it is open the cat sits where it is
+- The About cat (`src/components/AboutCats.astro`, `src/scripts/about-cats.ts`) wakes when its band is
+  first on screen, plays along it (games like the yarn and the fly carry it),
+  and sits still under reduced motion. Its button
+  ("Meet Rudra") opens its card; while it is open the cat sits where it is
   and looks round at you, and under reduced motion it stays as it was.
-- Each cat's SC 2.2.2 control sits in its band's corner: Zz ("Let Minerva nap")
-  while it plays, an eye ("Wake Minerva") while it sleeps.
+- The cat's SC 2.2.2 control sits in its band's corner: Zz ("Let Rudra nap")
+  while it plays, an eye ("Wake Rudra") while it sleeps.
   Hidden under reduced motion, where nothing moves.
-- A paw button under Zz ("Choose a trick for Minerva") opens that cat's tricks:
+- A paw button under Zz ("Choose a trick for Rudra") opens that cat's tricks:
   Random first, then its own moves, each an icon and a name
   (`src/lib/about-cats-tricks.ts`, fetched from its JSON after load, so `/about`
   stays within its script budget). A pick plays once, wakes a sleeping cat
@@ -1410,22 +1410,22 @@ Enforced by `tests/nav-current.spec.ts`, `tests/mobile-menu.spec.ts`,
 - A drawing may reach `MAX_OVERHANG` (the phone gutter) past its band's end,
   never over text or a control (`src/lib/about-cats.ts`). A cat about to lie
   down near an end turns to face the band first.
-- A cat stands on the brick under it. Where its wall steps up (Rudra's raised
+- The cat stands on the brick under it. Where its wall steps up (the raised
   photo brick), the floor follows the brick tops, read from the laid-out wall
   on every resize, and Rudra springs up the step and stretches down it
   (`src/lib/about-cats-climb.ts`). Under reduced motion a cat sits on the brick
   it is on. The wall's empty top takes no clicks, so a cat on the lower brick
   stays a target.
 - Games too long for a band are skipped: at a 320px viewport the yarn and fly
-  games do not fit, and the cats play the others.
-- Each cat lives in a `.cat-perch` band above its card, sized by
+  games do not fit, and the cat plays the others.
+- The cat lives in a `.cat-perch` band above its card, sized by
   `--spacing-cat-band`, which no move may rise above
   (`tests/about-cats.spec.ts`).
 - A band is never a scroll anchor (`overflow-anchor: none` on `.cat-spot`):
   WebKit would scroll the page with a moving cat and carry a focused control
   out of view (SC 2.4.11).
 - The hero's poneglyph is line art in the field's inks, drawn to match its
-  grass lines; the About cats are stickers, flat fills with a hard edge, like
+  grass lines; the About cat is a sticker, flat fills with a hard edge, like
   the logo tile. Keep each in its own style.
 - The poneglyph stands right of center, below the stickers and clear of the
   name: a broad block with a lit carved face, a shaded side and top, a plinth,

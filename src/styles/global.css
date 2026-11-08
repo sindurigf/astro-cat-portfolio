@@ -159,7 +159,7 @@
   --color-tile-edge: #5a87a8;
   /* The system color forced-colors mode pairs with the button face; bars on it use `forced-colors:bg-button-text`. */
   --color-button-text: ButtonText;
-  /* TODO(fork): The logo cat's coat colors. README "Your cats, or none". */
+  /* TODO(fork): The logo cat's coat colors. README "Your cat, or none". */
   --color-cat-hela: #f4efe8;
   --color-cat-hela-far: #cfc6ba;
   --color-cat-hela-orange: #d38b45;

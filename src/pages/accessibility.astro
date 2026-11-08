@@ -205,15 +205,14 @@ const HAS_TALK = (await getCollection('talks')).length > 0;
           <h3>Motion</h3>
           <p>
             SC 2.2.2 Pause, Stop, Hide (A): the homepage field has one pause
-            control. Each of the three About cats has its own sleep control, and
-            a cat also naps after 30 seconds on screen. SC 2.3.3 Animation from
-            Interactions (AAA): under{' '}
-            <code>prefers-reduced-motion: reduce</code>, the field is drawn once
-            and held. Under the same setting, the cats sit still on the brick
-            under them with no controls. A pressed button does not move, and the
-            photo strip scrolls without smooth scrolling. Let It Fall in the
-            footer moves the page at once, without animation. Nothing else
-            animates.
+            control. The About cat has its own sleep control, and it also naps
+            after 30 seconds on screen. SC 2.3.3 Animation from Interactions
+            (AAA): under <code>prefers-reduced-motion: reduce</code>, the field
+            is drawn once and held. Under the same setting, the cat sits still
+            on the brick under it with no controls. A pressed button does not
+            move, and the photo strip scrolls without smooth scrolling. Let It
+            Fall in the footer moves the page at once, without animation.
+            Nothing else animates.
           </p>
           <p>
             You can pause the moving pictures. If your device asks for less
@@ -240,8 +239,8 @@ const HAS_TALK = (await getCollection('talks')).length > 0;
             mobile menu. Every built page is checked for it in its{' '}
             <Abbr short="HTML" long="HyperText Markup Language" after="," /> and
             four page layouts are checked in a browser at phone width. The talk
-            slides, abbreviations, photo viewer and cats have their own checks
-            with JavaScript off.
+            slides, abbreviations, photo viewer and About cat have their own
+            checks with JavaScript off.
           </p>
           <p>With JavaScript turned off, you can still move between pages.</p>
 

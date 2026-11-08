@@ -160,7 +160,7 @@ Dark is the default. Colors and rules:
   `MutationObserver` sees `data-theme` change. Its ground is `hero-ground`.
   A `(resolution)` media query resizes its canvases when only the pixel ratio
   changes; in forced colors it is hidden (`tests/hero-media.spec.ts`).
-- The About cats (`src/scripts/about-cats.ts`) need neither: the cats are drawings with their outline
+- The About cat (`src/scripts/about-cats.ts`) needs neither: the cat is a drawing with its outline
   baked in, the same in both themes, and the toys' SVG parts carry classes
   that `about-cats.css` maps to tokens.
 - `playwright.config.ts` sets `colorScheme: 'dark'`; specs that measure light

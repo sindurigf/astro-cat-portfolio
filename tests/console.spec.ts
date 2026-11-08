@@ -80,11 +80,11 @@ test.describe('the browser console', () => {
     await page.goto(`${origin}/about`);
     await waitForHydration(page);
 
-    const spot = page.locator('#cat-spot-minerva');
+    const spot = page.locator('#cat-spot-rudra');
     await spot.scrollIntoViewIfNeeded();
     await spot.locator('.cat-tricks-button').click();
     await page
-      .locator('#cat-tricks-minerva')
+      .locator('#cat-tricks-rudra')
       .getByRole('button', { name: tricksData.tricks.fly.label })
       .click();
     await page.mouse.move(0, 0);
@@ -95,7 +95,7 @@ test.describe('the browser console', () => {
 
     await spot.locator('.cat-button').focus();
     await page.keyboard.press('Enter');
-    const dialog = page.getByRole('dialog', { name: 'Minerva' });
+    const dialog = page.getByRole('dialog', { name: 'Rudra' });
     await expect(dialog).toBeVisible();
     await expect(
       dialog.locator('img'),

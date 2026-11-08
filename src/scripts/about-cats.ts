@@ -12,9 +12,7 @@ import {
   loadSheet,
   type Sheet,
 } from '../lib/about-cats-rig';
-import minervaSheet from '../assets/about-cats-minerva.avif';
 import rudraSheet from '../assets/about-cats-rudra.avif';
-import helaSheet from '../assets/about-cats-hela.avif';
 import type { CatId, Ledge } from '../lib/about-cats-types';
 import tricksUrl from '../lib/about-cats-tricks-url';
 import {
@@ -31,15 +29,11 @@ import {
 } from '../lib/about-cats';
 
 const SHEETS: Record<CatId, Sheet> = {
-  minerva: minervaSheet,
   rudra: rudraSheet,
-  hela: helaSheet,
 };
 
 /* Where each cat starts on its card, 0 to 1, and which way it faces. */
 const PLACES: Record<CatId, { start: number; facing: 1 | -1 }> = {
-  minerva: { start: 0.85, facing: -1 },
-  hela: { start: 0.8, facing: -1 },
   rudra: { start: 0.8, facing: -1 },
 };
 

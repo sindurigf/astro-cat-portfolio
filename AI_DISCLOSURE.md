@@ -18,9 +18,9 @@ current once the site is yours.
 
 AI-drawn art, by Claude or Canva AI:
 
-- The animated About cats, drawn by Canva AI from the cats' photos
-  (`artwork/about-cats/`, packed by `scripts/make-about-cats.mjs`), their sleep,
-  wake and trick-list icons (`src/components/AboutCats.astro`) and their trick
+- The animated About cat, drawn by Canva AI from the cat's photos
+  (`artwork/about-cats/`, packed by `scripts/make-about-cats.mjs`), its sleep,
+  wake and trick-list icons (`src/components/AboutCats.astro`) and its trick
   icons (`src/lib/about-cats-tricks.json`).
 - The poneglyph and its lighting script in the homepage field
   (`src/lib/hero-field-poneglyph.ts`), and its stills shown without JavaScript

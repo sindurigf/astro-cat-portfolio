@@ -118,7 +118,7 @@ Resizing is not zooming, so this stays manual even though
 Setup: `gsettings set org.gnome.desktop.interface enable-animations false`.
 `matchMedia('(prefers-reduced-motion: reduce)').matches` returns `true`.
 `tests/motion.spec.ts` and `tests/about-cats.spec.ts` cover the hero field drawn
-once with no pause control and the cats still with no sleep control.
+once with no pause control and the cat still with no sleep control.
 
 - [ ] Press and hold a primary button, a `/blog` chip, a footer sticker and
       the logo: each loses its shadow but does not move. → SC 2.3.3
@@ -703,23 +703,23 @@ and no dialog remain.
 
 Heard: `________________________`
 
-#### 6.12.6 The About cats
+#### 6.12.6 The About cat
 
-Setup: `/about` at 1280px, the cats' band on screen. Each cat is a "Meet"
-button with a sleep control beside it; one `<dialog>` holds the card. The
-drawings are `aria-hidden`. `tests/about-cats.spec.ts` covers focus order,
+Setup: `/about` at 1280px, the cat's band on screen. The cat is a "Meet"
+button with a sleep control beside it; a `<dialog>` holds the card. The
+drawing is `aria-hidden`. `tests/about-cats.spec.ts` covers focus order,
 focus return, the sleep control, the trick list's keys and Rudra's climb.
 These checks are by ear.
 
-- [ ] Each cat is a button named "Meet Minerva", "Meet Hela" or "Meet Rudra". → SC 4.1.2
+- [ ] The cat is a button named "Meet Rudra". → SC 4.1.2
 - [ ] Enter opens the card: focus is on Close, and the dialog is named after
       the cat. → SC 2.4.3, 4.1.2
 - [ ] Tab stays on Close, never the page behind. → SC 2.1.2
-- [ ] The sleep control is heard as "Let Minerva nap", then "Wake Minerva"
+- [ ] The sleep control is heard as "Let Rudra nap", then "Wake Rudra"
       once pressed. → SC 4.1.2
-- [ ] The paw is heard as "Choose a trick for Minerva"; open, the list is read
+- [ ] The paw is heard as "Choose a trick for Rudra"; open, the list is read
       with Random first. → SC 4.1.2
-- [ ] The drawings announce nothing. → SC 1.1.1
+- [ ] The drawing announces nothing. → SC 1.1.1
 - [ ] While the trick list loads, or if it fails, its note is read once, as
       a status. → SC 4.1.3
 

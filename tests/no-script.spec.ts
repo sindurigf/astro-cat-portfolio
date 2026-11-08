@@ -295,9 +295,9 @@ test.describe('navigation without JavaScript', () => {
   });
 });
 
-/* A11Y.md "Content Held Hostage by JavaScript": the cats are drawn by a script, their words are not. */
-test.describe('the About cats without JavaScript', () => {
-  const NAMES = ['Minerva', 'Hela', 'Rudra'];
+/* A11Y.md "Content Held Hostage by JavaScript": the cat is drawn by a script, its words are not. */
+test.describe('the About cat without JavaScript', () => {
+  const NAMES = ['Rudra'];
 
   test('each cat is named in text', async ({ browser }) => {
     const context = await browser.newContext({ javaScriptEnabled: false });

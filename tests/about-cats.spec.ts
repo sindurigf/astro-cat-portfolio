@@ -1,5 +1,5 @@
 import sharp from 'sharp';
-import { expect, test, type Browser, type Page } from './test';
+import { expect, test, type Page } from './test';
 import { gotoSettled, setViewportSettled } from './settle';
 import { settleFocusScroll } from './tab-walk';
 import {
@@ -56,14 +56,14 @@ import { climbMove } from '../src/lib/about-cats-climb';
 import { itemAt } from '../src/lib/defined';
 
 /**
- * The About cats (src/scripts/about-cats.ts): each cat opens its photo,
+ * The About cat (src/scripts/about-cats.ts): the cat opens its photo,
  * its sleep control stops it (SC 2.2.2), stillness under reduced motion, and
- * never covering text. Their drawing and motion are decoration and not tested.
+ * never covering text. Its drawing and motion are decoration and not tested.
  */
 const ROUTE = '/about/';
-// TODO(fork): Your cats' names in the list just below, the same as on the About page. README "Your cats, or none".
-const CATS = ['minerva', 'hela', 'rudra'] as const;
-const NAMES = { minerva: 'Minerva', hela: 'Hela', rudra: 'Rudra' } as const;
+// TODO(fork): Your cat's name just below, the same as on the About page. README "Your cat, or none".
+const CATS = ['rudra'] as const;
+const NAMES = { rudra: 'Rudra' } as const;
 
 const startPose = (move: Move) => itemAt(move.steps, 0).pose;
 
@@ -73,66 +73,8 @@ const STILL_WINDOW_MS = 800;
 /** 1280x1024 at 400%: the SC 1.4.10 reflow case, short as well as narrow. */
 const ZOOMED = { width: 320, height: 256 };
 
-/** Wide enough for the desktop layout; tall enough to measure every band at once. */
-const TWO_CAT_WIDTH = 1350;
-const PROBE_HEIGHT = 6000;
-
-/** Band edges in document px, with the page scrolled to the top. */
-const bandEdges = (page: Page) =>
-  page.evaluate(
-    ([second, third]) => {
-      const edge = (id: string) =>
-        document.getElementById(`cat-spot-${id}`)!.getBoundingClientRect();
-      return {
-        secondBottom: edge(second).bottom + scrollY,
-        thirdTop: edge(third).top + scrollY,
-      };
-    },
-    ['hela', 'rudra'] as const,
-  );
-
-const twoCatWindows = new Map<
-  string,
-  Promise<{ width: number; height: number }>
->();
-
-/** A window that ends between the second cat's band and the third's, measured per engine. */
-const twoCatWindow = (browser: Browser) => {
-  const engine = browser.browserType().name();
-  const known = twoCatWindows.get(engine);
-  if (known) return known;
-  const measured = (async () => {
-    const context = await browser.newContext({
-      viewport: { width: TWO_CAT_WIDTH, height: PROBE_HEIGHT },
-    });
-    try {
-      const page = await context.newPage();
-      await gotoSettled(page, ROUTE);
-      const probe = await bandEdges(page);
-      const size = {
-        width: TWO_CAT_WIDTH,
-        height: Math.round((probe.secondBottom + probe.thirdTop) / 2),
-      };
-      await setViewportSettled(page, size);
-      const edges = await bandEdges(page);
-      expect(
-        edges.secondBottom <= size.height && edges.thirdTop > size.height,
-        `the third cat's band is on screen at ${size.height}px, so the two-cat tests no longer isolate it`,
-      ).toBe(true);
-      return size;
-    } finally {
-      await context.close();
-    }
-  })();
-  twoCatWindows.set(engine, measured);
-  return measured;
-};
-
 /** Leg height from the bottom of the click box; a raised card covers the last few px. */
 const LEG_HEIGHT = 0.15;
-
-/** A cat that lies down settles its tail within this. */
-const SETTLE_MS = 3000;
 
 /* Several moves, each followed by a pause from PAUSE_MS. */
 const PAUSES_WINDOW_MS = 8000;
@@ -698,8 +640,6 @@ test(
 
 /** Frames a loaded runner draws late, beyond the 5 s bound for lying down. */
 const SLEEP_MARGIN_MS = 1000;
-/* Longer than MAX_FRAMES_PER_STEP frames at 60fps, so the next frame covers the most a frame can. */
-const STALL_MS = 150;
 /** A cat counts as settled once its drawing has not changed for this long. */
 const QUIET_MS = 500;
 /* Frames as well as time: a starved runner can draw no frame for QUIET_MS while the cat is still mid-move. */
@@ -1084,9 +1024,9 @@ test.describe('About cats', () => {
       const context = await browser.newContext({ colorScheme });
       const page = await context.newPage();
       await gotoSettled(page, ROUTE);
-      await catButton(page, 'minerva').focus();
+      await catButton(page, 'rudra').focus();
       await page.keyboard.press('Enter');
-      const dialog = page.getByRole('dialog', { name: NAMES.minerva });
+      const dialog = page.getByRole('dialog', { name: NAMES.rudra });
       await expect(dialog).toBeVisible();
       const sticker = (await page.evaluate(`(() => {
         ${PAGE_HELPERS}
@@ -1177,11 +1117,11 @@ test.describe('About cats', () => {
     const context = await browser.newContext({ viewport: ZOOMED });
     const page = await context.newPage();
     await gotoSettled(page, ROUTE);
-    await catButton(page, 'minerva').focus();
+    await catButton(page, 'rudra').focus();
     await page.keyboard.press('Enter');
-    const dialog = page.getByRole('dialog', { name: NAMES.minerva });
+    const dialog = page.getByRole('dialog', { name: NAMES.rudra });
     await expect(dialog).toBeVisible();
-    const name = dialog.getByRole('heading', { name: NAMES.minerva });
+    const name = dialog.getByRole('heading', { name: NAMES.rudra });
     await name.scrollIntoViewIfNeeded();
     await expect(
       name,
@@ -1195,51 +1135,25 @@ test.describe('About cats', () => {
     await context.close();
   });
 
-  test('a sleeping cat is not redrawn while another cat plays on screen', async ({
-    browser,
-  }) => {
-    const context = await browser.newContext({
-      viewport: await twoCatWindow(browser),
-    });
-    const page = await context.newPage();
-    await gotoSettled(page, ROUTE);
-    await napControl(page, 'minerva').click();
-    await expectMood(page, 'minerva', 'asleep', 'Minerva did not fall asleep');
-    await expectMood(page, 'hela', 'playing', 'Hela is not playing beside her');
-    await expect(async () => {
-      const writes = await page.evaluate(
-        (ms) =>
-          new Promise<number>((resolve) => {
-            let count = 0;
-            const observer = new MutationObserver((records) => {
-              count += records.length;
-            });
-            const spot = document.getElementById('cat-spot-minerva');
-            if (spot)
-              observer.observe(spot, { attributes: true, subtree: true });
-            setTimeout(() => {
-              observer.disconnect();
-              resolve(count);
-            }, ms);
-          }),
-        STILL_WINDOW_MS,
-      );
-      expect(writes, 'the sleeping cat kept being redrawn').toBe(0);
-    }).toPass({ timeout: SC_2_2_2_MS + SETTLE_MS });
-    await context.close();
-  });
-
   test('opening and closing the card leaves a cat asleep or playing as it was', async ({
     page,
   }) => {
     await gotoSettled(page, ROUTE);
-    await napControl(page, 'minerva').click();
-    await expectMood(page, 'minerva', 'asleep', 'Minerva did not fall asleep');
-    for (const [id, mood] of [
-      ['minerva', 'asleep'],
-      ['hela', /^(playing|holding)$/],
+    const id = 'rudra';
+    for (const [napFirst, mood] of [
+      [false, /^(playing|holding)$/],
+      [true, 'asleep'],
     ] as const) {
       await showCat(page, id);
+      if (napFirst) {
+        await napControl(page, id).click();
+        await expectMood(
+          page,
+          id,
+          'asleep',
+          `${NAMES[id]} did not fall asleep`,
+        );
+      }
       await catButton(page, id).focus();
       await page.keyboard.press('Enter');
       const dialog = page.getByRole('dialog', { name: NAMES[id] });
@@ -1252,9 +1166,9 @@ test.describe('About cats', () => {
 
   test('a click on the backdrop closes the card', async ({ page }) => {
     await gotoSettled(page, ROUTE);
-    await catButton(page, 'hela').focus();
+    await catButton(page, 'rudra').focus();
     await page.keyboard.press('Enter');
-    const dialog = page.getByRole('dialog', { name: NAMES.hela });
+    const dialog = page.getByRole('dialog', { name: NAMES.rudra });
     await expect(dialog).toBeVisible();
     await page.mouse.click(BACKDROP_POINT.x, BACKDROP_POINT.y);
     await expect(dialog, 'a backdrop click left the card open').toBeHidden();
@@ -1264,22 +1178,22 @@ test.describe('About cats', () => {
     page,
   }) => {
     await gotoSettled(page, ROUTE);
-    await napControl(page, 'minerva').click();
-    await expectMood(page, 'minerva', 'asleep', 'Minerva did not fall asleep');
+    await napControl(page, 'rudra').click();
+    await expectMood(page, 'rudra', 'asleep', 'Rudra did not fall asleep');
     await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
-    await expectMood(page, 'minerva', 'hidden', 'Minerva is still on screen');
-    await catButton(page, 'minerva').scrollIntoViewIfNeeded();
-    await expectMood(page, 'minerva', 'asleep', 'Minerva woke off screen');
+    await expectMood(page, 'rudra', 'hidden', 'Rudra is still on screen');
+    await catButton(page, 'rudra').scrollIntoViewIfNeeded();
+    await expectMood(page, 'rudra', 'asleep', 'Rudra woke off screen');
   });
 
   test('a click on the card itself, padding included, leaves it open', async ({
     page,
   }) => {
     await gotoSettled(page, ROUTE);
-    const button = catButton(page, 'hela');
+    const button = catButton(page, 'rudra');
     await button.focus();
     await page.keyboard.press('Enter');
-    const dialog = page.getByRole('dialog', { name: NAMES.hela });
+    const dialog = page.getByRole('dialog', { name: NAMES.rudra });
     await expect(dialog).toBeVisible();
     const card = await page.locator('.cat-card').boundingBox();
     expect(card, 'the card is not drawn').not.toBeNull();
@@ -1292,7 +1206,7 @@ test.describe('About cats', () => {
     page,
   }) => {
     await gotoSettled(page, ROUTE);
-    const id = 'minerva';
+    const id = 'rudra';
     await showCat(page, id);
     // Holds follow keyboard use, so a key comes first, as it would for a keyboard user.
     await page.keyboard.press('Shift');
@@ -1542,7 +1456,7 @@ test.describe('About cats', () => {
       const context = await browser.newContext({ colorScheme });
       const page = await context.newPage();
       await gotoSettled(page, ROUTE);
-      const id = 'minerva';
+      const id = 'rudra';
       await showCat(page, id);
       await page.keyboard.press('Shift');
       await tricksButton(page, id).focus();
@@ -1579,10 +1493,10 @@ test.describe('About cats', () => {
       const context = await browser.newContext({ colorScheme });
       const page = await context.newPage();
       await gotoSettled(page, ROUTE);
-      const control = napControl(page, 'minerva');
+      const control = napControl(page, 'rudra');
       const measure = () =>
         page.evaluate(`(() => {
-          const button = document.querySelector('#cat-spot-minerva .cat-nap');
+          const button = document.querySelector('#cat-spot-rudra .cat-nap');
           ${PAGE_HELPERS}
           const style = getComputedStyle(button);
           const own = effectiveBackground(button);
@@ -1624,7 +1538,7 @@ test.describe('About cats', () => {
     page,
   }) => {
     await gotoSettled(page, ROUTE);
-    const id = 'minerva';
+    const id = 'rudra';
     await showCat(page, id);
     const paw = tricksButton(page, id);
     await expect(paw).toHaveAccessibleName(`Choose a trick for ${NAMES[id]}`);
@@ -1669,7 +1583,7 @@ test.describe('About cats', () => {
     page,
   }) => {
     await gotoSettled(page, ROUTE);
-    const id = 'minerva';
+    const id = 'rudra';
     await showCat(page, id);
     await tricksButton(page, id).click();
     await expect(
@@ -1697,7 +1611,7 @@ test.describe('About cats', () => {
     page,
   }) => {
     await gotoSettled(page, ROUTE);
-    const id = 'minerva';
+    const id = 'rudra';
     await showCat(page, id);
     await expect(tricksButton(page, id)).toBeVisible();
     const hidden = await page.evaluate(() => {
@@ -1732,7 +1646,7 @@ test.describe('About cats', () => {
     page,
   }) => {
     await gotoSettled(page, ROUTE);
-    const id = 'minerva';
+    const id = 'rudra';
     await showCat(page, id);
     await page.keyboard.press('Shift');
     await tricksButton(page, id).focus();
@@ -1749,7 +1663,7 @@ test.describe('About cats', () => {
 
   test('with room below, the list opens below the band', async ({ page }) => {
     await gotoSettled(page, ROUTE);
-    const id = 'minerva';
+    const id = 'rudra';
     await showCat(page, id);
     const paw = tricksButton(page, id);
     await paw.evaluate((button: HTMLElement) => {
@@ -1777,7 +1691,7 @@ test.describe('About cats', () => {
   test("a click on the list's own edge or its loading note leaves it open", async ({
     page,
   }) => {
-    const id = 'minerva';
+    const id = 'rudra';
     let release!: () => void;
     const held = new Promise<void>((resolve) => (release = resolve));
     await page.route('**/about-cats-tricks*.json', async (route) => {
@@ -1812,7 +1726,7 @@ test.describe('About cats', () => {
     page,
   }) => {
     await gotoSettled(page, ROUTE);
-    const id = 'hela';
+    const id = 'rudra';
     await showCat(page, id);
     await napControl(page, id).click();
     await expectMood(page, id, 'asleep', `${NAMES[id]} did not go to sleep`);
@@ -1837,7 +1751,7 @@ test.describe('About cats', () => {
   test('a trick list still loading is announced in a status region and takes focus when it arrives', async ({
     page,
   }) => {
-    const id = 'minerva';
+    const id = 'rudra';
     let release!: () => void;
     const held = new Promise<void>((resolve) => (release = resolve));
     await page.route('**/about-cats-tricks*.json', async (route) => {
@@ -1864,7 +1778,7 @@ test.describe('About cats', () => {
   test('a trick list that cannot load says so, and loads on the next open', async ({
     page,
   }) => {
-    const id = 'minerva';
+    const id = 'rudra';
     const TRICKS_JSON = '**/about-cats-tricks*.json';
     const bodies = [
       { status: 404, body: 'Not found' },
@@ -1892,7 +1806,7 @@ test.describe('About cats', () => {
   test('a retry after a failed load says it is loading, not that it failed', async ({
     page,
   }) => {
-    const id = 'minerva';
+    const id = 'rudra';
     const TRICKS_JSON = '**/about-cats-tricks*.json';
     await page.route(TRICKS_JSON, (route) =>
       route.fulfill({ status: 404, body: 'Not found' }),
@@ -1993,93 +1907,39 @@ test.describe('About cats', () => {
     ).toHaveCount(0);
   });
 
-  test('a held cat that has settled is not redrawn after a slow frame', async ({
-    browser,
-  }) => {
-    const context = await browser.newContext({
-      viewport: await twoCatWindow(browser),
-    });
-    const page = await context.newPage();
-    await gotoSettled(page, ROUTE);
-    /* Hela playing keeps the loop running, so a frame follows the stall. */
-    await expectMood(page, 'hela', 'playing', 'Hela is not playing beside her');
-    await pointAt(page, 'minerva');
-    await page.waitForTimeout(POINTER_IDLE_MS);
-    expect(
-      await settles(page, 'minerva', SC_2_2_2_MS),
-      'a held cat was still moving 5 s after the pointer went idle',
-    ).toBe(true);
-    const redraws = await page.evaluate(
-      ([spotId, stallMs, windowMs]) =>
-        new Promise<number>((resolve) => {
-          const drawing = document
-            .getElementById(String(spotId))
-            ?.querySelector('.cat-svg');
-          if (!drawing) throw new Error(`#${spotId} has no .cat-svg to watch.`);
-          let records = 0;
-          const observer = new MutationObserver((changes) => {
-            records += changes.length;
-          });
-          observer.observe(drawing, {
-            attributes: true,
-            childList: true,
-            subtree: true,
-          });
-          setTimeout(() => {
-            const end = performance.now() + Number(stallMs);
-            while (performance.now() < end);
-          }, 0);
-          setTimeout(() => {
-            observer.disconnect();
-            resolve(records);
-          }, Number(windowMs));
-        }),
-      ['cat-spot-minerva', STALL_MS, MUTATION_WINDOW_MS] as const,
-    );
-    expect(
-      redraws,
-      'a held cat that had settled was redrawn after one slow frame',
-    ).toBe(0);
-    await context.close();
-  });
-
   test('a held cat, a sleeping cat and every cat under reduced motion are not redrawn (SC 2.2.2, 2.3.3)', async ({
     browser,
   }) => {
-    const context = await browser.newContext({
-      viewport: await twoCatWindow(browser),
-    });
+    const context = await browser.newContext();
     const page = await context.newPage();
     /* Running 14 s of page time is work for the browser, on top of two page loads. */
     test.slow();
     /* The 5 s are page time, run on the page's clock: a starved browser draws too few frames to judge them by the wall clock. */
     await page.clock.install();
     await gotoSettled(page, ROUTE);
-    await pointAt(page, 'minerva');
+    await pointAt(page, 'rudra');
     await pauseClock(page);
     /* A held cat relaxes its head once the pointer has been idle for POINTER_IDLE_MS. */
     await page.clock.runFor(POINTER_IDLE_MS + SC_2_2_2_MS);
     expect(
-      await drawnOver(page, 'minerva'),
+      await drawnOver(page, 'rudra'),
       'a held cat was still redrawn 5 s after the pointer went idle',
     ).toBe(0);
     await page.clock.resume();
-    await napControl(page, 'hela').click();
-    await expectMood(page, 'hela', 'asleep', 'Hela did not fall asleep');
+    await napControl(page, 'rudra').click();
+    await expectMood(page, 'rudra', 'asleep', 'Rudra did not fall asleep');
     await pauseClock(page);
     await page.clock.runFor(SC_2_2_2_MS);
     expect(
-      await drawnOver(page, 'hela'),
+      await drawnOver(page, 'rudra'),
       'a sleeping cat was still redrawn 5 s after lying down (SC 2.2.2)',
     ).toBe(0);
     await context.close();
 
-    const still = await browser.newContext({
-      reducedMotion: 'reduce',
-      viewport: await twoCatWindow(browser),
-    });
+    const still = await browser.newContext({ reducedMotion: 'reduce' });
     const quiet = await still.newPage();
     await gotoSettled(quiet, ROUTE);
+    await quiet.locator('#cat-spot-rudra').scrollIntoViewIfNeeded();
     await quiet.waitForTimeout(STILL_WINDOW_MS);
     for (const id of CATS)
       expect(
@@ -2232,29 +2092,19 @@ test.describe('About cats', () => {
   test('a cat whose card stays open past its nap time does not keep the loop running', async ({
     browser,
   }) => {
-    const context = await browser.newContext({
-      viewport: await twoCatWindow(browser),
-    });
+    const context = await browser.newContext();
     const page = await context.newPage();
     await page.clock.install();
     await gotoSettled(page, ROUTE);
-    await napControl(page, 'hela').click();
-    await expectMood(page, 'hela', 'asleep', 'Hela did not fall asleep');
-    expect(
-      await settles(page, 'hela', SC_2_2_2_MS + SLEEP_MARGIN_MS),
-      'Hela was still moving after lying down',
-    ).toBe(true);
-    await catButton(page, 'minerva').focus();
+    await catButton(page, 'rudra').focus();
     await page.keyboard.press('Enter');
-    await expect(
-      page.getByRole('dialog', { name: NAMES.minerva }),
-    ).toBeVisible();
+    await expect(page.getByRole('dialog', { name: NAMES.rudra })).toBeVisible();
     /* A cat with its card open never naps, so its nap time passes without being used. */
     await page.clock.fastForward(NAP_AFTER_MS + POINTER_IDLE_MS);
-    /* The jump runs no frames, so she first finishes turning to sit. */
+    /* The jump runs no frames, so the cat first finishes turning to sit. */
     expect(
-      await settles(page, 'minerva', SC_2_2_2_MS + SLEEP_MARGIN_MS),
-      'Minerva was still moving with her card open',
+      await settles(page, 'rudra', SC_2_2_2_MS + SLEEP_MARGIN_MS),
+      'Rudra was still moving with his card open',
     ).toBe(true);
     const frames = await page.evaluate(
       (ms) =>
@@ -2283,15 +2133,9 @@ test.describe('About cats', () => {
   test('a cat pausing between moves runs no empty animation frames', async ({
     browser,
   }) => {
-    const context = await browser.newContext({
-      viewport: await twoCatWindow(browser),
-    });
+    const context = await browser.newContext();
     const page = await context.newPage();
     await gotoSettled(page, ROUTE);
-    for (const id of ['minerva', 'hela'] as const) {
-      await napControl(page, id).click();
-      await expectMood(page, id, 'asleep', `${NAMES[id]} did not fall asleep`);
-    }
     await catButton(page, 'rudra').scrollIntoViewIfNeeded();
     await expectMood(page, 'rudra', 'playing', 'Rudra is not playing');
     const { emptyInARow, drawn } = await page.evaluate(
@@ -2501,12 +2345,12 @@ test.describe('About cats', () => {
     page,
   }) => {
     await gotoSettled(page, ROUTE);
-    await page.locator('#cat-spot-minerva').scrollIntoViewIfNeeded();
-    await showCat(page, 'minerva');
+    await page.locator('#cat-spot-rudra').scrollIntoViewIfNeeded();
+    await showCat(page, 'rudra');
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await expect
       .poll(() =>
-        page.locator('#cat-spot-minerva .cat-hit').evaluate((cat) => {
+        page.locator('#cat-spot-rudra .cat-hit').evaluate((cat) => {
           const shown = [...cat.querySelectorAll('svg')].filter(
             (view) => view.getAttribute('visibility') !== 'hidden',
           );

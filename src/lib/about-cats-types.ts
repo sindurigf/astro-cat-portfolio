@@ -4,7 +4,7 @@
  */
 import type { Frame } from './about-cats-frames';
 
-export type CatId = 'minerva' | 'hela' | 'rudra';
+export type CatId = 'rudra';
 
 export type Pair = [number, number];
 

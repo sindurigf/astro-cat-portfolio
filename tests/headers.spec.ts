@@ -203,9 +203,9 @@ test.describe('security headers', () => {
     await page.goto(`${policy().origin}/about/`);
     await waitForHydration(page);
     /* The cats never hold still for a pointer click; the keyboard opens the dialog. */
-    await page.getByRole('button', { name: 'Meet Minerva' }).focus();
+    await page.getByRole('button', { name: 'Meet Rudra' }).focus();
     await page.keyboard.press('Enter');
-    await expect(page.getByRole('dialog', { name: 'Minerva' })).toBeVisible();
+    await expect(page.getByRole('dialog', { name: 'Rudra' })).toBeVisible();
     await page.keyboard.press('Escape');
     await page.locator('#people-photos a[data-photo]').first().click();
     await expect(page.locator('#photo-viewer')).toBeVisible();
