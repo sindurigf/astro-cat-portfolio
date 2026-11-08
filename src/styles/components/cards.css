@@ -68,8 +68,8 @@
     --color-cyan: var(--color-gold-link);
   }
 
-  /* A gold-surface card keeps its own colors and takes the block edge. */
-  .card.surface-gold:not(.surface-gold *) {
+  /* A gold card or column keeps its own colors and takes the block edge. */
+  :is(.card, .gold-column).surface-gold:not(.surface-gold *) {
     border-width: var(--block-edge);
     border-color: var(--color-block-ink);
   }
