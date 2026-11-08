@@ -336,7 +336,7 @@
     }
 
     .footer-name-text {
-      width: max-content;
+      width: fit-content;
       font-size: var(--text-footer-name-fluid-md);
     }
   }
