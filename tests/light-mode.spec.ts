@@ -194,10 +194,11 @@ test.describe('light mode focus ring stands out from the page, and from the cont
           const fill = parse(cs.backgroundColor);
           const out = [];
           const name = el.tagName.toLowerCase() + '.' + [...el.classList].slice(0, 3).join('.');
-          /* A ring inside the border box meets only the control, which the fill check covers. */
+          /* A ring inside the border box is drawn over the control's own fill, composited on the page. */
           const inside = parseFloat(cs.outlineOffset) + parseFloat(cs.outlineWidth) <= 0;
-          const toPage = ratio(over(ring, page), page);
-          if (!inside && toPage < ${RING_MIN}) out.push(name + ' ring on its ground ' + toPage.toFixed(2));
+          const ground = inside && fill ? over(fill, page) : page;
+          const toGround = ratio(over(ring, ground), ground);
+          if (toGround < ${RING_MIN}) out.push(name + ' ring on its ground ' + toGround.toFixed(2));
           if (parseFloat(cs.outlineOffset) < ${RING_GAP_PX} && fill && fill.a === 1) {
             const toFill = ratio(over(ring, fill), fill);
             if (toFill < ${RING_MIN}) out.push(name + ' ring on its fill ' + toFill.toFixed(2));
