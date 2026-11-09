@@ -187,7 +187,7 @@ export const roles: Role[] = [
   role(
     'role-accent',
     'the one thing to notice.',
-    'The accent reads on the dark ground and casts every shadow; light mode turns accent text to ink and keeps the gold throw.',
+    'The accent reads on the dark ground. Every throw is stone, and light mode turns accent text to ink.',
     ['gold', 'throw'],
     {
       fg: 'gold',

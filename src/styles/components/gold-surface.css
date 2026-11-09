@@ -68,7 +68,7 @@
 
   /*
    * Scoped to .surface-gold so it renders unstyled elsewhere. Label, light fill
-   * and `gold-text` edge pass SC 1.4.3 and 1.4.11 on the slab. The gold throw
+   * and `gold-text` edge pass SC 1.4.3 and 1.4.11 on the slab. The stone throw
    * is decoration: it must never delimit the control.
    */
   .surface-gold .btn-gold-primary {

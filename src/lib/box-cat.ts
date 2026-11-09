@@ -12,7 +12,7 @@ export interface BoxFront {
   readonly y: number;
   readonly w: number;
   readonly h: number;
-  /** The gold throw's offset; 0 where the page draws the throw itself. */
+  /** The stone throw's offset; 0 where the page draws the throw itself. */
   readonly throwBy: number;
   readonly edge: number;
 }
