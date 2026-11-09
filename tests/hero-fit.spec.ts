@@ -294,7 +294,7 @@ test.describe('the pause control sits beside the first name', () => {
 
 /*
  * `translateY(-50%)` puts the break on the rule only while the name is exactly two
- * lines; a third line puts one line on a ground at 1.00 or 1.27 contrast.
+ * lines; a third line puts a line off its own ground.
  */
 test.describe('the name breaks on the column rule', () => {
   for (const [width, height] of VIEWPORTS) {
@@ -357,8 +357,8 @@ test.describe('the name breaks on the column rule', () => {
         lines,
         `the name wraps (${lines.join(' and ')} lines) at ${width}x${height}, onto a ground its color fails against.`,
       ).toEqual([1, 1]);
-      // The column paints gold under its own border, so the first line's box ends above the
-      // column's outer edge, or a box-based read (tests/contrast.ts) finds 1.27 on gold.
+      // The first line's box ends above the column's outer edge, so a box-based read
+      // (tests/contrast.ts) measures it on the page ground.
       expect(
         [firstOffColumn, secondInColumn],
         `the first name's line box should end above the column and the second's start ` +

@@ -454,7 +454,7 @@
   /*
    * Focus ring: 4px `focus`, clearing SC 1.4.11 on background and surface. A
    * shadowed element sets `--lift` to its shadow offset so the ring clears it:
-   * `focus` over the stone throw is 2.17. Never set outline-offset to 0.
+   * `focus` over the stone throw is 1.88 dark, 2.17 light. Never set outline-offset to 0.
    */
   --focus-width: 4px;
   --focus-gap: 4px;
@@ -503,7 +503,7 @@
   --hero-rule: var(--hero-column-edge);
   /*
    * At least the given name's leading under its letters (0.0831em, 7px at 84px), or
-   * its line box reaches the gold at 1.27. tests/hero-fit.spec.ts.
+   * its line box reaches into the column. tests/hero-fit.spec.ts.
    */
   --hero-name-clearance: 8px;
 
