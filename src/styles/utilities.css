@@ -45,6 +45,22 @@
     background-clip: border-box;
   }
 
+  /* On the ink hero the sticker's edge is the text color, not its fill. */
+  :root:not([data-theme='light'])
+    .v-column
+    .hero-window
+    :is(.rotate-3, .-rotate-3).hero-sticker.bg-surface {
+    background-clip: padding-box;
+  }
+
+  /* `text-gold` is ink on the ink hero; the pause glyph takes the text color. */
+  :root:not([data-theme='light'])
+    .v-column
+    .hero-window
+    .motion-toggle:not(:hover) {
+    color: var(--color-text);
+  }
+
   /*
    * A logo tile's throw follows the cat's outline: the art's own file as a mask
    * on a mark layer behind it, not a filter layer, which stalled Playwright
