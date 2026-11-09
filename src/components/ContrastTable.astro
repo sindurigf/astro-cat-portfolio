@@ -41,6 +41,7 @@ const SAMPLE_TEXT: Record<string, string> = {
   subtle: 'text-subtle',
   gold: 'text-gold',
   'error-text': 'text-error-text',
+  'light-error-text': 'text-light-error-text',
   background: 'text-background',
   'gold-text': 'text-gold-text',
   'gold-muted': 'text-gold-muted',
@@ -70,19 +71,22 @@ const SAMPLE_EDGE: Record<string, string> = {
   'light-brick-edge': 'border-light-brick-edge',
 };
 const TEXT_JOB = 'text';
+const AA_TEXT_JOB = 'aa-text';
+const isText = (job: string): boolean =>
+  job === TEXT_JOB || job === AA_TEXT_JOB;
 const NEVER_AT_REST = 'focus';
 
 const sampleOf = (row: Row): string[] | null => {
   if (row.result !== 'pass') return null;
   if (row.fg === NEVER_AT_REST || row.bg === NEVER_AT_REST) return null;
   const fill = SAMPLE_BG[row.bg];
-  const ink = (row.job === TEXT_JOB ? SAMPLE_TEXT : SAMPLE_EDGE)[row.fg];
+  const ink = (isText(row.job) ? SAMPLE_TEXT : SAMPLE_EDGE)[row.fg];
   if (!fill || !ink) {
     throw new Error(
       `/brand: ${row.fg} on ${row.bg} passes but has no sample class in src/components/ContrastTable.astro`,
     );
   }
-  return row.job === TEXT_JOB
+  return isText(row.job)
     ? [fill, ink, 'text-label font-black']
     : [fill, ink, 'border-4'];
 };
@@ -110,7 +114,7 @@ const sampleOf = (row: Row): string[] | null => {
           return (
             <tr
               data-sample={
-                sample ? (row.job === TEXT_JOB ? 'text' : 'edge') : undefined
+                sample ? (isText(row.job) ? 'text' : 'edge') : undefined
               }
             >
               <th scope="row">
@@ -123,7 +127,7 @@ const sampleOf = (row: Row): string[] | null => {
                       ]}
                       aria-hidden="true"
                     >
-                      {row.job === TEXT_JOB && 'Aa'}
+                      {isText(row.job) && 'Aa'}
                     </span>
                   )}
                   <span>

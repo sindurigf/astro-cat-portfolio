@@ -227,6 +227,8 @@ every size (SC 1.4.6, as /accessibility claims); non-text needs 3.0 (SC
 | `throw` #6F8696             | `background` #141517   | non-text   | Object throw                                              | 3.0   | 4.81  | pass       |
 | `throw` #6F8696             | `surface` #1E2022      | non-text   | Throw beside a surface                                    | 3.0   | 4.30  | pass       |
 | `brick-edge` #6F8696        | `background` #141517   | non-text   | Wall brick edge                                           | 3.0   | 4.81  | pass       |
+| `error-text` #FF8AC0        | `brick-dark` #2A2E33   | aa-text    | Error text on every second brick; none today              | 4.5   | 6.28  | pass       |
+| `light-error-text` #9E004B  | `light-brick` #DDE1E5  | aa-text    | Error text on it in light mode; none today                | 4.5   | 6.25  | pass       |
 | `text` #F2F2F2              | `brick-dark` #2A2E33   | text       | Text on every second brick                                | 7.0   | 12.20 | pass       |
 | `brick-subtle` #C9CCD1      | `brick-dark` #2A2E33   | text       | Secondary text on every second brick                      | 7.0   | 8.48  | pass       |
 | `brick-focus` #9CC3FF       | `brick-dark` #2A2E33   | text       | Hover text and rings in every second brick                | 7.0   | 7.59  | pass       |

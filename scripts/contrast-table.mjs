@@ -17,6 +17,8 @@ const END = '<!-- contrast-table:end -->';
 /* WCAG 2.2: SC 1.4.6 for text, which /accessibility claims at every size; SC 1.4.11 for non-text. */
 const NEEDS = {
   text: 7,
+  /* SC 1.4.3: a pair no page uses today, recorded so its level is known. */
+  'aa-text': 4.5,
   'non-text': 3,
   decoration: null,
   apart: null,
@@ -94,6 +96,18 @@ const PAIRS = [
   ['throw', 'background', 'non-text', 'Object throw'],
   ['throw', 'surface', 'non-text', 'Throw beside a surface'],
   ['brick-edge', 'background', 'non-text', 'Wall brick edge'],
+  [
+    'error-text',
+    'brick-dark',
+    'aa-text',
+    'Error text on every second brick; none today',
+  ],
+  [
+    'light-error-text',
+    'light-brick',
+    'aa-text',
+    'Error text on it in light mode; none today',
+  ],
   ['text', 'brick-dark', 'text', 'Text on every second brick'],
   [
     'brick-subtle',
