@@ -3,7 +3,7 @@
 /* Post pages and /brand only, imported after BaseLayout so global.css sets the layer order. */
 @layer components {
   /*
-   * Post code (src/plugins/code-block.mjs): a grey-edged frame, the fence
+   * Post code (src/plugins/code-block.mjs): a gray-edged frame, the fence
    * language a gold label brick on its top edge, the Copy button in its top
    * right corner (src/scripts/copy.ts); the code starts below both.
    */
