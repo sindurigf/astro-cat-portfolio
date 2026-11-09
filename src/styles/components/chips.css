@@ -45,7 +45,7 @@
   }
 
   a.chip:not([aria-current]):hover {
-    @apply text-focus;
+    @apply bg-hover text-light-ink;
   }
 
   /*
@@ -87,11 +87,10 @@
       @apply border-fill-edge bg-block-light text-block-ink shadow-none;
     }
 
-    /* The dark mode `focus` in both modes: light mode's is a text color, 2.55 under ink. */
     & a.chip:not([aria-current]):hover {
       @apply text-block-ink;
 
-      background-color: var(--dark-focus);
+      background-color: var(--color-hover);
     }
 
     /* On the dark page the ink fill meets the ground, so the edge is the accent. */

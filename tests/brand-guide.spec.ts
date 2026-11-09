@@ -167,7 +167,7 @@ test.describe('/brand guide', () => {
       await expect(shown().first()).toBeVisible();
       await expect(status).toHaveText(/^\d+ matches?$/);
 
-      await search.fill('#6f8696');
+      await search.fill('#917880');
       expect(
         await shown().count(),
         'a hex value finds no section',

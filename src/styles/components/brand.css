@@ -77,9 +77,8 @@
     @apply text-label font-normal text-subtle;
   }
 
-  /* The dark mode `focus` in both modes: light mode's is a text color, 2.55 under ink. */
   .brand-menu-link:hover {
-    background-color: var(--dark-focus);
+    background-color: var(--color-hover);
     color: var(--color-block-ink);
     outline-color: var(--color-block-ink);
 
@@ -168,7 +167,7 @@
     }
 
     &:hover {
-      @apply bg-focus text-background;
+      @apply bg-hover text-light-ink;
     }
 
     &:focus-visible {
@@ -203,7 +202,7 @@
   }
 
   :root[data-theme='light'] main .copy-button:hover {
-    background-color: var(--dark-focus);
+    background-color: var(--color-hover);
     color: var(--color-light-ink);
 
     &:focus-visible {
@@ -359,12 +358,12 @@
 
   /* Hover and press drawn at rest, so a still row shows each state (buttons-nav.css, light-mode.css). */
   .state-hover:not([aria-disabled='true']) {
-    @apply bg-focus text-background;
+    @apply bg-hover text-light-ink;
   }
 
   :is(:root[data-theme='light'] main, main .mode-light)
     .state-hover:not([aria-disabled='true'], .mode-dark *) {
-    background-color: var(--dark-focus);
+    background-color: var(--color-hover);
     color: var(--color-light-ink);
   }
 

@@ -23,7 +23,7 @@
    * `disabled`, so it stays focusable; drawn dashed, no shadow, label `subtle`.
    */
   :is(.btn-primary, .btn-secondary):not([aria-disabled='true']):hover {
-    @apply bg-focus text-background;
+    @apply bg-hover text-light-ink;
   }
 
   /*
@@ -260,8 +260,8 @@
 
   /* Hover fills `focus`; the header bar and menu set their own fill and label. */
   :is(.theme-switch, .nav-sticker, .nav-cta):not([aria-current]):hover {
-    background-color: var(--hover-fill, var(--color-focus));
-    color: var(--hover-label, var(--color-background));
+    background-color: var(--hover-fill, var(--color-hover));
+    color: var(--hover-label, var(--color-light-ink));
   }
 
   /* The glyph is the theme in use: a moon while dark, a sun while light. */
@@ -324,7 +324,7 @@
     --color-background: var(--color-block-light);
     --color-text: var(--color-block-ink);
     --color-focus: var(--slab-focus);
-    --hover-fill: var(--dark-focus);
+    --hover-fill: var(--color-hover);
     --hover-label: var(--color-block-ink);
     --shadow-brick: var(--brick-throw) var(--brick-throw) 0 var(--color-throw);
 
@@ -401,7 +401,7 @@
 
     /* A hovered ring takes the hover label's ink; a current brick has no hover fill. */
     & :focus-visible:hover:not([aria-current], .theme-menu *) {
-      outline-color: var(--hover-label, var(--color-background));
+      outline-color: var(--hover-label, var(--color-light-ink));
     }
   }
 
@@ -411,9 +411,9 @@
   }
 
   .menu-brick:hover {
-    --color-text: var(--hover-label, var(--color-background));
+    --color-text: var(--hover-label, var(--color-light-ink));
 
-    background-color: var(--hover-fill, var(--color-focus));
+    background-color: var(--hover-fill, var(--color-hover));
   }
 
   /* Nav and menu links: bricks edged in `text`. tests/edge-contrast.spec.ts. */

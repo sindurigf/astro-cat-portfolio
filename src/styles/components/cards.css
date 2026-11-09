@@ -291,14 +291,13 @@
   }
 
   /*
-   * A whole-brick link in a wall (/contact): it holds still, fills `focus` under
+   * A whole-brick link in a wall (/contact): it holds still, fills `hover` under
    * the pointer and draws its ring inside, so it never crosses the next brick.
    */
-  /* The dark mode `focus` in both modes: light mode's is a text color, 2.55 under ink. */
   .contact-brick:hover {
     --color-text: var(--color-block-ink);
 
-    background-color: var(--dark-focus);
+    background-color: var(--color-hover);
     color: var(--color-text);
   }
 

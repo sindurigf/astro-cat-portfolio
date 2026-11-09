@@ -106,7 +106,7 @@
 
   /* Hover fills take the dark mode `focus` under ink: light mode's is a text color. */
   :root[data-theme='light'] .header-slab :is(dialog, .theme-menu) {
-    --hover-fill: var(--dark-focus);
+    --hover-fill: var(--color-hover);
     --hover-label: var(--color-light-ink);
   }
 
@@ -114,7 +114,7 @@
     :is(.btn-primary, .btn-secondary):not([aria-disabled='true']):hover:not(
       :is(.mode-dark, .surface-gold, .card, .plain-slab, .post-contents) *
     ) {
-    background-color: var(--dark-focus);
+    background-color: var(--color-hover);
     color: var(--color-light-ink);
   }
 
