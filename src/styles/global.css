@@ -177,7 +177,7 @@
   --color-light-subtle: #3f4650;
   --color-light-focus: #0047b3;
   --color-light-pink-text: #b00054;
-  /* A code block's edge in a post, kept grey so the gold label is the only gold. */
+  /* A code block's edge in a post, kept gray so the gold label is the only gold. */
   --color-code-edge: #707070;
   /* Its light mode value. */
   --color-light-code-edge: #767676;
