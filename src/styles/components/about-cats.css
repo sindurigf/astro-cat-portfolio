@@ -147,7 +147,7 @@
   }
 
   .cat-prop-toy {
-    fill: var(--color-mark);
+    fill: var(--color-throw);
   }
 
   .cat-prop-feather {
@@ -176,7 +176,7 @@
   }
 
   .cat-prop-yarn-end {
-    stroke: var(--color-mark);
+    stroke: var(--color-throw);
   }
 
   /*
@@ -190,7 +190,7 @@
   }
 
   .cat-card {
-    @apply edge border-border bg-surface p-4 shadow-hard-pink-object;
+    @apply edge border-border bg-surface p-4 shadow-hard-throw;
   }
 
   /* The site button, small: still a 44px target (SC 2.5.5). */
@@ -202,11 +202,11 @@
     @apply relative mt-3;
   }
 
-  /* The home hero's gold sticker (gold-text on gold), hung off the photo's edge. */
+  /* The home hero's ink sticker with a light label, hung off the photo's edge. */
   .cat-name {
     @apply absolute -bottom-4 -left-2 -rotate-3 border-4 border-fill-edge bg-block-gold
       px-3 py-1 text-label font-black uppercase tracking-label text-gold-text
-      shadow-hard-mark-4;
+      shadow-hard-throw-4;
   }
 
   /* about-cats.ts sets these beside the cat; until then the dialog centers itself. */

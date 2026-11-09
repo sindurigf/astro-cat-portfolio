@@ -12,7 +12,7 @@ export interface BoxFront {
   readonly y: number;
   readonly w: number;
   readonly h: number;
-  /** The pink throw's offset; 0 where the page draws the throw itself. */
+  /** The stone throw's offset; 0 where the page draws the throw itself. */
   readonly throwBy: number;
   readonly edge: number;
 }
@@ -34,7 +34,7 @@ export const boxFlaps = (paint: Paint, b: BoxFront): string => {
   const left = `${b.x},${b.y} ${b.x - lean},${b.y - rise} ${b.x + span - lean},${b.y - rise} ${b.x + span},${b.y}`;
   const right = `${b.x + b.w},${b.y} ${b.x + b.w + lean},${b.y - rise} ${b.x + b.w - span + lean},${b.y - rise} ${b.x + b.w - span},${b.y}`;
   const flap = (points: string): string =>
-    `<polygon points="${points}" fill="${paint('cat-cardboard')}" stroke="${paint('gold-text')}" stroke-width="${b.edge}" stroke-linejoin="round"/>`;
+    `<polygon points="${points}" fill="${paint('cat-cardboard')}" stroke="${paint('block-ink')}" stroke-width="${b.edge}" stroke-linejoin="round"/>`;
   return flap(left) + flap(right);
 };
 
@@ -42,11 +42,11 @@ export const boxFlaps = (paint: Paint, b: BoxFront): string => {
 export const boxFront = (paint: Paint, b: BoxFront): string => {
   const inset = b.edge / 2;
   const throwRect = b.throwBy
-    ? `<rect x="${b.x + b.throwBy}" y="${b.y + b.throwBy}" width="${b.w}" height="${b.h}" fill="${paint('mark')}"/>`
+    ? `<rect x="${b.x + b.throwBy}" y="${b.y + b.throwBy}" width="${b.w}" height="${b.h}" fill="${paint('throw')}"/>`
     : '';
   return (
     throwRect +
-    `<rect x="${b.x + inset}" y="${b.y + inset}" width="${b.w - b.edge}" height="${b.h - b.edge}" fill="${paint('cat-cardboard')}" stroke="${paint('gold-text')}" stroke-width="${b.edge}"/>` +
-    `<rect x="${b.x + b.w * (0.5 - TAPE.w / 2)}" y="${b.y + b.h * TAPE.y}" width="${b.w * TAPE.w}" height="${Math.max(b.edge, b.h * TAPE.h)}" fill="${paint('gold-text')}"/>`
+    `<rect x="${b.x + inset}" y="${b.y + inset}" width="${b.w - b.edge}" height="${b.h - b.edge}" fill="${paint('cat-cardboard')}" stroke="${paint('block-ink')}" stroke-width="${b.edge}"/>` +
+    `<rect x="${b.x + b.w * (0.5 - TAPE.w / 2)}" y="${b.y + b.h * TAPE.y}" width="${b.w * TAPE.w}" height="${Math.max(b.edge, b.h * TAPE.h)}" fill="${paint('block-ink')}"/>`
   );
 };

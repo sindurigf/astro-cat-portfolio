@@ -13,12 +13,13 @@ before changing anything it covers.
 
 - An arbitrary value: no raw hex, `text-[32px]` or `shadow-[8px_8px_0]`. Add a
   token to `@theme` instead ([Tokens only](../../../docs/STYLEGUIDE.md#tokens-only)).
-- `pink` as text, at any size. `pink-text` as a border, shadow or fill.
-- `cyan` at rest. It is hover and focus only; inside a block, hover and focus
+- `error` as text, at any size, or for anything but an error. `error-text` as
+  a border, shadow or fill. Gold never marks an error.
+- `focus` at rest. It is hover and focus only; inside a block, hover and focus
   are `gold-link`. A still state sample on `/brand` may show its hover color.
 - A gold ground without `.surface-gold`, or `.btn-primary`/`.btn-secondary`
   on gold. The one exception is the footer motto band, a `block-gold` fill with
-  ink text and no controls ([Gold surface](../../../docs/STYLEGUIDE.md#gold-surface)).
+  `gold-text` and no controls ([Gold surface](../../../docs/STYLEGUIDE.md#gold-surface)).
 - `border` on a gold or light fill: it takes `fill-edge`. `fill-edge` on a
   dark fill. A card's own edge or fill: cards are blocks (`block-gold`,
   `block-light`, `block-ink`), set in `cards.css`.
@@ -26,7 +27,11 @@ before changing anything it covers.
   `bg-block-gold`.
 - A shadow class on a brick in a `.card-block`, or a brick that drops:
   `.card-block` gives each brick its throw and the wall only climbs right;
-  take the classes from `src/lib/wall.ts`.
+  take the classes from `src/lib/wall.ts`. Brick fills and the 3px
+  edge come from `cards.css` (`brick-*`), never a class.
+- An edge in any color but the edge pair: stone `stone-edge` in dark mode,
+  slate `light-stone-edge` in light mode, through the role tokens. Error
+  edges, focus rings and throws keep their own colors.
 - A `filter` or `backdrop-filter` outside the hero canvas
   (`tests/filter-layers.spec.ts`).
 - A removed outline, `outline-none`, `:focus` styles or `outline-offset: 0`.

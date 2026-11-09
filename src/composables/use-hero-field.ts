@@ -67,14 +67,15 @@ export const useHeroField = (): HeroFieldState => {
     const style = getComputedStyle(host.value);
     const read = (token: string): string =>
       style.getPropertyValue(token).trim();
-    /* Gold-surface tokens: the dark set fails SC 1.4.3 and 1.4.11 on gold. */
+    /* Slab tokens: in light mode the page set is ink on the ink slab, failing SC 1.4.3 and 1.4.11. */
     const palette: HeroPalette = {
-      border: read('--color-gold-border'),
-      subtle: read('--color-gold-muted'),
+      border: read('--color-hero-accent'),
+      subtle: read('--color-hero-muted'),
       bud: read('--color-gold-bud'),
       background: read('--color-hero-ground'),
       veil: read('--color-hero-veil'),
       veilEdge: read('--color-hero-veil-edge'),
+      contact: read('--color-hero-contact'),
       floor: read('--color-hero-floor'),
       floorEdge: read('--color-hero-floor-edge'),
       glow: read('--color-hero-glow'),

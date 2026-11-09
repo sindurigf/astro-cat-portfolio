@@ -58,7 +58,7 @@
 
   /*
    * Fill, no border: a 4px border would outweigh the glyphs and grow the line
-   * box. `text` on `surface`, 13.51.
+   * box. `text` on `surface`, 14.60.
    */
   .prose code {
     @apply bg-surface px-1 font-mono text-code text-text;
@@ -199,7 +199,7 @@
 
   /* `normal` over the `anywhere` that body takes below 19rem. */
   .prose :is(th, td) {
-    @apply hairline border-text px-4 py-3 text-left align-top;
+    @apply hairline border-border px-4 py-3 text-left align-top;
     overflow-wrap: normal;
   }
 
@@ -225,7 +225,7 @@
    */
   @media (width < 40rem) {
     .prose table.table-stack {
-      @apply block hairline-t border-text;
+      @apply block hairline-t border-border;
 
       & :is(tbody, tbody tr, tbody th, td) {
         @apply block;
@@ -236,7 +236,7 @@
       }
 
       & tbody tr {
-        @apply hairline-b border-text py-3;
+        @apply hairline-b border-border py-3;
       }
 
       & tbody :is(th, td) {

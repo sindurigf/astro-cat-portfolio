@@ -273,7 +273,7 @@ export const drawPoneglyph = (
   ctx.translate(cx, root - PONEGLYPH.rise * unit * CONTACT.lift);
   ctx.scale(1, CONTACT.flatten);
   /* Stacked translucent discs, ink only: a gradient to the ground would veil stems behind. */
-  ctx.fillStyle = palette.border;
+  ctx.fillStyle = palette.contact;
   ctx.globalAlpha = CONTACT.alpha;
   for (let k = 0; k < CONTACT.discs; k += 1) {
     ctx.beginPath();

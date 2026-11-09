@@ -30,19 +30,11 @@
 
   /*
    * A tilted box softens its border's edges. A fill under a border of another
-   * color shows outside it as a fringe, so it stops at the padding box; a fill
-   * clipped under a border of its own color leaves a seam of ground between
-   * them, so a matching pair keeps the fill under the border. tests/tilt.spec.ts.
+   * color shows outside it as a fringe, so it stops at the padding box.
+   * tests/tilt.spec.ts.
    */
   :is(.rotate-3, .-rotate-3) {
     background-clip: padding-box;
-  }
-
-  .surface-gold :is(.rotate-3, .-rotate-3).sticker,
-  :is(:root[data-theme='light'] main, main .mode-light)
-    :is(.rotate-3, .-rotate-3).sticker:not(.mode-dark *),
-  :is(.rotate-3, .-rotate-3).hero-sticker.bg-surface {
-    background-clip: border-box;
   }
 
   /*
@@ -59,7 +51,7 @@
       position: absolute;
       inset: 0;
       z-index: -1;
-      background-color: var(--color-mark);
+      background-color: var(--color-throw);
       mask: var(--mark-throw-art) center / contain no-repeat;
       translate: var(--mark-throw-offset, var(--lift-mark))
         var(--mark-throw-offset, var(--lift-mark));
@@ -132,17 +124,17 @@
 
     & > * {
       margin: 0 0 calc(var(--block-edge) * -1) calc(var(--block-edge) * -1);
-      box-shadow: var(--hard-throw) var(--hard-throw) 0 var(--color-pink);
+      box-shadow: var(--hard-throw) var(--hard-throw) 0 var(--color-throw);
     }
   }
 
   /*
-   * Gold-link hover: cyan does not show on gold, so the link fills with its
-   * color and the text turns gold (SC 1.4.3); --gold-marker-pad covers the underline.
+   * Slab link hover: the link fills with its color and the text turns ink, or
+   * light in a light brick (SC 1.4.3); --gold-marker-pad covers the underline.
    * Utilities layer beats a tied rule (tests/gold-link.spec.ts).
    */
   .surface-gold a:not(.btn-gold-primary, .btn-gold-secondary, .chip):hover {
-    color: var(--color-gold);
+    color: var(--link-fill-label, var(--color-block-ink));
     background-color: var(--color-gold-link);
     box-shadow: 0 0 0 var(--gold-marker-pad) var(--color-gold-link);
   }

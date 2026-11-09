@@ -2,7 +2,7 @@
 import ProseScrollFit from './ProseScrollFit.astro';
 /*
  * /brand's contrast rows. A row that passes shows its pairing as text (needs
- * 4.5) or an edge (needs 3), in the live tokens; cyan is never at rest, and
+ * 4.5) or an edge (needs 3), in the live tokens; `focus` is never at rest, and
  * the other results are pairings the site keeps from ever painting.
  */
 interface Row {
@@ -27,27 +27,37 @@ const SAMPLE_BG: Record<string, string> = {
   surface: 'bg-surface',
   gold: 'bg-gold',
   text: 'bg-text',
-  pink: 'bg-pink',
+  error: 'bg-error',
   'gold-link': 'bg-gold-link',
   'gold-text': 'bg-gold-text',
   'light-ground': 'bg-light-ground',
   'block-light': 'bg-block-light',
+  'block-gold': 'bg-block-gold',
+  'brick-dark': 'bg-brick-dark',
+  'light-brick': 'bg-light-brick',
+  'light-ink': 'bg-light-ink',
 };
 const SAMPLE_TEXT: Record<string, string> = {
   text: 'text-text',
   subtle: 'text-subtle',
   gold: 'text-gold',
-  'pink-text': 'text-pink-text',
+  'error-text': 'text-error-text',
+  'light-error-text': 'text-light-error-text',
   background: 'text-background',
   'gold-text': 'text-gold-text',
   'gold-muted': 'text-gold-muted',
   'gold-link': 'text-gold-link',
   'gold-btn-label': 'text-gold-btn-label',
   'light-ink': 'text-light-ink',
+  'block-ink': 'text-block-ink',
+  'brick-subtle': 'text-brick-subtle',
+  'light-subtle': 'text-light-subtle',
+  'brick-focus': 'text-brick-focus',
+  'light-brick-focus': 'text-light-brick-focus',
 };
 const SAMPLE_EDGE: Record<string, string> = {
   border: 'border-border',
-  pink: 'border-pink',
+  error: 'border-error',
   'gold-border': 'border-gold-border',
   'fill-edge': 'border-fill-edge',
   surface: 'border-surface',
@@ -55,21 +65,29 @@ const SAMPLE_EDGE: Record<string, string> = {
   'light-ground': 'border-light-ground',
   'code-edge': 'border-code-edge',
   'light-code-edge': 'border-light-code-edge',
+  'light-accent': 'border-light-accent',
+  'light-ink': 'border-light-ink',
+  throw: 'border-throw',
+  'stone-edge': 'border-stone-edge',
+  'light-stone-edge': 'border-light-stone-edge',
 };
 const TEXT_JOB = 'text';
-const NEVER_AT_REST = 'cyan';
+const AA_TEXT_JOB = 'aa-text';
+const isText = (job: string): boolean =>
+  job === TEXT_JOB || job === AA_TEXT_JOB;
+const NEVER_AT_REST = 'focus';
 
 const sampleOf = (row: Row): string[] | null => {
   if (row.result !== 'pass') return null;
   if (row.fg === NEVER_AT_REST || row.bg === NEVER_AT_REST) return null;
   const fill = SAMPLE_BG[row.bg];
-  const ink = (row.job === TEXT_JOB ? SAMPLE_TEXT : SAMPLE_EDGE)[row.fg];
+  const ink = (isText(row.job) ? SAMPLE_TEXT : SAMPLE_EDGE)[row.fg];
   if (!fill || !ink) {
     throw new Error(
       `/brand: ${row.fg} on ${row.bg} passes but has no sample class in src/components/ContrastTable.astro`,
     );
   }
-  return row.job === TEXT_JOB
+  return isText(row.job)
     ? [fill, ink, 'text-label font-black']
     : [fill, ink, 'border-4'];
 };
@@ -97,7 +115,7 @@ const sampleOf = (row: Row): string[] | null => {
           return (
             <tr
               data-sample={
-                sample ? (row.job === TEXT_JOB ? 'text' : 'edge') : undefined
+                sample ? (isText(row.job) ? 'text' : 'edge') : undefined
               }
             >
               <th scope="row">
@@ -110,7 +128,7 @@ const sampleOf = (row: Row): string[] | null => {
                       ]}
                       aria-hidden="true"
                     >
-                      {row.job === TEXT_JOB && 'Aa'}
+                      {isText(row.job) && 'Aa'}
                     </span>
                   )}
                   <span>

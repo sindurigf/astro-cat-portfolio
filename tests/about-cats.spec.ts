@@ -447,7 +447,7 @@ test(
   },
 );
 
-/** Device px from any point of a frame's outer edge to its white rim: the ink edge and the pink block lie between. */
+/** Device px from any point of a frame's outer edge to its white rim: the ink edge and the gold block lie between. */
 const RIM_WITHIN = 12;
 /** A channel this bright is the white rim, not the coat. */
 const RIM_WHITE = 240;
@@ -1910,7 +1910,7 @@ test.describe('About cats', () => {
       await gotoSettled(page, ROUTE);
       /* scripts/make-about-cats.mjs bakes these two tokens into every frame's outline. */
       const outline = [
-        cssColorToken('--color-gold-text'),
+        cssColorToken('--color-block-ink'),
         cssColorToken('--color-light-ground'),
       ].map((hex) => {
         const n = parseInt(hex.slice(1), 16);

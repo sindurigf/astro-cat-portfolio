@@ -25,20 +25,21 @@ export interface Swatch {
   cls: string;
 }
 
-/* A text color is drawn as "Aa" and cyan stays unpainted, as the design rules ask; class names are literal so Tailwind builds them. */
+/* A text color is drawn as "Aa" and `focus` stays unpainted, as the design rules ask; class names are literal so Tailwind builds them. */
 export const SWATCH: Record<string, Swatch> = {
   background: { paint: 'fill', cls: 'bg-background' },
   surface: { paint: 'fill', cls: 'bg-surface' },
   border: { paint: 'fill', cls: 'bg-border' },
+  'card-edge': { paint: 'fill', cls: 'bg-card-edge' },
   'fill-edge': { paint: 'fill', cls: 'bg-fill-edge' },
   'code-edge': { paint: 'fill', cls: 'bg-code-edge' },
   text: { paint: 'glyph', cls: 'text-text' },
   subtle: { paint: 'glyph', cls: 'text-subtle' },
   gold: { paint: 'fill', cls: 'bg-gold' },
-  cyan: { paint: 'empty', cls: '' },
-  pink: { paint: 'fill', cls: 'bg-pink' },
-  'pink-text': { paint: 'glyph', cls: 'text-pink-text' },
-  mark: { paint: 'fill', cls: 'bg-mark' },
+  throw: { paint: 'fill', cls: 'bg-throw' },
+  focus: { paint: 'empty', cls: '' },
+  error: { paint: 'fill', cls: 'bg-error' },
+  'error-text': { paint: 'glyph', cls: 'text-error-text' },
   'tile-edge': { paint: 'fill', cls: 'bg-tile-edge' },
 };
 
@@ -126,11 +127,10 @@ const assertEveryPair = (): void => {
     ['text', 'text'],
     ['subtle', 'text'],
     ['gold', 'text'],
-    ['pink-text', 'text'],
+    ['error-text', 'text'],
     [PAGE_EDGE, 'edge'],
-    ['pink', 'edge'],
-    ['mark', 'edge'],
-    ['cyan', 'edge'],
+    ['error', 'edge'],
+    ['focus', 'edge'],
   ];
   for (const [fg, kind] of pairs) {
     for (const bg of GROUNDS) {
@@ -188,8 +188,8 @@ export const roles: Role[] = [
   role(
     'role-accent',
     'the one thing to notice.',
-    'Gold reads on the dark ground; light mode turns gold text to ink.',
-    ['gold', 'fill-edge'],
+    'The accent reads on the dark ground. Every throw is stone, and light mode turns accent text to ink.',
+    ['gold', 'throw'],
     {
       fg: 'gold',
       bg: 'background',
@@ -199,30 +199,30 @@ export const roles: Role[] = [
   role(
     'role-interaction',
     'hover and focus only.',
-    'Cyan is the focus ring and never shows at rest.',
-    ['cyan'],
+    '`focus` is the ring and the hover color and never shows at rest.',
+    ['focus'],
     {
-      fg: 'cyan',
+      fg: 'focus',
       bg: 'background',
       kind: 'edge',
     },
   ),
   role(
-    'role-depth',
-    'shadows and errors.',
-    'Pink casts the shadow; its text color carries error words.',
-    ['pink', 'pink-text', 'mark'],
+    'role-errors',
+    'errors only.',
+    'Magenta marks errors: the edge of a failing field and the color of error words.',
+    ['error', 'error-text'],
     {
-      fg: 'pink-text',
+      fg: 'error-text',
       bg: 'background',
       kind: 'text',
     },
   ),
   role(
     'role-edges',
-    'every boundary but table lines.',
-    'The edge is gold on the dark page and ink on the light one.',
-    [PAGE_EDGE, 'tile-edge'],
+    'every boundary.',
+    'Every edge is stone on the dark page and slate on the light one.',
+    [PAGE_EDGE, 'card-edge', 'fill-edge', 'tile-edge'],
     {
       fg: PAGE_EDGE,
       bg: 'background',

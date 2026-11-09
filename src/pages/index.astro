@@ -112,7 +112,7 @@ const statWall = wallClasses({ sm: [[0, 1]] }, STATS.length);
   description={`${PERSON_NAME}, archaeologist of the Straw Hat Pirates and the last scholar of Ohara. Notes on Poneglyphs, history and life at sea.`}
 >
   {/*
-    One gold area for the hero and the section below. No `.surface-gold` on the
+    One slab for the hero and the section below. No `.surface-gold` on the
     column: its halves carry it, and nesting double-counts controls in
     tests/gold-surface.spec.ts.
   */}
@@ -134,10 +134,10 @@ const statWall = wallClasses({ sm: [[0, 1]] }, STATS.length);
         `border-border`: it fails SC 1.4.11 here and would beat `.surface-gold`'s.
       */}
         <div class="hero-marks" aria-hidden="true" lang={MOTTO.lang}>
-          <span class="hero-sticker -rotate-3 bg-block-gold text-gold-text shadow-hard-mark-8">
+          <span class="hero-sticker -rotate-3 bg-block-light text-block-ink shadow-hard-throw">
             {MOTTO_STICKERS[0]}
           </span>
-          <span class="hero-sticker rotate-3 bg-surface text-pink-text shadow-hard-mark-8">
+          <span class="hero-sticker rotate-3 bg-block-light text-block-ink shadow-hard-throw">
             {MOTTO_STICKERS[1]}
           </span>
         </div>
@@ -149,7 +149,7 @@ const statWall = wallClasses({ sm: [[0, 1]] }, STATS.length);
       */}
         <div class="hero-plate">
           <h1 class="w-full text-hero-h1">
-            <span class="block text-text">{PERSON_GIVEN_NAME}</span>{' '}
+            <span class="block">{PERSON_GIVEN_NAME}</span>{' '}
             <span class="block text-gold-text">{PERSON_FAMILY_NAME}</span>
           </h1>
         </div>

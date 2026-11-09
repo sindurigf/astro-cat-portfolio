@@ -1,7 +1,7 @@
 /*
  * The footer mascot's climb onto the Let It Fall heap: its own drawing crouches
  * (squash), leaps on an arc (stretch), lands (squash) and tips to look around.
- * Never mirrored, so its pink throw stays bottom right. Decorative and aria-hidden.
+ * Never mirrored, so its gold throw stays bottom right. Decorative and aria-hidden.
  */
 export type Foot = { x: number; y: number };
 
