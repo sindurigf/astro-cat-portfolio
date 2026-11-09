@@ -170,7 +170,7 @@ Not in scope: third-party sites linked from the footer, and forks.
 - **No JavaScript.** A fallback navigation replaces the mobile menu, sits
   below the header and never duplicates the primary nav.
 - **Current page.** `aria-current` in every navigation, plus a shape change,
-  never color alone: a gold brick with an inset ink ring in the header, a brick
+  never color alone: an inverted brick with a 4px inset mark in the header, a brick
   pressed into its shadow in the menu, a filled block in the no-JavaScript
   navigation, an underline in the footer.
 - **Help.** Every page opens with the same "Report an Accessibility Problem"

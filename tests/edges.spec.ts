@@ -11,8 +11,8 @@ const ROUTE = '/';
 const PLAIN_CARD =
   'main .card:not(.card-solid):not(.surface-gold):not(.surface-gold *)';
 const PAGE_CONTROL = 'main a.btn-secondary';
-/* Gold controls, edged in the line color of what they sit on: the header bar, or the menu's page ground (read while closed). */
-const GOLD_FILLS = [
+/* Solid header controls, delimited by their edge or their fill against the header bar, or the menu's page ground (read while closed). */
+const SOLID_CONTROLS = [
   'header .header-bricks .nav-cta',
   'header .theme-switch',
   '.mobile-menu-dialog .nav-cta',
@@ -42,13 +42,16 @@ const readEdges = (page: Page): Promise<Edges> =>
     const controlFill = parse(controlStyle.backgroundColor);
     const controlGround = effectiveBackground(control.parentElement);
     const fillEdgeRatios = {};
-    for (const selector of ${JSON.stringify(GOLD_FILLS)}) {
+    for (const selector of ${JSON.stringify(SOLID_CONTROLS)}) {
       const element = document.querySelector(selector);
       const style = element && getComputedStyle(element);
       const dialog = element && element.closest('dialog');
       const ground = dialog ? parse(getComputedStyle(dialog).backgroundColor) : element && effectiveBackground(element.parentElement);
       const rim = style && parse(style.borderTopColor);
-      fillEdgeRatios[selector] = ground && rim ? ratio(rim, ground) : null;
+      const fill = style && parse(style.backgroundColor);
+      fillEdgeRatios[selector] = ground && rim
+        ? Math.max(ratio(over(rim, ground), ground), fill && fill.a === 1 ? ratio(fill, ground) : 0)
+        : null;
     }
     const tile = document.querySelector(${JSON.stringify(FOOTER_TILE)});
     const tileStyle = tile && getComputedStyle(tile);
@@ -73,7 +76,7 @@ const expectFillEdges = (edges: Edges): void => {
   for (const [selector, value] of Object.entries(edges.fillEdgeRatios)) {
     expect(
       value,
-      `${selector}'s edge should reach ${NON_TEXT}:1 against the bar it sits on`,
+      `${selector}'s edge or fill should reach ${NON_TEXT}:1 against the bar it sits on`,
     ).toBeGreaterThanOrEqual(NON_TEXT);
   }
 };
