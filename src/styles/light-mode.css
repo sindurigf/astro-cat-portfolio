@@ -1,8 +1,9 @@
 /*
  * Light mode: `data-theme="light"` on <html>. <main>, the header and the footer
- * change; ink is #141517, and the slab (.surface-gold, blocks) stays an ink
- * island. On light-ground: text 16.32, subtle 8.51, error-text 7.34, focus 7.35
- * (tests/light-mode.spec.ts). Utilities layer beats `.text-gold`.
+ * change; ink is #141517, and every slab (.surface-gold, blocks, the bar) mirrors
+ * to light-ground with ink text and edges. On light-ground: text 16.32, subtle
+ * 8.51, error-text 7.34, focus 7.35 (tests/light-mode.spec.ts). Utilities layer
+ * beats `.text-gold`.
  */
 @layer utilities {
   /* The dark values, read where light mode never reaches, for a .mode-dark sample on a light page. */
@@ -19,7 +20,28 @@
     --dark-code-edge: var(--color-code-edge);
     --dark-code-fill: var(--color-code-fill);
     --dark-fill-edge: var(--color-fill-edge);
-    --dark-throw: var(--color-throw);
+    --dark-block-gold: var(--color-block-gold);
+    --dark-gold: var(--color-gold);
+    --dark-gold-text: var(--color-gold-text);
+    --dark-gold-muted: var(--color-gold-muted);
+    --dark-gold-border: var(--color-gold-border);
+    --dark-gold-link: var(--color-gold-link);
+    --dark-gold-btn-label: var(--color-gold-btn-label);
+    --dark-hero-accent: var(--color-hero-accent);
+    --dark-gold-bud: var(--color-gold-bud);
+    --dark-hero-muted: var(--color-hero-muted);
+    --dark-hero-ground: var(--color-hero-ground);
+    --dark-hero-veil: var(--color-hero-veil);
+    --dark-hero-veil-edge: var(--color-hero-veil-edge);
+    --dark-hero-floor: var(--color-hero-floor);
+    --dark-hero-floor-edge: var(--color-hero-floor-edge);
+    --slab-text: var(--color-text);
+    --slab-subtle: var(--color-subtle);
+    --slab-border: var(--color-border);
+    --slab-focus: var(--color-focus);
+    --slab-error: var(--color-error);
+    --slab-error-text: var(--color-error-text);
+    --slab-fill-edge: var(--color-fill-edge);
   }
 
   /* Not a <header> or <footer> inside <main>: in the slab it would paint a light box. */
@@ -38,6 +60,29 @@
     --color-code-fill: var(--color-block-light);
     --color-fill-edge: var(--color-light-ink);
     --color-throw: var(--color-light-accent);
+    --color-block-gold: var(--color-light-ground);
+    --color-gold: var(--color-light-ink);
+    --color-gold-text: var(--color-light-ink);
+    --color-gold-muted: var(--color-light-subtle);
+    --color-gold-border: var(--color-light-ink);
+    --color-gold-link: var(--color-light-ink);
+    --color-gold-btn-label: var(--color-light-ground);
+    --link-fill-label: var(--color-light-ground);
+    --slab-text: var(--color-light-ink);
+    --slab-subtle: var(--color-light-subtle);
+    --slab-border: var(--color-light-ink);
+    --slab-focus: var(--color-light-focus);
+    --slab-error: var(--color-light-error-text);
+    --slab-error-text: var(--color-light-error-text);
+    --slab-fill-edge: var(--color-light-ink);
+    --color-hero-accent: var(--color-light-hero-accent);
+    --color-gold-bud: var(--color-light-hero-accent);
+    --color-hero-muted: var(--color-throw);
+    --color-hero-ground: var(--color-light-ground);
+    --color-hero-veil: var(--color-light-ground);
+    --color-hero-veil-edge: var(--color-light-ground);
+    --color-hero-floor: var(--color-light-ground);
+    --color-hero-floor-edge: var(--color-light-ground);
     color-scheme: light;
     color: var(--color-text);
     background-color: var(--color-background);
@@ -57,9 +102,8 @@
     color: var(--color-light-ink);
   }
 
-  /* An ink island: a .mode-dark sample, or the slab, keeps the dark values. */
-  :is(:root[data-theme='light'] main, main .mode-light)
-    :is(.mode-dark, .surface-gold) {
+  /* A .mode-dark sample keeps the dark values. */
+  :is(:root[data-theme='light'] main, main .mode-light) .mode-dark {
     --color-background: var(--dark-background);
     --color-surface: var(--dark-surface);
     --color-text: var(--dark-text);
@@ -72,14 +116,30 @@
     --color-code-edge: var(--dark-code-edge);
     --color-code-fill: var(--dark-code-fill);
     --color-fill-edge: var(--dark-fill-edge);
+    --color-block-gold: var(--dark-block-gold);
+    --color-gold: var(--dark-gold);
+    --color-gold-text: var(--dark-gold-text);
+    --color-gold-muted: var(--dark-gold-muted);
+    --color-gold-border: var(--dark-gold-border);
+    --color-gold-link: var(--dark-gold-link);
+    --color-gold-btn-label: var(--dark-gold-btn-label);
+    --color-hero-accent: var(--dark-hero-accent);
+    --color-gold-bud: var(--dark-gold-bud);
+    --color-hero-muted: var(--dark-hero-muted);
+    --color-hero-ground: var(--dark-hero-ground);
+    --color-hero-veil: var(--dark-hero-veil);
+    --color-hero-veil-edge: var(--dark-hero-veil-edge);
+    --color-hero-floor: var(--dark-hero-floor);
+    --color-hero-floor-edge: var(--dark-hero-floor-edge);
+    --link-fill-label: var(--color-block-ink);
+    --slab-text: var(--dark-text);
+    --slab-subtle: var(--dark-subtle);
+    --slab-border: var(--dark-border);
+    --slab-focus: var(--dark-focus);
+    --slab-error: var(--dark-error);
+    --slab-error-text: var(--dark-error-text);
+    --slab-fill-edge: var(--dark-fill-edge);
     color-scheme: dark;
-  }
-
-  /* The island's own throw lands on the light page; only what it holds takes the dark one. */
-  :is(:root[data-theme='light'] main, main .mode-light)
-    :is(.mode-dark, .surface-gold)
-    > * {
-    --color-throw: var(--dark-throw);
   }
 
   :root[data-theme='light'] main .mode-dark {
@@ -88,8 +148,8 @@
   }
 
   /*
-   * The accent fails SC 1.4.6 at label size on the light page, so it is ink
-   * with a `light-accent` square before the word. Slabs and blocks keep theirs.
+   * A label on the light page is ink with a `light-accent` square before the
+   * word. Slabs and blocks keep theirs.
    */
   :is(:root[data-theme='light'] main, main .mode-light)
     :is(.text-gold, .motion-toggle):not(
@@ -111,6 +171,14 @@
     background-color: var(--color-light-accent);
 
     @apply mr-2 inline-block size-2.5;
+  }
+
+  /* The current page is the ink block among light siblings, the mirror of dark mode. */
+  :root[data-theme='light'] .nav-sticker[aria-current]:not(.mode-dark *) {
+    --color-gold-text: var(--color-light-ground);
+
+    border-color: var(--color-light-ink);
+    background-color: var(--color-light-ink);
   }
 
   /* `.sticker` is a black block in light mode. */

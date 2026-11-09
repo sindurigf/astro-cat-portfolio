@@ -8,7 +8,7 @@
 export interface HeroPalette {
   /** `--color-hero-accent`: the canvas lines are green while the page accent is gold. */
   readonly border: string;
-  /** `--color-gold-muted`. */
+  /** `--color-hero-muted`. */
   readonly subtle: string;
   /** `--color-gold-bud`. */
   readonly bud: string;

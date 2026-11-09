@@ -70,7 +70,7 @@ export const useHeroField = (): HeroFieldState => {
     /* Slab tokens: in light mode the page set is ink on the ink slab, failing SC 1.4.3 and 1.4.11. */
     const palette: HeroPalette = {
       border: read('--color-hero-accent'),
-      subtle: read('--color-gold-muted'),
+      subtle: read('--color-hero-muted'),
       bud: read('--color-gold-bud'),
       background: read('--color-hero-ground'),
       veil: read('--color-hero-veil'),

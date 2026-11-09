@@ -31,40 +31,39 @@ blur, uppercase headings, tilted marks.
 - `focus` is what you are touching: hover and focus, never at rest. Inside a
   block it stays blue: the dark `focus` on ink (9.03), `light-focus` on a light
   block (7.35).
-- `error` is errors only: the invalid edge and error words. Gold never means
-  an error.
+- `error` is errors only: the invalid edge and error words. A throw never
+  means an error.
 - `border` is boundary, in the text color. `text` is words.
-- Ink, white and the gold accent. The accent is also every shadow. Green
-  (`hero-accent`, `#43D384`) is only in the homepage canvas: its stele edge,
-  meadow and buds.
-- "Gold" names the register, the slab and their tokens. The accent is
-  gold (`gold`, `#FFC000`); the slab is ink (`block-gold`,
-  `#141517`).
+- Ink and white, with one stone throw (`throw`, `#6F8696`) in both modes.
+  Labels and links are the text color. Green (`hero-accent`, `#43D384`, light
+  `#1A7844`) is only in the homepage canvas: its stele edge, meadow and buds.
+- "Gold" names the register, the slab and their tokens, not a hue: `gold` is
+  `#F2F2F2`, the slab (`block-gold`) is `#141517`, and light mode mirrors both.
 - The accent is held by a register rather than one job. A review
   checks the rendered page against the register, not a count. Do not "reduce
   gold to one job".
 - **A gold use not on this list adds a row, with its argument, in the same
   change.**
 
-| #   | Where gold is spent                                                                                                                       | Measured on                            |
-| --- | ----------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------- |
-| 1a  | Ground, full slab: `/about`, `/career`, `/contact`, `/blog`, `/credits`, `/brand`                                                         | 6 routes                               |
-| 1b  | Ground, thin slab: `/contact/sent`, every post                                                                                            | 6 routes                               |
-| 1c  | Ground, mid-page: a `Section surface="gold"`, the About quote, `/contact`'s closing band                                                  | `/career`, `/about`, `/`, `/contact`   |
-| 2   | The primary action: `.nav-cta`, `.btn-primary`                                                                                            | 11 routes, 4 routes                    |
-| 3   | the logo marks and throws: the homepage sticker; the box cat and the logo cat are cardboard and the cats' coats, not gold                 | `/`                                    |
-| 4   | Card labels, `.label text-gold`; a form's field labels are `text`                                                                         | `/about`, `/accessibility`, `/contact` |
-| 5   | Category: the blog label and the homepage glyph tiles, ink tiles with a light edge and glyph                                              | 3 routes                               |
-| 6   | Display words: the homepage family name                                                                                                   | `/`                                    |
-| 7   | List markers in `.bullet-list`                                                                                                            | wherever a bulleted list is            |
-| 8   | The `gold` swatch and the contrast samples on gold; fills, hex in both modes                                                              | `/brand`                               |
-| 9   | Every hard shadow: cards, slabs, bricks, buttons, chips, stickers and photos cast the accent throw                                        | every route                            |
-| 10  | The header bar, an ink slab with a light edge and the accent throw in both modes; its current-page brick and call to action are ink tiles | every route                            |
-| 11  | The footer motto band: the motto in `gold-text` on a `block-gold` band at every page's end, the mascot standing on it                     | every route                            |
+| #   | Where gold is spent                                                                                                                            | Measured on                            |
+| --- | ---------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------- |
+| 1a  | Ground, full slab: `/about`, `/career`, `/contact`, `/blog`, `/credits`, `/brand`                                                              | 6 routes                               |
+| 1b  | Ground, thin slab: `/contact/sent`, every post                                                                                                 | 6 routes                               |
+| 1c  | Ground, mid-page: a `Section surface="gold"`, the About quote, `/contact`'s closing band                                                       | `/career`, `/about`, `/`, `/contact`   |
+| 2   | The primary action: `.nav-cta`, `.btn-primary`                                                                                                 | 11 routes, 4 routes                    |
+| 3   | the logo marks and throws: the homepage sticker; the box cat and the logo cat are cardboard and the cats' coats, not gold                      | `/`                                    |
+| 4   | Card labels, `.label text-gold`; a form's field labels are `text`                                                                              | `/about`, `/accessibility`, `/contact` |
+| 5   | Category: the blog label and the homepage glyph tiles, ink tiles with a light edge and glyph                                                   | 3 routes                               |
+| 6   | Display words: the homepage family name                                                                                                        | `/`                                    |
+| 7   | List markers in `.bullet-list`                                                                                                                 | wherever a bulleted list is            |
+| 8   | The `gold` swatch and the contrast samples on gold; fills, hex in both modes                                                                   | `/brand`                               |
+| 9   | Every hard shadow: cards, slabs, bricks, buttons, chips, stickers and photos cast the stone throw                                              | every route                            |
+| 10  | The header bar, an ink slab with a light edge and the stone throw, mirrored in light mode; its current-page brick and call to action are tiles | every route                            |
+| 11  | The footer motto band: the motto in `gold-text` on a `block-gold` band at every page's end, the mascot standing on it                          | every route                            |
 
 - 9 is the edge because the page and the slab are both ink: an ink edge
-  vanishes and a light one reads as text. The accent reads as structure (8.47
-  or more on both dark grounds); a light block's edge is ink.
+  vanishes and a light one reads as text. The stone throw reads as structure
+  (4.30 or more on both dark grounds, 3.39 on light); a light block's edge is ink.
 - 11 closes every page the way the header (10) opens it: the site's own
   motto on the ink slab.
 
@@ -93,42 +92,42 @@ blur, uppercase headings, tilted marks.
 | ----------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Heavy uppercase, tight tracking     | Uppercase on headings, labels and buttons only. Tracking -0.05em on h1 and h2, -0.02em on h3 and titles; labels +0.1em. A heading word over 12 characters takes a soft hyphen.                  |
 | Loud accents against 4.5:1          | `error` `#FF007A` never sets text. `error-text` `#FF8AC0` carries every error glyph ([Contrast](#contrast)).                                                                                    |
-| Hard shadow looks like a focus ring | The ring is blue, which appears only on interaction, offset past the element's gold shadow by `--lift`, so it only touches ground (9.03); against the throw it is 1.23.                         |
-| Error signaled by color             | `error` against the accent is 2.31. An error is a shape change (a 4px magenta inset ring inside the edge, which keeps the block's edge color), a ✕ mark and words.                              |
+| Hard shadow looks like a focus ring | The ring is blue, which appears only on interaction, offset past the element's stone throw by `--lift`, so it only touches ground (9.03); against the throw it is 1.88, light 2.17.             |
+| Error signaled by color             | `error` against the throw is 1.00. An error is a shape change (a 4px magenta inset ring inside the edge, which keeps the block's edge color), a ✕ mark and words.                               |
 | Tilt hurts reading                  | Tilt only marks (tile, roundel, stickers), at 3deg. Text and headings never rotate; a sticker's label of one to three words turns with it (close row eyebrow, post tags; `tests/tilt.spec.ts`). |
 | Grayed-out disabled fails SC 1.4.11 | Dashed edge, no shadow. Label stays 8.67; control stays focusable (`aria-disabled`).                                                                                                            |
 | Density against 320px reflow        | Spacing tokens are fluid; every border is counted in the 288px content box before any heading floor changes.                                                                                    |
 
 ## Color tokens
 
-| Token         | Hex          | Job                                                                            |
-| ------------- | ------------ | ------------------------------------------------------------------------------ |
-| `background`  | `#141517`    | Page ground; header, footer, bands                                             |
-| `surface`     | `#1E2022`    | Inputs and controls off a block                                                |
-| `border`      | `#F2F2F2`    | Every boundary but table lines: the text color                                 |
-| `card-edge`   | none         | Card and plain slab edge; `#141517` in light mode                              |
-| `fill-edge`   | `#F2F2F2`    | Edge of an ink fill: buttons, the slab; ink in light mode                      |
-| `text`        | `#F2F2F2`    | Words and table lines                                                          |
-| `subtle`      | `#9EB6C7`    | Captions, meta, helper text                                                    |
-| `gold`        | `#FFC000`    | The accent, only where the style guide allows                                  |
-| `throw`       | `#FFC000`    | Every hard shadow; `light-accent` in light mode                                |
-| `focus`       | `#8AB8FF`    | Hover and focus only                                                           |
-| `error`       | `#FF007A`    | Errors only: the invalid edge; never text                                      |
-| `error-text`  | `#FF8AC0`    | Every error glyph; never non-text                                              |
-| `tile-edge`   | `#5A87A8`    | Logo tile copies' edge; both modes                                             |
-| `button-text` | `ButtonText` | Forced colors only: bars on the button face                                    |
-| `cat-*`       | 6 fills      | Logo cat coat and About cat props; decoration, never a boundary                |
-| `hero-*`      | 7 values     | Homepage canvas accent (green), ground, veil, floor and glyph glow; decoration |
+| Token         | Hex          | Job                                                                         |
+| ------------- | ------------ | --------------------------------------------------------------------------- |
+| `background`  | `#141517`    | Page ground; header, footer, bands                                          |
+| `surface`     | `#1E2022`    | Inputs and controls off a block                                             |
+| `border`      | `#F2F2F2`    | Every boundary but table lines: the text color                              |
+| `card-edge`   | none         | Card and plain slab edge; `#141517` in light mode                           |
+| `fill-edge`   | `#F2F2F2`    | Edge of an ink fill: buttons, the slab; ink in light mode                   |
+| `text`        | `#F2F2F2`    | Words and table lines                                                       |
+| `subtle`      | `#9EB6C7`    | Captions, meta, helper text                                                 |
+| `gold`        | `#F2F2F2`    | Labels and label fills, only where the style guide allows                   |
+| `throw`       | `#6F8696`    | Stone: every hard shadow, both modes; never text                            |
+| `focus`       | `#8AB8FF`    | Hover and focus only                                                        |
+| `error`       | `#FF007A`    | Errors only: the invalid edge; never text                                   |
+| `error-text`  | `#FF8AC0`    | Every error glyph; never non-text                                           |
+| `tile-edge`   | `#5A87A8`    | Logo tile copies' edge; both modes                                          |
+| `button-text` | `ButtonText` | Forced colors only: bars on the button face                                 |
+| `cat-*`       | 6 fills      | Logo cat coat and About cat props; decoration, never a boundary             |
+| `hero-*`      | 9 values     | Homepage canvas accent (green), muted buds, ground, veil, floor, glyph glow |
 
 The slab set is in [Gold surface](#gold-surface), light values in
-[Light mode](#light-mode). Token names keep `gold` for the accent and the
-slab; the values are gold and ink.
+[Light mode](#light-mode). Token names keep `gold` for labels and the slab;
+the values are white and ink.
 
 - Two dark grounds: `background` (page, header, footer, bands) and `surface`
   (cards, inputs). Measure every foreground against both.
 - Blocks: every card, the plain hero slab and the post contents are an ink
-  `block-gold` or light `block-light` fill. An ink block takes the accent
-  edge (`fill-edge`) and throw; a light block takes the 4px `block-ink` edge.
+  `block-gold` or light `block-light` fill. An ink block takes the light
+  edge (`fill-edge`) and the stone throw; a light block takes the 4px `block-ink` edge.
   Every second card in a `.card-block`, `.card-solid`, the plain hero slab
   and the post contents are light. Inside a light block `text-text` and
   `text-gold` are ink (16.32) and `subtle` is `light-subtle` (8.51); inside an
@@ -164,8 +163,7 @@ slab; the values are gold and ink.
 ### Adding a color
 
 1. Add it as a token in `@theme`.
-2. Measure it on `#141517` and `#1E2022`, on `#FFC000` if it can sit on an
-   accent fill, and its light value on `#F2F2F2`. A color with alpha is measured as
+2. Measure it on `#141517` and `#1E2022`, and its light value on `#F2F2F2`. A color with alpha is measured as
    it paints: composite it over each ground first, then take the ratio.
 3. Meet 4.5:1 for text (7:1 where achievable), 3:1 for large text, borders,
    focus rings and icons.
@@ -183,56 +181,57 @@ every size (SC 1.4.6, as /accessibility claims); non-text needs 3.0 (SC
 
 <!-- Generated by scripts/contrast-table.mjs --write from src/styles/global.css. tests/contrast-table.spec.ts fails if it drifts. -->
 
-| Foreground                | Background             | Job        | Used for                                                      | Needs | Ratio | Result     |
-| ------------------------- | ---------------------- | ---------- | ------------------------------------------------------------- | ----- | ----- | ---------- |
-| `text` #F2F2F2            | `background` #141517   | text       | Reading text, headings                                        | 7.0   | 16.32 | pass       |
-| `text` #F2F2F2            | `surface` #1E2022      | text       | Text in inputs and controls                                   | 7.0   | 14.60 | pass       |
-| `subtle` #9EB6C7          | `background` #141517   | text       | Captions, meta, helper text                                   | 7.0   | 8.67  | pass       |
-| `subtle` #9EB6C7          | `surface` #1E2022      | text       | Meta text on a surface                                        | 7.0   | 7.76  | pass       |
-| `gold` #FFC000            | `background` #141517   | text       | Card labels                                                   | 7.0   | 11.13 | pass       |
-| `gold` #FFC000            | `surface` #1E2022      | text       | Labels on a surface                                           | 7.0   | 9.96  | pass       |
-| `error-text` #FF8AC0      | `background` #141517   | text       | Error text                                                    | 7.0   | 8.39  | pass       |
-| `error-text` #FF8AC0      | `surface` #1E2022      | text       | Error text on a surface                                       | 7.0   | 7.51  | pass       |
-| `focus` #8AB8FF           | `background` #141517   | text       | Hover text; the focus ring (needs 3)                          | 7.0   | 9.03  | pass       |
-| `focus` #8AB8FF           | `surface` #1E2022      | text       | Hover text and focus ring on a surface                        | 7.0   | 8.08  | pass       |
-| `border` #F2F2F2          | `background` #141517   | non-text   | Every boundary but table lines                                | 3.0   | 16.32 | pass       |
-| `border` #F2F2F2          | `surface` #1E2022      | non-text   | Input and chip edges on a surface                             | 3.0   | 14.60 | pass       |
-| `text` #F2F2F2            | `background` #141517   | non-text   | Table lines                                                   | 3.0   | 16.32 | pass       |
-| `error` #FF007A           | `background` #141517   | non-text   | Error edge                                                    | 3.0   | 4.81  | pass       |
-| `error` #FF007A           | `surface` #1E2022      | non-text   | Error edge on a field off a block                             | 3.0   | 4.31  | pass       |
-| `block-ink` #141517       | `gold` #FFC000         | text       | Label on an accent fill                                       | 7.0   | 11.13 | pass       |
-| `background` #141517      | `focus` #8AB8FF        | text       | Label on a hovered button                                     | 7.0   | 9.03  | pass       |
-| `background` #141517      | `text` #F2F2F2         | text       | Badge; the current page block                                 | 7.0   | 16.32 | pass       |
-| `gold-text` #F2F2F2       | `block-gold` #141517   | text       | Text on the slab                                              | 7.0   | 16.32 | pass       |
-| `gold-muted` #9EB6C7      | `block-gold` #141517   | text       | Secondary text on the slab                                    | 7.0   | 8.67  | pass       |
-| `gold-link` #FFC000       | `block-gold` #141517   | text       | Links on the slab                                             | 7.0   | 11.13 | pass       |
-| `block-ink` #141517       | `gold-link` #FFC000    | text       | A link filled under the pointer                               | 7.0   | 11.13 | pass       |
-| `hero-accent` #43D384     | `block-gold` #141517   | decoration | The canvas stele edge, meadow and buds on the slab            | n/a   | 9.47  | decoration |
-| `gold-border` #F2F2F2     | `block-gold` #141517   | non-text   | Boundaries on the slab                                        | 3.0   | 16.32 | pass       |
-| `fill-edge` #F2F2F2       | `block-gold` #141517   | non-text   | Edge of an ink fill                                           | 3.0   | 16.32 | pass       |
-| `light-accent` #FFC000    | `light-ground` #F2F2F2 | decoration | Throws on the light page; the ink edge carries SC 1.4.11      | n/a   | 1.47  | decoration |
-| `light-ink` #141517       | `light-ground` #F2F2F2 | non-text   | Every edge on the light page                                  | 3.0   | 16.32 | pass       |
-| `code-edge` #707070       | `background` #141517   | non-text   | Post code frame edge on the page                              | 3.0   | 3.69  | pass       |
-| `code-edge` #707070       | `surface` #1E2022      | non-text   | Post code frame edge on its fill                              | 3.0   | 3.30  | pass       |
-| `light-code-edge` #767676 | `light-ground` #F2F2F2 | non-text   | Post code frame edge on the light page                        | 3.0   | 4.06  | pass       |
-| `light-code-edge` #767676 | `block-light` #F2F2F2  | non-text   | Post code frame edge on its light fill                        | 3.0   | 4.06  | pass       |
-| `light-ink` #141517       | `block-light` #F2F2F2  | text       | Post code on its light fill                                   | 7.0   | 16.32 | pass       |
-| `surface` #1E2022         | `background` #141517   | decoration | A surface; its edge sets it apart                             | n/a   | 1.12  | decoration |
-| `surface` #1E2022         | `block-gold` #141517   | decoration | A control fill on the slab; its edge sets it apart            | n/a   | 1.12  | decoration |
-| `gold-btn-label` #141517  | `gold-text` #F2F2F2    | text       | Label on the light button on the slab                         | 7.0   | 16.32 | pass       |
-| `throw` #FFC000           | `background` #141517   | decoration | Object throw                                                  | n/a   | 11.13 | decoration |
-| `focus` #8AB8FF           | `background` #141517   | decoration | Hovered card shadow                                           | n/a   | 9.03  | decoration |
-| `light-ground` #F2F2F2    | `background` #141517   | non-text   | About cat outline, baked into the drawings: its white rim     | 3.0   | 16.32 | pass       |
-| `light-ground` #F2F2F2    | `surface` #1E2022      | non-text   | About cat outline on a card: its white rim                    | 3.0   | 14.60 | pass       |
-| `throw` #FFC000           | `block-gold` #141517   | decoration | Throws on the slab                                            | n/a   | 11.13 | decoration |
-| `light-accent` #FFC000    | `light-ground` #F2F2F2 | never      | Text in light mode: a label turns ink beside an accent square | n/a   | 1.47  | never used |
-| `gold-btn-label` #141517  | `block-gold` #141517   | never      | Only on the light button fill                                 | n/a   | 1.00  | never used |
-| `focus` #8AB8FF           | `throw` #FFC000        | apart      | A ring never touches a throw or accent fill                   | n/a   | 1.23  | kept apart |
-| `light-focus` #0047B3     | `light-accent` #FFC000 | apart      | The light-mode ring clears the accent throw                   | n/a   | 5.01  | kept apart |
-| `focus` #8AB8FF           | `border` #F2F2F2       | apart      | A ring never touches a neighbor edge                          | n/a   | 1.81  | kept apart |
-| `error` #FF007A           | `border` #F2F2F2       | apart      | An error is a shape change, never color alone                 | n/a   | 3.39  | kept apart |
-| `error` #FF007A           | `throw` #FFC000        | apart      | Gold never means an error                                     | n/a   | 2.31  | kept apart |
-| `text` #F2F2F2            | `subtle` #9EB6C7       | apart      | The two text colors never carry a state                       | n/a   | 1.88  | kept apart |
+| Foreground                | Background             | Job        | Used for                                                  | Needs | Ratio | Result     |
+| ------------------------- | ---------------------- | ---------- | --------------------------------------------------------- | ----- | ----- | ---------- |
+| `text` #F2F2F2            | `background` #141517   | text       | Reading text, headings                                    | 7.0   | 16.32 | pass       |
+| `text` #F2F2F2            | `surface` #1E2022      | text       | Text in inputs and controls                               | 7.0   | 14.60 | pass       |
+| `subtle` #9EB6C7          | `background` #141517   | text       | Captions, meta, helper text                               | 7.0   | 8.67  | pass       |
+| `subtle` #9EB6C7          | `surface` #1E2022      | text       | Meta text on a surface                                    | 7.0   | 7.76  | pass       |
+| `gold` #F2F2F2            | `background` #141517   | text       | Card labels                                               | 7.0   | 16.32 | pass       |
+| `gold` #F2F2F2            | `surface` #1E2022      | text       | Labels on a surface                                       | 7.0   | 14.60 | pass       |
+| `error-text` #FF8AC0      | `background` #141517   | text       | Error text                                                | 7.0   | 8.39  | pass       |
+| `error-text` #FF8AC0      | `surface` #1E2022      | text       | Error text on a surface                                   | 7.0   | 7.51  | pass       |
+| `focus` #8AB8FF           | `background` #141517   | text       | Hover text; the focus ring (needs 3)                      | 7.0   | 9.03  | pass       |
+| `focus` #8AB8FF           | `surface` #1E2022      | text       | Hover text and focus ring on a surface                    | 7.0   | 8.08  | pass       |
+| `border` #F2F2F2          | `background` #141517   | non-text   | Every boundary but table lines                            | 3.0   | 16.32 | pass       |
+| `border` #F2F2F2          | `surface` #1E2022      | non-text   | Input and chip edges on a surface                         | 3.0   | 14.60 | pass       |
+| `text` #F2F2F2            | `background` #141517   | non-text   | Table lines                                               | 3.0   | 16.32 | pass       |
+| `error` #FF007A           | `background` #141517   | non-text   | Error edge                                                | 3.0   | 4.81  | pass       |
+| `error` #FF007A           | `surface` #1E2022      | non-text   | Error edge on a field off a block                         | 3.0   | 4.31  | pass       |
+| `block-ink` #141517       | `gold` #F2F2F2         | text       | Label on an accent fill                                   | 7.0   | 16.32 | pass       |
+| `background` #141517      | `focus` #8AB8FF        | text       | Label on a hovered button                                 | 7.0   | 9.03  | pass       |
+| `background` #141517      | `text` #F2F2F2         | text       | Badge; the current page block                             | 7.0   | 16.32 | pass       |
+| `gold-text` #F2F2F2       | `block-gold` #141517   | text       | Text on the slab                                          | 7.0   | 16.32 | pass       |
+| `gold-muted` #9EB6C7      | `block-gold` #141517   | text       | Secondary text on the slab                                | 7.0   | 8.67  | pass       |
+| `gold-link` #F2F2F2       | `block-gold` #141517   | text       | Links on the slab                                         | 7.0   | 16.32 | pass       |
+| `block-ink` #141517       | `gold-link` #F2F2F2    | text       | A link filled under the pointer                           | 7.0   | 16.32 | pass       |
+| `hero-accent` #43D384     | `block-gold` #141517   | decoration | The canvas stele edge, meadow and buds on the slab        | n/a   | 9.47  | decoration |
+| `gold-border` #F2F2F2     | `block-gold` #141517   | non-text   | Boundaries on the slab                                    | 3.0   | 16.32 | pass       |
+| `fill-edge` #F2F2F2       | `block-gold` #141517   | non-text   | Edge of an ink fill                                       | 3.0   | 16.32 | pass       |
+| `light-accent` #6F8696    | `light-ground` #F2F2F2 | non-text   | Throws and marker squares on the light page               | 3.0   | 3.39  | pass       |
+| `light-ink` #141517       | `light-ground` #F2F2F2 | non-text   | Every edge on the light page                              | 3.0   | 16.32 | pass       |
+| `code-edge` #707070       | `background` #141517   | non-text   | Post code frame edge on the page                          | 3.0   | 3.69  | pass       |
+| `code-edge` #707070       | `surface` #1E2022      | non-text   | Post code frame edge on its fill                          | 3.0   | 3.30  | pass       |
+| `light-code-edge` #767676 | `light-ground` #F2F2F2 | non-text   | Post code frame edge on the light page                    | 3.0   | 4.06  | pass       |
+| `light-code-edge` #767676 | `block-light` #F2F2F2  | non-text   | Post code frame edge on its light fill                    | 3.0   | 4.06  | pass       |
+| `light-ink` #141517       | `block-light` #F2F2F2  | text       | Post code on its light fill                               | 7.0   | 16.32 | pass       |
+| `surface` #1E2022         | `background` #141517   | decoration | A surface; its edge sets it apart                         | n/a   | 1.12  | decoration |
+| `surface` #1E2022         | `block-gold` #141517   | decoration | A control fill on the slab; its edge sets it apart        | n/a   | 1.12  | decoration |
+| `gold-btn-label` #141517  | `gold-text` #F2F2F2    | text       | Label on the light button on the slab                     | 7.0   | 16.32 | pass       |
+| `throw` #6F8696           | `background` #141517   | non-text   | Object throw                                              | 3.0   | 4.81  | pass       |
+| `throw` #6F8696           | `surface` #1E2022      | non-text   | Throw beside a surface                                    | 3.0   | 4.30  | pass       |
+| `focus` #8AB8FF           | `background` #141517   | decoration | Hovered card shadow                                       | n/a   | 9.03  | decoration |
+| `light-ground` #F2F2F2    | `background` #141517   | non-text   | About cat outline, baked into the drawings: its white rim | 3.0   | 16.32 | pass       |
+| `light-ground` #F2F2F2    | `surface` #1E2022      | non-text   | About cat outline on a card: its white rim                | 3.0   | 14.60 | pass       |
+| `throw` #6F8696           | `block-gold` #141517   | non-text   | Throws on the slab                                        | 3.0   | 4.81  | pass       |
+| `light-accent` #6F8696    | `light-ground` #F2F2F2 | never      | Text in light mode: a label is ink beside a stone square  | n/a   | 3.39  | never used |
+| `gold-btn-label` #141517  | `block-gold` #141517   | never      | Only on the light button fill                             | n/a   | 1.00  | never used |
+| `focus` #8AB8FF           | `throw` #6F8696        | apart      | A ring never touches a throw                              | n/a   | 1.88  | kept apart |
+| `light-focus` #0047B3     | `light-accent` #6F8696 | apart      | The light-mode ring clears the stone throw                | n/a   | 2.17  | kept apart |
+| `focus` #8AB8FF           | `border` #F2F2F2       | apart      | A ring never touches a neighbor edge                      | n/a   | 1.81  | kept apart |
+| `error` #FF007A           | `border` #F2F2F2       | apart      | An error is a shape change, never color alone             | n/a   | 3.39  | kept apart |
+| `error` #FF007A           | `throw` #6F8696        | apart      | A throw never means an error                              | n/a   | 1.00  | kept apart |
+| `text` #F2F2F2            | `subtle` #9EB6C7       | apart      | The two text colors never carry a state                   | n/a   | 1.88  | kept apart |
 
 <!-- contrast-table:end -->
 
@@ -240,8 +239,8 @@ every size (SC 1.4.6, as /accessibility claims); non-text needs 3.0 (SC
 
 The slab: `.surface-gold` on an ink `block-gold` ground, the grounds in
 [the gold register](#the-gold-register), rows 1a to 1c. It equals the page
-ground in dark mode, so its light edge (`fill-edge`) and throw set it apart,
-and it stays ink in light mode. Hex values and ratios are in the generated
+ground in dark mode, so its light edge (`fill-edge`) and throw set it apart.
+Light mode mirrors it: a `#F2F2F2` fill with ink text and edge. Hex values and ratios are in the generated
 [Contrast](#contrast) table:
 
 | Token            | Job                                                     |
@@ -302,35 +301,38 @@ The switch and what it scopes: [ARCHITECTURE.md](../ARCHITECTURE.md#light-mode).
 - A click, Enter or Space on a choice picks it, closes the menu and returns
   focus to the switch (SC 2.4.3). Arrow keys move the choice and keep it open.
 
-| Token                               | Light     | on `#F2F2F2` |
-| ----------------------------------- | --------- | ------------ |
-| `background`, `surface`             | `#F2F2F2` | ground       |
-| `text`, `border`, `card-edge`       | `#141517` | 16.32        |
-| gold as text, `.text-gold`          | `#141517` | 16.32        |
-| `subtle`                            | `#3f4650` | 8.51         |
-| `error`, `error-text`               | `#9e004b` | 7.34         |
-| `code-edge`                         | `#767676` | 4.06         |
-| `code-fill`                         | `#F2F2F2` | ground       |
-| `focus` (focus ring and hover text) | `#0047b3` | 7.35         |
-| `fill-edge`                         | `#141517` | 16.32        |
-| `throw`                             | `#ffc000` | 1.47         |
+| Token                                  | Light                           | on `#F2F2F2`         |
+| -------------------------------------- | ------------------------------- | -------------------- |
+| `background`, `surface`                | `#F2F2F2`                       | ground               |
+| `text`, `border`, `card-edge`          | `#141517`                       | 16.32                |
+| gold as text, `.text-gold`             | `#141517`                       | 16.32                |
+| `block-gold`, `gold-text`, `gold-link` | `#F2F2F2`, `#141517`, `#141517` | ground, 16.32, 16.32 |
+| `hero-accent`, `gold-bud`              | `#1a7844`                       | 4.92                 |
+| `hero-muted` (grey buds)               | `#6f8696`                       | 3.39                 |
+| `subtle`                               | `#3f4650`                       | 8.51                 |
+| `error`, `error-text`                  | `#9e004b`                       | 7.34                 |
+| `code-edge`                            | `#767676`                       | 4.06                 |
+| `code-fill`                            | `#F2F2F2`                       | ground               |
+| `focus` (focus ring and hover text)    | `#0047b3`                       | 7.35                 |
+| `fill-edge`                            | `#141517`                       | 16.32                |
+| `throw`                                | `#6f8696`                       | 3.39                 |
 
 - Light values are `light-*` tokens in `global.css` (`light-focus` for
   `focus`, `light-error-text`, `light-accent`), swapped in by `light-mode.css`.
-- Edges on the page turn ink and throws turn `light-accent`.
-- `light-accent` is the same gold: throws and marker squares only, never
-  text (1.47). A darker gold turns brown, so the ink edge beside every throw
-  carries SC 1.4.11.
-- The light ring `#0047b3` is 5.01 against `light-accent` and still clears
-  every throw by `--lift` and touches only ground
-  (`tests/ring-clearance.spec.ts`).
+- Edges on the page turn ink. Throws stay stone, 3.39 on the ground
+  (SC 1.4.11); `light-accent` is the same stone, for marker squares only,
+  never text.
+- The light ring `#0047b3` is 2.17 against stone, so it clears every throw
+  by `--lift` and touches only ground (`tests/ring-clearance.spec.ts`,
+  `tests/light-mode.spec.ts`).
 - Hover fills are dark mode's `#8ab8ff` under `#141517` (9.03).
-- `.surface-gold`, the header bar and the footer motto band stay ink islands
-  with the dark values; their outer edge is ink and their own throw
-  `light-accent`; what they hold takes the dark `throw`.
+- `.surface-gold`, every block, the header bar and its tiles, the hero window
+  and the footer motto band mirror: a `#F2F2F2` fill, ink text and ink edge,
+  the `slab-*` values in `light-mode.css`. The report band does not change.
+- The homepage canvas is light too: ground, veil and floor `#F2F2F2`, green
+  `#1a7844`, grey buds stone, so every bud reaches 3:1 on every surface.
 - Gold text turns ink; a `.label.text-gold` gains a `light-accent` square
   before the word.
-- Blocks stay ink or light in light mode.
 - The footer follows the mode like `<main>`: light in light mode, its words
   7:1 or more and its tiles apart from it (`tests/footer.spec.ts`).
 - Logo marks use `throw`, `tile-edge`, the `cat-hela*` coat and
@@ -543,10 +545,10 @@ with a comment beside it.
   `text`, never gold. Nothing else uses `--hairline`.
 - The default border color is `border`, set in the base layer (Tailwind 4
   defaults to `currentColor`); `gold-border` inside `.surface-gold`.
-- Each ground has one edge role. Dark page: `border` (the accent), but post
+- Each ground has one edge role. Dark page: `border` (the text color), but post
   table lines take `text`. An ink block, the header bar included: `fill-edge`,
   4px. A light block: `block-ink`, 4px. Inside the slab: `gold-border` (the
-  accent). Light mode: ink on the page, `light-accent` on ink fills.
+  slab's text color). Light mode: ink everywhere, the slabs mirrored.
   `tests/edges.spec.ts` asserts each reaches 3:1 in both modes.
 - Shadows are hard offsets, no blur.
 - A tilted box with a drawn edge clips its fill to the padding box when the

@@ -316,14 +316,14 @@
   }
 
   /*
-   * The bar is an ink slab in both modes with a light edge and the accent throw. Its
-   * bricks take light fills and ink lines; rings on the slab are `focus` (9.03),
-   * rings and hover labels on a brick ink, brick throws the accent.
+   * The bar is an ink slab with a light edge and the stone throw; light mode mirrors
+   * it. Its bricks take light fills and ink lines; rings and hover labels on a brick
+   * are ink, brick throws stone.
    */
   .header-slab {
     --color-background: var(--color-block-light);
     --color-text: var(--color-block-ink);
-    --color-focus: var(--dark-focus);
+    --color-focus: var(--slab-focus);
     --hover-fill: var(--dark-focus);
     --hover-label: var(--color-block-ink);
     --shadow-brick: var(--brick-throw) var(--brick-throw) 0 var(--color-throw);
@@ -334,9 +334,9 @@
     @apply px-4 shadow-hard-throw sm:px-6;
   }
 
-  /* Ink tiles on the ink bar keep the light edge, also in light mode. */
+  /* Tiles on the bar take the bar's edge. */
   .header-slab > * {
-    --color-fill-edge: var(--dark-fill-edge);
+    --color-fill-edge: var(--slab-fill-edge);
   }
 
   /* The tile's shadow sits inside the link, so the plain ring clears it and stays on the slab. */

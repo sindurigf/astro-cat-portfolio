@@ -125,7 +125,7 @@
 @theme static {
   --color-background: #141517;
   --color-surface: #1e2022;
-  /* Every edge is the text color, 16.32 on ink; gold is kept for the accent and throws. */
+  /* Every edge is the text color, 16.32 on ink. */
   --color-border: #f2f2f2;
   /* A card draws no edge in dark mode: its fill and throw set it apart. */
   --color-card-edge: transparent;
@@ -141,21 +141,20 @@
   --color-block-light: #f2f2f2;
   --color-block-ink: #141517;
   --color-subtle: #9eb6c7;
-  /* The accent: labels, markers and accent fills. Ink on it is 11.13. */
-  --color-gold: #ffc000;
+  /* Labels, markers and label fills: the text color. Ink on it is 16.32. */
+  --color-gold: #f2f2f2;
   /*
-   * The accent on the light page: throws and marker squares only, never text
-   * (1.47 on light-ground). The ink edge beside it carries SC 1.4.11.
+   * Stone, every throw in both modes: 4.81 on ink, 3.39 on light-ground
+   * (SC 1.4.11). Never text. `light-accent` is the marker square, the same stone.
    */
-  --color-light-accent: #ffc000;
-  /* Every shadow: the accent, `light-accent` in light mode. */
-  --color-throw: #ffc000;
-  /* Hover and focus only: a blue apart in hue from the gold throw. */
+  --color-throw: #6f8696;
+  --color-light-accent: #6f8696;
+  /* Hover and focus only: a blue apart in hue from the stone throw. */
   --color-focus: #8ab8ff;
   /*
    * Errors only, never decoration. `error` passes SC 1.4.11 and is for edges;
    * `error-text` is every error glyph, AAA (SC 1.4.6). Magenta, so it stays apart
-   * from the gold accent. Ratios in docs/STYLEGUIDE.md.
+   * from the stone throw. Ratios in docs/STYLEGUIDE.md.
    */
   --color-error: #ff007a;
   --color-error-text: #ff8ac0;
@@ -188,8 +187,8 @@
   --color-code-fill: var(--color-surface);
 
   /*
-   * The slab surface (.surface-gold): an ink island in both modes, with light
-   * text and light edges. Ratios in docs/STYLEGUIDE.md.
+   * The slab surface (.surface-gold): ink with light text and edges; light mode
+   * mirrors it. Ratios in docs/STYLEGUIDE.md.
    */
   /* The text on the slab; not tied to `text`, which light mode turns ink. */
   --color-gold-text: #f2f2f2;
@@ -199,17 +198,18 @@
   /* Label and inner focus ring of .btn-gold-primary's light fill only. */
   --color-gold-btn-label: #141517;
 
-  /*
-   * Links on the slab: the accent, underlined, so the underline on
-   * .surface-gold a satisfies SC 1.4.1 as well as the hue.
-   */
-  --color-gold-link: #ffc000;
+  /* Links on the slab: the slab's text color, underlined for SC 1.4.1. */
+  --color-gold-link: #f2f2f2;
 
   /* The homepage canvas's stele edge, meadow and buds: the only green. Decoration only. */
   --color-hero-accent: #43d384;
   /* The canvas's buds on the slab. Not the link color. */
   --color-gold-bud: var(--color-hero-accent);
+  /* The canvas's grey buds; light mode swaps in stone. */
+  --color-hero-muted: var(--color-gold-muted);
   --color-hero-ground: var(--color-block-gold);
+  /* Light mode's canvas green: 4.92 on light-ground. */
+  --color-light-hero-accent: #1a7844;
 
   /*
    * The glow inside a lit glyph on the poneglyph. Its full-ink rim carries the
@@ -374,7 +374,7 @@
   --tracking-label: 0.1em;
 
   /*
-   * Hard offset shadows: every throw is the accent (`throw`); `focus` shows only
+   * Hard offset shadows: every throw is stone (`throw`); `focus` shows only
    * on hover and focus.
    */
   /* One throw for object shadows; controls keep 4px. */
@@ -453,7 +453,7 @@
   /*
    * Focus ring: 4px `focus`, clearing SC 1.4.11 on background and surface. A
    * shadowed element sets `--lift` to its shadow offset so the ring clears it:
-   * `focus` over the gold throw is 1.23. Never set outline-offset to 0.
+   * `focus` over the stone throw is 2.17. Never set outline-offset to 0.
    */
   --focus-width: 4px;
   --focus-gap: 4px;

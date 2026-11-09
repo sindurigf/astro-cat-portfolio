@@ -11,17 +11,17 @@
 
   /*
    * Blocks: every card, the plain hero slab and the post contents, an ink slab
-   * with a light edge in both modes. The dark values are restored inside, so
-   * `text-text` and `text-gold` read on the fill (16.32, accent 11.13).
+   * with a light edge; light mode mirrors it (`slab-*`). `text-text` and
+   * `text-gold` read 16.32 on the fill.
    */
   :is(.card, .plain-slab, .post-contents):not(.surface-gold, .surface-gold *) {
     --color-background: var(--color-block-gold);
     --color-surface: var(--color-block-gold);
-    --color-text: var(--dark-text);
-    --color-subtle: var(--dark-subtle);
-    --color-error: var(--dark-error);
-    --color-error-text: var(--dark-error-text);
-    --color-border: var(--dark-border);
+    --color-text: var(--slab-text);
+    --color-subtle: var(--slab-subtle);
+    --color-error: var(--slab-error);
+    --color-error-text: var(--slab-error-text);
+    --color-border: var(--slab-border);
     --color-card-edge: var(--color-fill-edge);
 
     position: relative;
@@ -67,8 +67,8 @@
    */
   :is(.card, .plain-slab, .post-contents):not(.surface-gold, .surface-gold *)
     > * {
-    --color-focus: var(--dark-focus);
-    --color-fill-edge: var(--dark-fill-edge);
+    --color-focus: var(--slab-focus);
+    --color-fill-edge: var(--slab-fill-edge);
   }
 
   :is(
