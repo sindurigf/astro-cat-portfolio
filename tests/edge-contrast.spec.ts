@@ -21,7 +21,7 @@ const lostEdges = (page: Page): Promise<string[]> =>
       if (style.visibility !== 'visible' || style.display === 'contents') continue;
       const box = element.getBoundingClientRect();
       if (box.width === 0 || box.height === 0) continue;
-      const ground = effectiveBackground(element.parentElement);
+      const ground = compositeBackground(element.parentElement, box);
       if (!ground) continue;
       const fill = parse(style.backgroundColor);
       if (fill && fill.a === 1 && ratio(fill, ground) >= NON_TEXT) continue;

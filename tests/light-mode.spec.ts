@@ -95,7 +95,7 @@ test.describe('light mode keeps every control edge visible', () => {
           // A photo link is identified by its photo, which the fill only backs.
           controls += 1;
           if (el.querySelector('img')) continue;
-          const ground = effectiveBackground(el.parentElement);
+          const ground = compositeBackground(el.parentElement, el.getBoundingClientRect());
           if (!ground) {
             faint.push(describe(el) + ' on a ground that cannot be read');
             continue;
@@ -189,12 +189,15 @@ test.describe('light mode focus ring stands out from the page, and from the cont
           const cs = getComputedStyle(el);
           if (cs.outlineStyle === 'none' || parseFloat(cs.outlineWidth) === 0) return [];
           const ring = parse(cs.outlineColor);
-          const page = effectiveBackground(el.parentElement);
+          /* What paints under the control: a control placed off its parent's box sits on the page. */
+          const page = compositeBackground(el.parentElement, el.getBoundingClientRect());
           const fill = parse(cs.backgroundColor);
           const out = [];
           const name = el.tagName.toLowerCase() + '.' + [...el.classList].slice(0, 3).join('.');
+          /* A ring inside the border box meets only the control, which the fill check covers. */
+          const inside = parseFloat(cs.outlineOffset) + parseFloat(cs.outlineWidth) <= 0;
           const toPage = ratio(over(ring, page), page);
-          if (toPage < ${RING_MIN}) out.push(name + ' ring on its ground ' + toPage.toFixed(2));
+          if (!inside && toPage < ${RING_MIN}) out.push(name + ' ring on its ground ' + toPage.toFixed(2));
           if (parseFloat(cs.outlineOffset) < ${RING_GAP_PX} && fill && fill.a === 1) {
             const toFill = ratio(over(ring, fill), fill);
             if (toFill < ${RING_MIN}) out.push(name + ' ring on its fill ' + toFill.toFixed(2));

@@ -6,11 +6,11 @@ import { cssColorToken } from './source';
 import { NARROW_WIDTH } from './wcag';
 
 /*
- * No dark-surface text token passes on gold, so text and controls on it are
- * measured in the rendered page. The token ratios on gold are in the generated
+ * Text and controls on the slab are measured in the rendered page, where a
+ * utility may override the slab's remap. The token ratios are in the generated
  * table (scripts/contrast-table.mjs, tests/contrast-table.spec.ts).
  */
-const GOLD = cssColorToken('--color-gold');
+const GOLD = cssColorToken('--color-block-gold');
 
 /** A control whose opaque fill, or its only boundary, its border, matches the ground behind it. */
 type InvisibleControl = { selector: string; detail: string; label: string };
@@ -29,6 +29,8 @@ const TEXT_ON_GOLD_IN = `
     const out = [];
     for (const element of root.querySelectorAll('*')) {
       if (!hasOwnText(element)) continue;
+      // Unrendered text has no box, so its ground resolves to <body>, the slab's color in dark mode.
+      if (!element.checkVisibility()) continue;
       const background = effectiveBackground(element);
       if (!isGold(background)) continue;
       const color = parse(getComputedStyle(element).color);
@@ -67,8 +69,8 @@ type GoldWalk = {
 };
 
 /**
- * `.btn-primary` on gold is a 1.00:1 fill whose label still passes at 11.38, so no text
- * rule (nor AccessLint at AAA) sees it. Walks every gold section on the route.
+ * `.btn-primary` on the slab is a 1.00:1 fill whose label still passes at 16.32, so no text
+ * rule (nor AccessLint at AAA) sees it. Walks every slab section on the route.
  */
 const walkGoldSections = (page: Page) =>
   page.evaluate(`(() => {
@@ -147,7 +149,7 @@ test.describe('the gold surface exception', () => {
 
       const found = await textOnGold(page);
 
-      // `.skip-link` is `bg-gold` with text and first on every page, so at least one;
+      // `.skip-link` is `bg-block-gold` with text and first on every page, so at least one;
       // guards against a broken background resolver passing on an empty list.
       expect(
         found.length,
