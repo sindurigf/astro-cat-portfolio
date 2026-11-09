@@ -183,8 +183,6 @@
   --color-light-code-edge: #767676;
   /* A code block's fill: the surface in dark mode, the light block fill in light mode, so it reads as a block on white. */
   --color-code-fill: var(--color-surface);
-  --color-light-hero-veil: rgba(19, 19, 19, 0.025);
-  --color-light-hero-floor: rgba(19, 19, 19, 0.035);
 
   /*
    * The gold surface: an inverted set, since only near-blacks read on gold.
@@ -231,6 +229,19 @@
   --color-hero-veil-edge: rgba(19, 19, 19, 0);
   --color-hero-floor: rgba(19, 19, 19, 0.1);
   --color-hero-floor-edge: rgba(19, 19, 19, 0);
+
+  /*
+   * The homepage hero window is ink inside the gold column, in dark mode only.
+   * Mint buds: 10.9:1 on block-ink; light mode's 4.9:1 on white (SC 1.4.11).
+   */
+  --color-hero-accent: #4adeb0;
+  --color-light-hero-accent: #0f7a5c;
+  /* The canvas's faint buds; gold-muted on gold, subtle on the ink window. */
+  --color-hero-muted: var(--color-gold-muted);
+  --color-hero-ink-veil: rgba(229, 226, 225, 0.04);
+  --color-hero-ink-veil-edge: rgba(229, 226, 225, 0);
+  --color-hero-ink-floor: rgba(229, 226, 225, 0.06);
+  --color-hero-ink-floor-edge: rgba(229, 226, 225, 0);
 
   /*
    * Family name from @fontsource-variable/lexend: one wght axis file, latin

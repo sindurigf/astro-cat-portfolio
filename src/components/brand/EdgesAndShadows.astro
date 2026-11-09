@@ -16,6 +16,8 @@ const SHADOW_CLASS: Record<string, string | null> = {
   /* On a square swatch the cat's outline throw is the box's. */
   'mark-throw': 'shadow-hard-mark-8',
 };
+/* Cast only on gold, so its sample stands on gold. */
+const ON_GOLD = new Set(['shadow-hard-gold-border-4']);
 for (const { utility } of shadows) {
   if (!(utility in SHADOW_CLASS)) {
     throw new Error(
@@ -35,13 +37,23 @@ for (const { utility } of shadows) {
         <li class="flex items-center gap-6">
           <span
             class:list={[
-              SWATCH_BOX,
-              SHADOW_CLASS[utility] === null
-                ? 'border-4 border-dashed border-border'
-                : ['border-4 border-border bg-surface', SHADOW_CLASS[utility]],
+              'shrink-0',
+              ON_GOLD.has(utility) && 'surface-gold p-3',
             ]}
             aria-hidden="true"
-          />
+          >
+            <span
+              class:list={[
+                SWATCH_BOX,
+                SHADOW_CLASS[utility] === null
+                  ? 'border-4 border-dashed border-border'
+                  : [
+                      'border-4 border-border bg-surface',
+                      SHADOW_CLASS[utility],
+                    ],
+              ]}
+            />
+          </span>
           <dl class="min-w-0">
             <dt class="text-body font-black text-text">
               <code>{utility}</code>
