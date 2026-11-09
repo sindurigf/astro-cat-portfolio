@@ -70,6 +70,7 @@ export const useHeroField = (): HeroFieldState => {
     /* Gold-surface tokens: the dark set fails SC 1.4.3 and 1.4.11 on gold. */
     const palette: HeroPalette = {
       border: read('--color-gold-border'),
+      stalk: read('--color-hero-stalk') || read('--color-gold-border'),
       subtle: read('--color-hero-muted'),
       bud: read('--color-gold-bud'),
       background: read('--color-hero-ground'),

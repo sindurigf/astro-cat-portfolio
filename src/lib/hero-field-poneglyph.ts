@@ -168,10 +168,10 @@ const block = (
     ctx.fillStyle = palette.background;
     ctx.fill();
     ctx.globalAlpha = tone;
-    ctx.fillStyle = palette.border;
+    ctx.fillStyle = palette.stalk;
     ctx.fill();
     ctx.globalAlpha = OUTLINE_ALPHA;
-    ctx.strokeStyle = palette.border;
+    ctx.strokeStyle = palette.stalk;
     ctx.stroke();
   }
 };
@@ -226,18 +226,18 @@ const script = (
   ctx.stroke(marks);
   ctx.restore();
   ctx.globalAlpha = CUT.groove;
-  ctx.strokeStyle = palette.border;
+  ctx.strokeStyle = palette.stalk;
   ctx.lineWidth = LINE.groove * unit;
   ctx.stroke(marks);
   /*
-   * A lit glyph thickens into a full-ink rim (6.60:1 on the dark face, 16.43:1
+   * A lit glyph thickens into a full-stalk rim (11.02:1 on the dark face, 4.92:1
    * on the light, SC 1.4.11) with the glow color inside it.
    */
   glyphs.forEach((strokes, g) => {
     const light = glyphLight(g, glyphs.length, seconds, still);
     if (light <= 0) return;
     ctx.globalAlpha = 1;
-    ctx.strokeStyle = palette.border;
+    ctx.strokeStyle = palette.stalk;
     ctx.lineWidth = LINE.groove * unit * (1 + LIT.rim * light);
     ctx.stroke(strokes);
     ctx.strokeStyle = palette.glow;
@@ -264,7 +264,7 @@ export const drawPoneglyph = (
     [right + margin + reach * SHADOW.foot, root],
   ]);
   ctx.globalAlpha = SHADOW.alpha;
-  ctx.fillStyle = palette.border;
+  ctx.fillStyle = palette.stalk;
   ctx.fill();
   /* A soft contact shadow, so the base sits on the ground rather than over it. */
   const cx = (left + right) / 2 + PONEGLYPH.side * unit * CONTACT.shift;
@@ -273,7 +273,7 @@ export const drawPoneglyph = (
   ctx.translate(cx, root - PONEGLYPH.rise * unit * CONTACT.lift);
   ctx.scale(1, CONTACT.flatten);
   /* Stacked translucent discs, ink only: a gradient to the ground would veil stems behind. */
-  ctx.fillStyle = palette.border;
+  ctx.fillStyle = palette.stalk;
   ctx.globalAlpha = CONTACT.alpha;
   for (let k = 0; k < CONTACT.discs; k += 1) {
     ctx.beginPath();

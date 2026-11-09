@@ -210,7 +210,7 @@ const settle = (
 const budTone = (palette: HeroPalette, tone: number): string => {
   if (tone > BUD_TONE.bud) return palette.bud;
   if (tone > BUD_TONE.subtle) return palette.subtle;
-  return palette.border;
+  return palette.stalk;
 };
 
 const budLayout = (tall: number): { count: number; spacing: number } =>
@@ -316,7 +316,7 @@ const drawStem = (
   const alpha =
     (STEM_ALPHA.base + Math.sqrt(stem.scale) * STEM_ALPHA.byScale) * stem.veil;
   ctx.globalAlpha = alpha;
-  ctx.strokeStyle = palette.border;
+  ctx.strokeStyle = palette.stalk;
   drawStalk(ctx, stem, lean);
 
   if (stem.height < BUD_MIN_HEIGHT * world) return;

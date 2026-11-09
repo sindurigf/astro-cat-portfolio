@@ -109,7 +109,9 @@
   }
 
   :root[data-theme='light'] .v-column .hero-window {
-    --color-gold-bud: var(--color-hero-accent);
+    --color-hero-stalk: var(--color-light-hero-gold);
+    --color-gold-bud: var(--color-light-hero-gold);
+    --color-hero-muted: var(--color-light-hero-gold);
   }
 
   /*

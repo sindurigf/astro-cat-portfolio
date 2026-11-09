@@ -316,6 +316,7 @@ The switch and what it scopes: [ARCHITECTURE.md](../ARCHITECTURE.md#light-mode).
 | gold as text, `.text-gold`                          | `#131313` | 18.58        |
 | `subtle`                                            | `#3f4650` | 9.53         |
 | `pink-text`                                         | `#b00054` | 7.06         |
+| `light-hero-gold` (hero stalks, buds, poneglyph)    | `#8a6500` | 5.33         |
 | `code-edge`                                         | `#767676` | 4.54         |
 | `code-fill`                                         | `#e5e2e1` | 1.29         |
 | `cyan` (focus ring and hover text)                  | `#0047b3` | 8.23         |
@@ -323,8 +324,9 @@ The switch and what it scopes: [ARCHITECTURE.md](../ARCHITECTURE.md#light-mode).
 - Light values are `light-*` tokens in `global.css` (`light-focus` for
   `cyan`, `light-pink-text`, `light-hero-accent`), swapped in by
   `light-mode.css`.
-- The homepage hero window is `block-ink` in dark mode, page text on it,
-  mint `hero-accent` buds (10.9); white in light mode with `#0f7a5c` buds (4.9).
+- The homepage hero window sits on the page ground in both modes. Its stalks,
+  buds and poneglyph are `#FFC000` in dark mode (11.99 on `#0b0b0b`, far buds
+  `#b38600` 5.93) and `light-hero-gold` `#8a6500` in light mode (5.33).
 - Every hard shadow and edge turns `#131313`; `mark` throws turn `#b00054`
   (4.5 on gold, 7.06 on white).
 - Hover fills are dark mode's `#00dcfd` under `#131313` (11.20).
@@ -1395,18 +1397,18 @@ Enforced by `tests/nav-current.spec.ts`, `tests/mobile-menu.spec.ts`,
 - A band is never a scroll anchor (`overflow-anchor: none` on `.cat-spot`):
   WebKit would scroll the page with a moving cat and carry a focused control
   out of view (SC 2.4.11).
-- The hero's poneglyph is line art in the field's inks, drawn to match its
-  grass lines; the About cat is a sticker, flat fills with a hard edge, like
+- The hero's poneglyph is line art in the meadow's stalk color, drawn to match
+  its grass lines; the About cat is a sticker, flat fills with a hard edge, like
   the logo tile. Keep each in its own style.
 - The poneglyph stands right of center, below the stickers and clear of the
   name: a broad block with a lit carved face, a shaded side and top, a plinth,
   a soft contact shadow and a short cast shadow. On a narrow frame it moves
   left to stay inside. Stems stand behind it and beside it, never in front.
 - A slow light reads its script glyph by glyph, left to right and top to
-  bottom, in a loop: each glyph's strokes thicken into a full-ink rim with the
+  bottom, in a loop: each glyph's strokes thicken into a full-stalk rim with the
   glow color inside, rising over 0.6 s and fading over 0.6 s as the next
-  glyph rises, then wrapping to the start. The rim keeps 6.60:1 on the dark
-  face and 16.43:1 on the light (SC 1.4.11). One glyph is far below the general
+  glyph rises, then wrapping to the start. The rim keeps 11.02:1 on the dark
+  face and 4.92:1 on the light (SC 1.4.11). One glyph is far below the general
   flash area and makes one rise and fall a cycle (SC 2.3.1). The pause control
   freezes it; under reduced motion the script stays unlit.
 

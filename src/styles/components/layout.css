@@ -236,6 +236,19 @@
    * The column's top margin and edge come off the hero's height so the window's
    * bottom rule lands on the fold; the final --spacing(1) absorbs rounding.
    */
+  /* The hero sits on the page ground; the section under it keeps the block's edge and throw. */
+  .gold-column.v-column {
+    border-color: transparent;
+    background-color: transparent;
+    box-shadow: none;
+  }
+
+  .v-column > section.surface-gold {
+    border: var(--block-edge) solid var(--color-block-ink);
+
+    @apply shadow-hard-pink-object;
+  }
+
   .v-column .hero {
     padding-block: 0;
     min-height: calc(

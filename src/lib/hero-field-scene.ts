@@ -8,6 +8,8 @@
 export interface HeroPalette {
   /** `--color-gold-border`. */
   readonly border: string;
+  /** `--color-hero-stalk`, set on the ink hero; `--color-gold-border` elsewhere. */
+  readonly stalk: string;
   /** `--color-gold-muted`. */
   readonly subtle: string;
   /** `--color-gold-bud`. */

@@ -242,6 +242,12 @@
   --color-hero-ink-veil-edge: rgba(229, 226, 225, 0);
   --color-hero-ink-floor: rgba(229, 226, 225, 0.06);
   --color-hero-ink-floor-edge: rgba(229, 226, 225, 0);
+  --color-hero-ink-stalk: var(--color-gold);
+  /* Buds on the dark page ground: gold 11.99, muted 5.93 on #0b0b0b. */
+  --color-hero-ink-bud: var(--color-gold);
+  --color-hero-ink-bud-muted: #b38600;
+  /* Light hero meadow and tablet on white: 5.33. */
+  --color-light-hero-gold: #8a6500;
 
   /*
    * Family name from @fontsource-variable/lexend: one wght axis file, latin
