@@ -54,7 +54,7 @@ out its link.
 
 | Criterion                            | What we do                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | ------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1.4.6 Contrast (Enhanced)            | Every text token at rest clears 7:1 on every ground it is used on: the dark page, the light page and the ink slab. `pink` is never text; `pink-text` is. Ratios: [contrast table](docs/STYLEGUIDE.md#contrast). Under the pointer, sampled controls on every route are hovered and their text measured at 7:1, large text included: dark mode across header, main and footer (`tests/states.spec.ts`), light mode in `<main>` (`tests/light-mode.spec.ts`).                                                                                                                                                                                                                                     |
+| 1.4.6 Contrast (Enhanced)            | Every text token at rest clears 7:1 on every ground it is used on: the dark page, the light page and the ink slab. `error` is never text; `error-text` is. Ratios: [contrast table](docs/STYLEGUIDE.md#contrast). Under the pointer, sampled controls on every route are hovered and their text measured at 7:1, large text included: dark mode across header, main and footer (`tests/states.spec.ts`), light mode in `<main>` (`tests/light-mode.spec.ts`).                                                                                                                                                                                                                                   |
 | 1.4.8 Visual Presentation            | `tests/visual-presentation.spec.ts`, every route at 390, 1280 and 1920: a visible `p`, `li` or `dd` of more than one sentence has at most 80 characters a line, line height 1.5 or more and no justification; each `p` followed by a `p` leaves 2.5em of the larger text from its last line box's top to the next one's first. Width at 200%: `tests/reflow.spec.ts`; at the 500% zoom some headings need for 2x, `tests/zoom-lines.spec.ts` keeps every line on screen at 200 and 256px. Colors: browsers can override them (G156); the theme switch offers light and dark (`tests/light-mode.spec.ts`).                                                                                       |
 | 2.2.4 Interruptions                  | Nothing interrupts: no alerts, assertive live regions or automatic refresh.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
 | 2.3.3 Animation from Interactions    | Under `prefers-reduced-motion: reduce` a pressed control does not move into its shadow, the hero field is drawn once and held, and the About cat sits still on the brick under it (`tests/press.spec.ts`, `tests/motion.spec.ts`, `tests/about-cats.spec.ts`).                                                                                                                                                                                                                                                                                                                                                                                                                                  |
@@ -246,11 +246,12 @@ CSS and `tests/contrast-table.spec.ts` fails when it drifts.
 
 ### Dark surfaces
 
-- `text`, `subtle`, `gold`, `cyan` and `pink-text` clear 7:1 on `background`
+- `text`, `subtle`, `gold`, `focus` and `error-text` clear 7:1 on `background`
   and `surface`.
 - `border` carries every boundary but table lines, which
   take `text`; both clear SC 1.4.11.
-- `pink` is non-text only; `pink-text` carries every pink glyph.
+- `error` is non-text only and marks errors only; `error-text` carries every
+  error glyph.
 - The focus ring clears every shadow it could touch
   ([Focus](docs/STYLEGUIDE.md#focus)).
 
@@ -258,7 +259,7 @@ CSS and `tests/contrast-table.spec.ts` fails when it drifts.
 
 A full or thin PageHero slab, the closing band on `/contact`, the quote on
 `/about`, the close row card, the homepage hero window and any
-`Section surface="gold"` are an ink slab, `#141517`, with a green edge and
+`Section surface="gold"` are an ink slab, `#141517`, with a light edge and a green
 throw. `.surface-gold` keeps it ink in light mode, sets its text, links and
 ring at 7:1 or more, and links stay underlined (SC 1.4.1):
 [Gold surface](docs/STYLEGUIDE.md#gold-surface).
@@ -421,7 +422,7 @@ template ships with none of it run; record your own results. Not automated:
    focused control is covered at 320px and 1280px, walking Tab from the summary
    and Shift+Tab from the last footer link. In markup only: `novalidate`, the
    summary's `tabindex="-1"` (no `role="alert"`, to avoid a double read), and
-   the inset pink error ring.
+   the inset error ring.
    `/contact/send/` is outside `tests/routes.ts`, so the route-level suites
    never render the error state and Firefox and WebKit never see it. Nobody
    has judged whether the messages help (SC 3.3.1, 3.3.3) or heard them with a
@@ -491,8 +492,8 @@ Rules this repository follows. Values and reasons:
 [docs/STYLEGUIDE.md](docs/STYLEGUIDE.md).
 
 - **Contrast.** Measure a new color on every ground it can meet
-  ([Adding a color](docs/STYLEGUIDE.md#adding-a-color)). Never `pink` on
-  text; never `pink-text` on non-text.
+  ([Adding a color](docs/STYLEGUIDE.md#adding-a-color)). Never `error` on
+  text; never `error-text` on non-text.
 - **Gold.** Build gold grounds with `.surface-gold` only. Never the dark
   tokens, `.btn-primary` or `.btn-secondary` on gold.
 - **Focus.** Never remove an outline. A focusable element that casts a shadow

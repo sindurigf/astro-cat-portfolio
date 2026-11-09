@@ -16,7 +16,7 @@ const DIST = join(ROOT, 'dist/client');
 const SRC = join(ROOT, 'src');
 const SOURCE_EXTENSIONS = ['.astro', '.vue', '.ts', '.md', '.mjs'];
 
-/* `.hover\:text-cyan` → `hover:text-cyan`, `.w-1\/2` → `w-1/2`. */
+/* `.hover\:text-focus` → `hover:text-focus`, `.w-1\/2` → `w-1/2`. */
 const unescape = (name) =>
   name
     .replace(/\\([0-9a-fA-F]{1,6})\s?/g, (_, hex) =>

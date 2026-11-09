@@ -35,7 +35,7 @@
   }
 
   .motion-toggle:hover {
-    background-color: var(--dark-cyan);
+    background-color: var(--dark-focus);
     color: var(--color-block-ink);
   }
 

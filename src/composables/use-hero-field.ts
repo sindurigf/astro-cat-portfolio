@@ -69,7 +69,7 @@ export const useHeroField = (): HeroFieldState => {
       style.getPropertyValue(token).trim();
     /* Slab tokens: in light mode the page set is ink on the ink slab, failing SC 1.4.3 and 1.4.11. */
     const palette: HeroPalette = {
-      border: read('--color-gold-border'),
+      border: read('--color-gold'),
       subtle: read('--color-gold-muted'),
       bud: read('--color-gold-bud'),
       background: read('--color-hero-ground'),

@@ -179,7 +179,7 @@
     position: relative;
     background-color: var(--color-block-gold);
     --page-text: var(--color-text);
-    --page-cyan: var(--color-cyan);
+    --page-focus: var(--color-focus);
     --page-border: var(--color-border);
     /*
      * Smaller name in the column: a wrapped family name moves the break off the
@@ -201,7 +201,7 @@
   /*
    * Every whole-section gold area: starts at the rail, ends
    * --hero-column-screen-clear from the screen edge or at the rail, whichever
-   * is further out. Drawn like a block: the 4px accent edge and the throw.
+   * is further out. Drawn like a block: the 4px light edge and the throw.
    * `.header-slab` repeats these margins so the header ends where the hero does.
    */
   .gold-column {
@@ -318,10 +318,10 @@
 
   /* It sits on the page, not the slab: the page's ring, which the light-mode island would set to 1.48. */
   .surface-gold .hero-motion-toggle:focus-visible {
-    outline-color: var(--page-cyan, var(--color-cyan));
+    outline-color: var(--page-focus, var(--color-focus));
   }
 
-  /* The island's accent edge is 1.72 on the light page. */
+  /* The island's light edge is 1.00 on the light page. */
   .surface-gold .hero-motion-toggle {
     border-color: var(--page-border, var(--color-border));
   }

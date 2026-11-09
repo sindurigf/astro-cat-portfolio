@@ -52,7 +52,7 @@ npm run build && npm run preview   # http://localhost:4340
 Setup: Chrome, 1280px, `/`, focus in the address bar.
 
 - [ ] First Tab lands on "Skip to Main Content", visible at top left. → SC 2.4.1, 2.4.7
-- [ ] Enter on it: focus moves to main, which shows a cyan outline. → SC 2.4.1
+- [ ] Enter on it: focus moves to main, which shows a blue outline. → SC 2.4.1
 - [ ] Next Tab reaches the first control in the page (the hero pause control on `/`), not the header. → SC 2.4.1
 - [ ] Reload and Tab through: skip link, Report an Accessibility Problem, logo, About, Career, Blog, the
       "Theme and Text Size" button, Get in Touch, the "Aa Text Size" tab at 86rem and up, the page, footer Social (GitHub, LinkedIn,
@@ -67,7 +67,7 @@ Setup: Chrome, 1280px, `/`, focus in the address bar.
       back. → SC 2.1.1, 2.4.11
 - [ ] With a mouse, click any link in the heap: it opens its page. The
       mascot covers no link. → SC 2.5.8
-- [ ] Every stop shows a cyan ring with a visible gap. → SC 2.4.7
+- [ ] Every stop shows a blue ring with a visible gap. → SC 2.4.7
 - [ ] Shift+Tab back out: the order reverses exactly. → SC 2.1.2
 - [ ] No stop swallows Tab, Escape or arrow keys. → SC 2.1.2
 - [ ] The footer mascot is never a tab stop. → SC 1.1.1
@@ -129,13 +129,13 @@ once with no pause control and the cat still with no sleep control.
 
 ## 5. Focus indicator visibility
 
-The ring is 4px cyan at a 4px offset plus the element's shadow (4px, or 8px for
+The ring is 4px blue at a 4px offset plus the element's shadow (4px, or 8px for
 the logo tile); `#F2F2F2` on the ink slab. The `/contact` bricks draw an ink ring inside
 the brick instead. Look, do not measure.
 
 - [ ] On `#141517`: header links, footer. → SC 1.4.11, 2.4.7
 - [ ] On an ink and a light block: a link in a card. → SC 1.4.11, 2.4.7
-- [ ] Chips and footer tiles: the ring sits past the pink shadow, follows the
+- [ ] Chips and footer tiles: the ring sits past the green shadow, follows the
       tilt, and never touches the next chip. → SC 1.4.11, 2.4.7
 - [ ] Current nav item and current chip: the ring reads as separate from the
       block. → SC 1.4.11, 2.4.7
@@ -143,7 +143,7 @@ the brick instead. Look, do not measure.
       the control. → SC 1.4.11, 2.4.7
 - [ ] `/contact` bricks: the ink ring sits inside the brick, reads against
       its fill and never crosses the next brick. → SC 1.4.11, 2.4.7
-- [ ] Skip link and "Get in Touch": the ring clears the green edge and
+- [ ] Skip link and "Get in Touch": the ring clears the green
       throw. → SC 1.4.11
 - [ ] On the ink slab or band: the `#F2F2F2` ring is visible. → SC 1.4.11
 - [ ] No ring is clipped by a parent or hidden under the header. → SC 2.4.11

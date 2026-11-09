@@ -125,18 +125,16 @@
 @theme static {
   --color-background: #141517;
   --color-surface: #1e2022;
-  --color-border: #43d384;
+  /* Every edge is the text color, 16.32 on ink; green is kept for the accent and throws. */
+  --color-border: #f2f2f2;
   /* A card draws no edge in dark mode: its fill and throw set it apart. */
   --color-card-edge: transparent;
-  /*
-   * The edge of a slab or light fill. It meets the page, so it reads on the
-   * ground: 9.47 on ink; light mode swaps in `light-accent`, 4.92 on its page.
-   */
-  --color-fill-edge: #43d384;
+  /* The edge of a slab or light fill: the text color, as `border`; light mode swaps in ink. */
+  --color-fill-edge: #f2f2f2;
   --color-text: #f2f2f2;
   /*
    * Blocks (cards.css): an ink slab, or light every second card in a block,
-   * with an accent edge. Fixed values: inside a block the color tokens are
+   * with a light edge. Fixed values: inside a block the color tokens are
    * remapped.
    */
   --color-block-gold: #141517;
@@ -146,25 +144,21 @@
   /* The accent: labels, markers and accent fills. Ink on it is 9.47. */
   --color-gold: #43d384;
   /*
-   * The accent on the light page: large text (24px and up), controls, edges
-   * and throws only, never body copy (4.92 on light-ground).
+   * The accent on the light page: large text (24px and up), markers and
+   * throws only, never body copy (4.92 on light-ground).
    */
   --color-light-accent: #1a7844;
-  /* Object shadows: the accent, `light-accent` in light mode. */
+  /* Every shadow: the accent, `light-accent` in light mode. */
   --color-throw: #43d384;
-  --color-cyan: #00dcfd;
+  /* Hover and focus only: a blue apart in hue from the green throw, also under red-green color blindness. */
+  --color-focus: #8ab8ff;
   /*
-   * Two pinks, split by role, not size: `pink` passes SC 1.4.11 and is for
-   * non-text only; `pink-text` is every pink glyph, AAA (SC 1.4.6) at any size.
-   * Every ratio is in docs/STYLEGUIDE.md's generated table.
+   * Errors only, never decoration. `error` passes SC 1.4.11 and is for edges;
+   * `error-text` is every error glyph, AAA (SC 1.4.6). Magenta, so it stays apart
+   * from green under red-green color blindness. Ratios in docs/STYLEGUIDE.md.
    */
-  --color-pink: #ff007a;
-  --color-pink-text: #ff8ac0;
-  /*
-   * The logo marks and the dark gold-slab button's shadow. Same hex as `pink`,
-   * kept apart because light mode turns `pink` ink and this stays.
-   */
-  --color-mark: #ff007a;
+  --color-error: #ff007a;
+  --color-error-text: #ff8ac0;
   --color-tile-edge: #5a87a8;
   /* The system color forced-colors mode pairs with the button face; bars on it use `forced-colors:bg-button-text`. */
   --color-button-text: ButtonText;
@@ -185,7 +179,7 @@
   --color-light-ink: #141517;
   --color-light-subtle: #3f4650;
   --color-light-focus: #0047b3;
-  --color-light-pink-text: #9e004b;
+  --color-light-error-text: #9e004b;
   /* A code block's edge in a post, kept grey so the accent label is the only accent. */
   --color-code-edge: #707070;
   /* Its light mode value. */
@@ -195,13 +189,13 @@
 
   /*
    * The slab surface (.surface-gold): an ink island in both modes, with light
-   * text and accent edges. Ratios in docs/STYLEGUIDE.md.
+   * text and light edges. Ratios in docs/STYLEGUIDE.md.
    */
   /* The text on the slab; not tied to `text`, which light mode turns ink. */
   --color-gold-text: #f2f2f2;
   --color-gold-muted: #9eb6c7;
-  /* Boundaries on the slab: the accent, 9.47 on ink. */
-  --color-gold-border: #43d384;
+  /* Boundaries on the slab: the slab's text color, 16.32 on ink. */
+  --color-gold-border: #f2f2f2;
   /* Label and inner focus ring of .btn-gold-primary's light fill only. */
   --color-gold-btn-label: #141517;
 
@@ -378,8 +372,8 @@
   --tracking-label: 0.1em;
 
   /*
-   * Hard offset shadows, one job per color: the accent throw is object depth,
-   * pink is pressables, cyan is hover and focus.
+   * Hard offset shadows: every throw is the accent (`throw`); `focus` shows only
+   * on hover and focus.
    */
   /* One throw for object shadows; controls keep 4px. */
   --hard-throw: 8px;
@@ -397,16 +391,12 @@
   --edge: 6px;
   /* Table rules only (`hairline` utilities). */
   --hairline: 1px;
-  --shadow-hard-pink-4: 4px 4px 0 var(--color-pink);
+  --shadow-hard-throw-4: 4px 4px 0 var(--color-throw);
   /* In the color opposite the ground, so it shows in both modes. */
   --shadow-brick: var(--brick-throw) var(--brick-throw) 0 var(--color-text);
   --shadow-hard-throw: var(--hard-throw) var(--hard-throw) 0 var(--color-throw);
-  --shadow-hard-mark-4: 4px 4px 0 var(--color-mark);
-  --shadow-hard-mark-8: 8px 8px 0 var(--color-mark);
-  --shadow-hard-cyan-object: var(--hard-throw) var(--hard-throw) 0
-    var(--color-cyan);
-  /* A card on the slab: its throw in `gold-border`, the accent. */
-  --shadow-hard-gold-border-4: 4px 4px 0 var(--color-gold-border);
+  --shadow-hard-focus-object: var(--hard-throw) var(--hard-throw) 0
+    var(--color-focus);
 
   /*
    * Inner half of .btn-gold-primary's two-tone focus ring, visible against the
@@ -420,8 +410,8 @@
    */
   --inset-shadow-current: inset 0 0 0 4px var(--color-gold-text);
 
-  /* A failing field's 4px pink edge doubled by a 4px ring inside it. */
-  --inset-shadow-invalid: inset 0 0 0 4px var(--color-pink);
+  /* A failing field's 4px error edge doubled by a 4px ring inside it. */
+  --inset-shadow-invalid: inset 0 0 0 4px var(--color-error);
 
   /*
    * Header, main and footer all carry the gutter outside and this width inside;
@@ -459,9 +449,9 @@
   --spacing-page-top: calc(var(--spacing-target) + var(--spacing-header));
 
   /*
-   * Focus ring: 4px cyan, clearing SC 1.4.11 on background and surface. A
+   * Focus ring: 4px `focus`, clearing SC 1.4.11 on background and surface. A
    * shadowed element sets `--lift` to its shadow offset so the ring clears it:
-   * cyan over pink fails SC 1.4.11. Never set outline-offset to 0.
+   * `focus` over the green throw is 1.05. Never set outline-offset to 0.
    */
   --focus-width: 4px;
   --focus-gap: 4px;

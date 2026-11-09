@@ -40,7 +40,7 @@
 
   :is(:root[data-theme='light'] main, main .mode-light)
     :is(.rotate-3, .-rotate-3).sticker:not(:is(.mode-dark, .surface-gold) *),
-  :is(.rotate-3, .-rotate-3).hero-sticker.bg-gold {
+  :is(.rotate-3, .-rotate-3).hero-sticker.bg-block-light {
     background-clip: border-box;
   }
 
@@ -58,7 +58,7 @@
       position: absolute;
       inset: 0;
       z-index: -1;
-      background-color: var(--color-mark);
+      background-color: var(--color-throw);
       mask: var(--mark-throw-art) center / contain no-repeat;
       translate: var(--mark-throw-offset, var(--lift-mark))
         var(--mark-throw-offset, var(--lift-mark));

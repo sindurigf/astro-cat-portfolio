@@ -28,11 +28,14 @@ blur, uppercase headings, tilted marks.
 
 ### The gold register
 
-- `cyan` is what you are touching: hover and focus, never at rest. Inside a
-  block it stays cyan: the dark cyan on ink (11.01), `light-focus` on a light
+- `focus` is what you are touching: hover and focus, never at rest. Inside a
+  block it stays blue: the dark `focus` on ink (9.03), `light-focus` on a light
   block (7.35).
-- `pink` is depth and error: hard shadows, the invalid edge.
-- `border` is boundary. `text` is words.
+- `error` is errors only: the invalid edge and error words. Green never means
+  an error.
+- `border` is boundary, in the text color. `text` is words.
+- Three colors: ink, white and the green accent. The accent is also every
+  shadow.
 - "Gold" names the register, the slab and their tokens. The accent is
   Signal Green (`gold`, `#43D384`); the slab is ink (`block-gold`,
   `#141517`).
@@ -42,21 +45,21 @@ blur, uppercase headings, tilted marks.
 - **A gold use not on this list adds a row, with its argument, in the same
   change.**
 
-| #   | Where gold is spent                                                                                                               | Measured on                            |
-| --- | --------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------- |
-| 1a  | Ground, full slab: `/about`, `/career`, `/contact`, `/blog`, `/credits`, `/brand`                                                 | 6 routes                               |
-| 1b  | Ground, thin slab: `/contact/sent`, every post                                                                                    | 6 routes                               |
-| 1c  | Ground, mid-page: a `Section surface="gold"`, the About quote, `/contact`'s closing band                                          | `/career`, `/about`, `/`, `/contact`   |
-| 2   | The primary action: `.nav-cta`, `.btn-primary`                                                                                    | 11 routes, 4 routes                    |
-| 3   | the logo marks: the homepage sticker; the box cat and the logo cat are cardboard and the cats' coats, not gold                    | `/`                                    |
-| 4   | Card labels, `.label text-gold`; a form's field labels are `text`                                                                 | `/about`, `/accessibility`, `/contact` |
-| 5   | Category: the blog label and the homepage glyph tiles, ink tiles with a light edge and glyph                                      | 3 routes                               |
-| 6   | Display words: the homepage family name                                                                                           | `/`                                    |
-| 7   | List markers in `.bullet-list`                                                                                                    | wherever a bulleted list is            |
-| 8   | The `gold` swatch and the contrast samples on gold; fills, hex in both modes                                                      | `/brand`                               |
-| 9   | Edges in dark mode: `border` on fields, controls, chips, rules and the outer edge of a slab                                       | every route                            |
-| 10  | The header bar, an ink slab with the accent edge and throw in both modes; its current-page brick and call to action are ink tiles | every route                            |
-| 11  | The footer motto band: the motto in `gold-text` on a `block-gold` band at every page's end, the mascot standing on it             | every route                            |
+| #   | Where gold is spent                                                                                                                       | Measured on                            |
+| --- | ----------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------- |
+| 1a  | Ground, full slab: `/about`, `/career`, `/contact`, `/blog`, `/credits`, `/brand`                                                         | 6 routes                               |
+| 1b  | Ground, thin slab: `/contact/sent`, every post                                                                                            | 6 routes                               |
+| 1c  | Ground, mid-page: a `Section surface="gold"`, the About quote, `/contact`'s closing band                                                  | `/career`, `/about`, `/`, `/contact`   |
+| 2   | The primary action: `.nav-cta`, `.btn-primary`                                                                                            | 11 routes, 4 routes                    |
+| 3   | the logo marks and throws: the homepage sticker; the box cat and the logo cat are cardboard and the cats' coats, not gold                 | `/`                                    |
+| 4   | Card labels, `.label text-gold`; a form's field labels are `text`                                                                         | `/about`, `/accessibility`, `/contact` |
+| 5   | Category: the blog label and the homepage glyph tiles, ink tiles with a light edge and glyph                                              | 3 routes                               |
+| 6   | Display words: the homepage family name                                                                                                   | `/`                                    |
+| 7   | List markers in `.bullet-list`                                                                                                            | wherever a bulleted list is            |
+| 8   | The `gold` swatch and the contrast samples on gold; fills, hex in both modes                                                              | `/brand`                               |
+| 9   | Every hard shadow: cards, slabs, bricks, buttons, chips, stickers and photos cast the accent throw                                        | every route                            |
+| 10  | The header bar, an ink slab with a light edge and the accent throw in both modes; its current-page brick and call to action are ink tiles | every route                            |
+| 11  | The footer motto band: the motto in `gold-text` on a `block-gold` band at every page's end, the mascot standing on it                     | every route                            |
 
 - 9 is the edge because the page and the slab are both ink: an ink edge
   vanishes and a light one reads as text. The accent reads as structure (8.47
@@ -88,34 +91,33 @@ blur, uppercase headings, tilted marks.
 | Tension                             | Resolution                                                                                                                                                                                      |
 | ----------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Heavy uppercase, tight tracking     | Uppercase on headings, labels and buttons only. Tracking -0.05em on h1 and h2, -0.02em on h3 and titles; labels +0.1em. A heading word over 12 characters takes a soft hyphen.                  |
-| Loud accents against 4.5:1          | `pink` `#FF007A` never sets text. `pink-text` `#FF8AC0` carries every pink glyph ([Contrast](#contrast)).                                                                                       |
-| Hard shadow looks like a focus ring | The ring is cyan, which appears only on interaction, offset past the element's shadow by `--lift`, so it only touches ground (11.01).                                                           |
-| Error signaled by color             | `pink` against `border` or the accent is 1.97. An error is a shape change (a 4px pink inset ring inside the edge, which keeps the block's edge color), a ✕ mark and words.                      |
+| Loud accents against 4.5:1          | `error` `#FF007A` never sets text. `error-text` `#FF8AC0` carries every error glyph ([Contrast](#contrast)).                                                                                    |
+| Hard shadow looks like a focus ring | The ring is blue, which appears only on interaction, offset past the element's green shadow by `--lift`, so it only touches ground (9.03); against the throw it is 1.05.                        |
+| Error signaled by color             | `error` against the accent is 1.97. An error is a shape change (a 4px magenta inset ring inside the edge, which keeps the block's edge color), a ✕ mark and words.                              |
 | Tilt hurts reading                  | Tilt only marks (tile, roundel, stickers), at 3deg. Text and headings never rotate; a sticker's label of one to three words turns with it (close row eyebrow, post tags; `tests/tilt.spec.ts`). |
 | Grayed-out disabled fails SC 1.4.11 | Dashed edge, no shadow. Label stays 8.67; control stays focusable (`aria-disabled`).                                                                                                            |
 | Density against 320px reflow        | Spacing tokens are fluid; every border is counted in the 288px content box before any heading floor changes.                                                                                    |
 
 ## Color tokens
 
-| Token         | Hex          | Job                                                                     |
-| ------------- | ------------ | ----------------------------------------------------------------------- |
-| `background`  | `#141517`    | Page ground; header, footer, bands                                      |
-| `surface`     | `#1E2022`    | Inputs and controls off a block                                         |
-| `border`      | `#43D384`    | Every boundary but table lines: the accent edge                         |
-| `card-edge`   | none         | Card and plain slab edge; `#141517` in light mode                       |
-| `fill-edge`   | `#43D384`    | Edge of an ink fill: buttons, the slab; `light-accent` in light mode    |
-| `text`        | `#F2F2F2`    | Words and table lines                                                   |
-| `subtle`      | `#9EB6C7`    | Captions, meta, helper text                                             |
-| `gold`        | `#43D384`    | The accent, only where the style guide allows                           |
-| `throw`       | `#43D384`    | Object throw on cards, the slab and the bricks; `light-accent` in light |
-| `cyan`        | `#00DCFD`    | Hover and focus only                                                    |
-| `pink`        | `#FF007A`    | Depth and error; never text                                             |
-| `pink-text`   | `#FF8AC0`    | Every pink glyph; never non-text                                        |
-| `mark`        | `#FF007A`    | Logo marks; same in both modes                                          |
-| `tile-edge`   | `#5A87A8`    | Logo tile copies' edge; both modes                                      |
-| `button-text` | `ButtonText` | Forced colors only: bars on the button face                             |
-| `cat-*`       | 6 fills      | Logo cat coat and About cat props; decoration, never a boundary         |
-| `hero-*`      | 6 values     | Homepage canvas ground, veil, floor and glyph glow; decoration          |
+| Token         | Hex          | Job                                                             |
+| ------------- | ------------ | --------------------------------------------------------------- |
+| `background`  | `#141517`    | Page ground; header, footer, bands                              |
+| `surface`     | `#1E2022`    | Inputs and controls off a block                                 |
+| `border`      | `#F2F2F2`    | Every boundary but table lines: the text color                  |
+| `card-edge`   | none         | Card and plain slab edge; `#141517` in light mode               |
+| `fill-edge`   | `#F2F2F2`    | Edge of an ink fill: buttons, the slab; ink in light mode       |
+| `text`        | `#F2F2F2`    | Words and table lines                                           |
+| `subtle`      | `#9EB6C7`    | Captions, meta, helper text                                     |
+| `gold`        | `#43D384`    | The accent, only where the style guide allows                   |
+| `throw`       | `#43D384`    | Every hard shadow; `light-accent` in light mode                 |
+| `focus`       | `#8AB8FF`    | Hover and focus only                                            |
+| `error`       | `#FF007A`    | Errors only: the invalid edge; never text                       |
+| `error-text`  | `#FF8AC0`    | Every error glyph; never non-text                               |
+| `tile-edge`   | `#5A87A8`    | Logo tile copies' edge; both modes                              |
+| `button-text` | `ButtonText` | Forced colors only: bars on the button face                     |
+| `cat-*`       | 6 fills      | Logo cat coat and About cat props; decoration, never a boundary |
+| `hero-*`      | 6 values     | Homepage canvas ground, veil, floor and glyph glow; decoration  |
 
 The slab set is in [Gold surface](#gold-surface), light values in
 [Light mode](#light-mode). Token names keep `gold` for the accent and the
@@ -142,13 +144,13 @@ slab; the values are Signal Green and ink.
   by `--step-x` (24px).
   Both are 0 below 640px. Juts are translates or margins that never widen
   the page.
-- `text` for words, `subtle` for captions and meta. Links are `text`, cyan on
-  hover; in running text underlined at 2px, 4px on hover.
-- `cyan` never at rest: a cyan label, fill or shadow reads as a control under
+- `text` for words, `subtle` for captions and meta. Links are `text`, `focus`
+  on hover; in running text underlined at 2px, 4px on hover.
+- `focus` never at rest: a blue label, fill or shadow reads as a control under
   the pointer.
-- `pink` never sets text, at any size. `pink-text` never sets a border, shadow
-  or fill. Do not merge them. Utilities: `bg-pink`, `border-pink`,
-  `text-pink-text`.
+- `error` never sets text, at any size, and marks nothing but an error.
+  `error-text` never sets a border, shadow or fill. Do not merge them. Utilities: `bg-error`, `border-error`,
+  `text-error-text`.
 - An ink fill takes the `fill-edge`: it meets an ink page in dark mode, so
   the edge is what sets it apart. A light fill takes `block-ink`.
 - `tests/edge-contrast.spec.ts`: on every route, both modes, 390 and 1280px,
@@ -188,27 +190,27 @@ every size (SC 1.4.6, as /accessibility claims); non-text needs 3.0 (SC
 | `subtle` #9EB6C7          | `surface` #1E2022      | text       | Meta text on a surface                                        | 7.0   | 7.76  | pass       |
 | `gold` #43D384            | `background` #141517   | text       | Card labels                                                   | 7.0   | 9.47  | pass       |
 | `gold` #43D384            | `surface` #1E2022      | text       | Labels on a surface                                           | 7.0   | 8.47  | pass       |
-| `pink-text` #FF8AC0       | `background` #141517   | text       | Error text, pink glyphs                                       | 7.0   | 8.39  | pass       |
-| `pink-text` #FF8AC0       | `surface` #1E2022      | text       | Error text on a surface                                       | 7.0   | 7.51  | pass       |
-| `cyan` #00DCFD            | `background` #141517   | text       | Hover text; the focus ring (needs 3)                          | 7.0   | 11.01 | pass       |
-| `cyan` #00DCFD            | `surface` #1E2022      | text       | Hover text and focus ring on a surface                        | 7.0   | 9.85  | pass       |
-| `border` #43D384          | `background` #141517   | non-text   | Every boundary but table lines                                | 3.0   | 9.47  | pass       |
-| `border` #43D384          | `surface` #1E2022      | non-text   | Input and chip edges on a surface                             | 3.0   | 8.47  | pass       |
+| `error-text` #FF8AC0      | `background` #141517   | text       | Error text                                                    | 7.0   | 8.39  | pass       |
+| `error-text` #FF8AC0      | `surface` #1E2022      | text       | Error text on a surface                                       | 7.0   | 7.51  | pass       |
+| `focus` #8AB8FF           | `background` #141517   | text       | Hover text; the focus ring (needs 3)                          | 7.0   | 9.03  | pass       |
+| `focus` #8AB8FF           | `surface` #1E2022      | text       | Hover text and focus ring on a surface                        | 7.0   | 8.08  | pass       |
+| `border` #F2F2F2          | `background` #141517   | non-text   | Every boundary but table lines                                | 3.0   | 16.32 | pass       |
+| `border` #F2F2F2          | `surface` #1E2022      | non-text   | Input and chip edges on a surface                             | 3.0   | 14.60 | pass       |
 | `text` #F2F2F2            | `background` #141517   | non-text   | Table lines                                                   | 3.0   | 16.32 | pass       |
-| `pink` #FF007A            | `background` #141517   | non-text   | Error edge; action shadow                                     | 3.0   | 4.81  | pass       |
-| `pink` #FF007A            | `surface` #1E2022      | non-text   | Error edge on a field off a block                             | 3.0   | 4.31  | pass       |
+| `error` #FF007A           | `background` #141517   | non-text   | Error edge                                                    | 3.0   | 4.81  | pass       |
+| `error` #FF007A           | `surface` #1E2022      | non-text   | Error edge on a field off a block                             | 3.0   | 4.31  | pass       |
 | `block-ink` #141517       | `gold` #43D384         | text       | Label on an accent fill                                       | 7.0   | 9.47  | pass       |
-| `background` #141517      | `cyan` #00DCFD         | text       | Label on a hovered button                                     | 7.0   | 11.01 | pass       |
+| `background` #141517      | `focus` #8AB8FF        | text       | Label on a hovered button                                     | 7.0   | 9.03  | pass       |
 | `background` #141517      | `text` #F2F2F2         | text       | Badge; the current page block                                 | 7.0   | 16.32 | pass       |
 | `gold-text` #F2F2F2       | `block-gold` #141517   | text       | Text on the slab                                              | 7.0   | 16.32 | pass       |
 | `gold-muted` #9EB6C7      | `block-gold` #141517   | text       | Secondary text on the slab                                    | 7.0   | 8.67  | pass       |
 | `gold-link` #43D384       | `block-gold` #141517   | text       | Links on the slab                                             | 7.0   | 9.47  | pass       |
 | `block-ink` #141517       | `gold-link` #43D384    | text       | A link filled under the pointer                               | 7.0   | 9.47  | pass       |
 | `gold-bud` #43D384        | `block-gold` #141517   | decoration | The canvas buds on the slab                                   | n/a   | 9.47  | decoration |
-| `gold-border` #43D384     | `block-gold` #141517   | non-text   | Boundaries on the slab                                        | 3.0   | 9.47  | pass       |
-| `fill-edge` #43D384       | `block-gold` #141517   | non-text   | Edge of an ink fill                                           | 3.0   | 9.47  | pass       |
-| `light-accent` #1A7844    | `light-ground` #F2F2F2 | non-text   | Edges and throws on the light page                            | 3.0   | 4.92  | pass       |
-| `light-accent` #1A7844    | `block-gold` #141517   | non-text   | An ink fill’s edge on the light page                          | 3.0   | 3.32  | pass       |
+| `gold-border` #F2F2F2     | `block-gold` #141517   | non-text   | Boundaries on the slab                                        | 3.0   | 16.32 | pass       |
+| `fill-edge` #F2F2F2       | `block-gold` #141517   | non-text   | Edge of an ink fill                                           | 3.0   | 16.32 | pass       |
+| `light-accent` #1A7844    | `light-ground` #F2F2F2 | non-text   | Throws on the light page                                      | 3.0   | 4.92  | pass       |
+| `light-ink` #141517       | `light-ground` #F2F2F2 | non-text   | Every edge on the light page                                  | 3.0   | 16.32 | pass       |
 | `code-edge` #707070       | `background` #141517   | non-text   | Post code frame edge on the page                              | 3.0   | 3.69  | pass       |
 | `code-edge` #707070       | `surface` #1E2022      | non-text   | Post code frame edge on its fill                              | 3.0   | 3.30  | pass       |
 | `light-code-edge` #767676 | `light-ground` #F2F2F2 | non-text   | Post code frame edge on the light page                        | 3.0   | 4.06  | pass       |
@@ -218,17 +220,17 @@ every size (SC 1.4.6, as /accessibility claims); non-text needs 3.0 (SC
 | `surface` #1E2022         | `block-gold` #141517   | decoration | A control fill on the slab; its edge sets it apart            | n/a   | 1.12  | decoration |
 | `gold-btn-label` #141517  | `gold-text` #F2F2F2    | text       | Label on the light button on the slab                         | 7.0   | 16.32 | pass       |
 | `throw` #43D384           | `background` #141517   | decoration | Object throw                                                  | n/a   | 9.47  | decoration |
-| `cyan` #00DCFD            | `background` #141517   | decoration | Hovered card shadow                                           | n/a   | 11.01 | decoration |
+| `focus` #8AB8FF           | `background` #141517   | decoration | Hovered card shadow                                           | n/a   | 9.03  | decoration |
 | `light-ground` #F2F2F2    | `background` #141517   | non-text   | About cat outline, baked into the drawings: its white rim     | 3.0   | 16.32 | pass       |
 | `light-ground` #F2F2F2    | `surface` #1E2022      | non-text   | About cat outline on a card: its white rim                    | 3.0   | 14.60 | pass       |
-| `pink` #FF007A            | `block-gold` #141517   | decoration | Button shadows on the slab                                    | n/a   | 4.81  | decoration |
+| `throw` #43D384           | `block-gold` #141517   | decoration | Throws on the slab                                            | n/a   | 9.47  | decoration |
 | `light-accent` #1A7844    | `light-ground` #F2F2F2 | never      | Text in light mode: a label turns ink beside an accent square | n/a   | 4.92  | never used |
 | `gold-btn-label` #141517  | `block-gold` #141517   | never      | Only on the light button fill                                 | n/a   | 1.00  | never used |
-| `cyan` #00DCFD            | `pink` #FF007A         | apart      | A ring never touches a pink shadow                            | n/a   | 2.29  | kept apart |
-| `cyan` #00DCFD            | `gold` #43D384         | apart      | A ring never touches an accent throw or fill                  | n/a   | 1.16  | kept apart |
-| `light-focus` #0047B3     | `light-accent` #1A7844 | apart      | The light-mode ring clears the accent edge and throw          | n/a   | 1.49  | kept apart |
-| `cyan` #00DCFD            | `border` #43D384       | apart      | A ring never touches a neighbor edge                          | n/a   | 1.16  | kept apart |
-| `pink` #FF007A            | `border` #43D384       | apart      | An error is a shape change, not a recolor                     | n/a   | 1.97  | kept apart |
+| `focus` #8AB8FF           | `throw` #43D384        | apart      | A ring never touches a throw or accent fill                   | n/a   | 1.05  | kept apart |
+| `light-focus` #0047B3     | `light-accent` #1A7844 | apart      | The light-mode ring clears the accent throw                   | n/a   | 1.49  | kept apart |
+| `focus` #8AB8FF           | `border` #F2F2F2       | apart      | A ring never touches a neighbor edge                          | n/a   | 1.81  | kept apart |
+| `error` #FF007A           | `border` #F2F2F2       | apart      | An error is a shape change, never color alone                 | n/a   | 3.39  | kept apart |
+| `error` #FF007A           | `throw` #43D384        | apart      | Green never means an error                                    | n/a   | 1.97  | kept apart |
 | `text` #F2F2F2            | `subtle` #9EB6C7       | apart      | The two text colors never carry a state                       | n/a   | 1.88  | kept apart |
 
 <!-- contrast-table:end -->
@@ -237,7 +239,7 @@ every size (SC 1.4.6, as /accessibility claims); non-text needs 3.0 (SC
 
 The slab: `.surface-gold` on an ink `block-gold` ground, the grounds in
 [the gold register](#the-gold-register), rows 1a to 1c. It equals the page
-ground in dark mode, so its accent edge (`fill-edge`) and throw set it apart,
+ground in dark mode, so its light edge (`fill-edge`) and throw set it apart,
 and it stays ink in light mode. Hex values and ratios are in the generated
 [Contrast](#contrast) table:
 
@@ -275,10 +277,9 @@ and it stays ink in light mode. Hex values and ratios are in the generated
 ### Buttons on gold
 
 - Never `.btn-primary` (an ink fill on the ink slab, 1.00) or
-  `.btn-secondary` (a light block with a pink shadow: two accents in one
-  block).
+  `.btn-secondary`: on the slab, use the gold pair below.
 - `.btn-gold-primary`: `gold-text` fill, `gold-btn-label` label, 4px
-  `gold-text` border, `shadow-hard-mark-4`, the two-tone ring
+  `gold-text` border, `shadow-hard-throw-4`, the two-tone ring
   ([Focus](#focus)).
 - `.btn-gold-secondary`: transparent, `gold-text` label and 4px border, no
   shadow, single ring.
@@ -300,39 +301,38 @@ The switch and what it scopes: [ARCHITECTURE.md](../ARCHITECTURE.md#light-mode).
 - A click, Enter or Space on a choice picks it, closes the menu and returns
   focus to the switch (SC 2.4.3). Arrow keys move the choice and keep it open.
 
-| Token                                 | Light     | on `#F2F2F2` |
-| ------------------------------------- | --------- | ------------ |
-| `background`, `surface`               | `#F2F2F2` | ground       |
-| `text`, `border`, `pink`, `card-edge` | `#141517` | 16.32        |
-| gold as text, `.text-gold`            | `#141517` | 16.32        |
-| `subtle`                              | `#3f4650` | 8.51         |
-| `pink-text`                           | `#9e004b` | 7.34         |
-| `code-edge`                           | `#767676` | 4.06         |
-| `code-fill`                           | `#F2F2F2` | ground       |
-| `cyan` (focus ring and hover text)    | `#0047b3` | 7.35         |
-| `fill-edge`, `throw`                  | `#1a7844` | 4.92         |
+| Token                               | Light     | on `#F2F2F2` |
+| ----------------------------------- | --------- | ------------ |
+| `background`, `surface`             | `#F2F2F2` | ground       |
+| `text`, `border`, `card-edge`       | `#141517` | 16.32        |
+| gold as text, `.text-gold`          | `#141517` | 16.32        |
+| `subtle`                            | `#3f4650` | 8.51         |
+| `error`, `error-text`               | `#9e004b` | 7.34         |
+| `code-edge`                         | `#767676` | 4.06         |
+| `code-fill`                         | `#F2F2F2` | ground       |
+| `focus` (focus ring and hover text) | `#0047b3` | 7.35         |
+| `fill-edge`                         | `#141517` | 16.32        |
+| `throw`                             | `#1a7844` | 4.92         |
 
 - Light values are `light-*` tokens in `global.css` (`light-focus` for
-  `cyan`, `light-pink-text`, `light-accent`), swapped in by `light-mode.css`.
-- Edges and throws on the page turn `light-accent`; hard shadows that were
-  `pink` turn ink.
-- `light-accent` is for large text (24px and up), controls, edges and
-  throws, never body copy.
+  `focus`, `light-error-text`, `light-accent`), swapped in by `light-mode.css`.
+- Edges on the page turn ink and throws turn `light-accent`.
+- `light-accent` is for large text (24px and up) and throws, never body
+  copy.
 - The light ring `#0047b3` is 1.49 against `light-accent`, so it clears every
-  accent edge and throw by `--lift` and touches only ground
+  throw by `--lift` and touches only ground
   (`tests/ring-clearance.spec.ts`).
-- Hover fills are dark mode's `#00dcfd` under `#141517` (11.01).
+- Hover fills are dark mode's `#8ab8ff` under `#141517` (9.03).
 - `.surface-gold`, the header bar and the footer motto band stay ink islands
-  with the dark values; their outer edge and throw are `light-accent` (3.32
-  on ink, 4.92 on the page).
+  with the dark values; their outer edge is ink and their throw
+  `light-accent` (4.92 on the page).
 - Gold text turns ink; a `.label.text-gold` gains a `light-accent` square
   before the word.
 - Blocks stay ink or light in light mode.
 - The footer follows the mode like `<main>`: light in light mode, its words
   7:1 or more and its tiles apart from it (`tests/footer.spec.ts`).
-- Logo marks use `mark`, `tile-edge`, the `cat-hela*` coat and
-  `shadow-hard-mark-*` or `mark-throw`, never `pink` or `border`:
-  they do not change with the mode.
+- Logo marks use `throw`, `tile-edge`, the `cat-hela*` coat and
+  `mark-throw`, never `border`.
 - The homepage's second sticker is a light block with ink text and
   `.sticker` is a black block.
 - `tests/light-mode.spec.ts` scans every route in light at WCAG 2.2 AA.
@@ -552,19 +552,14 @@ with a comment beside it.
   fringe; when they match, the fill runs under the edge, or the ground shows
   between them as a seam (`tests/tilt.spec.ts`, every route, both modes).
 
-| Utility                     | Casts it                                                                                                              |
-| --------------------------- | --------------------------------------------------------------------------------------------------------------------- |
-| `shadow-hard-throw`         | Cards, post contents, gold areas, popovers, the header bar; `--hard-throw` (8px)                                      |
-| `shadow-hard-pink-4`        | The PageHero photo, `.btn-primary`, `.btn-secondary`, link chips, footer stickers                                     |
-| `shadow-brick`              | The header's brick rows (in `block-ink`), the menu's links, call to action and Close; `--brick-throw` (6px) in `text` |
-| `shadow-hard-cyan-object`   | A hovered linked card, in place of pink; a contact link brick fills cyan instead, its ring inside in ink              |
-| `shadow-hard-gold-border-4` | A card on gold                                                                                                        |
-| `shadow-hard-mark-4`        | `.sticker`, `.btn-gold-primary`                                                                                       |
-| `shadow-hard-mark-8`        | The homepage stickers                                                                                                 |
-| `mark-throw`                | The logo tile in the header and on `/about`, following its ears; `--lift-mark` (8px), `mark-throw-large` 12px         |
+| Utility                    | Casts it                                                                                                              |
+| -------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| `shadow-hard-throw`        | Cards, post contents, gold areas, popovers, the header bar, the homepage stickers; `--hard-throw` (8px)               |
+| `shadow-hard-throw-4`      | The PageHero photo, buttons, link chips, footer stickers, `.sticker`, `.btn-gold-primary`                             |
+| `shadow-brick`             | The header's brick rows (in `block-ink`), the menu's links, call to action and Close; `--brick-throw` (6px) in `text` |
+| `shadow-hard-focus-object` | A hovered linked card, in place of the throw; a contact link brick fills `focus` instead, its ring inside in ink      |
+| `mark-throw`               | The logo tile in the header and on `/about`, following its ears; `--lift-mark` (8px), `mark-throw-large` 12px         |
 
-- `mark` is `pink`'s hex but stays pink in light mode, where `pink` turns
-  ink.
 - Anything focusable with a shadow sets its lift: [Focus](#focus).
 - Radius is 0 everywhere (base layer). No pills; any rounded corner is a bug.
 - The logo tile on `/about` is an eared tile: a cat's head in the tile's
@@ -580,38 +575,38 @@ with a comment beside it.
 Component classes live in `@layer components` in `src/styles/components/`, one
 file per area.
 
-| Class                                   | What                                                                                                                                                                                                                                                                    |
-| --------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `.btn-primary`                          | Gold fill, `gold-text` label, `border-4`, pink 4px shadow, `text-button` 900                                                                                                                                                                                            |
-| `.btn-secondary`                        | Light block: `block-light` fill, `block-ink` label and `border-4`, pink 4px shadow                                                                                                                                                                                      |
-| `.actions`                              | Button row; its 32px row gap clears shadow and ring when buttons wrap                                                                                                                                                                                                   |
-| `.card`                                 | An ink block: `block-gold`, 4px `fill-edge`, 8px `throw`, padding 24px, 40px from `sm`                                                                                                                                                                                  |
-| `.card-title`                           | Every card heading, `text-h3` 900                                                                                                                                                                                                                                       |
-| `.card-link`                            | Title link; a short press on the card follows it, text stays selectable (`card-click.ts`); inline-block, 44px min; card hover turns title and shadow cyan                                                                                                               |
-| `.card-solid`                           | A light block outside a `.card-block`, where alternation does not reach it                                                                                                                                                                                              |
-| `.card-block`                           | A wall: blocks share 4px walls, alternate ink and light, and step up to the right (`card-rise-*`, `card-step-*` from `src/lib/wall.ts`); each brick casts the throw, the next covers it                                                                                 |
-| `.lead`                                 | Paragraph under a section heading, `text-lead` 400, 24px under it                                                                                                                                                                                                       |
-| `.standfirst`                           | Line beside PageHero's title, `text-standfirst` 400                                                                                                                                                                                                                     |
-| `.bullet-list`                          | Bulleted list, accent markers                                                                                                                                                                                                                                           |
-| `.chip`                                 | Tags, jump links, filters, pager. Always a link. `border-4`, 44px target; a chip list is `gap-6`. The blog filter and pager are a `.chip-row`: joined light bricks, one throw, the current one ink with a light label (`tests/chip-row.spec.ts`)                        |
-| `.badge`                                | A non-link fact or state. Flat `bg-text`, `background` label, no border or shadow                                                                                                                                                                                       |
-| `.nav-cta`                              | Nav call to action: ink, `border-4` in `fill-edge`; a brick in the header row, its own 6px throw in the menu; current takes `--inset-shadow-current`                                                                                                                    |
-| `.label`                                | `text-label` 900 uppercase, 0.1em                                                                                                                                                                                                                                       |
-| `.link`                                 | Running-text underline for a classed standalone link                                                                                                                                                                                                                    |
-| `.abbr-trigger`, `.abbr-tip`            | An abbreviation's first use (`src/components/Abbr.astro`): dotted underline; the expansion is a popover in a `surface` box flush below it; inline in brackets where popovers are missing. Punctuation right after it goes in `after`, so a line never starts with it    |
-| `.page-gutter`, `max-w-page`, `.band`   | [Gutter and column](#gutter-and-column)                                                                                                                                                                                                                                 |
-| `.skip-link`                            | Skip link, visible on focus                                                                                                                                                                                                                                             |
-| `.motion-toggle`                        | 44px SC 2.2.2 pause control; position from a second class                                                                                                                                                                                                               |
-| `.theme-switch`, `.theme-menu`          | 44px ink brick showing the theme in use (moon, sun), named "Theme" (from `md` until the edge tab, "Theme and Text Size"); opens a popover `surface` box, 6px `border` edge, pink throw, a "Theme" fieldset of System, Light and Dark radios in 44px rows, `text` accent |
-| `.prose`                                | Rendered Markdown (no typography plugin)                                                                                                                                                                                                                                |
-| `.aspect-frame`                         | Every photo: [Photo frames](#photo-frames-and-the-failed-photo-state)                                                                                                                                                                                                   |
-| `.surface-gold`, `.btn-gold-*`          | [Gold surface](#gold-surface)                                                                                                                                                                                                                                           |
-| `.hero*`, `.post-layout`, `.footer-*` … | Page-specific, documented in place                                                                                                                                                                                                                                      |
+| Class                                   | What                                                                                                                                                                                                                                                                     |
+| --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `.btn-primary`                          | Gold fill, `gold-text` label, `border-4`, green 4px shadow, `text-button` 900                                                                                                                                                                                            |
+| `.btn-secondary`                        | Light block: `block-light` fill, `block-ink` label and `border-4`, green 4px shadow                                                                                                                                                                                      |
+| `.actions`                              | Button row; its 32px row gap clears shadow and ring when buttons wrap                                                                                                                                                                                                    |
+| `.card`                                 | An ink block: `block-gold`, 4px `fill-edge`, 8px `throw`, padding 24px, 40px from `sm`                                                                                                                                                                                   |
+| `.card-title`                           | Every card heading, `text-h3` 900                                                                                                                                                                                                                                        |
+| `.card-link`                            | Title link; a short press on the card follows it, text stays selectable (`card-click.ts`); inline-block, 44px min; card hover turns title and shadow `focus`                                                                                                             |
+| `.card-solid`                           | A light block outside a `.card-block`, where alternation does not reach it                                                                                                                                                                                               |
+| `.card-block`                           | A wall: blocks share 4px walls, alternate ink and light, and step up to the right (`card-rise-*`, `card-step-*` from `src/lib/wall.ts`); each brick casts the throw, the next covers it                                                                                  |
+| `.lead`                                 | Paragraph under a section heading, `text-lead` 400, 24px under it                                                                                                                                                                                                        |
+| `.standfirst`                           | Line beside PageHero's title, `text-standfirst` 400                                                                                                                                                                                                                      |
+| `.bullet-list`                          | Bulleted list, accent markers                                                                                                                                                                                                                                            |
+| `.chip`                                 | Tags, jump links, filters, pager. Always a link. `border-4`, 44px target; a chip list is `gap-6`. The blog filter and pager are a `.chip-row`: joined light bricks, one throw, the current one ink with a light label (`tests/chip-row.spec.ts`)                         |
+| `.badge`                                | A non-link fact or state. Flat `bg-text`, `background` label, no border or shadow                                                                                                                                                                                        |
+| `.nav-cta`                              | Nav call to action: ink, `border-4` in `fill-edge`; a brick in the header row, its own 6px throw in the menu; current takes `--inset-shadow-current`                                                                                                                     |
+| `.label`                                | `text-label` 900 uppercase, 0.1em                                                                                                                                                                                                                                        |
+| `.link`                                 | Running-text underline for a classed standalone link                                                                                                                                                                                                                     |
+| `.abbr-trigger`, `.abbr-tip`            | An abbreviation's first use (`src/components/Abbr.astro`): dotted underline; the expansion is a popover in a `surface` box flush below it; inline in brackets where popovers are missing. Punctuation right after it goes in `after`, so a line never starts with it     |
+| `.page-gutter`, `max-w-page`, `.band`   | [Gutter and column](#gutter-and-column)                                                                                                                                                                                                                                  |
+| `.skip-link`                            | Skip link, visible on focus                                                                                                                                                                                                                                              |
+| `.motion-toggle`                        | 44px SC 2.2.2 pause control; position from a second class                                                                                                                                                                                                                |
+| `.theme-switch`, `.theme-menu`          | 44px ink brick showing the theme in use (moon, sun), named "Theme" (from `md` until the edge tab, "Theme and Text Size"); opens a popover `surface` box, 6px `border` edge, green throw, a "Theme" fieldset of System, Light and Dark radios in 44px rows, `text` accent |
+| `.prose`                                | Rendered Markdown (no typography plugin)                                                                                                                                                                                                                                 |
+| `.aspect-frame`                         | Every photo: [Photo frames](#photo-frames-and-the-failed-photo-state)                                                                                                                                                                                                    |
+| `.surface-gold`, `.btn-gold-*`          | [Gold surface](#gold-surface)                                                                                                                                                                                                                                            |
+| `.hero*`, `.post-layout`, `.footer-*` … | Page-specific, documented in place                                                                                                                                                                                                                                       |
 
 ### Control states
 
-- Hover: `.btn-primary`, `.btn-secondary` and `.nav-cta` fill cyan with a
-  `background` label (11.01).
+- Hover: `.btn-primary`, `.btn-secondary` and `.nav-cta` fill `focus` with an
+  ink label (9.03).
 - Lifted: under a hovering pointer the same controls rise `--press-lift` (2px)
   off their shadow, which grows by as much, so its far corner stays put. Not
   on touch screens, where hover sticks after a tap, and not under reduced
@@ -640,10 +635,10 @@ file per area.
 - ARIA, alt text and text over photographs:
   [ACCESSIBILITY.md §9](../ACCESSIBILITY.md#9-contributor-checklist).
 - Photos: a 4px `border` frame, no shadow or tilt, except the PageHero photo
-  (4px pink shadow).
-- A block's focus ring is its remapped `cyan`: the dark cyan on ink (11.01),
+  (4px green shadow).
+- A block's focus ring is its remapped `focus`: the dark `focus` on ink (9.03),
   `light-focus` on light (7.35); the block's own ring and hover throw keep the
-  page's cyan.
+  page's `focus`.
   Focusable content sits far enough inside that its ring stays in the block
   (`tests/blocks.spec.ts`).
 - Breadcrumbs stop at the parent; JSON-LD `BreadcrumbList` adds the page
@@ -690,8 +685,9 @@ Kept by review: no spec compares instances across pages.
   columns, text in 9 at `max-w-measure`; stacked below.
 - **Photo captions:** none on People and places; the alt text names who is in
   each photo. Where a photo carries a caption, it starts at the photo's left edge.
-- **Form fields:** a 6px edge. A failing field adds a 4px pink inset ring
-  inside the 6px edge, which turns pink on the page and stays ink in a block.
+- **Form fields:** a 6px edge. A failing field adds a 4px `error` inset ring
+  inside the 6px edge, which turns `error` on the page and keeps the block's
+  edge color in a block.
 
 ### How sections separate
 
@@ -701,7 +697,7 @@ Kept by review: no spec compares instances across pages.
   keeps its own top: two `--spacing-section` across that join. `CloseRow` is
   `py-section`, not `pb-section`, for this reason.
 - The slab's edge separates the hero from the first section; no line under it.
-- The slab is ink like the page; its accent edge (9.47) and throw set it
+- The slab is ink like the page; its light edge (16.32) and throw set it
   apart, never color alone.
 - Panels and the closing row are cards: `card-edge` and 8px shadow.
 - No rules or dividers between sections or before the footer.
@@ -776,13 +772,13 @@ Kept by review: no spec compares instances across pages.
   - Each half wears the page's 4px edge, so dark on the dark page or light on the light page stays visible; halves that touch share one edge (`tests/brand.spec.ts`).
   - The guide above the first section says how to read the page.
   - A part lists what it keeps for accessibility from `src/lib/brand-a11y.ts`.
-  - Two rules show as a Do and Don't pair: one primary per section, and cyan only on hover and focus (`DoDont.astro`).
+  - Two rules show as a Do and Don't pair: one primary per section, and `focus` only on hover and focus (`DoDont.astro`).
   - With a script, a Search field above each sections list (wide and narrow) shows the sections whose title, group, lead, tokens, hex values, rules or accessibility lines hold every typed word, ignoring case and accents (`brand-filter.ts`). It counts the matches and Escape clears it.
   - Each part with a live example shows its markup under it, wrapped, never scrolling (`sourceOf` in `mirror.ts`). With a script each block gets an icon Copy button (`src/scripts/copy.ts`) pinned in its top-right corner, named "Copy markup for <part>". A "Copy" tip shows on hover and focus (SC 1.4.13, Escape hides it); a press shows a check and "Copied" for 2 s and announces it, or selects the code and says the copy failed, on the page and to screen readers. With no script, no button is drawn.
   - Button parts show rest, hover, focus, pressed and unavailable side by side (`StateRow.astro`, `.state-*` in `brand.css`), with the real tokens; the lift and the transition are not shown.
-  - A still state sample on `/brand` may show its hover color; `cyan` at rest stays banned everywhere else.
+  - A still state sample on `/brand` may show its hover color; `focus` at rest stays banned everywhere else.
 - Color is one part per role in `src/lib/brand-roles.ts`.
-  - Tokens are rows of one swatch size: fills as fills, text colors as "Aa", cyan unpainted.
+  - Tokens are rows of one swatch size: fills as fills, text colors as "Aa", `focus` unpainted.
   - Each role ends in the one pair it is read on; the ratio is computed from the tokens.
   - Any text color under 7 or edge under 3 on either ground fails the build.
 - Each section is an id'd anchor; the retired `/brand/<section>/` routes redirect to it in `public/_redirects`.
@@ -845,9 +841,9 @@ tier and takes its padding.
 ### Layout
 
 - Shape: `.gold-column`. Left edge on the page column; right edge reaches past
-  it until the pink shadow is 48px from the screen edge, never short of the
+  it until the green shadow is 48px from the screen edge, never short of the
   page column. Below 40rem it sits in the page gutter.
-- Edge: one 4px `block-ink` edge (`--block-edge`) and the 8px pink shadow,
+- Edge: one 4px `block-ink` edge (`--block-edge`) and the 8px green shadow,
   as a card. Text inset by `--hero-column-pad-inline`.
 - PageHero and `.post-slab` stand `--hero-pad-block` below the header.
 - With a photo, from 1024px: text on 6 of 12 columns, centered; photo on
@@ -873,7 +869,7 @@ roundel.**
 - About and every post have a photo, so no roundel.
 - The homepage is not a PageHero and has no roundel on its window.
 - The roundel is the box cat: Rudra sitting in an open cardboard box, with the
-  box's own ink edge and pink throw, tilted 3deg (`src/assets/box-cat-roundel.svg`).
+  box's own ink edge and green throw, tilted 3deg (`src/assets/box-cat-roundel.svg`).
 - `variant="hero"` is `--spacing-roundel` square; the page variant is 96px,
   128px from `lg`.
 - Its center sits `--spacing(1)` above the slab's bottom edge; its right side
@@ -901,10 +897,10 @@ roundel.**
 | Focus ring                   | `gold-text` on the slab             | 16.32 | 3          |
 | Photo border                 | `gold-text` on the slab             | 16.32 | decoration |
 | Roundel box edge on the slab | `gold-text` on the slab             | 16.32 | decoration |
-| Photo and chip shadows       | pink on the slab                    | 4.81  | decoration |
+| Photo and chip shadows       | `throw` on the slab                 | 9.47  | decoration |
 
-- Pink never delimits anything on the slab: every control has its fill or a
-  `gold-text` border.
+- A shadow never delimits anything on the slab: every control has its fill or
+  a `gold-text` border.
 - In dark mode the slab is the page ground, so the page's colors read on it;
   in light mode `.surface-gold` keeps the dark values.
 
@@ -921,7 +917,7 @@ text-gold-muted` under the standfirst. Color
 ### Media
 
 - Portrait photo: `aspect-portrait` (4:5), `object-cover`, 4px `gold-text`
-  border, pink 4px shadow.
+  border, green 4px shadow.
 - Eager, `fetchpriority="high"`: it is the largest paint.
 - A failed load keeps the 4:5 frame and shows its alt text; see
   [Photo frames and the failed-photo state](#photo-frames-and-the-failed-photo-state).
@@ -931,7 +927,7 @@ text-gold-muted` under the standfirst. Color
 
 - The header is an ink bar on the hero's column, 12px below the top, with the
   logo tile at its left end, and from 48rem its name too ([Navigation](#navigation)).
-- The logo tile keeps its `mark` shadow.
+- The logo tile keeps its `mark-throw` shadow.
 - The sticky header covers the top of the slab on scroll; nothing on the slab
   is fixed.
 
@@ -945,7 +941,7 @@ None. Gold buttons lift and press like every control
 - Beside the first name at every size (`.hero-motion-toggle`): right edge on
   the window's, `--spacing(4)` above its top rule. The window can be too low to
   hold it clear of the name.
-- It sits on the page, not the gold, so its focus ring is the page's `cyan`.
+- It sits on the page, not the gold, so its focus ring is the page's `focus`.
 - A first name long enough to reach it would sit under it:
   `tests/hero-fit.spec.ts` measures the letters against its box.
 - It is the first stop in `<main>` at every size.
@@ -1018,7 +1014,7 @@ Enforced by `tests/post-page.spec.ts`.
 | `h2`        | `mt-16`, `text-post-h2` (28px); its text follows at the next `mt-6`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | `h3`        | `mt-12`, `text-post-h3` (22px). The last level                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
 | Inline code | `.prose code`: the mono stack at `--text-code`, on a `surface` fill with `px-1` and no border                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
-| Code block  | `.prose pre`: mono, scrolls sideways, a named tab stop while it overflows. In a post, `.code-block` (`src/styles/components/code-block.css`): a `--border-width-thin` `code-edge` frame on `code-fill`, the fence language in a gold label brick on its top edge (`block-gold`, `fill-edge`, thin in light mode), and a Copy button in its top-right corner, the word beside the icon, named "Copy <language> code", 44px, its ring inside. The code group is named "<language> code"; the label is hidden from assistive technology. The room for the button is kept only with JavaScript (`.js`). A failed copy (no clipboard, or the browser refuses) selects the code and says how to copy it, in `pink-text` under the block, on the page ground. No script, no button                                                                                                                                                                                                                                                           |
+| Code block  | `.prose pre`: mono, scrolls sideways, a named tab stop while it overflows. In a post, `.code-block` (`src/styles/components/code-block.css`): a `--border-width-thin` `code-edge` frame on `code-fill`, the fence language in a gold label brick on its top edge (`block-gold`, `fill-edge`, thin in light mode), and a Copy button in its top-right corner, the word beside the icon, named "Copy <language> code", 44px, its ring inside. The code group is named "<language> code"; the label is hidden from assistive technology. The room for the button is kept only with JavaScript (`.js`). A failed copy (no clipboard, or the browser refuses) selects the code and says how to copy it, in `error-text` under the block, on the page ground. No script, no button                                                                                                                                                                                                                                                          |
 | Lists       | `mt-6 pl-6`, items `mt-3`, gold markers; a link-only item is 44px tall                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
 | Blockquote  | `mt-6`, `edge-l border-border`, `pl-6`, its text at weight 900                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
 | Table       | In a `.table-scroll` box (`mt-6`) that scrolls sideways from 640px, a named tab stop while it overflows; auto layout, words never break, cells `px-4 py-3` with `hairline` lines in `text`, column headers bold on no fill. Below 640px a post table's rows stack (`.table-stack`; `/brand`'s and any with a spanned cell keep scrolling): the first cell bold as its title, each other value under its column name, and in a two-column table the first value too, in a `text-label` `subtle` label (`aria-hidden`, from `table-stack.mjs`), `hairline` lines between rows and fields, long code breaking anywhere. Markdown headers get `scope="col"`, a table with row headers is HTML.                                                                                                                                                                                                                                                                                                                                            |
@@ -1058,8 +1054,8 @@ Enforced by `tests/post-page.spec.ts`.
   This Post", around a native `<details>`.
 - Closed below `xl`. From `xl`, `src/scripts/post-contents.ts` opens it and
   follows width changes. Without JavaScript it stays closed.
-- The summary: `text-label` 900 uppercase in `text` (14.60 on `surface`), cyan
-  on hover, at least 44px tall, a plus or minus marker hidden from assistive
+- The summary: `text-label` 900 uppercase in `text` (14.60 on `surface`),
+  `focus` on hover, at least 44px tall, a plus or minus marker hidden from assistive
   technology.
 - Tags follow the text under a 6px `border` rule: a label 16px above a row of
   `.chip` links.
@@ -1084,7 +1080,7 @@ A heading, a sentence, one way on. Enforced by `tests/empty-states.spec.ts`,
 | Loading a photo         | the photo viewer, past 200ms            | none: a step keeps the previous photo                                               | "Loading photo 4 of 12" in the count                                      | on a step, the previous photo and its caption | the viewer's count region          |
 | Photo that never loads  | the photo viewer, on a failed decode    | none                                                                                | "This photo could not be loaded." on the frame                            | the caption still describes it                | the viewer's count region          |
 
-- `.error-summary`: 6px `pink` edge on `surface`, `tabindex="-1"` and
+- `.error-summary`: 6px `error` edge on `surface`, `tabindex="-1"` and
   `autofocus`, no `role="alert"` (focus already announces it; some screen
   readers read an alert twice).
 - A status region exists, empty, before anything is written to it.
@@ -1139,7 +1135,7 @@ Enforced by `tests/footer.spec.ts`.
 - Once the heap has settled and after a short beat, the footer mascot climbs (`src/scripts/let-it-fall-mascot.ts`, its own
   drawing): it crouches with a squash, leaps on an eased arc with a stretch,
   tipped toward the way it travels, and lands with a squash, pausing between hops. It is never
-  mirrored, so its pink throw stays bottom right. It hops onto the menu
+  mirrored, so its green throw stays bottom right. It hops onto the menu
   shelf's clear stretch, up the blocks on top of it, then onto the risen Put
   It Back and sits on its top edge, clear of its label, and above its focus
   ring while keyboard focus shows it. It is drawn over every fallen block;
@@ -1218,12 +1214,12 @@ No rule or divider joins the footer to the page.
 ### Links and stickers
 
 - Links are `.label`: Site in `text` (16.32), About this site in `subtle`
-  (8.67), cyan on hover (11.01). Each row is 44px tall (`--spacing-target`).
+  (8.67), `focus` on hover (9.03). Each row is 44px tall (`--spacing-target`).
 - The current page has `aria-current` and the 2px text-link underline; hover
   changes color only, so the two never look alike.
 - Stickers: `--size-sticker` 48px (`--size-sticker-lg` 56px from 64rem),
   a `--border-width-sticker` 4px transparent edge (drawn only in forced
-  colors), so the throw meets the fill; 3deg tilt, 4px pink shadow with
+  colors), so the throw meets the fill; 3deg tilt, 4px green shadow with
   `lift-control`. They straighten on hover and focus.
 - One colorway, the `.badge` inversion: `text` fill, `background` glyph
   (16.32). Not cycled by `nth-child`.
@@ -1247,7 +1243,7 @@ Enforced by `tests/nav-current.spec.ts`, `tests/mobile-menu.spec.ts`,
 - One link, `REPORT_LINK` in `src/lib/nav.ts`: "Report an Accessibility
   Problem", to Report a Barrier on `/accessibility`, on that page too. Second
   in tab order, after the skip link (SC 2.4.1, 3.2.6).
-- `text-label`, `font-black`, `.link` underline in `text` (16.32), cyan on
+- `text-label`, `font-black`, `.link` underline in `text` (16.32), `focus` on
   hover. `.hit-target` makes the 44px target. The band is at least 44px
   (`--spacing-target`) and grows as the link wraps at larger text; its
   8px padding keeps the ring inside it, clear of the header.
@@ -1273,7 +1269,7 @@ Enforced by `tests/nav-current.spec.ts`, `tests/mobile-menu.spec.ts`,
   `block-light` fills and `block-ink` lines; `.site-header` keeps the page's
   values as `--page-*` for the menu dialog.
 - The logo tile, and from 48rem its name, sit inside the bar with no block, edge
-  or throw of their own. The tile keeps its 8px `mark` shadow; the link pads it inside
+  or throw of their own. The tile keeps its 8px `mark-throw`; the link pads it inside
   its box (`padding-block-end: var(--lift-mark)`), so the ring at the plain
   4px gap clears it and stays inside the bar, full and slim
   (`tests/header-bricks.spec.ts`).
@@ -1282,10 +1278,10 @@ Enforced by `tests/nav-current.spec.ts`, `tests/mobile-menu.spec.ts`,
   edges, one `shadow-brick` per row, in `throw` in both modes. Each row
   sits half its throw high: 11px above it and under its throw. The current
   page is `block-gold`, the rest `block-light`; an ink brick on the ink bar
-  is set apart by its accent edge. A brick after another drops its left edge, so
+  is set apart by its light edge. A brick after another drops its left edge, so
   the two share one 4px wall and never overlap each other's target.
-- Hover fills the dark mode `cyan` (`--hover-fill`) in both modes under an
-  ink label (11.01). The ring is ink on a light brick and on a hovered one,
+- Hover fills the dark mode `focus` (`--hover-fill`) in both modes under an
+  ink label (9.03). The ring is ink on a light brick and on a hovered one,
   `gold-text` on an ink one.
 - The bar takes `.gold-column`'s margins, so it starts and ends where the gold
   hero does at every width (`tests/header-fit.spec.ts`).
@@ -1313,12 +1309,12 @@ Enforced by `tests/nav-current.spec.ts`, `tests/mobile-menu.spec.ts`,
 
 ### States
 
-| Item                | Current                                                                                                                                                                                                        | Hover                                      | Focus                                                                                |
-| ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------ | ------------------------------------------------------------------------------------ |
-| Nav link, menu link | `aria-current`, `"page"` on the page and `"true"` inside its section: `block-gold` fill, `gold-text` label (16.32) and the 4px `--inset-shadow-current` ring; in the menu, pressed 6px into its shadow instead | cyan fill, ink label (11.01)               | in the header, the ring inside the brick (light on ink); in the menu, past the throw |
-| No-JavaScript link  | the same value, a flat `bg-text` block with a `border` edge, label in `background` (16.32)                                                                                                                     | cyan text (11.01), not on the current item | the 4px cyan ring at a 4px offset, on the current item too                           |
-| Call to action      | `aria-current`, `"page"` or `"true"`, a 4px `gold-text` inset ring, no hover fill                                                                                                                              | cyan fill                                  | in the header, inside the brick in `gold-text`; in the menu, past the throw          |
-| Logo link           | `aria-current="page"` on `/`, no visual state: the homepage hero says where you are                                                                                                                            | none                                       | `gold-text`, 4px off the link, inside its ink block (16.32)                          |
+| Item                | Current                                                                                                                                                                                                        | Hover                                        | Focus                                                                                |
+| ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------- | ------------------------------------------------------------------------------------ |
+| Nav link, menu link | `aria-current`, `"page"` on the page and `"true"` inside its section: `block-gold` fill, `gold-text` label (16.32) and the 4px `--inset-shadow-current` ring; in the menu, pressed 6px into its shadow instead | `focus` fill, ink label (9.03)               | in the header, the ring inside the brick (light on ink); in the menu, past the throw |
+| No-JavaScript link  | the same value, a flat `bg-text` block with a `border` edge, label in `background` (16.32)                                                                                                                     | `focus` text (9.03), not on the current item | the 4px `focus` ring at a 4px offset, on the current item too                        |
+| Call to action      | `aria-current`, `"page"` or `"true"`, a 4px `gold-text` inset ring, no hover fill                                                                                                                              | `focus` fill                                 | in the header, inside the brick in `gold-text`; in the menu, past the throw          |
+| Logo link           | `aria-current="page"` on `/`, no visual state: the homepage hero says where you are                                                                                                                            | none                                         | `gold-text`, 4px off the link, inside its ink block (16.32)                          |
 
 - `ariaCurrent` in `src/lib/nav.ts` decides the value.
 - Inactive no-JavaScript links keep a `border-transparent` 4px edge so nothing
@@ -1405,7 +1401,7 @@ Enforced by `tests/nav-current.spec.ts`, `tests/mobile-menu.spec.ts`,
 
 ## Focus
 
-- One global `:focus-visible` rule: `--focus-width` 4px cyan outline, offset
+- One global `:focus-visible` rule: `--focus-width` 4px `focus` outline, offset
   `--focus-gap` 4px plus `--lift`. Never style `:focus`; never remove an
   outline; never `outline-offset: 0`.
 - A hard shadow is not a focus indicator.
@@ -1416,16 +1412,16 @@ Enforced by `tests/nav-current.spec.ts`, `tests/mobile-menu.spec.ts`,
 - The header's joined bricks draw the ring inside the brick, `--block-edge`
   plus `--focus-gap` in, so it never crosses the next brick: ink on a light
   brick (16.32), `gold-text` on an ink one (16.32), and ink on a hovered
-  brick's cyan (11.01).
+  brick's `focus` (9.03).
 - `--lift-control` 4px beside a control's 4px shadow, `--lift-object` (the
   `--hard-throw`, 8px) beside an object's shadow, `--lift-mark` 8px beside the
-  logo tile's 8px shadow, so the ring clears the shadow (cyan on pink is 2.29). The button,
+  logo tile's 8px shadow, so the ring clears the shadow (`focus` on the green throw is 1.05). The button,
   `.nav-cta` and `.chip` classes carry it. A current item with no shadow sets
   `--lift: 0px`. A new shadow without its lift is a bug.
 - Chip lists and the no-JavaScript nav are `gap-6` so one chip's ring never
   meets the next chip's shadow. `tests/states.spec.ts` measures it.
 - `.btn-gold-primary` has a two-tone ring, because its ring color equals its
-  fill: `--inset-shadow-gold-btn-ring` and `shadow-hard-mark-4` in one
+  fill: `--inset-shadow-gold-btn-ring` and `shadow-hard-throw-4` in one
   `box-shadow`, so focus keeps the shadow. Use a two-tone ring only when the
   ring color equals the control's opaque fill.
 
@@ -1438,7 +1434,7 @@ Enforced by `tests/nav-current.spec.ts`, `tests/mobile-menu.spec.ts`,
 - Any new surface measures its own ring twice: against the ground behind the
   element (the offset gap) and against the element's own edge.
 - Native media controls: `:is(video, audio)[controls]:is(:focus, :focus-within)`
-  gets the same 4px cyan ring at a 4px offset.
+  gets the same 4px `focus` ring at a 4px offset.
 
 ## Photo frames and the failed-photo state
 

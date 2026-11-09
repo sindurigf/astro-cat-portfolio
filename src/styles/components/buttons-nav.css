@@ -3,7 +3,7 @@
   .btn-primary {
     @apply lift-control inline-block border-4 border-fill-edge bg-block-gold px-8 py-4
       text-button font-black uppercase tracking-label text-gold-text
-      shadow-hard-pink-4 wrap-anywhere max-w-full;
+      shadow-hard-throw-4 wrap-anywhere max-w-full;
   }
 
   /* A summary styled as a button: older Safari draws its own triangle otherwise. */
@@ -15,15 +15,15 @@
   .btn-secondary {
     @apply lift-control inline-block border-4 border-block-ink bg-block-light px-8
       py-4 text-button font-black uppercase tracking-label text-block-ink
-      shadow-hard-pink-4 wrap-anywhere max-w-full;
+      shadow-hard-throw-4 wrap-anywhere max-w-full;
   }
 
   /*
-   * Hover fills cyan (SC 1.4.3). Unavailable is `aria-disabled`, never
+   * Hover fills `focus` (SC 1.4.3). Unavailable is `aria-disabled`, never
    * `disabled`, so it stays focusable; drawn dashed, no shadow, label `subtle`.
    */
   :is(.btn-primary, .btn-secondary):not([aria-disabled='true']):hover {
-    @apply bg-cyan text-background;
+    @apply bg-focus text-background;
   }
 
   /*
@@ -34,12 +34,12 @@
   :is(.btn-primary, .btn-secondary, .footer-sticker),
   a.chip {
     --press-throw: var(--lift-control);
-    --press-throw-color: var(--color-pink);
+    --press-throw-color: var(--color-throw);
   }
 
   .surface-gold .btn-gold-primary {
     --press-throw: var(--lift-control);
-    --press-throw-color: var(--color-mark);
+    --press-throw-color: var(--color-throw);
   }
 
   /* The menu's bricks; the header's joined bricks share their row's throw and hold still. */
@@ -99,7 +99,7 @@
 
       /* No lift on touch, where :hover sticks after a tap. */
       @media (hover: hover) {
-        /* The ring clears the grown throw: cyan over pink fails SC 1.4.11. */
+        /* The ring clears the grown throw: `focus` over the green throw fails SC 1.4.11. */
         &:hover:not(:active) {
           --lift: calc(var(--press-throw) + var(--press-lift));
 
@@ -197,7 +197,7 @@
   }
 
   /*
-   * Ink tile with the accent edge. Hidden without data-theme, which the head
+   * Ink tile with the light edge. Hidden without data-theme, which the head
    * script always sets when JavaScript runs.
    */
   .theme-switch {
@@ -258,9 +258,9 @@
     @apply pointer-events-none size-6;
   }
 
-  /* Hover fills cyan; the header bar and menu set their own fill and label. */
+  /* Hover fills `focus`; the header bar and menu set their own fill and label. */
   :is(.theme-switch, .nav-sticker, .nav-cta):not([aria-current]):hover {
-    background-color: var(--hover-fill, var(--color-cyan));
+    background-color: var(--hover-fill, var(--color-focus));
     color: var(--hover-label, var(--color-background));
   }
 
@@ -300,7 +300,8 @@
   .site-header {
     --page-ground: var(--color-background);
     --page-text: var(--color-text);
-    --page-cyan: var(--color-cyan);
+    --page-focus: var(--color-focus);
+    --page-fill-edge: var(--color-fill-edge);
   }
 
   /* The gold hero's edges (`.gold-column` in layout.css): from the rail, out to the screen clearance. The band's link ends where the bar does. */
@@ -315,15 +316,15 @@
   }
 
   /*
-   * The bar is an ink slab in both modes with the accent edge and throw. Its
-   * bricks take light fills and ink lines; rings on the slab are cyan (11.01),
+   * The bar is an ink slab in both modes with a light edge and the accent throw. Its
+   * bricks take light fills and ink lines; rings on the slab are `focus` (9.03),
    * rings and hover labels on a brick ink, brick throws the accent.
    */
   .header-slab {
     --color-background: var(--color-block-light);
     --color-text: var(--color-block-ink);
-    --color-cyan: var(--dark-cyan);
-    --hover-fill: var(--dark-cyan);
+    --color-focus: var(--dark-focus);
+    --hover-fill: var(--dark-focus);
     --hover-label: var(--color-block-ink);
     --shadow-brick: var(--brick-throw) var(--brick-throw) 0 var(--color-throw);
 
@@ -331,6 +332,11 @@
     background-color: var(--color-block-gold);
 
     @apply px-4 shadow-hard-throw sm:px-6;
+  }
+
+  /* Ink tiles on the ink bar keep the light edge, also in light mode. */
+  .header-slab > * {
+    --color-fill-edge: var(--dark-fill-edge);
   }
 
   /* The tile's shadow sits inside the link, so the plain ring clears it and stays on the slab. */
@@ -341,8 +347,9 @@
   .header-slab :is(dialog, .theme-menu) {
     --color-background: var(--page-ground);
     --color-text: var(--page-text);
-    --color-cyan: var(--page-cyan);
-    /* Unset, so hovers fall back to the page's cyan and ground. */
+    --color-focus: var(--page-focus);
+    --color-fill-edge: var(--page-fill-edge);
+    /* Unset, so hovers fall back to the page's `focus` and ground. */
     --hover-fill: initial;
     --hover-label: initial;
     --shadow-brick: var(--brick-throw) var(--brick-throw) 0 var(--page-text);
@@ -406,7 +413,7 @@
   .menu-brick:hover {
     --color-text: var(--hover-label, var(--color-background));
 
-    background-color: var(--hover-fill, var(--color-cyan));
+    background-color: var(--hover-fill, var(--color-focus));
   }
 
   /* Nav and menu links: bricks edged in `text`. tests/edge-contrast.spec.ts. */

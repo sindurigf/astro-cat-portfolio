@@ -42,7 +42,7 @@ export const markMarkup = (paint: Paint, { id }: MarkOptions): string => {
   const blackPatch = `<path d="${PATCH_BLACK}" fill="${paint('cat-hela-black')}"/>`;
   const face =
     `<path d="${HAPPY_EYES}" fill="none" stroke="${paint('block-ink')}" stroke-width="${EYE_WIDTH}" stroke-linecap="round" stroke-linejoin="round"/>` +
-    `<path d="${NOSE}" fill="${paint('mark')}"/>` +
+    `<path d="${NOSE}" fill="${paint('block-ink')}"/>` +
     `<path d="${WHISKERS}" fill="none" stroke="${paint('block-ink')}" stroke-width="${WHISKER_WIDTH}" stroke-linecap="round"/>`;
   return (
     `<defs><clipPath id="${clip}"><path d="${MARK_HEAD}"/></clipPath></defs>` +

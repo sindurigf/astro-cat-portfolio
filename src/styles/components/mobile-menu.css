@@ -1,6 +1,6 @@
 /*
  * Mobile menu dialog (Header.astro). Unlayered; sets no link color, which
- * would beat `hover:text-cyan` (tests/states.spec.ts).
+ * would beat `hover:text-focus` (tests/states.spec.ts).
  */
 
 /* Reset the <dialog>'s centering to a full-bleed panel. */

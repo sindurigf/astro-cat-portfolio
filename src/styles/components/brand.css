@@ -77,9 +77,9 @@
     @apply text-label font-normal text-subtle;
   }
 
-  /* The dark mode cyan in both modes: light mode's cyan is a text color, 2.55 under ink. */
+  /* The dark mode `focus` in both modes: light mode's is a text color, 2.55 under ink. */
   .brand-menu-link:hover {
-    background-color: var(--dark-cyan);
+    background-color: var(--dark-focus);
     color: var(--color-block-ink);
     outline-color: var(--color-block-ink);
 
@@ -168,14 +168,14 @@
     }
 
     &:hover {
-      @apply bg-cyan text-background;
+      @apply bg-focus text-background;
     }
 
     &:focus-visible {
       outline-offset: calc(-1 * (var(--focus-width) + var(--focus-gap)));
     }
 
-    /* The ring is cyan, as is the hover fill: it turns to the page ground. */
+    /* The ring is `focus`, as is the hover fill: it turns to the page ground. */
     &:hover:focus-visible {
       outline-color: var(--color-background);
     }
@@ -203,7 +203,7 @@
   }
 
   :root[data-theme='light'] main .copy-button:hover {
-    background-color: var(--dark-cyan);
+    background-color: var(--dark-focus);
     color: var(--color-light-ink);
 
     &:focus-visible {
@@ -359,12 +359,12 @@
 
   /* Hover and press drawn at rest, so a still row shows each state (buttons-nav.css, light-mode.css). */
   .state-hover:not([aria-disabled='true']) {
-    @apply bg-cyan text-background;
+    @apply bg-focus text-background;
   }
 
   :is(:root[data-theme='light'] main, main .mode-light)
     .state-hover:not([aria-disabled='true'], .mode-dark *) {
-    background-color: var(--dark-cyan);
+    background-color: var(--dark-focus);
     color: var(--color-light-ink);
   }
 
@@ -380,7 +380,7 @@
 
   /* The focus ring drawn at rest, so a still sample shows it (base.css :focus-visible). */
   .focus-sample {
-    outline: var(--focus-width) solid var(--color-cyan);
+    outline: var(--focus-width) solid var(--color-focus);
     outline-offset: calc(var(--focus-gap) + var(--lift, 0px));
   }
 }

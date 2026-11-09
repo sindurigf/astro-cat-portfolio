@@ -165,7 +165,7 @@
   }
 
   .strip-button:not([aria-disabled='true']):hover {
-    @apply text-cyan;
+    @apply text-focus;
   }
 
   .strip-button[aria-disabled='true'] {

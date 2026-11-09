@@ -2,7 +2,7 @@
 import ProseScrollFit from './ProseScrollFit.astro';
 /*
  * /brand's contrast rows. A row that passes shows its pairing as text (needs
- * 4.5) or an edge (needs 3), in the live tokens; cyan is never at rest, and
+ * 4.5) or an edge (needs 3), in the live tokens; `focus` is never at rest, and
  * the other results are pairings the site keeps from ever painting.
  */
 interface Row {
@@ -27,7 +27,7 @@ const SAMPLE_BG: Record<string, string> = {
   surface: 'bg-surface',
   gold: 'bg-gold',
   text: 'bg-text',
-  pink: 'bg-pink',
+  error: 'bg-error',
   'gold-link': 'bg-gold-link',
   'gold-text': 'bg-gold-text',
   'light-ground': 'bg-light-ground',
@@ -38,7 +38,7 @@ const SAMPLE_TEXT: Record<string, string> = {
   text: 'text-text',
   subtle: 'text-subtle',
   gold: 'text-gold',
-  'pink-text': 'text-pink-text',
+  'error-text': 'text-error-text',
   background: 'text-background',
   'gold-text': 'text-gold-text',
   'gold-muted': 'text-gold-muted',
@@ -49,7 +49,7 @@ const SAMPLE_TEXT: Record<string, string> = {
 };
 const SAMPLE_EDGE: Record<string, string> = {
   border: 'border-border',
-  pink: 'border-pink',
+  error: 'border-error',
   'gold-border': 'border-gold-border',
   'fill-edge': 'border-fill-edge',
   surface: 'border-surface',
@@ -58,9 +58,10 @@ const SAMPLE_EDGE: Record<string, string> = {
   'code-edge': 'border-code-edge',
   'light-code-edge': 'border-light-code-edge',
   'light-accent': 'border-light-accent',
+  'light-ink': 'border-light-ink',
 };
 const TEXT_JOB = 'text';
-const NEVER_AT_REST = 'cyan';
+const NEVER_AT_REST = 'focus';
 
 const sampleOf = (row: Row): string[] | null => {
   if (row.result !== 'pass') return null;

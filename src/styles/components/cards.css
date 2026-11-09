@@ -11,7 +11,7 @@
 
   /*
    * Blocks: every card, the plain hero slab and the post contents, an ink slab
-   * with an accent edge in both modes. The dark values are restored inside, so
+   * with a light edge in both modes. The dark values are restored inside, so
    * `text-text` and `text-gold` read on the fill (16.32, accent 9.47).
    */
   :is(.card, .plain-slab, .post-contents):not(.surface-gold, .surface-gold *) {
@@ -19,8 +19,8 @@
     --color-surface: var(--color-block-gold);
     --color-text: var(--dark-text);
     --color-subtle: var(--dark-subtle);
-    --color-pink: var(--dark-pink);
-    --color-pink-text: var(--dark-pink-text);
+    --color-error: var(--dark-error);
+    --color-error-text: var(--dark-error-text);
     --color-border: var(--dark-border);
     --color-card-edge: var(--color-fill-edge);
 
@@ -48,7 +48,7 @@
     --color-text: var(--color-block-ink);
     --color-gold: var(--color-block-ink);
     --color-subtle: var(--color-light-subtle);
-    --color-pink-text: var(--color-light-pink-text);
+    --color-error-text: var(--color-light-error-text);
     --color-border: var(--color-block-ink);
     --color-fill-edge: var(--color-block-ink);
 
@@ -62,12 +62,13 @@
 
   /*
    * Hover and focus inside a block: the block's own ring and hover throw keep
-   * the page's cyan, set on the block itself. Inside, dark cyan on ink, and
-   * `light-focus` on a light block.
+   * the page's `focus`, set on the block itself. Inside, the dark mode `focus`
+   * and a light edge on ink, and `light-focus` and an ink edge on a light block.
    */
   :is(.card, .plain-slab, .post-contents):not(.surface-gold, .surface-gold *)
     > * {
-    --color-cyan: var(--dark-cyan);
+    --color-focus: var(--dark-focus);
+    --color-fill-edge: var(--dark-fill-edge);
   }
 
   :is(
@@ -78,7 +79,8 @@
       .card-block > :nth-child(even) > .card
     ):not(.surface-gold, .surface-gold *)
     > * {
-    --color-cyan: var(--color-light-focus);
+    --color-focus: var(--color-light-focus);
+    --color-fill-edge: var(--color-block-ink);
   }
 
   /* A slab card or column keeps its own colors and takes the block edge. */
@@ -174,7 +176,7 @@
   }
 
   /*
-   * Summary label `text`, cyan on hover, 44px target (SC 2.5.5). The
+   * Summary label `text`, `focus` on hover, 44px target (SC 2.5.5). The
    * +/- marker is aria-hidden; the expanded state is announced natively.
    */
   .post-contents-summary {
@@ -187,7 +189,7 @@
     }
 
     &:hover {
-      @apply text-cyan;
+      @apply text-focus;
     }
   }
 
@@ -231,16 +233,16 @@
   }
 
   /*
-   * Title and shadow turn cyan on hover. No underline: on a wrapped title it
+   * Title and shadow turn `focus` on hover. No underline: on a wrapped title it
    * crosses the next line. Inside a `.card-block` the brick keeps the wall's
    * throw (utilities.css).
    */
   .card:has(.card-link):hover {
-    @apply shadow-hard-cyan-object;
+    @apply shadow-hard-focus-object;
   }
 
   .card:has(.card-link):hover .card-link {
-    @apply text-cyan;
+    @apply text-focus;
   }
 
   /* Reading size at 400; on a slab the color comes from the slab. */
@@ -257,14 +259,14 @@
   }
 
   /*
-   * A whole-brick link in a wall (/contact): it holds still, fills cyan under
+   * A whole-brick link in a wall (/contact): it holds still, fills `focus` under
    * the pointer and draws its ring inside, so it never crosses the next brick.
    */
-  /* The dark mode cyan in both modes: light mode's cyan is a text color, 2.55 under ink. */
+  /* The dark mode `focus` in both modes: light mode's is a text color, 2.55 under ink. */
   .contact-brick:hover {
     --color-text: var(--color-block-ink);
 
-    background-color: var(--dark-cyan);
+    background-color: var(--dark-focus);
     color: var(--color-text);
   }
 

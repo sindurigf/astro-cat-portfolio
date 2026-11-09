@@ -17,7 +17,7 @@ import { FRAMES, frameHeight } from '../src/lib/about-cats-frames.ts';
 
 const CATS = ['rudra'];
 const paint = (token) => cssColorToken(`--color-${token}`);
-/* Die-cut layers in drawn px: white rim, ink edge, and the pink block behind, offset down-right. */
+/* Die-cut layers in drawn px: white rim, ink edge, and the green block behind, offset down-right. */
 const RIM = 2;
 const EDGE = 1;
 const BLOCK = 3;
@@ -27,7 +27,7 @@ const MASK_GAIN = 4;
 const DENSITY = 2;
 /* Below this the drawing is upscaled into its frame and blurs. */
 const MIN_DENSITY = 1.5;
-/* AVIF keeps full colour (4:4:4), so the white rim takes no pink haze and the ink edge stays sharp, at less weight than WebP. */
+/* AVIF keeps full colour (4:4:4), so the white rim takes no green haze and the ink edge stays sharp, at less weight than WebP. */
 const AVIF_QUALITY = 70;
 const AVIF_EFFORT = 6;
 /* Frames per sheet row. */
@@ -96,10 +96,10 @@ const filter = (scale) => {
     `<feMorphology in="mask" operator="dilate" radius="${r(RIM)}" result="rim"/>` +
     `<feMorphology in="mask" operator="dilate" radius="${r(OUTER)}" result="edge"/>` +
     `${steps}<feMerge result="block">${merge}</feMerge>` +
-    `<feFlood flood-color="${paint('pink')}"/><feComposite in2="block" operator="in" result="pink"/>` +
+    `<feFlood flood-color="${paint('throw')}"/><feComposite in2="block" operator="in" result="throw"/>` +
     `<feFlood flood-color="${paint('block-ink')}"/><feComposite in2="edge" operator="in" result="ink"/>` +
     `<feFlood flood-color="${paint('light-ground')}"/><feComposite in2="rim" operator="in" result="white"/>` +
-    `<feMerge><feMergeNode in="pink"/><feMergeNode in="ink"/><feMergeNode in="white"/><feMergeNode in="SourceGraphic"/></feMerge>` +
+    `<feMerge><feMergeNode in="throw"/><feMergeNode in="ink"/><feMergeNode in="white"/><feMergeNode in="SourceGraphic"/></feMerge>` +
     `</filter>`
   );
 };

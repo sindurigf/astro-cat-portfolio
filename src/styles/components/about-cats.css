@@ -147,7 +147,7 @@
   }
 
   .cat-prop-toy {
-    fill: var(--color-mark);
+    fill: var(--color-throw);
   }
 
   .cat-prop-feather {
@@ -176,7 +176,7 @@
   }
 
   .cat-prop-yarn-end {
-    stroke: var(--color-mark);
+    stroke: var(--color-throw);
   }
 
   /*
@@ -206,7 +206,7 @@
   .cat-name {
     @apply absolute -bottom-4 -left-2 -rotate-3 border-4 border-fill-edge bg-block-gold
       px-3 py-1 text-label font-black uppercase tracking-label text-gold-text
-      shadow-hard-mark-4;
+      shadow-hard-throw-4;
   }
 
   /* about-cats.ts sets these beside the cat; until then the dialog centers itself. */

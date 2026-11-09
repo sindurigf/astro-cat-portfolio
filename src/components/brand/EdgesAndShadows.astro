@@ -4,17 +4,14 @@ import { shadows } from '../../lib/brand';
 import { brandSection } from '../../lib/brand-sections';
 import { SWATCH_BOX } from './swatches';
 
-/* Cyan is never at rest, so its shadow shows only on a hovered card. */
+/* `focus` is never at rest, so its shadow shows only on a hovered card. */
 const SHADOW_CLASS: Record<string, string | null> = {
-  'shadow-hard-pink-4': 'shadow-hard-pink-4',
+  'shadow-hard-throw-4': 'shadow-hard-throw-4',
   'shadow-brick': 'shadow-brick',
   'shadow-hard-throw': 'shadow-hard-throw',
-  'shadow-hard-cyan-object': null,
-  'shadow-hard-gold-border-4': 'shadow-hard-gold-border-4',
-  'shadow-hard-mark-4': 'shadow-hard-mark-4',
-  'shadow-hard-mark-8': 'shadow-hard-mark-8',
+  'shadow-hard-focus-object': null,
   /* On a square swatch the cat's outline throw is the box's. */
-  'mark-throw': 'shadow-hard-mark-8',
+  'mark-throw': 'shadow-hard-throw',
 };
 for (const { utility } of shadows) {
   if (!(utility in SHADOW_CLASS)) {

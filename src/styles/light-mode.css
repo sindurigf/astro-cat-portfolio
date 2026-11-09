@@ -1,7 +1,7 @@
 /*
  * Light mode: `data-theme="light"` on <html>. <main>, the header and the footer
  * change; ink is #141517, and the slab (.surface-gold, blocks) stays an ink
- * island. On light-ground: text 16.32, subtle 8.51, pink-text 7.34, cyan 7.35
+ * island. On light-ground: text 16.32, subtle 8.51, error-text 7.34, focus 7.35
  * (tests/light-mode.spec.ts). Utilities layer beats `.text-gold`.
  */
 @layer utilities {
@@ -12,9 +12,9 @@
     --dark-text: var(--color-text);
     --dark-subtle: var(--color-subtle);
     --dark-border: var(--color-border);
-    --dark-cyan: var(--color-cyan);
-    --dark-pink: var(--color-pink);
-    --dark-pink-text: var(--color-pink-text);
+    --dark-focus: var(--color-focus);
+    --dark-error: var(--color-error);
+    --dark-error-text: var(--color-error-text);
     --dark-card-edge: var(--color-card-edge);
     --dark-code-edge: var(--color-code-edge);
     --dark-code-fill: var(--color-code-fill);
@@ -30,22 +30,22 @@
     --color-text: var(--color-light-ink);
     --color-subtle: var(--color-light-subtle);
     --color-border: var(--color-light-ink);
-    --color-cyan: var(--color-light-focus);
-    --color-pink: var(--color-light-ink);
-    --color-pink-text: var(--color-light-pink-text);
+    --color-focus: var(--color-light-focus);
+    --color-error: var(--color-light-error-text);
+    --color-error-text: var(--color-light-error-text);
     --color-card-edge: var(--color-light-ink);
     --color-code-edge: var(--color-light-code-edge);
     --color-code-fill: var(--color-block-light);
-    --color-fill-edge: var(--color-light-accent);
+    --color-fill-edge: var(--color-light-ink);
     --color-throw: var(--color-light-accent);
     color-scheme: light;
     color: var(--color-text);
     background-color: var(--color-background);
   }
 
-  /* Hover fills take the dark mode cyan under ink: light mode's cyan is a text color. */
+  /* Hover fills take the dark mode `focus` under ink: light mode's is a text color. */
   :root[data-theme='light'] .header-slab :is(dialog, .theme-menu) {
-    --hover-fill: var(--dark-cyan);
+    --hover-fill: var(--dark-focus);
     --hover-label: var(--color-light-ink);
   }
 
@@ -53,20 +53,21 @@
     :is(.btn-primary, .btn-secondary):not([aria-disabled='true']):hover:not(
       :is(.mode-dark, .surface-gold, .card, .plain-slab, .post-contents) *
     ) {
-    background-color: var(--dark-cyan);
+    background-color: var(--dark-focus);
     color: var(--color-light-ink);
   }
 
   /* An ink island: a .mode-dark sample, or the slab, keeps the dark values. */
-  :root[data-theme='light'] main :is(.mode-dark, .surface-gold) {
+  :is(:root[data-theme='light'] main, main .mode-light)
+    :is(.mode-dark, .surface-gold) {
     --color-background: var(--dark-background);
     --color-surface: var(--dark-surface);
     --color-text: var(--dark-text);
     --color-subtle: var(--dark-subtle);
     --color-border: var(--dark-border);
-    --color-cyan: var(--dark-cyan);
-    --color-pink: var(--dark-pink);
-    --color-pink-text: var(--dark-pink-text);
+    --color-focus: var(--dark-focus);
+    --color-error: var(--dark-error);
+    --color-error-text: var(--dark-error-text);
     --color-card-edge: var(--dark-card-edge);
     --color-code-edge: var(--dark-code-edge);
     --color-code-fill: var(--dark-code-fill);

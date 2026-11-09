@@ -31,7 +31,7 @@
   .surface-gold .card {
     background-color: transparent;
 
-    @apply shadow-hard-gold-border-4;
+    @apply shadow-hard-throw-4;
   }
 
   /* A wall on the slab: light blocks with the ink edge and ink text; each casts the throw. */
@@ -68,13 +68,13 @@
 
   /*
    * Scoped to .surface-gold so it renders unstyled elsewhere. Label, light fill
-   * and `gold-text` edge pass SC 1.4.3 and 1.4.11 on the slab. The pink shadow
+   * and `gold-text` edge pass SC 1.4.3 and 1.4.11 on the slab. The green throw
    * is decoration: it must never delimit the control.
    */
   .surface-gold .btn-gold-primary {
     @apply inline-block border-4 border-gold-text bg-gold-text
       px-8 py-4 text-button font-black uppercase
-      tracking-label text-gold-btn-label shadow-hard-mark-4 lift-control;
+      tracking-label text-gold-btn-label shadow-hard-throw-4 lift-control;
   }
 
   .surface-gold .btn-gold-secondary {

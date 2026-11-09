@@ -65,7 +65,7 @@ export const BRAND_SECTIONS: readonly BrandSection[] = [
       { id: 'role-ink', name: 'Ink' },
       { id: 'role-accent', name: 'Accent' },
       { id: 'role-interaction', name: 'Interaction' },
-      { id: 'role-depth', name: 'Depth and Error' },
+      { id: 'role-errors', name: 'Errors' },
       { id: 'role-edges', name: 'Edges' },
     ],
   },
@@ -107,7 +107,7 @@ export const BRAND_SECTIONS: readonly BrandSection[] = [
     anchor: 'shadows',
     title: 'Borders and Shadows',
     group: 'Foundations',
-    lead: 'Borders are green on the dark page and ink on light fills and in light mode. Cards and blocks have a 4px edge. Borders are 6px on panels and fields and 4px on controls and photos. Shadows are solid offset copies of the shape, with no blur. Corners are square.',
+    lead: 'Borders are the text color: light on the dark page, ink on light fills and in light mode. Cards and blocks have a 4px edge. Borders are 6px on panels and fields and 4px on controls and photos. Shadows are solid offset copies of the shape, with no blur. Corners are square.',
     rule: 'Hard shadows, no blur, square cards.',
     description:
       'Borders, hard shadows and square corners: the width of each edge, every shadow and what casts it.',
@@ -163,9 +163,9 @@ export const BRAND_SECTIONS: readonly BrandSection[] = [
     title: 'Controls',
     group: 'Components',
     lead: 'Small controls for motion, theme and focus.',
-    rule: 'Every control shows the cyan ring.',
+    rule: 'Every control shows the blue ring.',
     description:
-      'The small controls: pause and sleep controls for motion, the theme switch with its System, Light and Dark choice, and the cyan focus ring.',
+      'The small controls: pause and sleep controls for motion, the theme switch with its System, Light and Dark choice, and the blue focus ring.',
     parts: [
       { id: 'pause-control', name: 'Pause Control' },
       { id: 'sleep-control', name: 'Sleep Control' },
