@@ -312,9 +312,8 @@ test.describe('the name breaks on the column rule', () => {
           const size = parseFloat(style.fontSize);
           const lineHeight = parseFloat(style.lineHeight);
           const top = column.getBoundingClientRect().top;
-          const ring = Number(
-            getComputedStyle(column).boxShadow.match(/(-?[\\d.]+)px/g)[3].slice(0, -2),
-          );
+          const lengths = getComputedStyle(column).boxShadow.match(/(-?[\\d.]+)px/g);
+          const ring = lengths ? Number(lengths[3].slice(0, -2)) : 0;
           const band = {
             top: top - ring,
             bottom: top + parseFloat(getComputedStyle(column).borderTopWidth),
