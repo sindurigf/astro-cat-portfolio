@@ -248,7 +248,7 @@ CSS and `tests/contrast-table.spec.ts` fails when it drifts.
 
 - `text`, `subtle`, `gold`, `focus` and `error-text` clear 7:1 on `background`
   and `surface`.
-- `border` carries every boundary but table lines, which
+- `border` carries every boundary, table lines included, which
   take `text`; both clear SC 1.4.11.
 - `error` is non-text only and marks errors only; `error-text` carries every
   error glyph.
@@ -259,9 +259,9 @@ CSS and `tests/contrast-table.spec.ts` fails when it drifts.
 
 A full or thin PageHero slab, the closing band on `/contact`, the quote on
 `/about`, the close row card, the homepage hero window and any
-`Section surface="gold"` are an ink slab, `#141517`, with a light edge and a
+`Section surface="gold"` are an ink slab, `#141517`, with a stone edge and a
 stone throw. In light mode `.surface-gold` is a `#F2F2F2` block with ink text and
-an ink edge. It sets its text, links and ring at 7:1 or more, and links stay underlined (SC 1.4.1):
+a slate edge. It sets its text, links and ring at 7:1 or more, and links stay underlined (SC 1.4.1):
 [Gold surface](docs/STYLEGUIDE.md#gold-surface).
 
 ### Blocks

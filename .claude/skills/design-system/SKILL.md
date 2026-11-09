@@ -27,8 +27,11 @@ before changing anything it covers.
   `bg-block-gold`.
 - A shadow class on a brick in a `.card-block`, or a brick that drops:
   `.card-block` gives each brick its throw and the wall only climbs right;
-  take the classes from `src/lib/wall.ts`. Brick fills and the 3px stone
+  take the classes from `src/lib/wall.ts`. Brick fills and the 3px
   edge come from `cards.css` (`brick-*`), never a class.
+- An edge in any color but the edge pair: stone `stone-edge` in dark mode,
+  slate `light-stone-edge` in light mode, through the role tokens. Error
+  edges, focus rings and throws keep their own colors.
 - A `filter` or `backdrop-filter` outside the hero canvas
   (`tests/filter-layers.spec.ts`).
 - A removed outline, `outline-none`, `:focus` styles or `outline-offset: 0`.

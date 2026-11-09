@@ -121,8 +121,11 @@ Rules: [STYLEGUIDE Color tokens](docs/STYLEGUIDE.md#color-tokens).
   `card-step-*` classes; each brick casts the throw and the next covers it, so
   it follows the stepped outline.
 - Wall bricks read `--brick-*` from `light-mode.css` (`:root`, the light scope
-  and the `.mode-dark` island), so every second brick and the 3px brick edge
-  switch with the theme like `--slab-*`.
+  and the `.mode-dark` island), so every second brick switches with the theme
+  like `--slab-*`.
+- `--edge-color` is set in the same three scopes: `stone-edge` in dark mode,
+  `light-stone-edge` in light mode. Blocks, bricks and the slab remap
+  `border` and `fill-edge` to it; the role tokens hold the same pair.
 
 ### Light mode
 
@@ -133,8 +136,9 @@ Dark is the default. Colors and rules:
   overrides a subset of tokens on `<main>`, the header and the footer while it
   is set. No `dark:` variants.
 - `<main>`, the header and the footer change; the header bar stays ink and
-  its edge turns ink and its throw stays gold. The no-JS nav stays dark.
-- `tile-edge` holds the mode-independent logo-tile edge color.
+  its edge turns slate and its throw stays stone. The no-JS nav stays dark.
+- `tile-edge` holds the mode-independent logo-tile edge color: stone in both
+  modes.
 - An inline script in `BaseLayout.astro`'s `<head>` sets `data-theme` from the
   saved choice or `prefers-color-scheme` before the body parses, rereads it on
   a back-forward cache restore (`pageshow`), applies a saved `--text-scale`,
