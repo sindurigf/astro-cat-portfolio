@@ -100,24 +100,24 @@ blur, uppercase headings, tilted marks.
 
 ## Color tokens
 
-| Token         | Hex          | Job                                                                         |
-| ------------- | ------------ | --------------------------------------------------------------------------- |
-| `background`  | `#141517`    | Page ground; header, footer, bands                                          |
-| `surface`     | `#1E2022`    | Inputs and controls off a block                                             |
-| `border`      | `#F2F2F2`    | Every boundary but table lines: the text color                              |
-| `card-edge`   | none         | Card and plain slab edge; `#141517` in light mode                           |
-| `fill-edge`   | `#F2F2F2`    | Edge of an ink fill: buttons, the slab; ink in light mode                   |
-| `text`        | `#F2F2F2`    | Words and table lines                                                       |
-| `subtle`      | `#9EB6C7`    | Captions, meta, helper text                                                 |
-| `gold`        | `#F2F2F2`    | Labels and label fills, only where the style guide allows                   |
-| `throw`       | `#6F8696`    | Stone: every hard shadow, both modes; never text                            |
-| `focus`       | `#8AB8FF`    | Hover and focus only                                                        |
-| `error`       | `#FF007A`    | Errors only: the invalid edge; never text                                   |
-| `error-text`  | `#FF8AC0`    | Every error glyph; never non-text                                           |
-| `tile-edge`   | `#5A87A8`    | Logo tile copies' edge; both modes                                          |
-| `button-text` | `ButtonText` | Forced colors only: bars on the button face                                 |
-| `cat-*`       | 6 fills      | Logo cat coat and About cat props; decoration, never a boundary             |
-| `hero-*`      | 9 values     | Homepage canvas accent (green), muted buds, ground, veil, floor, glyph glow |
+| Token         | Hex          | Job                                                                                         |
+| ------------- | ------------ | ------------------------------------------------------------------------------------------- |
+| `background`  | `#141517`    | Page ground; header, footer, bands                                                          |
+| `surface`     | `#1E2022`    | Inputs and controls off a block                                                             |
+| `border`      | `#F2F2F2`    | Every boundary but table lines: the text color                                              |
+| `card-edge`   | none         | Card and plain slab edge; `#141517` in light mode                                           |
+| `fill-edge`   | `#F2F2F2`    | Edge of an ink fill: buttons, the slab; ink in light mode                                   |
+| `text`        | `#F2F2F2`    | Words and table lines                                                                       |
+| `subtle`      | `#9EB6C7`    | Captions, meta, helper text                                                                 |
+| `gold`        | `#F2F2F2`    | Labels and label fills, only where the style guide allows                                   |
+| `throw`       | `#6F8696`    | Stone: every hard shadow, both modes; never text                                            |
+| `focus`       | `#8AB8FF`    | Hover and focus only                                                                        |
+| `error`       | `#FF007A`    | Errors only: the invalid edge; never text                                                   |
+| `error-text`  | `#FF8AC0`    | Every error glyph; never non-text                                                           |
+| `tile-edge`   | `#5A87A8`    | Logo tile copies' edge; both modes                                                          |
+| `button-text` | `ButtonText` | Forced colors only: bars on the button face                                                 |
+| `cat-*`       | 6 fills      | Logo cat coat and About cat props; decoration, never a boundary                             |
+| `hero-*`      | 9 values     | Homepage canvas accent (green), muted buds, ground, veil, floor, contact shadow, glyph glow |
 
 The slab set is in [Gold surface](#gold-surface), light values in
 [Light mode](#light-mode). Token names keep `gold` for labels and the slab;

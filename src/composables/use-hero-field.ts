@@ -75,6 +75,7 @@ export const useHeroField = (): HeroFieldState => {
       background: read('--color-hero-ground'),
       veil: read('--color-hero-veil'),
       veilEdge: read('--color-hero-veil-edge'),
+      contact: read('--color-hero-contact'),
       floor: read('--color-hero-floor'),
       floorEdge: read('--color-hero-floor-edge'),
       glow: read('--color-hero-glow'),

@@ -20,6 +20,8 @@ export interface HeroPalette {
    */
   /** `--color-hero-veil`. */
   readonly veil: string;
+  /** `--color-hero-contact`: the soft shadow under the stele. */
+  readonly contact: string;
   /** `--color-hero-veil-edge`. */
   readonly veilEdge: string;
   /** `--color-hero-floor`. */

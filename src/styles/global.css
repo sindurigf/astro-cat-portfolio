@@ -224,6 +224,7 @@
    */
   --color-hero-veil: rgba(242, 242, 242, 0.04);
   --color-hero-veil-edge: rgba(242, 242, 242, 0);
+  --color-hero-contact: var(--color-hero-accent);
   --color-hero-floor: rgba(242, 242, 242, 0.06);
   --color-hero-floor-edge: rgba(242, 242, 242, 0);
 

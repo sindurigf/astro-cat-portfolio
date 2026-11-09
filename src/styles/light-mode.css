@@ -33,6 +33,7 @@
     --dark-hero-ground: var(--color-hero-ground);
     --dark-hero-veil: var(--color-hero-veil);
     --dark-hero-veil-edge: var(--color-hero-veil-edge);
+    --dark-hero-contact: var(--color-hero-contact);
     --dark-hero-floor: var(--color-hero-floor);
     --dark-hero-floor-edge: var(--color-hero-floor-edge);
     --slab-text: var(--color-text);
@@ -81,6 +82,7 @@
     --color-hero-ground: var(--color-light-ground);
     --color-hero-veil: var(--color-light-ground);
     --color-hero-veil-edge: var(--color-light-ground);
+    --color-hero-contact: transparent;
     --color-hero-floor: var(--color-light-ground);
     --color-hero-floor-edge: var(--color-light-ground);
     color-scheme: light;
@@ -129,6 +131,7 @@
     --color-hero-ground: var(--dark-hero-ground);
     --color-hero-veil: var(--dark-hero-veil);
     --color-hero-veil-edge: var(--dark-hero-veil-edge);
+    --color-hero-contact: var(--dark-hero-contact);
     --color-hero-floor: var(--dark-hero-floor);
     --color-hero-floor-edge: var(--dark-hero-floor-edge);
     --link-fill-label: var(--color-block-ink);
