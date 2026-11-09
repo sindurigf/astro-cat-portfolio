@@ -1185,9 +1185,8 @@ by `tests/reading-tab.spec.ts`.
   A test asserts the tab covers no link, button or text at rest.
 - While a control in `main` has keyboard focus the tab slides out of the way
   (SC 2.4.11, 2.4.12).
-- The buttons step `--text-scale` 75 to 200 percent. It multiplies the reading
-  tokens (lead, standfirst, post teaser, body, label) in `global.css`, not the root size, so
-  spacing and breakpoints stay and browser zoom still applies. A step the page
+- The buttons step `--text-scale` 75 to 200 percent
+  ([why not the root size](../ARCHITECTURE.md#text-size)). A step the page
   cannot hold without sideways scroll is taken back (SC 1.4.10). The size is
   remembered; the head script in `BaseLayout.astro` applies it before first
   paint.
