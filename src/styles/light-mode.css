@@ -14,6 +14,8 @@
     --dark-subtle: var(--color-subtle);
     --dark-border: var(--color-border);
     --dark-focus: var(--color-focus);
+    --dark-hover: var(--color-hover);
+    --dark-hover-label: var(--color-hover-label);
     --dark-error: var(--color-error);
     --dark-error-text: var(--color-error-text);
     --dark-card-edge: var(--color-card-edge);
@@ -90,6 +92,8 @@
     --brick-error: var(--color-light-error-text);
     --brick-error-text: var(--color-light-error-text);
     --edge-color: var(--color-light-stone-edge);
+    --color-hover: var(--color-light-hover);
+    --color-hover-label: var(--color-light-hover-label);
     --color-hero-accent: var(--color-light-hero-accent);
     --color-gold-bud: var(--color-light-hero-accent);
     --color-hero-muted: var(--color-throw);
@@ -104,10 +108,9 @@
     background-color: var(--color-background);
   }
 
-  /* Hover fills take the dark mode `focus` under ink: light mode's is a text color. */
   :root[data-theme='light'] .header-slab :is(dialog, .theme-menu) {
     --hover-fill: var(--color-hover);
-    --hover-label: var(--color-light-ink);
+    --hover-label: var(--color-hover-label);
   }
 
   :is(:root[data-theme='light'] main, main .mode-light)
@@ -115,7 +118,7 @@
       :is(.mode-dark, .surface-gold, .card, .plain-slab, .post-contents) *
     ) {
     background-color: var(--color-hover);
-    color: var(--color-light-ink);
+    color: var(--color-hover-label);
   }
 
   /* A .mode-dark sample keeps the dark values. */
@@ -126,6 +129,8 @@
     --color-subtle: var(--dark-subtle);
     --color-border: var(--dark-border);
     --color-focus: var(--dark-focus);
+    --color-hover: var(--dark-hover);
+    --color-hover-label: var(--dark-hover-label);
     --color-error: var(--dark-error);
     --color-error-text: var(--dark-error-text);
     --color-card-edge: var(--dark-card-edge);

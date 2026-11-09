@@ -46,8 +46,9 @@
     --color-gold: var(--color-block-ink);
     --color-subtle: var(--color-light-subtle);
     --color-error-text: var(--color-light-error-text);
-    --color-border: var(--edge-color);
-    --color-fill-edge: var(--edge-color);
+    --color-border: var(--color-light-stone-edge);
+    --color-card-edge: var(--color-light-stone-edge);
+    --color-fill-edge: var(--color-light-stone-edge);
 
     background-color: var(--color-block-light);
   }
@@ -74,7 +75,7 @@
     )
     > * {
     --color-focus: var(--color-light-focus);
-    --color-fill-edge: var(--edge-color);
+    --color-fill-edge: var(--color-light-stone-edge);
   }
 
   /*
@@ -295,7 +296,7 @@
    * the pointer and draws its ring inside, so it never crosses the next brick.
    */
   .contact-brick:hover {
-    --color-text: var(--color-block-ink);
+    --color-text: var(--color-hover-label);
 
     background-color: var(--color-hover);
     color: var(--color-text);

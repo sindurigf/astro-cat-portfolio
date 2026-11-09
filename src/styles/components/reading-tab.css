@@ -36,7 +36,7 @@
     @apply flex min-h-14 w-target cursor-pointer items-center justify-center border-4 border-e-0 border-border bg-surface text-label font-black text-text;
 
     &:hover {
-      @apply bg-hover text-light-ink;
+      @apply bg-hover text-hover-label;
     }
 
     &:focus-visible {
@@ -82,7 +82,7 @@
     @apply flex min-h-target min-w-target items-center border-4 border-border bg-surface px-3 text-left text-label font-black uppercase tracking-label text-text;
 
     &:hover:not([aria-disabled='true']) {
-      @apply bg-hover text-light-ink;
+      @apply bg-hover text-hover-label;
     }
 
     &:focus-visible {

@@ -45,7 +45,7 @@
   }
 
   a.chip:not([aria-current]):hover {
-    @apply bg-hover text-light-ink;
+    @apply bg-hover text-hover-label;
   }
 
   /*
@@ -88,7 +88,7 @@
     }
 
     & a.chip:not([aria-current]):hover {
-      @apply text-block-ink;
+      @apply text-hover-label;
 
       background-color: var(--color-hover);
     }

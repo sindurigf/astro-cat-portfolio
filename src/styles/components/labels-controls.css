@@ -36,7 +36,7 @@
 
   .motion-toggle:hover {
     background-color: var(--color-hover);
-    color: var(--color-block-ink);
+    color: var(--color-hover-label);
   }
 
   /*

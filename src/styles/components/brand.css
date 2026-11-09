@@ -79,11 +79,11 @@
 
   .brand-menu-link:hover {
     background-color: var(--color-hover);
-    color: var(--color-block-ink);
-    outline-color: var(--color-block-ink);
+    color: var(--color-hover-label);
+    outline-color: var(--color-hover-label);
 
     & .brand-menu-number {
-      color: var(--color-block-ink);
+      color: var(--color-hover-label);
     }
   }
 
@@ -167,16 +167,16 @@
     }
 
     &:hover {
-      @apply bg-hover text-light-ink;
+      @apply bg-hover text-hover-label;
     }
 
     &:focus-visible {
       outline-offset: calc(-1 * (var(--focus-width) + var(--focus-gap)));
     }
 
-    /* The ring is `focus`, as is the hover fill: it turns to the page ground. */
+    /* On the hover fill the ring takes the label color. */
     &:hover:focus-visible {
-      outline-color: var(--color-background);
+      outline-color: var(--color-hover-label);
     }
 
     @media (forced-colors: active) {
@@ -198,15 +198,6 @@
   @media (hover: hover) {
     .copy-wrap:hover:not([data-dismissed], [data-copied]) .copy-tip {
       display: block;
-    }
-  }
-
-  :root[data-theme='light'] main .copy-button:hover {
-    background-color: var(--color-hover);
-    color: var(--color-light-ink);
-
-    &:focus-visible {
-      outline-color: var(--color-light-ink);
     }
   }
 
@@ -358,13 +349,13 @@
 
   /* Hover and press drawn at rest, so a still row shows each state (buttons-nav.css, light-mode.css). */
   .state-hover:not([aria-disabled='true']) {
-    @apply bg-hover text-light-ink;
+    @apply bg-hover text-hover-label;
   }
 
   :is(:root[data-theme='light'] main, main .mode-light)
     .state-hover:not([aria-disabled='true'], .mode-dark *) {
     background-color: var(--color-hover);
-    color: var(--color-light-ink);
+    color: var(--color-hover-label);
   }
 
   /* Doubled class: outweighs the press rule in buttons-nav.css. */
