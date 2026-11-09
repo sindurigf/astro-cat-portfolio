@@ -163,7 +163,7 @@ Setup: Chrome at about 740x380. `short:static` makes the header static below
 - [ ] Shift+Tab up the page at 740x380: no control lands under the header. → SC 2.4.11
 - [ ] The nav fits on one line, nothing wraps mid-word or overlaps. → SC 1.4.10
 
-### 5a.2 The roundel and the gold hero edge
+### 5a.2 The roundel and the green hero edge
 
 Setup: `/career`, `/contact`, `/blog`; `/about` (photo) as the control.
 

@@ -521,7 +521,7 @@ with a comment beside it.
 - It is sized so the roundel keeps clear of the hero title and the next
   content at every width.
 - `tests/page-hero.spec.ts` checks the roundel and the photo cover no text on
-  a gold slab at 320, 640, 768, 1023, 1024 and 1280px, and the roundel on a
+  an ink slab at 320, 640, 768, 1023, 1024 and 1280px, and the roundel on a
   plain slab at 320, 1023 and 1280px.
 
 ## Borders, shadows and radius
@@ -621,10 +621,10 @@ file per area.
   speed in `--press-travel` (80ms). The shadow is one layer in every state, so
   it slides instead of fading (`buttons-nav.css`).
 - Unavailable: `aria-disabled="true"`, never `disabled`. Dashed `border`
-  (the dash says unavailable, the gold keeps the shape), `bg-background`,
+  (the dash says unavailable, the border keeps the shape), `bg-background`,
   `subtle` label, no shadow; still focusable.
 - Sending: the contact submit is `aria-disabled` in a `data-sending` form but
-  drawn pressed and gold, not unavailable (`src/scripts/contact-sending.ts`).
+  drawn pressed on the ink `block-gold` fill, not unavailable (`src/scripts/contact-sending.ts`).
 - Current: [Navigation states](#states).
 
 ### Markup
@@ -678,7 +678,7 @@ Kept by review: no spec compares instances across pages.
   full slab.
 - **Cross-links between two sections:** a chip.
 - **The quote sentence:** `text-h2` at 900, on `/about` and on `/contact`'s
-  closing band. On `/about` it sits on a gold card under a decorative
+  closing band. On `/about` it sits on an ink `.card.surface-gold` under a decorative
   `text-quote-mark`, beside the photo.
 - **A name with a line saying what it did** (`/credits`): each entry on an
   inset `bg-background` tile inside the card. No rule between entries. On a
