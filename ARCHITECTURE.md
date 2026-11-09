@@ -853,8 +853,7 @@ evidence.
   ([H67](https://www.w3.org/WAI/WCAG22/Techniques/html/H67)). Text there would
   be announced twice.
 - **AccessLint engine hits, each checked against the live DOM:**
-  `color-contrast` on the homepage name is read against a gold ancestor the
-  text does not sit on; `landmark-unique` counts the no-JavaScript nav, which
+  `landmark-unique` counts the no-JavaScript nav, which
   is `display: none` with scripts on; `aria-hidden-focus` flags the controls
   in `/brand`'s light halves, which are `inert` and so never take focus.
   `ACCESSLINT_FALSE_POSITIVES` in `tests/accesslint.ts` drops each only on
