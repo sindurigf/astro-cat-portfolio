@@ -40,7 +40,8 @@
 
   :is(:root[data-theme='light'] main, main .mode-light)
     :is(.rotate-3, .-rotate-3).sticker:not(:is(.mode-dark, .surface-gold) *),
-  :is(.rotate-3, .-rotate-3).hero-sticker.bg-block-light {
+  :root:not([data-theme='light'])
+    :is(.rotate-3, .-rotate-3).hero-sticker.bg-block-light {
     background-clip: border-box;
   }
 
