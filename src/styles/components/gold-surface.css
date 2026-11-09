@@ -10,7 +10,7 @@
 
     @apply bg-gold text-gold-text;
   }
-
+  /* The dark homepage hero on the page ground: gold stalks and buds, page text. */
   /* The homepage hero: an ink window in the gold column, page text on it. */
   :root:not([data-theme='light']) .v-column .hero-window {
     --color-mark: var(--dark-mark);
