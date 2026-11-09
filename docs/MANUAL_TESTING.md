@@ -130,11 +130,11 @@ once with no pause control and the cat still with no sleep control.
 ## 5. Focus indicator visibility
 
 The ring is 4px cyan at a 4px offset plus the element's shadow (4px, or 8px for
-the logo tile); `#131313` on gold. The `/contact` bricks draw an ink ring inside
+the logo tile); `#F2F2F2` on the ink slab. The `/contact` bricks draw an ink ring inside
 the brick instead. Look, do not measure.
 
-- [ ] On `#0B0B0B`: header links, footer. → SC 1.4.11, 2.4.7
-- [ ] On a gold and a light block: a link in a card. → SC 1.4.11, 2.4.7
+- [ ] On `#141517`: header links, footer. → SC 1.4.11, 2.4.7
+- [ ] On an ink and a light block: a link in a card. → SC 1.4.11, 2.4.7
 - [ ] Chips and footer tiles: the ring sits past the pink shadow, follows the
       tilt, and never touches the next chip. → SC 1.4.11, 2.4.7
 - [ ] Current nav item and current chip: the ring reads as separate from the
@@ -143,13 +143,13 @@ the brick instead. Look, do not measure.
       the control. → SC 1.4.11, 2.4.7
 - [ ] `/contact` bricks: the ink ring sits inside the brick, reads against
       its fill and never crosses the next brick. → SC 1.4.11, 2.4.7
-- [ ] Gold skip link and "Get in Touch": the ring is on the dark ground, never
-      on gold. → SC 1.4.11
-- [ ] On a gold slab or band: the `#131313` ring is visible. → SC 1.4.11
+- [ ] Skip link and "Get in Touch": the ring clears the green edge and
+      throw. → SC 1.4.11
+- [ ] On the ink slab or band: the `#F2F2F2` ring is visible. → SC 1.4.11
 - [ ] No ring is clipped by a parent or hidden under the header. → SC 2.4.11
 - [ ] Focus is never shown by shadow alone. → SC 2.4.7
 - [ ] The Light theme on `<main>`, the header bar's page parts and the footer: the
-      ring is `--color-light-focus` (`#0047b3`) on white. See §5b. → SC 1.4.11, 2.4.7
+      ring is `--color-light-focus` (`#0047b3`) on `#F2F2F2`. See §5b. → SC 1.4.11, 2.4.7
 
 ## 5a. Header height, roundel and hero edge
 
@@ -202,8 +202,8 @@ its place at 320 and 1280px, its ring, forced colors, the theme set before
       header and a primary button: each ring is separate from its block. → SC 1.4.11, 2.4.7
 - [ ] Hover and press a button, a chip and a link: text and edge stay readable
       in each state. → SC 1.4.3, 1.4.11
-- [ ] A gold label shows ink text with its square, gold on white and ink on
-      a gold block; nothing is gold text on white. → SC 1.4.3
+- [ ] An accent label shows ink text with its green square; nothing is green
+      text on `#F2F2F2`. → SC 1.4.3
 - [ ] Repeat §3 at 400% in light: no overlap, no cut-off. → SC 1.4.10
 - [ ] Repeat §5a.2 forced colors in light: the roundel edge and the focus ring
       show. → SC 1.4.11

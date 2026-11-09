@@ -128,8 +128,8 @@ Dark is the default. Colors and rules:
 - `data-theme="light"` on `<html>`; `src/styles/light-mode.css`, imported last,
   overrides a subset of tokens on `<main>`, the header and the footer while it
   is set. No `dark:` variants.
-- `<main>`, the header and the footer change; the header bar stays gold and
-  its throw turns ink. The no-JS nav stays dark.
+- `<main>`, the header and the footer change; the header bar stays ink and
+  its edge and throw turn the darker green. The no-JS nav stays dark.
 - `mark` and `tile-edge` hold the mode-independent logo-tile colors.
 - An inline script in `BaseLayout.astro`'s `<head>` sets `data-theme` from the
   saved choice or `prefers-color-scheme` before the body parses, rereads it on
@@ -236,7 +236,7 @@ Headings, alt text, focus rings and axe are checked on the rendered page by
   `professional-journey`, `open-source`. Rename them in `BLOG_CATEGORIES` and
   `CATEGORIES` together. Import `BLOG_CATEGORIES`.
 - Glyph and teaser per category: `CATEGORIES` in `src/lib/categories.ts`.
-  Every category is gold: `CATEGORY_LABEL` and `CATEGORY_TILE` there;
+  Every category takes the accent: `CATEGORY_LABEL` and `CATEGORY_TILE` there;
   `tests/category-style.spec.ts` holds them to 7:1.
 - Tags are kebab-case URL segments (`/blog/tag/<tag>/`). Proper-noun labels in
   `TAG_LABELS`. Tag `<h1>` is `text-h2`, since a tag cannot take a soft hyphen.
@@ -453,7 +453,7 @@ in `wrangler.jsonc`).
 ## Assets
 
 - **The suffix names the artwork color.** `-dark` is `#131313` artwork (goes
-  on gold or light); `-white` is `#FFFFFF` artwork (goes on dark). The wrong
+  on light); `-white` is `#FFFFFF` artwork (goes on dark). The wrong
   pairing renders invisible.
 - `src/assets/`: rendered artwork, through `astro:assets`, WebP, hashed into
   `/_astro/`, cached immutably. Unimported files are not emitted.
@@ -467,17 +467,17 @@ in `wrangler.jsonc`).
 | `public/images/og-default.png` | Composite | n/a           | `BaseLayout.astro`, the homepage and the 404 |
 | `public/images/og/*.jpg`       | Composite | n/a           | `BaseLayout.astro`, every other page         |
 
-| Artwork             | on `#0B0B0B` | on `#1A1A1A` | on `#FFFFFF` | on `#FFC000` |
-| ------------------- | ------------ | ------------ | ------------ | ------------ |
-| `-dark`, `#131313`  | 1.06         | 1.07         | **18.58**    | **11.32**    |
-| `-white`, `#FFFFFF` | **19.68**    | **17.40**    | 1.00         | 1.64         |
+| Artwork             | on `#141517` | on `#1E2022` | on `#F2F2F2` |
+| ------------------- | ------------ | ------------ | ------------ |
+| `-dark`, `#131313`  | 1.02         | 1.14         | **16.60**    |
+| `-white`, `#FFFFFF` | **18.27**    | **16.34**    | 1.12         |
 
-- `og-default.png`: 1200x630, the site card: the name, `site.tagline` and `site.name` on the gold panel, the logo
+- `og-default.png`: 1200x630, the site card: the name, `site.tagline` and `site.name` on the ink panel, the logo
   cat whole and centered on the dark strip, clear of the cropped edges. Rendered by `npm run og`
   ([DEVELOPMENT.md](docs/DEVELOPMENT.md#the-sharing-images)). A PNG in `public/`
   because scrapers need a stable URL and format.
 - `public/images/og/<route>.jpg`: every other page's card, drawn by the same
-  script from the built page: the person's name over the page title on gold,
+  script from the built page: the person's name over the page title on ink,
   and on the strip the first photo in `<main>`, whole, or the logo cat when
   there is none. `OG_PHOTO_CHOICES` in `src/lib/og-cards.ts` holds per-route
   exceptions, empty as shipped. `cards.json` records each card's title, photo

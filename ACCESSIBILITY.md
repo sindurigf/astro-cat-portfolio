@@ -170,7 +170,7 @@ Not in scope: third-party sites linked from the footer, and forks.
 - **No JavaScript.** A fallback navigation replaces the mobile menu, sits
   below the header and never duplicates the primary nav.
 - **Current page.** `aria-current` in every navigation, plus a shape change,
-  never color alone: a gold brick with an inset ink ring in the header, a brick
+  never color alone: an ink brick with an inset light ring in the header, a brick
   pressed into its shadow in the menu, a filled block in the no-JavaScript
   navigation, an underline in the footer.
 - **Help.** Every page opens with the same "Report an Accessibility Problem"
@@ -258,16 +258,16 @@ CSS and `tests/contrast-table.spec.ts` fails when it drifts.
 
 A full or thin PageHero slab, the closing band on `/contact`, the quote on
 `/about`, the close row card, the homepage hero window and any
-`Section surface="gold"` are `#FFC000`. Every dark
-token fails on it, so `.surface-gold` swaps in a near-black set, links stay
-underlined (SC 1.4.1) and the dark buttons are replaced by gold ones:
+`Section surface="gold"` are an ink slab, `#141517`, with a green edge and
+throw. `.surface-gold` keeps it ink in light mode, sets its text, links and
+ring at 7:1 or more, and links stay underlined (SC 1.4.1):
 [Gold surface](docs/STYLEGUIDE.md#gold-surface).
 
 ### Blocks
 
-Every card, the plain hero slab and the post contents are gold or light blocks
-with a 4px ink edge. Inside, the color tokens are remapped, so text is ink at
-7:1 or more and the focus ring is `gold-link` (`tests/blocks.spec.ts`,
+Every card, the plain hero slab and the post contents are ink or light blocks
+with a 4px edge. Inside, the color tokens are remapped, so text reaches 7:1 or
+more and the focus ring stays visible on the fill (`tests/blocks.spec.ts`,
 [Colors](docs/STYLEGUIDE.md#color-tokens)).
 
 ### Light mode
@@ -437,8 +437,8 @@ template ships with none of it run; record your own results. Not automated:
 
    | Measured                                    | Result                                     |
    | ------------------------------------------- | ------------------------------------------ |
-   | `.btn-gold-primary` on `/contact`, at 305px | its fill delimits it on gold               |
-   | its focus ring                              | inner `#FFFFFF` ring, at least 3:1 on fill |
+   | `.btn-gold-primary` on `/contact`, at 305px | its light fill delimits it on the ink slab |
+   | its focus ring                              | inner ink ring, at least 3:1 on the fill   |
    | every string on a gold ground, every route  | nothing below 4.5:1                        |
 
    `.btn-gold-secondary` (on `/` and `/career`) is measured by its border edge
