@@ -120,6 +120,9 @@ Rules: [STYLEGUIDE Color tokens](docs/STYLEGUIDE.md#color-tokens).
 - `src/lib/wall.ts` turns a wall's rows per breakpoint into `card-rise-*` and
   `card-step-*` classes; each brick casts the throw and the next covers it, so
   it follows the stepped outline.
+- Wall bricks read `--brick-*` from `light-mode.css` (`:root`, the light scope
+  and the `.mode-dark` island), so every second brick and the 3px brick edge
+  switch with the theme like `--slab-*`.
 
 ### Light mode
 
