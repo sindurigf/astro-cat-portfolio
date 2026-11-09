@@ -342,7 +342,7 @@ The switch and what it scopes: [ARCHITECTURE.md](../ARCHITECTURE.md#light-mode).
   they do not change with the mode.
 - The label on a gold fill is `gold-text`, never `background` (white in
   light).
-- The homepage's second sticker and `.sticker` are black blocks.
+- The homepage's second sticker and `.sticker` are black blocks. In dark mode the second sticker is `block-light` with `block-ink` text (14.42) on the ink hero.
 - `tests/light-mode.spec.ts` scans every route in light at WCAG 2.2 AA.
 
 ## Type scale

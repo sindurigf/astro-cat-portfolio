@@ -41,16 +41,8 @@
   .surface-gold :is(.rotate-3, .-rotate-3).sticker,
   :is(:root[data-theme='light'] main, main .mode-light)
     :is(.rotate-3, .-rotate-3).sticker:not(.mode-dark *),
-  :is(.rotate-3, .-rotate-3).hero-sticker.bg-surface {
+  :is(.rotate-3, .-rotate-3).hero-sticker.bg-block-light {
     background-clip: border-box;
-  }
-
-  /* On the ink hero the sticker's edge is the text color, not its fill. */
-  :root:not([data-theme='light'])
-    .v-column
-    .hero-window
-    :is(.rotate-3, .-rotate-3).hero-sticker.bg-surface {
-    background-clip: padding-box;
   }
 
   /* `text-gold` is ink on the ink hero; the pause glyph takes the text color. */
