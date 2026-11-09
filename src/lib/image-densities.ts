@@ -30,14 +30,16 @@ export const CARD_COVER_RATIO = { width: 4, height: 3 } as const;
  * (homepage Featured Posts, the /blog list); the /blog feature holds it in its
  * right half from `md`, a card filling its row from `lg`. tests/image-size.spec.ts fails when one drifts.
  */
-const CARD_NARROW =
-  '(min-width: 40rem) calc(100vw - 144px), calc(100vw - 96px)';
+/* `--block-edge` less `--wall-edge`, on both sides: a wall brick's content is this much wider. */
+export const WALL_EDGE_GAIN_PX = 2;
+
+const CARD_NARROW = `(min-width: 40rem) calc(100vw - ${144 - WALL_EDGE_GAIN_PX}px), calc(100vw - ${96 - WALL_EDGE_GAIN_PX}px)`;
 
 /* px a wall step takes off a card's right edge from `lg`: `--step-x` in global.css. */
 const STEP_PX = 24;
 /* A two-column card cover's width from 83rem, and its inset from half the viewport below that. */
-const TWO_COLUMN_CARD_PX = 546;
-const TWO_COLUMN_CARD_INSET_PX = 118;
+const TWO_COLUMN_CARD_PX = 546 + WALL_EDGE_GAIN_PX;
+const TWO_COLUMN_CARD_INSET_PX = 118 - WALL_EDGE_GAIN_PX;
 
 /** A stacked card's cover in a wall of two columns at `lg`, stepped in `step` times. */
 export const steppedCardCoverSizes = (step: number): string =>
@@ -45,10 +47,9 @@ export const steppedCardCoverSizes = (step: number): string =>
 
 export const CARD_COVER_SIZES = {
   2: steppedCardCoverSizes(0),
-  3: `(min-width: 83rem) 333px, (min-width: 64rem) calc(33.33vw - 109px), ${CARD_NARROW}`,
-  feature:
-    '(min-width: 48rem) min(calc(50vw - 5.5rem), 36rem), (min-width: 40rem) calc(100vw - 9rem), calc(100vw - 6rem)',
-  row: `(min-width: 64rem) min(calc(50vw - 5.5rem), 36rem), ${CARD_NARROW}`,
+  3: `(min-width: 83rem) ${333 + WALL_EDGE_GAIN_PX}px, (min-width: 64rem) calc(33.33vw - ${109 - WALL_EDGE_GAIN_PX}px), ${CARD_NARROW}`,
+  feature: `(min-width: 48rem) min(calc(50vw - 5.5rem + ${WALL_EDGE_GAIN_PX}px), calc(36rem + ${WALL_EDGE_GAIN_PX}px)), ${CARD_NARROW}`,
+  row: `(min-width: 64rem) min(calc(50vw - 5.5rem + ${WALL_EDGE_GAIN_PX}px), calc(36rem + ${WALL_EDGE_GAIN_PX}px)), ${CARD_NARROW}`,
 } as const;
 
 /*
