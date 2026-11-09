@@ -316,7 +316,7 @@ The switch and what it scopes: [ARCHITECTURE.md](../ARCHITECTURE.md#light-mode).
 | gold as text, `.text-gold`                          | `#131313` | 18.58        |
 | `subtle`                                            | `#3f4650` | 9.53         |
 | `pink-text`                                         | `#b00054` | 7.06         |
-| `light-hero-gold` (hero stalks, buds, poneglyph)    | `#8a6500` | 5.33         |
+| `light-hero-stalk` (hero stalks, buds, poneglyph)   | `#8b0a1e` | 9.72         |
 | `code-edge`                                         | `#767676` | 4.54         |
 | `code-fill`                                         | `#e5e2e1` | 1.29         |
 | `cyan` (focus ring and hover text)                  | `#0047b3` | 8.23         |
@@ -326,7 +326,7 @@ The switch and what it scopes: [ARCHITECTURE.md](../ARCHITECTURE.md#light-mode).
   `light-mode.css`.
 - The homepage hero window sits on the page ground in both modes. Its stalks,
   buds and poneglyph are `#FFC000` in dark mode (11.99 on `#0b0b0b`, far buds
-  `#b38600` 5.93) and `light-hero-gold` `#8a6500` in light mode (5.33).
+  `#b38600` 5.93) and `light-hero-stalk` `#8b0a1e` in light mode (9.72).
 - Every hard shadow and edge turns `#131313`; `mark` throws turn `#b00054`
   (4.5 on gold, 7.06 on white).
 - Hover fills are dark mode's `#00dcfd` under `#131313` (11.20).
@@ -1408,7 +1408,7 @@ Enforced by `tests/nav-current.spec.ts`, `tests/mobile-menu.spec.ts`,
   bottom, in a loop: each glyph's strokes thicken into a full-stalk rim with the
   glow color inside, rising over 0.6 s and fading over 0.6 s as the next
   glyph rises, then wrapping to the start. The rim keeps 11.02:1 on the dark
-  face and 4.92:1 on the light (SC 1.4.11). One glyph is far below the general
+  face and 8.69:1 on the light (SC 1.4.11). One glyph is far below the general
   flash area and makes one rise and fall a cycle (SC 2.3.1). The pause control
   freezes it; under reduced motion the script stays unlit.
 

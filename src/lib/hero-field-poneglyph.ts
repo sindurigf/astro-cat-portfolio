@@ -230,7 +230,7 @@ const script = (
   ctx.lineWidth = LINE.groove * unit;
   ctx.stroke(marks);
   /*
-   * A lit glyph thickens into a full-stalk rim (11.02:1 on the dark face, 4.92:1
+   * A lit glyph thickens into a full-stalk rim (11.02:1 on the dark face, 8.69:1
    * on the light, SC 1.4.11) with the glow color inside it.
    */
   glyphs.forEach((strokes, g) => {
