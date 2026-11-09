@@ -526,12 +526,16 @@ with a comment beside it.
 
 ## Borders, shadows and radius
 
-- Two edge weights, by choice. `--block-edge` (4px) is the ink edge of every
+- Two main edge weights, by choice. `--block-edge` (4px) is the ink edge of every
   card, hero slab and the post contents (`cards.css`). `--edge` (6px) is the
   width of panels, popovers, form fields, topic tiles, the `/accessibility`
   fact-strip rules, a prose `hr` and blockquote: the
-  `edge`, `edge-t`, `edge-b` and `edge-l` utilities. Photos, controls, chips, the theme
-  switch, stickers and code blocks keep `border-4`. No rule between sections.
+  `edge`, `edge-t`, `edge-b` and `edge-l` utilities. Photos, controls, chips,
+  the theme switch and the dark-mode code label keep `border-4`; footer
+  stickers take `--border-width-sticker` (4px). No rule between sections.
+- One thinner weight, `--border-width-thin` (2px), for post code frames, the
+  light-mode code label and modules only: where it applies is in the Code
+  block and Fold rows of [Components](#components).
 - Every prose table (posts, `/brand`) draws only `--hairline` (1px)
   lines, the `hairline`, `hairline-t` and `hairline-b` utilities, all in
   `text`, never gold. Nothing else uses `--hairline`.
