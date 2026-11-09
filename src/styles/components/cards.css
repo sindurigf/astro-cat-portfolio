@@ -32,17 +32,14 @@
   }
 
   /*
-   * Light blocks: every second card in a block, `.card-solid`, the plain hero
+   * Light blocks: `.card-solid`, the plain hero
    * slab and the post contents, with ink text and edge: 16.32, subtle 8.51 on
    * the fill.
    */
-  :is(
-    .card-solid,
-    .plain-slab,
-    .post-contents,
-    .card-block > .card:nth-child(even),
-    .card-block > :nth-child(even) > .card
-  ):not(.surface-gold, .surface-gold *) {
+  :is(.card-solid, .plain-slab, .post-contents):not(
+    .surface-gold,
+    .surface-gold *
+  ) {
     --color-background: var(--color-block-light);
     --color-surface: var(--color-block-light);
     --color-text: var(--color-block-ink);
@@ -71,16 +68,51 @@
     --color-fill-edge: var(--slab-fill-edge);
   }
 
+  :is(.card-solid, .plain-slab, .post-contents):not(
+      .surface-gold,
+      .surface-gold *
+    )
+    > * {
+    --color-focus: var(--color-light-focus);
+    --color-fill-edge: var(--color-block-ink);
+  }
+
+  /*
+   * The wall: every brick takes a stone edge (slate in light mode), and every
+   * second brick a raised fill (`brick-*`, set in light-mode.css).
+   */
+  :is(.card-block > .card, .card-block > * > .card):not(
+    .surface-gold,
+    .surface-gold *
+  ) {
+    border-width: var(--wall-edge);
+    border-color: var(--brick-edge-color);
+  }
+
   :is(
-      .card-solid,
-      .plain-slab,
-      .post-contents,
+    .card-block > .card:nth-child(even),
+    .card-block > :nth-child(even) > .card
+  ):not(.surface-gold, .surface-gold *) {
+    --color-background: var(--brick-fill);
+    --color-surface: var(--brick-fill);
+    --color-text: var(--brick-text);
+    --color-gold: var(--brick-text);
+    --color-subtle: var(--brick-subtle);
+    --color-error: var(--brick-error);
+    --color-error-text: var(--brick-error-text);
+    --color-border: var(--brick-text);
+    --color-fill-edge: var(--brick-text);
+
+    background-color: var(--brick-fill);
+  }
+
+  :is(
       .card-block > .card:nth-child(even),
       .card-block > :nth-child(even) > .card
     ):not(.surface-gold, .surface-gold *)
     > * {
-    --color-focus: var(--color-light-focus);
-    --color-fill-edge: var(--color-block-ink);
+    --color-focus: var(--brick-focus);
+    --color-fill-edge: var(--brick-text);
   }
 
   /* A slab card or column keeps its own colors and takes the block edge. */

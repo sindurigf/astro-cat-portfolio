@@ -43,6 +43,13 @@
     --slab-error: var(--color-error);
     --slab-error-text: var(--color-error-text);
     --slab-fill-edge: var(--color-fill-edge);
+    --brick-fill: var(--color-brick-dark);
+    --brick-text: var(--color-block-light);
+    --brick-subtle: var(--color-brick-subtle);
+    --brick-focus: var(--color-brick-focus);
+    --brick-error: var(--color-error);
+    --brick-error-text: var(--color-error-text);
+    --brick-edge-color: var(--color-brick-edge);
   }
 
   /* Not a <header> or <footer> inside <main>: in the slab it would paint a light box. */
@@ -76,6 +83,13 @@
     --slab-error: var(--color-light-error-text);
     --slab-error-text: var(--color-light-error-text);
     --slab-fill-edge: var(--color-light-ink);
+    --brick-fill: var(--color-light-brick);
+    --brick-text: var(--color-light-ink);
+    --brick-subtle: var(--color-light-subtle);
+    --brick-focus: var(--color-light-brick-focus);
+    --brick-error: var(--color-light-error-text);
+    --brick-error-text: var(--color-light-error-text);
+    --brick-edge-color: var(--color-light-brick-edge);
     --color-hero-accent: var(--color-light-hero-accent);
     --color-gold-bud: var(--color-light-hero-accent);
     --color-hero-muted: var(--color-throw);
@@ -142,6 +156,13 @@
     --slab-error: var(--dark-error);
     --slab-error-text: var(--dark-error-text);
     --slab-fill-edge: var(--dark-fill-edge);
+    --brick-fill: var(--color-brick-dark);
+    --brick-text: var(--color-block-light);
+    --brick-subtle: var(--color-brick-subtle);
+    --brick-focus: var(--color-brick-focus);
+    --brick-error: var(--dark-error);
+    --brick-error-text: var(--dark-error-text);
+    --brick-edge-color: var(--color-brick-edge);
     color-scheme: dark;
   }
 

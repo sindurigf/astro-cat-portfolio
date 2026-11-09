@@ -159,6 +159,15 @@
   --color-error: #ff007a;
   --color-error-text: #ff8ac0;
   --color-tile-edge: #5a87a8;
+  /*
+   * Wall bricks (cards.css): every second brick's fill, light text 12.2 and
+   * subtle 8.48 on it; the stone edge is 4.81 on ink. Light mode in light-mode.css.
+   */
+  --color-brick-dark: #2a2e33;
+  --color-brick-subtle: #c9ccd1;
+  --color-brick-edge: #6f8696;
+  /* Hover text and rings in it: 7.59, where `focus` is 6.75. */
+  --color-brick-focus: #9cc3ff;
   /* The system color forced-colors mode pairs with the button face; bars on it use `forced-colors:bg-button-text`. */
   --color-button-text: ButtonText;
   /* TODO(fork): The logo cat's coat colors. README "Your cat, or none". */
@@ -179,6 +188,11 @@
   --color-light-subtle: #3f4650;
   --color-light-focus: #0047b3;
   --color-light-error-text: #9e004b;
+  /* Every second brick, ink 13.9 on it; the slate edge is 4.91 on light-ground. */
+  --color-light-brick: #dde1e5;
+  --color-light-brick-edge: #5b6b78;
+  /* Hover text and rings in it: 7.51, where `light-focus` is 6.26. */
+  --color-light-brick-focus: #003d99;
   /* A code block's edge in a post, kept grey so the accent label is the only accent. */
   --color-code-edge: #707070;
   /* Its light mode value. */
@@ -382,6 +396,8 @@
   --hard-throw: 8px;
   /* A block's ink edge; blocks in a `.card-block` share it as one wall. */
   --block-edge: 4px;
+  /* Every brick in a `.card-block`, odd and even. */
+  --wall-edge: 3px;
   /* The header's joined bricks and its logo block. */
   --brick-throw: 6px;
   /*
