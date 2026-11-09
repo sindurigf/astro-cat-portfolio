@@ -24,6 +24,11 @@
     --dark-hero-glow: var(--color-hero-glow);
     --dark-hero-veil: var(--color-hero-veil);
     --dark-hero-floor: var(--color-hero-floor);
+    --dark-mark: var(--color-mark);
+    --dark-hero-veil-edge: var(--color-hero-veil-edge);
+    --dark-hero-floor-edge: var(--color-hero-floor-edge);
+    --dark-hero-accent: var(--color-hero-accent);
+    --dark-hero-muted: var(--color-hero-muted);
   }
 
   :root[data-theme='light'] :is(main, header, footer),
@@ -43,8 +48,13 @@
     --color-gold-bud: var(--color-light-ink);
     --color-hero-ground: var(--color-light-ground);
     --color-hero-glow: var(--color-gold);
-    --color-hero-veil: var(--color-light-hero-veil);
-    --color-hero-floor: var(--color-light-hero-floor);
+    --color-hero-veil: var(--color-light-ground);
+    --color-hero-veil-edge: var(--color-light-ground);
+    --color-hero-floor: var(--color-light-ground);
+    --color-hero-floor-edge: var(--color-light-ground);
+    --color-hero-accent: var(--color-light-hero-accent);
+    --color-hero-muted: var(--color-light-subtle);
+    --color-mark: var(--color-light-pink-text);
     color-scheme: light;
     color: var(--color-text);
     background-color: var(--color-background);
@@ -83,6 +93,11 @@
     --color-hero-glow: var(--dark-hero-glow);
     --color-hero-veil: var(--dark-hero-veil);
     --color-hero-floor: var(--dark-hero-floor);
+    --color-hero-veil-edge: var(--dark-hero-veil-edge);
+    --color-hero-floor-edge: var(--dark-hero-floor-edge);
+    --color-mark: var(--dark-mark);
+    --color-hero-accent: var(--dark-hero-accent);
+    --color-hero-muted: var(--dark-hero-muted);
     color-scheme: dark;
     color: var(--color-text);
     background-color: var(--color-background);
@@ -91,6 +106,10 @@
   :is(:root[data-theme='light'] main, main .mode-light)
     :is(.surface-gold, .v-column):not(.mode-dark *) {
     background-color: var(--color-background);
+  }
+
+  :root[data-theme='light'] .v-column .hero-window {
+    --color-gold-bud: var(--color-hero-accent);
   }
 
   /*
@@ -108,7 +127,7 @@
   :is(:root[data-theme='light'] main, main .mode-light)
     .label.text-gold:not(.mode-dark *)::before {
     content: '';
-    background-color: var(--label-mark, var(--color-block-gold));
+    background-color: var(--label-mark, var(--color-mark));
 
     @apply mr-2 inline-block size-2.5;
   }

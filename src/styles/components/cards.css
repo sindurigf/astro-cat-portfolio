@@ -25,7 +25,7 @@
     --color-pink-text: var(--color-gold-link);
     --color-border: var(--color-block-ink);
     --color-card-edge: var(--color-block-ink);
-    /* Light mode's square before a gold label: ink on gold, gold elsewhere. */
+    /* Light mode's square before a gold label: ink on gold, deep pink elsewhere. */
     --label-mark: var(--color-block-ink);
 
     position: relative;
@@ -33,6 +33,12 @@
     border-color: var(--color-block-ink);
     background-color: var(--color-block-gold);
     color: var(--color-text);
+  }
+
+  /* A control's neon pink throw reaches 2.31 on a gold block; the deep pink 4.5. */
+  :is(.card, .plain-slab, .post-contents):not(.surface-gold, .surface-gold *)
+    :is(.btn-primary, .btn-secondary) {
+    --press-throw-color: var(--color-light-pink-text);
   }
 
   /*
@@ -48,7 +54,7 @@
   ):not(.surface-gold, .surface-gold *) {
     --color-background: var(--color-block-light);
     --color-surface: var(--color-block-light);
-    --label-mark: var(--color-block-gold);
+    --label-mark: var(--color-mark);
     --color-subtle: var(--color-light-subtle);
 
     background-color: var(--color-block-light);

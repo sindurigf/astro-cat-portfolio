@@ -96,24 +96,24 @@ blur, uppercase headings, tilted marks.
 
 ## Color tokens
 
-| Token         | Hex          | Job                                                             |
-| ------------- | ------------ | --------------------------------------------------------------- |
-| `background`  | `#0B0B0B`    | Page ground; header, footer, bands                              |
-| `surface`     | `#1A1A1A`    | Inputs and controls off a block                                 |
-| `border`      | `#FFC000`    | Every boundary but table lines: the gold edge                   |
-| `card-edge`   | none         | Card and plain slab edge; `#131313` in light mode               |
-| `fill-edge`   | `#131313`    | Edge of a gold or light fill: buttons                           |
-| `text`        | `#E5E2E1`    | Words and table lines                                           |
-| `subtle`      | `#9EB6C7`    | Captions, meta, helper text                                     |
-| `gold`        | `#FFC000`    | The accent, only where the style guide allows                   |
-| `cyan`        | `#00DCFD`    | Hover and focus only                                            |
-| `pink`        | `#FF007A`    | Depth and error; never text                                     |
-| `pink-text`   | `#FF79B6`    | Every pink glyph; never non-text                                |
-| `mark`        | `#FF007A`    | Logo marks; same in both modes                                  |
-| `tile-edge`   | `#5A87A8`    | Logo tile copies' edge; both modes                              |
-| `button-text` | `ButtonText` | Forced colors only: bars on the button face                     |
-| `cat-*`       | 6 fills      | Logo cat coat and About cat props; decoration, never a boundary |
-| `hero-*`      | 6 values     | Homepage canvas ground, veil, floor and glyph glow; decoration  |
+| Token         | Hex          | Job                                                                  |
+| ------------- | ------------ | -------------------------------------------------------------------- |
+| `background`  | `#0B0B0B`    | Page ground; header, footer, bands                                   |
+| `surface`     | `#1A1A1A`    | Inputs and controls off a block                                      |
+| `border`      | `#FFC000`    | Every boundary but table lines: the gold edge                        |
+| `card-edge`   | none         | Card and plain slab edge; `#131313` in light mode                    |
+| `fill-edge`   | `#131313`    | Edge of a gold or light fill: buttons                                |
+| `text`        | `#E5E2E1`    | Words and table lines                                                |
+| `subtle`      | `#9EB6C7`    | Captions, meta, helper text                                          |
+| `gold`        | `#FFC000`    | The accent, only where the style guide allows                        |
+| `cyan`        | `#00DCFD`    | Hover and focus only                                                 |
+| `pink`        | `#FF007A`    | Depth and error; never text                                          |
+| `pink-text`   | `#FF79B6`    | Every pink glyph; never non-text                                     |
+| `mark`        | `#FF007A`    | Logo marks; same in both modes                                       |
+| `tile-edge`   | `#5A87A8`    | Logo tile copies' edge; both modes                                   |
+| `button-text` | `ButtonText` | Forced colors only: bars on the button face                          |
+| `cat-*`       | 6 fills      | Logo cat coat and About cat props; decoration, never a boundary      |
+| `hero-*`      | 9 values     | Homepage canvas ground, veil, floor, buds and glyph glow; decoration |
 
 The gold-ground set is in [Gold surface](#gold-surface), light values in
 [Light mode](#light-mode).
@@ -321,13 +321,16 @@ The switch and what it scopes: [ARCHITECTURE.md](../ARCHITECTURE.md#light-mode).
 | `cyan` (focus ring and hover text)                  | `#0047b3` | 8.23         |
 
 - Light values are `light-*` tokens in `global.css` (`light-focus` for
-  `cyan`, `light-pink-text`, `light-hero-veil`, `light-hero-floor`), swapped
-  in by `light-mode.css`.
-- Every hard shadow and edge turns `#131313`.
+  `cyan`, `light-pink-text`, `light-hero-accent`), swapped in by
+  `light-mode.css`.
+- The homepage hero window is `block-ink` in dark mode, page text on it,
+  mint `hero-accent` buds (10.9); white in light mode with `#0f7a5c` buds (4.9).
+- Every hard shadow and edge turns `#131313`; `mark` throws turn `#b00054`
+  (4.5 on gold, 7.06 on white).
 - Hover fills are dark mode's `#00dcfd` under `#131313` (11.20).
 - `.surface-gold` and `.v-column` go white. Buttons, tiles and stickers keep
   their `#FFC000` fill, always under `#131313` (11.32).
-- Gold text turns ink; a `.label.text-gold` gains a gold
+- Gold text turns ink; a `.label.text-gold` gains a `#b00054`
   square before the word, ink on a gold block (`--label-mark`).
 - Blocks stay gold or light in light mode, with the `#131313` edge (18.58 on white).
 - The header bar keeps its `#FFC000` fill and `#131313` edge; its throw
