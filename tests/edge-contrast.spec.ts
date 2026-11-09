@@ -42,8 +42,8 @@ const lostEdges = (page: Page): Promise<string[]> =>
     return out;
   })()`) as Promise<string[]>;
 
-/* An edge also reads against the opaque fill it encloses (SC 1.4.11), unless that fill alone reaches 3:1 on its ground and so sets the boundary itself. */
-const edgesLostOnFill = (page: Page): Promise<string[]> =>
+/* Where the fill does not reach 3:1 on its ground, an edge painted the fill's own color draws no boundary at all. */
+const edgesHiddenInFill = (page: Page): Promise<string[]> =>
   page.evaluate(`(() => {
     ${PAGE_HELPERS}
     const NON_TEXT = ${NON_TEXT};
@@ -58,19 +58,16 @@ const edgesLostOnFill = (page: Page): Promise<string[]> =>
       if (!fill || fill.a !== 1) continue;
       const ground = compositeBackground(element.parentElement, box);
       if (!ground || ratio(fill, ground) >= NON_TEXT) continue;
-      const lost = SIDES.filter((side) => {
+      const hidden = SIDES.filter((side) => {
         if (['none', 'hidden'].includes(style['border' + side + 'Style'])) return false;
         if (parseFloat(style['border' + side + 'Width']) <= 0) return false;
         const edge = parse(style['border' + side + 'Color']);
         if (!edge || edge.a === 0) return false;
-        return ratio(over(edge, fill), fill) < NON_TEXT;
+        const painted = over(edge, fill);
+        return painted.r === fill.r && painted.g === fill.g && painted.b === fill.b;
       });
-      if (lost.length === 0) continue;
-      const edge = parse(style['border' + lost[0] + 'Color']);
-      out.push(
-        describe(element) + ' ' + lost.join('/').toLowerCase() + ': ' +
-          ratio(over(edge, fill), fill).toFixed(2) + ' on ' + style.backgroundColor,
-      );
+      if (hidden.length === 0) continue;
+      out.push(describe(element) + ' ' + hidden.join('/').toLowerCase() + ' on ' + style.backgroundColor);
     }
     return out;
   })()`) as Promise<string[]>;
@@ -94,8 +91,8 @@ for (const colorScheme of ['dark', 'light'] as const) {
             `edges under ${NON_TEXT}:1 against their ground, on an element whose fill does not reach it either`,
           ).toEqual([]);
           expect(
-            await edgesLostOnFill(page),
-            `edges under ${NON_TEXT}:1 against the fill they enclose`,
+            await edgesHiddenInFill(page),
+            'edges painted the same color as the fill they enclose',
           ).toEqual([]);
         });
       }
