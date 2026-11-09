@@ -135,7 +135,7 @@ the brick instead. Look, do not measure.
 
 - [ ] On `#141517`: header links, footer. → SC 1.4.11, 2.4.7
 - [ ] On an ink and a light block: a link in a card. → SC 1.4.11, 2.4.7
-- [ ] Chips and footer tiles: the ring sits past the green shadow, follows the
+- [ ] Chips and footer tiles: the ring sits past the gold shadow, follows the
       tilt, and never touches the next chip. → SC 1.4.11, 2.4.7
 - [ ] Current nav item and current chip: the ring reads as separate from the
       block. → SC 1.4.11, 2.4.7
@@ -143,7 +143,7 @@ the brick instead. Look, do not measure.
       the control. → SC 1.4.11, 2.4.7
 - [ ] `/contact` bricks: the ink ring sits inside the brick, reads against
       its fill and never crosses the next brick. → SC 1.4.11, 2.4.7
-- [ ] Skip link and "Get in Touch": the ring clears the green
+- [ ] Skip link and "Get in Touch": the ring clears the gold
       throw. → SC 1.4.11
 - [ ] On the ink slab or band: the `#F2F2F2` ring is visible. → SC 1.4.11
 - [ ] No ring is clipped by a parent or hidden under the header. → SC 2.4.11
@@ -163,7 +163,7 @@ Setup: Chrome at about 740x380. `short:static` makes the header static below
 - [ ] Shift+Tab up the page at 740x380: no control lands under the header. → SC 2.4.11
 - [ ] The nav fits on one line, nothing wraps mid-word or overlaps. → SC 1.4.10
 
-### 5a.2 The roundel and the green hero edge
+### 5a.2 The roundel and the hero edge
 
 Setup: `/career`, `/contact`, `/blog`; `/about` (photo) as the control.
 
@@ -202,7 +202,7 @@ its place at 320 and 1280px, its ring, forced colors, the theme set before
       header and a primary button: each ring is separate from its block. → SC 1.4.11, 2.4.7
 - [ ] Hover and press a button, a chip and a link: text and edge stay readable
       in each state. → SC 1.4.3, 1.4.11
-- [ ] An accent label shows ink text with its green square; nothing is green
+- [ ] An accent label shows ink text with its gold square; nothing is gold
       text on `#F2F2F2`. → SC 1.4.3
 - [ ] Repeat §3 at 400% in light: no overlap, no cut-off. → SC 1.4.10
 - [ ] Repeat §5a.2 forced colors in light: the roundel edge and the focus ring

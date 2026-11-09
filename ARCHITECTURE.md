@@ -130,8 +130,8 @@ Dark is the default. Colors and rules:
   overrides a subset of tokens on `<main>`, the header and the footer while it
   is set. No `dark:` variants.
 - `<main>`, the header and the footer change; the header bar stays ink and
-  its edge and throw turn the darker green. The no-JS nav stays dark.
-- `mark` and `tile-edge` hold the mode-independent logo-tile colors.
+  its edge turns ink and its throw stays gold. The no-JS nav stays dark.
+- `tile-edge` holds the mode-independent logo-tile edge color.
 - An inline script in `BaseLayout.astro`'s `<head>` sets `data-theme` from the
   saved choice or `prefers-color-scheme` before the body parses, rereads it on
   a back-forward cache restore (`pageshow`), applies a saved `--text-scale`,
@@ -493,7 +493,7 @@ in `wrangler.jsonc`).
   the `/about` tile in `CatMark.astro`) and `npm run og`. The favicons and
   app icons come from a cut-out cat, [the favicon set](#the-favicon-set).
 - `src/lib/box-cat.ts`: the box cat's cardboard box (`cat-cardboard`, ink edge,
-  green throw, flaps). `npm run box-cat`
+  gold throw, flaps). `npm run box-cat`
   (`scripts/make-box-cat.mjs`) sets a cut-out cat from `artwork/cats/` in it,
   with a white die-cut rim, and writes:
 
@@ -570,7 +570,7 @@ All written by `npm run icons` (`scripts/make-icons.mjs`) from
 drawing behind `artwork/cats/minerva-sit.png`, in Chromium with the color tokens.
 
 - Tab icons (`favicon.*`, `artwork/favicon-*`): Minerva's head as a die-cut
-  sticker: white rim, ink edge and a green block behind it, on a transparent
+  sticker: white rim, ink edge and a gold block behind it, on a transparent
   ground. The ink edge holds 3:1 on a light tab strip and the white rim on a
   dark one (`tests/brand-mark.spec.ts`). Each is scaled down from one 512px
   render with a clear 1px border. No SVG favicon: at tab size Chromium rounds

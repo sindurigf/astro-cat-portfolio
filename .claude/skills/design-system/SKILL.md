@@ -14,7 +14,7 @@ before changing anything it covers.
 - An arbitrary value: no raw hex, `text-[32px]` or `shadow-[8px_8px_0]`. Add a
   token to `@theme` instead ([Tokens only](../../../docs/STYLEGUIDE.md#tokens-only)).
 - `error` as text, at any size, or for anything but an error. `error-text` as
-  a border, shadow or fill. Green never marks an error.
+  a border, shadow or fill. Gold never marks an error.
 - `focus` at rest. It is hover and focus only; inside a block, hover and focus
   are `gold-link`. A still state sample on `/brand` may show its hover color.
 - A gold ground without `.surface-gold`, or `.btn-primary`/`.btn-secondary`

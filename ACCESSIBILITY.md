@@ -259,7 +259,7 @@ CSS and `tests/contrast-table.spec.ts` fails when it drifts.
 
 A full or thin PageHero slab, the closing band on `/contact`, the quote on
 `/about`, the close row card, the homepage hero window and any
-`Section surface="gold"` are an ink slab, `#141517`, with a light edge and a green
+`Section surface="gold"` are an ink slab, `#141517`, with a light edge and a gold
 throw. `.surface-gold` keeps it ink in light mode, sets its text, links and
 ring at 7:1 or more, and links stay underlined (SC 1.4.1):
 [Gold surface](docs/STYLEGUIDE.md#gold-surface).
