@@ -199,7 +199,7 @@
 
   /* `normal` over the `anywhere` that body takes below 19rem. */
   .prose :is(th, td) {
-    @apply hairline border-text px-4 py-3 text-left align-top;
+    @apply hairline border-border px-4 py-3 text-left align-top;
     overflow-wrap: normal;
   }
 
@@ -225,7 +225,7 @@
    */
   @media (width < 40rem) {
     .prose table.table-stack {
-      @apply block hairline-t border-text;
+      @apply block hairline-t border-border;
 
       & :is(tbody, tbody tr, tbody th, td) {
         @apply block;
@@ -236,7 +236,7 @@
       }
 
       & tbody tr {
-        @apply hairline-b border-text py-3;
+        @apply hairline-b border-border py-3;
       }
 
       & tbody :is(th, td) {

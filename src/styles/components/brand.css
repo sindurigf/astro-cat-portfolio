@@ -303,7 +303,7 @@
   }
 
   .role-swatch {
-    @apply flex size-12 shrink-0 items-center justify-center border-4 border-text;
+    @apply flex size-12 shrink-0 items-center justify-center border-4 border-border;
   }
 
   /* A named swatch's color is its content, so forced colors keep it, edged in CanvasText (https://blogs.windows.com/msedgedev/2020/09/17/styling-for-windows-high-contrast-with-new-standards-for-forced-colors/). */

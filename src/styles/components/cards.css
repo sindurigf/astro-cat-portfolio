@@ -11,7 +11,7 @@
 
   /*
    * Blocks: every card, the plain hero slab and the post contents, an ink slab
-   * with a light edge; light mode mirrors it (`slab-*`). `text-text` and
+   * with the stone edge; light mode mirrors it (`slab-*`). `text-text` and
    * `text-gold` read 16.32 on the fill.
    */
   :is(.card, .plain-slab, .post-contents):not(.surface-gold, .surface-gold *) {
@@ -46,8 +46,8 @@
     --color-gold: var(--color-block-ink);
     --color-subtle: var(--color-light-subtle);
     --color-error-text: var(--color-light-error-text);
-    --color-border: var(--color-block-ink);
-    --color-fill-edge: var(--color-block-ink);
+    --color-border: var(--edge-color);
+    --color-fill-edge: var(--edge-color);
 
     background-color: var(--color-block-light);
   }
@@ -60,7 +60,7 @@
   /*
    * Hover and focus inside a block: the block's own ring and hover throw keep
    * the page's `focus`, set on the block itself. Inside, the dark mode `focus`
-   * and a light edge on ink, and `light-focus` and an ink edge on a light block.
+   * and the stone edge on ink, and `light-focus` and the same edge on a light block.
    */
   :is(.card, .plain-slab, .post-contents):not(.surface-gold, .surface-gold *)
     > * {
@@ -74,7 +74,7 @@
     )
     > * {
     --color-focus: var(--color-light-focus);
-    --color-fill-edge: var(--color-block-ink);
+    --color-fill-edge: var(--edge-color);
   }
 
   /*
@@ -86,7 +86,7 @@
     .surface-gold *
   ) {
     border-width: var(--wall-edge);
-    border-color: var(--brick-edge-color);
+    border-color: var(--edge-color);
   }
 
   :is(
@@ -100,8 +100,8 @@
     --color-subtle: var(--brick-subtle);
     --color-error: var(--brick-error);
     --color-error-text: var(--brick-error-text);
-    --color-border: var(--brick-text);
-    --color-fill-edge: var(--brick-text);
+    --color-border: var(--edge-color);
+    --color-fill-edge: var(--edge-color);
 
     background-color: var(--brick-fill);
   }
@@ -112,7 +112,7 @@
     ):not(.surface-gold, .surface-gold *)
     > * {
     --color-focus: var(--brick-focus);
-    --color-fill-edge: var(--brick-text);
+    --color-fill-edge: var(--edge-color);
   }
 
   /* A slab card or column keeps its own colors and takes the block edge. */

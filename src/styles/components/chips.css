@@ -84,7 +84,7 @@
     & a.chip {
       --lift: 0px;
 
-      @apply border-block-ink bg-block-light text-block-ink shadow-none;
+      @apply border-fill-edge bg-block-light text-block-ink shadow-none;
     }
 
     /* The dark mode `focus` in both modes: light mode's is a text color, 2.55 under ink. */

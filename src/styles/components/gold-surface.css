@@ -34,7 +34,7 @@
     @apply shadow-hard-throw-4;
   }
 
-  /* A wall on the slab: light blocks with the ink edge and ink text; each casts the throw. */
+  /* A wall on the slab: light blocks with the stone edge and ink text; each casts the throw. */
   .surface-gold .card-block > * {
     --color-gold-text: var(--color-block-ink);
     --color-gold-muted: var(--color-light-subtle);
@@ -45,7 +45,7 @@
     --link-fill-label: var(--color-block-light);
 
     border-width: var(--block-edge);
-    border-color: var(--color-block-ink);
+    border-color: var(--edge-color);
     background-color: var(--color-block-light);
     color: var(--color-gold-text);
   }
@@ -72,13 +72,13 @@
    * is decoration: it must never delimit the control.
    */
   .surface-gold .btn-gold-primary {
-    @apply inline-block border-4 border-gold-text bg-gold-text
+    @apply inline-block border-4 border-gold-border bg-gold-text
       px-8 py-4 text-button font-black uppercase
       tracking-label text-gold-btn-label shadow-hard-throw-4 lift-control;
   }
 
   .surface-gold .btn-gold-secondary {
-    @apply inline-block border-4 border-gold-text bg-transparent
+    @apply inline-block border-4 border-gold-border bg-transparent
       px-8 py-4 text-button font-black uppercase
       tracking-label text-gold-text;
   }
@@ -100,7 +100,7 @@
 
   /* Keeps its dark fill; label and edge `gold-text` like the slab buttons. */
   .surface-gold a.chip {
-    @apply border-gold-text text-gold-text no-underline;
+    @apply border-gold-border text-gold-text no-underline;
   }
 
   .surface-gold a.btn-gold-primary:hover {

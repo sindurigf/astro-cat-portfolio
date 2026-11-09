@@ -35,7 +35,7 @@
     @apply absolute top-0 left-4 -translate-y-1/2 border-4 border-fill-edge bg-block-gold px-3 font-mono text-code text-gold-text;
   }
 
-  /* Light mode: the label's ink edge thins to match the frame. */
+  /* Light mode: the label's edge thins to match the frame. */
   :is(:root[data-theme='light'] main, main .mode-light)
     .code-lang:not(.mode-dark *) {
     border-width: var(--border-width-thin);

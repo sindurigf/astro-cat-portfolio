@@ -30,6 +30,7 @@ export const SWATCH: Record<string, Swatch> = {
   background: { paint: 'fill', cls: 'bg-background' },
   surface: { paint: 'fill', cls: 'bg-surface' },
   border: { paint: 'fill', cls: 'bg-border' },
+  'card-edge': { paint: 'fill', cls: 'bg-card-edge' },
   'fill-edge': { paint: 'fill', cls: 'bg-fill-edge' },
   'code-edge': { paint: 'fill', cls: 'bg-code-edge' },
   text: { paint: 'glyph', cls: 'text-text' },
@@ -219,9 +220,9 @@ export const roles: Role[] = [
   ),
   role(
     'role-edges',
-    'every boundary but table lines.',
-    'The edge is the text color: light on the dark page, ink on the light one.',
-    [PAGE_EDGE, 'fill-edge', 'tile-edge'],
+    'every boundary.',
+    'Every edge is stone on the dark page and slate on the light one.',
+    [PAGE_EDGE, 'card-edge', 'fill-edge', 'tile-edge'],
     {
       fg: PAGE_EDGE,
       bg: 'background',
