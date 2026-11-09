@@ -9,7 +9,7 @@ import { DESKTOP_VIEWPORT, NARROW_WIDTH, PHONE_VIEWPORT } from './wcag';
 
 /**
  * Blocks (src/styles/components/cards.css): every card, the plain hero slab
- * and the post contents, ink or light with a 4px edge. Inside, the color
+ * and the post contents, ink or light with an edge (3px stone on wall bricks). Inside, the color
  * tokens are remapped, so each block is measured as a ground of its own.
  */
 const BLOCK =
