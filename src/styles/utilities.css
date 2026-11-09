@@ -30,11 +30,11 @@
 
   /*
    * A tilted box softens its border's edges. A fill under a border of another
-   * color shows outside it as a fringe, so it stops at the padding box.
-   * tests/tilt.spec.ts.
+   * color shows outside it as a fringe, so it stops at the padding box; a box
+   * edged in its own fill sets `--tilt-clip` to reach the edge. tests/tilt.spec.ts.
    */
   :is(.rotate-3, .-rotate-3) {
-    background-clip: padding-box;
+    background-clip: var(--tilt-clip, padding-box);
   }
 
   /*

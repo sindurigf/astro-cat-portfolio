@@ -53,7 +53,7 @@
    * inverts.
    */
   a.chip[aria-current] {
-    @apply border-fill-edge bg-text text-background shadow-none;
+    @apply border-fill-edge bg-hover text-hover-label shadow-none;
 
     --lift: 0px;
   }
@@ -95,7 +95,7 @@
 
     /* On the dark page the ink fill meets the ground, so the edge is the accent. */
     & a.chip[aria-current] {
-      @apply border-fill-edge bg-block-gold text-gold-text;
+      @apply border-fill-edge bg-hover text-hover-label;
     }
 
     /* Inside the brick, so it never crosses the next; ink on light or `focus`, light on ink. */
@@ -107,7 +107,7 @@
     }
 
     & a.chip[aria-current]:focus-visible {
-      outline-color: var(--color-gold-text);
+      outline-color: var(--color-hover-label);
     }
   }
 }

@@ -358,6 +358,11 @@
     color: var(--color-hover-label);
   }
 
+  .btn-primary.state-hover.state-hover:not([aria-disabled='true']) {
+    background-color: var(--color-text);
+    color: var(--color-background);
+  }
+
   /* Doubled class: outweighs the press rule in buttons-nav.css. */
   :is(.btn-primary, .btn-secondary).state-pressed.state-pressed:not(
       [aria-disabled='true']

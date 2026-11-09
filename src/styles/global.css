@@ -125,15 +125,15 @@
 @theme static {
   --color-background: #141517;
   --color-surface: #1e2022;
-  /* Every edge is stone: 4.81 on ink, 3.60 on brick-dark. Light mode swaps in slate. */
-  --color-border: #4adeb0;
-  --color-card-edge: #4adeb0;
-  /* The edge of a slab or light fill: stone, 3.39 on block-light. */
-  --color-fill-edge: #4adeb0;
+  /* Every edge is the text color: 16.32 on ink, 12.20 on brick-dark. Light mode swaps in ink. */
+  --color-border: #f2f2f2;
+  --color-card-edge: #f2f2f2;
+  /* The edge of a slab or light fill: the text color. */
+  --color-fill-edge: #f2f2f2;
   --color-text: #f2f2f2;
   /*
    * Blocks (cards.css): an ink slab, or light every second card in a block,
-   * with the stone edge. Fixed values: inside a block the color tokens are
+   * with the text-color edge. Fixed values: inside a block the color tokens are
    * remapped.
    */
   --color-block-gold: #141517;
@@ -143,31 +143,31 @@
   /* Labels, markers and label fills: the text color. Ink on it is 16.32. */
   --color-gold: #f2f2f2;
   /*
-   * Stone, every throw in both modes: 4.81 on ink, 3.39 on light-ground
-   * (SC 1.4.11). Never text. `light-accent` is the marker square, the same stone.
+   * Every throw takes the text color: 16.32 on either ground (SC 1.4.11).
+   * `light-accent` is the marker square, ink on light-ground.
    */
-  --color-throw: #917880;
-  --color-light-accent: #917880;
-  /* Hover and focus only: a blue apart in hue from the stone throw. */
+  --color-throw: #f2f2f2;
+  --color-light-accent: #141517;
+  /* Hover and focus only: a blue apart in hue from the mint hover fill. */
   --color-focus: #8ab8ff;
   --color-hover: #4adeb0;
   --color-hover-label: #141517;
   /*
    * Errors only, never decoration. `error` passes SC 1.4.11 and is for edges;
    * `error-text` is every error glyph, AAA on the page (SC 1.4.6), AA on a raised brick. Magenta, so it stays apart
-   * from the stone throw. Ratios in docs/STYLEGUIDE.md.
+   * from the mint fill. Ratios in docs/STYLEGUIDE.md.
    */
   --color-error: #ff007a;
   --color-error-text: #ff8ac0;
-  --color-tile-edge: #4adeb0;
+  --color-tile-edge: #0f7a5c;
   /*
    * Wall bricks (cards.css): every second brick's fill, light text 12.2 and
    * subtle 8.48 on it. Light mode in light-mode.css.
    */
   --color-brick-dark: #2a2e33;
   --color-brick-subtle: #c9ccd1;
-  /* The edge pair: stone in dark mode, slate in light mode, read through `--edge-color`. */
-  --color-stone-edge: #4adeb0;
+  /* The edge pair: light in dark mode, ink in light mode, read through `--edge-color`. */
+  --color-stone-edge: #f2f2f2;
   /* Hover text and rings in it: 7.59, where `focus` is 6.75. */
   --color-brick-focus: #9cc3ff;
   /* The system color forced-colors mode pairs with the button face; bars on it use `forced-colors:bg-button-text`. */
@@ -190,15 +190,15 @@
   --color-light-subtle: #3f4650;
   --color-light-focus: #0047b3;
   --color-light-error-text: #9e004b;
-  /* Every second brick, ink 13.9 on it. Slate is 4.91 on light-ground, 4.18 on it. */
+  /* Every second brick, ink 13.90 on it. */
   --color-light-brick: #dde1e5;
-  --color-light-stone-edge: #0f7a5c;
+  --color-light-stone-edge: #141517;
   /* Hover text and rings in it: 7.51, where `light-focus` is 6.26. */
   --color-light-brick-focus: #003d99;
-  /* A code block's edge in a post: stone, 4.30 on its surface fill. */
-  --color-code-edge: #4adeb0;
+  /* A code block's edge in a post: the text color, 14.60 on its surface fill. */
+  --color-code-edge: #f2f2f2;
   /* Its light mode value. */
-  --color-light-code-edge: #0f7a5c;
+  --color-light-code-edge: #141517;
   /* A code block's fill: the surface in dark mode, the light block fill in light mode, so it reads as a block on white. */
   --color-code-fill: var(--color-surface);
 
@@ -209,8 +209,8 @@
   /* The text on the slab; not tied to `text`, which light mode turns ink. */
   --color-gold-text: #f2f2f2;
   --color-gold-muted: #9eb6c7;
-  /* Boundaries on the slab: stone. */
-  --color-gold-border: #4adeb0;
+  /* Boundaries on the slab: the slab's text color. */
+  --color-gold-border: #f2f2f2;
   /* Label and inner focus ring of .btn-gold-primary's light fill only. */
   --color-gold-btn-label: #141517;
 
@@ -221,13 +221,13 @@
   --color-hero-accent: #4adeb0;
   /* The canvas's buds on the slab. Not the link color. */
   --color-gold-bud: var(--color-hero-accent);
-  /* The canvas's grey buds; light mode swaps in stone. */
+  /* The canvas's grey buds; light mode swaps in the throw color. */
   --color-hero-muted: var(--color-gold-muted);
   --color-hero-ground: var(--color-block-gold);
-  /* Light mode's canvas green: 4.92 on light-ground. */
+  /* Light mode's canvas green: 4.74 on light-ground. */
   --color-light-hero-accent: #0f7a5c;
-  --color-light-hover: #095a44;
-  --color-light-hover-label: #f2f2f2;
+  --color-light-hover: #4adeb0;
+  --color-light-hover-label: #141517;
 
   /*
    * The glow inside a lit glyph on the poneglyph. Its full-ink rim carries the
@@ -393,7 +393,7 @@
   --tracking-label: 0.1em;
 
   /*
-   * Hard offset shadows: every throw is stone (`throw`); `focus` shows only
+   * Hard offset shadows: every throw is the text color (`throw`); `focus` shows only
    * on hover and focus.
    */
   /* One throw for object shadows; controls keep 4px. */
@@ -474,7 +474,7 @@
   /*
    * Focus ring: 4px `focus`, clearing SC 1.4.11 on background and surface. A
    * shadowed element sets `--lift` to its shadow offset so the ring clears it:
-   * `focus` over the stone throw is 1.88 dark, 2.17 light. Never set outline-offset to 0.
+   * `focus` over the throw is 1.81 dark, 2.22 light. Never set outline-offset to 0.
    */
   --focus-width: 4px;
   --focus-gap: 4px;

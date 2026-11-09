@@ -22,6 +22,7 @@
     --dark-code-edge: var(--color-code-edge);
     --dark-code-fill: var(--color-code-fill);
     --dark-fill-edge: var(--color-fill-edge);
+    --dark-throw: var(--color-throw);
     --dark-block-gold: var(--color-block-gold);
     --dark-gold: var(--color-gold);
     --dark-gold-text: var(--color-gold-text);
@@ -114,7 +115,7 @@
   }
 
   :is(:root[data-theme='light'] main, main .mode-light)
-    :is(.btn-primary, .btn-secondary):not([aria-disabled='true']):hover:not(
+    .btn-secondary:not([aria-disabled='true']):hover:not(
       :is(.mode-dark, .surface-gold, .card, .plain-slab, .post-contents) *
     ) {
     background-color: var(--color-hover);
@@ -137,6 +138,7 @@
     --color-code-edge: var(--dark-code-edge);
     --color-code-fill: var(--dark-code-fill);
     --color-fill-edge: var(--dark-fill-edge);
+    --color-throw: var(--dark-throw);
     --color-block-gold: var(--dark-block-gold);
     --color-gold: var(--dark-gold);
     --color-gold-text: var(--dark-gold-text);
@@ -202,17 +204,18 @@
     @apply mr-2 inline-block size-2.5;
   }
 
-  /* The current page is the ink block among light siblings, the mirror of dark mode. */
+  /* The current page is the mint fill with an ink label, as in dark mode. */
   :root[data-theme='light'] .nav-sticker[aria-current]:not(.mode-dark *) {
-    --color-gold-text: var(--color-light-ground);
-
     border-color: var(--color-light-stone-edge);
-    background-color: var(--color-light-ink);
+    background-color: var(--color-hover);
+    color: var(--color-hover-label);
   }
 
   /* `.sticker` is a black block in light mode. */
   :is(:root[data-theme='light'] main, main .mode-light)
     .sticker:not(:is(.mode-dark, .surface-gold) *) {
+    --tilt-clip: border-box;
+
     @apply border-border bg-text text-background;
   }
 }

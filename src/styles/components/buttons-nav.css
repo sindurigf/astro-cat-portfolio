@@ -1,8 +1,8 @@
 @layer components {
   /* A label with no break opportunity, like an email address, still reflows (SC 1.4.10). */
   .btn-primary {
-    @apply lift-control inline-block border-4 border-fill-edge bg-block-gold px-8 py-4
-      text-button font-black uppercase tracking-label text-gold-text
+    @apply lift-control inline-block border-4 border-border bg-hover px-8 py-4
+      text-button font-black uppercase tracking-label text-hover-label
       shadow-hard-throw-4 wrap-anywhere max-w-full;
   }
 
@@ -24,6 +24,11 @@
    */
   :is(.btn-primary, .btn-secondary):not([aria-disabled='true']):hover {
     @apply bg-hover text-hover-label;
+  }
+
+  /* The primary rests on the hover fill, so its hover inverts to the text color. */
+  .btn-primary.btn-primary:not([aria-disabled='true']):hover {
+    @apply bg-text text-background;
   }
 
   /*
@@ -197,7 +202,7 @@
   }
 
   /*
-   * Ink tile with the stone edge. Hidden without data-theme, which the head
+   * Ink tile with the text-color edge. Hidden without data-theme, which the head
    * script always sets when JavaScript runs.
    */
   .theme-switch {
@@ -316,7 +321,7 @@
   }
 
   /*
-   * The bar is an ink slab with the stone edge and the stone throw; light mode mirrors
+   * The bar is an ink slab with the text-color edge and the text-color throw; light mode mirrors
    * it. Its bricks take light fills and ink lines; rings and hover labels on a brick
    * are ink, brick throws stone.
    */
@@ -395,8 +400,12 @@
       }
     }
 
-    & :is(.nav-cta, .theme-switch, [aria-current]):focus-visible {
+    & :is(.nav-cta, .theme-switch):focus-visible {
       outline-color: var(--color-gold-text);
+    }
+
+    & .nav-sticker[aria-current]:focus-visible {
+      outline-color: var(--color-hover-label);
     }
 
     /* A hovered ring takes the hover label's ink; a current brick has no hover fill. */
@@ -430,10 +439,11 @@
     box-shadow: var(--shadow-brick);
   }
 
+  /* The inset ring is the label's ink, so it reads on the mint fill (10.76). */
   .nav-sticker[aria-current] {
-    @apply border-fill-edge bg-block-gold text-gold-text;
+    @apply border-border bg-hover text-hover-label;
 
-    box-shadow: var(--inset-shadow-current);
+    box-shadow: inset 0 0 0 var(--block-edge) var(--color-hover-label);
   }
 
   .nav-sticker-large[aria-current] {

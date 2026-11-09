@@ -34,7 +34,7 @@
     @apply shadow-hard-throw-4;
   }
 
-  /* A wall on the slab: light blocks with the stone edge and ink text; each casts the throw. */
+  /* A wall on the slab: light blocks with the text-color edge and ink text; each casts the throw. */
   .surface-gold .card-block > * {
     --color-gold-text: var(--color-block-ink);
     --color-gold-muted: var(--color-light-subtle);
@@ -68,7 +68,7 @@
 
   /*
    * Scoped to .surface-gold so it renders unstyled elsewhere. Label, light fill
-   * and `gold-text` edge pass SC 1.4.3 and 1.4.11 on the slab. The stone throw
+   * and `gold-text` edge pass SC 1.4.3 and 1.4.11 on the slab. The text-color throw
    * is decoration: it must never delimit the control.
    */
   .surface-gold .btn-gold-primary {

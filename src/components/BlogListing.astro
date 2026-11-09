@@ -96,7 +96,7 @@ const EMPTY_BLOG = {
             class="chip"
           >
             {isActive ? (
-              <span aria-hidden="true" class="block size-2 bg-gold-text" />
+              <span aria-hidden="true" class="block size-2 bg-hover-label" />
             ) : null}
             {option.label}
             {option.category && <span class="sr-only">&nbsp;Posts</span>}
@@ -172,7 +172,7 @@ const EMPTY_BLOG = {
               class="chip"
             >
               {isCurrent ? (
-                <span aria-hidden="true" class="block size-2 bg-gold-text" />
+                <span aria-hidden="true" class="block size-2 bg-hover-label" />
               ) : null}
               <span class="sr-only">Page&nbsp;</span>
               {page}

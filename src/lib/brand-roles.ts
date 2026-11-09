@@ -221,7 +221,7 @@ export const roles: Role[] = [
   role(
     'role-edges',
     'every boundary.',
-    'Every edge is stone on the dark page and slate on the light one.',
+    'Every edge is the text color: light on the dark page, ink on the light one.',
     [PAGE_EDGE, 'card-edge', 'fill-edge', 'tile-edge'],
     {
       fg: PAGE_EDGE,

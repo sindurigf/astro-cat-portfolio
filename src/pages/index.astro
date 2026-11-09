@@ -131,13 +131,13 @@ const statWall = wallClasses({ sm: [[0, 1]] }, STATS.length);
 
         {/*
         Spans, not <p>: WAVE reads short bold paragraphs as headings. No
-        `border-border`: it fails SC 1.4.11 here and would beat `.surface-gold`'s.
+        `border-border`: it matches the light fill in dark mode; the ink edge reads in both.
       */}
         <div class="hero-marks" aria-hidden="true" lang={MOTTO.lang}>
-          <span class="hero-sticker -rotate-3 bg-block-light text-block-ink shadow-hard-throw">
+          <span class="hero-sticker -rotate-3 border-block-ink bg-block-light text-block-ink shadow-hard-throw">
             {MOTTO_STICKERS[0]}
           </span>
-          <span class="hero-sticker rotate-3 bg-block-light text-block-ink shadow-hard-throw">
+          <span class="hero-sticker rotate-3 border-block-ink bg-block-light text-block-ink shadow-hard-throw">
             {MOTTO_STICKERS[1]}
           </span>
         </div>

@@ -201,7 +201,7 @@
   /*
    * Every whole-section gold area: starts at the rail, ends
    * --hero-column-screen-clear from the screen edge or at the rail, whichever
-   * is further out. Drawn like a block: the 4px stone edge and the throw.
+   * is further out. Drawn like a block: the 4px text-color edge and the throw.
    * `.header-slab` repeats these margins so the header ends where the hero does.
    */
   .gold-column {
@@ -321,7 +321,7 @@
     outline-color: var(--page-focus, var(--color-focus));
   }
 
-  /* The island's dark-mode edge is not the light page's slate. */
+  /* The island's dark-mode edge is not the light page's ink. */
   .surface-gold .hero-motion-toggle {
     border-color: var(--page-border, var(--color-border));
   }

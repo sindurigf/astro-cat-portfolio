@@ -136,7 +136,7 @@ Dark is the default. Colors and rules:
   overrides a subset of tokens on `<main>`, the header and the footer while it
   is set. No `dark:` variants.
 - `<main>`, the header and the footer change; the header bar stays ink and
-  its edge turns slate and its throw stays stone. The no-JS nav stays dark.
+  its edge and throw turn ink. The no-JS nav stays dark.
 - `tile-edge` holds the mode-independent logo-tile edge color: stone in both
   modes.
 - An inline script in `BaseLayout.astro`'s `<head>` sets `data-theme` from the
@@ -500,7 +500,7 @@ in `wrangler.jsonc`).
   the `/about` tile in `CatMark.astro`) and `npm run og`. The favicons and
   app icons come from a cut-out cat, [the favicon set](#the-favicon-set).
 - `src/lib/box-cat.ts`: the box cat's cardboard box (`cat-cardboard`, ink edge,
-  stone throw, flaps). `npm run box-cat`
+  text-color throw, flaps). `npm run box-cat`
   (`scripts/make-box-cat.mjs`) sets a cut-out cat from `artwork/cats/` in it,
   with a white die-cut rim, and writes:
 

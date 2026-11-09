@@ -11,7 +11,7 @@
 
   /*
    * Blocks: every card, the plain hero slab and the post contents, an ink slab
-   * with the stone edge; light mode mirrors it (`slab-*`). `text-text` and
+   * with the text-color edge; light mode mirrors it (`slab-*`). `text-text` and
    * `text-gold` read 16.32 on the fill.
    */
   :is(.card, .plain-slab, .post-contents):not(.surface-gold, .surface-gold *) {
@@ -61,7 +61,7 @@
   /*
    * Hover and focus inside a block: the block's own ring and hover throw keep
    * the page's `focus`, set on the block itself. Inside, the dark mode `focus`
-   * and the stone edge on ink, and `light-focus` and the same edge on a light block.
+   * and the text-color edge on ink, and `light-focus` and the same edge on a light block.
    */
   :is(.card, .plain-slab, .post-contents):not(.surface-gold, .surface-gold *)
     > * {
@@ -79,7 +79,7 @@
   }
 
   /*
-   * The wall: every brick takes a stone edge (slate in light mode), and every
+   * The wall: every brick takes a text-color edge (ink in light mode), and every
    * second brick a raised fill (`brick-*`, set in light-mode.css).
    */
   :is(.card-block > .card, .card-block > * > .card):not(
