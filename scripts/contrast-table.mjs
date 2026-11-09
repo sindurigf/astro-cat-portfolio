@@ -48,10 +48,20 @@ const PAIRS = [
   ['gold-muted', 'block-gold', 'text', 'Secondary text on the slab'],
   ['gold-link', 'block-gold', 'text', 'Links on the slab'],
   ['block-ink', 'gold-link', 'text', 'A link filled under the pointer'],
-  ['gold-bud', 'block-gold', 'decoration', 'The canvas buds on the slab'],
+  [
+    'hero-accent',
+    'block-gold',
+    'decoration',
+    'The canvas stele edge, meadow and buds on the slab',
+  ],
   ['gold-border', 'block-gold', 'non-text', 'Boundaries on the slab'],
   ['fill-edge', 'block-gold', 'non-text', 'Edge of an ink fill'],
-  ['light-accent', 'light-ground', 'non-text', 'Throws on the light page'],
+  [
+    'light-accent',
+    'light-ground',
+    'decoration',
+    'Throws on the light page; the ink edge carries SC 1.4.11',
+  ],
   ['light-ink', 'light-ground', 'non-text', 'Every edge on the light page'],
   ['code-edge', 'background', 'non-text', 'Post code frame edge on the page'],
   ['code-edge', 'surface', 'non-text', 'Post code frame edge on its fill'],
@@ -112,7 +122,7 @@ const PAIRS = [
   ],
   ['focus', 'border', 'apart', 'A ring never touches a neighbor edge'],
   ['error', 'border', 'apart', 'An error is a shape change, never color alone'],
-  ['error', 'throw', 'apart', 'Green never means an error'],
+  ['error', 'throw', 'apart', 'Gold never means an error'],
   ['text', 'subtle', 'apart', 'The two text colors never carry a state'],
 ];
 

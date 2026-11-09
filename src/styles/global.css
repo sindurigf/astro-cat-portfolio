@@ -125,7 +125,7 @@
 @theme static {
   --color-background: #141517;
   --color-surface: #1e2022;
-  /* Every edge is the text color, 16.32 on ink; green is kept for the accent and throws. */
+  /* Every edge is the text color, 16.32 on ink; gold is kept for the accent and throws. */
   --color-border: #f2f2f2;
   /* A card draws no edge in dark mode: its fill and throw set it apart. */
   --color-card-edge: transparent;
@@ -141,21 +141,21 @@
   --color-block-light: #f2f2f2;
   --color-block-ink: #141517;
   --color-subtle: #9eb6c7;
-  /* The accent: labels, markers and accent fills. Ink on it is 9.47. */
-  --color-gold: #43d384;
+  /* The accent: labels, markers and accent fills. Ink on it is 11.13. */
+  --color-gold: #ffc000;
   /*
-   * The accent on the light page: large text (24px and up), markers and
-   * throws only, never body copy (4.92 on light-ground).
+   * The accent on the light page: throws and marker squares only, never text
+   * (1.47 on light-ground). The ink edge beside it carries SC 1.4.11.
    */
-  --color-light-accent: #1a7844;
+  --color-light-accent: #ffc000;
   /* Every shadow: the accent, `light-accent` in light mode. */
-  --color-throw: #43d384;
-  /* Hover and focus only: a blue apart in hue from the green throw, also under red-green color blindness. */
+  --color-throw: #ffc000;
+  /* Hover and focus only: a blue apart in hue from the gold throw. */
   --color-focus: #8ab8ff;
   /*
    * Errors only, never decoration. `error` passes SC 1.4.11 and is for edges;
    * `error-text` is every error glyph, AAA (SC 1.4.6). Magenta, so it stays apart
-   * from green under red-green color blindness. Ratios in docs/STYLEGUIDE.md.
+   * from the gold accent. Ratios in docs/STYLEGUIDE.md.
    */
   --color-error: #ff007a;
   --color-error-text: #ff8ac0;
@@ -203,10 +203,12 @@
    * Links on the slab: the accent, underlined, so the underline on
    * .surface-gold a satisfies SC 1.4.1 as well as the hue.
    */
-  --color-gold-link: #43d384;
+  --color-gold-link: #ffc000;
 
-  /* The homepage canvas's buds on the slab. Decoration only; not the link color. */
-  --color-gold-bud: #43d384;
+  /* The homepage canvas's stele edge, meadow and buds: the only green. Decoration only. */
+  --color-hero-accent: #43d384;
+  /* The canvas's buds on the slab. Not the link color. */
+  --color-gold-bud: var(--color-hero-accent);
   --color-hero-ground: var(--color-block-gold);
 
   /*
@@ -451,7 +453,7 @@
   /*
    * Focus ring: 4px `focus`, clearing SC 1.4.11 on background and surface. A
    * shadowed element sets `--lift` to its shadow offset so the ring clears it:
-   * `focus` over the green throw is 1.05. Never set outline-offset to 0.
+   * `focus` over the gold throw is 1.23. Never set outline-offset to 0.
    */
   --focus-width: 4px;
   --focus-gap: 4px;

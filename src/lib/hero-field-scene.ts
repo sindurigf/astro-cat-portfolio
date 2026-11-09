@@ -6,7 +6,7 @@
 
 /** Read from `--color-*` at runtime: check-tokens.mjs forbids raw hex here. */
 export interface HeroPalette {
-  /** `--color-gold`: the accent, so the canvas lines stay green while slab edges are light. */
+  /** `--color-hero-accent`: the canvas lines are green while the page accent is gold. */
   readonly border: string;
   /** `--color-gold-muted`. */
   readonly subtle: string;

@@ -447,7 +447,7 @@ test(
   },
 );
 
-/** Device px from any point of a frame's outer edge to its white rim: the ink edge and the green block lie between. */
+/** Device px from any point of a frame's outer edge to its white rim: the ink edge and the gold block lie between. */
 const RIM_WITHIN = 12;
 /** A channel this bright is the white rim, not the coat. */
 const RIM_WHITE = 240;

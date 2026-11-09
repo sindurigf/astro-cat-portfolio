@@ -391,7 +391,7 @@ test.describe('a hover lift', () => {
       }));
       expect(
         offset,
-        'the ring does not clear the throw by its gap: focus over the green throw fails SC 1.4.11',
+        'the ring does not clear the throw by its gap: focus over the gold throw fails SC 1.4.11',
       ).toBeGreaterThanOrEqual((await throwOf(page, p.control)) + gap);
     });
   }

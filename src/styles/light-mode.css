@@ -72,8 +72,14 @@
     --color-code-edge: var(--dark-code-edge);
     --color-code-fill: var(--dark-code-fill);
     --color-fill-edge: var(--dark-fill-edge);
-    --color-throw: var(--dark-throw);
     color-scheme: dark;
+  }
+
+  /* The island's own throw lands on the light page; only what it holds takes the dark one. */
+  :is(:root[data-theme='light'] main, main .mode-light)
+    :is(.mode-dark, .surface-gold)
+    > * {
+    --color-throw: var(--dark-throw);
   }
 
   :root[data-theme='light'] main .mode-dark {

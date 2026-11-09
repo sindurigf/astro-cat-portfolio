@@ -12,7 +12,7 @@
   /*
    * Blocks: every card, the plain hero slab and the post contents, an ink slab
    * with a light edge in both modes. The dark values are restored inside, so
-   * `text-text` and `text-gold` read on the fill (16.32, accent 9.47).
+   * `text-text` and `text-gold` read on the fill (16.32, accent 11.13).
    */
   :is(.card, .plain-slab, .post-contents):not(.surface-gold, .surface-gold *) {
     --color-background: var(--color-block-gold);

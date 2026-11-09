@@ -45,7 +45,7 @@ const BLOCK_STEPS = Math.ceil((BLOCK_DEPTH * TAB_MASTER) / ICON_SIZE);
 const svg = (viewBox, inner) =>
   `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${viewBox}">${inner}</svg>`;
 
-/** The cat as a die-cut sticker: white rim, ink edge, green block falling down-right behind it. */
+/** The cat as a die-cut sticker: white rim, ink edge, gold block falling down-right behind it. */
 const catIcon = async () => {
   const { width, height, hasAlpha } = await sharp(ICON_ART).metadata();
   if (!hasAlpha)

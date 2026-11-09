@@ -239,7 +239,7 @@ const withinStepLimit = async <T>(
   throw new Error(`${what} took over ${RING_STEP_LIMIT_MS} ms.${where}`);
 };
 
-/* SC 1.4.11: `focus` over the green throw is 1.05, so no ring outside its box may start inside the shadows of its own control. */
+/* SC 1.4.11: `focus` over the gold throw is 1.23, so no ring outside its box may start inside the shadows of its own control. */
 for (const colorScheme of SCHEMES) {
   test.describe(`ring clearance, ${colorScheme}`, () => {
     test.use({ colorScheme, viewport: { width: 1280, height: 900 } });

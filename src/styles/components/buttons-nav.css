@@ -99,7 +99,7 @@
 
       /* No lift on touch, where :hover sticks after a tap. */
       @media (hover: hover) {
-        /* The ring clears the grown throw: `focus` over the green throw fails SC 1.4.11. */
+        /* The ring clears the grown throw: `focus` over the gold throw fails SC 1.4.11. */
         &:hover:not(:active) {
           --lift: calc(var(--press-throw) + var(--press-lift));
 
