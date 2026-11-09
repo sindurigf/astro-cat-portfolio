@@ -58,7 +58,7 @@
 
   /*
    * Fill, no border: a 4px border would outweigh the glyphs and grow the line
-   * box. `text` on `surface`, 13.51.
+   * box. `text` on `surface`, 14.60.
    */
   .prose code {
     @apply bg-surface px-1 font-mono text-code text-text;

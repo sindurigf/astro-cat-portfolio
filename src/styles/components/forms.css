@@ -32,7 +32,7 @@
     @apply border-pink inset-shadow-invalid;
   }
 
-  /* In a block the field shares the block's fill, so only its ink edge passes 3:1 (pink on gold is 2.31); the pink ring stays inside it. */
+  /* In a block the field keeps the block's edge color, so the error stays a shape change; the pink ring stays inside it. */
   :is(.card, .plain-slab, .post-contents):not(.surface-gold, .surface-gold *)
     .field-control[aria-invalid='true'] {
     @apply border-border;

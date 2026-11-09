@@ -171,13 +171,16 @@
   }
 
   /*
-   * Hero plus the section under it, one gold area. Two rings, since no color
-   * clears SC 1.4.11 on both sides: gold-border inside, `border` outside for
-   * the page. Top margin is the name's overhang.
+   * Hero plus the section under it, one ink slab in both modes. Top margin is
+   * the name's overhang. `--page-*` are the page's colors, read by the given
+   * name and the pause control above the slab.
    */
   .v-column {
     position: relative;
-    background-color: var(--color-gold);
+    background-color: var(--color-block-gold);
+    --page-text: var(--color-text);
+    --page-cyan: var(--color-cyan);
+    --page-border: var(--color-border);
     /*
      * Smaller name in the column: a wrapped family name moves the break off the
      * rule.
@@ -198,7 +201,7 @@
   /*
    * Every whole-section gold area: starts at the rail, ends
    * --hero-column-screen-clear from the screen edge or at the rail, whichever
-   * is further out. Drawn like a block: the 4px ink edge and the pink throw.
+   * is further out. Drawn like a block: the 4px accent edge and the throw.
    * `.header-slab` repeats these margins so the header ends where the hero does.
    */
   .gold-column {
@@ -210,13 +213,13 @@
       );
     padding-inline: 0;
     border-width: var(--block-edge);
-    border-color: var(--color-block-ink);
+    border-color: var(--color-fill-edge);
 
     /*
-     * The utility, not `var(--shadow-hard-pink-object)`: the token resolves on
+     * The utility, not `var(--shadow-hard-throw)`: the token resolves on
      * :root, where light mode's <main> colors do not reach.
      */
-    @apply shadow-hard-pink-object;
+    @apply shadow-hard-throw;
   }
 
   /*
@@ -313,9 +316,14 @@
     bottom: calc(100% + --spacing(4));
   }
 
-  /* It sits on the page, not the gold: the page's ring, which `.surface-gold` would darken to 1:1. */
+  /* It sits on the page, not the slab: the page's ring, which the light-mode island would set to 1.48. */
   .surface-gold .hero-motion-toggle:focus-visible {
-    outline-color: var(--color-cyan);
+    outline-color: var(--page-cyan, var(--color-cyan));
+  }
+
+  /* The island's accent edge is 1.72 on the light page. */
+  .surface-gold .hero-motion-toggle {
+    border-color: var(--page-border, var(--color-border));
   }
 
   /*
@@ -333,6 +341,11 @@
    * empty leading; not `em` alone because the rule is px. `top` offsets by half
    * the leading difference so the letters, not the boxes, center on the rule.
    */
+  /* On the page, outside the slab's island: the page's text color in both modes. */
+  .hero-plate span:first-child {
+    color: var(--page-text);
+  }
+
   .hero-plate span:last-child {
     margin-top: calc(
       var(--hero-rule) + 2 * var(--hero-name-clearance) -

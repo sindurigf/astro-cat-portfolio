@@ -97,7 +97,7 @@ const filter = (scale) => {
     `<feMorphology in="mask" operator="dilate" radius="${r(OUTER)}" result="edge"/>` +
     `${steps}<feMerge result="block">${merge}</feMerge>` +
     `<feFlood flood-color="${paint('pink')}"/><feComposite in2="block" operator="in" result="pink"/>` +
-    `<feFlood flood-color="${paint('gold-text')}"/><feComposite in2="edge" operator="in" result="ink"/>` +
+    `<feFlood flood-color="${paint('block-ink')}"/><feComposite in2="edge" operator="in" result="ink"/>` +
     `<feFlood flood-color="${paint('light-ground')}"/><feComposite in2="rim" operator="in" result="white"/>` +
     `<feMerge><feMergeNode in="pink"/><feMergeNode in="ink"/><feMergeNode in="white"/><feMergeNode in="SourceGraphic"/></feMerge>` +
     `</filter>`

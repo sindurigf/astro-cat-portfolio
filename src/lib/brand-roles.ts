@@ -35,6 +35,7 @@ export const SWATCH: Record<string, Swatch> = {
   text: { paint: 'glyph', cls: 'text-text' },
   subtle: { paint: 'glyph', cls: 'text-subtle' },
   gold: { paint: 'fill', cls: 'bg-gold' },
+  throw: { paint: 'fill', cls: 'bg-throw' },
   cyan: { paint: 'empty', cls: '' },
   pink: { paint: 'fill', cls: 'bg-pink' },
   'pink-text': { paint: 'glyph', cls: 'text-pink-text' },
@@ -188,8 +189,8 @@ export const roles: Role[] = [
   role(
     'role-accent',
     'the one thing to notice.',
-    'Gold reads on the dark ground; light mode turns gold text to ink.',
-    ['gold', 'fill-edge'],
+    'The accent reads on the dark ground; light mode turns accent text to ink and its edges and throws darker.',
+    ['gold', 'fill-edge', 'throw'],
     {
       fg: 'gold',
       bg: 'background',
@@ -221,7 +222,7 @@ export const roles: Role[] = [
   role(
     'role-edges',
     'every boundary but table lines.',
-    'The edge is gold on the dark page and ink on the light one.',
+    'The edge is the accent on the dark page and ink on the light one.',
     [PAGE_EDGE, 'tile-edge'],
     {
       fg: PAGE_EDGE,

@@ -123,26 +123,35 @@
 @custom-variant stickers-wrap (@media (width < 17.5rem));
 
 @theme static {
-  --color-background: #0b0b0b;
-  --color-surface: #1a1a1a;
-  --color-border: #ffc000;
+  --color-background: #141517;
+  --color-surface: #1e2022;
+  --color-border: #43d384;
   /* A card draws no edge in dark mode: its fill and throw set it apart. */
   --color-card-edge: transparent;
   /*
-   * The edge of a gold or light fill: the fill delimits it on the page, so the
-   * edge needs to read on gold only (11.32).
+   * The edge of a slab or light fill. It meets the page, so it reads on the
+   * ground: 9.47 on ink; light mode swaps in `light-accent`, 4.92 on its page.
    */
-  --color-fill-edge: #131313;
-  --color-text: #e5e2e1;
+  --color-fill-edge: #43d384;
+  --color-text: #f2f2f2;
   /*
-   * Blocks (cards.css): gold, or light every second card in a block, with an
-   * ink edge. Fixed values: inside a block the color tokens are remapped.
+   * Blocks (cards.css): an ink slab, or light every second card in a block,
+   * with an accent edge. Fixed values: inside a block the color tokens are
+   * remapped.
    */
-  --color-block-gold: #ffc000;
-  --color-block-light: #e5e2e1;
-  --color-block-ink: #131313;
+  --color-block-gold: #141517;
+  --color-block-light: #f2f2f2;
+  --color-block-ink: #141517;
   --color-subtle: #9eb6c7;
-  --color-gold: #ffc000;
+  /* The accent: labels, markers and accent fills. Ink on it is 9.47. */
+  --color-gold: #43d384;
+  /*
+   * The accent on the light page: large text (24px and up), controls, edges
+   * and throws only, never body copy (4.92 on light-ground).
+   */
+  --color-light-accent: #1a7844;
+  /* Object shadows: the accent, `light-accent` in light mode. */
+  --color-throw: #43d384;
   --color-cyan: #00dcfd;
   /*
    * Two pinks, split by role, not size: `pink` passes SC 1.4.11 and is for
@@ -150,7 +159,7 @@
    * Every ratio is in docs/STYLEGUIDE.md's generated table.
    */
   --color-pink: #ff007a;
-  --color-pink-text: #ff79b6;
+  --color-pink-text: #ff8ac0;
   /*
    * The logo marks and the dark gold-slab button's shadow. Same hex as `pink`,
    * kept apart because light mode turns `pink` ink and this stays.
@@ -172,49 +181,39 @@
    * here so each color exists once: src/lib/css-token.ts fails on a second
    * definition.
    */
-  --color-light-ground: #ffffff;
-  --color-light-ink: #131313;
+  --color-light-ground: #f2f2f2;
+  --color-light-ink: #141517;
   --color-light-subtle: #3f4650;
   --color-light-focus: #0047b3;
-  --color-light-pink-text: #b00054;
-  /* A code block's edge in a post, kept grey so the gold label is the only gold. */
+  --color-light-pink-text: #9e004b;
+  /* A code block's edge in a post, kept grey so the accent label is the only accent. */
   --color-code-edge: #707070;
   /* Its light mode value. */
   --color-light-code-edge: #767676;
   /* A code block's fill: the surface in dark mode, the light block fill in light mode, so it reads as a block on white. */
   --color-code-fill: var(--color-surface);
-  --color-light-hero-veil: rgba(19, 19, 19, 0.025);
-  --color-light-hero-floor: rgba(19, 19, 19, 0.035);
 
   /*
-   * The gold surface: an inverted set, since only near-blacks read on gold.
-   * Build one with .surface-gold; ratios in docs/STYLEGUIDE.md.
+   * The slab surface (.surface-gold): an ink island in both modes, with light
+   * text and accent edges. Ratios in docs/STYLEGUIDE.md.
    */
-  /* The ink on gold; not tied to `background`, which retones on its own. */
-  --color-gold-text: #131313;
-  --color-gold-muted: #3a3020;
-  /* Same hex as gold-text: on gold, text and edges are one ink. */
-  --color-gold-border: #131313;
-  /*
-   * Fails on gold: label and inner focus ring of .btn-gold-primary's dark fill
-   * only. Body copy is `text`, since pure white halates on dark.
-   */
-  --color-gold-btn-label: #ffffff;
+  /* The text on the slab; not tied to `text`, which light mode turns ink. */
+  --color-gold-text: #f2f2f2;
+  --color-gold-muted: #9eb6c7;
+  /* Boundaries on the slab: the accent, 9.47 on ink. */
+  --color-gold-border: #43d384;
+  /* Label and inner focus ring of .btn-gold-primary's light fill only. */
+  --color-gold-btn-label: #141517;
 
   /*
-   * Links on gold: no contrast against gold-text, so the underline on
-   * .surface-gold a is what satisfies SC 1.4.1. Never drop the underline for a
-   * stronger color.
+   * Links on the slab: the accent, underlined, so the underline on
+   * .surface-gold a satisfies SC 1.4.1 as well as the hue.
    */
-  --color-gold-link: #1e0d16;
+  --color-gold-link: #43d384;
 
-  /* The homepage canvas's buds on gold. Decoration only; not the link color. */
-  --color-gold-bud: #00363f;
-  /*
-   * Not `gold` directly: light mode keeps gold for fills while this ground goes
-   * white.
-   */
-  --color-hero-ground: var(--color-gold);
+  /* The homepage canvas's buds on the slab. Decoration only; not the link color. */
+  --color-gold-bud: #43d384;
+  --color-hero-ground: var(--color-block-gold);
 
   /*
    * The glow inside a lit glyph on the poneglyph. Its full-ink rim carries the
@@ -223,14 +222,14 @@
   --color-hero-glow: var(--color-cat-hela);
 
   /*
-   * The canvas's veil and floor, read by HeroField.vue. Ink, not border-blue,
-   * because the field draws on gold. One setting with the near-plane blur in
+   * The canvas's veil and floor, read by HeroField.vue. A light haze, since the
+   * field draws on ink. One setting with the near-plane blur in
    * hero-field-scene.ts: change them together.
    */
-  --color-hero-veil: rgba(19, 19, 19, 0.07);
-  --color-hero-veil-edge: rgba(19, 19, 19, 0);
-  --color-hero-floor: rgba(19, 19, 19, 0.1);
-  --color-hero-floor-edge: rgba(19, 19, 19, 0);
+  --color-hero-veil: rgba(242, 242, 242, 0.04);
+  --color-hero-veil-edge: rgba(242, 242, 242, 0);
+  --color-hero-floor: rgba(242, 242, 242, 0.06);
+  --color-hero-floor-edge: rgba(242, 242, 242, 0);
 
   /*
    * Family name from @fontsource-variable/lexend: one wght axis file, latin
@@ -379,9 +378,8 @@
   --tracking-label: 0.1em;
 
   /*
-   * Hard offset shadows, one job per color: pink is depth and pressables, cyan
-   * is hover and focus. Gold casts none: gold on gold shows nothing, and pink is
-   * visible on gold and on the page.
+   * Hard offset shadows, one job per color: the accent throw is object depth,
+   * pink is pressables, cyan is hover and focus.
    */
   /* One throw for object shadows; controls keep 4px. */
   --hard-throw: 8px;
@@ -402,23 +400,22 @@
   --shadow-hard-pink-4: 4px 4px 0 var(--color-pink);
   /* In the color opposite the ground, so it shows in both modes. */
   --shadow-brick: var(--brick-throw) var(--brick-throw) 0 var(--color-text);
-  --shadow-hard-pink-object: var(--hard-throw) var(--hard-throw) 0
-    var(--color-pink);
+  --shadow-hard-throw: var(--hard-throw) var(--hard-throw) 0 var(--color-throw);
   --shadow-hard-mark-4: 4px 4px 0 var(--color-mark);
   --shadow-hard-mark-8: 8px 8px 0 var(--color-mark);
   --shadow-hard-cyan-object: var(--hard-throw) var(--hard-throw) 0
     var(--color-cyan);
-  /* A card on gold: `gold-border` passes SC 1.4.11 there, pink does not. */
+  /* A card on the slab: its throw in `gold-border`, the accent. */
   --shadow-hard-gold-border-4: 4px 4px 0 var(--color-gold-border);
 
   /*
    * Inner half of .btn-gold-primary's two-tone focus ring, visible against the
-   * dark fill (SC 1.4.11). A shadow because an element has one outline.
+   * light fill (SC 1.4.11). A shadow because an element has one outline.
    */
   --inset-shadow-gold-btn-ring: inset 0 0 0 3px var(--color-gold-btn-label);
 
   /*
-   * Current-page ring on a gold nav brick and .nav-cta: ink, 11.32 on gold, so
+   * Current-page ring on a slab nav brick and .nav-cta: light, 16.32 on ink, so
    * the state is a shape as well as a fill (SC 1.4.1).
    */
   --inset-shadow-current: inset 0 0 0 4px var(--color-gold-text);

@@ -18,8 +18,8 @@
   }
 
   /*
-   * Carries its own dark ground, so on gold it stays pink-text on dark (SC
-   * 1.4.3).
+   * Carries its own ground, so on the slab it keeps pink-text on that ground
+   * (SC 1.4.3).
    * Tilt comes from markup.
    */
   .sticker {
@@ -49,7 +49,7 @@
   }
 
   /*
-   * Current: a flat text-color block without shadow (15.28); the marker
+   * Current: a flat text-color block without shadow (16.32); the marker
    * inverts.
    */
   a.chip[aria-current] {
@@ -58,7 +58,7 @@
     --lift: 0px;
   }
 
-  /* background on text: 15.28. */
+  /* background on text: 16.32. */
   .badge {
     @apply inline-flex items-center bg-text px-2 py-1 text-label font-black
       uppercase tracking-label text-background;
@@ -66,7 +66,7 @@
 
   /*
    * A row of filter or page chips: joined light bricks casting one throw, the
-   * current one gold with an ink marker. Side by side each overlaps the next
+   * current one ink with a light label. Side by side each overlaps the next
    * by its edge; a wrapped line keeps its own edges, so no target shrinks
    * (SC 2.5.5). The row holds still.
    */
@@ -94,16 +94,21 @@
       background-color: var(--dark-cyan);
     }
 
+    /* On the dark page the ink fill meets the ground, so the edge is the accent. */
     & a.chip[aria-current] {
-      @apply bg-block-gold;
+      @apply border-fill-edge bg-block-gold text-gold-text;
     }
 
-    /* Inside the brick, so it never crosses the next; ink on light, gold or cyan. */
+    /* Inside the brick, so it never crosses the next; ink on light or cyan, light on ink. */
     & a.chip:focus-visible {
       position: relative;
       z-index: 1;
       outline-color: var(--color-block-ink);
       outline-offset: calc(-1 * (var(--block-edge) + var(--focus-gap)));
+    }
+
+    & a.chip[aria-current]:focus-visible {
+      outline-color: var(--color-gold-text);
     }
   }
 }

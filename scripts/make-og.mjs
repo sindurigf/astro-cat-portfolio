@@ -59,7 +59,7 @@ const PHOTO_EDGE = 4;
 const PHOTO_SHADOW = 10;
 
 const TOKENS = {
-  gold: cssColorToken('--color-gold'),
+  gold: cssColorToken('--color-block-gold'),
   goldText: cssColorToken('--color-gold-text'),
   background: cssColorToken('--color-background'),
   mark: cssColorToken('--color-mark'),

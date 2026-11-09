@@ -157,9 +157,9 @@
   }
 
   /*
-   * The motto as display type on a gold band at the page's end; the mascot
+   * The motto as display type on an ink band at the page's end; the mascot
    * stands on its last letter. The band is the container the type is sized by.
-   * A gold block, not `.surface-gold`: it holds the motto in ink and no controls.
+   * A block, not `.surface-gold`: it holds the motto and no controls.
    */
   .footer-name {
     position: relative;

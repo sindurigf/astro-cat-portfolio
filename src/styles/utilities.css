@@ -38,10 +38,9 @@
     background-clip: padding-box;
   }
 
-  .surface-gold :is(.rotate-3, .-rotate-3).sticker,
   :is(:root[data-theme='light'] main, main .mode-light)
-    :is(.rotate-3, .-rotate-3).sticker:not(.mode-dark *),
-  :is(.rotate-3, .-rotate-3).hero-sticker.bg-surface {
+    :is(.rotate-3, .-rotate-3).sticker:not(:is(.mode-dark, .surface-gold) *),
+  :is(.rotate-3, .-rotate-3).hero-sticker.bg-gold {
     background-clip: border-box;
   }
 
@@ -132,17 +131,17 @@
 
     & > * {
       margin: 0 0 calc(var(--block-edge) * -1) calc(var(--block-edge) * -1);
-      box-shadow: var(--hard-throw) var(--hard-throw) 0 var(--color-pink);
+      box-shadow: var(--hard-throw) var(--hard-throw) 0 var(--color-throw);
     }
   }
 
   /*
-   * Gold-link hover: cyan does not show on gold, so the link fills with its
-   * color and the text turns gold (SC 1.4.3); --gold-marker-pad covers the underline.
+   * Slab link hover: the link fills with its color and the text turns ink, or
+   * light in a light brick (SC 1.4.3); --gold-marker-pad covers the underline.
    * Utilities layer beats a tied rule (tests/gold-link.spec.ts).
    */
   .surface-gold a:not(.btn-gold-primary, .btn-gold-secondary, .chip):hover {
-    color: var(--color-gold);
+    color: var(--link-fill-label, var(--color-block-ink));
     background-color: var(--color-gold-link);
     box-shadow: 0 0 0 var(--gold-marker-pad) var(--color-gold-link);
   }

@@ -15,7 +15,7 @@ import { MARK_SIZE, markMarkup } from '../src/lib/brand-mark.ts';
 
 const paint = (token) => cssColorToken(`--color-${token}`);
 const GROUND = paint('background');
-const INK = paint('gold-text');
+const INK = paint('block-ink');
 const RIM = paint('light-ground');
 const BLOCK = paint('mark');
 
