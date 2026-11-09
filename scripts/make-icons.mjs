@@ -15,9 +15,9 @@ import { MARK_SIZE, markMarkup } from '../src/lib/brand-mark.ts';
 
 const paint = (token) => cssColorToken(`--color-${token}`);
 const GROUND = paint('background');
-const INK = paint('block-ink');
+const INK = paint('gold-text');
 const RIM = paint('light-ground');
-const BLOCK = paint('throw');
+const BLOCK = paint('mark');
 
 /* The icon cat, a Canva AI drawing cut out of its background. */
 // TODO(fork): Your cat's cut-out, transparent background.
@@ -45,7 +45,7 @@ const BLOCK_STEPS = Math.ceil((BLOCK_DEPTH * TAB_MASTER) / ICON_SIZE);
 const svg = (viewBox, inner) =>
   `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${viewBox}">${inner}</svg>`;
 
-/** The cat as a die-cut sticker: white rim, ink edge, gold block falling down-right behind it. */
+/** The cat as a die-cut sticker: white rim, ink edge, pink block falling down-right behind it. */
 const catIcon = async () => {
   const { width, height, hasAlpha } = await sharp(ICON_ART).metadata();
   if (!hasAlpha)
@@ -79,10 +79,10 @@ const catIcon = async () => {
     `<feMerge result="far">${backMerge}</feMerge>` +
     `<feMorphology in="far" operator="dilate" radius="${EDGE_WIDTH}" result="back"/>` +
     `<feFlood flood-color="${INK}"/><feComposite in2="back" operator="in" result="backInk"/>` +
-    `<feFlood flood-color="${BLOCK}"/><feComposite in2="block" operator="in" result="blockThrow"/>` +
+    `<feFlood flood-color="${BLOCK}"/><feComposite in2="block" operator="in" result="blockPink"/>` +
     `<feFlood flood-color="${INK}"/><feComposite in2="edge" operator="in" result="edgeInk"/>` +
     `<feFlood flood-color="${RIM}"/><feComposite in2="rim" operator="in" result="rimWhite"/>` +
-    `<feMerge><feMergeNode in="backInk"/><feMergeNode in="blockThrow"/><feMergeNode in="edgeInk"/><feMergeNode in="rimWhite"/><feMergeNode in="SourceGraphic"/></feMerge>` +
+    `<feMerge><feMergeNode in="backInk"/><feMergeNode in="blockPink"/><feMergeNode in="edgeInk"/><feMergeNode in="rimWhite"/><feMergeNode in="SourceGraphic"/></feMerge>` +
     `</filter>`;
   return svg(
     `0 0 ${ICON_SIZE} ${ICON_SIZE}`,

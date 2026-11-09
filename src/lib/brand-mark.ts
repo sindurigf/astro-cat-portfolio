@@ -41,9 +41,9 @@ export const markMarkup = (paint: Paint, { id }: MarkOptions): string => {
   const ears = `<path d="${EAR_LEFT}" fill="${paint('cat-cardboard')}"/><path d="${EAR_RIGHT}" fill="${paint('cat-hela-far')}"/>`;
   const blackPatch = `<path d="${PATCH_BLACK}" fill="${paint('cat-hela-black')}"/>`;
   const face =
-    `<path d="${HAPPY_EYES}" fill="none" stroke="${paint('block-ink')}" stroke-width="${EYE_WIDTH}" stroke-linecap="round" stroke-linejoin="round"/>` +
-    `<path d="${NOSE}" fill="${paint('block-ink')}"/>` +
-    `<path d="${WHISKERS}" fill="none" stroke="${paint('block-ink')}" stroke-width="${WHISKER_WIDTH}" stroke-linecap="round"/>`;
+    `<path d="${HAPPY_EYES}" fill="none" stroke="${paint('gold-text')}" stroke-width="${EYE_WIDTH}" stroke-linecap="round" stroke-linejoin="round"/>` +
+    `<path d="${NOSE}" fill="${paint('mark')}"/>` +
+    `<path d="${WHISKERS}" fill="none" stroke="${paint('gold-text')}" stroke-width="${WHISKER_WIDTH}" stroke-linecap="round"/>`;
   return (
     `<defs><clipPath id="${clip}"><path d="${MARK_HEAD}"/></clipPath></defs>` +
     `<path d="${MARK_HEAD}" fill="${paint('cat-hela')}"/>` +

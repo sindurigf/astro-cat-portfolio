@@ -123,51 +123,40 @@
 @custom-variant stickers-wrap (@media (width < 17.5rem));
 
 @theme static {
-  --color-background: #141517;
-  --color-surface: #1e2022;
-  /* Every edge is stone: 4.81 on ink, 3.60 on brick-dark. Light mode swaps in slate. */
-  --color-border: #6f8696;
-  --color-card-edge: #6f8696;
-  /* The edge of a slab or light fill: stone, 3.39 on block-light. */
-  --color-fill-edge: #6f8696;
-  --color-text: #f2f2f2;
+  --color-background: #0b0b0b;
+  --color-surface: #1a1a1a;
+  --color-border: #ffc000;
+  /* A card draws no edge in dark mode: its fill and throw set it apart. */
+  --color-card-edge: transparent;
   /*
-   * Blocks (cards.css): an ink slab, or light every second card in a block,
-   * with the stone edge. Fixed values: inside a block the color tokens are
-   * remapped.
+   * The edge of a gold or light fill: the fill delimits it on the page, so the
+   * edge needs to read on gold only (11.32).
    */
-  --color-block-gold: #141517;
-  --color-block-light: #f2f2f2;
-  --color-block-ink: #141517;
+  --color-fill-edge: #131313;
+  --color-text: #e5e2e1;
+  /*
+   * Blocks (cards.css): gold, or light every second card in a block, with an
+   * ink edge. Fixed values: inside a block the color tokens are remapped.
+   */
+  --color-block-gold: #ffc000;
+  --color-block-light: #e5e2e1;
+  --color-block-ink: #131313;
   --color-subtle: #9eb6c7;
-  /* Labels, markers and label fills: the text color. Ink on it is 16.32. */
-  --color-gold: #f2f2f2;
+  --color-gold: #ffc000;
+  --color-cyan: #00dcfd;
   /*
-   * Stone, every throw in both modes: 4.81 on ink, 3.39 on light-ground
-   * (SC 1.4.11). Never text. `light-accent` is the marker square, the same stone.
+   * Two pinks, split by role, not size: `pink` passes SC 1.4.11 and is for
+   * non-text only; `pink-text` is every pink glyph, AAA (SC 1.4.6) at any size.
+   * Every ratio is in docs/STYLEGUIDE.md's generated table.
    */
-  --color-throw: #6f8696;
-  --color-light-accent: #6f8696;
-  /* Hover and focus only: a blue apart in hue from the stone throw. */
-  --color-focus: #8ab8ff;
+  --color-pink: #ff007a;
+  --color-pink-text: #ff79b6;
   /*
-   * Errors only, never decoration. `error` passes SC 1.4.11 and is for edges;
-   * `error-text` is every error glyph, AAA on the page (SC 1.4.6), AA on a raised brick. Magenta, so it stays apart
-   * from the stone throw. Ratios in docs/STYLEGUIDE.md.
+   * The logo marks and the dark gold-slab button's shadow. Same hex as `pink`,
+   * kept apart because light mode turns `pink` ink and this stays.
    */
-  --color-error: #ff007a;
-  --color-error-text: #ff8ac0;
-  --color-tile-edge: #6f8696;
-  /*
-   * Wall bricks (cards.css): every second brick's fill, light text 12.2 and
-   * subtle 8.48 on it. Light mode in light-mode.css.
-   */
-  --color-brick-dark: #2a2e33;
-  --color-brick-subtle: #c9ccd1;
-  /* The edge pair: stone in dark mode, slate in light mode, read through `--edge-color`. */
-  --color-stone-edge: #6f8696;
-  /* Hover text and rings in it: 7.59, where `focus` is 6.75. */
-  --color-brick-focus: #9cc3ff;
+  --color-mark: #ff007a;
+  --color-tile-edge: #5a87a8;
   /* The system color forced-colors mode pairs with the button face; bars on it use `forced-colors:bg-button-text`. */
   --color-button-text: ButtonText;
   /* TODO(fork): The logo cat's coat colors. README "Your cat, or none". */
@@ -183,47 +172,47 @@
    * here so each color exists once: src/lib/css-token.ts fails on a second
    * definition.
    */
-  --color-light-ground: #f2f2f2;
-  --color-light-ink: #141517;
+  --color-light-ground: #ffffff;
+  --color-light-ink: #131313;
   --color-light-subtle: #3f4650;
   --color-light-focus: #0047b3;
-  --color-light-error-text: #9e004b;
-  /* Every second brick, ink 13.9 on it. Slate is 4.91 on light-ground, 4.18 on it. */
-  --color-light-brick: #dde1e5;
-  --color-light-stone-edge: #5b6b78;
-  /* Hover text and rings in it: 7.51, where `light-focus` is 6.26. */
-  --color-light-brick-focus: #003d99;
-  /* A code block's edge in a post: stone, 4.30 on its surface fill. */
-  --color-code-edge: #6f8696;
+  --color-light-pink-text: #b00054;
+  /* A code block's edge in a post, kept grey so the gold label is the only gold. */
+  --color-code-edge: #707070;
   /* Its light mode value. */
-  --color-light-code-edge: #5b6b78;
+  --color-light-code-edge: #767676;
   /* A code block's fill: the surface in dark mode, the light block fill in light mode, so it reads as a block on white. */
   --color-code-fill: var(--color-surface);
 
   /*
-   * The slab surface (.surface-gold): ink with light text and edges; light mode
-   * mirrors it. Ratios in docs/STYLEGUIDE.md.
+   * The gold surface: an inverted set, since only near-blacks read on gold.
+   * Build one with .surface-gold; ratios in docs/STYLEGUIDE.md.
    */
-  /* The text on the slab; not tied to `text`, which light mode turns ink. */
-  --color-gold-text: #f2f2f2;
-  --color-gold-muted: #9eb6c7;
-  /* Boundaries on the slab: stone. */
-  --color-gold-border: #6f8696;
-  /* Label and inner focus ring of .btn-gold-primary's light fill only. */
-  --color-gold-btn-label: #141517;
+  /* The ink on gold; not tied to `background`, which retones on its own. */
+  --color-gold-text: #131313;
+  --color-gold-muted: #3a3020;
+  /* Same hex as gold-text: on gold, text and edges are one ink. */
+  --color-gold-border: #131313;
+  /*
+   * Fails on gold: label and inner focus ring of .btn-gold-primary's dark fill
+   * only. Body copy is `text`, since pure white halates on dark.
+   */
+  --color-gold-btn-label: #ffffff;
 
-  /* Links on the slab: the slab's text color, underlined for SC 1.4.1. */
-  --color-gold-link: #f2f2f2;
+  /*
+   * Links on gold: no contrast against gold-text, so the underline on
+   * .surface-gold a is what satisfies SC 1.4.1. Never drop the underline for a
+   * stronger color.
+   */
+  --color-gold-link: #1e0d16;
 
-  /* The homepage canvas's stele edge, meadow and buds: the only green. Decoration only. */
-  --color-hero-accent: #43d384;
-  /* The canvas's buds on the slab. Not the link color. */
-  --color-gold-bud: var(--color-hero-accent);
-  /* The canvas's grey buds; light mode swaps in stone. */
-  --color-hero-muted: var(--color-gold-muted);
-  --color-hero-ground: var(--color-block-gold);
-  /* Light mode's canvas green: 4.92 on light-ground. */
-  --color-light-hero-accent: #1a7844;
+  /* The homepage canvas's buds on gold. Decoration only; not the link color. */
+  --color-gold-bud: #00363f;
+  /*
+   * Not `gold` directly: light mode keeps gold for fills while this ground goes
+   * white.
+   */
+  --color-hero-ground: var(--color-gold);
 
   /*
    * The glow inside a lit glyph on the poneglyph. Its full-ink rim carries the
@@ -232,15 +221,27 @@
   --color-hero-glow: var(--color-cat-hela);
 
   /*
-   * The canvas's veil and floor, read by HeroField.vue. A light haze, since the
-   * field draws on ink. One setting with the near-plane blur in
+   * The canvas's veil and floor, read by HeroField.vue. Ink, not border-blue,
+   * because the field draws on gold. One setting with the near-plane blur in
    * hero-field-scene.ts: change them together.
    */
-  --color-hero-veil: rgba(242, 242, 242, 0.04);
-  --color-hero-veil-edge: rgba(242, 242, 242, 0);
-  --color-hero-contact: var(--color-hero-accent);
-  --color-hero-floor: rgba(242, 242, 242, 0.06);
-  --color-hero-floor-edge: rgba(242, 242, 242, 0);
+  --color-hero-veil: rgba(19, 19, 19, 0.07);
+  --color-hero-veil-edge: rgba(19, 19, 19, 0);
+  --color-hero-floor: rgba(19, 19, 19, 0.1);
+  --color-hero-floor-edge: rgba(19, 19, 19, 0);
+
+  /*
+   * The homepage hero window is ink inside the gold column, in dark mode only.
+   * Mint buds: 10.9:1 on block-ink; light mode's 4.9:1 on white (SC 1.4.11).
+   */
+  --color-hero-accent: #4adeb0;
+  --color-light-hero-accent: #0f7a5c;
+  /* The canvas's faint buds; gold-muted on gold, subtle on the ink window. */
+  --color-hero-muted: var(--color-gold-muted);
+  --color-hero-ink-veil: rgba(229, 226, 225, 0.04);
+  --color-hero-ink-veil-edge: rgba(229, 226, 225, 0);
+  --color-hero-ink-floor: rgba(229, 226, 225, 0.06);
+  --color-hero-ink-floor-edge: rgba(229, 226, 225, 0);
 
   /*
    * Family name from @fontsource-variable/lexend: one wght axis file, latin
@@ -389,15 +390,14 @@
   --tracking-label: 0.1em;
 
   /*
-   * Hard offset shadows: every throw is stone (`throw`); `focus` shows only
-   * on hover and focus.
+   * Hard offset shadows, one job per color: pink is depth and pressables, cyan
+   * is hover and focus. Gold casts none: gold on gold shows nothing, and pink is
+   * visible on gold and on the page.
    */
   /* One throw for object shadows; controls keep 4px. */
   --hard-throw: 8px;
-  /* A block's edge width; blocks in a `.card-block` share it as one wall. */
+  /* A block's ink edge; blocks in a `.card-block` share it as one wall. */
   --block-edge: 4px;
-  /* Every brick in a `.card-block`, odd and even. */
-  --wall-edge: 3px;
   /* The header's joined bricks and its logo block. */
   --brick-throw: 6px;
   /*
@@ -410,27 +410,32 @@
   --edge: 6px;
   /* Table rules only (`hairline` utilities). */
   --hairline: 1px;
-  --shadow-hard-throw-4: 4px 4px 0 var(--color-throw);
+  --shadow-hard-pink-4: 4px 4px 0 var(--color-pink);
   /* In the color opposite the ground, so it shows in both modes. */
   --shadow-brick: var(--brick-throw) var(--brick-throw) 0 var(--color-text);
-  --shadow-hard-throw: var(--hard-throw) var(--hard-throw) 0 var(--color-throw);
-  --shadow-hard-focus-object: var(--hard-throw) var(--hard-throw) 0
-    var(--color-focus);
+  --shadow-hard-pink-object: var(--hard-throw) var(--hard-throw) 0
+    var(--color-pink);
+  --shadow-hard-mark-4: 4px 4px 0 var(--color-mark);
+  --shadow-hard-mark-8: 8px 8px 0 var(--color-mark);
+  --shadow-hard-cyan-object: var(--hard-throw) var(--hard-throw) 0
+    var(--color-cyan);
+  /* A card on gold: `gold-border` passes SC 1.4.11 there, pink does not. */
+  --shadow-hard-gold-border-4: 4px 4px 0 var(--color-gold-border);
 
   /*
    * Inner half of .btn-gold-primary's two-tone focus ring, visible against the
-   * light fill (SC 1.4.11). A shadow because an element has one outline.
+   * dark fill (SC 1.4.11). A shadow because an element has one outline.
    */
   --inset-shadow-gold-btn-ring: inset 0 0 0 3px var(--color-gold-btn-label);
 
   /*
-   * Current-page ring on a slab nav brick and .nav-cta: light, 16.32 on ink, so
+   * Current-page ring on a gold nav brick and .nav-cta: ink, 11.32 on gold, so
    * the state is a shape as well as a fill (SC 1.4.1).
    */
   --inset-shadow-current: inset 0 0 0 4px var(--color-gold-text);
 
-  /* A failing field's 4px error edge doubled by a 4px ring inside it. */
-  --inset-shadow-invalid: inset 0 0 0 4px var(--color-error);
+  /* A failing field's 4px pink edge doubled by a 4px ring inside it. */
+  --inset-shadow-invalid: inset 0 0 0 4px var(--color-pink);
 
   /*
    * Header, main and footer all carry the gutter outside and this width inside;
@@ -468,9 +473,9 @@
   --spacing-page-top: calc(var(--spacing-target) + var(--spacing-header));
 
   /*
-   * Focus ring: 4px `focus`, clearing SC 1.4.11 on background and surface. A
+   * Focus ring: 4px cyan, clearing SC 1.4.11 on background and surface. A
    * shadowed element sets `--lift` to its shadow offset so the ring clears it:
-   * `focus` over the stone throw is 1.88 dark, 2.17 light. Never set outline-offset to 0.
+   * cyan over pink fails SC 1.4.11. Never set outline-offset to 0.
    */
   --focus-width: 4px;
   --focus-gap: 4px;
@@ -519,7 +524,7 @@
   --hero-rule: var(--hero-column-edge);
   /*
    * At least the given name's leading under its letters (0.0831em, 7px at 84px), or
-   * its line box reaches into the column. tests/hero-fit.spec.ts.
+   * its line box reaches the gold at 1.27. tests/hero-fit.spec.ts.
    */
   --hero-name-clearance: 8px;
 

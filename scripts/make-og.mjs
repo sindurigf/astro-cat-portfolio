@@ -59,11 +59,12 @@ const PHOTO_EDGE = 4;
 const PHOTO_SHADOW = 10;
 
 const TOKENS = {
-  gold: cssColorToken('--color-block-gold'),
+  gold: cssColorToken('--color-gold'),
   goldText: cssColorToken('--color-gold-text'),
   background: cssColorToken('--color-background'),
+  mark: cssColorToken('--color-mark'),
   fillEdge: cssColorToken('--color-fill-edge'),
-  throw: cssColorToken('--color-throw'),
+  pink: cssColorToken('--color-pink'),
 };
 
 const { person, site } = SITE_CONFIG;
@@ -79,7 +80,7 @@ const dataUri = (path, type) =>
 
 const markSvg = () =>
   `<svg class="mark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${MARK_SIZE + SHADOW_OFFSET} ${MARK_SIZE + SHADOW_OFFSET}">` +
-  `<g transform="translate(${SHADOW_OFFSET} ${SHADOW_OFFSET})">${markSilhouette(TOKENS.throw)}</g>` +
+  `<g transform="translate(${SHADOW_OFFSET} ${SHADOW_OFFSET})">${markSilhouette(TOKENS.mark)}</g>` +
   markMarkup((token) => cssColorToken(`--color-${token}`), { id: 'og' }) +
   '</svg>';
 
@@ -101,7 +102,7 @@ html,body{margin:0}
 .domain{margin-top:auto;font-weight:900;font-size:24px;letter-spacing:.12em;text-transform:uppercase}
 .mark{position:absolute;left:${MARK_LEFT}px;top:${MARK_TOP}px;width:${MARK_BOX}px;height:${MARK_BOX}px;transform:rotate(5deg)}
 .photo{position:absolute;left:${PHOTO_LEFT}px;top:${PHOTO_TOP}px;width:${PHOTO_BOX.width}px;height:${PHOTO_BOX.height}px;display:flex;align-items:center;justify-content:center}
-.photo img{box-sizing:border-box;border:${PHOTO_EDGE}px solid ${TOKENS.fillEdge};box-shadow:${PHOTO_SHADOW}px ${PHOTO_SHADOW}px 0 ${TOKENS.throw};rotate:2deg}
+.photo img{box-sizing:border-box;border:${PHOTO_EDGE}px solid ${TOKENS.fillEdge};box-shadow:${PHOTO_SHADOW}px ${PHOTO_SHADOW}px 0 ${TOKENS.pink};rotate:2deg}
 </style></head><body><div class="og">
 <div class="strip"></div>
 ${art}

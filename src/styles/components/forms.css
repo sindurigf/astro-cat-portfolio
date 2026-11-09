@@ -25,21 +25,21 @@
   }
 
   /*
-   * Invalid by shape, not only color (SC 1.4.1): a 4px inset ring inside the
-   * 6px edge.
+   * Invalid by shape, not only color (SC 1.4.1: pink and `border` look alike
+   * in luminance): a 4px inset ring inside the 6px edge.
    */
   .field-control[aria-invalid='true'] {
-    @apply border-error inset-shadow-invalid;
+    @apply border-pink inset-shadow-invalid;
   }
 
-  /* In a block the field keeps the block's edge color, so the error stays a shape change; the error ring stays inside it. */
+  /* In a block the field shares the block's fill, so only its ink edge passes 3:1 (pink on gold is 2.31); the pink ring stays inside it. */
   :is(.card, .plain-slab, .post-contents):not(.surface-gold, .surface-gold *)
     .field-control[aria-invalid='true'] {
     @apply border-border;
   }
 
   .field-error {
-    @apply mt-3 text-body text-error-text;
+    @apply mt-3 text-body text-pink-text;
   }
 
   /* Decoration beside the words: empty alt text. */
@@ -50,11 +50,11 @@
 
   /* Takes focus on render. */
   .error-summary {
-    @apply mt-8 edge border-error bg-surface p-6;
+    @apply mt-8 edge border-pink bg-surface p-6;
   }
 
   .error-summary a {
-    @apply text-error-text;
+    @apply text-pink-text;
   }
 
   /*
