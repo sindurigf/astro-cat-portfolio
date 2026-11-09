@@ -132,7 +132,8 @@ The `Test weakening` check ([rules](../ARCHITECTURE.md#tests)) fails until the
 maintainer approves it from the account named in `GITHUB_REPOSITORY_OWNER`:
 
 1. Review the pull request's changes, choose Approve or, on your own pull
-   request, Comment, and write the line `Approved test change: <reason>`.
+   request, Comment (GitHub blocks approving your own), and write the line
+   `Approved test change: <reason>`.
 2. `.github/workflows/rerun-test-weakening.yml` re-runs `Test weakening` on that
    review, and when the maintainer requests changes or the maintainer's review
    is dismissed, so a revoked approval fails it again. A new push needs a new
