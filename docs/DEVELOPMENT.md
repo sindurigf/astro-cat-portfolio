@@ -84,7 +84,7 @@ What happens without the `CONTACT_NOTIFY_TO` secret:
 | `npm run box-cat`              | Render the box cat logo, roundel and footer mascot SVGs in `src/assets/` from `src/lib/box-cat.ts` and the cut-outs in `artwork/cats/`                                                                          |
 
 `CHECK_ROOT=<dir>` points `check:tokens`, `wording`, `pins`, `classes`, `csp`,
-`untransformed`, `title-case` and `links` at another tree. The `tests/check-*.spec.ts`
+`untransformed`, `title-case`, `images-of-text` and `links` at another tree. The `tests/check-*.spec.ts`
 self-tests use it to run each check on a passing and a failing fixture.
 
 ### WebKit
