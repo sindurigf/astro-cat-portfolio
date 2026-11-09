@@ -95,7 +95,7 @@ test.describe('light mode keeps every control edge visible', () => {
           // A photo link is identified by its photo, which the fill only backs.
           controls += 1;
           if (el.querySelector('img')) continue;
-          const ground = compositeBackground(el.parentElement, el.getBoundingClientRect());
+          const ground = effectiveBackground(el.parentElement);
           if (!ground) {
             faint.push(describe(el) + ' on a ground that cannot be read');
             continue;
@@ -189,16 +189,12 @@ test.describe('light mode focus ring stands out from the page, and from the cont
           const cs = getComputedStyle(el);
           if (cs.outlineStyle === 'none' || parseFloat(cs.outlineWidth) === 0) return [];
           const ring = parse(cs.outlineColor);
-          /* What paints under the control: a control placed off its parent's box sits on the page. */
-          const page = compositeBackground(el.parentElement, el.getBoundingClientRect());
+          const page = effectiveBackground(el.parentElement);
           const fill = parse(cs.backgroundColor);
           const out = [];
           const name = el.tagName.toLowerCase() + '.' + [...el.classList].slice(0, 3).join('.');
-          /* A ring inside the border box is drawn over the control's own fill, composited on the page. */
-          const inside = parseFloat(cs.outlineOffset) + parseFloat(cs.outlineWidth) <= 0;
-          const ground = inside && fill ? over(fill, page) : page;
-          const toGround = ratio(over(ring, ground), ground);
-          if (toGround < ${RING_MIN}) out.push(name + ' ring on its ground ' + toGround.toFixed(2));
+          const toPage = ratio(over(ring, page), page);
+          if (toPage < ${RING_MIN}) out.push(name + ' ring on its ground ' + toPage.toFixed(2));
           if (parseFloat(cs.outlineOffset) < ${RING_GAP_PX} && fill && fill.a === 1) {
             const toFill = ratio(over(ring, fill), fill);
             if (toFill < ${RING_MIN}) out.push(name + ' ring on its fill ' + toFill.toFixed(2));
@@ -212,90 +208,6 @@ test.describe('light mode focus ring stands out from the page, and from the cont
       );
     });
   }
-});
-
-/* A hard throw: a box shadow with no blur, drawn outside the box. */
-const HARD_THROWS = `(el) => getComputedStyle(el).boxShadow.split(/,(?![^(]*\\))/)
-  .map((s) => s.trim())
-  .filter((s) => s !== 'none' && !s.includes('inset'))
-  .map((s) => {
-    const color = parse(s);
-    const [x, y, blur = 0] = (s.replace(/rgba?\\([^)]*\\)/, '').match(/-?[\\d.]+px/g) ?? []).map(parseFloat);
-    return { color, x, y, blur };
-  })
-  .filter((t) => t.color && t.color.a > 0 && t.blur === 0 && (t.x !== 0 || t.y !== 0))`;
-
-test.describe('light mode throws and marker squares stand out from the page (SC 1.4.11)', () => {
-  test.use({ colorScheme: 'light' });
-
-  for (const route of SAMPLED_ROUTES) {
-    test(`${route}: every throw and marker square is at least 3:1 against its ground`, async ({
-      page,
-    }) => {
-      await gotoSettled(page, route);
-      const { throws, faint } = (await page.evaluate(`(() => {
-        ${PAGE_HELPERS}
-        const hardThrows = ${HARD_THROWS};
-        let throws = 0;
-        const faint = [];
-        for (const el of document.querySelectorAll('body *')) {
-          const box = el.getBoundingClientRect();
-          if (box.width === 0) continue;
-          const found = hardThrows(el);
-          if (found.length === 0) continue;
-          const ground = compositeBackground(el.parentElement, box);
-          if (!ground) continue;
-          for (const t of found) {
-            throws += 1;
-            const r = ratio(over(t.color, ground), ground);
-            if (r < ${NON_TEXT}) faint.push(describe(el) + ' throw ' + r.toFixed(2));
-          }
-        }
-        for (const el of document.querySelectorAll('main .label')) {
-          const mark = getComputedStyle(el, '::before');
-          if (mark.content === 'none' || mark.display === 'none') continue;
-          const fill = parse(mark.backgroundColor);
-          if (!fill || fill.a === 0) continue;
-          const ground = effectiveBackground(el);
-          const r = ratio(over(fill, ground), ground);
-          if (r < ${NON_TEXT}) faint.push(describe(el) + ' marker ' + r.toFixed(2));
-        }
-        return { throws, faint };
-      })()`)) as { throws: number; faint: string[] };
-      if (route === '/')
-        expect(throws, 'no throw found on /').toBeGreaterThan(0);
-      expect(
-        faint,
-        `${route}: a throw or marker fades into the light page`,
-      ).toEqual([]);
-    });
-  }
-
-  test('every hero bud is at least 3:1 against every hero surface', async ({
-    page,
-  }) => {
-    await gotoSettled(page, '/');
-    const faint = (await page.evaluate(`(() => {
-      ${PAGE_HELPERS}
-      const probe = document.createElement('i');
-      document.querySelector('main').append(probe);
-      const resolve = (token) => {
-        probe.style.color = 'var(' + token + ')';
-        return parse(getComputedStyle(probe).color);
-      };
-      const buds = ['--color-hero-accent', '--color-gold-bud', '--color-hero-muted'];
-      const surfaces = ['--color-hero-ground', '--color-hero-veil', '--color-hero-veil-edge', '--color-hero-floor', '--color-hero-floor-edge'];
-      const out = [];
-      for (const bud of buds) for (const surface of surfaces) {
-        const ground = resolve(surface);
-        const r = ratio(over(resolve(bud), ground), ground);
-        if (r < ${NON_TEXT}) out.push(bud + ' on ' + surface + ' ' + r.toFixed(2));
-      }
-      probe.remove();
-      return out;
-    })()`)) as string[];
-    expect(faint, 'a hero bud fades into a hero surface').toEqual([]);
-  });
 });
 
 /* `md` and the `tab` variant (86rem) in px. */

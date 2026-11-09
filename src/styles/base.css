@@ -104,7 +104,7 @@
 
   /*
    * Links are text-colored; the underline or a box shape says "link", never
-   * gold or `focus` alone.
+   * gold or cyan alone.
    */
   a {
     color: var(--color-text);
@@ -112,7 +112,7 @@
   }
 
   a:hover {
-    color: var(--color-focus);
+    color: var(--color-cyan);
   }
 
   /*
@@ -153,12 +153,12 @@
    * Never set outline-offset to 0.
    */
   :focus-visible {
-    outline: var(--focus-width) solid var(--color-focus);
+    outline: var(--focus-width) solid var(--color-cyan);
     outline-offset: calc(var(--focus-gap) + var(--lift, 0px));
   }
 
   :is(video, audio)[controls]:is(:focus, :focus-within) {
-    outline: var(--focus-width) solid var(--color-focus);
+    outline: var(--focus-width) solid var(--color-cyan);
     outline-offset: var(--focus-gap);
   }
 }

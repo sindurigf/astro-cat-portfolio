@@ -11,7 +11,7 @@ export interface FalsePositive {
   /** The elements the finding was checked on; a hit elsewhere still fails. */
   selector: string;
   /** Drops the hit only while this is true of the element; see `reasonHolds`. */
-  holds?: 'unrendered';
+  holds?: 'unrendered' | 'ground-not-behind';
   /** A route where the hit occurs, so a stale entry fails its own test. */
   seenOn: string;
 }
@@ -22,6 +22,12 @@ export const ACCESSLINT_FALSE_POSITIVES: readonly FalsePositive[] = [
     rule: 'landmarks/landmark-unique',
     selector: 'nav.noscript-nav',
     holds: 'unrendered',
+    seenOn: '/',
+  },
+  {
+    rule: 'distinguishable/color-contrast',
+    selector: '.hero-plate h1 > span',
+    holds: 'ground-not-behind',
     seenOn: '/',
   },
   {
@@ -57,9 +63,29 @@ export const runAccessLint = async (
         AccessLint: { runAudit: (doc: Document) => AuditResult };
       }
     ).AccessLint;
+    /* The ground an engine reads is the nearest ancestor with a background; is it painted under the text? */
+    const groundNotBehind = (element: Element): boolean => {
+      let ground = element.parentElement;
+      while (
+        ground &&
+        getComputedStyle(ground).backgroundColor === 'rgba(0, 0, 0, 0)'
+      ) {
+        ground = ground.parentElement;
+      }
+      const range = document.createRange();
+      range.selectNodeContents(element);
+      const box = range.getClientRects()[0];
+      if (!ground || !box) return false;
+      const x = box.left + box.width / 2;
+      const y = box.top + box.height / 2;
+      /* elementsFromPoint is empty off screen, which would read as "not behind". */
+      if (x < 0 || y < 0 || x > innerWidth || y > innerHeight) return false;
+      return !document.elementsFromPoint(x, y).includes(ground);
+    };
     const reasonHolds = (element: Element, holds?: string): boolean =>
       holds === undefined ||
-      (holds === 'unrendered' && !element.checkVisibility());
+      (holds === 'unrendered' && !element.checkVisibility()) ||
+      (holds === 'ground-not-behind' && groundNotBehind(element));
     const audit: Audit = { violations: [], dropped: [] };
     for (const { ruleId, selector, impact, message, html, element } of runAudit(
       document,

@@ -18,25 +18,25 @@
   }
 
   /*
-   * Carries its own ground, so on the slab it keeps `text` on that ground
-   * (SC 1.4.3).
+   * Carries its own dark ground, so on gold it stays pink-text on dark (SC
+   * 1.4.3).
    * Tilt comes from markup.
    */
   .sticker {
     @apply inline-block border-4 border-border bg-surface px-4 py-2 text-label
-      font-black uppercase tracking-label text-text shadow-hard-throw-4;
+      font-black uppercase tracking-label text-pink-text shadow-hard-mark-4;
   }
 
   .surface-gold .sticker {
-    color: var(--color-gold-text);
+    color: var(--color-pink-text);
   }
 
   .chip-sticker {
-    @apply text-text;
+    @apply text-pink-text;
   }
 
   a.chip {
-    @apply lift-control shadow-hard-throw-4;
+    @apply lift-control shadow-hard-pink-4;
   }
 
   /* WebKit re-hit-tests mid-press and drops :active on a child span. tests/press.spec.ts. */
@@ -45,11 +45,11 @@
   }
 
   a.chip:not([aria-current]):hover {
-    @apply text-focus;
+    @apply text-cyan;
   }
 
   /*
-   * Current: a flat text-color block without shadow (16.32); the marker
+   * Current: a flat text-color block without shadow (15.28); the marker
    * inverts.
    */
   a.chip[aria-current] {
@@ -58,7 +58,7 @@
     --lift: 0px;
   }
 
-  /* background on text: 16.32. */
+  /* background on text: 15.28. */
   .badge {
     @apply inline-flex items-center bg-text px-2 py-1 text-label font-black
       uppercase tracking-label text-background;
@@ -66,7 +66,7 @@
 
   /*
    * A row of filter or page chips: joined light bricks casting one throw, the
-   * current one ink with a light label. Side by side each overlaps the next
+   * current one gold with an ink marker. Side by side each overlaps the next
    * by its edge; a wrapped line keeps its own edges, so no target shrinks
    * (SC 2.5.5). The row holds still.
    */
@@ -78,37 +78,32 @@
     /* Each brick casts the throw and the next covers it, as in a `.card-block`. */
     & > li {
       margin-left: calc(var(--block-edge) * -1);
-      box-shadow: var(--brick-throw) var(--brick-throw) 0 var(--color-throw);
+      box-shadow: var(--brick-throw) var(--brick-throw) 0 var(--color-pink);
     }
 
     & a.chip {
       --lift: 0px;
 
-      @apply border-fill-edge bg-block-light text-block-ink shadow-none;
+      @apply border-block-ink bg-block-light text-block-ink shadow-none;
     }
 
-    /* The dark mode `focus` in both modes: light mode's is a text color, 2.55 under ink. */
+    /* The dark mode cyan in both modes: light mode's cyan is a text color, 2.55 under ink. */
     & a.chip:not([aria-current]):hover {
       @apply text-block-ink;
 
-      background-color: var(--dark-focus);
+      background-color: var(--dark-cyan);
     }
 
-    /* On the dark page the ink fill meets the ground, so the edge is the accent. */
     & a.chip[aria-current] {
-      @apply border-fill-edge bg-block-gold text-gold-text;
+      @apply bg-block-gold;
     }
 
-    /* Inside the brick, so it never crosses the next; ink on light or `focus`, light on ink. */
+    /* Inside the brick, so it never crosses the next; ink on light, gold or cyan. */
     & a.chip:focus-visible {
       position: relative;
       z-index: 1;
       outline-color: var(--color-block-ink);
       outline-offset: calc(-1 * (var(--block-edge) + var(--focus-gap)));
-    }
-
-    & a.chip[aria-current]:focus-visible {
-      outline-color: var(--color-gold-text);
     }
   }
 }

@@ -1,11 +1,11 @@
 @layer components {
   /*
-   * The only slab surface, ink in both modes: recolors text, focus ring and
-   * borders (SC 1.4.3, 1.4.11) and underlines links (SC 1.4.1); a utility
-   * inside still wins. tests/gold-surface.spec.ts measures every slab section.
+   * The only gold surface: recolors text, focus ring and borders (SC 1.4.3,
+   * 1.4.11) and underlines links (SC 1.4.1); a utility inside still wins.
+   * tests/gold-surface.spec.ts measures every gold section.
    */
   .surface-gold {
-    @apply bg-block-gold text-gold-text;
+    @apply bg-gold text-gold-text;
   }
 
   .surface-gold *,
@@ -20,34 +20,25 @@
   }
 
   /*
-   * These three set `text-text` themselves, which fails on the slab in light mode; a later component
+   * These three set `text-text` themselves, which fails on gold; a later component
    * rule overrides them, a markup utility would not.
    */
   .surface-gold :is(.lead, .panel-lead, .standfirst) {
     color: var(--color-gold-text);
   }
 
-  /* A card on the slab draws no second fill; its throw is the accent. */
+  /* `surface` vanishes on gold and pink fails SC 1.4.11 there, so both change. */
   .surface-gold .card {
     background-color: transparent;
 
-    @apply shadow-hard-throw-4;
+    @apply shadow-hard-gold-border-4;
   }
 
-  /* A wall on the slab: light blocks with the stone edge and ink text; each casts the throw. */
+  /* A wall on gold: light blocks with the ink edge; each casts the throw. */
   .surface-gold .card-block > * {
-    --color-gold-text: var(--color-block-ink);
-    --color-gold-muted: var(--color-light-subtle);
-    --color-gold-link: var(--color-block-ink);
-    --color-text: var(--color-block-ink);
-    --color-subtle: var(--color-light-subtle);
-    --color-gold: var(--color-block-ink);
-    --link-fill-label: var(--color-block-light);
-
     border-width: var(--block-edge);
-    border-color: var(--edge-color);
+    border-color: var(--color-block-ink);
     background-color: var(--color-block-light);
-    color: var(--color-gold-text);
   }
 
   .surface-gold a {
@@ -59,33 +50,33 @@
   /* Hover marker: see @layer utilities. */
 
   /*
-   * Wins on specificity and layer. The gap is the ink slab; gold-text is 16.32
-   * against it.
+   * Wins on specificity and layer. The gap is gold; gold-text is 11.32 against
+   * it.
    */
   .surface-gold :focus-visible {
     outline-color: var(--color-gold-text);
   }
 
   /*
-   * Scoped to .surface-gold so it renders unstyled elsewhere. Label, light fill
-   * and `gold-text` edge pass SC 1.4.3 and 1.4.11 on the slab. The stone throw
-   * is decoration: it must never delimit the control.
+   * Scoped to .surface-gold so it renders unstyled elsewhere. Label, fill and
+   * `gold-text` edge pass SC 1.4.3 and 1.4.11 on gold. The pink shadow fails
+   * and is decoration: it must never delimit the control.
    */
   .surface-gold .btn-gold-primary {
-    @apply inline-block border-4 border-gold-border bg-gold-text
+    @apply inline-block border-4 border-gold-text bg-gold-text
       px-8 py-4 text-button font-black uppercase
-      tracking-label text-gold-btn-label shadow-hard-throw-4 lift-control;
+      tracking-label text-gold-btn-label shadow-hard-mark-4 lift-control;
   }
 
   .surface-gold .btn-gold-secondary {
-    @apply inline-block border-4 border-gold-border bg-transparent
+    @apply inline-block border-4 border-gold-text bg-transparent
       px-8 py-4 text-button font-black uppercase
       tracking-label text-gold-text;
   }
 
   /*
-   * Two-tone ring, since the fill equals the ring color: ink inside (16.32),
-   * light outside on the slab (16.32). The inner half rides in the press rule's
+   * Two-tone ring, since the fill equals the ring color: #FFFFFF inside
+   * (18.58), #131313 outside (11.32). The inner half rides in the press rule's
    * `box-shadow` (buttons-nav.css), so the throw stays beside it.
    */
   .surface-gold .btn-gold-primary:focus-visible {
@@ -98,9 +89,12 @@
     text-decoration: none;
   }
 
-  /* Keeps its dark fill; label and edge `gold-text` like the slab buttons. */
+  /*
+   * Keeps its dark fill and `text` label; edge `gold-text` like
+   * the gold buttons.
+   */
   .surface-gold a.chip {
-    @apply border-gold-border text-gold-text no-underline;
+    @apply border-gold-text text-text no-underline;
   }
 
   .surface-gold a.btn-gold-primary:hover {

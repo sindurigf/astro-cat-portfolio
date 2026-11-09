@@ -11,9 +11,9 @@ export const AAA_TEXT = 7;
 export const LARGE_TEXT_PX = 24;
 export const LARGE_TEXT_BOLD_PX = 18.66;
 
-/** `--color-block-gold`, the slab fill, as 0-255 channels; the token is six-digit hex. */
+/** `--color-gold` as 0-255 channels; the token is six-digit hex. */
 const GOLD_CHANNELS = [1, 3, 5].map((at) =>
-  parseInt(cssColorToken('--color-block-gold').slice(at, at + 2), 16),
+  parseInt(cssColorToken('--color-gold').slice(at, at + 2), 16),
 );
 
 /**

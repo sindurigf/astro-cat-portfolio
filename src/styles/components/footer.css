@@ -95,14 +95,13 @@
   }
 
   /*
-   * One treatment for all seven: the `.badge` inversion and the accent
-   * press throw.
+   * One treatment for all seven: the `.badge` inversion and the pink
+   * press shadow.
    */
   .footer-sticker {
     background-color: var(--color-text);
     color: var(--color-background);
-
-    @apply shadow-hard-throw-4;
+    box-shadow: var(--shadow-hard-pink-4);
   }
 
   .footer-stickers li:nth-child(1) {
@@ -146,7 +145,7 @@
   }
 
   .footer-ai a:hover {
-    @apply text-focus;
+    @apply text-cyan;
   }
 
   .footer-copyright {
@@ -158,9 +157,9 @@
   }
 
   /*
-   * The motto as display type on an ink band at the page's end; the mascot
+   * The motto as display type on a gold band at the page's end; the mascot
    * stands on its last letter. The band is the container the type is sized by.
-   * A block, not `.surface-gold`: it holds the motto and no controls.
+   * A gold block, not `.surface-gold`: it holds the motto in ink and no controls.
    */
   .footer-name {
     position: relative;

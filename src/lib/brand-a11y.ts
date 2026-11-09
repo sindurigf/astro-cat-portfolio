@@ -3,10 +3,10 @@ export const PART_ACCESSIBILITY: Readonly<Record<string, string>> = {
   'primary-button':
     '4px focus ring, 44px target, and unavailable stays focusable with aria-disabled.',
   'secondary-button': 'Same ring, target and unavailable state as the primary.',
-  'gold-buttons': 'The focus ring turns light on the slab.',
+  'gold-buttons': 'The focus ring turns dark on gold.',
   'text-links': 'Underlined at rest, so color is never the only cue.',
   'standalone-links': 'A 44px minimum height keeps the target large enough.',
-  card: 'Text on the ink block reads at 7:1 or more.',
+  card: 'Text on the gold block reads at 7:1 or more.',
   'card-solid': 'Ink text on the light fill reads at 7:1 or more.',
   'post-card': 'One tab stop: only the title is a link.',
   'fact-strip':

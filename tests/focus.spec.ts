@@ -109,7 +109,7 @@ const FOCUS_PROBE = `
 const FOCUS_RING = `
     /*
      * SC 1.4.11: the ring sits in the offset gap, so it is measured against the
-     * ground behind the control, not its fill (ink on the ink slab is 1.00:1), nor an
+     * ground behind the control, not its fill (gold on gold is 1.00:1), nor an
      * ancestor the ring's reach misses, such as the hero pause control's window.
      */
     const ringContrast = (el, style) => {

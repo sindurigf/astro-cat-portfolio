@@ -120,12 +120,6 @@ Rules: [STYLEGUIDE Color tokens](docs/STYLEGUIDE.md#color-tokens).
 - `src/lib/wall.ts` turns a wall's rows per breakpoint into `card-rise-*` and
   `card-step-*` classes; each brick casts the throw and the next covers it, so
   it follows the stepped outline.
-- Wall bricks read `--brick-*` from `light-mode.css` (`:root`, the light scope
-  and the `.mode-dark` island), so every second brick switches with the theme
-  like `--slab-*`.
-- `--edge-color` is set in the same three scopes: `stone-edge` in dark mode,
-  `light-stone-edge` in light mode. Blocks, bricks and the slab remap
-  `border` and `fill-edge` to it; the role tokens hold the same pair.
 
 ### Light mode
 
@@ -135,10 +129,9 @@ Dark is the default. Colors and rules:
 - `data-theme="light"` on `<html>`; `src/styles/light-mode.css`, imported last,
   overrides a subset of tokens on `<main>`, the header and the footer while it
   is set. No `dark:` variants.
-- `<main>`, the header and the footer change; the header bar stays ink and
-  its edge turns slate and its throw stays stone. The no-JS nav stays dark.
-- `tile-edge` holds the mode-independent logo-tile edge color: stone in both
-  modes.
+- `<main>`, the header and the footer change; the header bar stays gold and
+  its throw turns ink. The no-JS nav stays dark.
+- `mark` and `tile-edge` hold the mode-independent logo-tile colors.
 - An inline script in `BaseLayout.astro`'s `<head>` sets `data-theme` from the
   saved choice or `prefers-color-scheme` before the body parses, rereads it on
   a back-forward cache restore (`pageshow`), applies a saved `--text-scale`,
@@ -244,7 +237,7 @@ Headings, alt text, focus rings and axe are checked on the rendered page by
   `professional-journey`, `open-source`. Rename them in `BLOG_CATEGORIES` and
   `CATEGORIES` together. Import `BLOG_CATEGORIES`.
 - Glyph and teaser per category: `CATEGORIES` in `src/lib/categories.ts`.
-  Every category takes the accent: `CATEGORY_LABEL` and `CATEGORY_TILE` there;
+  Every category is gold: `CATEGORY_LABEL` and `CATEGORY_TILE` there;
   `tests/category-style.spec.ts` holds them to 7:1.
 - Tags are kebab-case URL segments (`/blog/tag/<tag>/`). Proper-noun labels in
   `TAG_LABELS`. Tag `<h1>` is `text-h2`, since a tag cannot take a soft hyphen.
@@ -461,7 +454,7 @@ in `wrangler.jsonc`).
 ## Assets
 
 - **The suffix names the artwork color.** `-dark` is `#131313` artwork (goes
-  on light); `-white` is `#FFFFFF` artwork (goes on dark). The wrong
+  on gold or light); `-white` is `#FFFFFF` artwork (goes on dark). The wrong
   pairing renders invisible.
 - `src/assets/`: rendered artwork, through `astro:assets`, WebP, hashed into
   `/_astro/`, cached immutably. Unimported files are not emitted.
@@ -476,17 +469,17 @@ in `wrangler.jsonc`).
 | `public/images/og-default.png` | Composite | n/a           | `BaseLayout.astro`, the homepage and the 404 |
 | `public/images/og/*.jpg`       | Composite | n/a           | `BaseLayout.astro`, every other page         |
 
-| Artwork             | on `#141517` | on `#1E2022` | on `#F2F2F2` |
-| ------------------- | ------------ | ------------ | ------------ |
-| `-dark`, `#131313`  | 1.02         | 1.14         | **16.60**    |
-| `-white`, `#FFFFFF` | **18.27**    | **16.34**    | 1.12         |
+| Artwork             | on `#0B0B0B` | on `#1A1A1A` | on `#FFFFFF` | on `#FFC000` |
+| ------------------- | ------------ | ------------ | ------------ | ------------ |
+| `-dark`, `#131313`  | 1.06         | 1.07         | **18.58**    | **11.32**    |
+| `-white`, `#FFFFFF` | **19.68**    | **17.40**    | 1.00         | 1.64         |
 
-- `og-default.png`: 1200x630, the site card: the name, `site.tagline` and `site.name` on the ink panel, the logo
+- `og-default.png`: 1200x630, the site card: the name, `site.tagline` and `site.name` on the gold panel, the logo
   cat whole and centered on the dark strip, clear of the cropped edges. Rendered by `npm run og`
   ([DEVELOPMENT.md](docs/DEVELOPMENT.md#the-sharing-images)). A PNG in `public/`
   because scrapers need a stable URL and format.
 - `public/images/og/<route>.jpg`: every other page's card, drawn by the same
-  script from the built page: the person's name over the page title on ink,
+  script from the built page: the person's name over the page title on gold,
   and on the strip the first photo in `<main>`, whole, or the logo cat when
   there is none. `OG_PHOTO_CHOICES` in `src/lib/og-cards.ts` holds per-route
   exceptions, empty as shipped. `cards.json` records each card's title, photo
@@ -500,7 +493,7 @@ in `wrangler.jsonc`).
   the `/about` tile in `CatMark.astro`) and `npm run og`. The favicons and
   app icons come from a cut-out cat, [the favicon set](#the-favicon-set).
 - `src/lib/box-cat.ts`: the box cat's cardboard box (`cat-cardboard`, ink edge,
-  stone throw, flaps). `npm run box-cat`
+  pink throw, flaps). `npm run box-cat`
   (`scripts/make-box-cat.mjs`) sets a cut-out cat from `artwork/cats/` in it,
   with a white die-cut rim, and writes:
 
@@ -577,7 +570,7 @@ All written by `npm run icons` (`scripts/make-icons.mjs`) from
 drawing behind `artwork/cats/minerva-sit.png`, in Chromium with the color tokens.
 
 - Tab icons (`favicon.*`, `artwork/favicon-*`): Minerva's head as a die-cut
-  sticker: white rim, ink edge and a gold block behind it, on a transparent
+  sticker: white rim, ink edge and a pink block behind it, on a transparent
   ground. The ink edge holds 3:1 on a light tab strip and the white rim on a
   dark one (`tests/brand-mark.spec.ts`). Each is scaled down from one 512px
   render with a clear 1px border. No SVG favicon: at tab size Chromium rounds
@@ -860,7 +853,8 @@ evidence.
   ([H67](https://www.w3.org/WAI/WCAG22/Techniques/html/H67)). Text there would
   be announced twice.
 - **AccessLint engine hits, each checked against the live DOM:**
-  `landmark-unique` counts the no-JavaScript nav, which
+  `color-contrast` on the homepage name is read against a gold ancestor the
+  text does not sit on; `landmark-unique` counts the no-JavaScript nav, which
   is `display: none` with scripts on; `aria-hidden-focus` flags the controls
   in `/brand`'s light halves, which are `inert` and so never take focus.
   `ACCESSLINT_FALSE_POSITIVES` in `tests/accesslint.ts` drops each only on

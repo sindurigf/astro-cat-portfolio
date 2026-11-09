@@ -27,7 +27,7 @@ import food from '../assets/photos/calico-fabric-bed.jpg';
 import videoStill from '../assets/photos/tabby-parquet.jpg';
 import catCardBlack from '../assets/photos/cat-card-black.jpg';
 import { photographerHref, type Photographer } from '../lib/credits';
-import { WALL_EDGE_GAIN_PX, WIDTHS } from '../lib/image-densities';
+import { WIDTHS } from '../lib/image-densities';
 import { photoSize } from '../lib/photo-size';
 import { closeRowLinks } from '../lib/blog';
 import { MOTTO, MOTTO_LANGUAGE } from '../lib/site';
@@ -35,8 +35,8 @@ import { PERSON_NAME } from '../lib/profiles';
 
 /* Jump links repeat the headings verbatim. */
 
-/* Both `border-4` edges of `PHOTO`, less what the thinner wall edge gives back. */
-const PHOTO_BORDERS = `${8 - WALL_EDGE_GAIN_PX}px`;
+/* Both `border-4` edges of `PHOTO`. */
+const PHOTO_BORDERS = '8px';
 
 /* Drawn widths net of gutter, padding and borders; tests/image-size.spec.ts fails on drift. */
 const SIZES = {

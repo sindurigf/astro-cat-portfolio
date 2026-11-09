@@ -35,7 +35,7 @@
     @apply absolute top-0 left-4 -translate-y-1/2 border-4 border-fill-edge bg-block-gold px-3 font-mono text-code text-gold-text;
   }
 
-  /* Light mode: the label's edge thins to match the frame. */
+  /* Light mode: the label's ink edge thins to match the frame. */
   :is(:root[data-theme='light'] main, main .mode-light)
     .code-lang:not(.mode-dark *) {
     border-width: var(--border-width-thin);
@@ -52,7 +52,7 @@
       forced-color-adjust: auto;
     }
 
-    /* Underline only: light mode's `focus` on the light fill is under 7:1 as text. */
+    /* Underline only: light mode's cyan on the light fill is under 7:1 as text. */
     &:hover {
       @apply underline;
     }
@@ -71,7 +71,7 @@
   /* After the frame, on the page ground, on posts and /brand; empty until a copy fails (src/scripts/copy.ts). */
   .copy-error,
   .prose .copy-error {
-    @apply mt-3 text-body text-error-text;
+    @apply mt-3 text-body text-pink-text;
 
     &:empty {
       display: none;

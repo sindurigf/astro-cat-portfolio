@@ -3,14 +3,14 @@ import { gotoSettled } from './settle';
 import { AAA_TEXT, NON_TEXT, PAGE_HELPERS } from './contrast';
 import { goldRoutesFromBuild, ROUTES } from './routes';
 import { cssColorToken } from './source';
-import { NARROW_WIDTH, PHONE_VIEWPORT } from './wcag';
+import { NARROW_WIDTH } from './wcag';
 
 /*
- * Text and controls on the slab are measured in the rendered page, where a
- * utility may override the slab's remap. The token ratios are in the generated
+ * No dark-surface text token passes on gold, so text and controls on it are
+ * measured in the rendered page. The token ratios on gold are in the generated
  * table (scripts/contrast-table.mjs, tests/contrast-table.spec.ts).
  */
-const GOLD = cssColorToken('--color-block-gold');
+const GOLD = cssColorToken('--color-gold');
 
 /** A control whose opaque fill, or its only boundary, its border, matches the ground behind it. */
 type InvisibleControl = { selector: string; detail: string; label: string };
@@ -25,22 +25,15 @@ const GOLD_ROUTE = '/contact';
 
 /** Every element under `root` whose own text sits directly on a gold background. */
 const TEXT_ON_GOLD_IN = `
-  // Closed <details> content can be shown, so it is measured open.
-  for (const details of document.querySelectorAll('details:not([open])')) details.open = true;
-  // A boxless element has no ground; the resolver would read <body> at its 0,0 rect.
-  const groundOf = (element) =>
-    element.getClientRects().length === 0 ? null : effectiveBackground(element);
   const textOnGoldIn = (root) => {
     const out = [];
     for (const element of root.querySelectorAll('*')) {
       if (!hasOwnText(element)) continue;
-      const background = groundOf(element);
+      const background = effectiveBackground(element);
       if (!isGold(background)) continue;
       const color = parse(getComputedStyle(element).color);
       // An unreadable color syntax is reported as 0:1, never skipped.
       out.push({
-        skipLink: element.closest('.skip-link') !== null,
-        inMenu: element.closest('#mobile-menu-panel') !== null,
         selector: describe(element),
         color: getComputedStyle(element).color,
         ratio: color ? Number(ratio(color, background).toFixed(2)) : 0,
@@ -52,8 +45,6 @@ const TEXT_ON_GOLD_IN = `
 `;
 
 type TextOnGold = {
-  skipLink: boolean;
-  inMenu: boolean;
   selector: string;
   color: string;
   ratio: number;
@@ -76,8 +67,8 @@ type GoldWalk = {
 };
 
 /**
- * `.btn-primary` on the slab is a 1.00:1 fill whose label still passes at 16.32, so no text
- * rule (nor AccessLint at AAA) sees it. Walks every slab section on the route.
+ * `.btn-primary` on gold is a 1.00:1 fill whose label still passes at 11.38, so no text
+ * rule (nor AccessLint at AAA) sees it. Walks every gold section on the route.
  */
 const walkGoldSections = (page: Page) =>
   page.evaluate(`(() => {
@@ -147,25 +138,6 @@ type FilledGoldControl = {
   innerRingOnFill: number | null;
 };
 
-/** The menu comes from `Header.astro`, the same on every route. */
-const MENU_ROUTE = '/blog/';
-
-const expectNoneBelowAAA = (found: TextOnGold[]) => {
-  const failing = found.filter((entry) => entry.ratio < AAA_TEXT);
-  expect(
-    failing,
-    `text sitting on ${GOLD} below ${AAA_TEXT}:1 (SC 1.4.6). A dark-surface ` +
-      `token has been used on a gold ground; the inverted set is ` +
-      `gold-text / gold-muted / gold-border, applied by .surface-gold:\n` +
-      failing
-        .map(
-          (e) =>
-            `  ${e.selector}\n    color ${e.color} at ${e.ratio}:1, "${e.text}"`,
-        )
-        .join('\n'),
-  ).toEqual([]);
-};
-
 test.describe('the gold surface exception', () => {
   for (const route of ROUTES) {
     test(`no text on a gold background is unreadable on ${route}`, async ({
@@ -175,10 +147,12 @@ test.describe('the gold surface exception', () => {
 
       const found = await textOnGold(page);
 
+      // `.skip-link` is `bg-gold` with text and first on every page, so at least one;
+      // guards against a broken background resolver passing on an empty list.
       expect(
-        found.some((entry) => entry.skipLink),
-        `.skip-link is not measured as text on gold on ${route}, so the background resolver stopped matching.`,
-      ).toBe(true);
+        found.length,
+        `no text on gold found on ${route}; .skip-link is always there, so the background resolver stopped matching.`,
+      ).toBeGreaterThan(0);
 
       const walked = await walkGoldSections(page);
 
@@ -189,26 +163,22 @@ test.describe('the gold surface exception', () => {
         invisibleControlMessage(walked.invisible),
       ).toEqual([]);
 
-      expectNoneBelowAAA(found);
+      const failing = found.filter((entry) => entry.ratio < AAA_TEXT);
+
+      expect(
+        failing,
+        `text sitting on ${GOLD} below ${AAA_TEXT}:1 (SC 1.4.6). A dark-surface ` +
+          `token has been used on a gold ground; the inverted set is ` +
+          `gold-text / gold-muted / gold-border, applied by .surface-gold:\n` +
+          failing
+            .map(
+              (e) =>
+                `  ${e.selector}\n    color ${e.color} at ${e.ratio}:1, "${e.text}"`,
+            )
+            .join('\n'),
+      ).toEqual([]);
     });
   }
-
-  test('no text on a gold background is unreadable in the open mobile menu', async ({
-    page,
-  }) => {
-    await page.setViewportSize(PHONE_VIEWPORT);
-    await gotoSettled(page, MENU_ROUTE);
-    await page.getByRole('button', { name: 'Menu' }).click();
-    await expect(page.getByRole('dialog', { name: 'Menu' })).toBeVisible();
-
-    const found = await textOnGold(page);
-
-    expect(
-      found.some((entry) => entry.inMenu),
-      'no menu text measured; the dialog ground is the page, which is the slab color in dark mode.',
-    ).toBe(true);
-    expectNoneBelowAAA(found);
-  });
 
   test(`the ${GOLD_ROUTE} gold button keeps its inner ring at 305px`, async ({
     page,

@@ -77,9 +77,9 @@
     @apply text-label font-normal text-subtle;
   }
 
-  /* The dark mode `focus` in both modes: light mode's is a text color, 2.55 under ink. */
+  /* The dark mode cyan in both modes: light mode's cyan is a text color, 2.55 under ink. */
   .brand-menu-link:hover {
-    background-color: var(--dark-focus);
+    background-color: var(--dark-cyan);
     color: var(--color-block-ink);
     outline-color: var(--color-block-ink);
 
@@ -96,7 +96,7 @@
   }
 
   /*
-   * The section you jumped to is the ink block. One rule per anchor, because
+   * The section you jumped to is the gold block. One rule per anchor, because
    * the link and the section share only their name: tests/brand.spec.ts checks
    * every section has its rule.
    */
@@ -120,12 +120,12 @@
     main:has(#accessibility:target) [href='#accessibility'],
     main:has(#use:target) [href='#use']
   ).brand-menu-link {
-    @apply bg-block-gold font-black text-gold-text;
+    @apply bg-block-gold font-black text-block-ink;
 
-    outline-color: var(--color-gold-text);
+    outline-color: var(--color-block-ink);
 
     & .brand-menu-number {
-      color: var(--color-gold-text);
+      color: var(--color-block-ink);
     }
   }
 
@@ -168,14 +168,14 @@
     }
 
     &:hover {
-      @apply bg-focus text-background;
+      @apply bg-cyan text-background;
     }
 
     &:focus-visible {
       outline-offset: calc(-1 * (var(--focus-width) + var(--focus-gap)));
     }
 
-    /* The ring is `focus`, as is the hover fill: it turns to the page ground. */
+    /* The ring is cyan, as is the hover fill: it turns to the page ground. */
     &:hover:focus-visible {
       outline-color: var(--color-background);
     }
@@ -203,7 +203,7 @@
   }
 
   :root[data-theme='light'] main .copy-button:hover {
-    background-color: var(--dark-focus);
+    background-color: var(--dark-cyan);
     color: var(--color-light-ink);
 
     &:focus-visible {
@@ -303,7 +303,7 @@
   }
 
   .role-swatch {
-    @apply flex size-12 shrink-0 items-center justify-center border-4 border-border;
+    @apply flex size-12 shrink-0 items-center justify-center border-4 border-text;
   }
 
   /* A named swatch's color is its content, so forced colors keep it, edged in CanvasText (https://blogs.windows.com/msedgedev/2020/09/17/styling-for-windows-high-contrast-with-new-standards-for-forced-colors/). */
@@ -359,12 +359,12 @@
 
   /* Hover and press drawn at rest, so a still row shows each state (buttons-nav.css, light-mode.css). */
   .state-hover:not([aria-disabled='true']) {
-    @apply bg-focus text-background;
+    @apply bg-cyan text-background;
   }
 
   :is(:root[data-theme='light'] main, main .mode-light)
     .state-hover:not([aria-disabled='true'], .mode-dark *) {
-    background-color: var(--dark-focus);
+    background-color: var(--dark-cyan);
     color: var(--color-light-ink);
   }
 
@@ -380,7 +380,7 @@
 
   /* The focus ring drawn at rest, so a still sample shows it (base.css :focus-visible). */
   .focus-sample {
-    outline: var(--focus-width) solid var(--color-focus);
+    outline: var(--focus-width) solid var(--color-cyan);
     outline-offset: calc(var(--focus-gap) + var(--lift, 0px));
   }
 }

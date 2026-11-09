@@ -6,9 +6,9 @@
 
 /** Read from `--color-*` at runtime: check-tokens.mjs forbids raw hex here. */
 export interface HeroPalette {
-  /** `--color-hero-accent`: the canvas lines are green while the page accent is gold. */
+  /** `--color-gold-border`. */
   readonly border: string;
-  /** `--color-hero-muted`. */
+  /** `--color-gold-muted`. */
   readonly subtle: string;
   /** `--color-gold-bud`. */
   readonly bud: string;
@@ -20,8 +20,6 @@ export interface HeroPalette {
    */
   /** `--color-hero-veil`. */
   readonly veil: string;
-  /** `--color-hero-contact`: the soft shadow under the stele. */
-  readonly contact: string;
   /** `--color-hero-veil-edge`. */
   readonly veilEdge: string;
   /** `--color-hero-floor`. */

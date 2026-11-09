@@ -267,11 +267,11 @@ test.describe('/brand', () => {
                   `${role.id} ${mode} ${row.token}: a text color is not drawn as Aa`,
                 ]
               : []),
-            ...(row.paint === 'empty' && row.token !== 'focus'
-              ? [`${role.id} ${mode} ${row.token}: only focus stays unpainted`]
+            ...(row.paint === 'empty' && row.token !== 'cyan'
+              ? [`${role.id} ${mode} ${row.token}: only cyan stays unpainted`]
               : []),
             ...(row.paint === 'fill' &&
-            ['text', 'subtle', 'error-text', 'focus'].includes(row.token)
+            ['text', 'subtle', 'pink-text', 'cyan'].includes(row.token)
               ? [`${role.id} ${mode} ${row.token}: painted as a fill`]
               : []),
           ]);

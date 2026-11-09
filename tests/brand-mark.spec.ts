@@ -29,7 +29,7 @@ test.describe('the logo cat', NODE, () => {
   test('its face holds 4.5:1 on each coat color it is drawn over', () => {
     for (const coat of ['cat-hela', 'cat-hela-orange']) {
       expect(
-        ratio(tokens['block-ink'], tokens[coat]),
+        ratio(tokens['gold-text'], tokens[coat]),
         `the face ink is under 4.5:1 on --color-${coat}`,
       ).toBeGreaterThanOrEqual(AA_TEXT);
     }
@@ -37,7 +37,7 @@ test.describe('the logo cat', NODE, () => {
 
   test('the tab icon is cut out against both tab strips: an ink edge outside a white rim (SC 1.4.11)', async () => {
     expect(
-      ratio(tokens['block-ink'], LIGHT_TAB_STRIP),
+      ratio(tokens['gold-text'], LIGHT_TAB_STRIP),
       'the ink edge is under 3:1 on a light tab strip',
     ).toBeGreaterThanOrEqual(NON_TEXT);
     expect(

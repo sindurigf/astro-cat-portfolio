@@ -2,8 +2,8 @@ import type { BlogCategory } from '../content.config';
 
 /* Every category takes the gold register (docs/STYLEGUIDE.md row 5), so none drifts apart. */
 export const CATEGORY_LABEL = 'text-gold';
-/* An ink tile with a light edge and glyph in both modes (16.32). */
-export const CATEGORY_TILE = 'bg-block-gold text-gold-text border-gold-border';
+/* The edge on gold is ink in both modes (11.32), like the glyph. */
+export const CATEGORY_TILE = 'bg-block-gold text-gold-text border-gold-text';
 
 interface Category {
   readonly glyph: string;

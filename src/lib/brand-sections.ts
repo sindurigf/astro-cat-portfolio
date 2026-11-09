@@ -41,13 +41,13 @@ export const BRAND_SECTIONS: readonly BrandSection[] = [
     title: 'Grounds',
     group: 'Foundations',
     lead: 'Four grounds carry everything on the site. Each sets which colors may sit on it.',
-    rule: 'Four grounds: page, surface, ink block and light block.',
+    rule: 'Four grounds: page, surface, gold block and light block.',
     description:
-      'The four grounds of the design system: page, surface, ink block and light block, and which colors may sit on each.',
+      'The four grounds of the design system: page, surface, gold block and light block, and which colors may sit on each.',
     parts: [
       { id: 'ground-background', name: 'Page Ground' },
       { id: 'ground-surface', name: 'Surface' },
-      { id: 'ground-gold', name: 'Ink Slab' },
+      { id: 'ground-gold', name: 'Gold Slab' },
       { id: 'ground-solid', name: 'Solid Ground' },
     ],
   },
@@ -65,7 +65,7 @@ export const BRAND_SECTIONS: readonly BrandSection[] = [
       { id: 'role-ink', name: 'Ink' },
       { id: 'role-accent', name: 'Accent' },
       { id: 'role-interaction', name: 'Interaction' },
-      { id: 'role-errors', name: 'Errors' },
+      { id: 'role-depth', name: 'Depth and Error' },
       { id: 'role-edges', name: 'Edges' },
     ],
   },
@@ -107,7 +107,7 @@ export const BRAND_SECTIONS: readonly BrandSection[] = [
     anchor: 'shadows',
     title: 'Borders and Shadows',
     group: 'Foundations',
-    lead: 'Borders are the text color: light on the dark page, ink on light fills and in light mode. Cards and blocks have a 4px edge. Borders are 6px on panels and fields and 4px on controls and photos. Shadows are solid offset copies of the shape, with no blur. Corners are square.',
+    lead: 'Borders are gold on the dark page and ink on gold fills and in light mode. Cards and blocks have a 4px ink edge. Borders are 6px on panels and fields and 4px on controls and photos. Shadows are solid offset copies of the shape, with no blur. Corners are square.',
     rule: 'Hard shadows, no blur, square cards.',
     description:
       'Borders, hard shadows and square corners: the width of each edge, every shadow and what casts it.',
@@ -132,11 +132,11 @@ export const BRAND_SECTIONS: readonly BrandSection[] = [
     lead: 'Buttons do something; links go somewhere.',
     rule: 'One primary button per section.',
     description:
-      'Primary, secondary and slab buttons, links in text and standalone links, with every state they show.',
+      'Primary, secondary and gold buttons, links in text and standalone links, with every state they show.',
     parts: [
       { id: 'primary-button', name: 'Primary Button' },
       { id: 'secondary-button', name: 'Secondary Button' },
-      { id: 'gold-buttons', name: 'Buttons on the Slab' },
+      { id: 'gold-buttons', name: 'Buttons on Gold' },
       { id: 'text-links', name: 'Links in Text' },
       { id: 'standalone-links', name: 'Standalone Link' },
     ],
@@ -163,9 +163,9 @@ export const BRAND_SECTIONS: readonly BrandSection[] = [
     title: 'Controls',
     group: 'Components',
     lead: 'Small controls for motion, theme and focus.',
-    rule: 'Every control shows the blue ring.',
+    rule: 'Every control shows the cyan ring.',
     description:
-      'The small controls: pause and sleep controls for motion, the theme switch with its System, Light and Dark choice, and the blue focus ring.',
+      'The small controls: pause and sleep controls for motion, the theme switch with its System, Light and Dark choice, and the cyan focus ring.',
     parts: [
       { id: 'pause-control', name: 'Pause Control' },
       { id: 'sleep-control', name: 'Sleep Control' },
@@ -178,10 +178,10 @@ export const BRAND_SECTIONS: readonly BrandSection[] = [
     anchor: 'heroes',
     title: 'Heroes',
     group: 'Components',
-    lead: 'Every page opens on one hero. A main page opens on the full ink slab.',
+    lead: 'Every page opens on one hero. A main page opens on the full gold slab.',
     rule: 'One hero per page, owning the h1.',
     description:
-      'The page heroes: the full ink slab, the thin slab and the plain hero, and the box cat roundel on their edge.',
+      'The page heroes: the full gold slab, the thin slab and the plain hero, and the box cat roundel on their edge.',
     parts: [
       { id: 'hero-full', name: 'Page Hero' },
       { id: 'roundel', name: 'Roundel' },
@@ -209,10 +209,10 @@ export const BRAND_SECTIONS: readonly BrandSection[] = [
     anchor: 'cards',
     title: 'Cards',
     group: 'Components',
-    lead: 'One card shape: an ink or light block.',
+    lead: 'One card shape: a gold or light block.',
     rule: 'Only the title is a link.',
     description:
-      'The ink card, the light card, stepped card blocks, post cards and fact strips.',
+      'The gold card, the light card, stepped card blocks, post cards and fact strips.',
     parts: [
       { id: 'card', name: 'Card' },
       { id: 'card-solid', name: 'Light Card' },

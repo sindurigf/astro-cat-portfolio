@@ -6,48 +6,50 @@
    */
   .card {
     @apply min-w-0 edge border-card-edge bg-surface p-card-tight
-      shadow-hard-throw sm:p-card;
+      shadow-hard-pink-object sm:p-card;
   }
 
   /*
-   * Blocks: every card, the plain hero slab and the post contents, an ink slab
-   * with the stone edge; light mode mirrors it (`slab-*`). `text-text` and
-   * `text-gold` read 16.32 on the fill.
+   * Blocks: every card, the plain hero slab and the post contents, gold with
+   * an ink edge. The color tokens are remapped inside, so `text-text` and
+   * `text-gold` read on the fill (ink 11.32, muted 7.88) and what fills with
+   * `text` on `background`, a badge, inverts to ink. Gold fills use the fixed
+   * `block-gold`, so they stay gold.
    */
   :is(.card, .plain-slab, .post-contents):not(.surface-gold, .surface-gold *) {
     --color-background: var(--color-block-gold);
     --color-surface: var(--color-block-gold);
-    --color-text: var(--slab-text);
-    --color-subtle: var(--slab-subtle);
-    --color-error: var(--slab-error);
-    --color-error-text: var(--slab-error-text);
-    --color-border: var(--slab-border);
-    --color-card-edge: var(--color-fill-edge);
+    --color-text: var(--color-block-ink);
+    --color-gold: var(--color-block-ink);
+    --color-subtle: var(--color-gold-muted);
+    --color-pink-text: var(--color-gold-link);
+    --color-border: var(--color-block-ink);
+    --color-card-edge: var(--color-block-ink);
+    /* Light mode's square before a gold label: ink on gold, gold elsewhere. */
+    --label-mark: var(--color-block-ink);
 
     position: relative;
     border-width: var(--block-edge);
-    border-color: var(--color-fill-edge);
+    border-color: var(--color-block-ink);
     background-color: var(--color-block-gold);
     color: var(--color-text);
   }
 
   /*
-   * Light blocks: `.card-solid`, the plain hero
-   * slab and the post contents, with ink text and edge: 16.32, subtle 8.51 on
-   * the fill.
+   * Light blocks: every second card in a block, `.card-solid`, the plain hero
+   * slab and the post contents. Ink 14.42, subtle 7.40 on the fill.
    */
-  :is(.card-solid, .plain-slab, .post-contents):not(
-    .surface-gold,
-    .surface-gold *
-  ) {
+  :is(
+    .card-solid,
+    .plain-slab,
+    .post-contents,
+    .card-block > .card:nth-child(even),
+    .card-block > :nth-child(even) > .card
+  ):not(.surface-gold, .surface-gold *) {
     --color-background: var(--color-block-light);
     --color-surface: var(--color-block-light);
-    --color-text: var(--color-block-ink);
-    --color-gold: var(--color-block-ink);
+    --label-mark: var(--color-block-gold);
     --color-subtle: var(--color-light-subtle);
-    --color-error-text: var(--color-light-error-text);
-    --color-border: var(--edge-color);
-    --color-fill-edge: var(--edge-color);
 
     background-color: var(--color-block-light);
   }
@@ -59,66 +61,17 @@
 
   /*
    * Hover and focus inside a block: the block's own ring and hover throw keep
-   * the page's `focus`, set on the block itself. Inside, the dark mode `focus`
-   * and the stone edge on ink, and `light-focus` and the same edge on a light block.
+   * the page's cyan, set on the block itself.
    */
   :is(.card, .plain-slab, .post-contents):not(.surface-gold, .surface-gold *)
     > * {
-    --color-focus: var(--slab-focus);
-    --color-fill-edge: var(--slab-fill-edge);
+    --color-cyan: var(--color-gold-link);
   }
 
-  :is(.card-solid, .plain-slab, .post-contents):not(
-      .surface-gold,
-      .surface-gold *
-    )
-    > * {
-    --color-focus: var(--color-light-focus);
-    --color-fill-edge: var(--edge-color);
-  }
-
-  /*
-   * The wall: every brick takes a stone edge (slate in light mode), and every
-   * second brick a raised fill (`brick-*`, set in light-mode.css).
-   */
-  :is(.card-block > .card, .card-block > * > .card):not(
-    .surface-gold,
-    .surface-gold *
-  ) {
-    border-width: var(--wall-edge);
-    border-color: var(--edge-color);
-  }
-
-  :is(
-    .card-block > .card:nth-child(even),
-    .card-block > :nth-child(even) > .card
-  ):not(.surface-gold, .surface-gold *) {
-    --color-background: var(--brick-fill);
-    --color-surface: var(--brick-fill);
-    --color-text: var(--brick-text);
-    --color-gold: var(--brick-text);
-    --color-subtle: var(--brick-subtle);
-    --color-error: var(--brick-error);
-    --color-error-text: var(--brick-error-text);
-    --color-border: var(--edge-color);
-    --color-fill-edge: var(--edge-color);
-
-    background-color: var(--brick-fill);
-  }
-
-  :is(
-      .card-block > .card:nth-child(even),
-      .card-block > :nth-child(even) > .card
-    ):not(.surface-gold, .surface-gold *)
-    > * {
-    --color-focus: var(--brick-focus);
-    --color-fill-edge: var(--edge-color);
-  }
-
-  /* A slab card or column keeps its own colors and takes the block edge. */
+  /* A gold card or column keeps its own colors and takes the block edge. */
   :is(.card, .gold-column).surface-gold:not(.surface-gold *) {
     border-width: var(--block-edge);
-    border-color: var(--color-fill-edge);
+    border-color: var(--color-block-ink);
   }
 
   /* A card inside a block is part of it: no second fill, edge or throw. */
@@ -190,7 +143,7 @@
    * (tests/forced-colors.spec.ts).
    */
   .post-contents {
-    @apply self-start bg-surface shadow-hard-throw;
+    @apply self-start bg-surface shadow-hard-pink-object;
   }
 
   .post-contents ol {
@@ -208,7 +161,7 @@
   }
 
   /*
-   * Summary label `text`, `focus` on hover, 44px target (SC 2.5.5). The
+   * Summary label `text`, cyan on hover, 44px target (SC 2.5.5). The
    * +/- marker is aria-hidden; the expanded state is announced natively.
    */
   .post-contents-summary {
@@ -221,7 +174,7 @@
     }
 
     &:hover {
-      @apply text-focus;
+      @apply text-cyan;
     }
   }
 
@@ -265,16 +218,16 @@
   }
 
   /*
-   * Title and shadow turn `focus` on hover. No underline: on a wrapped title it
+   * Title and shadow turn cyan on hover. No underline: on a wrapped title it
    * crosses the next line. Inside a `.card-block` the brick keeps the wall's
    * throw (utilities.css).
    */
   .card:has(.card-link):hover {
-    @apply shadow-hard-focus-object;
+    @apply shadow-hard-cyan-object;
   }
 
   .card:has(.card-link):hover .card-link {
-    @apply text-focus;
+    @apply text-cyan;
   }
 
   /* Reading size at 400; on a slab the color comes from the slab. */
@@ -291,20 +244,17 @@
   }
 
   /*
-   * A whole-brick link in a wall (/contact): it holds still, fills `focus` under
+   * A whole-brick link in a wall (/contact): it holds still, fills cyan under
    * the pointer and draws its ring inside, so it never crosses the next brick.
    */
-  /* The dark mode `focus` in both modes: light mode's is a text color, 2.55 under ink. */
+  /* The dark mode cyan in both modes: light mode's cyan is a text color, 2.55 under ink. */
   .contact-brick:hover {
-    --color-text: var(--color-block-ink);
-
-    background-color: var(--dark-focus);
-    color: var(--color-text);
+    background-color: var(--dark-cyan);
   }
 
-  /* Inside the brick the ring meets its fill, ink or light, so it takes the brick's text color (16.32). */
+  /* Inside the brick the ring meets its fill, gold or light, so it is ink (11.32 or more). */
   .contact-brick:focus-visible {
-    outline-color: var(--color-text);
+    outline-color: var(--color-block-ink);
     outline-offset: calc(-1 * (var(--block-edge) + var(--focus-gap)));
   }
 }
