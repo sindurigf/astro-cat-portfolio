@@ -568,16 +568,16 @@ with a comment beside it.
   fringe; when they match, the fill runs under the edge, or the ground shows
   between them as a seam (`tests/tilt.spec.ts`, every route, both modes).
 
-| Utility                     | Casts it                                                                                                                              |
-| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
-| `shadow-hard-pink-object`   | Cards, post contents, gold areas, popovers, the header bar; `--hard-throw` (8px)                                                      |
-| `shadow-hard-pink-4`        | The PageHero photo, `.btn-primary`, `.btn-secondary`, link chips, footer stickers                                                     |
-| `shadow-brick`              | The header's brick rows (in `mark`, white in light mode), the menu's links, call to action and Close; `--brick-throw` (6px) in `text` |
-| `shadow-hard-cyan-object`   | A hovered linked card, in place of pink; a contact link brick fills cyan instead, its ring inside in its label color                  |
-| `shadow-hard-gold-border-4` | A card on gold                                                                                                                        |
-| `shadow-hard-mark-4`        | `.sticker`, `.btn-gold-primary`                                                                                                       |
-| `shadow-hard-mark-8`        | The homepage stickers                                                                                                                 |
-| `mark-throw`                | The logo tile in the header and on `/about`, following its ears; `--lift-mark` (8px), `mark-throw-large` 12px                         |
+| Utility                     | Casts it                                                                                                                                                                          |
+| --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `shadow-hard-pink-object`   | Cards, post contents, gold areas, popovers, the header bar; `--hard-throw` (8px)                                                                                                  |
+| `shadow-hard-pink-4`        | The PageHero photo, `.btn-primary`, `.btn-secondary`, link chips, footer stickers                                                                                                 |
+| `shadow-brick`              | The header's brick rows (in `block-ink` on the dark-mode light bar, white on the light-mode ink bar), the menu's links, call to action and Close; `--brick-throw` (6px) in `text` |
+| `shadow-hard-cyan-object`   | A hovered linked card, in place of pink; a contact link brick fills cyan instead, its ring inside in its label color                                                              |
+| `shadow-hard-gold-border-4` | A card on gold                                                                                                                                                                    |
+| `shadow-hard-mark-4`        | `.sticker`, `.btn-gold-primary`                                                                                                                                                   |
+| `shadow-hard-mark-8`        | The homepage stickers                                                                                                                                                             |
+| `mark-throw`                | The logo tile in the header and on `/about`, following its ears; `--lift-mark` (8px), `mark-throw-large` 12px                                                                     |
 
 - `mark` is `pink`'s hex but stays pink in light mode, where `pink` turns
   ink.
@@ -1301,8 +1301,9 @@ Enforced by `tests/nav-current.spec.ts`, `tests/mobile-menu.spec.ts`,
   `block-light` on the ink bar (14.42).
 - Nav links, the theme switch, the text size brick and the call to action are
   joined bricks (`.header-bricks`): 44px tall, the target (SC 2.5.5), sharing
-  their 4px edges, one `mark` `shadow-brick` per row; in light mode the throw
-  is `gold-mark`, white on the ink bar (18.58). Each row sits half
+  their 4px edges, one `shadow-brick` per row: `block-ink` on the dark-mode
+  light bar, as `mark` is 2.95 on it; in light mode `gold-mark`, white on the
+  ink bar (18.58). Each row sits half
   its throw high: 11px above it and under its throw. A brick after another drops its left edge, so
   the two share one 4px wall and never overlap each other's target.
 - Dark mode: link bricks are `block-light` with ink edges and labels (14.42),
