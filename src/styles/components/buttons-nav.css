@@ -201,9 +201,9 @@
    * without data-theme, which the head script always sets when JavaScript runs.
    */
   .theme-switch {
-    @apply grid size-target shrink-0 cursor-pointer place-items-center border-4
-      border-text;
+    @apply grid size-target shrink-0 cursor-pointer place-items-center border-4;
 
+    border-color: var(--solid-edge, var(--color-text));
     background-color: var(--solid-fill, var(--color-block-gold));
     color: var(--solid-label, var(--color-gold-text));
   }
@@ -365,6 +365,7 @@
     --brick-edge: initial;
     --solid-fill: initial;
     --solid-label: initial;
+    --solid-edge: initial;
     --current-mark: initial;
     --shadow-brick: var(--brick-throw) var(--brick-throw) 0 var(--page-text);
   }
@@ -408,8 +409,12 @@
       }
     }
 
-    & :is(.nav-cta, .theme-switch, .menu-brick, [aria-current]):focus-visible {
+    & :is(.nav-cta, .theme-switch, [aria-current]):focus-visible {
       outline-color: var(--solid-label, var(--color-gold-text));
+    }
+
+    & .menu-brick:focus-visible {
+      outline-color: var(--color-text);
     }
 
     /* A hovered ring takes the hover label's ink; a current brick has no hover fill. */
@@ -450,8 +455,7 @@
   }
 
   .nav-sticker[aria-current] {
-    @apply border-text;
-
+    border-color: var(--solid-edge, var(--color-text));
     background-color: var(--solid-fill, var(--color-block-gold));
     color: var(--solid-label, var(--color-gold-text));
     box-shadow: var(--current-mark, var(--inset-shadow-current));
@@ -471,8 +475,9 @@
    * so source order settles `box-shadow`.
    */
   .nav-cta {
-    @apply border-4 border-text text-label font-black uppercase tracking-label;
+    @apply border-4 text-label font-black uppercase tracking-label;
 
+    border-color: var(--solid-edge, var(--color-text));
     background-color: var(--solid-fill, var(--color-block-gold));
     color: var(--solid-label, var(--color-gold-text));
   }

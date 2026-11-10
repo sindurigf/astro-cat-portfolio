@@ -72,19 +72,26 @@
     background-color: var(--color-background);
   }
 
-  /* The mirror of the dark bar: an ink slab holding light link bricks and gold solid ones. */
+  /*
+   * The mirror of the dark bar: an ink slab holding light link bricks and
+   * crimson solid ones. Crimson is 2.55 on ink, so a solid brick is edged, and
+   * the rows thrown, in the white of a crimson block (SC 1.4.11).
+   */
   :root[data-theme='light'] .header-slab {
     --slab-fill: var(--color-block-ink);
     --brick-edge: var(--color-block-ink);
     --solid-fill: var(--color-block-gold);
     --solid-label: var(--color-gold-text);
-    --current-mark: var(--inset-shadow-current);
+    --solid-edge: var(--color-gold-border);
+    --current-mark: inset 0 0 0 var(--block-edge) var(--color-gold-border);
     --menu-fill: var(--color-block-light);
     --menu-label: var(--color-block-ink);
     --logo-name: var(--color-block-light);
     --logo-ring: var(--color-block-light);
-    /* Light mode's mark is 2.63 on ink, so the bricks throw the dark one (SC 1.4.11). */
-    --shadow-brick: var(--brick-throw) var(--brick-throw) 0 var(--dark-mark);
+    --color-cyan: var(--color-block-ink);
+    --hover-label: var(--color-block-ink);
+    --shadow-brick: var(--brick-throw) var(--brick-throw) 0
+      var(--color-gold-mark);
   }
 
   /* Hover fills take the dark mode cyan under ink: light mode's cyan is a text color. */
