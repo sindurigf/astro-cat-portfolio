@@ -39,8 +39,6 @@
   }
 
   .surface-gold :is(.rotate-3, .-rotate-3).sticker,
-  :is(:root[data-theme='light'] main, main .mode-light)
-    :is(.rotate-3, .-rotate-3).sticker:not(.mode-dark *),
   :is(.rotate-3, .-rotate-3).hero-sticker.bg-surface {
     background-clip: border-box;
   }
@@ -158,7 +156,7 @@
    * Utilities layer beats a tied rule (tests/gold-link.spec.ts).
    */
   .surface-gold a:not(.btn-gold-primary, .btn-gold-secondary, .chip):hover {
-    color: var(--color-gold);
+    color: var(--surface-ground, var(--color-gold));
     background-color: var(--color-gold-link);
     box-shadow: 0 0 0 var(--gold-marker-pad) var(--color-gold-link);
   }

@@ -1,8 +1,8 @@
 /*
  * Light mode: `data-theme="light"` on <html>. <main>, the header and the footer
- * change; ink is #131313, gold stays a fill. On white: text 18.58, subtle 9.53,
- * pink-text 7.06, cyan 8.23 (tests/light-mode.spec.ts). Utilities layer beats
- * `.text-gold`.
+ * change; ink is #131313 and takes pink's jobs, crimson takes gold's with white
+ * as its text. On white: text 18.58, subtle 9.53, crimson 7.29, cyan 8.23
+ * (tests/light-mode.spec.ts).
  */
 @layer utilities {
   /* The dark values, read where light mode never reaches, for a .mode-dark sample on a light page. */
@@ -15,6 +15,12 @@
     --dark-cyan: var(--color-cyan);
     --dark-pink: var(--color-pink);
     --dark-pink-text: var(--color-pink-text);
+    --dark-gold: var(--color-gold);
+    --dark-block-gold: var(--color-block-gold);
+    --dark-gold-text: var(--color-gold-text);
+    --dark-gold-muted: var(--color-gold-muted);
+    --dark-gold-link: var(--color-gold-link);
+    --dark-gold-mark: var(--color-gold-mark);
     --dark-gold-border: var(--color-gold-border);
     --dark-card-edge: var(--color-card-edge);
     --dark-code-edge: var(--color-code-edge);
@@ -31,7 +37,7 @@
     --dark-hero-muted: var(--color-hero-muted);
   }
 
-  :root[data-theme='light'] :is(main, header, footer),
+  :root[data-theme='light'] body > :is(main, header, footer),
   main .mode-light {
     --color-background: var(--color-light-ground);
     --color-surface: var(--color-light-ground);
@@ -40,8 +46,14 @@
     --color-border: var(--color-light-ink);
     --color-cyan: var(--color-light-focus);
     --color-pink: var(--color-light-ink);
-    --color-pink-text: var(--color-light-pink-text);
-    --color-gold-border: var(--color-light-ink);
+    --color-pink-text: var(--color-light-ink);
+    --color-gold: var(--color-light-accent);
+    --color-block-gold: var(--color-light-accent);
+    --color-gold-text: var(--color-light-ground);
+    --color-gold-muted: var(--color-light-ground);
+    --color-gold-link: var(--color-light-ground);
+    --color-gold-mark: var(--color-light-ground);
+    --color-gold-border: var(--color-light-ground);
     --color-card-edge: var(--color-light-ink);
     --color-code-edge: var(--color-light-code-edge);
     --color-code-fill: var(--color-block-light);
@@ -54,7 +66,7 @@
     --color-hero-floor-edge: var(--color-light-ground);
     --color-hero-accent: var(--color-light-hero-accent);
     --color-hero-muted: var(--color-light-subtle);
-    --color-mark: var(--color-light-pink-text);
+    --color-mark: var(--color-light-ink);
     color-scheme: light;
     color: var(--color-text);
     background-color: var(--color-background);
@@ -84,6 +96,12 @@
     --color-cyan: var(--dark-cyan);
     --color-pink: var(--dark-pink);
     --color-pink-text: var(--dark-pink-text);
+    --color-gold: var(--dark-gold);
+    --color-block-gold: var(--dark-block-gold);
+    --color-gold-text: var(--dark-gold-text);
+    --color-gold-muted: var(--dark-gold-muted);
+    --color-gold-link: var(--dark-gold-link);
+    --color-gold-mark: var(--dark-gold-mark);
     --color-gold-border: var(--dark-gold-border);
     --color-card-edge: var(--dark-card-edge);
     --color-code-edge: var(--dark-code-edge);
@@ -103,42 +121,64 @@
     background-color: var(--color-background);
   }
 
+  /* A gold surface is the page ground in light mode, so its text set is the page's. */
   :is(:root[data-theme='light'] main, main .mode-light)
     :is(.surface-gold, .v-column):not(.mode-dark *) {
-    background-color: var(--color-background);
+    --color-gold-text: var(--color-text);
+    --color-gold-muted: var(--color-subtle);
+    --color-gold-link: var(--color-text);
+    --color-gold-border: var(--color-text);
+    --color-mark: var(--color-text);
+    --surface-ground: var(--color-background);
+
+    background-color: var(--surface-ground);
   }
 
   :root[data-theme='light'] .v-column .hero-window {
-    --color-hero-stalk: var(--color-light-hero-stalk);
-    --color-gold-bud: var(--color-light-hero-stalk);
-    --color-hero-muted: var(--color-light-hero-stalk);
+    --color-hero-stalk: var(--color-gold);
+    --color-gold-bud: var(--color-gold);
+    --color-hero-muted: var(--color-gold);
+  }
+
+  /* A gold fill on the light surface keeps the fill's label. */
+  :is(:root[data-theme='light'] main, main .mode-light)
+    :is(.surface-gold, .v-column)
+    :is(.bg-block-gold, .motion-toggle:hover):not(.mode-dark *) {
+    --color-gold-text: var(--color-light-ground);
+  }
+
+  /* The homepage's second sticker is a black block in light mode. */
+  :is(:root[data-theme='light'] main, main .mode-light)
+    .hero-sticker:not(.bg-block-gold):not(.mode-dark *) {
+    @apply border-text bg-text text-background;
+  }
+
+  /* A sticker straddles its block's edge, so it is a light block with an ink edge on both grounds. */
+  :is(:root[data-theme='light'] main, main .mode-light)
+    .sticker:not(.mode-dark *) {
+    @apply border-block-ink bg-block-light bg-clip-padding text-block-ink;
   }
 
   /*
-   * Gold text fails SC 1.4.3 on white, so it is ink with a gold square before
-   * the word.
+   * White is the only 7:1 text on crimson, so a link's color cannot change
+   * there: in a block it hovers as a marker, the block's text color as its fill.
    */
   :is(:root[data-theme='light'] main, main .mode-light)
-    :is(.text-gold, .motion-toggle):not(.mode-dark *),
+    :is(.card, .plain-slab, .post-contents):not(
+      .surface-gold,
+      .surface-gold *,
+      .mode-dark *
+    )
+    a:not([class*='btn-'], .chip):hover,
   :is(:root[data-theme='light'] main, main .mode-light)
-    :is(.prose, .bullet-list)
-    li:not(.mode-dark *)::marker {
-    color: var(--color-text);
-  }
-
-  :is(:root[data-theme='light'] main, main .mode-light)
-    .label.text-gold:not(.mode-dark *)::before {
-    content: '';
-    background-color: var(--label-mark, var(--color-mark));
-
-    @apply mr-2 inline-block size-2.5;
-  }
-
-  /* The homepage's second sticker and `.sticker` are black blocks in light mode. */
-  :is(:root[data-theme='light'] main, main .mode-light)
-    .hero-sticker:not(.bg-block-gold):not(.mode-dark *),
-  :is(:root[data-theme='light'] main, main .mode-light)
-    .sticker:not(.mode-dark *) {
-    @apply border-text bg-text text-background;
+    .card:has(.card-link):hover:not(
+      .surface-gold,
+      .surface-gold *,
+      .mode-dark *
+    )
+    .card-link {
+    color: var(--color-background);
+    background-color: var(--color-text);
+    box-shadow: 0 0 0 var(--gold-marker-pad) var(--color-text);
   }
 }

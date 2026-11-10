@@ -11,22 +11,21 @@
 
   /*
    * Blocks: every card, the plain hero slab and the post contents, gold with
-   * an ink edge. The color tokens are remapped inside, so `text-text` and
-   * `text-gold` read on the fill (ink 11.32, muted 7.88) and what fills with
-   * `text` on `background`, a badge, inverts to ink. Gold fills use the fixed
-   * `block-gold`, so they stay gold.
+   * an ink edge. The color tokens are remapped to the gold set inside, so
+   * `text-text` and `text-gold` read on the fill (ink 11.32, muted 7.88; white
+   * 7.29 on light mode's crimson) and what fills with `text` on `background`, a
+   * badge, inverts. Gold fills use `block-gold`, so they stay gold.
    */
   :is(.card, .plain-slab, .post-contents):not(.surface-gold, .surface-gold *) {
     --color-background: var(--color-block-gold);
     --color-surface: var(--color-block-gold);
-    --color-text: var(--color-block-ink);
-    --color-gold: var(--color-block-ink);
+    --color-text: var(--color-gold-text);
+    --color-gold: var(--color-gold-text);
     --color-subtle: var(--color-gold-muted);
     --color-pink-text: var(--color-gold-link);
-    --color-border: var(--color-block-ink);
+    --color-border: var(--color-gold-border);
+    --color-fill-edge: var(--color-gold-border);
     --color-card-edge: var(--color-block-ink);
-    /* Light mode's square before a gold label: ink on gold, deep pink elsewhere. */
-    --label-mark: var(--color-block-ink);
 
     position: relative;
     border-width: var(--block-edge);
@@ -35,10 +34,10 @@
     color: var(--color-text);
   }
 
-  /* A control's neon pink throw reaches 2.31 on a gold block; the deep pink 4.5. */
   :is(.card, .plain-slab, .post-contents):not(.surface-gold, .surface-gold *)
-    :is(.btn-primary, .btn-secondary) {
-    --press-throw-color: var(--color-light-pink-text);
+    :is(.btn-primary, .btn-secondary, a.chip, .sticker) {
+    --press-throw-color: var(--color-gold-mark);
+    --color-mark: var(--color-gold-mark);
   }
 
   /*
@@ -54,8 +53,13 @@
   ):not(.surface-gold, .surface-gold *) {
     --color-background: var(--color-block-light);
     --color-surface: var(--color-block-light);
-    --label-mark: var(--color-mark);
+    --color-text: var(--color-block-ink);
+    --color-gold: var(--color-block-ink);
+    --color-border: var(--color-block-ink);
+    --color-fill-edge: var(--color-block-ink);
+    --color-gold-mark: var(--color-block-ink);
     --color-subtle: var(--color-light-subtle);
+    --color-pink-text: var(--dark-gold-link);
 
     background-color: var(--color-block-light);
   }
@@ -66,12 +70,12 @@
   }
 
   /*
-   * Hover and focus inside a block: the block's own ring and hover throw keep
-   * the page's cyan, set on the block itself.
+   * Hover and focus inside a block take its link color: the block's own ring and
+   * hover throw keep the page's cyan, set on the block itself.
    */
   :is(.card, .plain-slab, .post-contents):not(.surface-gold, .surface-gold *)
     > * {
-    --color-cyan: var(--color-gold-link);
+    --color-cyan: var(--color-pink-text);
   }
 
   /* A gold card or column keeps its own colors and takes the block edge. */
@@ -255,12 +259,16 @@
    */
   /* The dark mode cyan in both modes: light mode's cyan is a text color, 2.55 under ink. */
   .contact-brick:hover {
+    --color-text: var(--color-block-ink);
+    --color-gold: var(--color-block-ink);
+
     background-color: var(--dark-cyan);
+    color: var(--color-text);
   }
 
-  /* Inside the brick the ring meets its fill, gold or light, so it is ink (11.32 or more). */
+  /* Inside the brick the ring meets its fill, so it takes the brick's text color. */
   .contact-brick:focus-visible {
-    outline-color: var(--color-block-ink);
+    outline-color: currentColor;
     outline-offset: calc(-1 * (var(--block-edge) + var(--focus-gap)));
   }
 }

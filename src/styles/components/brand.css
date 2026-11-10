@@ -120,12 +120,12 @@
     main:has(#accessibility:target) [href='#accessibility'],
     main:has(#use:target) [href='#use']
   ).brand-menu-link {
-    @apply bg-block-gold font-black text-block-ink;
+    @apply bg-block-gold font-black text-gold-text;
 
-    outline-color: var(--color-block-ink);
+    outline-color: var(--color-gold-text);
 
     & .brand-menu-number {
-      color: var(--color-block-ink);
+      color: var(--color-gold-text);
     }
   }
 

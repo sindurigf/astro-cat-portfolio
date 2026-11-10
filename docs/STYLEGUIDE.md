@@ -312,29 +312,34 @@ The switch and what it scopes: [ARCHITECTURE.md](../ARCHITECTURE.md#light-mode).
 | --------------------------------------------------- | --------- | ------------ |
 | `background`, `surface`, `hero-ground`              | `#ffffff` | ground       |
 | `text`, `border`, `pink`, `gold-border`, `gold-bud` | `#131313` | 18.58        |
-| `card-edge`                                         | `#131313` | 18.58        |
-| gold as text, `.text-gold`                          | `#131313` | 18.58        |
+| `pink-text`, `mark`, `card-edge`                    | `#131313` | 18.58        |
+| `gold`: fills, `.text-gold`, hero stalks and buds   | `#b0002a` | 7.29         |
 | `subtle`                                            | `#3f4650` | 9.53         |
-| `pink-text`                                         | `#b00054` | 7.06         |
-| `light-hero-stalk` (hero stalks, buds, poneglyph)   | `#8b0a1e` | 9.72         |
 | `code-edge`                                         | `#767676` | 4.54         |
 | `code-fill`                                         | `#e5e2e1` | 1.29         |
 | `cyan` (focus ring and hover text)                  | `#0047b3` | 8.23         |
 
 - Light values are `light-*` tokens in `global.css` (`light-focus` for
-  `cyan`, `light-pink-text`, `light-hero-accent`), swapped in by
+  `cyan`, `light-accent`, `light-hero-accent`), swapped in by
   `light-mode.css`.
 - The homepage hero window sits on the page ground in both modes. Its stalks,
   buds and poneglyph are `#FFC000` in dark mode (11.99 on `#0b0b0b`, far buds
-  `#b38600` 5.93) and `light-hero-stalk` `#8b0a1e` in light mode (9.72).
-- Every hard shadow and edge turns `#131313`; `mark` throws turn `#b00054`
-  (4.5 on gold, 7.06 on white).
+  `#b38600` 5.93) and `gold`'s `#b0002a` in light mode (7.29).
+- Every hard shadow and edge turns `#131313`, `mark` throws included. A
+  control's throw inside a crimson block is `gold-mark`, white (7.29).
+- A `.sticker` is a light block: `#131313` label and edge on the light fill
+  (14.42). Its throw is `gold-mark`: white inside a crimson block (7.29),
+  `#131313` elsewhere.
+- White is the only 7:1 text on `#b0002a`, so a link in a block hovers as a
+  marker: the block's `text` as its fill, the block's fill as its color (7.29
+  on a crimson block, 14.42 on a light one). A linked card's title does the
+  same when the card is hovered.
 - Hover fills are dark mode's `#00dcfd` under `#131313` (11.20).
-- `.surface-gold` and `.v-column` go white. Buttons, tiles and stickers keep
-  their `#FFC000` fill, always under `#131313` (11.32).
-- Gold text turns ink; a `.label.text-gold` gains a `#b00054`
-  square before the word, ink on a gold block (`--label-mark`).
-- Blocks stay gold or light in light mode, with the `#131313` edge (18.58 on white).
+- `.surface-gold` and `.v-column` go white. Tiles and stickers with a
+  gold fill turn `#b0002a` under a white label (7.29).
+- Gold text turns `#b0002a` (7.29 on white); on a crimson block it is white.
+- Gold blocks turn `#b0002a` with white text, links and inner edges (7.29);
+  light blocks stay light. Both keep the `#131313` edge (18.58 on white).
 - The header bar keeps its `#FFC000` fill and `#131313` edge; its throw
   turns `#131313`.
 - The footer follows the mode like `<main>`: white in light mode, its words
@@ -342,9 +347,8 @@ The switch and what it scopes: [ARCHITECTURE.md](../ARCHITECTURE.md#light-mode).
 - Logo marks use `mark`, `tile-edge`, the `cat-hela*` coat and
   `shadow-hard-mark-*` or `mark-throw`, never `pink` or `border`:
   they do not change with the mode.
-- The label on a gold fill is `gold-text`, never `background` (white in
-  light).
-- The homepage's second sticker and `.sticker` are black blocks.
+- The label on a gold fill is `gold-text`, never `background`.
+- The homepage's second sticker is a `text` fill under a `background` label.
 - `tests/light-mode.spec.ts` scans every route in light at WCAG 2.2 AA.
 
 ## Type scale
@@ -567,7 +571,7 @@ with a comment beside it.
 | `shadow-hard-pink-object`   | Cards, post contents, gold areas, popovers, the header bar; `--hard-throw` (8px)                                      |
 | `shadow-hard-pink-4`        | The PageHero photo, `.btn-primary`, `.btn-secondary`, link chips, footer stickers                                     |
 | `shadow-brick`              | The header's brick rows (in `block-ink`), the menu's links, call to action and Close; `--brick-throw` (6px) in `text` |
-| `shadow-hard-cyan-object`   | A hovered linked card, in place of pink; a contact link brick fills cyan instead, its ring inside in ink              |
+| `shadow-hard-cyan-object`   | A hovered linked card, in place of pink; a contact link brick fills cyan instead, its ring inside in its label color  |
 | `shadow-hard-gold-border-4` | A card on gold                                                                                                        |
 | `shadow-hard-mark-4`        | `.sticker`, `.btn-gold-primary`                                                                                       |
 | `shadow-hard-mark-8`        | The homepage stickers                                                                                                 |

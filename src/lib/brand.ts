@@ -103,8 +103,7 @@ export const contrast = contrastRows(tokens).map((row) => ({
 
 /*
  * Light mode's pairings on its ground: the tokens STYLEGUIDE "Light mode"
- * tabulates, measured through light-mode.css. Gold text turns ink by a class,
- * not a token, so that row has no pair here.
+ * tabulates, measured through light-mode.css.
  */
 const LIGHT_GROUND = 'background';
 const lightTable = tableAfter('Light mode').flatMap((cell) =>

@@ -95,14 +95,14 @@
     }
 
     & a.chip[aria-current] {
-      @apply bg-block-gold;
+      @apply bg-block-gold text-gold-text;
     }
 
-    /* Inside the brick, so it never crosses the next; ink on light, gold or cyan. */
+    /* Inside the brick, so it never crosses the next; it takes the chip's text color. */
     & a.chip:focus-visible {
       position: relative;
       z-index: 1;
-      outline-color: var(--color-block-ink);
+      outline-color: currentColor;
       outline-offset: calc(-1 * (var(--block-edge) + var(--focus-gap)));
     }
   }

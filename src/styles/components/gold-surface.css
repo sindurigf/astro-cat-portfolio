@@ -4,9 +4,8 @@
    * 1.4.11) and underlines links (SC 1.4.1); a utility inside still wins.
    * tests/gold-surface.spec.ts measures every gold section.
    */
-  /* Neon pink throws reach 2.31 on gold; the deep pink reaches 4.5 (SC 1.4.11). */
   .surface-gold {
-    --color-mark: var(--color-light-pink-text);
+    --color-mark: var(--color-gold-mark);
 
     @apply bg-gold text-gold-text;
   }

@@ -85,7 +85,6 @@ export interface RoleToken {
 }
 
 export interface RoleRead {
-  /** The pair's tokens as painted: light mode's gold text becomes ink on the page ground. */
   fg: string;
   bg: string;
   kind: Kind;
@@ -102,9 +101,7 @@ export interface Role {
 }
 
 const measure = (reading: Reading, mode: Mode): RoleRead => {
-  const ink = mode === 'light' && reading.fg === 'gold';
-  const fg = ink ? 'text' : reading.fg;
-  const bg = reading.bg;
+  const { fg, bg } = reading;
   const value = ratio(hexOf(fg, mode), hexOf(bg, mode)) as number;
   if (value < NEEDS[reading.kind]) {
     throw new Error(
@@ -188,7 +185,7 @@ export const roles: Role[] = [
   role(
     'role-accent',
     'the one thing to notice.',
-    'Gold reads on the dark ground; light mode turns gold text to ink.',
+    'Gold reads on the dark ground; light mode swaps it for crimson.',
     ['gold', 'fill-edge'],
     {
       fg: 'gold',

@@ -153,7 +153,7 @@
   --color-pink-text: #ff79b6;
   /*
    * The logo marks and the dark gold-slab button's shadow. Same hex as `pink`,
-   * kept apart because light mode turns `pink` ink and this stays.
+   * kept apart so a gold surface can swap it for `gold-mark`.
    */
   --color-mark: #ff007a;
   --color-tile-edge: #5a87a8;
@@ -176,7 +176,8 @@
   --color-light-ink: #131313;
   --color-light-subtle: #3f4650;
   --color-light-focus: #0047b3;
-  --color-light-pink-text: #b00054;
+  /* Light mode's gold: fills, labels and the hero meadow. 7.29 on white, and white reads 7.29 on it. */
+  --color-light-accent: #b0002a;
   /* A code block's edge in a post, kept gray so the gold label is the only gold. */
   --color-code-edge: #707070;
   /* Its light mode value. */
@@ -198,6 +199,8 @@
    * only. Body copy is `text`, since pure white halates on dark.
    */
   --color-gold-btn-label: #ffffff;
+  /* A throw on gold: neon pink reaches 2.31 there, this deep pink 4.5 (SC 1.4.11). */
+  --color-gold-mark: #b00054;
 
   /*
    * Links on gold: no contrast against gold-text, so the underline on
@@ -246,8 +249,6 @@
   /* Buds on the dark page ground: gold 11.99, muted 5.93 on #0b0b0b. */
   --color-hero-ink-bud: var(--color-gold);
   --color-hero-ink-bud-muted: #b38600;
-  /* Light hero meadow and tablet on white: 9.72. */
-  --color-light-hero-stalk: #8b0a1e;
 
   /*
    * Family name from @fontsource-variable/lexend: one wght axis file, latin
