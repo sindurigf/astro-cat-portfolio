@@ -7,10 +7,10 @@ import { DESKTOP_VIEWPORT, PHONE_VIEWPORT } from './wcag';
  * The header's joined bricks draw their focus ring inside the brick
  * (docs/STYLEGUIDE.md "Focus"), so the ring must read against the brick's own
  * fill, at rest and hovered, and stay clear of its label (SC 1.4.11, 2.4.13).
- * The logo link's ring sits outside it, on the gold bar.
+ * The logo link's ring sits outside it, on the bar.
  */
 
-/* A route with a current header link, so a gold brick is walked too. */
+/* A route with a current header link, so a current brick is walked too. */
 const ROUTE = '/about/';
 const BRICKS =
   '.header-slab :is(.logo-link, .header-bricks a, .header-bricks button)';
