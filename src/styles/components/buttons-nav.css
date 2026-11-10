@@ -338,7 +338,8 @@
     --color-cyan: var(--color-gold-link);
     --hover-fill: var(--dark-cyan);
     --hover-label: var(--color-gold-text);
-    --shadow-brick: var(--brick-throw) var(--brick-throw) 0 var(--color-mark);
+    --shadow-brick: var(--brick-throw) var(--brick-throw) 0
+      var(--color-block-ink);
 
     border: var(--block-edge) solid var(--slab-fill);
     background-color: var(--slab-fill);
