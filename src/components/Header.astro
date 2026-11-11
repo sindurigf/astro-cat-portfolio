@@ -40,7 +40,10 @@ const current = (href: string) => ariaCurrent(currentPath, href);
     data-header-sentinel
   ></div>
   <div class="report-band-row flex min-h-target items-center justify-end py-2">
-    <a href={REPORT_LINK.href} class="link hit-target text-label font-black">
+    <a
+      href={REPORT_LINK.href}
+      class="link relative inline-flex min-h-target items-center text-label font-black"
+    >
       {REPORT_LINK.label}
     </a>
   </div>
