@@ -87,9 +87,9 @@ blur, uppercase headings, tilted marks.
 | Tension                             | Resolution                                                                                                                                                                                      |
 | ----------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Heavy uppercase, tight tracking     | Uppercase on headings, labels and buttons only. Tracking -0.05em on h1 and h2, -0.02em on h3 and titles; labels +0.1em. A heading word over 12 characters takes a soft hyphen.                  |
-| Loud accents against 4.5:1          | `pink` `#FF007A` never sets text. `pink-text` `#FF79B6` carries every pink glyph ([Contrast](#contrast)).                                                                                       |
+| Loud accents against 4.5:1          | One pink per mode, `#FF79B6` on dark and `#540038` on light, 7:1 or more on every surface it sits on; a throw on a gold or light fill is ink ([Contrast](#contrast)).                           |
 | Hard shadow looks like a focus ring | The ring is cyan, which appears only on interaction, offset past the element's shadow by `--lift`, so it only touches ground (11.86).                                                           |
-| Error signaled by color             | `pink` against `border` or gold is 2.31. An error is a shape change (a 4px pink inset ring inside the edge, which stays ink in a block), a ✕ mark and words.                                    |
+| Error signaled by color             | `pink` against `border` or gold is 1.48. An error is a shape change (a 4px inset ring inside the edge, ink in a block), a ✕ mark and words.                                                     |
 | Tilt hurts reading                  | Tilt only marks (tile, roundel, stickers), at 3deg. Text and headings never rotate; a sticker's label of one to three words turns with it (close row eyebrow, post tags; `tests/tilt.spec.ts`). |
 | Grayed-out disabled fails SC 1.4.11 | Dashed edge, no shadow. Label stays 9.34; control stays focusable (`aria-disabled`).                                                                                                            |
 | Density against 320px reflow        | Spacing tokens are fluid; every border is counted in the 288px content box before any heading floor changes.                                                                                    |
@@ -107,9 +107,9 @@ blur, uppercase headings, tilted marks.
 | `subtle`      | `#9EB6C7`    | Captions, meta, helper text                                          |
 | `gold`        | `#FFC000`    | The accent, only where the style guide allows                        |
 | `cyan`        | `#00DCFD`    | Hover and focus only                                                 |
-| `pink`        | `#FF007A`    | Depth and error; never text                                          |
-| `pink-text`   | `#FF79B6`    | Every pink glyph; never non-text                                     |
-| `mark`        | `#FF007A`    | Logo marks; same in both modes                                       |
+| `pink`        | `#FF79B6`    | Depth and error; ink on a gold or light fill                         |
+| `pink-text`   | `#FF79B6`    | Every pink glyph                                                     |
+| `mark`        | `#FF79B6`    | Logo mark throws; ink on a gold fill                                 |
 | `tile-edge`   | `#5A87A8`    | Logo tile copies' edge; both modes                                   |
 | `button-text` | `ButtonText` | Forced colors only: bars on the button face                          |
 | `cat-*`       | 6 fills      | Logo cat coat and About cat props; decoration, never a boundary      |
@@ -194,8 +194,11 @@ every size (SC 1.4.6, as /accessibility claims); non-text needs 3.0 (SC
 | `border` #FFC000          | `background` #0B0B0B   | non-text   | Every boundary but table lines                            | 3.0   | 11.99 | pass       |
 | `border` #FFC000          | `surface` #1A1A1A      | non-text   | Input and chip edges on a surface                         | 3.0   | 10.60 | pass       |
 | `text` #E5E2E1            | `background` #0B0B0B   | non-text   | Table lines                                               | 3.0   | 15.28 | pass       |
-| `pink` #FF007A            | `background` #0B0B0B   | non-text   | Error edge; action shadow                                 | 3.0   | 5.19  | pass       |
-| `pink` #FF007A            | `surface` #1A1A1A      | non-text   | Error edge on a field off a block                         | 3.0   | 4.59  | pass       |
+| `pink` #FF79B6            | `background` #0B0B0B   | throw      | Error edge; action shadow                                 | 7.0   | 8.12  | pass       |
+| `pink` #FF79B6            | `surface` #1A1A1A      | throw      | Error edge on a field off a block                         | 7.0   | 7.18  | pass       |
+| `light-pink-text` #540038 | `light-ground` #FFFFFF | text       | Light mode pink: glyphs, throws                           | 7.0   | 14.64 | pass       |
+| `light-pink-text` #540038 | `block-cyan` #1FC8F0   | throw      | Light mode throws on the cyan bar                         | 7.0   | 7.38  | pass       |
+| `light-pink-text` #540038 | `block-light` #E5E2E1  | text       | Light mode pink on a light block                          | 7.0   | 11.36 | pass       |
 | `background` #0B0B0B      | `gold` #FFC000         | text       | Label on a gold fill                                      | 7.0   | 11.99 | pass       |
 | `background` #0B0B0B      | `cyan` #00DCFD         | text       | Label on a hovered button                                 | 7.0   | 11.86 | pass       |
 | `background` #0B0B0B      | `text` #E5E2E1         | text       | Badge; the current page block                             | 7.0   | 15.28 | pass       |
@@ -219,17 +222,16 @@ every size (SC 1.4.6, as /accessibility claims); non-text needs 3.0 (SC
 | `cyan` #00DCFD            | `background` #0B0B0B   | decoration | Hovered card shadow                                       | n/a   | 11.86 | decoration |
 | `light-ground` #FFFFFF    | `background` #0B0B0B   | non-text   | About cat outline, baked into the drawings: its white rim | 3.0   | 19.68 | pass       |
 | `light-ground` #FFFFFF    | `surface` #1A1A1A      | non-text   | About cat outline on a card: its white rim                | 3.0   | 17.40 | pass       |
-| `pink` #FF007A            | `gold` #FFC000         | decoration | Shadows on gold                                           | n/a   | 2.31  | decoration |
 | `text` #E5E2E1            | `gold` #FFC000         | never      | Dark-surface text is never used on gold                   | n/a   | 1.27  | never used |
 | `subtle` #9EB6C7          | `gold` #FFC000         | never      | Dark-surface meta is never used on gold                   | n/a   | 1.28  | never used |
 | `pink-text` #FF79B6       | `gold` #FFC000         | never      | Error text is never used on gold                          | n/a   | 1.48  | never used |
 | `border` #FFC000          | `gold` #FFC000         | never      | A gold area’s outer edge, never inside gold               | n/a   | 1.00  | never used |
 | `gold-btn-label` #FFFFFF  | `gold` #FFC000         | never      | Only on the dark button fill                              | n/a   | 1.64  | never used |
-| `cyan` #00DCFD            | `pink` #FF007A         | apart      | A ring never touches a pink shadow                        | n/a   | 2.29  | kept apart |
+| `cyan` #00DCFD            | `pink` #FF79B6         | apart      | A ring never touches a pink shadow                        | n/a   | 1.46  | kept apart |
 | `cyan` #00DCFD            | `gold` #FFC000         | apart      | A ring never touches a gold shadow or fill                | n/a   | 1.01  | kept apart |
 | `cyan` #00DCFD            | `border` #FFC000       | apart      | A ring never touches a neighbor edge                      | n/a   | 1.01  | kept apart |
-| `pink` #FF007A            | `border` #FFC000       | apart      | An error is a shape change, not a recolor                 | n/a   | 2.31  | kept apart |
-| `pink` #FF007A            | `gold` #FFC000         | never      | An invalid edge in a block stays ink                      | n/a   | 2.31  | never used |
+| `pink` #FF79B6            | `border` #FFC000       | apart      | An error is a shape change, not a recolor                 | n/a   | 1.48  | kept apart |
+| `pink` #FF79B6            | `gold` #FFC000         | never      | Throws and invalid edges on gold are ink                  | n/a   | 1.48  | never used |
 | `text` #E5E2E1            | `subtle` #9EB6C7       | apart      | The two text colors never carry a state                   | n/a   | 1.63  | kept apart |
 
 <!-- contrast-table:end -->
@@ -284,7 +286,7 @@ set; hex values and ratios are in the generated [Contrast](#contrast) table:
 ### Buttons on gold
 
 - Never `.btn-primary` (a 1.00 fill on gold) or `.btn-secondary` (a light
-  block on a gold one: two accents in one block, pink shadow 2.31).
+  block on a gold one: two accents in one block).
 - `.btn-gold-primary`: `gold-text` fill, `gold-btn-label` label, 4px
   `gold-text` border, `shadow-hard-mark-4`, the two-tone ring
   ([Focus](#focus)).
@@ -308,29 +310,29 @@ The switch and what it scopes: [ARCHITECTURE.md](../ARCHITECTURE.md#light-mode).
 - A click, Enter or Space on a choice picks it, closes the menu and returns
   focus to the switch (SC 2.4.3). Arrow keys move the choice and keep it open.
 
-| Token                                               | Light     | on `#ffffff` |
-| --------------------------------------------------- | --------- | ------------ |
-| `background`, `surface`, `hero-ground`              | `#ffffff` | ground       |
-| `text`, `border`, `pink`, `gold-border`, `gold-bud` | `#131313` | 18.58        |
-| `card-edge`                                         | `#131313` | 18.58        |
-| gold as text, `.text-gold`                          | `#131313` | 18.58        |
-| `subtle`                                            | `#3f4650` | 9.53         |
-| `pink-text`                                         | `#b00054` | 7.06         |
-| `code-edge`                                         | `#767676` | 4.54         |
-| `code-fill`                                         | `#e5e2e1` | 1.29         |
-| `cyan` (focus ring and hover text)                  | `#0047b3` | 8.23         |
+| Token                                       | Light     | on `#ffffff` |
+| ------------------------------------------- | --------- | ------------ |
+| `background`, `surface`, `hero-ground`      | `#ffffff` | ground       |
+| `text`, `border`, `gold-border`, `gold-bud` | `#131313` | 18.58        |
+| `card-edge`                                 | `#131313` | 18.58        |
+| gold as text, `.text-gold`                  | `#131313` | 18.58        |
+| `subtle`                                    | `#3f4650` | 9.53         |
+| `pink`, `pink-text`                         | `#540038` | 14.64        |
+| `code-edge`                                 | `#767676` | 4.54         |
+| `code-fill`                                 | `#e5e2e1` | 1.29         |
+| `cyan` (focus ring and hover text)          | `#0047b3` | 8.23         |
 
 - Light values are `light-*` tokens in `global.css` (`light-focus` for
   `cyan`, `light-pink-text`, `light-hero-accent`), swapped in by
   `light-mode.css`.
 - The homepage hero window is `block-ink` in dark mode, page text on it,
   mint `hero-accent` buds (10.9); white in light mode with `#0f7a5c` buds (4.9).
-- Every hard shadow and edge turns `#131313`; `mark` throws turn `#b00054`
-  (4.5 on gold, 7.06 on white).
+- Every edge turns `#131313`. Pink and `mark` throws turn `#540038` (14.64 on
+  white, 7.38 on the cyan bar) and stay ink on a gold or light fill.
 - Hover fills are dark mode's `#00dcfd` under `#131313` (11.20).
 - `.surface-gold` and `.v-column` go white. Buttons, tiles and stickers keep
   their `#FFC000` fill, always under `#131313` (11.32).
-- Gold text turns ink; a `.label.text-gold` gains a `#b00054`
+- Gold text turns ink; a `.label.text-gold` gains a `#540038`
   square before the word, ink on a gold block (`--label-mark`).
 - Blocks stay gold or light in light mode, with the `#131313` edge (18.58 on white).
 - The header bar turns `block-cyan` `#1fc8f0` with a `#131313` edge, as cyan
@@ -880,7 +882,7 @@ roundel.**
 - About and every post have a photo, so no roundel.
 - The homepage is not a PageHero and has no roundel on its window.
 - The roundel is the box cat: Rudra sitting in an open cardboard box, with the
-  box's own ink edge and pink throw, tilted 3deg (`src/assets/box-cat-roundel.svg`).
+  box's own ink edge and ink throw, tilted 3deg (`src/assets/box-cat-roundel.svg`).
 - `variant="hero"` is `--spacing-roundel` square; the page variant is 96px,
   128px from `lg`.
 - Its center sits `--spacing(1)` above the slab's bottom edge; its right side
@@ -908,10 +910,10 @@ roundel.**
 | Focus ring                   | `gold-text` on gold             | 11.32 | 3          |
 | Photo border                 | `gold-text` on gold             | 11.32 | decoration |
 | Roundel box edge on the slab | `gold-text` on gold             | 11.32 | decoration |
-| Photo and chip shadows       | pink on gold                    | 2.31  | decoration |
+| Photo and chip shadows       | `gold-text` on gold             | 11.32 | decoration |
 
-- Pink never delimits anything on the slab: every control has its fill or a
-  `gold-text` border.
+- No pink sits on the slab: every throw on it is ink, and every control has
+  its fill or a `gold-text` border.
 - The page's own colors fail here: `subtle` 1.28, `border` 1.00, the page
   link color, `text`, 1.27.
 
@@ -1288,8 +1290,8 @@ Enforced by `tests/nav-current.spec.ts`, `tests/mobile-menu.spec.ts`,
   `buttons-nav.css`, light overrides in `light-mode.css`. The menu dialog and
   Theme menu reset them, so their bricks stay gold.
 - `--slab-mark` is the one color of the logo's and the call to action's
-  throw: `mark` on the gold bar (2.31), `mark-deep` `#a3004a` on the cyan bar
-  (3.98). Both are decoration; the ink edge and fill carry the shape.
+  throw: ink on the gold bar (11.32), `light-pink-text` `#540038` on the cyan
+  bar (7.38).
 - The logo tile, and from 48rem its name, sit inside the bar with no block or
   edge of their own. The tile keeps a 4px throw (`--logo-throw`) in
   `--slab-mark`; the link pads it inside its box

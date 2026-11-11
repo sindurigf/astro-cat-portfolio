@@ -14,10 +14,14 @@ const DOC = join(ROOT, 'docs/STYLEGUIDE.md');
 const START = '<!-- contrast-table:start -->';
 const END = '<!-- contrast-table:end -->';
 
-/* WCAG 2.2: SC 1.4.6 for text, which /accessibility claims at every size; SC 1.4.11 for non-text. */
+/*
+ * WCAG 2.2: SC 1.4.6 for text, which /accessibility claims at every size; SC
+ * 1.4.11 for non-text. A pink throw is held to the text ratio.
+ */
 const NEEDS = {
   text: 7,
   'non-text': 3,
+  throw: 7,
   decoration: null,
   apart: null,
   never: null,
@@ -39,8 +43,26 @@ const PAIRS = [
   ['border', 'background', 'non-text', 'Every boundary but table lines'],
   ['border', 'surface', 'non-text', 'Input and chip edges on a surface'],
   ['text', 'background', 'non-text', 'Table lines'],
-  ['pink', 'background', 'non-text', 'Error edge; action shadow'],
-  ['pink', 'surface', 'non-text', 'Error edge on a field off a block'],
+  ['pink', 'background', 'throw', 'Error edge; action shadow'],
+  ['pink', 'surface', 'throw', 'Error edge on a field off a block'],
+  [
+    'light-pink-text',
+    'light-ground',
+    'text',
+    'Light mode pink: glyphs, throws',
+  ],
+  [
+    'light-pink-text',
+    'block-cyan',
+    'throw',
+    'Light mode throws on the cyan bar',
+  ],
+  [
+    'light-pink-text',
+    'block-light',
+    'text',
+    'Light mode pink on a light block',
+  ],
   ['background', 'gold', 'text', 'Label on a gold fill'],
   ['background', 'cyan', 'text', 'Label on a hovered button'],
   ['background', 'text', 'text', 'Badge; the current page block'],
@@ -84,7 +106,6 @@ const PAIRS = [
     'non-text',
     'About cat outline on a card: its white rim',
   ],
-  ['pink', 'gold', 'decoration', 'Shadows on gold'],
   ['text', 'gold', 'never', 'Dark-surface text is never used on gold'],
   ['subtle', 'gold', 'never', 'Dark-surface meta is never used on gold'],
   ['pink-text', 'gold', 'never', 'Error text is never used on gold'],
@@ -94,7 +115,7 @@ const PAIRS = [
   ['cyan', 'gold', 'apart', 'A ring never touches a gold shadow or fill'],
   ['cyan', 'border', 'apart', 'A ring never touches a neighbor edge'],
   ['pink', 'border', 'apart', 'An error is a shape change, not a recolor'],
-  ['pink', 'gold', 'never', 'An invalid edge in a block stays ink'],
+  ['pink', 'gold', 'never', 'Throws and invalid edges on gold are ink'],
   ['text', 'subtle', 'apart', 'The two text colors never carry a state'],
 ];
 

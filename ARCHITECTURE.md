@@ -493,7 +493,7 @@ in `wrangler.jsonc`).
   the `/about` tile in `CatMark.astro`) and `npm run og`. The favicons and
   app icons come from a cut-out cat, [the favicon set](#the-favicon-set).
 - `src/lib/box-cat.ts`: the box cat's cardboard box (`cat-cardboard`, ink edge,
-  pink throw, flaps). `npm run box-cat`
+  ink throw, flaps). `npm run box-cat`
   (`scripts/make-box-cat.mjs`) sets a cut-out cat from `artwork/cats/` in it,
   with a white die-cut rim, and writes:
 

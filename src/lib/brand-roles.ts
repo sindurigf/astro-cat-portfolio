@@ -4,12 +4,13 @@ import { colors } from './brand';
 /* Color, one part per role: its tokens and the one pair it is read on, with the ratio measured from the token hex values. */
 
 export type Mode = 'dark' | 'light';
-type Kind = 'text' | 'edge';
+type Kind = 'text' | 'edge' | 'throw';
 
-const NEEDS: Record<Kind, number> = { text: 7, edge: 3 };
+const NEEDS: Record<Kind, number> = { text: 7, edge: 3, throw: 7 };
 const VERDICT: Record<Kind, string> = {
   text: `needs ${NEEDS.text}:1 AAA`,
   edge: `needs ${NEEDS.edge}:1`,
+  throw: `needs ${NEEDS.throw}:1`,
 };
 const RATIO_DIGITS = 2;
 const MODES: readonly Mode[] = ['dark', 'light'];
@@ -120,7 +121,7 @@ const measure = (reading: Reading, mode: Mode): RoleRead => {
   };
 };
 
-/* Every text color reaches 7 on both grounds and every edge 3, not just the pair a role names. */
+/* Every text color and pink throw reaches 7 on both grounds and every edge 3, not just the pair a role names. */
 const assertEveryPair = (): void => {
   const pairs: [string, Kind][] = [
     ['text', 'text'],
@@ -128,8 +129,8 @@ const assertEveryPair = (): void => {
     ['gold', 'text'],
     ['pink-text', 'text'],
     [PAGE_EDGE, 'edge'],
-    ['pink', 'edge'],
-    ['mark', 'edge'],
+    ['pink', 'throw'],
+    ['mark', 'throw'],
     ['cyan', 'edge'],
   ];
   for (const [fg, kind] of pairs) {

@@ -201,11 +201,16 @@
    * without data-theme, which the head script always sets when JavaScript runs.
    */
   .theme-switch {
-    @apply grid size-target shrink-0 cursor-pointer place-items-center border-4
-      border-text;
+    @apply relative grid size-target shrink-0 cursor-pointer place-items-center
+      border-4 border-text;
 
     background-color: var(--solid-fill, var(--color-block-gold));
     color: var(--solid-label, var(--color-gold-text));
+  }
+
+  /* WebKit puts an absolute grid child at the content edge, where `sr-only`'s -1px margin moves the name onto the border. */
+  .theme-switch > .sr-only {
+    @apply left-1/2 top-1/2;
   }
 
   :root:not([data-theme]) .theme-switch {
@@ -336,8 +341,8 @@
    */
   .header-slab {
     --slab-fill: var(--color-block-gold);
-    /* The logo's and the call to action's throw: 2.31 on the gold slab. */
-    --slab-mark: var(--color-mark);
+    /* The logo's and the call to action's throw: pink is 1.48 on gold, so ink. */
+    --slab-mark: var(--color-block-ink);
     --brick-edge: var(--color-block-ink);
     --brick-fill: var(--page-ground);
     --brick-label: var(--page-text);
