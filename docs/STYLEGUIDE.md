@@ -1256,7 +1256,7 @@ Enforced by `tests/nav-current.spec.ts`, `tests/mobile-menu.spec.ts`,
   Problem", to Report a Barrier on `/accessibility`, on that page too. Second
   in tab order, after the skip link (SC 2.4.1, 3.2.6).
 - `text-label`, `font-black`, `.link` underline in `text` (15.28), cyan on
-  hover. `.hit-target` makes the 44px target. The band is at least 44px
+  hover. The link's own box is 44px tall (`min-h-target`). The band is at least 44px
   (`--spacing-target`) and grows as the link wraps at larger text; its
   8px padding keeps the ring inside it, clear of the header.
 - First-screen heights (`--spacing-page-top`) count the band at its 44px
