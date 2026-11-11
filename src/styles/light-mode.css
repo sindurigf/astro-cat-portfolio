@@ -60,6 +60,21 @@
     background-color: var(--color-background);
   }
 
+  /* The mirror of the dark bar: an ink slab holding light link bricks and gold solid ones. */
+  :root[data-theme='light'] .header-slab {
+    --slab-fill: var(--color-block-ink);
+    --brick-edge: var(--color-block-ink);
+    --solid-fill: var(--color-block-gold);
+    --solid-label: var(--color-gold-text);
+    --current-mark: var(--inset-shadow-current);
+    --menu-fill: var(--color-block-light);
+    --menu-label: var(--color-block-ink);
+    --logo-name: var(--color-block-light);
+    --logo-ring: var(--color-block-light);
+    /* Light mode's mark is 2.63 on ink, so the bricks throw the dark one (SC 1.4.11). */
+    --shadow-brick: var(--brick-throw) var(--brick-throw) 0 var(--dark-mark);
+  }
+
   /* Hover fills take the dark mode cyan under ink: light mode's cyan is a text color. */
   :root[data-theme='light'] .header-slab :is(dialog, .theme-menu) {
     --hover-fill: var(--dark-cyan);
