@@ -141,6 +141,8 @@
   --color-block-gold: #ffc000;
   --color-block-light: #e5e2e1;
   --color-block-ink: #131313;
+  /* The light mode header slab: ink on it is 9.4. */
+  --color-block-cyan: #1fc8f0;
   --color-subtle: #9eb6c7;
   --color-gold: #ffc000;
   --color-cyan: #00dcfd;
@@ -177,6 +179,8 @@
   --color-light-subtle: #3f4650;
   --color-light-focus: #0047b3;
   --color-light-pink-text: #b00054;
+  /* Light mode's mark on the header's cyan slab (3.98) and white (7.68). */
+  --color-mark-deep: #a3004a;
   /* A code block's edge in a post, kept gray so the gold label is the only gold. */
   --color-code-edge: #707070;
   /* Its light mode value. */
@@ -400,6 +404,8 @@
   --block-edge: 4px;
   /* The header's joined bricks and its logo block. */
   --brick-throw: 6px;
+  /* The header logo's throw. */
+  --logo-throw: 4px;
   /*
    * The Step: sideways juts and a wall's Step Up, both 0 below 640px so
    * nothing pushes a phone layout off the column.

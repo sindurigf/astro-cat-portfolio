@@ -13,7 +13,7 @@ const PLAIN_CARD =
 const PAGE_CONTROL = 'main a.btn-secondary';
 /* Solid header controls, delimited by their edge or their fill against the header bar, or the menu's page ground (read while closed). */
 const SOLID_CONTROLS = [
-  'header .header-bricks .nav-cta',
+  'header .header-actions > div > .nav-cta',
   'header .theme-switch',
   '.mobile-menu-dialog .nav-cta',
 ];

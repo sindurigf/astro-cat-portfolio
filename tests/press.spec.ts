@@ -296,9 +296,9 @@ test.describe('bricks', () => {
   test('a joined header brick holds still when pressed', async ({ page }) => {
     await page.setViewportSize(DESKTOP_VIEWPORT);
     await gotoSettled(page, '/blog/');
-    await pressCenter(page, 'header .header-bricks .nav-cta');
+    await pressCenter(page, 'header .header-bricks .theme-switch');
     expect(
-      await translateOf(page, 'header .header-bricks .nav-cta'),
+      await translateOf(page, 'header .header-bricks .theme-switch'),
       'a joined brick moved out of its row',
     ).toEqual([0, 0]);
     await page.mouse.up();
