@@ -882,7 +882,9 @@ roundel.**
 - About and every post have a photo, so no roundel.
 - The homepage is not a PageHero and has no roundel on its window.
 - The roundel is the box cat: Rudra sitting in an open cardboard box, with the
-  box's own ink edge and ink throw, tilted 3deg (`src/assets/box-cat-roundel.svg`).
+  box's own ink edge, tilted 3deg (`src/assets/box-cat-roundel.svg`). `.roundel`
+  draws the throw in `mark`: ink in a block, the page's pink where it hangs
+  below the slab.
 - `variant="hero"` is `--spacing-roundel` square; the page variant is 96px,
   128px from `lg`.
 - Its center sits `--spacing(1)` above the slab's bottom edge; its right side

@@ -25,6 +25,8 @@
     --dark-hero-veil: var(--color-hero-veil);
     --dark-hero-floor: var(--color-hero-floor);
     --dark-mark: var(--color-mark);
+    /* `mark` as the page sets it, for a throw that hangs out of a block onto the page. */
+    --page-mark: var(--color-mark);
     --dark-hero-veil-edge: var(--color-hero-veil-edge);
     --dark-hero-floor-edge: var(--color-hero-floor-edge);
     --dark-hero-accent: var(--color-hero-accent);
@@ -55,6 +57,7 @@
     --color-hero-accent: var(--color-light-hero-accent);
     --color-hero-muted: var(--color-light-subtle);
     --color-mark: var(--color-light-pink-text);
+    --page-mark: var(--color-light-pink-text);
     color-scheme: light;
     color: var(--color-text);
     background-color: var(--color-background);
@@ -111,6 +114,7 @@
     --color-hero-veil-edge: var(--dark-hero-veil-edge);
     --color-hero-floor-edge: var(--dark-hero-floor-edge);
     --color-mark: var(--dark-mark);
+    --page-mark: var(--dark-mark);
     --color-hero-accent: var(--dark-hero-accent);
     --color-hero-muted: var(--dark-hero-muted);
     color-scheme: dark;

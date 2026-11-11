@@ -6,6 +6,7 @@ import { SAMPLED_ROUTES } from './routes';
 /*
  * The rule for pink, above SC 1.4.11: every pink edge or throw is
  * 7:1 or more on the ground it sits on, in both modes. On gold that means ink.
+ * A masked `::before` throw is measured on the ground under its bottom right corner.
  */
 for (const colorScheme of ['dark', 'light'] as const) {
   test.describe(`${colorScheme} mode: every pink is at least 7:1 on its ground`, () => {
@@ -49,6 +50,18 @@ for (const colorScheme of ['dark', 'light'] as const) {
                 const measured = ratio(over(color, ground), ground);
                 if (measured < ${AAA_TEXT}) faint.push(describe(el) + ' ' + measured.toFixed(2));
               }
+            }
+            const thrown = getComputedStyle(el, '::before');
+            const isMaskedThrow =
+              thrown.content !== 'none' && thrown.display !== 'none' && thrown.maskImage !== 'none';
+            const throwColor = isMaskedThrow ? parse(thrown.backgroundColor) : null;
+            if (throwColor && throwColor.a > 0 && pinks.has(key(throwColor))) {
+              const corner = { left: box.right - 1, right: box.right, top: box.bottom - 1, bottom: box.bottom };
+              const ground = compositeBackground(el.parentElement, corner);
+              if (!ground) continue;
+              found += 1;
+              const measured = ratio(over(throwColor, ground), ground);
+              if (measured < ${AAA_TEXT}) faint.push(describe(el) + '::before ' + measured.toFixed(2));
             }
           }
           return { found, faint: [...new Set(faint)] };

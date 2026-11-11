@@ -122,6 +122,36 @@
   }
 
   /*
+   * The roundel's throw: the box front, the art's own file masked below the
+   * box's top, in the mark color of the ground it sits on. The fractions are the
+   * box's top and the throw in the art's 112px square (scripts/make-box-cat.mjs).
+   */
+  .roundel {
+    --roundel-box-top: calc(60 / 112 * 100%);
+    --roundel-throw: calc(5 / 112 * 100%);
+
+    position: relative;
+    isolation: isolate;
+
+    &::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      background-color: var(--color-mark);
+      mask: url('../../assets/box-cat-roundel.svg') center / contain no-repeat;
+      clip-path: inset(var(--roundel-box-top) 0 0 0);
+      translate: var(--roundel-throw) var(--roundel-throw);
+    }
+
+    @media (forced-colors: active) {
+      &::before {
+        display: none;
+      }
+    }
+  }
+
+  /*
    * Roundel across the slab's bottom edge, right edge on the page column. Hangs
    * 48px or 64px into the next section's top padding (at least 56px).
    */
@@ -134,6 +164,11 @@
     @media (width >= 40rem) {
       right: max(--spacing(6), calc((100% - var(--container-page)) / 2));
     }
+  }
+
+  /* The box hangs below the slab, so its throw lands on the page. */
+  .hero-roundel .roundel {
+    --color-mark: var(--page-mark);
   }
 
   /*

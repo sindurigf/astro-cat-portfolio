@@ -2,7 +2,7 @@
 import boxCatRoundel from '../assets/box-cat-roundel.svg?url';
 
 /*
- * The cat in its box, with the box's own ink edge and ink throw. The caller
+ * The cat in its box, with the box's own ink edge; `.roundel` draws the throw. The caller
  * positions it with `class`. alt="": the header names the site.
  */
 interface Props {
@@ -23,12 +23,14 @@ const BOX_CLASS = {
 const ART_SIZE = 112;
 ---
 
-<img
-  src={boxCatRoundel}
-  alt=""
-  width={ART_SIZE}
-  height={ART_SIZE}
-  decoding="async"
-  loading={eager ? 'eager' : 'lazy'}
-  class:list={['block rotate-3', BOX_CLASS[variant], className]}
-/>
+<span class:list={['roundel block rotate-3', BOX_CLASS[variant], className]}>
+  <img
+    src={boxCatRoundel}
+    alt=""
+    width={ART_SIZE}
+    height={ART_SIZE}
+    decoding="async"
+    loading={eager ? 'eager' : 'lazy'}
+    class="block size-full"
+  />
+</span>
