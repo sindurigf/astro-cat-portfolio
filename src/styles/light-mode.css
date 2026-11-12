@@ -1,7 +1,7 @@
 /*
  * Light mode: `data-theme="light"` on <html>. <main>, the header and the footer
  * change; ink is #131313, gold stays a fill. On white: text 18.58, subtle 9.53,
- * pink 14.64, cyan 8.23 (tests/light-mode.spec.ts). Utilities layer beats
+ * red 15.05, cyan 8.23 (tests/light-mode.spec.ts). Utilities layer beats
  * `.text-gold`.
  */
 @layer utilities {
@@ -13,8 +13,8 @@
     --dark-subtle: var(--color-subtle);
     --dark-border: var(--color-border);
     --dark-cyan: var(--color-cyan);
-    --dark-pink: var(--color-pink);
-    --dark-pink-text: var(--color-pink-text);
+    --dark-red: var(--color-red);
+    --dark-red-text: var(--color-red-text);
     --dark-gold-border: var(--color-gold-border);
     --dark-card-edge: var(--color-card-edge);
     --dark-code-edge: var(--color-code-edge);
@@ -41,8 +41,8 @@
     --color-subtle: var(--color-light-subtle);
     --color-border: var(--color-light-ink);
     --color-cyan: var(--color-light-focus);
-    --color-pink: var(--color-light-pink-text);
-    --color-pink-text: var(--color-light-pink-text);
+    --color-red: var(--color-light-red-text);
+    --color-red-text: var(--color-light-red-text);
     --color-gold-border: var(--color-light-ink);
     --color-card-edge: var(--color-light-ink);
     --color-code-edge: var(--color-light-code-edge);
@@ -56,8 +56,8 @@
     --color-hero-floor-edge: var(--color-light-ground);
     --color-hero-accent: var(--color-light-hero-accent);
     --color-hero-muted: var(--color-light-subtle);
-    --color-mark: var(--color-light-pink-text);
-    --page-mark: var(--color-light-pink-text);
+    --color-mark: var(--color-light-red-text);
+    --page-mark: var(--color-light-red-text);
     color-scheme: light;
     color: var(--color-text);
     background-color: var(--color-background);
@@ -66,12 +66,12 @@
   /*
    * The cyan bar: the dark bar's cyan hover would vanish on it, so links hover
    * to ink and the ink solid bricks hover to white. Cyan on white is 1.99, so
-   * the slab takes an ink edge. The light pink throws on cyan at 7.38.
+   * the slab takes an ink edge. The red throws on cyan at 7.58.
    */
   :root[data-theme='light'] .header-slab {
     --slab-fill: var(--color-block-cyan);
     --slab-edge: var(--color-block-ink);
-    --slab-mark: var(--color-light-pink-text);
+    --slab-mark: var(--color-light-red-text);
     --hover-fill: var(--color-block-ink);
     --hover-label: var(--color-block-light);
     --solid-hover-fill: var(--color-light-ground);
@@ -100,8 +100,8 @@
     --color-subtle: var(--dark-subtle);
     --color-border: var(--dark-border);
     --color-cyan: var(--dark-cyan);
-    --color-pink: var(--dark-pink);
-    --color-pink-text: var(--dark-pink-text);
+    --color-red: var(--dark-red);
+    --color-red-text: var(--dark-red-text);
     --color-gold-border: var(--dark-gold-border);
     --color-card-edge: var(--dark-card-edge);
     --color-code-edge: var(--dark-code-edge);

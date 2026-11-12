@@ -8,15 +8,15 @@
     @apply bg-gold text-gold-text;
   }
 
-  /* Pink is 1.48 on gold, so every throw cast on it is ink. Set on the children: the slab's own throw lands on the page. */
+  /* Red is 1.48 on gold, so every throw cast on it is ink. Set on the children: the slab's own throw lands on the page. */
   .surface-gold > * {
-    --color-pink: var(--color-block-ink);
+    --color-red: var(--color-block-ink);
     --color-mark: var(--color-block-ink);
   }
 
   /* The homepage hero: an ink window in the gold column, page text on it. */
   :root:not([data-theme='light']) .v-column .hero-window {
-    --color-pink: var(--dark-pink);
+    --color-red: var(--dark-red);
     --color-mark: var(--dark-mark);
     --color-gold: var(--color-block-ink);
     --color-block-gold: var(--color-block-ink);
@@ -52,7 +52,7 @@
     color: var(--color-gold-text);
   }
 
-  /* `surface` vanishes on gold and pink fails SC 1.4.11 there, so both change. */
+  /* `surface` vanishes on gold and red fails SC 1.4.11 there, so both change. */
   .surface-gold .card {
     background-color: transparent;
 

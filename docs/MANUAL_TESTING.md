@@ -135,7 +135,7 @@ the brick instead. Look, do not measure.
 
 - [ ] On `#0B0B0B`: header links, footer. → SC 1.4.11, 2.4.7
 - [ ] On a gold and a light block: a link in a card. → SC 1.4.11, 2.4.7
-- [ ] Chips and footer tiles: the ring sits past the pink shadow, follows the
+- [ ] Chips and footer tiles: the ring sits past the red shadow, follows the
       tilt, and never touches the next chip. → SC 1.4.11, 2.4.7
 - [ ] Current nav item and current chip: the ring reads as separate from the
       block. → SC 1.4.11, 2.4.7

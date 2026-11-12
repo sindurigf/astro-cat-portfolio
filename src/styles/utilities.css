@@ -148,7 +148,7 @@
 
     & > * {
       margin: 0 0 calc(var(--block-edge) * -1) calc(var(--block-edge) * -1);
-      box-shadow: var(--hard-throw) var(--hard-throw) 0 var(--color-pink);
+      box-shadow: var(--hard-throw) var(--hard-throw) 0 var(--color-red);
     }
   }
 

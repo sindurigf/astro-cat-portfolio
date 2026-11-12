@@ -233,7 +233,7 @@
   /*
    * Every whole-section gold area: starts at the rail, ends
    * --hero-column-screen-clear from the screen edge or at the rail, whichever
-   * is further out. Drawn like a block: the 4px ink edge and the pink throw.
+   * is further out. Drawn like a block: the 4px ink edge and the red throw.
    * `.header-slab` repeats these margins so the header ends where the hero does.
    */
   .gold-column {
@@ -248,10 +248,10 @@
     border-color: var(--color-block-ink);
 
     /*
-     * The utility, not `var(--shadow-hard-pink-object)`: the token resolves on
+     * The utility, not `var(--shadow-hard-red-object)`: the token resolves on
      * :root, where light mode's <main> colors do not reach.
      */
-    @apply shadow-hard-pink-object;
+    @apply shadow-hard-red-object;
   }
 
   /*
