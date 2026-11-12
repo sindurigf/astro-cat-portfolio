@@ -95,13 +95,13 @@
   }
 
   /*
-   * One treatment for all seven: the `.badge` inversion and the pink
+   * One treatment for all seven: the `.badge` inversion and the red
    * press shadow.
    */
   .footer-sticker {
     background-color: var(--color-text);
     color: var(--color-background);
-    box-shadow: var(--shadow-hard-pink-4);
+    box-shadow: var(--shadow-hard-red-4);
   }
 
   .footer-stickers li:nth-child(1) {

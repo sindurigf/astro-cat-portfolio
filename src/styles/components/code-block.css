@@ -70,7 +70,7 @@
   /* After the frame, on the page ground, on posts and /brand; empty until a copy fails (src/scripts/copy.ts). */
   .copy-error,
   .prose .copy-error {
-    @apply mt-3 text-body text-pink-text;
+    @apply mt-3 text-body text-red-text;
 
     &:empty {
       display: none;

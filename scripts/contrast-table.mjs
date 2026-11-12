@@ -16,7 +16,7 @@ const END = '<!-- contrast-table:end -->';
 
 /*
  * WCAG 2.2: SC 1.4.6 for text, which /accessibility claims at every size; SC
- * 1.4.11 for non-text. A pink throw is held to the text ratio.
+ * 1.4.11 for non-text. A red throw is held to the text ratio.
  */
 const NEEDS = {
   text: 7,
@@ -36,33 +36,23 @@ const PAIRS = [
   ['subtle', 'surface', 'text', 'Meta text on a surface'],
   ['gold', 'background', 'text', 'Card labels'],
   ['gold', 'surface', 'text', 'Labels on a surface'],
-  ['pink-text', 'background', 'text', 'Error text, pink glyphs'],
-  ['pink-text', 'surface', 'text', 'Error text on a surface'],
+  ['red-text', 'background', 'text', 'Error text, red glyphs'],
+  ['red-text', 'surface', 'text', 'Error text on a surface'],
   ['cyan', 'background', 'text', 'Hover text; the focus ring (needs 3)'],
   ['cyan', 'surface', 'text', 'Hover text and focus ring on a surface'],
   ['border', 'background', 'non-text', 'Every boundary but table lines'],
   ['border', 'surface', 'non-text', 'Input and chip edges on a surface'],
   ['text', 'background', 'non-text', 'Table lines'],
-  ['pink', 'background', 'throw', 'Error edge; action shadow'],
-  ['pink', 'surface', 'throw', 'Error edge on a field off a block'],
+  ['red', 'background', 'throw', 'Error edge; action shadow'],
+  ['red', 'surface', 'throw', 'Error edge on a field off a block'],
+  ['light-red-text', 'light-ground', 'text', 'Light mode red: glyphs, throws'],
   [
-    'light-pink-text',
-    'light-ground',
-    'text',
-    'Light mode pink: glyphs, throws',
-  ],
-  [
-    'light-pink-text',
+    'light-red-text',
     'block-cyan',
     'throw',
     'Light mode throws on the cyan bar',
   ],
-  [
-    'light-pink-text',
-    'block-light',
-    'text',
-    'Light mode pink on a light block',
-  ],
+  ['light-red-text', 'block-light', 'text', 'Light mode red on a light block'],
   ['background', 'gold', 'text', 'Label on a gold fill'],
   ['background', 'cyan', 'text', 'Label on a hovered button'],
   ['background', 'text', 'text', 'Badge; the current page block'],
@@ -108,14 +98,14 @@ const PAIRS = [
   ],
   ['text', 'gold', 'never', 'Dark-surface text is never used on gold'],
   ['subtle', 'gold', 'never', 'Dark-surface meta is never used on gold'],
-  ['pink-text', 'gold', 'never', 'Error text is never used on gold'],
+  ['red-text', 'gold', 'never', 'Error text is never used on gold'],
   ['border', 'gold', 'never', 'A gold area’s outer edge, never inside gold'],
   ['gold-btn-label', 'gold', 'never', 'Only on the dark button fill'],
-  ['cyan', 'pink', 'apart', 'A ring never touches a pink shadow'],
+  ['cyan', 'red', 'apart', 'A ring never touches a red shadow'],
   ['cyan', 'gold', 'apart', 'A ring never touches a gold shadow or fill'],
   ['cyan', 'border', 'apart', 'A ring never touches a neighbor edge'],
-  ['pink', 'border', 'apart', 'An error is a shape change, not a recolor'],
-  ['pink', 'gold', 'never', 'Throws and invalid edges on gold are ink'],
+  ['red', 'border', 'apart', 'An error is a shape change, not a recolor'],
+  ['red', 'gold', 'never', 'Throws and invalid edges on gold are ink'],
   ['text', 'subtle', 'apart', 'The two text colors never carry a state'],
 ];
 
