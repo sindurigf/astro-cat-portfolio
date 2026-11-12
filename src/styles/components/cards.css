@@ -6,7 +6,7 @@
    */
   .card {
     @apply min-w-0 edge border-card-edge bg-surface p-card-tight
-      shadow-hard-pink-object sm:p-card;
+      shadow-hard-red-object sm:p-card;
   }
 
   /*
@@ -22,10 +22,10 @@
     --color-text: var(--color-block-ink);
     --color-gold: var(--color-block-ink);
     --color-subtle: var(--color-gold-muted);
-    --color-pink-text: var(--color-gold-link);
+    --color-red-text: var(--color-gold-link);
     --color-border: var(--color-block-ink);
     --color-card-edge: var(--color-block-ink);
-    /* Light mode's square before a gold label: ink on gold, pink elsewhere. */
+    /* Light mode's square before a gold label: ink on gold, red elsewhere. */
     --label-mark: var(--color-block-ink);
 
     position: relative;
@@ -35,16 +35,16 @@
     color: var(--color-text);
   }
 
-  /* Pink is 1.48 on a gold block and 1.88 on a light one, so a control throws ink. */
+  /* Red is 1.48 on a gold block and 1.88 on a light one, so a control throws ink. */
   :is(.card, .plain-slab, .post-contents):not(.surface-gold, .surface-gold *)
     :is(.btn-primary, .btn-secondary) {
     --press-throw-color: var(--color-block-ink);
   }
 
-  /* Set on the children, so the block's own throw on the page stays pink. */
+  /* Set on the children, so the block's own throw on the page stays red. */
   :is(.card, .plain-slab, .post-contents):not(.surface-gold, .surface-gold *)
     > * {
-    --color-pink: var(--color-block-ink);
+    --color-red: var(--color-block-ink);
     --color-mark: var(--color-block-ink);
   }
 
@@ -156,7 +156,7 @@
    * (tests/forced-colors.spec.ts).
    */
   .post-contents {
-    @apply self-start bg-surface shadow-hard-pink-object;
+    @apply self-start bg-surface shadow-hard-red-object;
   }
 
   .post-contents ol {

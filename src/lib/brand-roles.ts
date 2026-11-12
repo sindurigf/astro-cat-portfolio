@@ -37,8 +37,8 @@ export const SWATCH: Record<string, Swatch> = {
   subtle: { paint: 'glyph', cls: 'text-subtle' },
   gold: { paint: 'fill', cls: 'bg-gold' },
   cyan: { paint: 'empty', cls: '' },
-  pink: { paint: 'fill', cls: 'bg-pink' },
-  'pink-text': { paint: 'glyph', cls: 'text-pink-text' },
+  red: { paint: 'fill', cls: 'bg-red' },
+  'red-text': { paint: 'glyph', cls: 'text-red-text' },
   mark: { paint: 'fill', cls: 'bg-mark' },
   'tile-edge': { paint: 'fill', cls: 'bg-tile-edge' },
 };
@@ -121,15 +121,15 @@ const measure = (reading: Reading, mode: Mode): RoleRead => {
   };
 };
 
-/* Every text color and pink throw reaches 7 on both grounds and every edge 3, not just the pair a role names. */
+/* Every text color and red throw reaches 7 on both grounds and every edge 3, not just the pair a role names. */
 const assertEveryPair = (): void => {
   const pairs: [string, Kind][] = [
     ['text', 'text'],
     ['subtle', 'text'],
     ['gold', 'text'],
-    ['pink-text', 'text'],
+    ['red-text', 'text'],
     [PAGE_EDGE, 'edge'],
-    ['pink', 'throw'],
+    ['red', 'throw'],
     ['mark', 'throw'],
     ['cyan', 'edge'],
   ];
@@ -211,10 +211,10 @@ export const roles: Role[] = [
   role(
     'role-depth',
     'shadows and errors.',
-    'Pink casts the shadow; its text color carries error words.',
-    ['pink', 'pink-text', 'mark'],
+    'Red casts the shadow; its text color carries error words.',
+    ['red', 'red-text', 'mark'],
     {
-      fg: 'pink-text',
+      fg: 'red-text',
       bg: 'background',
       kind: 'text',
     },

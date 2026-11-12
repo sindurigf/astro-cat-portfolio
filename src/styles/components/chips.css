@@ -18,25 +18,25 @@
   }
 
   /*
-   * Carries its own dark ground, so on gold it stays pink-text on dark (SC
+   * Carries its own dark ground, so on gold it stays red-text on dark (SC
    * 1.4.3).
    * Tilt comes from markup.
    */
   .sticker {
     @apply inline-block border-4 border-border bg-surface px-4 py-2 text-label
-      font-black uppercase tracking-label text-pink-text shadow-hard-mark-4;
+      font-black uppercase tracking-label text-red-text shadow-hard-mark-4;
   }
 
   .surface-gold .sticker {
-    color: var(--color-pink-text);
+    color: var(--color-red-text);
   }
 
   .chip-sticker {
-    @apply text-pink-text;
+    @apply text-red-text;
   }
 
   a.chip {
-    @apply lift-control shadow-hard-pink-4;
+    @apply lift-control shadow-hard-red-4;
   }
 
   /* WebKit re-hit-tests mid-press and drops :active on a child span. tests/press.spec.ts. */
@@ -78,7 +78,7 @@
     /* Each brick casts the throw and the next covers it, as in a `.card-block`. */
     & > li {
       margin-left: calc(var(--block-edge) * -1);
-      box-shadow: var(--brick-throw) var(--brick-throw) 0 var(--color-pink);
+      box-shadow: var(--brick-throw) var(--brick-throw) 0 var(--color-red);
     }
 
     & a.chip {
