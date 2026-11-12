@@ -1,5 +1,6 @@
 /*
- * Draws one About cat and its toys from a sticker sheet (scripts/make-about-cats.mjs); moves are in about-cats-moves.ts.
+ * Draws one About cat and its toys from a sticker sheet (scripts/make-about-cats.mjs); moves are
+ * in about-cats-moves.ts.
  * Units are CSS px, y down, the ground at y = 0 under the cat's origin.
  */
 import { PAD, SHEET } from './about-cats-sheet';

@@ -1,6 +1,7 @@
 /*
  * /brand's sections in menu order, as data the page, menu, llms.txt and tests share.
- * `anchor` is the section id and the target of the retired /brand/<slug>/ redirect (public/_redirects).
+ * `anchor` is the section id and the target of the retired /brand/<slug>/ redirect
+ * (public/_redirects).
  */
 
 export const BRAND_PATH = '/brand/';
