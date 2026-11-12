@@ -326,10 +326,11 @@ The switch and what it scopes: [ARCHITECTURE.md](../ARCHITECTURE.md#light-mode).
   `cyan`, `light-red-text`, `light-hero-accent`), swapped in by
   `light-mode.css`.
 - The homepage hero has no frame and no ground of its own: it stands on the
-  page ground, page text on it. Dark mode draws gold stalks and buds (11.99 on
-  `#0b0b0b`); light mode draws `#131313` stalks at full strength (18.58 on
-  white) and half width, no thinner than 0.55px, and fills the buds with `hero-fill` (`block-cyan`) inside a `#131313`
-  outline (9.36 on the fill).
+  page ground, page text on it. Both modes draw every stalk at full strength
+  and half width, no thinner than 0.55px. Dark mode draws gold stalks and buds
+  (11.99 on `#0b0b0b`, `#9eb6c7` buds 9.34); light mode draws `#131313` stalks
+  (18.58 on white) and fills the buds with `hero-fill` (`block-cyan`) inside a
+  `#131313` outline (9.36 on the fill).
 - Every edge turns `#131313`. Red and `mark` throws turn `#560000` (15.05 on
   white, 7.58 on the cyan bar) and stay ink on a gold or light fill.
 - Hover fills are dark mode's `#00dcfd` under `#131313` (11.20).
