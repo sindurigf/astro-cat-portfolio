@@ -151,11 +151,9 @@
     @apply mr-2 inline-block size-2.5;
   }
 
-  /* The homepage's second sticker and `.sticker` are black blocks in light mode. */
+  /* The homepage's second sticker is a black block in light mode. */
   :is(:root[data-theme='light'] main, main .mode-light)
-    .hero-sticker:not(.bg-block-gold):not(.mode-dark *),
-  :is(:root[data-theme='light'] main, main .mode-light)
-    .sticker:not(.mode-dark *) {
+    .hero-sticker:not(.bg-block-gold):not(.mode-dark *) {
     @apply border-text bg-text text-background;
   }
 }
