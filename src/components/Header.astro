@@ -99,9 +99,7 @@ const current = (href: string) => ariaCurrent(currentPath, href);
       The CTA is outside the Primary nav so the nav stays centered; `ml-auto`
       inside the list would push the links off-center by half its width.
     */}
-    <div class="header-bricks lg:justify-self-end">
-      <ThemeSwitch textSize />
-      <TextSizeButton />
+    <div class="header-actions flex items-center md:gap-6 lg:justify-self-end">
       <div class="hidden md:block">
         <a
           href={CTA.href}
@@ -111,62 +109,66 @@ const current = (href: string) => ariaCurrent(currentPath, href);
           {CTA.label}
         </a>
       </div>
+      <div class="header-bricks">
+        <ThemeSwitch textSize />
+        <TextSizeButton />
 
-      {/*
-      The script loads at every width: 400% zoom crosses `md` (SC 1.4.10). The
-      name stays "Menu"; aria-expanded carries the state and drives the icon.
-    */}
-      <div class="mobile-menu md:hidden" data-mobile-menu>
-        <button
-          type="button"
-          class="menu-brick group flex size-target items-center justify-center border-4"
-          aria-expanded="false"
-          aria-controls="mobile-menu-panel"
-          aria-label="Menu"
-          data-menu-trigger
-        >
-          <span aria-hidden="true" class="relative block h-4 w-6">
-            <span class="absolute left-0 top-0 block h-menu-bar w-6 bg-text forced-colors:bg-button-text group-aria-expanded:top-menu-bar-mid group-aria-expanded:rotate-45" />
-            <span class="absolute left-0 top-menu-bar-mid block h-menu-bar w-6 bg-text forced-colors:bg-button-text opacity-100 group-aria-expanded:opacity-0" />
-            <span class="absolute left-0 top-menu-bar-end block h-menu-bar w-6 bg-text forced-colors:bg-button-text group-aria-expanded:top-menu-bar-mid group-aria-expanded:-rotate-45" />
-          </span>
-        </button>
+        {/*
+        The script loads at every width: 400% zoom crosses `md` (SC 1.4.10). The
+        name stays "Menu"; aria-expanded carries the state and drives the icon.
+      */}
+        <div class="mobile-menu md:hidden" data-mobile-menu>
+          <button
+            type="button"
+            class="menu-brick group flex size-target items-center justify-center border-4"
+            aria-expanded="false"
+            aria-controls="mobile-menu-panel"
+            aria-label="Menu"
+            data-menu-trigger
+          >
+            <span aria-hidden="true" class="relative block h-4 w-6">
+              <span class="absolute left-0 top-0 block h-menu-bar w-6 bg-text forced-colors:bg-button-text group-aria-expanded:top-menu-bar-mid group-aria-expanded:rotate-45" />
+              <span class="absolute left-0 top-menu-bar-mid block h-menu-bar w-6 bg-text forced-colors:bg-button-text opacity-100 group-aria-expanded:opacity-0" />
+              <span class="absolute left-0 top-menu-bar-end block h-menu-bar w-6 bg-text forced-colors:bg-button-text group-aria-expanded:top-menu-bar-mid group-aria-expanded:-rotate-45" />
+            </span>
+          </button>
 
-        {/* aria-label, not an sr-only h2, which would precede the page h1. */}
-        <dialog
-          id="mobile-menu-panel"
-          class="mobile-menu-dialog"
-          aria-label="Menu"
-        >
-          <div class="mobile-menu-content">
-            {/* Unnamed: "Primary" would duplicate the header nav's landmark name (SC 1.3.1). */}
-            <nav>
-              <NavList
-                links={NAV_LINKS}
-                class="flex flex-col items-start gap-6"
-                linkClass="nav-sticker nav-sticker-large press-brick"
-                activeClass=""
-                restClass=""
-              />
+          {/* aria-label, not an sr-only h2, which would precede the page h1. */}
+          <dialog
+            id="mobile-menu-panel"
+            class="mobile-menu-dialog"
+            aria-label="Menu"
+          >
+            <div class="mobile-menu-content">
+              {/* Unnamed: "Primary" would duplicate the header nav's landmark name (SC 1.3.1). */}
+              <nav>
+                <NavList
+                  links={NAV_LINKS}
+                  class="flex flex-col items-start gap-6"
+                  linkClass="nav-sticker nav-sticker-large press-brick"
+                  activeClass=""
+                  restClass=""
+                />
 
-              <a
-                href={CTA.href}
-                aria-current={current(CTA.href)}
-                class="nav-cta press-brick mt-12 block px-8 py-4 text-center"
+                <a
+                  href={CTA.href}
+                  aria-current={current(CTA.href)}
+                  class="nav-cta press-brick mt-12 block px-8 py-4 text-center"
+                >
+                  {CTA.label}
+                </a>
+              </nav>
+
+              <button
+                type="button"
+                class="btn-secondary press-brick mt-12 w-full"
+                data-menu-close
               >
-                {CTA.label}
-              </a>
-            </nav>
-
-            <button
-              type="button"
-              class="btn-secondary press-brick mt-12 w-full"
-              data-menu-close
-            >
-              Close
-            </button>
-          </div>
-        </dialog>
+                Close
+              </button>
+            </div>
+          </dialog>
+        </div>
       </div>
     </div>
   </div>

@@ -267,7 +267,7 @@ test.describe('the slim header once the page scrolls', () => {
       const root = getComputedStyle(document.documentElement);
       const targets = [
         ...header.querySelectorAll<HTMLElement>(
-          '.header-bricks :is(a, button), .logo-link',
+          ':is(.header-bricks, .header-actions) :is(a, button), .logo-link',
         ),
       ]
         .filter((el) => el.checkVisibility())

@@ -12,7 +12,7 @@ export interface BoxFront {
   readonly y: number;
   readonly w: number;
   readonly h: number;
-  /** The pink throw's offset; 0 where the page draws the throw itself. */
+  /** The ink throw's offset; 0 where the page draws the throw itself. */
   readonly throwBy: number;
   readonly edge: number;
 }
@@ -42,7 +42,7 @@ export const boxFlaps = (paint: Paint, b: BoxFront): string => {
 export const boxFront = (paint: Paint, b: BoxFront): string => {
   const inset = b.edge / 2;
   const throwRect = b.throwBy
-    ? `<rect x="${b.x + b.throwBy}" y="${b.y + b.throwBy}" width="${b.w}" height="${b.h}" fill="${paint('mark')}"/>`
+    ? `<rect x="${b.x + b.throwBy}" y="${b.y + b.throwBy}" width="${b.w}" height="${b.h}" fill="${paint('gold-text')}"/>`
     : '';
   return (
     throwRect +

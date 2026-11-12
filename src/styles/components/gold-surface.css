@@ -4,15 +4,19 @@
    * 1.4.11) and underlines links (SC 1.4.1); a utility inside still wins.
    * tests/gold-surface.spec.ts measures every gold section.
    */
-  /* Neon pink throws reach 2.31 on gold; the deep pink reaches 4.5 (SC 1.4.11). */
   .surface-gold {
-    --color-mark: var(--color-light-pink-text);
-
     @apply bg-gold text-gold-text;
+  }
+
+  /* Pink is 1.48 on gold, so every throw cast on it is ink. Set on the children: the slab's own throw lands on the page. */
+  .surface-gold > * {
+    --color-pink: var(--color-block-ink);
+    --color-mark: var(--color-block-ink);
   }
 
   /* The homepage hero: an ink window in the gold column, page text on it. */
   :root:not([data-theme='light']) .v-column .hero-window {
+    --color-pink: var(--dark-pink);
     --color-mark: var(--dark-mark);
     --color-gold: var(--color-block-ink);
     --color-block-gold: var(--color-block-ink);
@@ -80,8 +84,7 @@
 
   /*
    * Scoped to .surface-gold so it renders unstyled elsewhere. Label, fill and
-   * `gold-text` edge pass SC 1.4.3 and 1.4.11 on gold. The pink shadow fails
-   * and is decoration: it must never delimit the control.
+   * `gold-text` edge pass SC 1.4.3 and 1.4.11 on gold; its throw is ink.
    */
   .surface-gold .btn-gold-primary {
     @apply inline-block border-4 border-gold-text bg-gold-text

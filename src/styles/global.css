@@ -141,21 +141,19 @@
   --color-block-gold: #ffc000;
   --color-block-light: #e5e2e1;
   --color-block-ink: #131313;
+  /* The light mode header slab: ink on it is 9.4. */
+  --color-block-cyan: #1fc8f0;
   --color-subtle: #9eb6c7;
   --color-gold: #ffc000;
   --color-cyan: #00dcfd;
   /*
-   * Two pinks, split by role, not size: `pink` passes SC 1.4.11 and is for
-   * non-text only; `pink-text` is every pink glyph, AAA (SC 1.4.6) at any size.
-   * Every ratio is in docs/STYLEGUIDE.md's generated table.
+   * One pink per mode, 7:1 or more on every surface it sits on; on a gold or
+   * light fill the throws are ink. Ratios: docs/STYLEGUIDE.md's generated table.
    */
-  --color-pink: #ff007a;
+  --color-pink: #ff79b6;
   --color-pink-text: #ff79b6;
-  /*
-   * The logo marks and the dark gold-slab button's shadow. Same hex as `pink`,
-   * kept apart because light mode turns `pink` ink and this stays.
-   */
-  --color-mark: #ff007a;
+  /* The logo marks' throw: `pink`, except where a surface turns it ink. */
+  --color-mark: #ff79b6;
   --color-tile-edge: #5a87a8;
   /* The system color forced-colors mode pairs with the button face; bars on it use `forced-colors:bg-button-text`. */
   --color-button-text: ButtonText;
@@ -176,7 +174,7 @@
   --color-light-ink: #131313;
   --color-light-subtle: #3f4650;
   --color-light-focus: #0047b3;
-  --color-light-pink-text: #b00054;
+  --color-light-pink-text: #540038;
   /* A code block's edge in a post, kept gray so the gold label is the only gold. */
   --color-code-edge: #707070;
   /* Its light mode value. */
@@ -400,6 +398,8 @@
   --block-edge: 4px;
   /* The header's joined bricks and its logo block. */
   --brick-throw: 6px;
+  /* The header logo's throw. */
+  --logo-throw: 4px;
   /*
    * The Step: sideways juts and a wall's Step Up, both 0 below 640px so
    * nothing pushes a phone layout off the column.
