@@ -275,7 +275,8 @@ set; hex values and ratios are in the generated [Contrast](#contrast) table:
   Below `gold-muted`, hierarchy is weight and size.
 - No `cyan`, `red` or `red-text` on gold, not even a shadow, except the red
   shadow on buttons, chips and photos, which is decoration and never delimits
-  a control. A `.sticker` carries its own dark ground.
+  a control. A `.sticker` carries its own `surface`
+  ground, dark in dark mode and white in light.
 - A utility written inside a gold section (`border-border`, `text-subtle`)
   beats the subtree default and is a bug. axe misses it;
   `tests/gold-surface.spec.ts` catches it.
@@ -346,7 +347,8 @@ The switch and what it scopes: [ARCHITECTURE.md](../ARCHITECTURE.md#light-mode).
   they do not change with the mode.
 - The label on a gold fill is `gold-text`, never `background` (white in
   light).
-- The homepage's second sticker and `.sticker` are black blocks.
+- The homepage's second sticker is a black block. A `.sticker` follows the
+  tokens: white fill, ink edge, `light-red-text` label.
 - `tests/light-mode.spec.ts` scans every route in light at WCAG 2.2 AA.
 
 ## Type scale
