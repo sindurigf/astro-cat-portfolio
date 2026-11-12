@@ -13,7 +13,6 @@ import {
   BUD_TIERS,
   BUD_TONE,
   FILL_OUTLINE,
-  FILL_STEM_STRIDE,
   CLUMP_COUNT,
   CLUMP_SPREAD,
   NEAR_BAND_LEFT,
@@ -405,9 +404,8 @@ const paintWhere = (
   seconds: number,
   inLayer: (z: number) => boolean,
 ): void => {
-  const stride = palette.fill ? FILL_STEM_STRIDE : 1;
-  for (const [index, stem] of stems.entries()) {
-    if (index % stride !== 0 || !inLayer(stem.z)) continue;
+  for (const stem of stems) {
+    if (!inLayer(stem.z)) continue;
     const wind =
       breeze(stem.x, stem.phase, seconds) *
       (SWAY.base + stem.size * SWAY.bySize) *
