@@ -13,7 +13,7 @@ import { DESKTOP_VIEWPORT, PHONE_VIEWPORT } from './wcag';
 /* A route with a current header link, so a current brick is walked too. */
 const ROUTE = '/about/';
 const BRICKS =
-  '.header-slab :is(.logo-link, .header-bricks a, .header-bricks button)';
+  '.header-slab :is(.logo-link, .header-bricks a, .header-bricks button, .header-actions .nav-cta)';
 const MAX_STOPS = 12;
 /* Past --spacing-header, so the header goes slim. */
 const SLIM_SCROLL = 900;
@@ -63,7 +63,7 @@ const readStop = `(() => {
   return {
     name: (el.getAttribute('aria-label') || el.textContent || el.tagName).trim().slice(0, 30),
     ratio: ratio(ring, fill),
-    brick: Boolean(el.closest('.header-bricks')),
+    brick: Boolean(el.closest('.header-bricks, .header-actions')),
     onBar,
     inside: offset + width <= 0,
     clear,
