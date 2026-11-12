@@ -241,9 +241,7 @@
   --color-hero-stalk: var(--color-gold-border);
   /* The canvas's faint buds; gold-muted on gold, gold on the ink window. */
   --color-hero-muted: var(--color-gold-muted);
-  --color-hero-ink-veil: rgba(229, 226, 225, 0.04);
   --color-hero-ink-veil-edge: rgba(229, 226, 225, 0);
-  --color-hero-ink-floor: rgba(229, 226, 225, 0.06);
   --color-hero-ink-floor-edge: rgba(229, 226, 225, 0);
 
   /*

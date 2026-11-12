@@ -14,11 +14,11 @@
     --color-mark: var(--color-block-ink);
   }
 
-  /* The homepage hero: an ink window in the gold column, page text on it. */
+  /* The homepage hero stands on the page ground, page text on it. */
   :root:not(.light) .v-column .hero-window {
     --color-pink: var(--dark-pink);
     --color-mark: var(--dark-mark);
-    --color-gold: var(--color-block-ink);
+    --color-gold: var(--color-background);
     --color-block-gold: var(--color-block-ink);
     --color-gold-text: var(--color-text);
     --color-gold-muted: var(--color-subtle);
@@ -27,10 +27,10 @@
     --color-gold-bud: var(--dark-block-gold);
     --color-hero-muted: var(--dark-block-gold);
     --color-hero-stalk: var(--dark-block-gold);
-    --color-hero-ground: var(--color-block-ink);
-    --color-hero-veil: var(--color-hero-ink-veil);
+    --color-hero-ground: var(--color-background);
+    --color-hero-veil: var(--color-hero-ink-veil-edge);
     --color-hero-veil-edge: var(--color-hero-ink-veil-edge);
-    --color-hero-floor: var(--color-hero-ink-floor);
+    --color-hero-floor: var(--color-hero-ink-floor-edge);
     --color-hero-floor-edge: var(--color-hero-ink-floor-edge);
   }
 
