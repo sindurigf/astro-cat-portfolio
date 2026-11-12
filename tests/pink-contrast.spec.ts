@@ -15,6 +15,14 @@ for (const colorScheme of ['dark', 'light'] as const) {
     for (const route of SAMPLED_ROUTES) {
       test(route, async ({ page }) => {
         await gotoSettled(page, route);
+        await page.evaluate(() =>
+          Promise.all(
+            document
+              .getAnimations()
+              .filter((animation) => animation instanceof CSSTransition)
+              .map((animation) => animation.finished.catch(() => undefined)),
+          ),
+        );
         const { found, faint } = (await page.evaluate(`(() => {
           ${PAGE_HELPERS}
           const root = getComputedStyle(document.documentElement);
@@ -48,7 +56,7 @@ for (const colorScheme of ['dark', 'light'] as const) {
                 if (!ground) continue;
                 found += 1;
                 const measured = ratio(over(color, ground), ground);
-                if (measured < ${AAA_TEXT}) faint.push(describe(el) + ' ' + measured.toFixed(2));
+                if (measured < ${AAA_TEXT}) faint.push(describe(el) + ' ' + measured.toFixed(2) + ' (mark alpha ' + color.a + ', running transitions ' + document.getAnimations().filter((a) => a instanceof CSSTransition).length + ')');
               }
             }
             const thrown = getComputedStyle(el, '::before');
@@ -61,7 +69,7 @@ for (const colorScheme of ['dark', 'light'] as const) {
               if (!ground) continue;
               found += 1;
               const measured = ratio(over(throwColor, ground), ground);
-              if (measured < ${AAA_TEXT}) faint.push(describe(el) + '::before ' + measured.toFixed(2));
+              if (measured < ${AAA_TEXT}) faint.push(describe(el) + '::before ' + measured.toFixed(2) + ' (mark alpha ' + throwColor.a + ')');
             }
           }
           return { found, faint: [...new Set(faint)] };
