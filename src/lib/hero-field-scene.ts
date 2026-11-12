@@ -10,7 +10,7 @@ export interface HeroPalette {
   readonly border: string;
   /** `--color-hero-stalk`. */
   readonly stalk: string;
-  /** `--color-hero-fill`, or empty. Set, the stalks and buds fill with it and their own colors outline it. */
+  /** `--color-hero-fill`, or empty. Set, the buds fill with it inside a stalk-colored outline. */
   readonly fill: string;
   /** `--color-gold-muted`. */
   readonly subtle: string;
@@ -228,6 +228,8 @@ export const BUD_TIERS = [
 export const STALK_WIDTH = { min: 0.55, bySize: 3.1 } as const;
 /** CSS pixels on each side of a filled stalk or bud. */
 export const FILL_OUTLINE = 1;
+/** Under a bud fill, on the white page, one stem in this many is drawn. */
+export const FILL_STEM_STRIDE = 2;
 export const STEM_ALPHA = { base: 0.09, byScale: 0.5 } as const;
 export const BUD_ALPHA = { lift: 0.16, max: 0.82 } as const;
 /** Where the first bud sits, as a share of the stem from its root. */
