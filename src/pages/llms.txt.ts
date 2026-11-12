@@ -26,10 +26,8 @@ import { BUILD_ENV } from '../lib/build-env';
 import { BRAND_PATH, BRAND_SECTIONS, brandHref } from '../lib/brand-sections';
 
 /*
- * Route notes say what each page holds; post titles and teasers are quoted,
- * never summarized, because editorial copy is never invented (AGENTS.md
- * "Copy"). Placeholder posts are listed and marked. tests/llms-txt.spec.ts
- * checks against the build.
+ * Post titles and teasers are quoted, never summarized: editorial copy is never invented (AGENTS.md "Copy").
+ * Placeholder posts are listed and marked; tests/llms-txt.spec.ts checks against the build.
  */
 
 const PLACEHOLDER_MARK = '(placeholder)';

@@ -1,8 +1,6 @@
 /*
- * /brand's sections, in menu order, all on the one page. Plain data so the
- * page, the menu, llms.txt and the tests read one list. `anchor` is the
- * section's id on the page; it is also where the retired /brand/<slug>/ route
- * redirects to (public/_redirects).
+ * /brand's sections in menu order, as data the page, menu, llms.txt and tests share.
+ * `anchor` is the section id and the target of the retired /brand/<slug>/ redirect (public/_redirects).
  */
 
 export const BRAND_PATH = '/brand/';
