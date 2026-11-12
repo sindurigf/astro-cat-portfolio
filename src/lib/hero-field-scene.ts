@@ -228,7 +228,7 @@ export const BUD_TIERS = [
 export const STALK_WIDTH = { min: 0.55, bySize: 3.1 } as const;
 /** Share of its traced width a stalk is drawn at, never under `STALK_WIDTH.min`. */
 export const STALK_WIDTH_SHARE = 0.5;
-/** CSS pixels on each side of a filled stalk or bud. */
+/** Line width in CSS pixels of the outline around a filled bud. */
 export const FILL_OUTLINE = 1;
 export const STEM_ALPHA = { base: 0.09, byScale: 0.5 } as const;
 export const BUD_ALPHA = { lift: 0.16, max: 0.82 } as const;

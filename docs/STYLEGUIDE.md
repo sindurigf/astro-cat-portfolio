@@ -113,7 +113,7 @@ blur, uppercase headings, tilted marks.
 | `tile-edge`   | `#5A87A8`    | Logo tile copies' edge; both modes                                   |
 | `button-text` | `ButtonText` | Forced colors only: bars on the button face                          |
 | `cat-*`       | 6 fills      | Logo cat coat and About cat props; decoration, never a boundary      |
-| `hero-*`      | 9 values     | Homepage canvas ground, veil, floor, buds and glyph glow; decoration |
+| `hero-*`      | 12 values    | Homepage canvas ground, stalk, bud, fill, veil and floor; decoration |
 
 The gold-ground set is in [Gold surface](#gold-surface), light values in
 [Light mode](#light-mode).
@@ -328,7 +328,7 @@ The switch and what it scopes: [ARCHITECTURE.md](../ARCHITECTURE.md#light-mode).
 - The homepage hero has no frame and no ground of its own: it stands on the
   page ground, page text on it. Both modes draw every stalk at full strength
   and half width, no thinner than 0.55px. Dark mode draws gold stalks and buds
-  (11.99 on `#0b0b0b`, `#9eb6c7` buds 9.34); light mode draws `#131313` stalks
+  (11.99 on `#0b0b0b`); light mode draws `#131313` stalks
   (18.58 on white) and fills the buds with `hero-fill` (`block-cyan`) inside a
   `#131313` outline (9.36 on the fill).
 - Every edge turns `#131313`. Red and `mark` throws turn `#560000` (15.05 on
