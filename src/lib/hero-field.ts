@@ -220,21 +220,9 @@ const strokeStalk = (
   palette: HeroPalette,
   alpha: number,
 ): void => {
-  const width = ctx.lineWidth;
   ctx.strokeStyle = palette.stalk;
-  if (!palette.fill) {
-    ctx.globalAlpha = alpha;
-    ctx.stroke();
-    return;
-  }
-  ctx.globalAlpha = 1;
-  ctx.lineWidth = width + FILL_OUTLINE * 2;
-  ctx.stroke();
-  ctx.lineWidth = width;
-  ctx.strokeStyle = palette.background;
-  ctx.stroke();
-  ctx.globalAlpha = alpha;
-  ctx.strokeStyle = palette.fill;
+  /* A bud fill means the light page: a faded ink stalk falls under 7:1 on it. */
+  ctx.globalAlpha = palette.fill ? 1 : alpha;
   ctx.stroke();
 };
 

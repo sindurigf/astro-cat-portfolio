@@ -235,8 +235,8 @@
   --color-hero-accent: #4adeb0;
   --color-light-hero-accent: #0f7a5c;
   /*
-   * The canvas's stalks. `hero-fill`, set in light mode only, fills the stalks
-   * and buds, and their own colors outline it.
+   * The canvas's stalks. `hero-fill`, set in light mode only, fills the buds,
+   * and the stalk color outlines them.
    */
   --color-hero-stalk: var(--color-gold-border);
   /* The canvas's faint buds; gold-muted on gold, gold on the ink window. */
