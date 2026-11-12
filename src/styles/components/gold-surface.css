@@ -24,8 +24,9 @@
     --color-gold-muted: var(--color-subtle);
     --color-gold-border: var(--color-text);
     --color-gold-link: var(--color-text);
-    --color-gold-bud: var(--color-hero-accent);
-    --color-hero-muted: var(--color-subtle);
+    --color-gold-bud: var(--dark-block-gold);
+    --color-hero-muted: var(--dark-block-gold);
+    --color-hero-stalk: var(--dark-block-gold);
     --color-hero-ground: var(--color-block-ink);
     --color-hero-veil: var(--color-hero-ink-veil);
     --color-hero-veil-edge: var(--color-hero-ink-veil-edge);

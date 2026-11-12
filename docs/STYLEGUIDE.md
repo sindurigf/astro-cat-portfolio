@@ -325,8 +325,10 @@ The switch and what it scopes: [ARCHITECTURE.md](../ARCHITECTURE.md#light-mode).
 - Light values are `light-*` tokens in `global.css` (`light-focus` for
   `cyan`, `light-pink-text`, `light-hero-accent`), swapped in by
   `light-mode.css`.
-- The homepage hero window is `block-ink` in dark mode, page text on it,
-  mint `hero-accent` buds (10.9); white in light mode with `#0f7a5c` buds (4.9).
+- The homepage hero window is `block-ink` in dark mode, page text on it, gold
+  stalks and buds (11.32); white in light mode, where `hero-fill` (`block-cyan`)
+  fills the stalks and buds inside a `#131313` outline (18.58 on white, 9.36
+  on the fill).
 - Every edge turns `#131313`. Pink and `mark` throws turn `#540038` (14.64 on
   white, 7.38 on the cyan bar) and stay ink on a gold or light fill.
 - Hover fills are dark mode's `#00dcfd` under `#131313` (11.20).

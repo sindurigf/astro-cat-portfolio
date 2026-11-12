@@ -230,11 +230,16 @@
 
   /*
    * The homepage hero window is ink inside the gold column, in dark mode only.
-   * Mint buds: 10.9:1 on block-ink; light mode's 4.9:1 on white (SC 1.4.11).
+   * Mint: 10.9:1 on block-ink; light mode's 4.9:1 on white (SC 1.4.11).
    */
   --color-hero-accent: #4adeb0;
   --color-light-hero-accent: #0f7a5c;
-  /* The canvas's faint buds; gold-muted on gold, subtle on the ink window. */
+  /*
+   * The canvas's stalks. `hero-fill`, set in light mode only, fills the stalks
+   * and buds, and their own colors outline it.
+   */
+  --color-hero-stalk: var(--color-gold-border);
+  /* The canvas's faint buds; gold-muted on gold, gold on the ink window. */
   --color-hero-muted: var(--color-gold-muted);
   --color-hero-ink-veil: rgba(229, 226, 225, 0.04);
   --color-hero-ink-veil-edge: rgba(229, 226, 225, 0);
