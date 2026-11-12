@@ -110,8 +110,7 @@
   }
 
   /* Light mode: the panel and its toggle take the thin edge. */
-  :is(:root[data-theme='light'] main, main .mode-light)
-    .module-panel:not(.mode-dark *) {
+  :is(:root.light main, main .mode-light) .module-panel:not(.mode-dark *) {
     --module-edge: var(--border-width-thin);
   }
 
