@@ -275,6 +275,12 @@ Dashboard settings that change what ships without a file change.
   passes. A branch ruleset requires a status by its job `name`, so requiring
   this one covers every job, the test shards included. Rename it in the
   workflow and the ruleset together, or no pull request can merge.
+- A pull request that changes only root `*.md`, `docs/**/*.md` or
+  `.github/*.md` skips the Playwright shards; `Required checks` accepts the
+  skip only then. `ACCESSIBILITY.md`, `ARCHITECTURE.md`, `SECURITY.md`,
+  `docs/DEPLOYMENT.md` and `docs/STYLEGUIDE.md` always run them: a page or a
+  spec reads each (`scripts/docs-only.mjs`, which `tests/docs-only.spec.ts`
+  keeps complete). Pushes to `main` always run them.
 - CI runs on pushes to `main` and on every pull request, whatever its base
   branch, so a stacked pull request gets the full gate. Its commits are checked
   against its own base branch, not `main`.
