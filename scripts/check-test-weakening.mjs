@@ -804,14 +804,14 @@ const REVOKING_STATES = new Set(['CHANGES_REQUESTED', 'DISMISSED']);
  * edited, unless a later review by that account requests changes or was
  * dismissed; `null` otherwise. Oldest first.
  */
-export const ownerApproval = (reviews, owner, headSha) => {
-  const isOwner = (login) =>
-    (login ?? '').toLowerCase() === owner.toLowerCase();
+export const maintainerApproval = (reviews, maintainer, headSha) => {
+  const isMaintainer = (login) =>
+    (login ?? '').toLowerCase() === maintainer.toLowerCase();
   let reason = null;
   for (const { login, commitId, state, body, editor } of reviews) {
-    if (!isOwner(login) || commitId !== headSha) continue;
+    if (!isMaintainer(login) || commitId !== headSha) continue;
     if (REVOKING_STATES.has(state)) reason = null;
-    else if (MARKER_STATES.has(state) && (!editor || isOwner(editor)))
+    else if (MARKER_STATES.has(state) && (!editor || isMaintainer(editor)))
       reason = approvalReason(body) ?? reason;
   }
   return reason;
@@ -960,7 +960,7 @@ export const main = async ({
   }
 
   const owner = requireEnv(env, 'GITHUB_REPOSITORY_OWNER');
-  const reason = ownerApproval(
+  const reason = maintainerApproval(
     await pullRequestReviews(
       fetchImpl,
       requireEnv(env, 'GITHUB_REPOSITORY'),
