@@ -13,6 +13,7 @@ import {
   BUD_TIERS,
   BUD_TONE,
   FILL_OUTLINE,
+  FILL_STALK_WIDTH,
   CLUMP_COUNT,
   CLUMP_SPREAD,
   NEAR_BAND_LEFT,
@@ -223,6 +224,9 @@ const strokeStalk = (
   ctx.strokeStyle = palette.stalk;
   /* A bud fill means the light page: a faded ink stalk falls under 7:1 on it. */
   ctx.globalAlpha = palette.fill ? 1 : alpha;
+  if (palette.fill) {
+    ctx.lineWidth = Math.max(STALK_WIDTH.min, ctx.lineWidth * FILL_STALK_WIDTH);
+  }
   ctx.stroke();
 };
 
