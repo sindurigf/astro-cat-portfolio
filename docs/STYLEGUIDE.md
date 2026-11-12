@@ -331,11 +331,13 @@ The switch and what it scopes: [ARCHITECTURE.md](../ARCHITECTURE.md#light-mode).
 - Every edge turns `#131313`. Red and `mark` throws turn `#560000` (15.05 on
   white, 7.58 on the cyan bar) and stay ink on a gold or light fill.
 - Hover fills are dark mode's `#00dcfd` under `#131313` (11.20).
-- `.surface-gold` and `.v-column` go white. Buttons, tiles and stickers keep
-  their `#FFC000` fill, always under `#131313` (11.32).
+- Gold mirrors to cyan: `gold` and `block-gold` are `#1FC8F0` in light mode,
+  so `.surface-gold`, buttons, tiles and stickers fill cyan under `#131313`
+  (9.36); `gold-muted` is `#131313`. The homepage hero stays white.
+- Hover on a cyan fill is `#131313` under `#E5E2E1`, as on the header slab.
 - Gold text turns ink; a `.label.text-gold` gains a `#560000`
   square before the word, ink on a gold block (`--label-mark`).
-- Blocks stay gold or light in light mode, with the `#131313` edge (18.58 on white).
+- Blocks keep the `#131313` edge (18.58 on white).
 - The header bar turns `block-cyan` `#1fc8f0` with a `#131313` edge, as cyan
   is 1.99 on white ([Navigation](#navigation)).
 - The footer follows the mode like `<main>`: white in light mode, its words

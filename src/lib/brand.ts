@@ -21,14 +21,12 @@ const tokens = readTokens(css) as Record<string, string>;
 const hexOf = (token: string): string =>
   tokens[token] ?? fail(`${GLOBAL_CSS} defines no --color-${token}`);
 
-/** Light mode maps a token to a `--color-light-*` one; tokens it leaves alone keep their hex. */
+/** Light mode maps a token to another color token; tokens it leaves alone keep their hex. */
 const lightOf = (() => {
   const source = readFileSync(LIGHT_CSS, 'utf8');
   const swaps = new Map(
     [
-      ...source.matchAll(
-        /--color-([a-z-]+):\s*var\(--color-(light-[a-z-]+)\)\s*;/g,
-      ),
+      ...source.matchAll(/--color-([a-z-]+):\s*var\(--color-([a-z-]+)\)\s*;/g),
     ].map(([, token, light]) => [token, light]),
   );
   if (swaps.size === 0) fail(`${LIGHT_CSS} swaps no color token`);

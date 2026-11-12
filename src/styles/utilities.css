@@ -39,17 +39,14 @@
   }
 
   .surface-gold
-    :is(.rotate-3, .-rotate-3).sticker:not(
-      :root[data-theme='light'] *,
-      .mode-light *
-    ),
+    :is(.rotate-3, .-rotate-3).sticker:not(:root.light *, .mode-light *),
   .mode-dark .surface-gold :is(.rotate-3, .-rotate-3).sticker,
   :is(.rotate-3, .-rotate-3).hero-sticker.bg-surface {
     background-clip: border-box;
   }
 
   /* On the ink hero the sticker's edge is the text color, not its fill. */
-  :root:not([data-theme='light'])
+  :root:not(.light)
     .v-column
     .hero-window
     :is(.rotate-3, .-rotate-3).hero-sticker.bg-surface {
@@ -57,10 +54,7 @@
   }
 
   /* `text-gold` is ink on the ink hero; the pause glyph takes the text color. */
-  :root:not([data-theme='light'])
-    .v-column
-    .hero-window
-    .motion-toggle:not(:hover) {
+  :root:not(.light) .v-column .hero-window .motion-toggle:not(:hover) {
     color: var(--color-text);
   }
 

@@ -202,7 +202,7 @@
     }
   }
 
-  :root[data-theme='light'] main .copy-button:hover {
+  :root.light main .copy-button:hover {
     background-color: var(--dark-cyan);
     color: var(--color-light-ink);
 
@@ -362,7 +362,7 @@
     @apply bg-cyan text-background;
   }
 
-  :is(:root[data-theme='light'] main, main .mode-light)
+  :is(:root.light main, main .mode-light)
     .state-hover:not([aria-disabled='true'], .mode-dark *) {
     background-color: var(--dark-cyan);
     color: var(--color-light-ink);
