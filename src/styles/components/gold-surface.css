@@ -15,7 +15,7 @@
   }
 
   /* The homepage hero: an ink window in the gold column, page text on it. */
-  :root:not([data-theme='light']) .v-column .hero-window {
+  :root:not(.light) .v-column .hero-window {
     --color-pink: var(--dark-pink);
     --color-mark: var(--dark-mark);
     --color-gold: var(--color-block-ink);

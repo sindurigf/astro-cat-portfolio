@@ -36,8 +36,7 @@
   }
 
   /* Light mode: the label's ink edge thins to match the frame. */
-  :is(:root[data-theme='light'] main, main .mode-light)
-    .code-lang:not(.mode-dark *) {
+  :is(:root.light main, main .mode-light) .code-lang:not(.mode-dark *) {
     border-width: var(--border-width-thin);
   }
 

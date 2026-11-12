@@ -106,6 +106,7 @@ const articleData = article && {
       Theme, `js` class and --text-scale before first paint; a header script paints half-built.
       Blocked storage throws; the empty catches keep the system theme and default size.
       A back-forward cache restore rereads the theme.
+      `.light` follows data-theme for light-mode.css, whoever sets it (theme-switch.ts, the OS listener).
     */}
     <script
       is:inline
@@ -131,6 +132,12 @@ const articleData = article && {
             ? 'light'
             : 'dark';
       };
+      new MutationObserver(() =>
+        document.documentElement.classList.toggle(
+          'light',
+          document.documentElement.dataset.theme === 'light',
+        ),
+      ).observe(document.documentElement, { attributeFilter: ['data-theme'] });
       applyTheme();
       addEventListener('pageshow', (event) => {
         if (event.persisted) applyTheme();

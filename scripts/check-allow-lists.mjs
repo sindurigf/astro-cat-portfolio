@@ -1,13 +1,7 @@
 /* Allow-lists the check scripts and their self-tests share. */
 
 /* False positives, each with its reason; an entry that no longer matches fails. */
-export const TOKEN_EXCEPTIONS = [
-  {
-    file: 'src/lib/brand.ts',
-    text: 'light-[a-z-]',
-    reason: 'a regex character class naming light-mode tokens, not a class',
-  },
-];
+export const TOKEN_EXCEPTIONS = [];
 
 /*
  * Classes that exist only for a test or script to select. An entry that no

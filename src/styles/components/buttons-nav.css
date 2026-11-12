@@ -286,11 +286,11 @@
 
   /* The glyph is the theme in use: a moon while dark, a sun while light. */
   .theme-switch-sun,
-  :root[data-theme='light'] .theme-switch-moon {
+  :root.light .theme-switch-moon {
     @apply hidden;
   }
 
-  :root[data-theme='light'] .theme-switch-sun {
+  :root.light .theme-switch-sun {
     @apply block;
   }
 

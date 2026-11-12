@@ -126,14 +126,16 @@ Rules: [STYLEGUIDE Color tokens](docs/STYLEGUIDE.md#color-tokens).
 Dark is the default. Colors and rules:
 [STYLEGUIDE Light mode](docs/STYLEGUIDE.md#light-mode).
 
-- `data-theme="light"` on `<html>`; `src/styles/light-mode.css`, imported last,
-  overrides a subset of tokens on `<main>`, the header and the footer while it
+- `data-theme="light"` and the `light` class on `<html>`; light-mode CSS keys
+  on `:root.light`, shorter than the attribute for the CSS budget.
+  `src/styles/light-mode.css`, imported last, overrides a subset of tokens on `<main>`, the header and the footer while it
   is set. No `dark:` variants.
 - `<main>`, the header and the footer change; the header bar is gold on
   dark and cyan on light. The no-JS nav stays dark.
 - `mark` and `tile-edge` hold the mode-independent logo-tile colors.
 - An inline script in `BaseLayout.astro`'s `<head>` sets `data-theme` from the
-  saved choice or `prefers-color-scheme` before the body parses, rereads it on
+  saved choice or `prefers-color-scheme` before the body parses (a
+  `MutationObserver` keeps the `light` class in step with it), rereads it on
   a back-forward cache restore (`pageshow`), applies a saved `--text-scale`,
   and adds the `js` class that script-only styles key on. Its hash is in
   `script-src`; `npm run check:csp` fails when a build changes any inline
