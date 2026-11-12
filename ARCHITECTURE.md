@@ -570,7 +570,7 @@ All written by `npm run icons` (`scripts/make-icons.mjs`) from
 drawing behind `artwork/cats/minerva-sit.png`, in Chromium with the color tokens.
 
 - Tab icons (`favicon.*`, `artwork/favicon-*`): Minerva's head as a die-cut
-  sticker: white rim, ink edge and a pink block behind it, on a transparent
+  sticker: white rim, ink edge and a red block behind it, on a transparent
   ground. The ink edge holds 3:1 on a light tab strip and the white rim on a
   dark one (`tests/brand-mark.spec.ts`). Each is scaled down from one 512px
   render with a clear 1px border. No SVG favicon: at tab size Chromium rounds

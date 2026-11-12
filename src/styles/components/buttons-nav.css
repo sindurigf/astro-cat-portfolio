@@ -3,7 +3,7 @@
   .btn-primary {
     @apply lift-control inline-block border-4 border-fill-edge bg-block-gold px-8 py-4
       text-button font-black uppercase tracking-label text-gold-text
-      shadow-hard-pink-4 wrap-anywhere max-w-full;
+      shadow-hard-red-4 wrap-anywhere max-w-full;
   }
 
   /* A summary styled as a button: older Safari draws its own triangle otherwise. */
@@ -15,7 +15,7 @@
   .btn-secondary {
     @apply lift-control inline-block border-4 border-block-ink bg-block-light px-8
       py-4 text-button font-black uppercase tracking-label text-block-ink
-      shadow-hard-pink-4 wrap-anywhere max-w-full;
+      shadow-hard-red-4 wrap-anywhere max-w-full;
   }
 
   /*
@@ -34,7 +34,7 @@
   :is(.btn-primary, .btn-secondary, .footer-sticker),
   a.chip {
     --press-throw: var(--lift-control);
-    --press-throw-color: var(--color-pink);
+    --press-throw-color: var(--color-red);
   }
 
   .surface-gold .btn-gold-primary {
@@ -99,7 +99,7 @@
 
       /* No lift on touch, where :hover sticks after a tap. */
       @media (hover: hover) {
-        /* The ring clears the grown throw: cyan over pink fails SC 1.4.11. */
+        /* The ring clears the grown throw: cyan over red fails SC 1.4.11. */
         &:hover:not(:active) {
           --lift: calc(var(--press-throw) + var(--press-lift));
 
@@ -228,7 +228,7 @@
   /* src/scripts/theme-switch.ts places it beside its button and sets the room it has. */
   .theme-menu {
     @apply my-2 overflow-y-auto edge border-border bg-surface px-4 pt-2 pb-3
-      text-text shadow-hard-pink-object;
+      text-text shadow-hard-red-object;
 
     position: fixed;
     inset: auto;
@@ -341,7 +341,7 @@
    */
   .header-slab {
     --slab-fill: var(--color-block-gold);
-    /* The logo's and the call to action's throw: pink is 1.48 on gold, so ink. */
+    /* The logo's and the call to action's throw: red is 1.48 on gold, so ink. */
     --slab-mark: var(--color-block-ink);
     --brick-edge: var(--color-block-ink);
     --brick-fill: var(--page-ground);
@@ -366,7 +366,7 @@
     border: var(--block-edge) solid var(--slab-edge, var(--slab-fill));
     background-color: var(--slab-fill);
 
-    @apply px-4 shadow-hard-pink-object sm:px-6;
+    @apply px-4 shadow-hard-red-object sm:px-6;
   }
 
   /* The tile's shadow sits inside the link, so the plain ring clears it and stays on the slab. */

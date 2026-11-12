@@ -239,7 +239,7 @@ const withinStepLimit = async <T>(
   throw new Error(`${what} took over ${RING_STEP_LIMIT_MS} ms.${where}`);
 };
 
-/* SC 1.4.11: cyan over a pink shadow is 2.29, so no ring outside its box may start inside the shadows of its own control. */
+/* SC 1.4.11: cyan over a red shadow is 1.46, so no ring outside its box may start inside the shadows of its own control. */
 for (const colorScheme of SCHEMES) {
   test.describe(`ring clearance, ${colorScheme}`, () => {
     test.use({ colorScheme, viewport: { width: 1280, height: 900 } });
