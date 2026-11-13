@@ -35,10 +35,9 @@ interface UnsentRow {
 }
 
 /**
- * Emails unsent notifications, fewest failed attempts first, then oldest.
- * Logs counts every run, zero included, so a stalled resend differs from an idle one.
- * Throws before reading any message when the mailer or recipient is missing,
- * so a config fault does not count against MAX_RESEND_ATTEMPTS.
+ * Emails unsent notifications, fewest failed attempts first, then oldest; logs counts every run, so a
+ * stalled resend differs from an idle one. Throws before reading any message when the mailer or
+ * recipient is missing, so a config fault costs no attempt.
  */
 export const resendUnsentNotifications = async (
   database: D1Database,
