@@ -109,7 +109,7 @@ const HOVERED_ON_MAIN = {
       await page.keyboard.press('Shift+Tab');
       await page.keyboard.press('Tab');
       await button.hover();
-      const { edge, ring } = (await button.evaluate(
+      const { edge, ring, ringDrawn } = (await button.evaluate(
         (el, source) => (0, eval)(source)(el),
         `(el => {
       ${PAGE_HELPERS}
@@ -118,9 +118,17 @@ const HOVERED_ON_MAIN = {
       return {
         edge: ratio(over(parse(s.borderTopColor), ground), ground),
         ring: ratio(over(parse(s.outlineColor), ground), ground),
+        ringDrawn:
+          el.matches(':focus-visible') &&
+          s.outlineStyle !== 'none' &&
+          parseFloat(s.outlineWidth) > 0,
       };
     })`,
-      )) as { edge: number; ring: number };
+      )) as { edge: number; ring: number; ringDrawn: boolean };
+      expect(
+        ringDrawn,
+        'the hovered button has no visible focus ring (SC 2.4.7)',
+      ).toBe(true);
       expect(
         edge,
         'the hovered edge is below 7:1 on its ground (SC 1.4.11)',
