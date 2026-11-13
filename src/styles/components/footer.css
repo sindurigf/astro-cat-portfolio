@@ -77,6 +77,10 @@
     border: var(--border-width-sticker) solid transparent;
     --lift: var(--lift-control);
     rotate: var(--tilt, 0deg);
+    /* One treatment for all seven: the `.badge` inversion and the red press shadow. */
+    background-color: var(--color-text);
+    color: var(--color-background);
+    box-shadow: var(--shadow-hard-red-4);
   }
 
   .footer-sticker:is(:hover, :focus-visible) {
@@ -92,16 +96,6 @@
     height: var(--size-sticker-icon);
     fill: currentColor;
     pointer-events: none;
-  }
-
-  /*
-   * One treatment for all seven: the `.badge` inversion and the red
-   * press shadow.
-   */
-  .footer-sticker {
-    background-color: var(--color-text);
-    color: var(--color-background);
-    box-shadow: var(--shadow-hard-red-4);
   }
 
   .footer-stickers li:nth-child(1) {
@@ -192,6 +186,8 @@
     width: var(--size-footer-mascot);
     height: auto;
     pointer-events: none;
+    /* Scaled from its top left, as the script measures. */
+    transform-origin: 0 0;
   }
 
   /* Let It Fall, above the copyright. */
@@ -226,11 +222,6 @@
     & > a {
       display: inline-flex;
     }
-  }
-
-  /* The mascot on top of the heap, clear of every control; scaled from its top left, as the script measures. */
-  .footer-mascot {
-    transform-origin: 0 0;
   }
 
   /* Over every fallen block while the page is down, as the hopping copy is. */
