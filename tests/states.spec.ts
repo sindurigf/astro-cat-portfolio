@@ -138,6 +138,14 @@ const HOVERED_ON_MAIN = {
         'the focus ring on the hovered button is below 3:1 (SC 1.4.11)',
       ).toBeGreaterThanOrEqual(NON_TEXT);
     },
+  'a secondary button on gold': async (page: Page) => {
+    await gotoSettled(page, '/');
+    const button = page
+      .locator('main .surface-gold a.btn-gold-secondary')
+      .first();
+    await expect(button).toHaveCount(1);
+    await expectHoverReadsAndDiffers(page, button);
+  },
 };
 
 for (const scheme of ['dark', 'light'] as const) {

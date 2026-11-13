@@ -126,7 +126,7 @@
     color: var(--color-gold-btn-label);
   }
 
-  /* Without the lift, hover takes the secondary's empty fill; the inner ring has no fill left to sit on. */
+  /* Without the lift, hover takes the secondary's empty rest fill; the inner ring has no fill left to sit on. */
   @media (prefers-reduced-motion: reduce) and (hover: hover) {
     .surface-gold a.btn-gold-primary:hover:not(:active) {
       --press-ring: 0 0 transparent;
@@ -135,7 +135,9 @@
     }
   }
 
+  /* Fills like the primary at rest; the ring stays clear of the fill across the gold gap. */
   .surface-gold a.btn-gold-secondary:hover {
-    color: var(--color-gold-text);
+    background-color: var(--color-gold-text);
+    color: var(--color-gold-btn-label);
   }
 }
