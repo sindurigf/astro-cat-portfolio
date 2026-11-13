@@ -12,6 +12,6 @@
     font-size: var(--follow-to-size);
     line-height: var(--text-contents--line-height);
 
-    @apply text-text;
+    @apply text-gold-text;
   }
 }
