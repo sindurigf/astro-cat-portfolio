@@ -58,6 +58,11 @@ const expectHoverReadsAndDiffers = async (
   await page.mouse.move(0, 0);
   const rest = await look(page, control, surface);
   await surface.hover();
+  for (const part of new Set([surface, control])) {
+    await part.evaluate((el) =>
+      Promise.all(el.getAnimations().map((animation) => animation.finished)),
+    );
+  }
   const hovered = await look(page, control, surface);
   expect(
     hovered.paint,
@@ -71,6 +76,11 @@ const expectHoverReadsAndDiffers = async (
     AAA_TEXT,
   );
 };
+
+const PRIMARY_ROUTE = '/404';
+const PRIMARY_BUTTON = 'main a.btn-primary';
+const CONTACT_SUBMIT = 'main form .contact-submit';
+const NO_CONTACT_FORM = 'the contact form is off, so /contact has no submit';
 
 const HOVERED_ON_MAIN = {
   'a linked card': async (page: Page) => {
@@ -86,10 +96,17 @@ const HOVERED_ON_MAIN = {
     await expect(card).toHaveCount(1);
     await expectHoverReadsAndDiffers(page, card.locator('.card-link'), card);
   },
-  // The home page's one primary action sits on gold, as `.btn-gold-primary`.
+  // The 404 card keeps a `.btn-primary` on a real route.
   'a primary button': async (page: Page) => {
-    await gotoSettled(page, CONTACT_FORM_ON ? '/contact' : '/404');
-    const button = page.locator('main .btn-primary').first();
+    await gotoSettled(page, PRIMARY_ROUTE);
+    const button = page.locator(PRIMARY_BUTTON).first();
+    await expect(button).toHaveCount(1);
+    await expectHoverReadsAndDiffers(page, button);
+  },
+  'the contact submit in its block': async (page: Page) => {
+    requireContent(CONTACT_FORM_ON, NO_CONTACT_FORM);
+    await gotoSettled(page, '/contact');
+    const button = page.locator(CONTACT_SUBMIT);
     await expect(button).toHaveCount(1);
     await expectHoverReadsAndDiffers(page, button);
   },
@@ -314,3 +331,28 @@ test('a focused chip ring stays clear of the chips beside it', async ({
   ).toBeGreaterThan(1);
   expect(overlaps).toEqual([]);
 });
+
+for (const scheme of ['dark', 'light'] as const) {
+  test(`the contact submit's fill stands off its block, ${scheme} (SC 1.4.11)`, async ({
+    page,
+  }) => {
+    requireContent(CONTACT_FORM_ON, NO_CONTACT_FORM);
+    await page.emulateMedia({ colorScheme: scheme });
+    await gotoSettled(page, '/contact');
+    await expect(page.locator(CONTACT_SUBMIT)).toHaveCount(1);
+    const against = (await page.evaluate(`(() => {
+      ${PAGE_HELPERS}
+      const button = document.querySelector('${CONTACT_SUBMIT}');
+      const fill = parse(getComputedStyle(button).backgroundColor);
+      const block = compositeBackground(button.closest('.card'));
+      return fill && block ? ratio(over(fill, block), block) : null;
+    })()`)) as number | null;
+    expect(against, 'the button or its block has no resolvable fill').not.toBe(
+      null,
+    );
+    expect(
+      against!,
+      'the button fill against the block it sits in',
+    ).toBeGreaterThanOrEqual(NON_TEXT);
+  });
+}

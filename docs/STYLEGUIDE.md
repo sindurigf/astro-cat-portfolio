@@ -297,7 +297,10 @@ set; hex values and ratios are in the generated [Contrast](#contrast) table:
   `tests/gold-surface.spec.ts` asserts every control in a `.surface-gold`
   section has a visible edge: a fill that differs from the ground, or a
   border of at least 3:1.
-- Both are scoped to `.surface-gold` and render unstyled elsewhere.
+- `.btn-gold-primary` is scoped to `.surface-gold` and blocks (`.card`);
+  `.btn-gold-secondary` to `.surface-gold`. Both render unstyled elsewhere.
+- The /contact submit and the /brand form sample are `.btn-gold-primary` in a
+  block. Its fill is 11.32 on a gold block and 14.42 on a light one.
 - Both `text-button`, 900, 0.1em, uppercase, `px-8 py-4`. No underline on the
   label.
 
@@ -645,7 +648,8 @@ file per area.
   (the dash says unavailable, the gold keeps the shape), `bg-background`,
   `subtle` label, no shadow; still focusable.
 - Sending: the contact submit is `aria-disabled` in a `data-sending` form but
-  drawn pressed and gold, not unavailable (`src/scripts/contact-sending.ts`).
+  keeps its ink fill and is drawn pressed, not unavailable
+  (`src/scripts/contact-sending.ts`).
 - Current: [Navigation states](#states).
 
 ### Markup
