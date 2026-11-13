@@ -110,6 +110,14 @@ const HOVERED_ON_MAIN = {
     await expect(button).toHaveCount(1);
     await expectHoverReadsAndDiffers(page, button);
   },
+  'a secondary button on gold': async (page: Page) => {
+    await gotoSettled(page, '/');
+    const button = page
+      .locator('main .surface-gold a.btn-gold-secondary')
+      .first();
+    await expect(button).toHaveCount(1);
+    await expectHoverReadsAndDiffers(page, button);
+  },
 };
 
 const hoverContactSubmit = async (page: Page) => {
