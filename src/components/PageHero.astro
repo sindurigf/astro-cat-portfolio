@@ -21,6 +21,8 @@ interface Props {
   measure?: 'page' | 'reading';
   /* 3 only for /brand's examples, so the page keeps one h1. */
   headingLevel?: 1 | 3;
+  /* Only for /brand's post example: a post title keeps its written case (`.post-title`). */
+  writtenCase?: boolean;
 }
 
 const {
@@ -31,6 +33,7 @@ const {
   imageAlt = '',
   measure = 'page',
   headingLevel = 1,
+  writtenCase = false,
 } = Astro.props;
 const Title = `h${headingLevel}` as 'h1' | 'h3';
 
@@ -41,7 +44,10 @@ const TITLE_CLASS = { h1: 'text-h1', h2: 'text-h2' } as const;
 const fullTitle =
   reading && titleSize === 'h1' ? 'text-reading-h1' : TITLE_CLASS[titleSize];
 /* The plain tier keeps the full scale, or the first `text-h2` below outranks it. */
-const titleClass = slab === 'thin' ? 'text-post-title' : fullTitle;
+const titleClass =
+  slab === 'thin'
+    ? ['text-post-title', writtenCase && 'post-title']
+    : fullTitle;
 ---
 
 {/*
