@@ -126,7 +126,9 @@
     color: var(--color-gold-btn-label);
   }
 
+  /* Fills like the primary at rest; the ring stays clear of the fill across the gold gap. */
   .surface-gold a.btn-gold-secondary:hover {
-    color: var(--color-gold-text);
+    background-color: var(--color-gold-text);
+    color: var(--color-gold-btn-label);
   }
 }
