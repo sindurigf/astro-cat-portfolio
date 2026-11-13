@@ -103,8 +103,8 @@ const HOVERED_ON_MAIN = {
     await expect(card).toHaveCount(1);
     await expectHoverReadsAndDiffers(page, card.locator('.card-link'), card);
   },
-  // The /brand sample is the `.btn-primary` link on a real route.
-  'a primary button': async (page: Page) => {
+  // The one `.btn-primary` link on a real route; its stage is dark in both schemes.
+  "a primary button on /brand's dark sample": async (page: Page) => {
     await gotoSettled(page, PRIMARY_ROUTE);
     const button = page.locator(PRIMARY_BUTTON);
     await expect(button).toHaveCount(1);
