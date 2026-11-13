@@ -3,10 +3,10 @@ import { AAA_TEXT, PAGE_HELPERS } from './contrast';
 import { gotoSettled } from './settle';
 import { SAMPLED_ROUTES } from './routes';
 
-/* A throw sampled inside its press transition reads fainter than it rests. */
+/* A throw sampled mid-transition reads fainter than at rest; a cancelled transition has ended too. */
 const transitionsDone = (page: Page) =>
   page.evaluate(() =>
-    Promise.all(
+    Promise.allSettled(
       document
         .getAnimations()
         .filter((animation) => animation instanceof CSSTransition)
