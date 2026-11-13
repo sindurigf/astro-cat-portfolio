@@ -171,8 +171,9 @@
   }
 
   /*
-   * Summary label `text`, cyan on hover, 44px target (SC 2.5.5). The
-   * +/- marker is aria-hidden; the expanded state is announced natively.
+   * Summary label `text`, cyan and underlined on hover, 44px target
+   * (SC 2.5.5). The +/- marker is aria-hidden; the expanded state is announced
+   * natively.
    */
   .post-contents-summary {
     @apply flex min-h-target cursor-pointer list-none items-center
@@ -185,6 +186,16 @@
 
     &:hover {
       @apply text-cyan;
+    }
+
+    /*
+     * In a block the hover color moves 11.32 to 11.38, so it underlines
+     * (SC 1.4.1). The label only: an underlined + reads as a plus-minus sign.
+     */
+    &:hover > :not(.post-contents-marker) {
+      text-decoration: underline;
+      text-decoration-thickness: var(--underline-thick);
+      text-underline-offset: var(--underline-offset);
     }
   }
 
