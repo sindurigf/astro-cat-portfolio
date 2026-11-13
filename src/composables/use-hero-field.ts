@@ -68,8 +68,9 @@ export const useHeroField = (): HeroFieldState => {
     const read = (token: string): string =>
       style.getPropertyValue(token).trim();
     /* Gold-surface tokens: the dark set fails SC 1.4.3 and 1.4.11 on gold. */
-    const palette: HeroPalette = {
+    const required = {
       border: read('--color-gold-border'),
+      stalk: read('--color-hero-stalk'),
       subtle: read('--color-hero-muted'),
       bud: read('--color-gold-bud'),
       background: read('--color-hero-ground'),
@@ -80,8 +81,8 @@ export const useHeroField = (): HeroFieldState => {
       glow: read('--color-hero-glow'),
     };
     /* Missing tokens mean no stylesheet yet; draw nothing rather than black on black. */
-    return Object.values(palette).every((value) => value.length > 0)
-      ? palette
+    return Object.values(required).every((value) => value.length > 0)
+      ? { ...required, fill: read('--color-hero-fill') }
       : null;
   };
 

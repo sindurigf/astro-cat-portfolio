@@ -289,6 +289,27 @@
   }
 
   /*
+   * The homepage hero stands on the page: the column keeps its edge width for
+   * the layout but draws nothing, and the section under the hero is the block.
+   */
+  .v-column.gold-column {
+    border-color: transparent;
+    background-color: transparent;
+    /* A drawn-nothing throw: the column still has one to measure. */
+    box-shadow: 0 0 0 0 transparent;
+  }
+
+  .v-column section.hero + section {
+    margin: calc(var(--block-edge) * -1);
+    margin-block-start: 0;
+    border-width: var(--block-edge);
+    border-color: var(--color-block-ink);
+    background-color: var(--color-gold);
+
+    @apply shadow-hard-red-object;
+  }
+
+  /*
    * Phone: the column sits inside the band gutter, the 16px its shadow needs.
    * tests/reflow.spec.ts checks sideways scroll.
    */
