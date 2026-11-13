@@ -292,7 +292,8 @@ set; hex values and ratios are in the generated [Contrast](#contrast) table:
   `gold-text` border, `shadow-hard-mark-4`, the two-tone ring
   ([Focus](#focus)).
 - `.btn-gold-secondary`: transparent, `gold-text` label and 4px border, no
-  shadow, single ring.
+  shadow, single ring. Hover fills `gold-text` under a `gold-btn-label` label;
+  the ring sits outside the gold gap, so it needs no inner half.
 - Borders are `gold-text`, matching the fill, not `gold-border`.
   `tests/gold-surface.spec.ts` asserts every control in a `.surface-gold`
   section has a visible edge: a fill that differs from the ground, or a
