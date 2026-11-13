@@ -97,7 +97,7 @@
   :is(:root.light main, main .mode-light)
     :is(.btn-primary, .btn-secondary):not([aria-disabled='true']):hover:not(
       .mode-dark *,
-      :is(.card, .plain-slab, .post-contents) *
+      :is(.card, .plain-slab, .post-contents):not(.card-ground) *
     ) {
     background-color: var(--color-block-ink);
     color: var(--color-block-light);

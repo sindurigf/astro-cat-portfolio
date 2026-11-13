@@ -102,7 +102,7 @@ blur, uppercase headings, tilted marks.
 | `surface`     | `#1A1A1A`    | Inputs and controls off a block                                      |
 | `border`      | `#FFC000`    | Every boundary but table lines: the gold edge                        |
 | `card-edge`   | none         | Card and plain slab edge; `#131313` in light mode                    |
-| `fill-edge`   | `#131313`    | Edge of a gold or light fill: buttons                                |
+| `fill-edge`   | `#131313`    | Edge of a gold or light fill, except buttons                         |
 | `text`        | `#E5E2E1`    | Words and table lines                                                |
 | `subtle`      | `#9EB6C7`    | Captions, meta, helper text                                          |
 | `gold`        | `#FFC000`    | The accent, only where the style guide allows                        |
@@ -128,6 +128,9 @@ The gold-ground set is in [Gold surface](#gold-surface), light values in
   `text-gold` are ink (11.32 on gold, 14.42 on light), `subtle` is `gold-muted`
   (7.88) or `light-subtle` (7.40), and a badge inverts. Gold fills use
   `block-gold`, which never remaps. `tests/blocks.spec.ts`.
+- Ground cards: `.card-ground` (/contact, /contact/send, /contact/sent) is no
+  block. It keeps the page's tokens and ground, takes a 4px `text` edge and
+  casts the red throw; its controls keep the page's red throws and focus ring.
 - Walls: blocks in a `.card-block` share 4px walls with no gap. Each brick
   casts the throw as a `box-shadow` and the next brick covers it, so it shows
   on outer edges only. No `filter` on a wall: a filter layer costs raster time
@@ -148,7 +151,8 @@ The gold-ground set is in [Gold surface](#gold-surface), light values in
   or fill. Do not merge them. Utilities: `bg-red`, `border-red`,
   `text-red-text`.
 - A gold or light fill takes the `fill-edge`, never `border`: the fill is
-  what meets the page. A dark fill (a `.sticker`, a chip, a disabled button)
+  what meets the page. `.btn-primary` and its sending state take `text`
+  instead: #E5E2E1 on the dark ground (15.28), ink inside a block. A dark fill (a `.sticker`, a chip, a disabled button)
   keeps `border`: an ink edge would vanish on it.
 - `tests/edge-contrast.spec.ts`: on every route, both modes, 390 and 1280px,
   a drawn edge reaches 3:1 on its ground unless its fill does.
@@ -249,7 +253,7 @@ set; hex values and ratios are in the generated [Contrast](#contrast) table:
 | `gold-text`      | Body copy, headings, button borders, the focus ring                                                                         |
 | `gold-muted`     | Secondary copy                                                                                                              |
 | `gold-border`    | Structural rules, dividers, card edges and shadows                                                                          |
-| `fill-edge`      | Edge of a gold or light fill, on gold or off it                                                                             |
+| `fill-edge`      | Edge of a gold or light fill except `.btn-primary`                                                                          |
 | `gold-link`      | Links, underlined; the block on hover                                                                                       |
 | `gold-bud`       | The canvas buds on gold. Decoration                                                                                         |
 | `gold-btn-label` | Label on the `gold-text` fill of `.btn-gold-primary` and a hovered `.btn-gold-secondary`; inner ring on `.btn-gold-primary` |
@@ -562,7 +566,7 @@ with a comment beside it.
 - Each ground has one edge role. Dark page: `border` (gold), but post table
   lines take `text`. A block: `block-ink`,
   4px; the header bar's edge takes its own fill. Inside gold: `gold-border` (ink). A
-  gold or light fill: `fill-edge` (ink). Light mode: ink everywhere.
+  gold or light fill: `fill-edge` (ink); `.btn-primary`: `text`. Light mode: ink everywhere.
   `tests/edges.spec.ts` asserts each reaches 3:1 in both modes.
 - Shadows are hard offsets, no blur. Gold casts none (gold on gold is 1.00).
 - A tilted box with a drawn edge clips its fill to the padding box when the
@@ -600,7 +604,7 @@ file per area.
 
 | Class                                   | What                                                                                                                                                                                                                                                                    |
 | --------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `.btn-primary`                          | Gold fill, `gold-text` label, `border-4`, red 4px shadow, `text-button` 900                                                                                                                                                                                             |
+| `.btn-primary`                          | Gold fill, `gold-text` label, `border-4` in `text` (ink inside a block), red 4px shadow, `text-button` 900                                                                                                                                                              |
 | `.btn-secondary`                        | Light block: `block-light` fill, `block-ink` label and `border-4`, red 4px shadow                                                                                                                                                                                       |
 | `.actions`                              | Button row; its 32px row gap clears shadow and ring when buttons wrap                                                                                                                                                                                                   |
 | `.card`                                 | A gold block: `block-gold`, 4px `block-ink` edge, red 8px shadow, padding 24px, 40px from `sm`                                                                                                                                                                          |
