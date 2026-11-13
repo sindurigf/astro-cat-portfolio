@@ -175,7 +175,7 @@ const buildStems = (scene: Scene): Stem[] => {
   band(BANDS.GRASS, 1, true);
   band(BANDS.MIDDLE, 1, true);
   band(BANDS.PONEGLYPH, 1, true);
-  /* Near stems stay at the left edge, veiled, so they never blur over type. */
+  /* Near stems stay at the left edge so they never blur over type; the veil fades only their light bud fills. */
   band(BANDS.NEAR, NEAR_VEIL, false);
 
   return built;
