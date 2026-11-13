@@ -22,8 +22,8 @@ interface SubmissionResult {
 const SENT: SubmissionResult = { kind: 'sent', values: {}, errors: [] };
 
 /*
- * The per-address limit does nothing against many addresses. Past this many messages an hour, new ones
- * are stored, not emailed, and the daily resend batches them, so a flood cannot fill the
+ * The per-address limit does nothing against many addresses. Past this many messages an hour, new
+ * ones are stored, not emailed, and the daily resend batches them, so a flood cannot fill the
  * `CONTACT_NOTIFY_TO` inbox.
  */
 export const HOURLY_NOTIFY_LIMIT = 20;

@@ -251,8 +251,8 @@ export const planMove = (
 };
 
 /**
- * The cup push, heading left: a run and a creep to `edge` (the track's left end), so the cup goes over
- * the surface edge at `floor`, where the cat's surface starts, onto a floor `depth` px below.
+ * The cup push, heading left: a run and a creep to `edge` (the track's left end), so the cup goes
+ * over the surface edge at `floor`, where the cat's surface starts, onto a floor `depth` px below.
  * Left only: the right end is the sleep control's corner.
  */
 export const cupPush = (
