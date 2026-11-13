@@ -3,7 +3,7 @@ import { NODE } from './tags';
 import {
   changeFindings,
   main,
-  ownerApproval,
+  maintainerApproval,
 } from '../scripts/check-test-weakening.mjs';
 
 /* Trigger text is assembled here so this file never holds a literal the guard flags in tests/. */
@@ -545,7 +545,7 @@ test.describe('test-weakening guard', NODE, () => {
       } = {},
     ) => ({ login, body, commitId, state, editor });
     const approve = (...reviews: ReturnType<typeof review>[]) =>
-      ownerApproval(reviews, OWNER, HEAD);
+      maintainerApproval(reviews, OWNER, HEAD);
 
     expect(approve(review('coordinator-bot', MARKER))).toBeNull();
     expect(approve(review(OWNER, MARKER, { commitId: 'older1' }))).toBeNull();

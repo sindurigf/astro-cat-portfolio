@@ -458,9 +458,9 @@ Menu:
 
 Text Size:
 
-- [ ] Double-tap “Aa Text Size”, then swipe right. Expect: “expanded”, then “Text Size”, then “Drink Me, Smaller text”, “Eat Me, Larger text” and “Just Right, Back to 100 percent”, each a button. Just Right says “disabled” at 100%. → SC 4.1.2
-- [ ] Double-tap Eat Me. Expect: “Text is 125%.” and the text grows. → SC 4.1.3, 1.4.4
-- [ ] Double-tap Just Right. Expect: “Text is 100%.” and the text is back to normal. → SC 4.1.3
+- [ ] Double-tap “Aa Text Size”, then swipe right. Expect: “expanded”, then “Text Size”, then “Smaller text”, “Larger text” and “Reset to 100 percent”, each a button. Reset says “disabled” at 100%. → SC 4.1.2
+- [ ] Double-tap Larger. Expect: “Text is 125%.” and the text grows. → SC 4.1.3, 1.4.4
+- [ ] Double-tap Reset. Expect: “Text is 100%.” and the text is back to normal. → SC 4.1.3
 
 Theme:
 
@@ -522,9 +522,9 @@ Menu:
 
 Text Size:
 
-- [ ] Press Enter on “Aa Text Size”, then Tab. Expect: “expanded”, then “Text Size”, then “Drink Me, Smaller text”, “Eat Me, Larger text” and “Just Right, Back to 100 percent”, each a button. Just Right says “grayed” or “unavailable” at 100%. → SC 4.1.2
-- [ ] Press Enter on Eat Me. Expect: “Text is 125%.” and the text grows. → SC 4.1.3, 1.4.4
-- [ ] Press Enter on Just Right. Expect: “Text is 100%.” and the text is back to normal. → SC 4.1.3
+- [ ] Press Enter on “Aa Text Size”, then Tab. Expect: “expanded”, then “Text Size”, then “Smaller text”, “Larger text” and “Reset to 100 percent”, each a button. Reset says “grayed” or “unavailable” at 100%. → SC 4.1.2
+- [ ] Press Enter on Larger. Expect: “Text is 125%.” and the text grows. → SC 4.1.3, 1.4.4
+- [ ] Press Enter on Reset. Expect: “Text is 100%.” and the text is back to normal. → SC 4.1.3
 
 Theme:
 
@@ -575,9 +575,9 @@ Menu:
 
 Text size:
 
-- [ ] Double-tap “Aa Text Size”, then swipe right. Expect: It says “expanded”, then “Text Size”, “Drink Me, button, Smaller text”, “Eat Me, button, Larger text”, “Just Right, button, Back to 100 percent” (Just Right dimmed at 100%). → SC 4.1.2
-- [ ] Double-tap Eat Me. Expect: It says “Text is 125%.” and the text grows. → SC 4.1.3, 1.4.4
-- [ ] Double-tap Just Right. Expect: It says “Text is 100%.” and the text is back to normal. → SC 4.1.3
+- [ ] Double-tap “Aa Text Size”, then swipe right. Expect: It says “expanded”, then “Text Size”, “Smaller text, button”, “Larger text, button”, “Reset to 100 percent, button” (Reset dimmed at 100%). → SC 4.1.2
+- [ ] Double-tap Larger. Expect: It says “Text is 125%.” and the text grows. → SC 4.1.3, 1.4.4
+- [ ] Double-tap Reset. Expect: It says “Text is 100%.” and the text is back to normal. → SC 4.1.3
 
 Theme:
 

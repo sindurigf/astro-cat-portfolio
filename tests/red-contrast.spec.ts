@@ -1,7 +1,18 @@
-import { expect, test } from './test';
+import { expect, test, type Page } from './test';
 import { AAA_TEXT, PAGE_HELPERS } from './contrast';
 import { gotoSettled } from './settle';
 import { SAMPLED_ROUTES } from './routes';
+
+/* A throw sampled mid-transition reads fainter than at rest; a cancelled transition has ended too. */
+const transitionsDone = (page: Page) =>
+  page.evaluate(() =>
+    Promise.allSettled(
+      document
+        .getAnimations()
+        .filter((animation) => animation instanceof CSSTransition)
+        .map((animation) => animation.finished),
+    ).then(() => true),
+  );
 
 /*
  * The rule for red, above SC 1.4.11: every red edge or throw is
@@ -15,6 +26,7 @@ for (const colorScheme of ['dark', 'light'] as const) {
     for (const route of SAMPLED_ROUTES) {
       test(route, async ({ page }) => {
         await gotoSettled(page, route);
+        await transitionsDone(page);
         const { found, faint } = (await page.evaluate(`(() => {
           ${PAGE_HELPERS}
           const root = getComputedStyle(document.documentElement);

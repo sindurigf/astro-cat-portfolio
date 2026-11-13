@@ -18,8 +18,8 @@
   }
 
   /*
-   * Carries its own dark ground, so on gold it stays red-text on dark (SC
-   * 1.4.3).
+   * Carries its own surface ground, so on a block its red-text stays on that
+   * ground (SC 1.4.3).
    * Tilt comes from markup.
    */
   .sticker {

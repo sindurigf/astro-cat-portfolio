@@ -113,7 +113,7 @@ blur, uppercase headings, tilted marks.
 | `tile-edge`   | `#5A87A8`    | Logo tile copies' edge; both modes                                   |
 | `button-text` | `ButtonText` | Forced colors only: bars on the button face                          |
 | `cat-*`       | 6 fills      | Logo cat coat and About cat props; decoration, never a boundary      |
-| `hero-*`      | 9 values     | Homepage canvas ground, veil, floor, buds and glyph glow; decoration |
+| `hero-*`      | 12 values    | Homepage canvas ground, stalk, bud, fill, veil and floor; decoration |
 
 The gold-ground set is in [Gold surface](#gold-surface), light values in
 [Light mode](#light-mode).
@@ -275,7 +275,8 @@ set; hex values and ratios are in the generated [Contrast](#contrast) table:
   Below `gold-muted`, hierarchy is weight and size.
 - No `cyan`, `red` or `red-text` on gold, not even a shadow, except the red
   shadow on buttons, chips and photos, which is decoration and never delimits
-  a control. A `.sticker` carries its own dark ground.
+  a control. A `.sticker` carries its own `surface`
+  ground, dark in dark mode and white in light.
 - A utility written inside a gold section (`border-border`, `text-subtle`)
   beats the subtree default and is a bug. axe misses it;
   `tests/gold-surface.spec.ts` catches it.
@@ -323,10 +324,13 @@ The switch and what it scopes: [ARCHITECTURE.md](../ARCHITECTURE.md#light-mode).
 | `cyan` (focus ring and hover text)          | `#0047b3` | 8.23         |
 
 - Light values are `light-*` tokens in `global.css` (`light-focus` for
-  `cyan`, `light-red-text`, `light-hero-accent`), swapped in by
-  `light-mode.css`.
-- The homepage hero window is `block-ink` in dark mode, page text on it,
-  mint `hero-accent` buds (10.9); white in light mode with `#0f7a5c` buds (4.9).
+  `cyan`, `light-red-text`), swapped in by `light-mode.css`.
+- The homepage hero has no frame and no ground of its own: it stands on the
+  page ground, page text on it. Both modes draw every stalk at full strength
+  and half width, no thinner than 0.55px. Dark mode draws gold stalks and buds
+  (11.99 on `#0b0b0b`); light mode draws `#131313` stalks
+  (18.58 on white) and fills the buds with `hero-fill` (`block-cyan`) inside a
+  `#131313` outline (9.36 on the fill).
 - Every edge turns `#131313`. Red and `mark` throws turn `#560000` (15.05 on
   white, 7.58 on the cyan bar) and stay ink on a gold or light fill.
 - Hover fills are dark mode's `#00dcfd` under `#131313` (11.20).
@@ -346,7 +350,8 @@ The switch and what it scopes: [ARCHITECTURE.md](../ARCHITECTURE.md#light-mode).
   they do not change with the mode.
 - The label on a gold fill is `gold-text`, never `background` (white in
   light).
-- The homepage's second sticker and `.sticker` are black blocks.
+- The homepage's second sticker is a black block. A `.sticker` follows the
+  tokens: white fill, ink edge, `light-red-text` label.
 - `tests/light-mode.spec.ts` scans every route in light at WCAG 2.2 AA.
 
 ## Type scale
@@ -1190,8 +1195,9 @@ Enforced by `tests/footer.spec.ts`.
 by `tests/reading-tab.spec.ts`.
 
 - One group, "Text Size": Smaller (smaller), Larger (larger) and Reset
-  (100 percent), each 44px at least, hints as descriptions, and a polite
-  status. Hidden without a script, and absent in print.
+  (100 percent), each 44px at least, and a polite status. Each name is the
+  visible label, then the rest in `sr-only` text: "Smaller text", "Reset to
+  100 percent". Hidden without a script, and absent in print.
 - Where it sits depends on the width. From 86rem (the `tab` variant) the page
   leaves a free gutter beside its 80rem column, and the control is an edge tab
   in it: a `popover` button named "Aa Text Size", fixed to the right at

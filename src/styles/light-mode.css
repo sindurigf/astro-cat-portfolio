@@ -29,7 +29,6 @@
     --page-mark: var(--color-mark);
     --dark-hero-veil-edge: var(--color-hero-veil-edge);
     --dark-hero-floor-edge: var(--color-hero-floor-edge);
-    --dark-hero-accent: var(--color-hero-accent);
     --dark-hero-muted: var(--color-hero-muted);
     --dark-block-gold: var(--color-block-gold);
     --dark-gold-muted: var(--color-gold-muted);
@@ -56,8 +55,8 @@
     --color-hero-veil-edge: var(--color-light-ground);
     --color-hero-floor: var(--color-light-ground);
     --color-hero-floor-edge: var(--color-light-ground);
-    --color-hero-accent: var(--color-light-hero-accent);
-    --color-hero-muted: var(--color-light-subtle);
+    --color-hero-muted: var(--color-light-ink);
+    --color-hero-fill: var(--color-block-cyan);
     --color-mark: var(--color-light-red-text);
     --page-mark: var(--color-light-red-text);
     /* The mirror of dark mode's gold: every gold fill turns cyan, ink on it 9.36. */
@@ -121,8 +120,8 @@
     --color-hero-floor-edge: var(--dark-hero-floor-edge);
     --color-mark: var(--dark-mark);
     --page-mark: var(--dark-mark);
-    --color-hero-accent: var(--dark-hero-accent);
     --color-hero-muted: var(--dark-hero-muted);
+    --color-hero-fill: initial;
     --color-gold: var(--dark-block-gold);
     --color-block-gold: var(--dark-block-gold);
     --color-gold-muted: var(--dark-gold-muted);
@@ -133,10 +132,6 @@
 
   :is(:root.light main, main .mode-light) .hero-window:not(.mode-dark *) {
     background-color: var(--color-background);
-  }
-
-  :root.light .v-column .hero-window {
-    --color-gold-bud: var(--color-hero-accent);
   }
 
   /*
@@ -159,10 +154,9 @@
     @apply mr-2 inline-block size-2.5;
   }
 
-  /* The homepage's second sticker and `.sticker` are black blocks in light mode. */
+  /* The homepage's second sticker is a black block in light mode. */
   :is(:root.light main, main .mode-light)
-    .hero-sticker:not(.bg-block-gold):not(.mode-dark *),
-  :is(:root.light main, main .mode-light) .sticker:not(.mode-dark *) {
+    .hero-sticker:not(.bg-block-gold):not(.mode-dark *) {
     @apply border-text bg-text text-background;
   }
 }

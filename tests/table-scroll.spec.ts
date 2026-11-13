@@ -1,4 +1,6 @@
 import { readFileSync } from 'node:fs';
+import { pathToFileURL } from 'node:url';
+import { createSatteriMarkdownProcessor } from '@astrojs/markdown-satteri';
 import { expect, test, type Page } from './test';
 import { gotoSettled } from './settle';
 import { tableScroll } from '../src/plugins/table-scroll.mjs';
@@ -9,24 +11,55 @@ import { NODE } from './tags';
 
 /** `src/plugins/table-scroll.mjs` and the `.prose` table rules. */
 
-const tableNode = () => ({
+type Node = Record<string, any>;
+
+const element = (tagName: string, children: Node[] = []): Node => ({
   type: 'element',
-  tagName: 'table',
+  tagName,
   properties: {},
-  children: [],
+  children,
 });
 
-const wrapping = () => {
-  const wrappers: Record<string, any>[] = [];
+const text = (value: string): Node => ({ type: 'text', value });
+
+const tableNode = (children: Node[] = []) => element('table', children);
+
+const textOf = (node: Node): string =>
+  node.type === 'text'
+    ? node.value
+    : (node.children ?? []).map(textOf).join('');
+
+/** The visitor's `ctx`, reduced to what it uses; `siblings` are the table's parent's children. */
+const wrapping = (siblings: Node[] = []) => {
+  const wrappers: Node[] = [];
+  const root = element('div', siblings);
   return {
     wrappers,
     ctx: {
-      wrapNode: (_node: unknown, parent: Record<string, any>) => {
+      data: {} as Record<string, unknown>,
+      textContent: textOf,
+      parent: (node: Node) => (siblings.includes(node) ? root : undefined),
+      indexOf: (node: Node) =>
+        siblings.includes(node) ? siblings.indexOf(node) : undefined,
+      wrapNode: (_node: unknown, parent: Node) => {
         wrappers.push(parent);
       },
     },
   };
 };
+
+const SCROLLS = /, scrolls sideways$/;
+/** A name that is not empty and does not say it scrolls. */
+const NAMED_AT_REST = /^(?!.*, scrolls sideways$).*\S/;
+
+/** The `aria-label` of every table scroller in `html`, in document order. */
+const scrollerNames = (html: string): string[] =>
+  [...html.matchAll(/<div class="table-scroll"[^>]*>/g)].map(
+    ([tag]) => /aria-label="([^"]*)"/.exec(tag)?.[1] ?? '',
+  );
+
+const duplicates = (names: string[]): string[] =>
+  names.filter((name, index) => names.indexOf(name) !== index);
 
 test('the visitor is registered with the markdown processor', NODE, () => {
   const config = readFileSync('astro.config.mjs', 'utf8');
@@ -50,6 +83,87 @@ test.describe('the table-scroll visitor', () => {
       role: 'group',
       ariaLabel: 'Table, scrolls sideways',
     });
+  });
+
+  /* SC 4.1.2, 2.4.6: the name says which table the group holds. */
+  test(
+    'names the group from the caption, else the heading before it',
+    NODE,
+    () => {
+      const captioned = tableNode([
+        element('caption', [text('Budget by Year')]),
+      ]);
+      const plain = tableNode();
+      const siblings = [
+        element('h2', [text('Costs')]),
+        element('p', [text('Some text.')]),
+        captioned,
+        plain,
+      ];
+      const { wrappers, ctx } = wrapping(siblings);
+      const { visit } = tableScroll().element;
+      visit(captioned, ctx);
+      visit(plain, ctx);
+
+      const [fromCaption, fromHeading] = wrappers.map(
+        (wrapper) => wrapper.properties.ariaLabel as string,
+      );
+      expect(fromCaption, 'the caption is not in the name').toContain(
+        'Budget by Year',
+      );
+      expect(fromHeading, 'the heading is not in the name').toContain('Costs');
+      expect(fromCaption, 'a caption outranks the heading').not.toContain(
+        'Costs',
+      );
+      for (const name of [fromCaption, fromHeading]) {
+        expect(name, 'the name does not say the group scrolls').toMatch(
+          SCROLLS,
+        );
+      }
+    },
+  );
+});
+
+/* SC 4.1.2, 2.4.6: two groups with one name cannot be told apart in a list of groups or by voice control. */
+test.describe('table scroller names', () => {
+  const TABLE = '| a | b |\n| --- | --- |\n| 1 | 2 |\n';
+
+  test(
+    'tables under two headings, one heading or none get distinct names',
+    NODE,
+    async () => {
+      const processor = await createSatteriMarkdownProcessor({
+        hastPlugins: [tableScroll] as never,
+        syntaxHighlight: false,
+      });
+      const { code } = await processor.render(
+        [TABLE, TABLE, '## First', TABLE, TABLE, '## Second', TABLE].join('\n'),
+        { fileURL: pathToFileURL('src/content/blog/a.md') },
+      );
+      const names = scrollerNames(code);
+
+      expect(names, 'a table has no scroller').toHaveLength(5);
+      expect(
+        names.filter((name) => name.replace(SCROLLS, '').trim() === ''),
+        'a scroller has no name',
+      ).toEqual([]);
+      expect(duplicates(names), 'scrollers that share a name').toEqual([]);
+    },
+  );
+
+  test('on every built page each scroller has a name of its own', NODE, () => {
+    const failing = [...builtHtml()].flatMap(([route, html]) => {
+      const names = scrollerNames(html);
+      const unnamed = names.some(
+        (name) => name.replace(SCROLLS, '').trim() === '',
+      );
+      return unnamed || duplicates(names).length > 0 ? [route] : [];
+    });
+
+    expect(
+      failing,
+      'page(s) with an unnamed or repeated scroller name',
+    ).toEqual([]);
   });
 });
 
@@ -143,7 +257,11 @@ test.describe('a post table is a tab stop only while it scrolls', () => {
         () => scrollerState(page),
         'a table that fits is still a tab stop, or named as scrolling',
       )
-      .toMatchObject({ scrolls: false, tabIndex: -1, name: 'Table' });
+      .toMatchObject({
+        scrolls: false,
+        tabIndex: -1,
+        name: expect.stringMatching(NAMED_AT_REST),
+      });
   });
 
   test('narrowed until it overflows, it becomes a tab stop', async ({
@@ -165,7 +283,7 @@ test.describe('a post table is a tab stop only while it scrolls', () => {
       .toMatchObject({
         scrolls: true,
         tabIndex: 0,
-        name: 'Table, scrolls sideways',
+        name: expect.stringMatching(SCROLLS),
       });
   });
 });
