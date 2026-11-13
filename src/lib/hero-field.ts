@@ -12,6 +12,7 @@ import {
   BUD_START,
   BUD_TIERS,
   BUD_TONE,
+  FILL_OUTLINE,
   CLUMP_COUNT,
   CLUMP_SPREAD,
   NEAR_BAND_LEFT,
@@ -37,6 +38,7 @@ import {
   REFERENCE_WIDTH,
   SPRING,
   STALK_WIDTH,
+  STALK_WIDTH_SHARE,
   STEM_ALPHA,
   VEIL,
   VEIL_DEPTH,
@@ -210,13 +212,48 @@ const settle = (
 const budTone = (palette: HeroPalette, tone: number): string => {
   if (tone > BUD_TONE.bud) return palette.bud;
   if (tone > BUD_TONE.subtle) return palette.subtle;
-  return palette.border;
+  return palette.stalk;
+};
+
+/* Full strength in both modes: a faded stalk falls under 7:1 on its ground. */
+const strokeStalk = (
+  ctx: CanvasRenderingContext2D,
+  palette: HeroPalette,
+): void => {
+  ctx.strokeStyle = palette.stalk;
+  ctx.globalAlpha = 1;
+  ctx.lineWidth = Math.max(STALK_WIDTH.min, ctx.lineWidth * STALK_WIDTH_SHARE);
+  ctx.stroke();
+};
+
+/* Only a light bud's fill fades with distance: the ground goes under it and its outline stays opaque. */
+const fillBud = (
+  ctx: CanvasRenderingContext2D,
+  palette: HeroPalette,
+  tone: string,
+  alpha: number,
+): void => {
+  ctx.globalAlpha = 1;
+  if (!palette.fill) {
+    ctx.fillStyle = tone;
+    ctx.fill();
+    return;
+  }
+  ctx.fillStyle = palette.background;
+  ctx.fill();
+  ctx.globalAlpha = alpha;
+  ctx.fillStyle = palette.fill;
+  ctx.fill();
+  ctx.globalAlpha = 1;
+  ctx.strokeStyle = tone;
+  ctx.lineWidth = FILL_OUTLINE;
+  ctx.stroke();
 };
 
 const budLayout = (tall: number): { count: number; spacing: number } =>
   BUD_TIERS.find(({ above }) => tall > above) ?? { count: 0, spacing: 0 };
 
-const drawStalk = (
+const traceStalk = (
   ctx: CanvasRenderingContext2D,
   stem: Stem,
   lean: number,
@@ -233,7 +270,6 @@ const drawStalk = (
     stem.x + lean,
     stem.root - stem.height,
   );
-  ctx.stroke();
 };
 
 /** In bud sizes: set off the stalk to alternating sides, radii, and tilt in radians. */
@@ -255,6 +291,7 @@ const drawBuds = (
   bud: number,
   seconds: number,
   world: number,
+  fill: () => void,
 ): void => {
   const { count, spacing } = budLayout(stem.height / world);
   const nod =
@@ -280,7 +317,7 @@ const drawBuds = (
       0,
       Math.PI * 2,
     );
-    ctx.fill();
+    fill();
   }
 };
 
@@ -289,6 +326,7 @@ const drawHead = (
   stem: Stem,
   lean: number,
   bud: number,
+  fill: () => void,
 ): void => {
   const [tx, ty] = stemPoint(stem.x, stem.root, stem.height, lean, 1);
   ctx.beginPath();
@@ -301,7 +339,7 @@ const drawHead = (
     0,
     Math.PI * 2,
   );
-  ctx.fill();
+  fill();
 };
 
 /* Detail steps down with distance, with a minimum drawn size at each step. */
@@ -315,17 +353,17 @@ const drawStem = (
 ): void => {
   const alpha =
     (STEM_ALPHA.base + Math.sqrt(stem.scale) * STEM_ALPHA.byScale) * stem.veil;
-  ctx.globalAlpha = alpha;
-  ctx.strokeStyle = palette.border;
-  drawStalk(ctx, stem, lean);
+  traceStalk(ctx, stem, lean);
+  strokeStalk(ctx, palette);
 
   if (stem.height < BUD_MIN_HEIGHT * world) return;
 
   const bud = Math.max(BUD_SIZE.min, stem.size * BUD_SIZE.bySize);
-  ctx.globalAlpha = Math.min(BUD_ALPHA.max, alpha + BUD_ALPHA.lift);
-  ctx.fillStyle = budTone(palette, stem.tone);
-  drawBuds(ctx, stem, lean, bud, seconds, world);
-  drawHead(ctx, stem, lean, bud);
+  const tone = budTone(palette, stem.tone);
+  const budAlpha = Math.min(BUD_ALPHA.max, alpha + BUD_ALPHA.lift);
+  const fill = (): void => fillBud(ctx, palette, tone, budAlpha);
+  drawBuds(ctx, stem, lean, bud, seconds, world, fill);
+  drawHead(ctx, stem, lean, bud, fill);
 };
 
 /* Painted between far and near stems so it veils only the distance. */

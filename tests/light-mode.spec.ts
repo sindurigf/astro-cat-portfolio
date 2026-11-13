@@ -283,7 +283,7 @@ test.describe('light mode throws and marker squares stand out from the page (SC 
         probe.style.color = 'var(' + token + ')';
         return parse(getComputedStyle(probe).color);
       };
-      const buds = ['--color-hero-accent', '--color-gold-bud', '--color-hero-muted'];
+      const buds = ['--color-hero-accent', '--color-gold-bud', '--color-hero-muted', '--color-hero-stalk'];
       const surfaces = ['--color-hero-ground', '--color-hero-veil', '--color-hero-veil-edge', '--color-hero-floor', '--color-hero-floor-edge'];
       const out = [];
       for (const bud of buds) for (const surface of surfaces) {
