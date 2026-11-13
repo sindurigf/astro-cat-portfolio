@@ -18,7 +18,7 @@
     @apply mt-2 border-0 bg-transparent;
 
     &:focus-visible {
-      outline-offset: calc(-1 * (var(--focus-width) + var(--focus-gap)));
+      outline-offset: var(--focus-offset-inset);
     }
   }
 
@@ -58,7 +58,7 @@
 
     /* Inside the frame: outside, the ring would cross its edge. */
     &:focus-visible {
-      outline-offset: calc(-1 * (var(--focus-width) + var(--focus-gap)));
+      outline-offset: var(--focus-offset-inset);
     }
 
     /* Forced colors drop the frame's look: the button needs its own boundary there. */
