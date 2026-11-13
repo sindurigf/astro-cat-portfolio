@@ -244,15 +244,15 @@ rows 1a to 1c. L(`#FFC000`) is 0.5896, so AAA needs a foreground luminance of
 `text`, `subtle`, `red-text`, `red`, `cyan`) fails on gold. Use the inverted
 set; hex values and ratios are in the generated [Contrast](#contrast) table:
 
-| Token            | Job                                                     |
-| ---------------- | ------------------------------------------------------- |
-| `gold-text`      | Body copy, headings, button borders, the focus ring     |
-| `gold-muted`     | Secondary copy                                          |
-| `gold-border`    | Structural rules, dividers, card edges and shadows      |
-| `fill-edge`      | Edge of a gold or light fill, on gold or off it         |
-| `gold-link`      | Links, underlined; the block on hover                   |
-| `gold-bud`       | The canvas buds on gold. Decoration                     |
-| `gold-btn-label` | Label and inner ring on `.btn-gold-primary`'s fill only |
+| Token            | Job                                                                                                                         |
+| ---------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| `gold-text`      | Body copy, headings, button borders, the focus ring                                                                         |
+| `gold-muted`     | Secondary copy                                                                                                              |
+| `gold-border`    | Structural rules, dividers, card edges and shadows                                                                          |
+| `fill-edge`      | Edge of a gold or light fill, on gold or off it                                                                             |
+| `gold-link`      | Links, underlined; the block on hover                                                                                       |
+| `gold-bud`       | The canvas buds on gold. Decoration                                                                                         |
+| `gold-btn-label` | Label on the `gold-text` fill of `.btn-gold-primary` and a hovered `.btn-gold-secondary`; inner ring on `.btn-gold-primary` |
 
 - Build gold with `.surface-gold`, never `bg-gold` by hand. It repaints text,
   `.lead`, `.panel-lead` and `.standfirst` (`gold-text`), links (`gold-link`,
@@ -269,8 +269,8 @@ set; hex values and ratios are in the generated [Contrast](#contrast) table:
   `.surface-gold` to repaint.
 - Keep the link underline: `gold-link` is 1.01 against `gold-text`, so the
   underline carries SC 1.4.1.
-- `gold-btn-label` sits only on `.btn-gold-primary`'s `#131313` fill (18.58),
-  never on gold.
+- `gold-btn-label` sits only on a `#131313` button fill (18.58):
+  `.btn-gold-primary` and a hovered `.btn-gold-secondary`, never on gold.
 - No `gold-subtle`: a third step would be indistinguishable from `gold-text`.
   Below `gold-muted`, hierarchy is weight and size.
 - No `cyan`, `red` or `red-text` on gold, not even a shadow, except the red
@@ -629,7 +629,7 @@ file per area.
 ### Control states
 
 - Hover: `.btn-primary`, `.btn-secondary` and `.nav-cta` fill cyan with a
-  `background` label (11.86).
+  `background` label (11.86). On gold, see [Buttons on gold](#buttons-on-gold).
 - Lifted: under a hovering pointer the same controls rise `--press-lift` (2px)
   off their shadow, which grows by as much, so its far corner stays put. Not
   on touch screens, where hover sticks after a tap, and not under reduced
