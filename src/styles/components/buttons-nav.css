@@ -163,7 +163,7 @@
    * Sending is working, not unavailable: held pressed and gold, not dashed.
    */
   form[data-sending='true'] .btn-primary[aria-disabled='true'] {
-    @apply cursor-progress border-solid border-fill-edge bg-block-gold text-gold-text;
+    @apply cursor-progress border-solid border-text bg-block-gold text-gold-text;
   }
 
   @media (prefers-reduced-motion: no-preference) {
