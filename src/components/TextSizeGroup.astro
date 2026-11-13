@@ -2,7 +2,7 @@
 import textSizeFeature from '../scripts/text-size.ts?worker&url';
 
 interface Props {
-  /** Makes the label and hint ids unique: the page holds up to three groups. */
+  /** Makes the label id unique: the page holds up to three groups. */
   idPrefix: string;
   class?: string;
   buttonClass?: string;
@@ -10,9 +10,9 @@ interface Props {
 
 const { idPrefix, class: className = '', buttonClass = '' } = Astro.props;
 const BUTTONS = [
-  { action: 'smaller', label: 'Smaller', hint: 'Smaller text' },
-  { action: 'larger', label: 'Larger', hint: 'Larger text' },
-  { action: 'reset', label: 'Reset', hint: 'Back to 100 percent' },
+  { action: 'smaller', label: 'Smaller', rest: 'text' },
+  { action: 'larger', label: 'Larger', rest: 'text' },
+  { action: 'reset', label: 'Reset', rest: 'to 100 percent' },
 ] as const;
 ---
 
@@ -28,21 +28,17 @@ const BUTTONS = [
   <span id={`${idPrefix}-label`} class="label text-subtle">
     Text Size
   </span>
-  {BUTTONS.map(({ action, label, hint }) => (
-    <>
-      <button
-        type="button"
-        class:list={['text-size-button', buttonClass]}
-        data-on-demand={textSizeFeature}
-        data-size-action={action}
-        aria-describedby={`${idPrefix}-hint-${action}`}
-      >
-        {label}
-      </button>
-      <span id={`${idPrefix}-hint-${action}`} hidden>
-        {hint}
-      </span>
-    </>
+  {BUTTONS.map(({ action, label, rest }) => (
+    <button
+      type="button"
+      class:list={['text-size-button', buttonClass]}
+      data-on-demand={textSizeFeature}
+      data-size-action={action}
+    >
+      {/* sr-only text, not aria-label, keeps the visible label in the name (SC 2.5.3). */}
+      {label}
+      <span class="sr-only">{` ${rest}`}</span>
+    </button>
   ))}
   <span class="text-size-status" role="status" data-size-status />
 </div>
