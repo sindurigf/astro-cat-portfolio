@@ -33,7 +33,11 @@
   }
 
   /* In a block the field shares the block's fill, so only its ink edge passes 3:1 (red on gold is 1.48); the ring inside it is ink. */
-  :is(.card, .plain-slab, .post-contents):not(.surface-gold, .surface-gold *)
+  :is(.card, .plain-slab, .post-contents):not(
+      .surface-gold,
+      .surface-gold *,
+      .card-ground
+    )
     .field-control[aria-invalid='true'] {
     @apply border-border;
   }

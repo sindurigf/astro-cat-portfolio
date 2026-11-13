@@ -128,6 +128,9 @@ The gold-ground set is in [Gold surface](#gold-surface), light values in
   `text-gold` are ink (11.32 on gold, 14.42 on light), `subtle` is `gold-muted`
   (7.88) or `light-subtle` (7.40), and a badge inverts. Gold fills use
   `block-gold`, which never remaps. `tests/blocks.spec.ts`.
+- Ground cards: `.card-ground` (/contact, /contact/send, /contact/sent) is no
+  block. It keeps the page's tokens and ground, takes a 4px `text` edge and
+  casts the red throw; its controls keep the page's red throws and focus ring.
 - Walls: blocks in a `.card-block` share 4px walls with no gap. Each brick
   casts the throw as a `box-shadow` and the next brick covers it, so it shows
   on outer edges only. No `filter` on a wall: a filter layer costs raster time
@@ -599,7 +602,7 @@ file per area.
 
 | Class                                   | What                                                                                                                                                                                                                                                                    |
 | --------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `.btn-primary`                          | Gold fill, `gold-text` label, `border-4`, red 4px shadow, `text-button` 900                                                                                                                                                                                             |
+| `.btn-primary`                          | Gold fill, `gold-text` label, `border-4` in `text` (ink inside a block), red 4px shadow, `text-button` 900                                                                                                                                                              |
 | `.btn-secondary`                        | Light block: `block-light` fill, `block-ink` label and `border-4`, red 4px shadow                                                                                                                                                                                       |
 | `.actions`                              | Button row; its 32px row gap clears shadow and ring when buttons wrap                                                                                                                                                                                                   |
 | `.card`                                 | A gold block: `block-gold`, 4px `block-ink` edge, red 8px shadow, padding 24px, 40px from `sm`                                                                                                                                                                          |

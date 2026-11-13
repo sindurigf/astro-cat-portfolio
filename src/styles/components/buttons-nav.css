@@ -1,7 +1,7 @@
 @layer components {
   /* A label with no break opportunity, like an email address, still reflows (SC 1.4.10). */
   .btn-primary {
-    @apply lift-control inline-block border-4 border-fill-edge bg-block-gold px-8 py-4
+    @apply lift-control inline-block border-4 border-text bg-block-gold px-8 py-4
       text-button font-black uppercase tracking-label text-gold-text
       shadow-hard-red-4 wrap-anywhere max-w-full;
   }
