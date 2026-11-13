@@ -225,7 +225,7 @@ const closeRow = await closeRowLinks({
     </div>
   </Section>
 
-  <Section id={SECTIONS[1].id} title={SECTIONS[1].title}>
+  <Section id={SECTIONS[1].id} title={SECTIONS[1].title} brick>
     <div class="card-block grid lg:card-rise-room lg:grid-cols-2">
       <blockquote class="card surface-gold flex flex-col justify-center">
         <span aria-hidden="true" class="self-start text-quote-mark font-black">
@@ -260,6 +260,7 @@ const closeRow = await closeRowLinks({
   <Section
     id={SECTIONS[2].id}
     title={SECTIONS[2].title}
+    brick
     lead="I was alone for twenty years. After Arabasta I asked the Straw Hat Pirates to let me join, and their captain said yes."
   >
     <div class="card">
@@ -288,7 +289,7 @@ const closeRow = await closeRowLinks({
     </div>
   </Section>
 
-  <Section id={SECTIONS[3].id} title={SECTIONS[3].title}>
+  <Section id={SECTIONS[3].id} title={SECTIONS[3].title} brick>
     {/* A <dl>, so short bold values are not paragraphs WAVE reads as headings. */}
     <div class="cat-perch">
       <div class="cat-spot" id="cat-spot-rudra"></div>
@@ -336,7 +337,7 @@ const closeRow = await closeRowLinks({
     </div>
   </Section>
 
-  <Section id={SECTIONS[4].id} title={SECTIONS[4].title}>
+  <Section id={SECTIONS[4].id} title={SECTIONS[4].title} brick>
     <p slot="lead" class="lead">
       My story so far, in two halves: the island that raised me, and the twenty
       years after it.
@@ -398,7 +399,7 @@ const closeRow = await closeRowLinks({
   )}
 
   {/* The cat is drawn by a script; without one, its name and line are still on the page (ACCESSIBILITY.md, Scripts). */}
-  <Section title="The Cat" class="cats-noscript">
+  <Section title="The Cat" class="cats-noscript" brick>
     <ul role="list" class="flex flex-col gap-4">
       {CATS.map((cat) => (
         <li class="text-body text-text">

@@ -54,7 +54,7 @@
    */
   :is(
     .card-solid,
-    .plain-slab,
+    .plain-slab:not(.plain-slab-gold),
     .post-contents,
     .card-block > .card:nth-child(even),
     .card-block > :nth-child(even) > .card
@@ -258,7 +258,8 @@
    * the pointer and draws its ring inside, so it never crosses the next brick.
    */
   /* The dark mode cyan in both modes: light mode's cyan is a text color, 2.55 under ink. */
-  .contact-brick:hover {
+  /* Weighted to beat the light block's fill on every second brick. */
+  .card-block .card.contact-brick:hover {
     background-color: var(--dark-cyan);
   }
 

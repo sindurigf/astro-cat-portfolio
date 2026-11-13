@@ -48,7 +48,7 @@ blur, uppercase headings, tilted marks.
 | 3   | the logo marks: the homepage sticker; the box cat and the logo cat are cardboard and the cats' coats, not gold                                   | `/`                                    |
 | 4   | Card labels, `.label text-gold`; a form's field labels are `text`                                                                                | `/about`, `/accessibility`, `/contact` |
 | 5   | Category: the blog label and the homepage glyph tiles, ink-edged on gold                                                                         | 3 routes                               |
-| 6   | Display words: the homepage family name                                                                                                          | `/`                                    |
+| 6   | Display words: the homepage family name; section title bricks (`Section brick`)                                                                  | `/`, `/about`, `/career`               |
 | 7   | List markers in `.bullet-list`                                                                                                                   | wherever a bulleted list is            |
 | 8   | The `gold` swatch and the contrast samples on gold; fills, hex in both modes                                                                     | `/brand`                               |
 | 9   | Edges in dark mode: `border` on fields, controls, chips, rules and the outer edge of a gold area                                                 | every route                            |
@@ -818,11 +818,11 @@ Three openings, no fourth: Home's canvas hero, a post's
 Set by `PageHero`'s `slab` prop. The tier follows what is under the title, not
 how important the page is.
 
-| Tier  | `slab`   | Routes                                                                                            | Ground   | Title                                                                    | Aside              | Padding              |
-| ----- | -------- | ------------------------------------------------------------------------------------------------- | -------- | ------------------------------------------------------------------------ | ------------------ | -------------------- |
-| Full  | `"full"` | `/about`, `/career`, `/contact`, `/blog`, `/credits`, `/brand`; `/contact/send`, `/blog/page/<n>` | gold     | `text-h1`; `text-h2` on the last two                                     | `.standfirst`      | `py-section`         |
-| Thin  | `"thin"` | `/contact/sent` and a post's own `.post-slab`                                                     | gold     | `text-post-title`                                                        | `text-post-teaser` | `pt-head pb-section` |
-| Plain | `"none"` | `/privacy`, `/accessibility`, category and tag listings, `/404`                                   | the page | `text-reading-h1`; `text-h1` on `/404`; `text-h2` on categories and tags | `text-post-teaser` | `pt-head pb-section` |
+| Tier  | `slab`   | Routes                                                                                            | Ground                                                              | Title                                                                    | Aside              | Padding              |
+| ----- | -------- | ------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------- | ------------------------------------------------------------------------ | ------------------ | -------------------- |
+| Full  | `"full"` | `/about`, `/career`, `/contact`, `/blog`, `/credits`, `/brand`; `/contact/send`, `/blog/page/<n>` | gold                                                                | `text-h1`; `text-h2` on the last two                                     | `.standfirst`      | `py-section`         |
+| Thin  | `"thin"` | `/contact/sent` and a post's own `.post-slab`                                                     | gold                                                                | `text-post-title`                                                        | `text-post-teaser` | `pt-head pb-section` |
+| Plain | `"none"` | `/privacy`, `/accessibility`, category and tag listings, `/404`                                   | light block; gold block on categories and tags (`plainFill="gold"`) | `text-reading-h1`; `text-h1` on `/404`; `text-h2` on categories and tags | `text-post-teaser` | `pt-head pb-section` |
 
 - **Full:** the opening is a statement and the other half of the composition
   has content.

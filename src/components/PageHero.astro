@@ -23,6 +23,8 @@ interface Props {
   headingLevel?: 1 | 3;
   /* Only for /brand's post example: a post title keeps its written case (`.post-title`). */
   writtenCase?: boolean;
+  /* Plain tier only: the slab takes the gold block fill instead of the light one. */
+  plainFill?: 'light' | 'gold';
 }
 
 const {
@@ -34,6 +36,7 @@ const {
   measure = 'page',
   headingLevel = 1,
   writtenCase = false,
+  plainFill = 'light',
 } = Astro.props;
 const Title = `h${headingLevel}` as 'h1' | 'h3';
 
@@ -68,7 +71,12 @@ const titleClass =
         <slot name="eyebrow" />
       </div>
     )}
-    <div class="plain-slab gold-column relative bg-surface">
+    <div
+      class:list={[
+        'plain-slab gold-column relative bg-surface',
+        plainFill === 'gold' && 'plain-slab-gold',
+      ]}
+    >
       <div class="max-w-page">
         <slot name="kicker" />
         <Title class:list={[titleClass, 'text-text']}>{title}</Title>

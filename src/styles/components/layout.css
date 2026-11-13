@@ -466,3 +466,10 @@
     @apply border-4 px-4 py-2 font-black uppercase;
   }
 }
+
+/* Utilities layer: replaces the heading's `text-text` utility. */
+@layer utilities {
+  .section-brick {
+    @apply edge inline-block border-fill-edge bg-block-gold px-6 py-3 text-gold-text shadow-hard-red-object;
+  }
+}
