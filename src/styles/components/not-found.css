@@ -11,7 +11,5 @@
     margin-top: --spacing(5);
     font-size: var(--follow-to-size);
     line-height: var(--text-contents--line-height);
-
-    @apply text-gold-text;
   }
 }
