@@ -22,6 +22,7 @@
     "test:a11y:ui": "playwright test --ui",
     "test:coverage": "COVERAGE=1 playwright test -c playwright.coverage.config.ts",
     "check:tokens": "node scripts/check-tokens.mjs",
+    "check:css": "node scripts/check-css-properties.mjs",
     "check:wording": "node scripts/check-wording.mjs",
     "check:links": "node scripts/check-links.mjs",
     "check:pins": "node scripts/check-pins.mjs",
@@ -43,7 +44,7 @@
     "about-cats": "node scripts/make-about-cats.mjs",
     "icons": "node scripts/make-icons.mjs",
     "box-cat": "node scripts/make-box-cat.mjs",
-    "check": "npm run check:tokens && npm run check:wording && npm run check:links && npm run check:pins && npm run check:classes && npm run check:csp && npm run check:untransformed && npm run check:title-case && npm run check:exif && npm run check:images-of-text && npm run format:check && npm run check:commits && npm run check:leaks && npm run check:fork"
+    "check": "npm run check:tokens && npm run check:css && npm run check:wording && npm run check:links && npm run check:pins && npm run check:classes && npm run check:csp && npm run check:untransformed && npm run check:title-case && npm run check:exif && npm run check:images-of-text && npm run format:check && npm run check:commits && npm run check:leaks && npm run check:fork"
   },
   "dependencies": {
     "@astrojs/cloudflare": "^14.4.2",
@@ -71,7 +72,9 @@
     "@pa11y/html_codesniffer": "^2.6.0",
     "@playwright/test": "1.63.0",
     "@types/node": "^24.19.2",
+    "css-tree": "^3.2.1",
     "monocart-reporter": "^2.15.1",
+    "postcss": "^8.5.32",
     "prettier": "^3.9.10",
     "prettier-plugin-astro": "^1.1.2",
     "typescript": "^6.0.3",

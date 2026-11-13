@@ -4,6 +4,12 @@
 export const TOKEN_EXCEPTIONS = [];
 
 /*
+ * `file:property` for a declaration css-tree does not know but a browser does,
+ * each with its reason. An entry that no longer matches fails.
+ */
+export const CSS_PROPERTY_EXCEPTIONS = new Map();
+
+/*
  * Classes that exist only for a test or script to select. An entry that no
  * longer matches fails.
  */
