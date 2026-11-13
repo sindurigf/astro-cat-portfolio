@@ -1195,8 +1195,9 @@ Enforced by `tests/footer.spec.ts`.
 by `tests/reading-tab.spec.ts`.
 
 - One group, "Text Size": Smaller (smaller), Larger (larger) and Reset
-  (100 percent), each 44px at least, hints as descriptions, and a polite
-  status. Hidden without a script, and absent in print.
+  (100 percent), each 44px at least, and a polite status. Each name is the
+  visible label, then the rest in `sr-only` text: "Smaller text", "Reset to
+  100 percent". Hidden without a script, and absent in print.
 - Where it sits depends on the width. From 86rem (the `tab` variant) the page
   leaves a free gutter beside its 80rem column, and the control is an edge tab
   in it: a `popover` button named "Aa Text Size", fixed to the right at
