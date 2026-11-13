@@ -126,6 +126,14 @@
     color: var(--color-gold-btn-label);
   }
 
+  /* Hover is the lift alone otherwise, and reduced motion drops the lift (SC 1.4.1). */
+  :is(.surface-gold, .card)
+    .btn-gold-primary:hover:not([aria-disabled='true']) {
+    text-decoration: underline;
+    text-decoration-thickness: var(--underline-thin);
+    text-underline-offset: var(--underline-offset);
+  }
+
   .surface-gold a.btn-gold-secondary:hover {
     color: var(--color-gold-text);
   }

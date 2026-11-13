@@ -300,9 +300,12 @@ set; hex values and ratios are in the generated [Contrast](#contrast) table:
 - `.btn-gold-primary` is scoped to `.surface-gold` and blocks (`.card`);
   `.btn-gold-secondary` to `.surface-gold`. Both render unstyled elsewhere.
 - The /contact submit and the /brand form sample are `.btn-gold-primary` in a
-  block. Its fill is 11.32 on a gold block and 14.42 on a light one.
+  block. Its fill is 11.32 on a gold block, 9.36 on light mode's cyan block
+  and 14.42 on a light one.
 - Both `text-button`, 900, 0.1em, uppercase, `px-8 py-4`. No underline on the
-  label.
+  label at rest. `.btn-gold-primary` underlines it under the pointer
+  (`--underline-thin`), so hover still shows where reduced motion drops the
+  lift (SC 1.4.1).
 
 ## Light mode
 
@@ -646,7 +649,9 @@ file per area.
   it slides instead of fading (`buttons-nav.css`).
 - Unavailable: `aria-disabled="true"`, never `disabled`. Dashed `border`
   (the dash says unavailable, the gold keeps the shape), `bg-background`,
-  `subtle` label, no shadow; still focusable.
+  `subtle` label, no shadow; still focusable. An `aria-disabled`
+  `.btn-gold-primary` keeps its ink fill and label instead and is drawn
+  pressed, in or out of a form.
 - Sending: the contact submit is `aria-disabled` in a `data-sending` form but
   keeps its ink fill and is drawn pressed, not unavailable
   (`src/scripts/contact-sending.ts`).
