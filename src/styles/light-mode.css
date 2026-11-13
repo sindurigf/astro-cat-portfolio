@@ -57,7 +57,8 @@
     --color-hero-floor: var(--color-light-ground);
     --color-hero-floor-edge: var(--color-light-ground);
     --color-hero-accent: var(--color-light-hero-accent);
-    --color-hero-muted: var(--color-light-subtle);
+    --color-hero-muted: var(--color-light-ink);
+    --color-hero-fill: var(--color-block-cyan);
     --color-mark: var(--color-light-red-text);
     --page-mark: var(--color-light-red-text);
     /* The mirror of dark mode's gold: every gold fill turns cyan, ink on it 9.36. */
@@ -123,6 +124,7 @@
     --page-mark: var(--dark-mark);
     --color-hero-accent: var(--dark-hero-accent);
     --color-hero-muted: var(--dark-hero-muted);
+    --color-hero-fill: initial;
     --color-gold: var(--dark-block-gold);
     --color-block-gold: var(--dark-block-gold);
     --color-gold-muted: var(--dark-gold-muted);
@@ -133,10 +135,6 @@
 
   :is(:root.light main, main .mode-light) .hero-window:not(.mode-dark *) {
     background-color: var(--color-background);
-  }
-
-  :root.light .v-column .hero-window {
-    --color-gold-bud: var(--color-hero-accent);
   }
 
   /*

@@ -2,13 +2,9 @@
 import { reflectFit } from './scroll-fit';
 
 /*
- * The content is at least its box wide and grows with text spacing
- * (prose.css). Both are watched: a table at its narrowest keeps its size
- * while its box shrinks past it.
- *
- * SC 2.4.12: a box taller than the room below `scroll-padding-top`, reached
- * by keyboard from below, comes into view bottom first, its top under the
- * sticky header; its start then scrolls in. A pointer focus never scrolls.
+ * Content and box are both watched: a table at its narrowest keeps its size while its box shrinks.
+ * SC 2.4.12: the browser shows a tall box reached by keyboard from below bottom first, so
+ * scrollIntoView(true) brings its start in; `:focus-visible` guards it: pointer focus never scrolls.
  */
 for (const content of document.querySelectorAll(
   'pre[role=group]>code, .table-scroll>table',

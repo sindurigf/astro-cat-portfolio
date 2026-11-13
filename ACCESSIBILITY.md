@@ -257,7 +257,7 @@ CSS and `tests/contrast-table.spec.ts` fails when it drifts.
 ### The gold surface
 
 A full or thin PageHero slab, the closing band on `/contact`, the quote on
-`/about`, the close row card, the homepage hero window and any
+`/about`, the close row card and any
 `Section surface="gold"` are `#FFC000`. Every dark
 token fails on it, so `.surface-gold` swaps in a near-black set, links stay
 underlined (SC 1.4.1) and the dark buttons are replaced by gold ones:
