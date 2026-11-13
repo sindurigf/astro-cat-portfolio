@@ -633,6 +633,8 @@ file per area.
   off their shadow, which grows by as much, so its far corner stays put. Not
   on touch screens, where hover sticks after a tap, and not under reduced
   motion.
+- Under reduced motion `.btn-gold-primary` takes `.btn-gold-secondary`'s
+  empty fill on hover instead, without its inner ring (`tests/states.spec.ts`).
 - Pressed: buttons, `.btn-gold-primary`, linked chips and footer stickers drop
   their shadow and move 4px into it; the menu's bricks 6px; the logo tile 8px.
   The header's joined bricks and a chip row's chips share their row's throw
