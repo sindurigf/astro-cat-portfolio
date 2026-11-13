@@ -12,6 +12,8 @@ interface Props {
   headless?: boolean;
   /* In a gold section, `text-text` and `text-gold` fail SC 1.4.3; tests/gold-surface.spec.ts catches them. */
   surface?: 'page' | 'gold';
+  /* The title as a gold brick; page surface only. */
+  brick?: boolean;
   class?: string;
 }
 
@@ -22,6 +24,7 @@ const {
   panel = false,
   headless = false,
   surface = 'page',
+  brick = false,
   class: className = '',
 } = Astro.props;
 
@@ -52,7 +55,10 @@ const headingId = id ? `${id}-heading` : undefined;
       </div>
     ) : (
       <>
-        <h2 id={headingId} class:list={['text-h2', titleTone]}>
+        <h2
+          id={headingId}
+          class:list={['text-h2', brick && !gold ? 'section-brick' : titleTone]}
+        >
           <slot name="title">{title}</slot>
         </h2>
         {lead && <p class="lead">{lead}</p>}
