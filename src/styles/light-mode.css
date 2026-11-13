@@ -103,6 +103,18 @@
     color: var(--color-block-light);
   }
 
+  /*
+   * A contact brick hovers to ink under `block-light` (14.42), as the header's
+   * link bricks do; its ring turns light on the ink.
+   */
+  :is(:root.light main, main .mode-light)
+    .card-block
+    .card.contact-brick:hover:not(.mode-dark *) {
+    background-color: var(--color-block-ink);
+    color: var(--color-block-light);
+    outline-color: var(--color-block-light);
+  }
+
   :root.light main .mode-dark {
     --color-background: var(--dark-background);
     --color-surface: var(--dark-surface);

@@ -569,16 +569,16 @@ with a comment beside it.
   fringe; when they match, the fill runs under the edge, or the ground shows
   between them as a seam (`tests/tilt.spec.ts`, every route, both modes).
 
-| Utility                     | Casts it                                                                                                              |
-| --------------------------- | --------------------------------------------------------------------------------------------------------------------- |
-| `shadow-hard-red-object`    | Cards, post contents, gold areas, popovers, the header bar; `--hard-throw` (8px)                                      |
-| `shadow-hard-red-4`         | The PageHero photo, `.btn-primary`, `.btn-secondary`, link chips, footer stickers                                     |
-| `shadow-brick`              | The header's brick rows (in `block-ink`), the menu's links, call to action and Close; `--brick-throw` (6px) in `text` |
-| `shadow-hard-cyan-object`   | A hovered linked card, in place of red; a contact link brick fills cyan instead, its ring inside in ink               |
-| `shadow-hard-gold-border-4` | A card on gold                                                                                                        |
-| `shadow-hard-mark-4`        | `.sticker`, `.btn-gold-primary`                                                                                       |
-| `shadow-hard-mark-8`        | The homepage stickers                                                                                                 |
-| `mark-throw`                | The logo tile in the header and on `/about`, following its ears; `--lift-mark` (8px), `mark-throw-large` 12px         |
+| Utility                     | Casts it                                                                                                                                                                |
+| --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `shadow-hard-red-object`    | Cards, post contents, gold areas, popovers, the header bar; `--hard-throw` (8px)                                                                                        |
+| `shadow-hard-red-4`         | The PageHero photo, `.btn-primary`, `.btn-secondary`, link chips, footer stickers                                                                                       |
+| `shadow-brick`              | The header's brick rows (in `block-ink`), the menu's links, call to action and Close; `--brick-throw` (6px) in `text`                                                   |
+| `shadow-hard-cyan-object`   | A hovered linked card, in place of red; a contact link brick fills instead, cyan in dark mode and ink in light mode (label 14.42), its ring inside in the label's color |
+| `shadow-hard-gold-border-4` | A card on gold                                                                                                                                                          |
+| `shadow-hard-mark-4`        | `.sticker`, `.btn-gold-primary`                                                                                                                                         |
+| `shadow-hard-mark-8`        | The homepage stickers                                                                                                                                                   |
+| `mark-throw`                | The logo tile in the header and on `/about`, following its ears; `--lift-mark` (8px), `mark-throw-large` 12px                                                           |
 
 - `mark` is `red`'s hex but stays red in light mode, where `red` turns
   ink.

@@ -173,6 +173,41 @@ for (const colorScheme of ['dark', 'light'] as const) {
       }
     });
 
+    test('/contact: a focused brick link keeps a ring that reads on its hovered fill (SC 1.4.11)', async ({
+      page,
+    }) => {
+      await gotoSettled(page, '/contact');
+      const bricks = page.locator('a.contact-brick:visible');
+      const found = await bricks.count();
+      expect(found, '/contact has no brick link').toBeGreaterThan(0);
+      /* A key press first, so the scripted focus counts as keyboard focus. */
+      await page.keyboard.press('Tab');
+      for (let i = 0; i < found; i += 1) {
+        const brick = bricks.nth(i);
+        await brick.scrollIntoViewIfNeeded();
+        await brick.focus();
+        await brick.hover({ force: true });
+        const ring = (await brick.evaluate(
+          (el, source) => (0, eval)(source)(el),
+          `(el) => {
+            ${PAGE_HELPERS}
+            const cs = getComputedStyle(el);
+            const fill = parse(cs.backgroundColor);
+            return {
+              drawn: el.matches(':focus-visible') && cs.outlineStyle !== 'none',
+              against: ratio(over(parse(cs.outlineColor), fill), fill),
+            };
+          }`,
+        )) as { drawn: boolean; against: number };
+        expect(ring.drawn, `brick ${i + 1} has no focus ring`).toBe(true);
+        expect(
+          ring.against,
+          `brick ${i + 1}'s ring is under ${NON_TEXT}:1 on its hovered fill`,
+        ).toBeGreaterThanOrEqual(NON_TEXT);
+        await page.mouse.move(0, 0);
+      }
+    });
+
     for (const route of LINK_ROUTES) {
       test(`${route}: links in blocks read through hover and focus, rings inside their block`, async ({
         page,
