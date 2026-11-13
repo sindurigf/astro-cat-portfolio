@@ -399,7 +399,7 @@
   }
 
   /* Rings drawn inside the brick, on its own fill, so they never cross the next one. */
-  .header-bricks :focus-visible:not(.theme-menu *) {
+  .header-bricks :focus-visible:not(.theme-menu *, [data-menu-close]) {
     position: relative;
     z-index: 1;
     outline-offset: calc(-1 * (var(--block-edge) + var(--focus-gap)));
