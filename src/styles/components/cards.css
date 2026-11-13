@@ -54,7 +54,7 @@
    */
   :is(
     .card-solid,
-    .plain-slab,
+    .plain-slab:not(.plain-slab-gold),
     .post-contents,
     .card-block > .card:nth-child(even),
     .card-block > :nth-child(even) > .card
