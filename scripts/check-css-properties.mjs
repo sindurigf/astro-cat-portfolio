@@ -1,11 +1,11 @@
 /*
- * Fails on a CSS declaration whose property name css-tree does not know, such
- * as `text-decoration-thinness`: the browser drops it without a warning.
- * Custom properties and vendor-prefixed properties are skipped; a descriptor
- * is checked against its at-rule.
+ * Fails on a CSS property name that css-tree does not know, such as
+ * `text-decoration-thinness`, which a browser drops silently. Custom and
+ * vendor-prefixed properties are skipped; a descriptor checks against its at-rule.
  */
 
 import { fileURLToPath } from 'node:url';
+import { existsSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import { join, relative } from 'node:path';
 import postcss from 'postcss';
@@ -18,7 +18,7 @@ const ROOT =
 const SRC = join(ROOT, 'src');
 
 const CUSTOM_PROPERTY = /^--/;
-const VENDOR_PREFIXED = /^-[a-z]+-/;
+const VENDOR_PREFIXED = /^-(?:webkit|moz|ms|o)-/;
 
 /* Tailwind directives and nesting wrappers hold declarations of the parent. */
 const TRANSPARENT_AT_RULES = new Set([
@@ -32,8 +32,6 @@ const TRANSPARENT_AT_RULES = new Set([
   'variant',
   'custom-variant',
   'theme',
-  'apply',
-  'reference',
   'keyframes',
 ]);
 
@@ -76,27 +74,48 @@ const cssSources = (file, source) =>
 
 const used = new Set();
 
+const parse = (css, name, offset) => {
+  try {
+    return { root: postcss.parse(css, { from: name }) };
+  } catch (error) {
+    if (error.name !== 'CssSyntaxError') throw error;
+    return {
+      problem: `${name}:${error.line + offset}: cannot parse CSS: ${error.reason}`,
+    };
+  }
+};
+
 const unknownIn = (file, source) =>
   cssSources(file, source).flatMap(({ css, offset }) => {
-    const root = postcss.parse(css, { from: file });
+    const name = relative(ROOT, file);
+    const { root, problem } = parse(css, name, offset);
+    if (!root) return [problem];
     const found = [];
     root.walkDecls((declaration) => {
       if (isKnown(declaration)) return;
-      const relativeFile = relative(ROOT, file);
-      const key = `${relativeFile}:${declaration.prop.toLowerCase()}`;
+      const key = `${name}:${declaration.prop.toLowerCase()}`;
       if (EXCEPTIONS.has(key)) {
         used.add(key);
         return;
       }
       found.push(
-        `${relativeFile}:${declaration.source.start.line + offset}: unknown property \`${declaration.prop}\``,
+        `${name}:${declaration.source.start.line + offset}: unknown property \`${declaration.prop}\``,
       );
     });
     return found;
   });
 
-const files = filesUnder(SRC, ['.css', '.astro']);
+/* The CV stylesheet is authored CSS outside src/, printed to the CV PDF. */
+const CV_STYLESHEET = join(ROOT, 'cv/cv.css');
+
+const files = [
+  ...filesUnder(SRC, ['.css', '.astro']),
+  ...(existsSync(CV_STYLESHEET) ? [CV_STYLESHEET] : []),
+];
 const problems = [];
+if (files.length === 0) {
+  problems.push(`${relative(ROOT, SRC)}  no source file found to check`);
+}
 for (const file of files) {
   problems.push(...unknownIn(file, await readFile(file, 'utf8')));
 }

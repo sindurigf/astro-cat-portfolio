@@ -34,10 +34,39 @@ test.describe('check:css', NODE, () => {
         '@font-face { font-display: swap; src: url(a.woff2); }',
         '@property --angle { syntax: "<angle>"; inherits: false; initial-value: 0deg; }',
         '@page { margin: 0; size: A4; }',
-        '@layer components { .a { @apply p-4; --token: 1px; -webkit-text-stroke: 1px; text-decoration-thickness: 2px; } }',
+        '@layer components { .a { @apply p-4; --token: 1px; -webkit-text-stroke: 1px; -moz-nonexistent: 1; text-decoration-thickness: 2px; } }',
         '',
       ].join('\n'),
     );
     expect(status, output).toBe(0);
+  });
+
+  test('fails a prefix that no browser uses', () => {
+    const { status, output } = run('.a { -x-anything: 1; }\n');
+    expect(status, output).not.toBe(0);
+    expect(output).toContain('-x-anything');
+  });
+
+  test('fails a misspelled descriptor inside an at-rule', () => {
+    const { status, output } = run('@font-face { font-displya: swap; }\n');
+    expect(status, output).not.toBe(0);
+    expect(output).toContain('font-displya');
+  });
+
+  test('reports CSS that does not parse as one line, not a stack dump', () => {
+    const root = fixture({
+      'src/components/Vars.astro':
+        '<style define:vars={{ a > b }}>\n  p { color: red; }\n</style>\n',
+    });
+    const { status, output } = runCheck(SCRIPT, root);
+    expect(status, output).not.toBe(0);
+    expect(output).toContain('src/components/Vars.astro:');
+    expect(output).not.toContain('    at ');
+  });
+
+  test('fails when the tree has no source file to check', () => {
+    const { status, output } = runCheck(SCRIPT, fixture({}));
+    expect(status, output).not.toBe(0);
+    expect(output).toContain('no source file found');
   });
 });
