@@ -83,7 +83,10 @@ const walkGoldSections = (page: Page) =>
   page.evaluate(`(() => {
     ${PAGE_HELPERS}
     ${TEXT_ON_GOLD_IN}
-    const sections = [...document.querySelectorAll('.surface-gold')];
+    // A section hidden at this width has no ground to measure.
+    const sections = [...document.querySelectorAll('.surface-gold')].filter((node) =>
+      node.checkVisibility(),
+    );
     if (sections.length === 0) {
       return { section: false, controls: 0, textInside: 0, invisible: [] };
     }
@@ -208,6 +211,28 @@ test.describe('the gold surface exception', () => {
       'no menu text measured; the dialog ground is the page, which is the slab color in dark mode.',
     ).toBe(true);
     expectNoneBelowAAA(found);
+  });
+
+  // Gold is dark mode's; light mode's cyan is light-mode.spec.ts's.
+  test(`text on gold reads at AAA on /404 at ${NARROW_WIDTH}px`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: NARROW_WIDTH, height: 900 });
+    await gotoSettled(page, '/404');
+
+    const walked = await walkGoldSections(page);
+    expectGoldSectionWalked('/404', walked);
+    expect(walked.invisible, invisibleControlMessage(walked.invisible)).toEqual(
+      [],
+    );
+
+    const failing = (await textOnGold(page)).filter(
+      (entry) => entry.ratio < AAA_TEXT,
+    );
+    expect(
+      failing,
+      `text on gold below ${AAA_TEXT}:1 on /404 (SC 1.4.6)`,
+    ).toEqual([]);
   });
 
   test(`the ${GOLD_ROUTE} gold button keeps its inner ring at 305px`, async ({
