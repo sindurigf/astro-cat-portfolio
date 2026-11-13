@@ -324,8 +324,7 @@ The switch and what it scopes: [ARCHITECTURE.md](../ARCHITECTURE.md#light-mode).
 | `cyan` (focus ring and hover text)          | `#0047b3` | 8.23         |
 
 - Light values are `light-*` tokens in `global.css` (`light-focus` for
-  `cyan`, `light-red-text`, `light-hero-accent`), swapped in by
-  `light-mode.css`.
+  `cyan`, `light-red-text`), swapped in by `light-mode.css`.
 - The homepage hero has no frame and no ground of its own: it stands on the
   page ground, page text on it. Both modes draw every stalk at full strength
   and half width, no thinner than 0.55px. Dark mode draws gold stalks and buds
