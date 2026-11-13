@@ -476,6 +476,7 @@
    */
   --focus-width: 4px;
   --focus-gap: 4px;
+  --focus-offset-inset: calc(-1 * (var(--focus-width) + var(--focus-gap)));
   --lift-control: 4px;
   --lift-object: var(--hard-throw);
   /* The logo keeps its 8px shadow, so its ring clears 8px. */

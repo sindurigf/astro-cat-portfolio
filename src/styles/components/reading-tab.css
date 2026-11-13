@@ -40,7 +40,7 @@
     }
 
     &:focus-visible {
-      outline-offset: calc(-1 * (var(--focus-width) + var(--focus-gap)));
+      outline-offset: var(--focus-offset-inset);
     }
   }
 
@@ -86,7 +86,7 @@
     }
 
     &:focus-visible {
-      outline-offset: calc(-1 * (var(--focus-width) + var(--focus-gap)));
+      outline-offset: var(--focus-offset-inset);
     }
 
     &[aria-disabled='true'] {
