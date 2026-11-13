@@ -194,7 +194,7 @@
      */
     &:hover > :not(.post-contents-marker) {
       text-decoration: underline;
-      text-decoration-thickness: var(--underline-thick);
+      text-decoration-thinness: var(--underline-thin);
       text-underline-offset: var(--underline-offset);
     }
   }
