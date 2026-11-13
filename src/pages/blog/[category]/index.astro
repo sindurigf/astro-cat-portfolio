@@ -42,7 +42,12 @@ const trail = blogTrail(label);
   trail={trail}
 >
   {/* No "All Posts" link here: the filter's first option already is one. */}
-  <PageHero title={headingLabel(label)} titleSize="h2" slab="none">
+  <PageHero
+    title={headingLabel(label)}
+    titleSize="h2"
+    slab="none"
+    plainFill="gold"
+  >
     <Breadcrumbs slot="eyebrow" crumbs={trail.crumbs} />
   </PageHero>
 
