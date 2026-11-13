@@ -126,6 +126,15 @@
     color: var(--color-gold-btn-label);
   }
 
+  /* Without the lift, hover takes the secondary's empty fill; the inner ring has no fill left to sit on. */
+  @media (prefers-reduced-motion: reduce) and (hover: hover) {
+    .surface-gold a.btn-gold-primary:hover:not(:active) {
+      --press-ring: 0 0 transparent;
+      background-color: transparent;
+      color: var(--color-gold-text);
+    }
+  }
+
   .surface-gold a.btn-gold-secondary:hover {
     color: var(--color-gold-text);
   }
