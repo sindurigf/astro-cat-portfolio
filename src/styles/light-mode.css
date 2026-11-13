@@ -29,7 +29,6 @@
     --page-mark: var(--color-mark);
     --dark-hero-veil-edge: var(--color-hero-veil-edge);
     --dark-hero-floor-edge: var(--color-hero-floor-edge);
-    --dark-hero-accent: var(--color-hero-accent);
     --dark-hero-muted: var(--color-hero-muted);
     --dark-block-gold: var(--color-block-gold);
     --dark-gold-muted: var(--color-gold-muted);
@@ -56,7 +55,6 @@
     --color-hero-veil-edge: var(--color-light-ground);
     --color-hero-floor: var(--color-light-ground);
     --color-hero-floor-edge: var(--color-light-ground);
-    --color-hero-accent: var(--color-light-hero-accent);
     --color-hero-muted: var(--color-light-ink);
     --color-hero-fill: var(--color-block-cyan);
     --color-mark: var(--color-light-red-text);
@@ -122,7 +120,6 @@
     --color-hero-floor-edge: var(--dark-hero-floor-edge);
     --color-mark: var(--dark-mark);
     --page-mark: var(--dark-mark);
-    --color-hero-accent: var(--dark-hero-accent);
     --color-hero-muted: var(--dark-hero-muted);
     --color-hero-fill: initial;
     --color-gold: var(--dark-block-gold);

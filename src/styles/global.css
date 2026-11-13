@@ -228,9 +228,6 @@
   --color-hero-floor: rgba(19, 19, 19, 0.1);
   --color-hero-floor-edge: rgba(19, 19, 19, 0);
 
-  /* Mint: 11.59:1 on the page ground; light mode's 5.3:1 on white (SC 1.4.11). */
-  --color-hero-accent: #4adeb0;
-  --color-light-hero-accent: #0f7a5c;
   /*
    * The canvas's stalks. `hero-fill`, set in light mode only, fills the buds,
    * and the stalk color outlines them.
