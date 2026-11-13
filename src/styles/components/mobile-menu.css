@@ -37,7 +37,7 @@
  * fills the viewport.
  */
 .mobile-menu-dialog:focus-visible {
-  outline-offset: calc(-1 * (var(--focus-width) + var(--focus-gap)));
+  outline-offset: var(--focus-offset-inset);
 }
 
 .mobile-menu-dialog::backdrop {

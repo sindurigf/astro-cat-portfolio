@@ -92,7 +92,7 @@
   .brand-menu-link:focus-visible {
     position: relative;
     z-index: 1;
-    outline-offset: calc(-1 * (var(--focus-width) + var(--focus-gap)));
+    outline-offset: var(--focus-offset-inset);
   }
 
   /*
@@ -172,7 +172,7 @@
     }
 
     &:focus-visible {
-      outline-offset: calc(-1 * (var(--focus-width) + var(--focus-gap)));
+      outline-offset: var(--focus-offset-inset);
     }
 
     /* The ring is cyan, as is the hover fill: it turns to the page ground. */
@@ -199,15 +199,6 @@
   @media (hover: hover) {
     .copy-wrap:hover:not([data-dismissed], [data-copied]) .copy-tip {
       display: block;
-    }
-  }
-
-  :root.light main .copy-button:hover {
-    background-color: var(--dark-cyan);
-    color: var(--color-light-ink);
-
-    &:focus-visible {
-      outline-color: var(--color-light-ink);
     }
   }
 
