@@ -58,11 +58,13 @@ const expectHoverReadsAndDiffers = async (
   await page.mouse.move(0, 0);
   const rest = await look(page, control, surface);
   await surface.hover();
-  for (const part of new Set([surface, control])) {
-    await part.evaluate((el) =>
-      Promise.all(el.getAnimations().map((animation) => animation.finished)),
-    );
-  }
+  await surface.evaluate((el) =>
+    Promise.all(
+      el
+        .getAnimations({ subtree: true })
+        .map((animation) => animation.finished),
+    ),
+  );
   const hovered = await look(page, control, surface);
   expect(
     hovered.paint,
