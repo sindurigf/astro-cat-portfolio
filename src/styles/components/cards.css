@@ -67,8 +67,14 @@
     background-color: var(--color-block-light);
   }
 
-  /* The post contents juts right of the column by the Step's `--step-x`. */
+  /*
+   * The post contents juts right of the column by the Step's `--step-x`. The
+   * parts draw the edges, not the box: forced colors drop shadow and
+   * background, and the summary needs its own edge (tests/forced-colors.spec.ts).
+   */
   .post-contents {
+    @apply self-start bg-surface shadow-hard-red-object;
+
     margin-right: calc(var(--step-x) * -1);
   }
 
@@ -148,15 +154,6 @@
         width: min(100%, var(--container-rail));
       }
     }
-  }
-
-  /*
-   * The parts draw the edges, not the box: forced colors drop shadow and
-   * background, and the summary needs its own edge
-   * (tests/forced-colors.spec.ts).
-   */
-  .post-contents {
-    @apply self-start bg-surface shadow-hard-red-object;
   }
 
   .post-contents ol {
