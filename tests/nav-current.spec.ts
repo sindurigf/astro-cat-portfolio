@@ -166,7 +166,7 @@ test.describe('the current page, as the navigation reports it', () => {
       let marked = 0;
       for (const route of ROUTES) {
         const path = route === HOME_HREF ? route : `${route}/`;
-        for (const name of ['Site', 'About this site']) {
+        for (const name of ['Site', 'About This Site']) {
           const nav = new RegExp(
             `<nav aria-label="${name}"[^>]*>(.*?)</nav>`,
             's',

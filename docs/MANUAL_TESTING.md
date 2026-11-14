@@ -57,7 +57,7 @@ Setup: Chrome, 1280px, `/`, focus in the address bar.
 - [ ] Reload and Tab through: skip link, Report an Accessibility Problem, logo, About, Career, Blog, the
       "Theme and Text Size" button, Get in Touch, the "Aa Text Size" tab at 86rem and up, the page, footer Social (GitHub, LinkedIn,
       Instagram, Bluesky, Mastodon, Email), Site (Home, About, Career, Blog),
-      About this site (in the order of `POLICY_LINKS` in `Footer.astro`), Let
+      About This Site (in the order of `POLICY_LINKS` in `Footer.astro`), Let
       It Fall, the Made with AI link. Re-read `Footer.astro` when a footer
       control changes. → SC 2.4.3
 - [ ] Enter on Let It Fall: the blocks drop, Put It Back rises to the top
@@ -349,7 +349,7 @@ skipped level, an `h2` opening each region, and the home link named
 - [ ] `Alt+Shift+M` on `/about` lists the landmarks the spec reads. Judge
       whether the list is useful or crowded. → SC 1.3.1
 - [ ] `M` from the top steps through them in that order. → SC 1.3.1
-- [ ] The "On this page" nav lists every spread. → SC 2.4.6
+- [ ] The "On This Page" nav lists every spread. → SC 2.4.6
 - [ ] `G` finds no footer mascot. → SC 1.1.1
 - [ ] `K` to About: announced as the current page. → SC 4.1.2
 - [ ] The current-page box adds nothing to the announcement. → SC 1.3.1

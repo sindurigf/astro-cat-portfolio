@@ -159,7 +159,7 @@ const COMPLETED_NAMES: readonly {
   },
   {
     route: '/about',
-    links: 'nav[aria-label="On this page"] a',
+    links: 'nav[aria-label="On This Page"] a',
     completedBy: /\bsection$/i,
   },
 ];
