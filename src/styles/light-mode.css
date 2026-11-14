@@ -93,13 +93,17 @@
     --hover-label: var(--color-light-ink);
   }
 
-  /* Hover on a cyan fill is ink under white, as on the header slab (18.58). */
+  /*
+   * Hover on a cyan fill is ink under white, as on the header slab (18.58). A
+   * contact brick fills ink too; its text and ring follow (cards.css).
+   */
   :is(:root.light main, main .mode-light)
     :is(.btn-primary, .btn-secondary):not([aria-disabled='true']):hover:not(
       .mode-dark *,
       .contact-submit,
       :is(.card, .plain-slab, .post-contents):not(.card-ground) *
-    ) {
+    ),
+  :root.light .contact-brick:hover {
     background-color: var(--color-block-ink);
     color: var(--color-block-light);
   }
