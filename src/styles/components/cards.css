@@ -265,10 +265,10 @@
   }
 
   /*
-   * A whole-brick link in a wall (/contact): it holds still, fills cyan under
-   * the pointer and draws its ring inside, so it never crosses the next brick.
+   * A whole-brick link in a wall (/contact): it holds still, fills under the
+   * pointer and draws its ring inside, so it never crosses the next brick.
    */
-  /* The dark mode cyan in both modes: light mode's cyan is a text color, 2.55 under ink. */
+  /* Cyan in dark mode; light mode fills ink instead (light-mode.css). */
   /* Weighted to beat the light block's fill on every second brick. */
   .card-block .card.contact-brick:hover {
     background-color: var(--dark-cyan);
