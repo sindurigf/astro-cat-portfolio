@@ -97,10 +97,25 @@
   :is(:root.light main, main .mode-light)
     :is(.btn-primary, .btn-secondary):not([aria-disabled='true']):hover:not(
       .mode-dark *,
-      :is(.card, .plain-slab, .post-contents) *
+      :is(.card, .plain-slab, .post-contents):not(.card-ground) *
     ) {
     background-color: var(--color-block-ink);
     color: var(--color-block-light);
+  }
+
+  /* Cyan on the white ground card is 1.99, so the submit is ink (18.58) and hovers blue (8.23). */
+  :is(:root.light main, main .mode-light)
+    .card-ground
+    .contact-submit:not([aria-disabled='true']):not(.mode-dark *) {
+    background-color: var(--color-light-ink);
+    color: var(--color-light-ground);
+  }
+
+  :is(:root.light main, main .mode-light)
+    .card-ground
+    .contact-submit:not([aria-disabled='true']):not(.mode-dark *):hover {
+    background-color: var(--color-light-focus);
+    color: var(--color-light-ground);
   }
 
   :root.light main .mode-dark {

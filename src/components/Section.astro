@@ -43,7 +43,7 @@ const headingId = id ? `${id}-heading` : undefined;
     {headless ? (
       <slot />
     ) : panel ? (
-      <div class="card">
+      <div class="card card-ground">
         <h2 id={headingId} class:list={['text-h2', titleTone]}>
           <slot name="title">{title}</slot>
         </h2>
