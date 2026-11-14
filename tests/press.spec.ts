@@ -1,13 +1,15 @@
 import { expect, test, type Page } from './test';
 import { gotoSettled } from './settle';
 import { DESKTOP_VIEWPORT, PHONE_VIEWPORT } from './wcag';
-import { CONTACT_FORM_ON } from '../src/lib/contact';
 import { CATEGORY_ROUTES, NO_PUBLISHED_POST } from './routes';
-import { NO_FIREFOX } from './tags';
+import { NO_FIREFOX, tagged } from './tags';
+import { WITH_CONTACT_FORM } from './feature-tags';
 import { requireContent } from './content';
 
-/* The form's send button, or the 404 page's link when there is no form. */
-const PRIMARY_ROUTE = CONTACT_FORM_ON ? '/contact' : '/404';
+const PRIMARY_ROUTE = '/brand';
+const PRIMARY_BUTTON =
+  'main [data-component="primary-button"] [data-example] a.btn-primary';
+const CONTACT_SUBMIT = 'main form .contact-submit';
 
 /** A pressed control drops its shadow, and moves only without reduced motion. `moves` carries the shadow. */
 interface Pressable {
@@ -15,14 +17,24 @@ interface Pressable {
   route: string;
   control: string;
   moves: string;
+  feature?: { tag: string };
 }
+
+const featureOf = (p: Pressable) => tagged(...(p.feature ? [p.feature] : []));
 
 const PRESSABLE: Pressable[] = [
   {
     name: 'a primary button',
     route: PRIMARY_ROUTE,
-    control: 'main .btn-primary',
-    moves: 'main .btn-primary',
+    control: PRIMARY_BUTTON,
+    moves: PRIMARY_BUTTON,
+  },
+  {
+    name: 'the contact submit in its block',
+    route: '/contact',
+    control: CONTACT_SUBMIT,
+    moves: CONTACT_SUBMIT,
+    feature: WITH_CONTACT_FORM,
   },
   {
     name: 'a gold primary button',
@@ -141,18 +153,22 @@ const pressLook = (page: Page, selector: string) =>
 
 test.describe('a press is drawn', () => {
   for (const p of PRESSABLE) {
-    test(`${p.name} looks different pressed than hovered`, async ({ page }) => {
-      await page.setViewportSize(DESKTOP_VIEWPORT);
-      await gotoSettled(page, p.route);
-      await page.locator(p.control).first().hover();
-      const hovered = await pressLook(page, p.moves);
-      await pressCenter(page, p.control);
-      expect(
-        await pressLook(page, p.moves),
-        'pressing changed neither the shadow nor the position',
-      ).not.toBe(hovered);
-      await page.mouse.up();
-    });
+    test(
+      `${p.name} looks different pressed than hovered`,
+      featureOf(p),
+      async ({ page }) => {
+        await page.setViewportSize(DESKTOP_VIEWPORT);
+        await gotoSettled(page, p.route);
+        await page.locator(p.control).first().hover();
+        const hovered = await pressLook(page, p.moves);
+        await pressCenter(page, p.control);
+        expect(
+          await pressLook(page, p.moves),
+          'pressing changed neither the shadow nor the position',
+        ).not.toBe(hovered);
+        await page.mouse.up();
+      },
+    );
 
     // The move is opted into under `no-preference`, not overridden under `reduce`:
     // an override has to outscore the press rule's specificity.
@@ -184,7 +200,7 @@ test.describe('a press is drawn', () => {
  */
 test.describe('a press on the edge still clicks', () => {
   for (const p of PRESSABLE) {
-    test(p.name, async ({ page }) => {
+    test(p.name, featureOf(p), async ({ page }) => {
       await page.setViewportSize(DESKTOP_VIEWPORT);
       await gotoSettled(page, p.route);
       const el = page.locator(p.control).first();
@@ -338,26 +354,28 @@ const throwOf = (page: Page, selector: string) =>
 test.describe('a hover lift', () => {
   for (const p of LIFTS) {
     // A control that lifts out from under a pointer at its edge would lose hover and drop back under it, over and over.
-    test(`${p.name} keeps hover with the pointer on its resting edge`, async ({
-      page,
-    }) => {
-      await page.setViewportSize(DESKTOP_VIEWPORT);
-      await gotoSettled(page, p.route);
-      const el = page.locator(p.control).first();
-      await el.hover();
-      await transitionsDone(page, p.control);
-      const lift = await pressLift(page);
-      const box = await el.evaluate((node) => {
-        const r = node.getBoundingClientRect();
-        return { right: r.right, bottom: r.bottom };
-      });
-      await page.mouse.move(box.right + lift - 1, box.bottom + lift - 1);
-      await transitionsDone(page, p.control);
-      expect(
-        await el.evaluate((node) => node.matches(':hover')),
-        'the lift carried the control out from under the pointer',
-      ).toBe(true);
-    });
+    test(
+      `${p.name} keeps hover with the pointer on its resting edge`,
+      featureOf(p),
+      async ({ page }) => {
+        await page.setViewportSize(DESKTOP_VIEWPORT);
+        await gotoSettled(page, p.route);
+        const el = page.locator(p.control).first();
+        await el.hover();
+        await transitionsDone(page, p.control);
+        const lift = await pressLift(page);
+        const box = await el.evaluate((node) => {
+          const r = node.getBoundingClientRect();
+          return { right: r.right, bottom: r.bottom };
+        });
+        await page.mouse.move(box.right + lift - 1, box.bottom + lift - 1);
+        await transitionsDone(page, p.control);
+        expect(
+          await el.evaluate((node) => node.matches(':hover')),
+          'the lift carried the control out from under the pointer',
+        ).toBe(true);
+      },
+    );
 
     test(`${p.name} holds still under the pointer under reduced motion`, async ({
       page,
@@ -405,14 +423,14 @@ test.describe('on a touch screen', NO_FIREFOX, () => {
     page,
   }) => {
     await page.setViewportSize(PHONE_VIEWPORT);
-    await gotoSettled(page, '/contact');
+    await gotoSettled(page, PRIMARY_ROUTE);
     expect(
       await page.evaluate(() => matchMedia('(hover: hover)').matches),
     ).toBe(false);
-    const button = page.locator('main .btn-primary').first();
+    const button = page.locator(PRIMARY_BUTTON);
     await button.hover();
     expect(await button.evaluate((node) => node.matches(':hover'))).toBe(true);
-    await transitionsDone(page, 'main .btn-primary');
-    expect(await translateOf(page, 'main .btn-primary')).toEqual([0, 0]);
+    await transitionsDone(page, PRIMARY_BUTTON);
+    expect(await translateOf(page, PRIMARY_BUTTON)).toEqual([0, 0]);
   });
 });
