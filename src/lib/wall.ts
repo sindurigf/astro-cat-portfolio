@@ -6,12 +6,12 @@
 
 import { itemAt } from './defined';
 
-export type Breakpoint = 'base' | 'sm' | 'lg';
+type Breakpoint = 'base' | 'sm' | 'lg';
 
 /** Brick indices per row; a brick spanning rows is listed in each. */
 export type Rows = readonly (readonly number[])[];
 
-export type WallLayout = Partial<Record<Breakpoint, Rows>>;
+type WallLayout = Partial<Record<Breakpoint, Rows>>;
 
 const BREAKPOINTS: readonly Breakpoint[] = ['base', 'sm', 'lg'];
 const MAX_STEP = 2;
@@ -55,7 +55,7 @@ export const packRows = (spans: readonly number[], columns: number): Rows => {
   return rows;
 };
 
-export const stackRows = (count: number): Rows =>
+const stackRows = (count: number): Rows =>
   Array.from({ length: count }, (_, index) => [index]);
 
 /** Per brick: how far it rises (none, half, full) and how many steps its right edge comes in. */
