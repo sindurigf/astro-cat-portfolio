@@ -173,7 +173,7 @@ const closeRow = await closeRowLinks({
         EXPERIENCE.map((role, index) => (
           <li
             class:list={[
-              'card grid gap-8 lg:grid-cols-12',
+              'card card-ground grid gap-8 lg:grid-cols-12',
               EXPERIENCE_WALL.bricks[index],
             ]}
           >
@@ -223,7 +223,7 @@ const closeRow = await closeRowLinks({
         </ul>
       </div>
 
-      <div class="card card-step-1 lg:card-step-0">
+      <div class="card card-ground card-step-1 lg:card-step-0">
         <h3 class="card-title">Skills</h3>
         <ul role="list" class="mt-8 flex flex-wrap gap-3">
           {SKILLS.map((skill) => (
@@ -232,7 +232,7 @@ const closeRow = await closeRowLinks({
         </ul>
       </div>
 
-      <div class="card card-step-2 lg:card-step-1">
+      <div class="card card-ground card-step-2 lg:card-step-1">
         <h3 class="card-title">Languages</h3>
         <ul role="list" class="mt-8 flex flex-col gap-4">
           {LANGUAGES.map((item) => (

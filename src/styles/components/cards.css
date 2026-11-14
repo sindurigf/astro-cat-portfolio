@@ -16,7 +16,11 @@
    * `text` on `background`, a badge, inverts to ink. Gold fills use the fixed
    * `block-gold`, so they stay gold.
    */
-  :is(.card, .plain-slab, .post-contents):not(.surface-gold, .surface-gold *) {
+  :is(.card, .plain-slab, .post-contents):not(
+    .surface-gold,
+    .surface-gold *,
+    .card-ground
+  ) {
     --color-background: var(--color-block-gold);
     --color-surface: var(--color-block-gold);
     --color-text: var(--color-block-ink);
@@ -36,13 +40,21 @@
   }
 
   /* Red is 1.48 on a gold block and 1.88 on a light one, so a control throws ink. */
-  :is(.card, .plain-slab, .post-contents):not(.surface-gold, .surface-gold *)
+  :is(.card, .plain-slab, .post-contents):not(
+      .surface-gold,
+      .surface-gold *,
+      .card-ground
+    )
     :is(.btn-primary, .btn-secondary) {
     --press-throw-color: var(--color-block-ink);
   }
 
   /* Set on the children, so the block's own throw on the page stays red. */
-  :is(.card, .plain-slab, .post-contents):not(.surface-gold, .surface-gold *)
+  :is(.card, .plain-slab, .post-contents):not(
+      .surface-gold,
+      .surface-gold *,
+      .card-ground
+    )
     > * {
     --color-red: var(--color-block-ink);
     --color-mark: var(--color-block-ink);
@@ -58,7 +70,7 @@
     .post-contents,
     .card-block > .card:nth-child(even),
     .card-block > :nth-child(even) > .card
-  ):not(.surface-gold, .surface-gold *) {
+  ):not(.surface-gold, .surface-gold *, .card-ground) {
     --color-background: var(--color-block-light);
     --color-surface: var(--color-block-light);
     --label-mark: var(--color-mark);
@@ -82,9 +94,21 @@
    * Hover and focus inside a block: the block's own ring and hover throw keep
    * the page's cyan, set on the block itself.
    */
-  :is(.card, .plain-slab, .post-contents):not(.surface-gold, .surface-gold *)
+  :is(.card, .plain-slab, .post-contents):not(
+      .surface-gold,
+      .surface-gold *,
+      .card-ground
+    )
     > * {
     --color-cyan: var(--color-gold-link);
+  }
+
+  /* A card on the page ground: the page's own colors, a text edge, no fill (/contact). */
+  .card-ground {
+    --color-border: var(--color-text);
+
+    border: var(--block-edge) solid var(--color-text);
+    background-color: var(--color-background);
   }
 
   /* A gold card or column keeps its own colors and takes the block edge. */
@@ -274,9 +298,15 @@
     background-color: var(--dark-cyan);
   }
 
-  /* Inside the brick the ring meets its fill, gold or light, so it is ink (11.32 or more). */
+  /* The brick sits on the ground: its ring is the page's focus color, ink on the cyan hover fill. */
   .contact-brick:focus-visible {
-    outline-color: var(--color-block-ink);
+    outline-color: var(--color-cyan);
     outline-offset: calc(-1 * (var(--block-edge) + var(--focus-gap)));
+  }
+
+  .contact-brick:hover,
+  .contact-brick:hover * {
+    outline-color: var(--color-block-ink);
+    color: var(--color-block-ink);
   }
 }

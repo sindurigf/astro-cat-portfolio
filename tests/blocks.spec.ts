@@ -8,9 +8,9 @@ import { NODE, NO_WEBKIT } from './tags';
 import { DESKTOP_VIEWPORT, NARROW_WIDTH, PHONE_VIEWPORT } from './wcag';
 
 /**
- * Blocks (src/styles/components/cards.css): every card, the plain hero slab
- * and the post contents, ink or light with a 4px edge. Inside, the color
- * tokens are remapped, so each block is measured as a ground of its own.
+ * Blocks (src/styles/components/cards.css): cards, the plain hero slab and the
+ * post contents, ink or light with a 4px edge, or a `.card-ground` on the page
+ * ground. Each is measured as a ground of its own.
  */
 const BLOCK =
   ':is(.card, .plain-slab, .post-contents):not(.surface-gold *, :is(.card, .plain-slab, .post-contents) *)';
@@ -21,7 +21,9 @@ const BLOCK_ROUTES = [
   '/blog',
   '/about',
   '/career',
+  '/credits',
   '/contact',
+  '/contact/sent',
   '/accessibility',
   ...(CONTENTS_POST_ROUTE ? [CONTENTS_POST_ROUTE] : []),
   '/brand',
@@ -170,6 +172,60 @@ for (const colorScheme of ['dark', 'light'] as const) {
           `brick ${i + 1}'s hovered text is under ${AAA_TEXT}:1 on its fill`,
         ).toBeGreaterThanOrEqual(AAA_TEXT);
         await page.mouse.move(0, 0);
+      }
+    });
+
+    test('/contact: a ground brick keeps 7:1 hover text and a 3:1 focus ring on the ground', async ({
+      page,
+    }) => {
+      await gotoSettled(page, '/contact');
+      const bricks = page.locator('a.contact-brick.card-ground:visible');
+      const found = await bricks.count();
+      expect(found, '/contact has no ground brick').toBeGreaterThan(0);
+      const read = (brick: ReturnType<Page['locator']>) =>
+        brick.evaluate(
+          (el, source) => (0, eval)(source)(el),
+          `(el) => {
+            ${PAGE_HELPERS}
+            const cs = getComputedStyle(el);
+            const fill = effectiveBackground(el);
+            const ground = effectiveBackground(el.parentElement);
+            const texts = [el, ...el.querySelectorAll('*')]
+              .filter((n) => n.textContent.trim())
+              .map((n) => ratio(over(parse(getComputedStyle(n).color), fill), fill));
+            return {
+              text: Math.min(...texts),
+              ring: ratio(over(parse(cs.outlineColor), ground), ground),
+              ringOnFill: ratio(over(parse(cs.outlineColor), fill), fill),
+            };
+          }`,
+        ) as Promise<{ text: number; ring: number; ringOnFill: number }>;
+      for (let i = 0; i < found; i += 1) {
+        const brick = bricks.nth(i);
+        await brick.scrollIntoViewIfNeeded();
+        await brick.hover({ force: true });
+        const hovered = await read(brick);
+        expect(
+          hovered.text,
+          `ground brick ${i + 1}'s hovered text is under ${AAA_TEXT}:1 on its fill`,
+        ).toBeGreaterThanOrEqual(AAA_TEXT);
+        await page.mouse.move(0, 0);
+        await brick.focus();
+        await page.keyboard.press('Shift+Tab');
+        await page.keyboard.press('Tab');
+        expect(
+          await brick.evaluate((el) => el.matches(':focus-visible')),
+          `ground brick ${i + 1} does not take keyboard focus`,
+        ).toBe(true);
+        const focused = await read(brick);
+        expect(
+          focused.ring,
+          `ground brick ${i + 1}'s ring is under ${NON_TEXT}:1 on the ground`,
+        ).toBeGreaterThanOrEqual(NON_TEXT);
+        expect(
+          focused.ringOnFill,
+          `ground brick ${i + 1}'s ring is under ${NON_TEXT}:1 on its own fill`,
+        ).toBeGreaterThanOrEqual(NON_TEXT);
       }
     });
 
