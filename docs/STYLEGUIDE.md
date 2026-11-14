@@ -44,7 +44,7 @@ blur, uppercase headings, tilted marks.
 | 1a  | Ground, full slab: `/about`, `/career`, `/contact`, `/blog`, `/credits`, `/brand`                                                                | 6 routes                               |
 | 1b  | Ground, thin slab: `/contact/sent`, every post                                                                                                   | 6 routes                               |
 | 1c  | Ground, mid-page: a `Section surface="gold"`, the About quote, `/contact`'s closing band                                                         | `/career`, `/about`, `/`, `/contact`   |
-| 2   | The primary action: `.nav-cta`, `.btn-primary`                                                                                                   | 11 routes, 4 routes                    |
+| 2   | The primary action: `.nav-cta`, `.btn-primary` outside a block (`/404`, `/brand`)                                                                | 11 routes, 2 routes                    |
 | 3   | the logo marks: the homepage sticker; the box cat and the logo cat are cardboard and the cats' coats, not gold                                   | `/`                                    |
 | 4   | Card labels, `.label text-gold`; a form's field labels are `text`                                                                                | `/about`, `/accessibility`, `/contact` |
 | 5   | Category: the blog label and the homepage glyph tiles, ink-edged on gold                                                                         | 3 routes                               |
@@ -300,8 +300,8 @@ set; hex values and ratios are in the generated [Contrast](#contrast) table:
   border of at least 3:1.
 - `.btn-gold-primary` is scoped to `.surface-gold` and blocks (`.card`);
   `.btn-gold-secondary` to `.surface-gold`. Both render unstyled elsewhere.
-- The /contact submit and the /brand form sample are `.btn-gold-primary` in a
-  block. Its fill is 11.32 on a gold block, 9.36 on light mode's cyan block
+- In a block the primary action is always `.btn-gold-primary`: the /contact
+  submit, the /contact/send and empty /blog actions and the /brand form sample. Its fill is 11.32 on a gold block, 9.36 on light mode's cyan block
   and 14.42 on a light one.
 - Both `text-button`, 900, 0.1em, uppercase, `px-8 py-4`. No underline on the
   label at rest. `.btn-gold-primary` underlines it under the pointer
