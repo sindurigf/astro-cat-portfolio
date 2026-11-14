@@ -160,6 +160,14 @@ const HOVERED_ON_MAIN = {
     await expect(button).toHaveCount(1);
     await expectHoverReadsAndDiffers(page, button);
   },
+  'a secondary summary on gold': async (page: Page) => {
+    await gotoSettled(page, '/404.html');
+    const summary = page
+      .locator('main .surface-gold summary.btn-gold-secondary')
+      .first();
+    await expect(summary).toHaveCount(1);
+    await expectHoverReadsAndDiffers(page, summary);
+  },
 };
 
 const hoverContactSubmit = async (page: Page) => {

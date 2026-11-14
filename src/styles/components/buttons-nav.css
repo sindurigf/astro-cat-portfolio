@@ -7,7 +7,11 @@
   }
 
   /* A summary styled as a button: older Safari draws its own triangle otherwise. */
-  summary:is(.btn-primary, .btn-secondary)::-webkit-details-marker {
+  summary:is(
+      .btn-primary,
+      .btn-secondary,
+      .btn-gold-secondary
+    )::-webkit-details-marker {
     display: none;
   }
 

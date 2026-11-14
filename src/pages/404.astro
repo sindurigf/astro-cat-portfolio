@@ -45,7 +45,7 @@ const pagesJson = JSON.stringify(
 
   <div class="band py-section">
     <div class="mx-auto flex max-w-page flex-col gap-head">
-      <div class="card relative pt-card lg:max-w-2xl">
+      <div class="card surface-gold relative pt-card lg:max-w-2xl">
         <span class="sticker absolute top-0 left-8 -translate-y-1/2 -rotate-3">
           The Logo Cat
         </span>
@@ -60,9 +60,7 @@ const pagesJson = JSON.stringify(
             loading="eager"
             class="shrink-0"
           />
-          <div class="text-lead font-black text-text text-pretty">
-            {GUIDE_LINE}
-          </div>
+          <div class="text-lead font-black text-pretty">{GUIDE_LINE}</div>
         </div>
         {/*
           Home without JavaScript; src/scripts/follow-cat.ts points it at the
@@ -70,7 +68,7 @@ const pagesJson = JSON.stringify(
           has two lines reserved, so nothing moves (tests/performance.spec.ts).
         */}
         <p class="mt-6">
-          <a href="/" class="btn-primary" data-follow>
+          <a href="/" class="btn-gold-primary" data-follow>
             Follow Me
             <span class="sr-only" data-follow-to>
               &nbsp;Home
@@ -83,15 +81,15 @@ const pagesJson = JSON.stringify(
         </p>
       </div>
 
-      <div class="card relative pt-card lg:ml-auto lg:max-w-2xl">
+      <div class="card surface-gold relative pt-card lg:ml-auto lg:max-w-2xl">
         <span class="sticker absolute top-0 right-8 -translate-y-1/2 rotate-3">
           The Cheshire Cat
         </span>
-        <div class="text-lead text-text italic text-pretty">
-          {CHESHIRE_LINE}
-        </div>
+        <div class="text-lead italic text-pretty">{CHESHIRE_LINE}</div>
         <details class="mt-6">
-          <summary class="btn-secondary cursor-pointer">Or Ask the Cat</summary>
+          <summary class="btn-gold-secondary cursor-pointer">
+            Or Ask the Cat
+          </summary>
           <ul
             role="list"
             class="mt-6 flex flex-wrap gap-4"

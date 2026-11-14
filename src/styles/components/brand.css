@@ -1,3 +1,4 @@
+@import './code-block.css';
 @reference '../global.css';
 
 @layer base {
