@@ -52,9 +52,10 @@ What happens without the `CONTACT_NOTIFY_TO` secret:
 | `npm run preview`              | Serve the build through the Worker runtime                                                                                                                                                                      |
 | `npm run typecheck`            | `astro check` (fails on hints), then `vue-tsc` on `.vue` files                                                                                                                                                  |
 | `npm run format`               | Prettier, write                                                                                                                                                                                                 |
-| `npm run check`                | `check:tokens`, `wording`, `links`, `pins`, `classes`, `csp`, `untransformed`, `title-case`, `exif`, `images-of-text`, `format:check`, `commits`, `leaks`, `fork`; needs `npm run build` first                  |
+| `npm run check`                | `check:tokens`, `css`, `wording`, `links`, `pins`, `classes`, `csp`, `untransformed`, `title-case`, `exif`, `images-of-text`, `format:check`, `commits`, `leaks`, `fork`; needs `npm run build` first           |
 | `npm run format:check`         | Prettier, check only                                                                                                                                                                                            |
 | `npm run check:tokens`         | No raw color, length or off-scale utility in `src/` bypasses the tokens in `src/styles/global.css`                                                                                                              |
+| `npm run check:css`            | Every CSS property in `src/**/*.css` and `.astro` `<style>` blocks is one css-tree knows; custom and vendor-prefixed properties are skipped, `CSS_PROPERTY_EXCEPTIONS` lists the rest                           |
 | `npm run check:wording`        | No third-person name, pronoun or role word for the maintainer, and no em dash, in tracked text outside `WORDING_EXCEPTIONS`; `-- --text <file>` checks one file, as CI does for the pull request title and body |
 | `npm run check:links`          | Relative Markdown links and `#heading` anchors resolve; no link names a gitignored path; no network                                                                                                             |
 | `npm run check:pins`           | Actions pinned by SHA, Docker images by digest, MCP servers to an exact version                                                                                                                                 |
@@ -83,7 +84,7 @@ What happens without the `CONTACT_NOTIFY_TO` secret:
 | `npm run icons`                | Render `src/assets/logo-cat.svg` from `src/lib/brand-mark.ts`, and the favicons and app icons from `artwork/cats/minerva-head.png`                                                                              |
 | `npm run box-cat`              | Render the box cat logo, roundel and footer mascot SVGs in `src/assets/` from `src/lib/box-cat.ts` and the cut-outs in `artwork/cats/`                                                                          |
 
-`CHECK_ROOT=<dir>` points `check:tokens`, `wording`, `pins`, `classes`, `csp`,
+`CHECK_ROOT=<dir>` points `check:tokens`, `css`, `wording`, `pins`, `classes`, `csp`,
 `untransformed`, `title-case`, `images-of-text` and `links` at another tree. The `tests/check-*.spec.ts`
 self-tests use it to run each check on a passing and a failing fixture.
 
