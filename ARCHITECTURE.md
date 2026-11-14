@@ -32,8 +32,9 @@ conventions for this template. Design rules and values are in
   `utilities.css`, `light-mode.css`. Reordering the imports reorders the
   cascade.
 - Page-only partials are not in that list: `about-cats.css` (`/about`), `not-found.css` (`/404`),
-  `code-block.css` and `post-folds.css` (posts) and `brand.css` (`/brand`,
-  which also takes `code-block.css`) are imported by the page that uses them,
+  `home-hero.css` (`/`), `code-block.css` and `post-folds.css` (posts) and
+  `brand.css` (`/brand`, which `@import`s `code-block.css` so the page
+  carries one sheet's overhead) are imported by the page that uses them,
   so each builds as its own sheet, linked after the shared one. Each opens
   with `@reference '../global.css'` so `@apply` and the tokens resolve;
   Tailwind then writes token values as `var()` fallbacks and repeats its
