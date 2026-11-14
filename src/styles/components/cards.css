@@ -304,9 +304,13 @@
     outline-offset: calc(-1 * (var(--block-edge) + var(--focus-gap)));
   }
 
-  .contact-brick:hover,
-  .contact-brick:hover * {
-    outline-color: var(--color-block-ink);
+  /* Ring and children take the brick's hover text color, in either mode. */
+  .contact-brick:hover {
+    outline-color: currentColor;
     color: var(--color-block-ink);
+  }
+
+  .contact-brick:hover * {
+    color: inherit;
   }
 }
