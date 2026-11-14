@@ -737,6 +737,9 @@ evidence.
 - **Fix axe's forced-colors `color-contrast` on `.sticker` in a `.card`:** axe
   reads the authored gold; the computed color there is CanvasText on Canvas,
   and `tests/forced-colors.spec.ts` passes.
+- **Run `/videos/*` responses through `withSiteHeaders`:** the `ASSETS`
+  response already carries the `public/_headers` headers, and
+  `tests/video-range.spec.ts` asserts `nosniff` and the CSP on a `206`.
 - **Allow `img-src data:` so a box cat SVG opened on its own shows its cat:**
   the files are only ever drawn by an `<img>`, where the page's CSP does not
   reach the picture inside; widening the CSP for a direct visit adds risk for
