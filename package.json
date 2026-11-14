@@ -52,12 +52,12 @@
     "@astrojs/sitemap": "^3.7.4",
     "@astrojs/vue": "^7.1.2",
     "@fontsource-variable/lexend": "^5.3.0",
-    "@plausible-analytics/tracker": "0.4.6",
+    "@plausible-analytics/tracker": "0.4.7",
     "@tailwindcss/vite": "^4.3.3",
     "astro": "^7.4.2",
     "js-yaml": "^5.5.0",
     "tailwindcss": "^4.3.3",
-    "vue": "^3.5.44"
+    "vue": "^3.5.45"
   },
   "allowScripts": {
     "esbuild": true,
@@ -75,8 +75,8 @@
     "prettier": "^3.9.10",
     "prettier-plugin-astro": "^1.1.2",
     "typescript": "^6.0.3",
-    "vue-tsc": "3.3.13",
-    "wrangler": "4.152.0"
+    "vue-tsc": "3.3.14",
+    "wrangler": "4.158.0"
   },
   "overrides": {
     "miniflare": {
