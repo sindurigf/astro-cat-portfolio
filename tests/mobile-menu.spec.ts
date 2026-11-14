@@ -1,5 +1,6 @@
 import { expect, test, type Page } from './test';
 import { gotoSettled } from './settle';
+import { NON_TEXT, PAGE_HELPERS } from './contrast';
 import { REFLOW_VIEWPORT } from './wcag';
 import { CTA, NAV_LINKS } from '../src/lib/nav';
 import { CAREER_PATH } from '../src/lib/paths';
@@ -227,5 +228,38 @@ for (const variant of ['', ' without checkVisibility']) {
     await expect(page, 'a Primary link did not take the click').toHaveURL(
       new RegExp(`${CAREER_PATH}$`),
     );
+  });
+}
+
+for (const colorScheme of ['dark', 'light'] as const) {
+  test.describe(`mobile menu in ${colorScheme} mode`, () => {
+    test.use({ viewport: REFLOW_VIEWPORT, colorScheme });
+
+    test('the Close focus ring is at least 3:1 against what it is drawn on', async ({
+      page,
+    }) => {
+      await gotoSettled(page, '/');
+      await page.getByRole('button', { name: /menu/i }).click();
+      const close = page
+        .getByRole('dialog')
+        .getByRole('button', { name: 'Close' });
+      await close.focus();
+      await page.keyboard.press('Shift+Tab');
+      await page.keyboard.press('Tab');
+      await expect(close).toBeFocused();
+
+      const measured = (await close.evaluate(`(() => {
+        ${PAGE_HELPERS}
+        const el = document.activeElement;
+        const style = getComputedStyle(el);
+        const inset = parseFloat(style.outlineOffset) < 0;
+        const ground = effectiveBackground(inset ? el : el.parentElement);
+        return ratio(over(parse(style.outlineColor), ground), ground);
+      })()`)) as number;
+      expect(
+        measured,
+        'the Close ring blends into the fill it sits on',
+      ).toBeGreaterThanOrEqual(NON_TEXT);
+    });
   });
 }
