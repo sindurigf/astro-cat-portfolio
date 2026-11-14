@@ -110,6 +110,48 @@ const HOVERED_ON_MAIN = {
     await expect(button).toHaveCount(1);
     await expectHoverReadsAndDiffers(page, button);
   },
+  'a gold primary button under reduced motion: label 7:1, edge 7:1, ring 3:1 (SC 1.4.3, 1.4.11)':
+    async (page: Page) => {
+      await page.emulateMedia({ reducedMotion: 'reduce' });
+      await gotoSettled(page, '/blog/');
+      const button = page
+        .locator('main .surface-gold a.btn-gold-primary')
+        .first();
+      await expect(button).toHaveCount(1);
+      await expectHoverReadsAndDiffers(page, button);
+      await button.focus();
+      await page.keyboard.press('Shift+Tab');
+      await page.keyboard.press('Tab');
+      await button.hover();
+      const { edge, ring, ringDrawn } = (await button.evaluate(
+        (el, source) => (0, eval)(source)(el),
+        `(el => {
+      ${PAGE_HELPERS}
+      const s = getComputedStyle(el);
+      const ground = compositeBackground(el.parentElement);
+      return {
+        edge: ratio(over(parse(s.borderTopColor), ground), ground),
+        ring: ratio(over(parse(s.outlineColor), ground), ground),
+        ringDrawn:
+          el.matches(':focus-visible') &&
+          s.outlineStyle !== 'none' &&
+          parseFloat(s.outlineWidth) > 0,
+      };
+    })`,
+      )) as { edge: number; ring: number; ringDrawn: boolean };
+      expect(
+        ringDrawn,
+        'the hovered button has no visible focus ring (SC 2.4.7)',
+      ).toBe(true);
+      expect(
+        edge,
+        'the hovered edge is below 7:1 on its ground (SC 1.4.11)',
+      ).toBeGreaterThanOrEqual(AAA_TEXT);
+      expect(
+        ring,
+        'the focus ring on the hovered button is below 3:1 (SC 1.4.11)',
+      ).toBeGreaterThanOrEqual(NON_TEXT);
+    },
   'a secondary button on gold': async (page: Page) => {
     await gotoSettled(page, '/');
     const button = page
