@@ -108,7 +108,7 @@ const EMPTY_BLOG = {
 </nav>
 
 {posts.length === 0 ? (
-  <div class="card mt-head" data-empty-listing>
+  <div class="card card-ground mt-head" data-empty-listing>
     <h2 class="card-title">No Posts Yet</h2>
     <p class="mt-4 max-w-prose text-body text-text text-pretty">
       {EMPTY_BLOG.sentence}
@@ -149,7 +149,7 @@ const EMPTY_BLOG = {
             describeCover={feature}
             eager={index === 0}
             headingLevel={2}
-            class="w-full"
+            class:list={['w-full', index > 0 && 'card-ground']}
           />
         </li>
       );

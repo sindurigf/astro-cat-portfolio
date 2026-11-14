@@ -344,7 +344,7 @@ const TOOLS_WALL = wallClasses({ lg: [[0, 1], [2], [3]] }, 4);
         </dl>
       </div>
 
-      <div class:list={['card', TOOLS_WALL.bricks[1]]}>
+      <div class:list={['card card-ground', TOOLS_WALL.bricks[1]]}>
         <h2 class={CARD_HEADING}>Built and Tested With</h2>
 
         <ul class="bullet-list mt-6 gap-x-12 sm:grid sm:grid-cols-2 lg:grid-cols-3">
@@ -370,7 +370,7 @@ const TOOLS_WALL = wallClasses({ lg: [[0, 1], [2], [3]] }, 4);
 
       <div
         id="not-found"
-        class:list={['card lg:col-span-2', TOOLS_WALL.bricks[2]]}
+        class:list={['card card-ground lg:col-span-2', TOOLS_WALL.bricks[2]]}
       >
         <h2 class={CARD_HEADING}>The 404 Page</h2>
         <p class="mt-6 mb-paragraph max-w-4xl text-lead font-normal text-text text-pretty">
@@ -388,7 +388,10 @@ const TOOLS_WALL = wallClasses({ lg: [[0, 1], [2], [3]] }, 4);
         </p>
       </div>
 
-      <div id="ai" class:list={['card lg:col-span-2', TOOLS_WALL.bricks[3]]}>
+      <div
+        id="ai"
+        class:list={['card card-ground lg:col-span-2', TOOLS_WALL.bricks[3]]}
+      >
         <h2 class={CARD_HEADING}>
           Made with <Abbr short="AI" long="artificial intelligence" />
         </h2>

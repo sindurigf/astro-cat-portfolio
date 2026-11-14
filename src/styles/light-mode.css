@@ -93,26 +93,29 @@
     --hover-label: var(--color-light-ink);
   }
 
-  /* Hover on a cyan fill is ink under white, as on the header slab (18.58). */
+  /*
+   * Hover on a cyan fill is ink under white, as on the header slab (18.58). A
+   * contact brick fills ink too; its text and ring follow (cards.css).
+   */
   :is(:root.light main, main .mode-light)
     :is(.btn-primary, .btn-secondary):not([aria-disabled='true']):hover:not(
       .mode-dark *,
-      :is(.card, .plain-slab, .post-contents) *
-    ) {
+      .contact-submit,
+      :is(.card, .plain-slab, .post-contents):not(.card-ground) *
+    ),
+  :root.light .contact-brick:hover {
     background-color: var(--color-block-ink);
     color: var(--color-block-light);
   }
 
-  /*
-   * A contact brick hovers to ink under `block-light` (14.42), as the header's
-   * link bricks do; its ring turns light on the ink.
-   */
-  :is(:root.light main, main .mode-light)
-    .card-block
-    .card.contact-brick:hover:not(.mode-dark *) {
-    background-color: var(--color-block-ink);
-    color: var(--color-block-light);
-    outline-color: var(--color-block-light);
+  /* Cyan on the white ground card is 1.99, so the submit is ink (18.58) and hovers blue (8.23). */
+  :root.light .contact-submit:not([aria-disabled='true']) {
+    background-color: var(--color-light-ink);
+    color: var(--color-light-ground);
+  }
+
+  :root.light .contact-submit:not([aria-disabled='true']):hover {
+    background-color: var(--color-light-focus);
   }
 
   :root.light main .mode-dark {

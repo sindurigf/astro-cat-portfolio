@@ -155,7 +155,7 @@ export const PAGE_HELPERS = `
     const rgb = (c) =>
       'rgb(' + Math.round(c.r) + ', ' + Math.round(c.g) + ', ' + Math.round(c.b) + ')';
 
-    for (const element of root.querySelectorAll('a, button, [role="button"]')) {
+    for (const element of root.querySelectorAll('a, button, summary, [role="button"]')) {
       const style = getComputedStyle(element);
       const label = (element.textContent ?? '').trim().slice(0, 40);
       const fill = parse(style.backgroundColor);

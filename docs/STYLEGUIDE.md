@@ -48,7 +48,7 @@ blur, uppercase headings, tilted marks.
 | 3   | the logo marks: the homepage sticker; the box cat and the logo cat are cardboard and the cats' coats, not gold                                   | `/`                                    |
 | 4   | Card labels, `.label text-gold`; a form's field labels are `text`                                                                                | `/about`, `/accessibility`, `/contact` |
 | 5   | Category: the blog label and the homepage glyph tiles, ink-edged on gold                                                                         | 3 routes                               |
-| 6   | Display words: the homepage family name; section title bricks (`Section brick`)                                                                  | `/`, `/about`, `/career`               |
+| 6   | Display words: the homepage family name; section title bricks (`Section brick`)                                                                  | `/`, `/about`, `/career`, `/contact`   |
 | 7   | List markers in `.bullet-list`                                                                                                                   | wherever a bulleted list is            |
 | 8   | The `gold` swatch and the contrast samples on gold; fills, hex in both modes                                                                     | `/brand`                               |
 | 9   | Edges in dark mode: `border` on fields, controls, chips, rules and the outer edge of a gold area                                                 | every route                            |
@@ -102,7 +102,7 @@ blur, uppercase headings, tilted marks.
 | `surface`     | `#1A1A1A`    | Inputs and controls off a block                                      |
 | `border`      | `#FFC000`    | Every boundary but table lines: the gold edge                        |
 | `card-edge`   | none         | Card and plain slab edge; `#131313` in light mode                    |
-| `fill-edge`   | `#131313`    | Edge of a gold or light fill: buttons                                |
+| `fill-edge`   | `#131313`    | Edge of a gold or light fill, except buttons                         |
 | `text`        | `#E5E2E1`    | Words and table lines                                                |
 | `subtle`      | `#9EB6C7`    | Captions, meta, helper text                                          |
 | `gold`        | `#FFC000`    | The accent, only where the style guide allows                        |
@@ -120,7 +120,7 @@ The gold-ground set is in [Gold surface](#gold-surface), light values in
 
 - Two dark grounds: `background` (page, header, footer, bands) and `surface`
   (cards, inputs). Measure every foreground against both.
-- Blocks: every card, the plain hero slab and the post contents are a gold
+- Blocks: homepage and /brand cards, the plain hero slab and the post contents are a gold
   `block-gold` or light `block-light` fill with a 4px `block-ink` edge
   (`--block-edge`) and the red throw. Cards are gold; every second card in a
   `.card-block`, `.card-solid`, the plain hero slab and the post contents are
@@ -128,6 +128,11 @@ The gold-ground set is in [Gold surface](#gold-surface), light values in
   `text-gold` are ink (11.32 on gold, 14.42 on light), `subtle` is `gold-muted`
   (7.88) or `light-subtle` (7.40), and a badge inverts. Gold fills use
   `block-gold`, which never remaps. `tests/blocks.spec.ts`.
+- Ground cards: `.card-ground` (/about, /career, /credits, blog listings,
+  /contact, /contact/send, /contact/sent) is no block. A section fills one
+  card at most, 3 to 5 per page; lists and text-heavy cards stay on the
+  ground. It keeps the page's tokens and ground, takes a 4px `text` edge and
+  casts the red throw; its controls keep the page's red throws and focus ring.
 - Walls: blocks in a `.card-block` share 4px walls with no gap. Each brick
   casts the throw as a `box-shadow` and the next brick covers it, so it shows
   on outer edges only. No `filter` on a wall: a filter layer costs raster time
@@ -148,7 +153,8 @@ The gold-ground set is in [Gold surface](#gold-surface), light values in
   or fill. Do not merge them. Utilities: `bg-red`, `border-red`,
   `text-red-text`.
 - A gold or light fill takes the `fill-edge`, never `border`: the fill is
-  what meets the page. A dark fill (a `.sticker`, a chip, a disabled button)
+  what meets the page. `.btn-primary` and its sending state take `text`
+  instead: #E5E2E1 on the dark ground (15.28), ink inside a block. A dark fill (a `.sticker`, a chip, a disabled button)
   keeps `border`: an ink edge would vanish on it.
 - `tests/edge-contrast.spec.ts`: on every route, both modes, 390 and 1280px,
   a drawn edge reaches 3:1 on its ground unless its fill does.
@@ -249,7 +255,7 @@ set; hex values and ratios are in the generated [Contrast](#contrast) table:
 | `gold-text`      | Body copy, headings, button borders, the focus ring                                                                         |
 | `gold-muted`     | Secondary copy                                                                                                              |
 | `gold-border`    | Structural rules, dividers, card edges and shadows                                                                          |
-| `fill-edge`      | Edge of a gold or light fill, on gold or off it                                                                             |
+| `fill-edge`      | Edge of a gold or light fill except `.btn-primary`                                                                          |
 | `gold-link`      | Links, underlined; the block on hover                                                                                       |
 | `gold-bud`       | The canvas buds on gold. Decoration                                                                                         |
 | `gold-btn-label` | Label on the `gold-text` fill of `.btn-gold-primary` and a hovered `.btn-gold-secondary`; inner ring on `.btn-gold-primary` |
@@ -298,9 +304,16 @@ set; hex values and ratios are in the generated [Contrast](#contrast) table:
   `tests/gold-surface.spec.ts` asserts every control in a `.surface-gold`
   section has a visible edge: a fill that differs from the ground, or a
   border of at least 3:1.
-- Both are scoped to `.surface-gold` and render unstyled elsewhere.
+- `.btn-gold-primary` is scoped to `.surface-gold` and blocks (`.card`);
+  `.btn-gold-secondary` to `.surface-gold`. Both render unstyled elsewhere.
+- The /brand form sample is `.btn-gold-primary` in a block. Its fill is 11.32
+  on a gold block, 9.36 on light mode's cyan block and 14.42 on a light one.
+- The /contact submit sits on a ground card and is `.btn-primary`. In light
+  mode it is ink with a white label, and blue on hover.
 - Both `text-button`, 900, 0.1em, uppercase, `px-8 py-4`. No underline on the
-  label.
+  label at rest. `.btn-gold-primary` underlines it under the pointer
+  (`--underline-thin`), so hover still shows where reduced motion drops the
+  lift (SC 1.4.1).
 
 ## Light mode
 
@@ -562,7 +575,7 @@ with a comment beside it.
 - Each ground has one edge role. Dark page: `border` (gold), but post table
   lines take `text`. A block: `block-ink`,
   4px; the header bar's edge takes its own fill. Inside gold: `gold-border` (ink). A
-  gold or light fill: `fill-edge` (ink). Light mode: ink everywhere.
+  gold or light fill: `fill-edge` (ink); `.btn-primary`: `text`. Light mode: ink everywhere.
   `tests/edges.spec.ts` asserts each reaches 3:1 in both modes.
 - Shadows are hard offsets, no blur. Gold casts none (gold on gold is 1.00).
 - A tilted box with a drawn edge clips its fill to the padding box when the
@@ -600,7 +613,7 @@ file per area.
 
 | Class                                   | What                                                                                                                                                                                                                                                                    |
 | --------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `.btn-primary`                          | Gold fill, `gold-text` label, `border-4`, red 4px shadow, `text-button` 900                                                                                                                                                                                             |
+| `.btn-primary`                          | Gold fill, `gold-text` label, `border-4` in `text` (ink inside a block), red 4px shadow, `text-button` 900                                                                                                                                                              |
 | `.btn-secondary`                        | Light block: `block-light` fill, `block-ink` label and `border-4`, red 4px shadow                                                                                                                                                                                       |
 | `.actions`                              | Button row; its 32px row gap clears shadow and ring when buttons wrap                                                                                                                                                                                                   |
 | `.card`                                 | A gold block: `block-gold`, 4px `block-ink` edge, red 8px shadow, padding 24px, 40px from `sm`                                                                                                                                                                          |
@@ -634,6 +647,8 @@ file per area.
   off their shadow, which grows by as much, so its far corner stays put. Not
   on touch screens, where hover sticks after a tap, and not under reduced
   motion.
+- Under reduced motion `.btn-gold-primary` takes `.btn-gold-secondary`'s
+  empty fill on hover instead, without its inner ring (`tests/states.spec.ts`).
 - Pressed: buttons, `.btn-gold-primary`, linked chips and footer stickers drop
   their shadow and move 4px into it; the menu's bricks 6px; the logo tile 8px.
   The header's joined bricks and a chip row's chips share their row's throw
@@ -644,9 +659,12 @@ file per area.
   it slides instead of fading (`buttons-nav.css`).
 - Unavailable: `aria-disabled="true"`, never `disabled`. Dashed `border`
   (the dash says unavailable, the gold keeps the shape), `bg-background`,
-  `subtle` label, no shadow; still focusable.
+  `subtle` label, no shadow; still focusable. An `aria-disabled`
+  `.btn-gold-primary` keeps its ink fill and label instead and is drawn
+  pressed, in or out of a form.
 - Sending: the contact submit is `aria-disabled` in a `data-sending` form but
-  drawn pressed and gold, not unavailable (`src/scripts/contact-sending.ts`).
+  keeps its ink fill and is drawn pressed, not unavailable
+  (`src/scripts/contact-sending.ts`).
 - Current: [Navigation states](#states).
 
 ### Markup
@@ -1077,9 +1095,13 @@ Enforced by `tests/post-page.spec.ts`.
   This Post", around a native `<details>`.
 - Closed below `xl`. From `xl`, `src/scripts/post-contents.ts` opens it and
   follows width changes. Without JavaScript it stays closed.
-- The summary: `text-label` 900 uppercase in `text` (13.51 on `surface`), cyan
-  on hover, at least 44px tall, a plus or minus marker hidden from assistive
-  technology.
+- The summary: `text-label` 900 uppercase in `text` (13.51 on `surface`), at
+  least 44px tall, a plus or minus marker hidden from assistive technology.
+  On hover the label is cyan (`gold-link` in a block) under a
+  `--underline-thin` underline, which clears the next line of a wrapped
+  label; the marker takes no underline. Every
+  `.post-contents-summary` takes it: the post contents, the module toggle and
+  the `/brand` disclosures.
 - Tags follow the text under a 6px `border` rule: a label 16px above a row of
   `.chip` links.
 
