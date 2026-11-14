@@ -41,7 +41,7 @@
     --press-throw-color: var(--color-red);
   }
 
-  .surface-gold .btn-gold-primary {
+  :is(.surface-gold, .card) .btn-gold-primary {
     --press-throw: var(--lift-control);
     --press-throw-color: var(--color-mark);
   }
@@ -65,7 +65,7 @@
     a.chip:not(.chip-row *),
     .footer-sticker,
     .press-brick,
-    .surface-gold .btn-gold-primary
+    :is(.surface-gold, .card) .btn-gold-primary
   ):not([aria-disabled='true'], [aria-current]) {
     box-shadow:
       var(--press-ring, 0 0 transparent),
@@ -164,14 +164,19 @@
   }
 
   /*
-   * Sending is working, not unavailable: held pressed and gold, not dashed.
+   * Sending is working, not unavailable: the ink button keeps its fill and
+   * label and is held pressed, on its throw.
    */
-  form[data-sending='true'] .btn-primary[aria-disabled='true'] {
-    @apply cursor-progress border-solid border-fill-edge bg-block-gold text-gold-text;
+  :is(.surface-gold, .card) .btn-gold-primary[aria-disabled='true'] {
+    @apply cursor-not-allowed shadow-none;
+  }
+
+  form[data-sending='true'] .btn-gold-primary[aria-disabled='true'] {
+    @apply cursor-progress;
   }
 
   @media (prefers-reduced-motion: no-preference) {
-    form[data-sending='true'] .btn-primary[aria-disabled='true'] {
+    :is(.surface-gold, .card) .btn-gold-primary[aria-disabled='true'] {
       @apply translate-x-1 translate-y-1;
     }
   }
