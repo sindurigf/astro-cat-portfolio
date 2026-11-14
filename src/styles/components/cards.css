@@ -54,7 +54,7 @@
    */
   :is(
     .card-solid,
-    .plain-slab,
+    .plain-slab:not(.plain-slab-gold),
     .post-contents,
     .card-block > .card:nth-child(even),
     .card-block > :nth-child(even) > .card
@@ -67,8 +67,14 @@
     background-color: var(--color-block-light);
   }
 
-  /* The post contents juts right of the column by the Step's `--step-x`. */
+  /*
+   * The post contents juts right of the column by the Step's `--step-x`. The
+   * parts draw the edges, not the box: forced colors drop shadow and
+   * background, and the summary needs its own edge (tests/forced-colors.spec.ts).
+   */
   .post-contents {
+    @apply self-start bg-surface shadow-hard-red-object;
+
     margin-right: calc(var(--step-x) * -1);
   }
 
@@ -150,15 +156,6 @@
     }
   }
 
-  /*
-   * The parts draw the edges, not the box: forced colors drop shadow and
-   * background, and the summary needs its own edge
-   * (tests/forced-colors.spec.ts).
-   */
-  .post-contents {
-    @apply self-start bg-surface shadow-hard-red-object;
-  }
-
   .post-contents ol {
     @apply edge border-t-0 border-card-edge;
   }
@@ -174,8 +171,9 @@
   }
 
   /*
-   * Summary label `text`, cyan on hover, 44px target (SC 2.5.5). The
-   * +/- marker is aria-hidden; the expanded state is announced natively.
+   * Summary label `text`, cyan and underlined on hover, 44px target
+   * (SC 2.5.5). The +/- marker is aria-hidden; the expanded state is announced
+   * natively.
    */
   .post-contents-summary {
     @apply flex min-h-target cursor-pointer list-none items-center
@@ -188,6 +186,16 @@
 
     &:hover {
       @apply text-cyan;
+    }
+
+    /*
+     * In a block the hover color moves 11.32 to 11.38, so it underlines
+     * (SC 1.4.1). The label only: an underlined + reads as a plus-minus sign.
+     */
+    &:hover > :not(.post-contents-marker) {
+      text-decoration: underline;
+      text-decoration-thickness: var(--underline-thin);
+      text-underline-offset: var(--underline-offset);
     }
   }
 
@@ -261,7 +269,8 @@
    * the pointer and draws its ring inside, so it never crosses the next brick.
    */
   /* The dark mode cyan in both modes: light mode's cyan is a text color, 2.55 under ink. */
-  .contact-brick:hover {
+  /* Weighted to beat the light block's fill on every second brick. */
+  .card-block .card.contact-brick:hover {
     background-color: var(--dark-cyan);
   }
 

@@ -93,7 +93,7 @@
 @source not '../../tests';
 @source not '../../scripts';
 /* Words in script source, not classes: they would ship filter utilities (tests/filter-layers.spec.ts). */
-@source not inline('blur filter');
+@source not inline('blur filter capitalize');
 
 /*
  * Dark tokens; light mode overrides a subset on <main> at the end of this file.
@@ -192,8 +192,8 @@
   /* Same hex as gold-text: on gold, text and edges are one ink. */
   --color-gold-border: #131313;
   /*
-   * Fails on gold: label and inner focus ring of .btn-gold-primary's dark fill
-   * only. Body copy is `text`, since pure white halates on dark.
+   * Fails on gold: label on the dark fill of .btn-gold-primary and a hovered
+   * .btn-gold-secondary, and the primary's inner focus ring. Body copy is `text`, since pure white halates on dark.
    */
   --color-gold-btn-label: #ffffff;
 
@@ -476,6 +476,7 @@
    */
   --focus-width: 4px;
   --focus-gap: 4px;
+  --focus-offset-inset: calc(-1 * (var(--focus-width) + var(--focus-gap)));
   --lift-control: 4px;
   --lift-object: var(--hard-throw);
   /* The logo keeps its 8px shadow, so its ring clears 8px. */

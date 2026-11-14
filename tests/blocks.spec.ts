@@ -134,6 +134,45 @@ for (const colorScheme of ['dark', 'light'] as const) {
       });
     }
 
+    test('/contact: every brick link fills under the pointer and its text still reads', async ({
+      page,
+    }) => {
+      await gotoSettled(page, '/contact');
+      const bricks = page.locator('a.contact-brick:visible');
+      const found = await bricks.count();
+      expect(found, '/contact has no brick link').toBeGreaterThan(0);
+      for (let i = 0; i < found; i += 1) {
+        const brick = bricks.nth(i);
+        await brick.scrollIntoViewIfNeeded();
+        const read = () =>
+          brick.evaluate(
+            (el, source) => (0, eval)(source)(el),
+            `(el) => {
+              ${PAGE_HELPERS}
+              const cs = getComputedStyle(el);
+              const ground = effectiveBackground(el);
+              return {
+                fill: cs.backgroundColor,
+                text: ratio(over(parse(cs.color), ground), ground),
+              };
+            }`,
+          ) as Promise<{ fill: string; text: number }>;
+        const rest = await read();
+        /* Forced: a sticky menu or smooth scroll can still be settling. */
+        await brick.hover({ force: true });
+        const hovered = await read();
+        expect(
+          hovered.fill,
+          `brick ${i + 1} keeps its rest fill under the pointer`,
+        ).not.toBe(rest.fill);
+        expect(
+          hovered.text,
+          `brick ${i + 1}'s hovered text is under ${AAA_TEXT}:1 on its fill`,
+        ).toBeGreaterThanOrEqual(AAA_TEXT);
+        await page.mouse.move(0, 0);
+      }
+    });
+
     for (const route of LINK_ROUTES) {
       test(`${route}: links in blocks read through hover and focus, rings inside their block`, async ({
         page,

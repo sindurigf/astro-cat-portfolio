@@ -65,6 +65,11 @@
     --color-gold-muted: var(--color-light-ink);
     color-scheme: light;
     color: var(--color-text);
+  }
+
+  /* A header or footer inside main keeps its parent's fill, such as the post slab's. */
+  :root.light :is(main, :is(header, footer):not(main *)),
+  main .mode-light {
     background-color: var(--color-background);
   }
 

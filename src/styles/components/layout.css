@@ -383,86 +383,11 @@
       @apply hidden;
     }
   }
+}
 
-  /*
-   * Line gap: the 12px rule plus clearance each side, less the line boxes'
-   * empty leading; not `em` alone because the rule is px. `top` offsets by half
-   * the leading difference so the letters, not the boxes, center on the rule.
-   */
-  .hero-plate span:last-child {
-    margin-top: calc(
-      var(--hero-rule) + 2 * var(--hero-name-clearance) -
-        (var(--hero-name-ink-foot) + var(--hero-name-ink-head)) *
-        var(--text-hero-h1)
-    );
-  }
-
-  /*
-   * `translateY(-50%)` puts the line break on the column's top rule only while
-   * the name is two lines (tests/hero-fit.spec.ts). `right` reserves the stickers.
-   */
-  .hero-plate {
-    top: calc(
-      var(--hero-rule) / -2 +
-        (var(--hero-name-ink-foot) - var(--hero-name-ink-head)) / 2 *
-        var(--text-hero-h1)
-    );
-    right: calc(var(--hero-marks-reserve) + var(--hero-inset));
-    left: var(--hero-inset);
-    transform: translateY(-50%);
-
-    @apply absolute z-30 flex min-w-0 flex-col;
-  }
-
-  /*
-   * Top right, below the rule; never at the foot, over the field. The box ends
-   * at the window's foot, one column wide, and clips: a sticker that does not
-   * fit wraps out of sight, so at 400% zoom none hangs over the words below
-   * (SC 1.4.10). The padding is the room the throw and tilt need; a column gap
-   * wider than the box puts a wrapped sticker wholly past the clip, never half a word.
-   */
-  .hero-marks {
-    --marks-room: --spacing(4);
-
-    top: calc(var(--hero-gap) - var(--marks-room));
-    right: calc(var(--hero-inset) - var(--marks-room));
-    bottom: 0;
-    width: calc(var(--hero-marks-reserve) + 2 * var(--marks-room));
-    padding: var(--marks-room);
-    overflow: clip;
-
-    column-gap: calc(100% + 2 * var(--marks-room));
-
-    @apply absolute z-20 flex flex-col flex-wrap-reverse content-start items-start gap-y-4;
-  }
-
-  /*
-   * A flex column never wraps its first item, so an empty first item lets a
-   * sticker taller than the room wrap out of sight too. The margin cancels its gap.
-   */
-  .hero-marks::before {
-    content: '';
-    margin-top: calc(-1 * --spacing(4));
-  }
-
-  /*
-   * Below `sm` the name takes full width and the words drop under it, still at
-   * the top.
-   */
-  @media (width < 40rem) {
-    .hero-plate {
-      right: var(--hero-inset);
-    }
-
-    .hero-marks {
-      top: calc(var(--hero-gap) + var(--text-hero-h1) - var(--marks-room));
-    }
-  }
-
-  .hero-sticker {
-    font-size: var(--text-hero-sticker);
-    line-height: var(--text-hero-sticker--line-height);
-
-    @apply border-4 px-4 py-2 font-black uppercase;
+/* Utilities layer: replaces the heading's `text-text` utility. */
+@layer utilities {
+  .section-brick {
+    @apply edge inline-block border-fill-edge bg-block-gold px-6 py-3 text-gold-text shadow-hard-red-object;
   }
 }
