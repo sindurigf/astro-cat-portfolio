@@ -357,6 +357,8 @@ The switch and what it scopes: [ARCHITECTURE.md](../ARCHITECTURE.md#light-mode).
 - Blocks keep the `#131313` edge (18.58 on white).
 - The header bar turns `block-cyan` `#1fc8f0` with a `#131313` edge, as cyan
   is 1.99 on white ([Navigation](#navigation)).
+- The report band, the skip link and the text size tab follow the mode: the
+  band and the tab white, the skip link cyan under `gold-text`.
 - The footer follows the mode like `<main>`: white in light mode, its words
   7:1 or more and its tiles apart from it (`tests/footer.spec.ts`).
 - Logo marks use `mark`, `tile-edge`, the `cat-hela*` coat and
