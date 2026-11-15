@@ -485,6 +485,8 @@
   --lift-mark-large: 12px;
   /* A pressable rises this far off its throw under the pointer. */
   --press-lift: 2px;
+  /* The lift's move; none under reduced motion, where the throw still grows. */
+  --press-rise: calc(var(--press-lift) * -1);
   /* A pressable's `border-4`; its hit strip reaches past it. */
   --press-edge: 4px;
   /* A lift or release slides at an even speed in this time; a press lands at once. */
