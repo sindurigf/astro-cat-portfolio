@@ -109,11 +109,6 @@
     border-top-width: var(--border-width-thin);
   }
 
-  /* Light mode: the panel and its toggle take the thin edge. */
-  :is(:root.light main, main .mode-light) .module-panel:not(.mode-dark *) {
-    --module-edge: var(--border-width-thin);
-  }
-
   /* No breakout from a panel: its container query would zero the outdent and start it at the edge. */
   .post-layout .prose .module-panel > .post-fold > figure {
     @apply mx-card-tight w-auto;
