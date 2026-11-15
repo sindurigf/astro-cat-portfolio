@@ -8,7 +8,7 @@ export interface MatchablePage {
 }
 
 /* Distances run from 0, the same, to 1, nothing shared. Above this is no match. */
-export const MATCH_LIMIT = 0.6;
+const MATCH_LIMIT = 0.6;
 /* Two words this close or closer count as the same word. */
 const SAME_WORD = 0.25;
 /* A typed segment that starts a page's segment ("open" of "open-source"). */
