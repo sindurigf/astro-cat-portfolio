@@ -1,6 +1,6 @@
 /*
- * Light mode: `.light` on <html>, set with `data-theme`. <main>, the header and the footer
- * change; ink is #131313, gold fills turn cyan. On white: text 18.58, subtle 9.53,
+ * Light mode: `.light` on <html>, set with `data-theme`. <body> changes;
+ * ink is #131313, gold fills turn cyan. On white: text 18.58, subtle 9.53,
  * red 15.05, cyan 8.23 (tests/light-mode.spec.ts). Utilities layer beats
  * `.text-gold`.
  */
@@ -34,7 +34,7 @@
     --dark-gold-muted: var(--color-gold-muted);
   }
 
-  :root.light :is(main, header, footer),
+  :root.light body,
   main .mode-light {
     --color-background: var(--color-light-ground);
     --color-surface: var(--color-light-ground);

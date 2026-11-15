@@ -77,6 +77,21 @@
         0 0 0 var(--press-throw-color);
     }
 
+    /*
+     * Hover lifts the control and grows its throw; reduced motion keeps the
+     * growth only. The ring clears the grown throw: cyan over red fails SC 1.4.11.
+     */
+    @media (hover: hover) {
+      &:hover:not(:active) {
+        --lift: calc(var(--press-throw) + var(--press-lift));
+
+        translate: var(--press-rise) var(--press-rise);
+        box-shadow:
+          var(--press-ring, 0 0 transparent),
+          var(--lift) var(--lift) 0 var(--press-throw-color);
+      }
+    }
+
     @media (prefers-reduced-motion: no-preference) {
       transition-property: translate, box-shadow;
       transition-duration: var(--press-travel);
@@ -103,18 +118,6 @@
 
       /* No lift on touch, where :hover sticks after a tap. */
       @media (hover: hover) {
-        /* The ring clears the grown throw: cyan over red fails SC 1.4.11. */
-        &:hover:not(:active) {
-          --lift: calc(var(--press-throw) + var(--press-lift));
-
-          translate: calc(var(--press-lift) * -1) calc(var(--press-lift) * -1);
-          box-shadow:
-            var(--press-ring, 0 0 transparent),
-            calc(var(--press-throw) + var(--press-lift))
-              calc(var(--press-throw) + var(--press-lift)) 0
-              var(--press-throw-color);
-        }
-
         &:hover:not(:active)::after {
           --vacated: calc(var(--press-edge) + var(--press-lift));
 
