@@ -4,6 +4,7 @@ import { handle } from '@astrojs/cloudflare/handler';
 import type { ContactEnv } from './lib/contact-env';
 import { resendUnsentNotifications } from './lib/contact-resend';
 import { applyGlobalHeaders } from './lib/response-headers';
+import { isCompressedPage, serveCompressedPage } from './lib/html-compression';
 import { deleteExpiredMessages } from './lib/contact-retention';
 import {
   isVideoRequest,
@@ -21,9 +22,9 @@ const withSiteHeaders = (response: Response): Response => {
 };
 
 /*
- * Named by `main` in wrangler.jsonc. /videos/* is sliced for byte ranges; the
- * cron trigger runs the retention sweep /privacy promises, then the resend of
- * failed notifications.
+ * Named by `main` in wrangler.jsonc. /videos/* is sliced for byte ranges and
+ * the largest pages are gzipped; the cron trigger runs the retention sweep
+ * /privacy promises, then the resend of failed notifications.
  */
 export default {
   async fetch(
@@ -31,14 +32,17 @@ export default {
     env: WorkerEnv,
     ctx: Parameters<typeof handle>[2],
   ): Promise<Response> {
-    if (!isVideoRequest(request)) {
+    const compressed = isCompressedPage(request);
+    if (!compressed && !isVideoRequest(request)) {
       return withSiteHeaders(await handle(request, env, ctx));
     }
 
     if (!env.ASSETS) {
-      throw new Error('video range: ASSETS binding missing');
+      throw new Error('ASSETS binding missing');
     }
-    return serveVideo(request, env.ASSETS);
+    return compressed
+      ? withSiteHeaders(await serveCompressedPage(request, env.ASSETS))
+      : serveVideo(request, env.ASSETS);
   },
 
   async scheduled(
