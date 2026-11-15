@@ -58,7 +58,7 @@
   }
 
   .error-summary a {
-    @apply text-red-text;
+    @apply text-red-text wrap-anywhere;
   }
 
   /*

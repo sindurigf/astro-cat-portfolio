@@ -272,7 +272,7 @@ with a 4px ink edge. Inside, the color tokens are remapped, so text is ink at
 
 ### Light mode
 
-With JavaScript, `<main>`, the header and the footer turn light when the
+With JavaScript, the page turns light when the
 header's Theme menu is on Light, or on System (the default) while
 `prefers-color-scheme` is `light`; System follows a device change at once.
 Light and Dark are remembered. Without JavaScript the page stays dark and the

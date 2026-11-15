@@ -85,8 +85,9 @@ const understanding = (slug: string): string =>
         <div class="lg:col-span-3">
           <dt class="label text-gold">Scope</dt>
           <dd class="mt-4 text-text">
-            This covers every page here and its{' '}
-            <Abbr short="PDF" long="Portable Document Format" /> files, not
+            Every page the build produces, the contact form's server error pages
+            and the published{' '}
+            <Abbr short="PDF" long="Portable Document Format" /> files. Not the
             other sites the footer links to.
           </dd>
         </div>
@@ -94,12 +95,6 @@ const understanding = (slug: string): string =>
 
       <div class="mx-auto max-w-measure">
         <div class="prose mt-section">
-          <p>
-            Scope: every page the build produces, the contact form's server
-            error pages, and the published PDFs. Out of scope: third-party
-            sites.
-          </p>
-
           <h2>Commitment</h2>
 
           <h3>Contrast</h3>
@@ -132,12 +127,12 @@ const understanding = (slug: string): string =>
           <h3>Color Modes</h3>
           <p>
             axe WCAG A and AA runs on every page in dark mode (the default) and
-            light mode, at 1280 and 320px. Light mode changes the main content,
-            the header and the footer. With JavaScript on, the Theme menu in the
-            header offers System, Light and Dark. System is the default and
-            follows <code>prefers-color-scheme</code>, also when it changes.
-            Light and Dark are remembered. With JavaScript off, the page stays
-            dark and the switch is hidden.
+            light mode, at 1280 and 320px. Light mode changes the whole page.
+            With JavaScript on, the Theme menu in the header offers System,
+            Light and Dark. System is the default and follows{' '}
+            <code>prefers-color-scheme</code>, also when it changes. Light and
+            Dark are remembered. With JavaScript off, the page stays dark and
+            the switch is hidden.
           </p>
           <p>
             You can read the main content in dark or light colors. It follows
