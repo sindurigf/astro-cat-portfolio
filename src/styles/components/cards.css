@@ -107,6 +107,8 @@
   .card-ground {
     --color-border: var(--color-text);
 
+    /* Positioned like .card, so it paints over the throw of the brick before it. */
+    position: relative;
     border: var(--block-edge) solid var(--color-text);
     background-color: var(--color-background);
   }
