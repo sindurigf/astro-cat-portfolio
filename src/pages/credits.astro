@@ -205,7 +205,7 @@ const CARD_HEADING = 'text-h2 text-text';
 
 const NAMED_LIST = 'mt-6 grid gap-4';
 /* `min-w-0`: otherwise "ACCESSIBILITY.md" under SC 1.4.12 spacing overflows its grid track at 305px. */
-const NAMED_ENTRY = 'min-w-0 bg-background p-card-tight';
+const NAMED_ENTRY = 'min-w-0 bg-background p-card-tight wrap-anywhere';
 
 /* `lg:grid-cols-12` and spans: the 3/9 split; one column below `lg`. */
 const GUIDE_ROW = 'lg:grid lg:grid-cols-12 lg:gap-x-grid';
@@ -347,7 +347,7 @@ const TOOLS_WALL = wallClasses({ lg: [[0, 1], [2], [3]] }, 4);
       <div class:list={['card card-ground', TOOLS_WALL.bricks[1]]}>
         <h2 class={CARD_HEADING}>Built and Tested With</h2>
 
-        <ul class="bullet-list mt-6 gap-x-12 sm:grid sm:grid-cols-2 lg:grid-cols-3">
+        <ul class="bullet-list mt-6 wrap-anywhere gap-x-12 sm:grid sm:grid-cols-2 lg:grid-cols-3">
           {BUILT_WITH.map((tool) => (
             <li>
               <a href={tool.href} class={LINK_ITEM}>

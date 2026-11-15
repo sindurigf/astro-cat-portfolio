@@ -336,7 +336,8 @@
   --text-hero-sticker: clamp(1.125rem, min(2.1vw, 3.4svh), 1.875rem);
   --text-hero-sticker--line-height: 1.02;
   --text-menu: clamp(2.125rem, 8vw, 3.5rem);
-  --text-body: calc(clamp(1.125rem, 1.2vw, 1.1875rem) * var(--text-scale, 1));
+  /* Under 20px: WAVE reads any short paragraph at 20px+ as a possible heading. */
+  --text-body: calc(1.2475rem * var(--text-scale, 1));
   --text-body--line-height: 1.62;
 
   /*
@@ -347,11 +348,11 @@
   --text-code: max(1rem, 0.92em);
   --text-code--line-height: 1.5;
   /*
-   * 16px to 40rem, 14px from 48rem, where the desktop nav needs the room.
+   * 18px to 40rem, 16px from 48rem, where the desktop nav needs the room.
    * tests/text-size.spec.ts holds the 16px floor.
    */
   --text-label: calc(
-    clamp(0.875rem, calc(26px - 1.5625vw), 1rem) * var(--text-scale, 1)
+    clamp(1rem, calc(28px - 1.5625vw), 1.125rem) * var(--text-scale, 1)
   );
   --text-label--line-height: 1.2;
   /* Same curve as a label: a button and the label beside it read together. */
