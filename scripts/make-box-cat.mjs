@@ -45,7 +45,7 @@ const SPOTS = [
     /* Roundel.astro lg:size-32 and --spacing-roundel, both up to 128px. */
     drawn: 128 / 112,
     cat: { art: 'artwork/cats/rudra-sit.png', h: 82, y: 14 },
-    box: { x: 10, y: 60, w: 90, h: 46, throwBy: 5, edge: 4 },
+    box: { x: 10, y: 60, w: 90, h: 46, throwBy: 0, edge: 4 },
   },
   {
     file: 'src/assets/box-cat-footer.svg',

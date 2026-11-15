@@ -275,6 +275,12 @@ Dashboard settings that change what ships without a file change.
   passes. A branch ruleset requires a status by its job `name`, so requiring
   this one covers every job, the test shards included. Rename it in the
   workflow and the ruleset together, or no pull request can merge.
+- A pull request that changes only root `*.md`, `docs/**/*.md` or
+  `.github/*.md` skips the Playwright shards; `Required checks` accepts the
+  skip only then. `ACCESSIBILITY.md`, `ARCHITECTURE.md`, `SECURITY.md`,
+  `docs/DEPLOYMENT.md` and `docs/STYLEGUIDE.md` always run them: a page or a
+  spec reads each (`scripts/docs-only.mjs`, which `tests/docs-only.spec.ts`
+  keeps complete). Pushes to `main` always run them.
 - CI runs on pushes to `main` and on every pull request, whatever its base
   branch, so a stacked pull request gets the full gate. Its commits are checked
   against its own base branch, not `main`.
@@ -285,15 +291,21 @@ Dashboard settings that change what ships without a file change.
   1. Settings, Rules, Rulesets, the `main` ruleset, Require status checks to
      pass, Add checks, type `Test weakening`, pick the GitHub Actions source,
      Save. The name is offered once the check has run on a pull request.
-  2. Add `.github/CODEOWNERS` naming the owner for `/.github/` and
-     `/scripts/check-test-weakening.mjs`, and turn on Require review from Code
-     Owners in the `main` ruleset. A workflow could report a job also named
-     `Test weakening`; this keeps such a change from merging.
-- Agents use the owner's `gh` login, so they could post the marker. To take
-  that away, create a machine account for them with write access and a
-  fine-grained token for both repositories (Contents and Pull requests, read
-  and write), log their `gh` in with it, and remove the owner's token from
-  their keyring.
+  2. Add `.github/CODEOWNERS` naming the maintainer's GitHub account for
+     `/.github/` and `/scripts/check-test-weakening.mjs`, and turn on Require
+     review from Code Owners in the `main` ruleset. A workflow could report a
+     job also named `Test weakening`; this keeps such a change from merging.
+- `Pull request text` (`.github/workflows/pr-text.yml`) checks the title and
+  description for AI attribution and with `check:wording`, and re-runs on each
+  edit. Once the workflow is on `main`, require it in both repositories (a
+  required check a branch cannot run blocks its pull request): Settings,
+  Rules, Rulesets, the `main` ruleset, Require status checks to pass, Add
+  checks, type `Pull request text`, pick the GitHub Actions source, Save.
+  Dependabot pull requests skip it, which counts as passed.
+- Agents run `gh` with the maintainer's token, so they can post the marker. Fix:
+  a machine account with write access and a fine-grained token (Contents, Pull
+  requests: read and write) for both repositories; log agents in with it and
+  remove the maintainer token from their keyring.
 - Turn on Dependabot alerts, automated security fixes and private
   vulnerability reporting ([SECURITY.md](../SECURITY.md)).
 - Optional Actions secret `CLOUDFLARE_API_TOKEN` and variable

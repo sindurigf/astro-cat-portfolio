@@ -7,8 +7,8 @@ import { gotoSettled } from './settle';
  * page. Destinations compare without the hash or a trailing slash.
  */
 
-/** Post copy is the owner's to reword (AGENTS.md "Copy"); remove an entry once it passes. */
-const OWNER_COPY: readonly { route: string; name: string }[] = [];
+/** Post copy is reworded only with the maintainer's approval (AGENTS.md "Copy"); remove an entry once it passes. */
+const EDITORIAL_COPY: readonly { route: string; name: string }[] = [];
 
 /* Names that fit any destination: WCAG failure F84, a non-specific link name. */
 const VAGUE_NAMES = new Set([
@@ -95,7 +95,7 @@ test.describe('link purpose from the name alone (SC 2.4.9)', () => {
       ).toBeGreaterThan(0);
 
       const allowed = new Set(
-        OWNER_COPY.filter((entry) => entry.route === route).map((entry) =>
+        EDITORIAL_COPY.filter((entry) => entry.route === route).map((entry) =>
           entry.name.toLowerCase(),
         ),
       );
@@ -104,7 +104,7 @@ test.describe('link purpose from the name alone (SC 2.4.9)', () => {
       for (const name of allowed) {
         expect(
           found.has(name),
-          `"${name}" on ${route} no longer leads two ways; remove it from OWNER_COPY.`,
+          `"${name}" on ${route} no longer leads two ways; remove it from EDITORIAL_COPY.`,
         ).toBe(true);
       }
 
@@ -159,7 +159,7 @@ const COMPLETED_NAMES: readonly {
   },
   {
     route: '/about',
-    links: 'nav[aria-label="On this page"] a',
+    links: 'nav[aria-label="On This Page"] a',
     completedBy: /\bsection$/i,
   },
 ];

@@ -549,7 +549,7 @@ test.describe('the contact endpoint', WITH_CONTACT_FORM, () => {
     }
   });
 
-  test('a stored message is emailed to the owner', async ({
+  test('a stored message is emailed to CONTACT_NOTIFY_TO', async ({
     request,
     baseURL,
   }) => {
@@ -601,7 +601,7 @@ test.describe('the contact endpoint', WITH_CONTACT_FORM, () => {
         ...POLL,
         message:
           'a stored message whose notification failed was not resent by the ' +
-          'daily job, so the owner never learns it arrived.',
+          'daily job, so no email ever reports that it arrived.',
       })
       .toBeDefined();
 

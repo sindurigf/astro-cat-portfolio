@@ -1,4 +1,4 @@
-/* Fails the build of a real site whose ACCESSIBILITY.md still names the template's maintainer: /accessibility would publish her address as its own. */
+/* Fails the build of a real site whose ACCESSIBILITY.md still names the template's maintainer: /accessibility would publish the maintainer's address as its own. */
 import { readFileSync } from 'node:fs';
 import { staleStatementNotice } from '../src/lib/statement-guard.ts';
 

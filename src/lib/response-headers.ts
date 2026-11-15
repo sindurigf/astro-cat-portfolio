@@ -5,37 +5,8 @@
  */
 import headersFile from '../../public/_headers?raw';
 import { BUILD_ENV } from './build-env';
+import { GLOBAL_RULE, parseGlobalRule } from './headers-rule';
 import { noindexHeaders } from './noindex-headers';
-
-const GLOBAL_RULE = '/*';
-
-const parseGlobalRule = (source: string): Record<string, string> => {
-  const headers: Record<string, string> = {};
-  let inRule = false;
-
-  for (const line of source.split('\n')) {
-    const trimmed = line.trim();
-
-    if (trimmed.length === 0 || trimmed.startsWith('#')) continue;
-
-    /* A rule line starts at column zero; its headers are indented. */
-    if (!/^\s/.test(line)) {
-      inRule = trimmed === GLOBAL_RULE;
-      continue;
-    }
-
-    if (!inRule) continue;
-
-    const separator = trimmed.indexOf(':');
-    if (separator === -1) continue;
-
-    headers[trimmed.slice(0, separator).trim()] = trimmed
-      .slice(separator + 1)
-      .trim();
-  }
-
-  return headers;
-};
 
 const GLOBAL_HEADERS: Readonly<Record<string, string>> = parseGlobalRule(
   BUILD_ENV.noindex ? noindexHeaders(headersFile) : headersFile,

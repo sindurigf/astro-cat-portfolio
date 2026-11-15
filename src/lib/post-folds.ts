@@ -6,7 +6,7 @@ export const FOLD_CLASS = 'post-fold';
 export const MODULE_PANEL_CLASS = 'module-panel';
 
 /** An h2 that opens a module: "Module 3: Go Live" or "Side Path: Move a Site". */
-export const MODULE_HEADING = /^(Module \d+|Side Path):/;
+const MODULE_HEADING = /^(Module \d+|Side Path):/;
 
 /** "Module 3" or "Side Path": the part of a module heading its toggle names. */
 export const moduleName = (heading: string): string | undefined =>

@@ -1,9 +1,9 @@
 name: Re-run test weakening on approval
 
 # The guard runs on pull_request_target, which a review does not start. This
-# re-runs it, still from the default branch, when the owner approves, comments
-# with the marker, requests changes or has a review dismissed. It checks out
-# nothing from the pull request.
+# re-runs it, still from the default branch, when a review by
+# `github.repository_owner` approves, comments with the marker, requests changes
+# or is dismissed. It checks out nothing from the pull request.
 on:
   pull_request_review:
     types: [submitted, dismissed]

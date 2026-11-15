@@ -21,7 +21,7 @@ export const NOTIFICATION_SENDER = {
 const oneLine = (value: string): string =>
   value.replace(/[\p{Cc}\p{Zl}\p{Zp}]+/gu, ' ').trim();
 
-/** The email that tells the site owner a message arrived. */
+/** The email that tells `to` a contact message arrived. */
 export const notificationFor = (
   submission: ContactSubmission,
   to: string,
@@ -40,7 +40,7 @@ export const notificationFor = (
 });
 
 /**
- * Emails the site owner about one stored message. True once the mailer
+ * Emails `CONTACT_NOTIFY_TO` about one stored message. True once the mailer
  * accepts it; every failure is logged with its reason and never the message.
  */
 export const sendNotification = async (

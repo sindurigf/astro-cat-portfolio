@@ -1,7 +1,7 @@
 /*
- * Light mode: `data-theme="light"` on <html>. <main>, the header and the footer
- * change; ink is #131313, gold stays a fill. On white: text 18.58, subtle 9.53,
- * pink-text 7.06, cyan 8.23 (tests/light-mode.spec.ts). Utilities layer beats
+ * Light mode: `.light` on <html>, set with `data-theme`. <main>, the header and the footer
+ * change; ink is #131313, gold fills turn cyan. On white: text 18.58, subtle 9.53,
+ * red 15.05, cyan 8.23 (tests/light-mode.spec.ts). Utilities layer beats
  * `.text-gold`.
  */
 @layer utilities {
@@ -13,8 +13,8 @@
     --dark-subtle: var(--color-subtle);
     --dark-border: var(--color-border);
     --dark-cyan: var(--color-cyan);
-    --dark-pink: var(--color-pink);
-    --dark-pink-text: var(--color-pink-text);
+    --dark-red: var(--color-red);
+    --dark-red-text: var(--color-red-text);
     --dark-gold-border: var(--color-gold-border);
     --dark-card-edge: var(--color-card-edge);
     --dark-code-edge: var(--color-code-edge);
@@ -24,9 +24,17 @@
     --dark-hero-glow: var(--color-hero-glow);
     --dark-hero-veil: var(--color-hero-veil);
     --dark-hero-floor: var(--color-hero-floor);
+    --dark-mark: var(--color-mark);
+    /* `mark` as the page sets it, for a throw that hangs out of a block onto the page. */
+    --page-mark: var(--color-mark);
+    --dark-hero-veil-edge: var(--color-hero-veil-edge);
+    --dark-hero-floor-edge: var(--color-hero-floor-edge);
+    --dark-hero-muted: var(--color-hero-muted);
+    --dark-block-gold: var(--color-block-gold);
+    --dark-gold-muted: var(--color-gold-muted);
   }
 
-  :root[data-theme='light'] :is(main, header, footer),
+  :root.light :is(main, header, footer),
   main .mode-light {
     --color-background: var(--color-light-ground);
     --color-surface: var(--color-light-ground);
@@ -34,46 +42,91 @@
     --color-subtle: var(--color-light-subtle);
     --color-border: var(--color-light-ink);
     --color-cyan: var(--color-light-focus);
-    --color-pink: var(--color-light-ink);
-    --color-pink-text: var(--color-light-pink-text);
+    --color-red: var(--color-light-red-text);
+    --color-red-text: var(--color-light-red-text);
     --color-gold-border: var(--color-light-ink);
     --color-card-edge: var(--color-light-ink);
     --color-code-edge: var(--color-light-code-edge);
     --color-code-fill: var(--color-block-light);
     --color-gold-bud: var(--color-light-ink);
     --color-hero-ground: var(--color-light-ground);
-    --color-hero-glow: var(--color-gold);
-    --color-hero-veil: var(--color-light-hero-veil);
-    --color-hero-floor: var(--color-light-hero-floor);
+    --color-hero-glow: var(--dark-block-gold);
+    --color-hero-veil: var(--color-light-ground);
+    --color-hero-veil-edge: var(--color-light-ground);
+    --color-hero-floor: var(--color-light-ground);
+    --color-hero-floor-edge: var(--color-light-ground);
+    --color-hero-muted: var(--color-light-ink);
+    --color-hero-fill: var(--color-block-cyan);
+    --color-mark: var(--color-light-red-text);
+    --page-mark: var(--color-light-red-text);
+    /* The mirror of dark mode's gold: every gold fill turns cyan, ink on it 9.36. */
+    --color-gold: var(--color-block-cyan);
+    --color-block-gold: var(--color-block-cyan);
+    --color-gold-muted: var(--color-light-ink);
     color-scheme: light;
     color: var(--color-text);
+  }
+
+  /* A header or footer inside main keeps its parent's fill, such as the post slab's. */
+  :root.light :is(main, :is(header, footer):not(main *)),
+  main .mode-light {
     background-color: var(--color-background);
   }
 
+  /*
+   * The cyan bar: the dark bar's cyan hover would vanish on it, so links hover
+   * to ink and the ink solid bricks hover to white. Cyan on white is 1.99, so
+   * the slab takes an ink edge. The red throws on cyan at 7.58.
+   */
+  :root.light .header-slab {
+    --slab-edge: var(--color-block-ink);
+    --slab-mark: var(--color-light-red-text);
+    --hover-fill: var(--color-block-ink);
+    --hover-label: var(--color-block-light);
+    --solid-hover-fill: var(--color-light-ground);
+    --solid-hover-label: var(--color-light-ink);
+  }
+
   /* Hover fills take the dark mode cyan under ink: light mode's cyan is a text color. */
-  :root[data-theme='light'] .header-slab :is(dialog, .theme-menu) {
+  :root.light .header-slab :is(dialog, .theme-menu) {
     --hover-fill: var(--dark-cyan);
     --hover-label: var(--color-light-ink);
   }
 
-  :is(:root[data-theme='light'] main, main .mode-light)
+  /*
+   * Hover on a cyan fill is ink under white, as on the header slab (18.58). A
+   * contact brick fills ink too; its text and ring follow (cards.css).
+   */
+  :is(:root.light main, main .mode-light)
     :is(.btn-primary, .btn-secondary):not([aria-disabled='true']):hover:not(
       .mode-dark *,
-      :is(.card, .plain-slab, .post-contents) *
-    ) {
-    background-color: var(--dark-cyan);
-    color: var(--color-light-ink);
+      .contact-submit,
+      :is(.card, .plain-slab, .post-contents):not(.card-ground) *
+    ),
+  :root.light .contact-brick:hover {
+    background-color: var(--color-block-ink);
+    color: var(--color-block-light);
   }
 
-  :root[data-theme='light'] main .mode-dark {
+  /* Cyan on the white ground card is 1.99, so the submit is ink (18.58) and hovers blue (8.23). */
+  :root.light .contact-submit:not([aria-disabled='true']) {
+    background-color: var(--color-light-ink);
+    color: var(--color-light-ground);
+  }
+
+  :root.light .contact-submit:not([aria-disabled='true']):hover {
+    background-color: var(--color-light-focus);
+  }
+
+  :root.light main .mode-dark {
     --color-background: var(--dark-background);
     --color-surface: var(--dark-surface);
     --color-text: var(--dark-text);
     --color-subtle: var(--dark-subtle);
     --color-border: var(--dark-border);
     --color-cyan: var(--dark-cyan);
-    --color-pink: var(--dark-pink);
-    --color-pink-text: var(--dark-pink-text);
+    --color-red: var(--dark-red);
+    --color-red-text: var(--dark-red-text);
     --color-gold-border: var(--dark-gold-border);
     --color-card-edge: var(--dark-card-edge);
     --color-code-edge: var(--dark-code-edge);
@@ -83,13 +136,21 @@
     --color-hero-glow: var(--dark-hero-glow);
     --color-hero-veil: var(--dark-hero-veil);
     --color-hero-floor: var(--dark-hero-floor);
+    --color-hero-veil-edge: var(--dark-hero-veil-edge);
+    --color-hero-floor-edge: var(--dark-hero-floor-edge);
+    --color-mark: var(--dark-mark);
+    --page-mark: var(--dark-mark);
+    --color-hero-muted: var(--dark-hero-muted);
+    --color-hero-fill: initial;
+    --color-gold: var(--dark-block-gold);
+    --color-block-gold: var(--dark-block-gold);
+    --color-gold-muted: var(--dark-gold-muted);
     color-scheme: dark;
     color: var(--color-text);
     background-color: var(--color-background);
   }
 
-  :is(:root[data-theme='light'] main, main .mode-light)
-    :is(.surface-gold, .v-column):not(.mode-dark *) {
+  :is(:root.light main, main .mode-light) .hero-window:not(.mode-dark *) {
     background-color: var(--color-background);
   }
 
@@ -97,27 +158,25 @@
    * Gold text fails SC 1.4.3 on white, so it is ink with a gold square before
    * the word.
    */
-  :is(:root[data-theme='light'] main, main .mode-light)
+  :is(:root.light main, main .mode-light)
     :is(.text-gold, .motion-toggle):not(.mode-dark *),
-  :is(:root[data-theme='light'] main, main .mode-light)
+  :is(:root.light main, main .mode-light)
     :is(.prose, .bullet-list)
     li:not(.mode-dark *)::marker {
     color: var(--color-text);
   }
 
-  :is(:root[data-theme='light'] main, main .mode-light)
+  :is(:root.light main, main .mode-light)
     .label.text-gold:not(.mode-dark *)::before {
     content: '';
-    background-color: var(--label-mark, var(--color-block-gold));
+    background-color: var(--label-mark, var(--color-mark));
 
     @apply mr-2 inline-block size-2.5;
   }
 
-  /* The homepage's second sticker and `.sticker` are black blocks in light mode. */
-  :is(:root[data-theme='light'] main, main .mode-light)
-    .hero-sticker:not(.bg-block-gold):not(.mode-dark *),
-  :is(:root[data-theme='light'] main, main .mode-light)
-    .sticker:not(.mode-dark *) {
+  /* The homepage's second sticker is a black block in light mode. */
+  :is(:root.light main, main .mode-light)
+    .hero-sticker:not(.bg-block-gold):not(.mode-dark *) {
     @apply border-text bg-text text-background;
   }
 }

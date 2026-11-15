@@ -6,7 +6,7 @@
    */
   .card {
     @apply min-w-0 edge border-card-edge bg-surface p-card-tight
-      shadow-hard-pink-object sm:p-card;
+      shadow-hard-red-object sm:p-card;
   }
 
   /*
@@ -16,16 +16,20 @@
    * `text` on `background`, a badge, inverts to ink. Gold fills use the fixed
    * `block-gold`, so they stay gold.
    */
-  :is(.card, .plain-slab, .post-contents):not(.surface-gold, .surface-gold *) {
+  :is(.card, .plain-slab, .post-contents):not(
+    .surface-gold,
+    .surface-gold *,
+    .card-ground
+  ) {
     --color-background: var(--color-block-gold);
     --color-surface: var(--color-block-gold);
     --color-text: var(--color-block-ink);
     --color-gold: var(--color-block-ink);
     --color-subtle: var(--color-gold-muted);
-    --color-pink-text: var(--color-gold-link);
+    --color-red-text: var(--color-gold-link);
     --color-border: var(--color-block-ink);
     --color-card-edge: var(--color-block-ink);
-    /* Light mode's square before a gold label: ink on gold, gold elsewhere. */
+    /* Light mode's square before a gold label: ink on gold, red elsewhere. */
     --label-mark: var(--color-block-ink);
 
     position: relative;
@@ -35,27 +39,54 @@
     color: var(--color-text);
   }
 
+  /* Red is 1.48 on a gold block and 1.88 on a light one, so a control throws ink. */
+  :is(.card, .plain-slab, .post-contents):not(
+      .surface-gold,
+      .surface-gold *,
+      .card-ground
+    )
+    :is(.btn-primary, .btn-secondary) {
+    --press-throw-color: var(--color-block-ink);
+  }
+
+  /* Set on the children, so the block's own throw on the page stays red. */
+  :is(.card, .plain-slab, .post-contents):not(
+      .surface-gold,
+      .surface-gold *,
+      .card-ground
+    )
+    > * {
+    --color-red: var(--color-block-ink);
+    --color-mark: var(--color-block-ink);
+  }
+
   /*
    * Light blocks: every second card in a block, `.card-solid`, the plain hero
    * slab and the post contents. Ink 14.42, subtle 7.40 on the fill.
    */
   :is(
     .card-solid,
-    .plain-slab,
+    .plain-slab:not(.plain-slab-gold),
     .post-contents,
     .card-block > .card:nth-child(even),
     .card-block > :nth-child(even) > .card
-  ):not(.surface-gold, .surface-gold *) {
+  ):not(.surface-gold, .surface-gold *, .card-ground) {
     --color-background: var(--color-block-light);
     --color-surface: var(--color-block-light);
-    --label-mark: var(--color-block-gold);
+    --label-mark: var(--color-mark);
     --color-subtle: var(--color-light-subtle);
 
     background-color: var(--color-block-light);
   }
 
-  /* The post contents juts right of the column by the Step's `--step-x`. */
+  /*
+   * The post contents juts right of the column by the Step's `--step-x`. The
+   * parts draw the edges, not the box: forced colors drop shadow and
+   * background, and the summary needs its own edge (tests/forced-colors.spec.ts).
+   */
   .post-contents {
+    @apply self-start bg-surface shadow-hard-red-object;
+
     margin-right: calc(var(--step-x) * -1);
   }
 
@@ -63,9 +94,21 @@
    * Hover and focus inside a block: the block's own ring and hover throw keep
    * the page's cyan, set on the block itself.
    */
-  :is(.card, .plain-slab, .post-contents):not(.surface-gold, .surface-gold *)
+  :is(.card, .plain-slab, .post-contents):not(
+      .surface-gold,
+      .surface-gold *,
+      .card-ground
+    )
     > * {
     --color-cyan: var(--color-gold-link);
+  }
+
+  /* A card on the page ground: the page's own colors, a text edge, no fill (/contact). */
+  .card-ground {
+    --color-border: var(--color-text);
+
+    border: var(--block-edge) solid var(--color-text);
+    background-color: var(--color-background);
   }
 
   /* A gold card or column keeps its own colors and takes the block edge. */
@@ -137,15 +180,6 @@
     }
   }
 
-  /*
-   * The parts draw the edges, not the box: forced colors drop shadow and
-   * background, and the summary needs its own edge
-   * (tests/forced-colors.spec.ts).
-   */
-  .post-contents {
-    @apply self-start bg-surface shadow-hard-pink-object;
-  }
-
   .post-contents ol {
     @apply edge border-t-0 border-card-edge;
   }
@@ -161,8 +195,9 @@
   }
 
   /*
-   * Summary label `text`, cyan on hover, 44px target (SC 2.5.5). The
-   * +/- marker is aria-hidden; the expanded state is announced natively.
+   * Summary label `text`, cyan and underlined on hover, 44px target
+   * (SC 2.5.5). The +/- marker is aria-hidden; the expanded state is announced
+   * natively.
    */
   .post-contents-summary {
     @apply flex min-h-target cursor-pointer list-none items-center
@@ -175,6 +210,16 @@
 
     &:hover {
       @apply text-cyan;
+    }
+
+    /*
+     * In a block the hover color moves 11.32 to 11.38, so it underlines
+     * (SC 1.4.1). The label only: an underlined + reads as a plus-minus sign.
+     */
+    &:hover > :not(.post-contents-marker) {
+      text-decoration: underline;
+      text-decoration-thickness: var(--underline-thin);
+      text-underline-offset: var(--underline-offset);
     }
   }
 
@@ -244,17 +289,28 @@
   }
 
   /*
-   * A whole-brick link in a wall (/contact): it holds still, fills cyan under
-   * the pointer and draws its ring inside, so it never crosses the next brick.
+   * A whole-brick link in a wall (/contact): it holds still, fills under the
+   * pointer and draws its ring inside, so it never crosses the next brick.
    */
-  /* The dark mode cyan in both modes: light mode's cyan is a text color, 2.55 under ink. */
-  .contact-brick:hover {
+  /* Cyan in dark mode; light mode fills ink instead (light-mode.css). */
+  /* Weighted to beat the light block's fill on every second brick. */
+  .card-block .card.contact-brick:hover {
     background-color: var(--dark-cyan);
   }
 
-  /* Inside the brick the ring meets its fill, gold or light, so it is ink (11.32 or more). */
+  /* The brick sits on the ground: its ring is the page's focus color, ink on the cyan hover fill. */
   .contact-brick:focus-visible {
-    outline-color: var(--color-block-ink);
+    outline-color: var(--color-cyan);
     outline-offset: calc(-1 * (var(--block-edge) + var(--focus-gap)));
+  }
+
+  /* Ring and children take the brick's hover text color, in either mode. */
+  .contact-brick:hover {
+    outline-color: currentColor;
+    color: var(--color-block-ink);
+  }
+
+  .contact-brick:hover * {
+    color: inherit;
   }
 }

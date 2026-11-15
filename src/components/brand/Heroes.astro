@@ -26,7 +26,12 @@ const FRAME = 'hero-example sm:px-6';
             Thin slab: a post, Message Sent or a Brand section page.
           </p>
           <figure class={FRAME}>
-            <PageHero title="Post Title" slab="thin" headingLevel={3} />
+            <PageHero
+              title="Post Title"
+              slab="thin"
+              headingLevel={3}
+              writtenCase
+            />
           </figure>
         </li>
         <li>
@@ -48,7 +53,7 @@ const FRAME = 'hero-example sm:px-6';
   <ComponentRow
     id="roundel"
     use="the logo mark on a slab edge or a closing block."
-    rule="The cat in its box, with its own ink edge and pink throw, tilted; never a link."
+    rule="The cat in its box, with its own ink edge and a throw in the mark color, tilted; never a link."
   >
     <Roundel />
   </ComponentRow>

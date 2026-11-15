@@ -32,8 +32,9 @@ conventions for this template. Design rules and values are in
   `utilities.css`, `light-mode.css`. Reordering the imports reorders the
   cascade.
 - Page-only partials are not in that list: `about-cats.css` (`/about`), `not-found.css` (`/404`),
-  `code-block.css` and `post-folds.css` (posts) and `brand.css` (`/brand`,
-  which also takes `code-block.css`) are imported by the page that uses them,
+  `home-hero.css` (`/`), `code-block.css` and `post-folds.css` (posts) and
+  `brand.css` (`/brand`, which `@import`s `code-block.css` so the page
+  carries one sheet's overhead) are imported by the page that uses them,
   so each builds as its own sheet, linked after the shared one. Each opens
   with `@reference '../global.css'` so `@apply` and the tokens resolve;
   Tailwind then writes token values as `var()` fallbacks and repeats its
@@ -93,8 +94,9 @@ passed to `vite.build.cssTarget`.
   `@mdn/browser-compat-data`, an external source, not a dependency):
   `popover`, for every abbreviation (Chrome
   114, Firefox 125, Safari 17), and `@media (scripting: none)`, without which
-  the no-JavaScript nav is not shown (Chrome 120, Safari 17). `:has()`
-  (Firefox 121) and ARIA reflection (Firefox 119) are inside the floor.
+  the no-JavaScript nav and fallbacks are not shown (Chrome 120, Safari 17).
+  `:has()` (Firefox 121) and ARIA reflection (Firefox 119) are inside the
+  floor.
 - Pinned, not left to the bundler default, which moves between releases.
 - No `browserslist` key: neither Tailwind 4 nor Vite reads it.
 - `tests/css-target.spec.ts` asserts the list and the prefixes it implies
@@ -125,14 +127,16 @@ Rules: [STYLEGUIDE Color tokens](docs/STYLEGUIDE.md#color-tokens).
 Dark is the default. Colors and rules:
 [STYLEGUIDE Light mode](docs/STYLEGUIDE.md#light-mode).
 
-- `data-theme="light"` on `<html>`; `src/styles/light-mode.css`, imported last,
-  overrides a subset of tokens on `<main>`, the header and the footer while it
+- `data-theme="light"` and the `light` class on `<html>`; light-mode CSS keys
+  on `:root.light`, shorter than the attribute for the CSS budget.
+  `src/styles/light-mode.css`, imported last, overrides a subset of tokens on `<main>`, the header and the footer while it
   is set. No `dark:` variants.
-- `<main>`, the header and the footer change; the header bar stays gold and
-  its throw turns ink. The no-JS nav stays dark.
+- `<main>`, the header and the footer change; the header bar is gold on
+  dark and cyan on light. The no-JS nav stays dark.
 - `mark` and `tile-edge` hold the mode-independent logo-tile colors.
 - An inline script in `BaseLayout.astro`'s `<head>` sets `data-theme` from the
-  saved choice or `prefers-color-scheme` before the body parses, rereads it on
+  saved choice or `prefers-color-scheme` before the body parses (a
+  `MutationObserver` keeps the `light` class in step with it), rereads it on
   a back-forward cache restore (`pageshow`), applies a saved `--text-scale`,
   and adds the `js` class that script-only styles key on. Its hash is in
   `script-src`; `npm run check:csp` fails when a build changes any inline
@@ -287,8 +291,8 @@ which is not installed.
 | `src/plugins/post-figure.mjs`    | a post image: frame, sizer, `widths`, `sizes`                                                                                                                                                                                                                                                                                                                                                                                  |
 | `src/plugins/code-block.mjs`     | `<pre>` as `tabindex="0"` `role="group"` (SC 2.1.1); in a post, also a `.code-block` frame with the fence language as a `.code-lang` label and `data-copy`, so `src/scripts/copy.ts` adds a Copy button. The post page loads the script when its Markdown may hold code (`hasCodeBlock`)                                                                                                                                       |
 | `src/plugins/table-scope.mjs`    | a Markdown header cell as `scope="col"` (H63)                                                                                                                                                                                                                                                                                                                                                                                  |
-| `src/plugins/table-scroll.mjs`   | a post table, wrapped in a `tabindex="0"` `role="group"` box that scrolls (SC 1.4.10)                                                                                                                                                                                                                                                                                                                                          |
 | `src/plugins/table-stack.mjs`    | a post table's explicit table roles and `.table-stack` class, and an `aria-hidden` column label in each value cell for the stacked rows below 640px (SC 1.3.1)                                                                                                                                                                                                                                                                 |
+| `src/plugins/table-scroll.mjs`   | a post table, wrapped in a `tabindex="0"` `role="group"` box that scrolls (SC 1.4.10), named from its caption, else the heading before it, and unique in the post                                                                                                                                                                                                                                                              |
 | `src/plugins/post-fold.mjs`      | puts each `## Module N:` or `## Side Path:` h2 and its body, up to the next h2 or the footnotes, in one `.module-panel`; the body is a `<details>` (open on load, with Close All Modules and Open All Modules buttons) and the h2 stays outside it. Nothing folds inside a module. The post page loads the fold script when its rendered HTML has a fold (`hasFoldMarkup`). Only these headings fold (`src/lib/post-folds.ts`) |
 
 `group`, not `region`, so code blocks and tables are not landmarks.
@@ -308,6 +312,7 @@ which is not installed.
   Search, AI Overviews and AI Mode use Googlebot and are unaffected; Search
   Console's Search generative AI control stays on Include. Cloudflare's managed
   robots.txt stays off so it cannot contradict this. `tests/sitemap.spec.ts`.
+- `/.well-known/security.txt`: [SECURITY.md](SECURITY.md).
 
 ## Conventions
 
@@ -336,7 +341,7 @@ queries ignore it, so layouts overflowed at widths such as 768px.
 footer's columns up to 1100px), so the breadcrumb, chips, post card labels and
 footer links take `wrap-anywhere`; a
 page-wide rule was rejected because it reflows shrink-to-fit text at 100%. The
-control is the reading tab (`ReadingTab.astro`).
+control: [STYLEGUIDE.md](docs/STYLEGUIDE.md#text-size).
 
 ### Scripts loaded on demand
 
@@ -402,10 +407,11 @@ Rejected:
 - A count in a comment states its unit.
 - A fact duplicated across Markdown files needs a check that fails when the
   copies disagree; otherwise keep one copy and link.
-- **Test weakening needs the owner, out of band.** The `Test weakening`
-  workflow runs on `pull_request_target`, so the default branch's copy of
-  `scripts/check-test-weakening.mjs` judges each pull request. The head is
-  fetched as git objects; nothing from it is installed or run. It flags:
+- **Test weakening passes only with the maintainer's GitHub review.** The
+  `Test weakening` workflow runs on `pull_request_target`, so the default
+  branch's copy of `scripts/check-test-weakening.mjs` judges each pull request.
+  The head is fetched as git objects; nothing from it is installed or run. It
+  flags:
   - a new or widened skip, fixme or fail, `describe.configure`, a return
     behind an engine or environment test, and an existing test given an
     engine tag from `tests/tags.ts` or a feature tag from
@@ -437,8 +443,7 @@ Rejected:
   A finding passes only with an `APPROVED` or `COMMENTED` review by
   `GITHUB_REPOSITORY_OWNER` on the head commit carrying
   `Approved test change: <reason>`; a later dismissal or change request revokes
-  it. GitHub blocks approving your own pull request, so a comment review
-  counts. It matches text, so indirection evades it. How to approve:
+  it. It matches text, so indirection evades it. How to approve:
   [DEVELOPMENT.md](docs/DEVELOPMENT.md#approving-a-test-change).
 
 ### Claims that rest on a platform setting
@@ -457,8 +462,9 @@ in `wrangler.jsonc`).
 - `src/assets/`: rendered artwork, through `astro:assets`, WebP, hashed into
   `/_astro/`, cached immutably. Unimported files are not emitted.
 - `public/images/`: stable URLs for outside consumers (Open Graph images).
-- `artwork/`: source artwork the build never reads (the badge, the
-  `favicon.ico` frames). Nothing in it ships.
+- `artwork/`: source artwork the build never reads (the badge, the cat
+  cut-outs, the About cats' drawings, the `favicon.ico` frames). Nothing in it
+  ships.
 
 | Path                           | Artwork   | Goes on       | Used by                                      |
 | ------------------------------ | --------- | ------------- | -------------------------------------------- |
@@ -490,7 +496,7 @@ in `wrangler.jsonc`).
   the `/about` tile in `CatMark.astro`) and `npm run og`. The favicons and
   app icons come from a cut-out cat, [the favicon set](#the-favicon-set).
 - `src/lib/box-cat.ts`: the box cat's cardboard box (`cat-cardboard`, ink edge,
-  pink throw, flaps). `npm run box-cat`
+  ink throw, flaps). `npm run box-cat`
   (`scripts/make-box-cat.mjs`) sets a cut-out cat from `artwork/cats/` in it,
   with a white die-cut rim, and writes:
 
@@ -563,11 +569,11 @@ in `wrangler.jsonc`).
 ### The favicon set
 
 All written by `npm run icons` (`scripts/make-icons.mjs`) from
-`artwork/cats/minerva-head.png`, her head cut from the full-size Canva AI
+`artwork/cats/minerva-head.png`, the cat's head cut from the full-size Canva AI
 drawing behind `artwork/cats/minerva-sit.png`, in Chromium with the color tokens.
 
 - Tab icons (`favicon.*`, `artwork/favicon-*`): Minerva's head as a die-cut
-  sticker: white rim, ink edge and a pink block behind her, on a transparent
+  sticker: white rim, ink edge and a red block behind it, on a transparent
   ground. The ink edge holds 3:1 on a light tab strip and the white rim on a
   dark one (`tests/brand-mark.spec.ts`). Each is scaled down from one 512px
   render with a clear 1px border. No SVG favicon: at tab size Chromium rounds
@@ -625,8 +631,8 @@ in `public/`.
 - `immutable` for a year on `/_astro/*` only: Vite content-hashes those names.
   An unhashed file there stays stale for a year in every browser that has it.
 - Everything else gets `Cache-Control: no-transform` alone, so browsers
-  revalidate against the ETag. Favicons and feeds detach it so Cloudflare
-  compresses them; sitemaps and `llms.txt` would save under 1 KB.
+  revalidate against the ETag. `/favicon.*` and the feeds detach it so
+  Cloudflare compresses them; sitemaps and `llms.txt` are too small to gain.
 - `no-transform` keeps JavaScript Detections (forced on the Free plan) off
   pages: its inline script carries a per-request token no CSP hash allows, and
   it strips the ETag. The cost is uncompressed HTML, bar the pages below,
@@ -856,8 +862,7 @@ evidence.
   ([H67](https://www.w3.org/WAI/WCAG22/Techniques/html/H67)). Text there would
   be announced twice.
 - **AccessLint engine hits, each checked against the live DOM:**
-  `color-contrast` on the homepage name is read against a gold ancestor the
-  text does not sit on; `landmark-unique` counts the no-JavaScript nav, which
+  `landmark-unique` counts the no-JavaScript nav, which
   is `display: none` with scripts on; `aria-hidden-focus` flags the controls
   in `/brand`'s light halves, which are `inert` and so never take focus.
   `ACCESSLINT_FALSE_POSITIVES` in `tests/accesslint.ts` drops each only on
@@ -878,7 +883,7 @@ evidence.
   persona, a tribute to Nico Robin, written with AI ([AI_DISCLOSURE.md](AI_DISCLOSURE.md)).
   The sample posts show every Markdown feature the site renders.
 - Homepage section headings, category descriptions and the `/blog` heading
-  and standfirst are hers too.
+  and standfirst are the persona's too.
 - **CV PDF.** Set `person.cv` in `src/site.config.ts` to a PDF under
   `public/`, and `/career` links it with its size; `tests/cv.spec.ts` then
   checks the file's metadata and tags. No CV ships.

@@ -19,6 +19,8 @@ jobs:
   guard:
     # The `main` ruleset requires this name (docs/DEPLOYMENT.md#repository-settings).
     name: Test weakening
+    # An edit to a closed pull request's description starts no run.
+    if: github.event.pull_request.state == 'open'
     runs-on: ubuntu-24.04
     timeout-minutes: 5
 

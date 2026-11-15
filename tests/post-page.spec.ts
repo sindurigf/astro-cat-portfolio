@@ -137,6 +137,30 @@ test.describe('the contents list', () => {
     expect(await links.count()).toBe(await page.locator('.prose h2').count());
   });
 
+  test('its hovered label is underlined (SC 1.4.1)', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 900 });
+    await gotoSettled(page, CONTENTS_POST_ROUTE!);
+    const summary = page.locator('nav.post-contents summary');
+    const label = summary.locator(':scope > :not(.post-contents-marker)');
+    const underlined = (part: typeof label) =>
+      part.evaluate((el) =>
+        getComputedStyle(el).textDecorationLine.includes('underline'),
+      );
+    expect(
+      await underlined(label),
+      'the label is underlined at rest, so hover adds nothing to it',
+    ).toBe(false);
+    await summary.hover();
+    expect(
+      await underlined(label),
+      'the hovered label differs from rest by color alone',
+    ).toBe(true);
+    expect(
+      await underlined(summary),
+      'the summary itself is underlined, so the line runs under the plus marker',
+    ).toBe(false);
+  });
+
   test('is open beside the text at 1280px', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 900 });
     await gotoSettled(page, CONTENTS_POST_ROUTE!);

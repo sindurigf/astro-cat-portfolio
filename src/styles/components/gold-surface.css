@@ -8,6 +8,32 @@
     @apply bg-gold text-gold-text;
   }
 
+  /* Red is 1.48 on gold, so every throw cast on it is ink. Set on the children: the slab's own throw lands on the page. */
+  .surface-gold > * {
+    --color-red: var(--color-block-ink);
+    --color-mark: var(--color-block-ink);
+  }
+
+  /* The homepage hero stands on the page ground, page text on it. */
+  :root:not(.light) .v-column .hero-window {
+    --color-red: var(--dark-red);
+    --color-mark: var(--dark-mark);
+    --color-gold: var(--color-background);
+    --color-block-gold: var(--color-block-ink);
+    --color-gold-text: var(--color-text);
+    --color-gold-muted: var(--color-subtle);
+    --color-gold-border: var(--color-text);
+    --color-gold-link: var(--color-text);
+    --color-gold-bud: var(--dark-block-gold);
+    --color-hero-muted: var(--dark-block-gold);
+    --color-hero-stalk: var(--dark-block-gold);
+    --color-hero-ground: var(--color-background);
+    --color-hero-veil: var(--color-hero-ink-veil-edge);
+    --color-hero-veil-edge: var(--color-hero-ink-veil-edge);
+    --color-hero-floor: var(--color-hero-ink-floor-edge);
+    --color-hero-floor-edge: var(--color-hero-ink-floor-edge);
+  }
+
   .surface-gold *,
   .surface-gold ::before,
   .surface-gold ::after {
@@ -27,7 +53,7 @@
     color: var(--color-gold-text);
   }
 
-  /* `surface` vanishes on gold and pink fails SC 1.4.11 there, so both change. */
+  /* `surface` vanishes on gold and red fails SC 1.4.11 there, so both change. */
   .surface-gold .card {
     background-color: transparent;
 
@@ -58,11 +84,10 @@
   }
 
   /*
-   * Scoped to .surface-gold so it renders unstyled elsewhere. Label, fill and
-   * `gold-text` edge pass SC 1.4.3 and 1.4.11 on gold. The pink shadow fails
-   * and is decoration: it must never delimit the control.
+   * Scoped to .surface-gold and blocks, so it renders unstyled elsewhere. Label,
+   * fill and `gold-text` edge pass SC 1.4.3 and 1.4.11 on both; its throw is ink.
    */
-  .surface-gold .btn-gold-primary {
+  :is(.surface-gold, .card) .btn-gold-primary {
     @apply inline-block border-4 border-gold-text bg-gold-text
       px-8 py-4 text-button font-black uppercase
       tracking-label text-gold-btn-label shadow-hard-mark-4 lift-control;
@@ -79,12 +104,12 @@
    * (18.58), #131313 outside (11.32). The inner half rides in the press rule's
    * `box-shadow` (buttons-nav.css), so the throw stays beside it.
    */
-  .surface-gold .btn-gold-primary:focus-visible {
+  :is(.surface-gold, .card) .btn-gold-primary:focus-visible {
     --press-ring: var(--inset-shadow-gold-btn-ring);
   }
 
   /* No underline: the box already marks it as a control (SC 1.4.1). */
-  .surface-gold a.btn-gold-primary,
+  :is(.surface-gold, .card) a.btn-gold-primary,
   .surface-gold a.btn-gold-secondary {
     text-decoration: none;
   }
@@ -97,11 +122,30 @@
     @apply border-gold-text text-text no-underline;
   }
 
-  .surface-gold a.btn-gold-primary:hover {
+  :is(.surface-gold, .card) a.btn-gold-primary:hover {
     color: var(--color-gold-btn-label);
   }
 
-  .surface-gold a.btn-gold-secondary:hover {
-    color: var(--color-gold-text);
+  /* Without the lift, hover takes the secondary's empty rest fill; the inner ring has no fill left to sit on. */
+  @media (prefers-reduced-motion: reduce) and (hover: hover) {
+    .surface-gold a.btn-gold-primary:hover:not(:active) {
+      --press-ring: 0 0 transparent;
+      background-color: transparent;
+      color: var(--color-gold-text);
+    }
+  }
+
+  /* Hover is the lift alone otherwise, and reduced motion drops the lift (SC 1.4.1). */
+  :is(.surface-gold, .card)
+    .btn-gold-primary:hover:not([aria-disabled='true']) {
+    text-decoration: underline;
+    text-decoration-thickness: var(--underline-thin);
+    text-underline-offset: var(--underline-offset);
+  }
+
+  /* Fills like the primary at rest; the ring stays clear of the fill across the gold gap. */
+  .surface-gold :is(a, summary).btn-gold-secondary:hover {
+    background-color: var(--color-gold-text);
+    color: var(--color-gold-btn-label);
   }
 }

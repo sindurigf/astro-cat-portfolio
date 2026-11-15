@@ -11,9 +11,9 @@ export const AAA_TEXT = 7;
 export const LARGE_TEXT_PX = 24;
 export const LARGE_TEXT_BOLD_PX = 18.66;
 
-/** `--color-gold` as 0-255 channels; the token is six-digit hex. */
+/** `--color-block-gold`, the slab fill, as 0-255 channels; the token is six-digit hex. */
 const GOLD_CHANNELS = [1, 3, 5].map((at) =>
-  parseInt(cssColorToken('--color-gold').slice(at, at + 2), 16),
+  parseInt(cssColorToken('--color-block-gold').slice(at, at + 2), 16),
 );
 
 /**
@@ -155,7 +155,7 @@ export const PAGE_HELPERS = `
     const rgb = (c) =>
       'rgb(' + Math.round(c.r) + ', ' + Math.round(c.g) + ', ' + Math.round(c.b) + ')';
 
-    for (const element of root.querySelectorAll('a, button, [role="button"]')) {
+    for (const element of root.querySelectorAll('a, button, summary, [role="button"]')) {
       const style = getComputedStyle(element);
       const label = (element.textContent ?? '').trim().slice(0, 40);
       const fill = parse(style.backgroundColor);

@@ -5,7 +5,7 @@ import { statementRow } from './statement-rows.ts';
 /*
  * ACCESSIBILITY.md ships with the template maintainer's name and reporting
  * routes. A fork that publishes without replacing them sends its visitors'
- * barrier reports to her.
+ * barrier reports to the template maintainer.
  */
 
 export const digest = (value: string): string =>
@@ -75,5 +75,5 @@ export const staleStatementNotice = (
   return rows.length === 0 || ownDemo
     ? null
     : `ACCESSIBILITY.md section 1 still names the template's maintainer in ${rows.join(', ')}: ` +
-        `barrier reports from ${siteUrl} would go to her. Replace those rows with your own.`;
+        `barrier reports from ${siteUrl} would go to the template maintainer. Replace those rows with your own.`;
 };

@@ -1,8 +1,7 @@
 /*
- * /brand's sections, in menu order, all on the one page. Plain data so the
- * page, the menu, llms.txt and the tests read one list. `anchor` is the
- * section's id on the page; it is also where the retired /brand/<slug>/ route
- * redirects to (public/_redirects).
+ * /brand's sections in menu order, as data the page, menu, llms.txt and tests share.
+ * `anchor` is the section id and the target of the retired /brand/<slug>/ redirect
+ * (public/_redirects).
  */
 
 export const BRAND_PATH = '/brand/';
@@ -33,7 +32,7 @@ export const BRAND_GROUPS: readonly BrandGroup[] = [
   'Resources',
 ];
 
-/* Draft copy: leads, rules, descriptions and the foundations' part names wait for the owner's approval. */
+/* Draft copy: leads, rules, descriptions and the foundations' part names wait for the maintainer's approval. */
 export const BRAND_SECTIONS: readonly BrandSection[] = [
   {
     slug: 'grounds',
@@ -77,7 +76,7 @@ export const BRAND_SECTIONS: readonly BrandSection[] = [
     lead: "Measured from the color values in the site's code. Text needs 4.5, edges and icons 3.",
     rule: 'Text at 7 or more; edges and icons at 3.',
     description:
-      "Contrast ratios for every approved color pairing, measured from the site's own color values, in dark and light mode.",
+      "Contrast ratios for every approved color pairing, measured from the website's own color values, in dark and light mode.",
     parts: [{ id: 'pairings', name: 'Pairings' }],
   },
   {
@@ -195,7 +194,7 @@ export const BRAND_SECTIONS: readonly BrandSection[] = [
     lead: 'How a reader moves around: breadcrumb, pager, contents, closing row and footer.',
     rule: 'Breadcrumbs stop at the parent.',
     description:
-      'How a reader moves around the site: breadcrumb, pager, contents list, closing block and footer links.',
+      'How a reader moves around the website: breadcrumb, pager, contents list, closing block and footer links.',
     parts: [
       { id: 'breadcrumb', name: 'Breadcrumb' },
       { id: 'pager', name: 'Pager' },

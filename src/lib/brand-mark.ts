@@ -12,11 +12,11 @@ export const MARK_SIZE = 64;
 /** The tile body's width in mark units: 4 to 60. */
 export const MARK_BODY = 56;
 /** The 4px edge of a 48px tile, in mark units. */
-export const MARK_EDGE = 4.67;
+const MARK_EDGE = 4.67;
 /** The 8px shadow of a 48px tile, in mark units. */
 export const MARK_SHADOW_OFFSET = 9.33;
 
-export const MARK_HEAD =
+const MARK_HEAD =
   'M4 46L4 13Q4 4 12 8L23 15Q26 17 30 17H34Q38 17 41 15L52 8Q60 4 60 13V46Q60 60 46 60H18Q4 60 4 46Z';
 const EAR_LEFT = 'M10 15.5V12.5Q10 10.5 12 11.6L19 16Q14 18 10 20Z';
 const EAR_RIGHT = 'M54 15.5V12.5Q54 10.5 52 11.6L45 16Q50 18 54 20Z';
@@ -42,7 +42,7 @@ export const markMarkup = (paint: Paint, { id }: MarkOptions): string => {
   const blackPatch = `<path d="${PATCH_BLACK}" fill="${paint('cat-hela-black')}"/>`;
   const face =
     `<path d="${HAPPY_EYES}" fill="none" stroke="${paint('gold-text')}" stroke-width="${EYE_WIDTH}" stroke-linecap="round" stroke-linejoin="round"/>` +
-    `<path d="${NOSE}" fill="${paint('mark')}"/>` +
+    `<path d="${NOSE}" fill="${paint('light-red-text')}"/>` +
     `<path d="${WHISKERS}" fill="none" stroke="${paint('gold-text')}" stroke-width="${WHISKER_WIDTH}" stroke-linecap="round"/>`;
   return (
     `<defs><clipPath id="${clip}"><path d="${MARK_HEAD}"/></clipPath></defs>` +

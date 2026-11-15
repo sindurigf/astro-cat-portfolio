@@ -4,12 +4,13 @@ import { colors } from './brand';
 /* Color, one part per role: its tokens and the one pair it is read on, with the ratio measured from the token hex values. */
 
 export type Mode = 'dark' | 'light';
-type Kind = 'text' | 'edge';
+type Kind = 'text' | 'edge' | 'throw';
 
-const NEEDS: Record<Kind, number> = { text: 7, edge: 3 };
+const NEEDS: Record<Kind, number> = { text: 7, edge: 3, throw: 7 };
 const VERDICT: Record<Kind, string> = {
   text: `needs ${NEEDS.text}:1 AAA`,
   edge: `needs ${NEEDS.edge}:1`,
+  throw: `needs ${NEEDS.throw}:1`,
 };
 const RATIO_DIGITS = 2;
 const MODES: readonly Mode[] = ['dark', 'light'];
@@ -18,15 +19,15 @@ const GROUNDS = ['background', 'surface'] as const;
 /** The ratio every text color reaches, for the facts on /brand. */
 export const TEXT_TARGET_RATIO = NEEDS.text;
 
-export type Paint = 'fill' | 'glyph' | 'empty';
+type Paint = 'fill' | 'glyph' | 'empty';
 
-export interface Swatch {
+interface Swatch {
   paint: Paint;
   cls: string;
 }
 
 /* A text color is drawn as "Aa" and cyan stays unpainted, as the design rules ask; class names are literal so Tailwind builds them. */
-export const SWATCH: Record<string, Swatch> = {
+const SWATCH: Record<string, Swatch> = {
   background: { paint: 'fill', cls: 'bg-background' },
   surface: { paint: 'fill', cls: 'bg-surface' },
   border: { paint: 'fill', cls: 'bg-border' },
@@ -36,8 +37,8 @@ export const SWATCH: Record<string, Swatch> = {
   subtle: { paint: 'glyph', cls: 'text-subtle' },
   gold: { paint: 'fill', cls: 'bg-gold' },
   cyan: { paint: 'empty', cls: '' },
-  pink: { paint: 'fill', cls: 'bg-pink' },
-  'pink-text': { paint: 'glyph', cls: 'text-pink-text' },
+  red: { paint: 'fill', cls: 'bg-red' },
+  'red-text': { paint: 'glyph', cls: 'text-red-text' },
   mark: { paint: 'fill', cls: 'bg-mark' },
   'tile-edge': { paint: 'fill', cls: 'bg-tile-edge' },
 };
@@ -77,14 +78,14 @@ interface Reading {
   kind: Kind;
 }
 
-export interface RoleToken {
+interface RoleToken {
   token: string;
   job: string;
   swatch: Swatch;
   hex: Record<Mode, string>;
 }
 
-export interface RoleRead {
+interface RoleRead {
   /** The pair's tokens as painted: light mode's gold text becomes ink on the page ground. */
   fg: string;
   bg: string;
@@ -120,16 +121,16 @@ const measure = (reading: Reading, mode: Mode): RoleRead => {
   };
 };
 
-/* Every text color reaches 7 on both grounds and every edge 3, not just the pair a role names. */
+/* Every text color and red throw reaches 7 on both grounds and every edge 3, not just the pair a role names. */
 const assertEveryPair = (): void => {
   const pairs: [string, Kind][] = [
     ['text', 'text'],
     ['subtle', 'text'],
     ['gold', 'text'],
-    ['pink-text', 'text'],
+    ['red-text', 'text'],
     [PAGE_EDGE, 'edge'],
-    ['pink', 'edge'],
-    ['mark', 'edge'],
+    ['red', 'throw'],
+    ['mark', 'throw'],
     ['cyan', 'edge'],
   ];
   for (const [fg, kind] of pairs) {
@@ -210,10 +211,10 @@ export const roles: Role[] = [
   role(
     'role-depth',
     'shadows and errors.',
-    'Pink casts the shadow; its text color carries error words.',
-    ['pink', 'pink-text', 'mark'],
+    'Red casts the shadow; its text color carries error words.',
+    ['red', 'red-text', 'mark'],
     {
-      fg: 'pink-text',
+      fg: 'red-text',
       bg: 'background',
       kind: 'text',
     },

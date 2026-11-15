@@ -99,7 +99,7 @@ const CATS = [
   },
 ] as const;
 
-/* Match `.cat-dialog-body`: w-48 on phones, w-72 from md (48rem). */
+/* Match `.cat-dialog-body`: 12rem on phones, 18rem from md (48rem). */
 const CAT_PHOTO_WIDTHS = [192, 288, 384, 576];
 const CAT_PHOTO_SIZES = '(min-width: 48rem) 288px, 192px';
 
@@ -174,7 +174,7 @@ const closeRow = await closeRowLinks({
       Poneglyphs, the stones most of the world cannot read.
     </p>
 
-    <nav aria-label="On this page" class="mt-8">
+    <nav aria-label="On This Page" class="mt-8">
       <ul role="list" class="flex flex-wrap gap-6">
         {JUMP_LINKS.map((section) => (
           <li>
@@ -213,7 +213,7 @@ const closeRow = await closeRowLinks({
       </div>
     </div>
 
-    <div class="card mt-head">
+    <div class="card card-ground mt-head">
       <p class="mb-paragraph max-w-2xl text-lead font-black text-text text-pretty">
         The scholars of Ohara read stones that most of the world cannot. I am
         the one who is left, so I keep reading them.
@@ -225,7 +225,7 @@ const closeRow = await closeRowLinks({
     </div>
   </Section>
 
-  <Section id={SECTIONS[1].id} title={SECTIONS[1].title}>
+  <Section id={SECTIONS[1].id} title={SECTIONS[1].title} brick>
     <div class="card-block grid lg:card-rise-room lg:grid-cols-2">
       <blockquote class="card surface-gold flex flex-col justify-center">
         <span aria-hidden="true" class="self-start text-quote-mark font-black">
@@ -260,6 +260,7 @@ const closeRow = await closeRowLinks({
   <Section
     id={SECTIONS[2].id}
     title={SECTIONS[2].title}
+    brick
     lead="I was alone for twenty years. After Arabasta I asked the Straw Hat Pirates to let me join, and their captain said yes."
   >
     <div class="card">
@@ -288,12 +289,12 @@ const closeRow = await closeRowLinks({
     </div>
   </Section>
 
-  <Section id={SECTIONS[3].id} title={SECTIONS[3].title}>
+  <Section id={SECTIONS[3].id} title={SECTIONS[3].title} brick>
     {/* A <dl>, so short bold values are not paragraphs WAVE reads as headings. */}
     <div class="cat-perch">
       <div class="cat-spot" id="cat-spot-rudra"></div>
       <div class="card-block flex flex-col lg:card-rise-room lg:flex-row">
-        <dl class="card min-w-0 divide-y-4 divide-border lg:flex-1">
+        <dl class="card card-ground min-w-0 divide-y-4 divide-border lg:flex-1">
           <div class="pb-6">
             <dt class="label text-gold">Reading</dt>
             <dd class="mt-4">
@@ -336,13 +337,13 @@ const closeRow = await closeRowLinks({
     </div>
   </Section>
 
-  <Section id={SECTIONS[4].id} title={SECTIONS[4].title}>
+  <Section id={SECTIONS[4].id} title={SECTIONS[4].title} brick>
     <p slot="lead" class="lead">
       My story so far, in two halves: the island that raised me, and the twenty
       years after it.
     </p>
 
-    <div class="card">
+    <div class="card card-ground">
       <div class="flex flex-col gap-8 sm:flex-row">
         <div class="min-w-0 sm:flex-1">
           <span class="label block text-gold">Before</span>
@@ -398,7 +399,7 @@ const closeRow = await closeRowLinks({
   )}
 
   {/* The cat is drawn by a script; without one, its name and line are still on the page (ACCESSIBILITY.md, Scripts). */}
-  <Section title="The Cat" class="cats-noscript">
+  <Section title="The Cat" class="cats-noscript" brick>
     <ul role="list" class="flex flex-col gap-4">
       {CATS.map((cat) => (
         <li class="text-body text-text">

@@ -271,7 +271,7 @@ test.describe('/brand', () => {
               ? [`${role.id} ${mode} ${row.token}: only cyan stays unpainted`]
               : []),
             ...(row.paint === 'fill' &&
-            ['text', 'subtle', 'pink-text', 'cyan'].includes(row.token)
+            ['text', 'subtle', 'red-text', 'cyan'].includes(row.token)
               ? [`${role.id} ${mode} ${row.token}: painted as a fill`]
               : []),
           ]);

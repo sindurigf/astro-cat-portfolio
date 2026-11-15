@@ -140,7 +140,7 @@ const privacySectionText = (heading: string): string => {
 const expectCopiesDisclosed = (text: string): void => {
   expect(
     text,
-    "/privacy no longer says each message is emailed to the owner's inbox.",
+    '/privacy no longer says each message is emailed to an inbox.',
   ).toMatch(/copy is emailed[^.]*inbox/);
 
   expect(

@@ -22,7 +22,7 @@
 # Exit:  0 production matches, 1 it does not, 2 the check could not run.
 #        `site.url` on an RFC 2606 example host is 2: nothing deployed matches it.
 #        A real `site.url` whose ACCESSIBILITY.md still names the template's
-#        maintainer is 2: its barrier reports would go to her.
+#        maintainer is 2: its barrier reports would go to that maintainer.
 
 set -eu
 

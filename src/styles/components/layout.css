@@ -122,6 +122,36 @@
   }
 
   /*
+   * The roundel's throw: the box front, the art's own file masked below the
+   * box's top, in the mark color of the ground it sits on. The fractions are the
+   * box's top and the throw in the art's 112px square (scripts/make-box-cat.mjs).
+   */
+  .roundel {
+    --roundel-box-top: calc(60 / 112 * 100%);
+    --roundel-throw: calc(5 / 112 * 100%);
+
+    position: relative;
+    isolation: isolate;
+
+    &::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      background-color: var(--color-mark);
+      mask: url('../../assets/box-cat-roundel.svg') center / contain no-repeat;
+      clip-path: inset(var(--roundel-box-top) 0 0 0);
+      translate: var(--roundel-throw) var(--roundel-throw);
+    }
+
+    @media (forced-colors: active) {
+      &::before {
+        display: none;
+      }
+    }
+  }
+
+  /*
    * Roundel across the slab's bottom edge, right edge on the page column. Hangs
    * 48px or 64px into the next section's top padding (at least 56px).
    */
@@ -134,6 +164,11 @@
     @media (width >= 40rem) {
       right: max(--spacing(6), calc((100% - var(--container-page)) / 2));
     }
+  }
+
+  /* The box hangs below the slab, so its throw lands on the page. */
+  .hero-roundel .roundel {
+    --color-mark: var(--page-mark);
   }
 
   /*
@@ -198,7 +233,7 @@
   /*
    * Every whole-section gold area: starts at the rail, ends
    * --hero-column-screen-clear from the screen edge or at the rail, whichever
-   * is further out. Drawn like a block: the 4px ink edge and the pink throw.
+   * is further out. Drawn like a block: the 4px ink edge and the red throw.
    * `.header-slab` repeats these margins so the header ends where the hero does.
    */
   .gold-column {
@@ -213,10 +248,10 @@
     border-color: var(--color-block-ink);
 
     /*
-     * The utility, not `var(--shadow-hard-pink-object)`: the token resolves on
+     * The utility, not `var(--shadow-hard-red-object)`: the token resolves on
      * :root, where light mode's <main> colors do not reach.
      */
-    @apply shadow-hard-pink-object;
+    @apply shadow-hard-red-object;
   }
 
   /*
@@ -251,6 +286,27 @@
   .v-column section.hero + section {
     margin-inline: 0;
     padding-inline: 0;
+  }
+
+  /*
+   * The homepage hero stands on the page: the column keeps its edge width for
+   * the layout but draws nothing, and the section under the hero is the block.
+   */
+  .v-column.gold-column {
+    border-color: transparent;
+    background-color: transparent;
+    /* A drawn-nothing throw: the column still has one to measure. */
+    box-shadow: 0 0 0 0 transparent;
+  }
+
+  .v-column section.hero + section {
+    margin: calc(var(--block-edge) * -1);
+    margin-block-start: 0;
+    border-width: var(--block-edge);
+    border-color: var(--color-block-ink);
+    background-color: var(--color-gold);
+
+    @apply shadow-hard-red-object;
   }
 
   /*
@@ -327,86 +383,11 @@
       @apply hidden;
     }
   }
+}
 
-  /*
-   * Line gap: the 12px rule plus clearance each side, less the line boxes'
-   * empty leading; not `em` alone because the rule is px. `top` offsets by half
-   * the leading difference so the letters, not the boxes, center on the rule.
-   */
-  .hero-plate span:last-child {
-    margin-top: calc(
-      var(--hero-rule) + 2 * var(--hero-name-clearance) -
-        (var(--hero-name-ink-foot) + var(--hero-name-ink-head)) *
-        var(--text-hero-h1)
-    );
-  }
-
-  /*
-   * `translateY(-50%)` puts the line break on the column's top rule only while
-   * the name is two lines (tests/hero-fit.spec.ts). `right` reserves the stickers.
-   */
-  .hero-plate {
-    top: calc(
-      var(--hero-rule) / -2 +
-        (var(--hero-name-ink-foot) - var(--hero-name-ink-head)) / 2 *
-        var(--text-hero-h1)
-    );
-    right: calc(var(--hero-marks-reserve) + var(--hero-inset));
-    left: var(--hero-inset);
-    transform: translateY(-50%);
-
-    @apply absolute z-30 flex min-w-0 flex-col;
-  }
-
-  /*
-   * Top right, below the rule; never at the foot, over the field. The box ends
-   * at the window's foot, one column wide, and clips: a sticker that does not
-   * fit wraps out of sight, so at 400% zoom none hangs over the words below
-   * (SC 1.4.10). The padding is the room the throw and tilt need; a column gap
-   * wider than the box puts a wrapped sticker wholly past the clip, never half a word.
-   */
-  .hero-marks {
-    --marks-room: --spacing(4);
-
-    top: calc(var(--hero-gap) - var(--marks-room));
-    right: calc(var(--hero-inset) - var(--marks-room));
-    bottom: 0;
-    width: calc(var(--hero-marks-reserve) + 2 * var(--marks-room));
-    padding: var(--marks-room);
-    overflow: clip;
-
-    column-gap: calc(100% + 2 * var(--marks-room));
-
-    @apply absolute z-20 flex flex-col flex-wrap-reverse content-start items-start gap-y-4;
-  }
-
-  /*
-   * A flex column never wraps its first item, so an empty first item lets a
-   * sticker taller than the room wrap out of sight too. The margin cancels its gap.
-   */
-  .hero-marks::before {
-    content: '';
-    margin-top: calc(-1 * --spacing(4));
-  }
-
-  /*
-   * Below `sm` the name takes full width and the words drop under it, still at
-   * the top.
-   */
-  @media (width < 40rem) {
-    .hero-plate {
-      right: var(--hero-inset);
-    }
-
-    .hero-marks {
-      top: calc(var(--hero-gap) + var(--text-hero-h1) - var(--marks-room));
-    }
-  }
-
-  .hero-sticker {
-    font-size: var(--text-hero-sticker);
-    line-height: var(--text-hero-sticker--line-height);
-
-    @apply border-4 px-4 py-2 font-black uppercase;
+/* Utilities layer: replaces the heading's `text-text` utility. */
+@layer utilities {
+  .section-brick {
+    @apply edge inline-block border-fill-edge bg-block-gold px-6 py-3 text-gold-text shadow-hard-red-object;
   }
 }

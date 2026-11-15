@@ -190,7 +190,7 @@
   }
 
   .cat-card {
-    @apply edge border-border bg-surface p-4 shadow-hard-pink-object;
+    @apply edge border-border bg-surface p-4 shadow-hard-red-object;
   }
 
   /* The site button, small: still a 44px target (SC 2.5.5). */

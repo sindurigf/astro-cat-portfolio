@@ -57,7 +57,7 @@ Setup: Chrome, 1280px, `/`, focus in the address bar.
 - [ ] Reload and Tab through: skip link, Report an Accessibility Problem, logo, About, Career, Blog, the
       "Theme and Text Size" button, Get in Touch, the "Aa Text Size" tab at 86rem and up, the page, footer Social (GitHub, LinkedIn,
       Instagram, Bluesky, Mastodon, Email), Site (Home, About, Career, Blog),
-      About this site (in the order of `POLICY_LINKS` in `Footer.astro`), Let
+      About This Site (in the order of `POLICY_LINKS` in `Footer.astro`), Let
       It Fall, the Made with AI link. Re-read `Footer.astro` when a footer
       control changes. → SC 2.4.3
 - [ ] Enter on Let It Fall: the blocks drop, Put It Back rises to the top
@@ -135,7 +135,7 @@ the brick instead. Look, do not measure.
 
 - [ ] On `#0B0B0B`: header links, footer. → SC 1.4.11, 2.4.7
 - [ ] On a gold and a light block: a link in a card. → SC 1.4.11, 2.4.7
-- [ ] Chips and footer tiles: the ring sits past the pink shadow, follows the
+- [ ] Chips and footer tiles: the ring sits past the red shadow, follows the
       tilt, and never touches the next chip. → SC 1.4.11, 2.4.7
 - [ ] Current nav item and current chip: the ring reads as separate from the
       block. → SC 1.4.11, 2.4.7
@@ -316,7 +316,7 @@ No outcome changes the practice: real case in markup ([case rule](STYLEGUIDE.md#
 #### 6.4.5 Chrome, other elements
 
 - [ ] `/privacy` `h1` ("Privacy"): `________________________`
-- [ ] `/404` "Follow Me" (`.btn-primary`): `________________________`
+- [ ] `/404` "Follow Me" (`.btn-gold-primary`): `________________________`
 - [ ] 6.4.3 again at the other verbosity (`Orca+V`): `________________________`
 
 ### 6.5 Skip link
@@ -349,7 +349,7 @@ skipped level, an `h2` opening each region, and the home link named
 - [ ] `Alt+Shift+M` on `/about` lists the landmarks the spec reads. Judge
       whether the list is useful or crowded. → SC 1.3.1
 - [ ] `M` from the top steps through them in that order. → SC 1.3.1
-- [ ] The "On this page" nav lists every spread. → SC 2.4.6
+- [ ] The "On This Page" nav lists every spread. → SC 2.4.6
 - [ ] `G` finds no footer mascot. → SC 1.1.1
 - [ ] `K` to About: announced as the current page. → SC 4.1.2
 - [ ] The current-page box adds nothing to the announcement. → SC 1.3.1
@@ -458,9 +458,9 @@ Menu:
 
 Text Size:
 
-- [ ] Double-tap “Aa Text Size”, then swipe right. Expect: “expanded”, then “Text Size”, then “Drink Me, Smaller text”, “Eat Me, Larger text” and “Just Right, Back to 100 percent”, each a button. Just Right says “disabled” at 100%. → SC 4.1.2
-- [ ] Double-tap Eat Me. Expect: “Text is 125%.” and the text grows. → SC 4.1.3, 1.4.4
-- [ ] Double-tap Just Right. Expect: “Text is 100%.” and the text is back to normal. → SC 4.1.3
+- [ ] Double-tap “Aa Text Size”, then swipe right. Expect: “expanded”, then “Text Size”, then “Smaller text”, “Larger text” and “Reset to 100 percent”, each a button. Reset says “disabled” at 100%. → SC 4.1.2
+- [ ] Double-tap Larger. Expect: “Text is 125%.” and the text grows. → SC 4.1.3, 1.4.4
+- [ ] Double-tap Reset. Expect: “Text is 100%.” and the text is back to normal. → SC 4.1.3
 
 Theme:
 
@@ -522,9 +522,9 @@ Menu:
 
 Text Size:
 
-- [ ] Press Enter on “Aa Text Size”, then Tab. Expect: “expanded”, then “Text Size”, then “Drink Me, Smaller text”, “Eat Me, Larger text” and “Just Right, Back to 100 percent”, each a button. Just Right says “grayed” or “unavailable” at 100%. → SC 4.1.2
-- [ ] Press Enter on Eat Me. Expect: “Text is 125%.” and the text grows. → SC 4.1.3, 1.4.4
-- [ ] Press Enter on Just Right. Expect: “Text is 100%.” and the text is back to normal. → SC 4.1.3
+- [ ] Press Enter on “Aa Text Size”, then Tab. Expect: “expanded”, then “Text Size”, then “Smaller text”, “Larger text” and “Reset to 100 percent”, each a button. Reset says “grayed” or “unavailable” at 100%. → SC 4.1.2
+- [ ] Press Enter on Larger. Expect: “Text is 125%.” and the text grows. → SC 4.1.3, 1.4.4
+- [ ] Press Enter on Reset. Expect: “Text is 100%.” and the text is back to normal. → SC 4.1.3
 
 Theme:
 
@@ -575,9 +575,9 @@ Menu:
 
 Text size:
 
-- [ ] Double-tap “Aa Text Size”, then swipe right. Expect: It says “expanded”, then “Text Size”, “Drink Me, button, Smaller text”, “Eat Me, button, Larger text”, “Just Right, button, Back to 100 percent” (Just Right dimmed at 100%). → SC 4.1.2
-- [ ] Double-tap Eat Me. Expect: It says “Text is 125%.” and the text grows. → SC 4.1.3, 1.4.4
-- [ ] Double-tap Just Right. Expect: It says “Text is 100%.” and the text is back to normal. → SC 4.1.3
+- [ ] Double-tap “Aa Text Size”, then swipe right. Expect: It says “expanded”, then “Text Size”, “Smaller text, button”, “Larger text, button”, “Reset to 100 percent, button” (Reset dimmed at 100%). → SC 4.1.2
+- [ ] Double-tap Larger. Expect: It says “Text is 125%.” and the text grows. → SC 4.1.3, 1.4.4
+- [ ] Double-tap Reset. Expect: It says “Text is 100%.” and the text is back to normal. → SC 4.1.3
 
 Theme:
 

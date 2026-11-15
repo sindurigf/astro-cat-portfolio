@@ -10,7 +10,7 @@ WCAG 2.2 AA in Chromium, Firefox and WebKit.
 ## What you get
 
 A portfolio that ships with a sample theme: the persona Robin Ohara, an
-archaeologist, and her cat, so the site builds, passes its tests and
+archaeologist, and Robin's cat, so the site builds, passes its tests and
 looks finished before you change anything. Making it yours means replacing
 the theme with your own person, words and pictures. The animated cat on
 `/about` is a feature you keep with your own cat, or remove.
@@ -83,7 +83,7 @@ it is done.
      `https:` address (`mailto:you@your-domain`, not `you@your-domain`), or
      else from `person.email` once it is off an example host
      ([build variables](docs/DEPLOYMENT.md#run-a-demo)).
-   - Accessibility contact: the owner and both reporting rows in
+   - Accessibility contact: the Accessibility owner and both reporting rows in
      [ACCESSIBILITY.md](ACCESSIBILITY.md) section 1. A build for a real
      address fails while they are still the template maintainer's.
    - [AI_DISCLOSURE.md](AI_DISCLOSURE.md): what AI made on your site, and

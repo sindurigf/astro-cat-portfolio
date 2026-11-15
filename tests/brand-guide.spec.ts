@@ -145,7 +145,7 @@ test.describe('/brand guide', () => {
   });
 
   for (const width of [1280, 390] as const) {
-    test(`at ${width}px the search finds sections by token, hex, rule and partial word, counts them and clears on Escape (SC 3.3.2, 4.1.3)`, async ({
+    test(`at ${width}px the search finds sections by token, hex, rule and partial word, needs every word, skips code samples, counts them and clears on Escape (SC 3.3.2, 4.1.3)`, async ({
       page,
     }) => {
       await page.setViewportSize({ width, height: 900 });
@@ -176,6 +176,18 @@ test.describe('/brand guide', () => {
       await expect(shown().filter({ hasText: 'Color' })).toHaveCount(1);
       await search.fill('pause');
       await expect(shown().filter({ hasText: 'Motion' })).toHaveCount(1);
+      await search.fill('motion pause');
+      await expect(shown().filter({ hasText: 'Motion' })).toHaveCount(1);
+      await search.fill('pause zzzz');
+      await expect(
+        shown(),
+        'a section matched only one of two words',
+      ).toHaveCount(0);
+      await search.fill('bullet-list');
+      await expect(
+        shown(),
+        'a word only in a code sample found a section',
+      ).toHaveCount(0);
       await search.fill('zzzz');
       await expect(shown()).toHaveCount(0);
       await expect(status).toContainText('No matches. Try');
