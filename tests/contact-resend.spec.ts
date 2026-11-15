@@ -32,7 +32,7 @@ const ROW = {
 };
 
 /** A database holding `rows` unsent, recording every statement it is sent. */
-const databaseWith = (rows: (typeof ROW)[]) => {
+const databaseWith = (rows: (typeof ROW)[], failUpdates = false) => {
   const sent: { sql: string; values: unknown[] }[] = [];
   const database: D1Database = {
     prepare: (sql) => {
@@ -41,7 +41,10 @@ const databaseWith = (rows: (typeof ROW)[]) => {
           sent.push({ sql, values });
           return statement;
         },
-        run: async () => ({ meta: { changes: 1 } }),
+        run: async () => {
+          if (failUpdates) throw new Error('D1 unavailable');
+          return { meta: { changes: 1 } };
+        },
         all: async <Row>() => ({ results: rows as Row[] }),
       };
       return statement;
@@ -120,6 +123,36 @@ test.describe('the notification resend', NODE, () => {
     ).toEqual([[ROW.id]]);
     expect(logged).toEqual([
       'notification resend: sent 0 of 1 unsent notifications',
+    ]);
+  });
+
+  test('a failed bookkeeping write is logged, not raised, after a send', async () => {
+    const { database } = databaseWith([ROW], true);
+    const { bindings, delivered } = mailer(true);
+
+    const { value, errors } = await quietly(() =>
+      resendUnsentNotifications(database, bindings, NOW),
+    );
+
+    expect(value, 'a sent message was not counted as sent.').toBe(1);
+    expect(delivered, 'the email was not sent.').toHaveLength(1);
+    expect(errors).toEqual([
+      expect.stringContaining('notification not recorded: D1 unavailable'),
+    ]);
+  });
+
+  test('a failed attempt-count write is logged, not raised, after a refused send', async () => {
+    const { database } = databaseWith([ROW], true);
+    const { bindings } = mailer(false);
+
+    const { value, errors } = await quietly(() =>
+      resendUnsentNotifications(database, bindings, NOW),
+    );
+
+    expect(value).toBe(0);
+    expect(errors).toEqual([
+      expect.stringContaining('notification not sent'),
+      expect.stringContaining('failed attempt not recorded: D1 unavailable'),
     ]);
   });
 
