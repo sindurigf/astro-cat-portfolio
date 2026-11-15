@@ -5,6 +5,10 @@
  */
 
 @media (prefers-reduced-motion: reduce) {
+  :root {
+    --press-rise: 0px;
+  }
+
   *,
   ::before,
   ::after {

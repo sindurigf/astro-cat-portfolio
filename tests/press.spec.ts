@@ -387,6 +387,21 @@ test.describe('a hover lift', () => {
       expect(await translateOf(page, p.moves)).toEqual([0, 0]);
     });
 
+    test(`${p.name} shows hover under reduced motion by a longer throw`, async ({
+      page,
+    }) => {
+      await page.emulateMedia({ reducedMotion: 'reduce' });
+      await page.setViewportSize(DESKTOP_VIEWPORT);
+      await gotoSettled(page, p.route);
+      const rest = await throwOf(page, p.control);
+      await page.locator(p.control).first().hover();
+      await transitionsDone(page, p.control);
+      expect(
+        await throwOf(page, p.control),
+        'hover under reduced motion looks the same as rest',
+      ).toBeGreaterThan(rest);
+    });
+
     test(`${p.name} keeps its focus ring clear of its lifted throw`, async ({
       page,
     }) => {
