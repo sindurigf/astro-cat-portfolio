@@ -13,7 +13,7 @@ import cards from '../../public/images/og/cards.json';
 const CARD_WIDTH = 1200;
 const CARD_HEIGHT = 630;
 
-export interface OgImage {
+interface OgImage {
   /** Root-relative; BaseLayout makes it absolute against `site`. */
   src: string;
   width: number;
@@ -22,7 +22,7 @@ export interface OgImage {
 }
 
 // TODO(fork): Describe your own sharing image in `alt` once you have redrawn it with npm run og.
-export const DEFAULT_OG_IMAGE: OgImage = {
+const DEFAULT_OG_IMAGE: OgImage = {
   src: '/images/og-default.png',
   width: CARD_WIDTH,
   height: CARD_HEIGHT,

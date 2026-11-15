@@ -19,15 +19,15 @@ const GROUNDS = ['background', 'surface'] as const;
 /** The ratio every text color reaches, for the facts on /brand. */
 export const TEXT_TARGET_RATIO = NEEDS.text;
 
-export type Paint = 'fill' | 'glyph' | 'empty';
+type Paint = 'fill' | 'glyph' | 'empty';
 
-export interface Swatch {
+interface Swatch {
   paint: Paint;
   cls: string;
 }
 
 /* A text color is drawn as "Aa" and cyan stays unpainted, as the design rules ask; class names are literal so Tailwind builds them. */
-export const SWATCH: Record<string, Swatch> = {
+const SWATCH: Record<string, Swatch> = {
   background: { paint: 'fill', cls: 'bg-background' },
   surface: { paint: 'fill', cls: 'bg-surface' },
   border: { paint: 'fill', cls: 'bg-border' },
@@ -78,14 +78,14 @@ interface Reading {
   kind: Kind;
 }
 
-export interface RoleToken {
+interface RoleToken {
   token: string;
   job: string;
   swatch: Swatch;
   hex: Record<Mode, string>;
 }
 
-export interface RoleRead {
+interface RoleRead {
   /** The pair's tokens as painted: light mode's gold text becomes ink on the page ground. */
   fg: string;
   bg: string;

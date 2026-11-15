@@ -341,7 +341,12 @@ test('a pointer click in a tall table does not scroll the page', async ({
   const cell = box.locator('td').nth(4);
   const { x, y, width, height } = (await cell.boundingBox())!;
   await page.mouse.click(x + width / 2, y + height / 2);
-  await page.waitForTimeout(100);
+  await page.evaluate(
+    () =>
+      new Promise<void>((resolve) =>
+        requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
+      ),
+  );
 
   expect(await page.evaluate(() => scrollY), 'a click scrolled the page').toBe(
     before,
