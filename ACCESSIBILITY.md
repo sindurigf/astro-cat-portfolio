@@ -107,7 +107,7 @@ Not in scope: third-party sites linked from the footer, and forks.
 - **axe, best practice.** Every route passes `best-practice` in its own block.
 - **AccessLint, a second engine.** `@accesslint/core`, with its own rule code,
   runs its WCAG 2.2 A, AA and best-practice rules in dark mode at 1280 and
-  320px, listings sampled (`SAMPLED_ROUTES`). Three false positives are
+  320px, listings sampled (`SAMPLED_ROUTES`). Two false positives are
   dropped, each on named elements and only while its reason holds
   ([ARCHITECTURE.md](ARCHITECTURE.md#rejected-findings)).
 - **HTML_CodeSniffer, a third engine.** `@pa11y/html_codesniffer` runs its WCAG
@@ -439,7 +439,7 @@ template ships with none of it run; record your own results. Not automated:
    | ------------------------------------------- | ------------------------------------------ |
    | `.btn-gold-primary` on `/contact`, at 305px | its fill delimits it on gold               |
    | its focus ring                              | inner `#FFFFFF` ring, at least 3:1 on fill |
-   | every string on a gold ground, every route  | nothing below 4.5:1                        |
+   | every string on a gold ground, every route  | nothing below 7:1                          |
 
    `.btn-gold-secondary` (on `/` and `/career`) is measured by its border edge
    on gold, in the same spec.
