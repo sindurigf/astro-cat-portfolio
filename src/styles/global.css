@@ -336,7 +336,8 @@
   --text-hero-sticker: clamp(1.125rem, min(2.1vw, 3.4svh), 1.875rem);
   --text-hero-sticker--line-height: 1.02;
   --text-menu: clamp(2.125rem, 8vw, 3.5rem);
-  --text-body: calc(clamp(1.25rem, 1.3vw, 1.3125rem) * var(--text-scale, 1));
+  /* Under 20px: WAVE reads any short paragraph at 20px+ as a possible heading. */
+  --text-body: calc(1.2475rem * var(--text-scale, 1));
   --text-body--line-height: 1.62;
 
   /*
