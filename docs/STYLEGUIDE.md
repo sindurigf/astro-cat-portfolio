@@ -341,7 +341,7 @@ The switch and what it scopes: [ARCHITECTURE.md](../ARCHITECTURE.md#light-mode).
   `cyan`, `light-red-text`), swapped in by `light-mode.css`.
 - The homepage hero has no frame and no ground of its own: it stands on the
   page ground, page text on it. Both modes draw every stalk at full strength
-  and half width, no thinner than 0.55px. Dark mode draws gold stalks and buds
+  and half width, no thinner than 0.55px or 1.5 device pixels (thinner antialiases under 7:1 on a 1x screen). Dark mode draws gold stalks and buds
   (11.99 on `#0b0b0b`); light mode draws `#131313` stalks
   (18.58 on white) and fills the buds with `hero-fill` (`block-cyan`) inside a
   `#131313` outline (9.36 on the fill).

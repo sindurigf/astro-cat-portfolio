@@ -37,6 +37,7 @@ import {
   REFERENCE_PROJECTION,
   REFERENCE_WIDTH,
   SPRING,
+  STALK_MIN_DEVICE_PX,
   STALK_WIDTH,
   STALK_WIDTH_SHARE,
   STEM_ALPHA,
@@ -222,7 +223,11 @@ const strokeStalk = (
 ): void => {
   ctx.strokeStyle = palette.stalk;
   ctx.globalAlpha = 1;
-  ctx.lineWidth = Math.max(STALK_WIDTH.min, ctx.lineWidth * STALK_WIDTH_SHARE);
+  ctx.lineWidth = Math.max(
+    STALK_WIDTH.min,
+    STALK_MIN_DEVICE_PX / ctx.getTransform().a,
+    ctx.lineWidth * STALK_WIDTH_SHARE,
+  );
   ctx.stroke();
 };
 
