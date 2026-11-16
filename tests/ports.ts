@@ -2,7 +2,6 @@ import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { CHILD_LIMITS } from './child-limits';
 
 /*
  * Ports derived from the checkout path, so parallel worktrees never reach each
@@ -62,7 +61,6 @@ const probe = (port: number): number => {
 
   const result = spawnSync(process.execPath, ['-e', source], {
     encoding: 'utf8',
-    ...CHILD_LIMITS,
   });
   if (result.error) throw result.error;
   return result.status ?? 3;
