@@ -92,7 +92,7 @@ export const MESSAGES = {
   bodyMissing: 'Write a message.',
   bodyShort: `Write a message of at least ${formatCount(LIMITS.bodyMin)} characters.`,
   bodyLong: `Shorten the message to ${formatCount(LIMITS.bodyMax)} characters or fewer. For anything longer, send an email instead.`,
-  bodyTooLarge: `It was not kept. Send a message of ${formatCount(LIMITS.bodyMax)} characters or fewer, or email it instead.`,
+  bodyTooLarge: `Your message was not saved. Send a message of ${formatCount(LIMITS.bodyMax)} characters or fewer, or email it instead.`,
 } as const;
 
 /** What was typed, trimmed and unchecked, for refilling the form. */
