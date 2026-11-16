@@ -1,4 +1,5 @@
 import { execFileSync } from 'node:child_process';
+import { CHILD_LIMITS } from './child-limits';
 import { expect, test } from './test';
 import { fixture, runCheck, type Files } from './check-fixture';
 import { NODE } from './tags';
@@ -9,7 +10,7 @@ const SCRIPT = 'scripts/check-links.mjs';
 
 const repository = (files: Files): string => {
   const root = fixture({ '.gitignore': 'private/\n', ...files });
-  execFileSync('git', ['init', '--quiet'], { cwd: root });
+  execFileSync('git', ['init', '--quiet'], { cwd: root, ...CHILD_LIMITS });
   return root;
 };
 
