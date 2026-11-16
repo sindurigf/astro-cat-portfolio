@@ -1,6 +1,7 @@
 import { chmodSync, mkdirSync, writeFileSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { join, resolve } from 'node:path';
+import { CHILD_LIMITS } from './child-limits';
 import { expect, test } from './test';
 import { fixture, type CheckResult } from './check-fixture';
 import { NODE } from './tags';
@@ -41,6 +42,7 @@ const run = (root: string, path: string, args: string[] = []): CheckResult => {
     cwd: root,
     env: { ...process.env, PATH: path },
     encoding: 'utf8',
+    ...CHILD_LIMITS,
   });
   if (result.error) throw result.error;
   return { status: result.status, output: `${result.stdout}${result.stderr}` };

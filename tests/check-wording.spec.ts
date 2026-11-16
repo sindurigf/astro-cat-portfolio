@@ -1,5 +1,6 @@
 import { execFileSync } from 'node:child_process';
 import { join } from 'node:path';
+import { CHILD_LIMITS } from './child-limits';
 import { expect, test } from './test';
 import { fixture, runCheck, writeFiles, type Files } from './check-fixture';
 import { NODE } from './tags';
@@ -24,7 +25,7 @@ const repo = (extra: Files = {}): string => {
     ...EXCEPTION_LINES,
     ...extra,
   });
-  execFileSync('git', ['init', '--quiet'], { cwd: root });
+  execFileSync('git', ['init', '--quiet'], { cwd: root, ...CHILD_LIMITS });
   return root;
 };
 

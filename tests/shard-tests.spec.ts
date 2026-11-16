@@ -1,6 +1,7 @@
 import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { CHILD_LIMITS } from './child-limits';
 import { expect, test } from './test';
 import { fixture } from './check-fixture';
 import { NODE } from './tags';
@@ -10,16 +11,23 @@ import { NODE } from './tags';
 const SHARD_SCRIPT = 'scripts/shard-tests.mjs';
 const SHARDS = 3;
 const LIST_TIMEOUT_MS = 180_000;
+const LIST_LIMITS = {
+  timeout: LIST_TIMEOUT_MS,
+  killSignal: 'SIGKILL',
+} as const;
 const TOTAL_LINE = /^Total: (\d+) tests? in \d+ files?$/m;
 
 const run = (args: string[]): string =>
-  execFileSync(process.execPath, args, { encoding: 'utf8' });
+  execFileSync(process.execPath, args, {
+    encoding: 'utf8',
+    ...LIST_LIMITS,
+  });
 
 const listedTotal = (): number => {
   const out = execFileSync(
     process.execPath,
     ['node_modules/@playwright/test/cli.js', 'test', '--list'],
-    { encoding: 'utf8', maxBuffer: 256 * 1024 * 1024 },
+    { encoding: 'utf8', maxBuffer: 256 * 1024 * 1024, ...LIST_LIMITS },
   );
   return Number(TOTAL_LINE.exec(out)?.[1]);
 };
@@ -49,7 +57,7 @@ test.describe('shard-tests', NODE, () => {
       execFileSync(
         process.execPath,
         [SHARD_SCRIPT, '4', String(SHARDS), join(dir, 'x.txt')],
-        { stdio: 'pipe' },
+        { stdio: 'pipe', ...CHILD_LIMITS },
       ),
     ).toThrow(/Usage: node scripts\/shard-tests\.mjs/);
   });

@@ -1,6 +1,7 @@
 import { spawnSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { dirname, join, relative } from 'node:path';
+import { CHILD_LIMITS } from './child-limits';
 import { expect, test } from './test';
 import { captures } from './captures';
 import { NODE } from './tags';
@@ -79,7 +80,7 @@ test(
           '-e',
           `await import(${JSON.stringify(`./${module}`)});`,
         ],
-        { cwd: SCRIPTS_DIR, encoding: 'utf8' },
+        { cwd: SCRIPTS_DIR, encoding: 'utf8', ...CHILD_LIMITS },
       );
       expect(status, `${module} does not load in Node:\n${stderr}`).toBe(0);
     }
