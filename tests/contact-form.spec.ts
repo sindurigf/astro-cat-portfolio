@@ -6,6 +6,7 @@ import {
   validateSubmission,
   type FieldName,
 } from '../src/lib/contact-form';
+import { HIDDEN_CHARACTERS } from '../src/lib/hidden-characters';
 import { builtHtml } from './routes';
 import { NODE } from './tags';
 
@@ -183,3 +184,11 @@ test(
     }
   },
 );
+
+test('hidden characters leave the zero-width joiners alone', NODE, () => {
+  const hidden = new RegExp(`[${HIDDEN_CHARACTERS}]`, 'u');
+  for (const joiner of ['\u200C', '\u200D']) {
+    expect(hidden.test(joiner), 'A zero-width joiner is blocked.').toBe(false);
+  }
+  expect(hidden.test('\u200B')).toBe(true);
+});
