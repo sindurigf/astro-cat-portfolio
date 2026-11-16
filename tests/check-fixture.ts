@@ -2,6 +2,7 @@ import { execFileSync, spawnSync } from 'node:child_process';
 import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { CHILD_LIMITS } from './child-limits';
 import { test } from './test';
 
 /** Relative path to file content, written under a fresh fixture root. */
@@ -37,7 +38,7 @@ const checkEnv = (root: string): NodeJS.ProcessEnv => ({
 /** A fixture with a current dist/ fingerprint, as `npm run build` leaves it. */
 export const builtFixture = (files: Files): string => {
   const root = fixture({ '.gitignore': 'dist/\n', ...files });
-  execFileSync('git', ['init', '--quiet'], { cwd: root });
+  execFileSync('git', ['init', '--quiet'], { cwd: root, ...CHILD_LIMITS });
   const stamp = execFileSync(
     process.execPath,
     [
@@ -45,7 +46,7 @@ export const builtFixture = (files: Files): string => {
       '-e',
       `import { fingerprint } from '${FINGERPRINT_MODULE}'; process.stdout.write(fingerprint());`,
     ],
-    { cwd: root, env: checkEnv(root), encoding: 'utf8' },
+    { cwd: root, env: checkEnv(root), encoding: 'utf8', ...CHILD_LIMITS },
   );
   writeFiles(root, { 'dist/.build-fingerprint': stamp });
   return root;
@@ -61,6 +62,7 @@ export const runCheck = (
     cwd: root,
     env: checkEnv(root),
     encoding: 'utf8',
+    ...CHILD_LIMITS,
   });
   if (run.error) throw run.error;
   return { status: run.status, output: `${run.stdout}${run.stderr}` };
