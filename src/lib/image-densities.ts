@@ -53,7 +53,7 @@ export const CARD_COVER_SIZES = {
 
 /*
  * The post card on /brand, in the brand page's own columns: its content
- * column splits at 51rem and again past the menu at 1143px.
+ * column splits at 51rem and again past the menu at 1176px.
  */
 export const BRAND_CARD_COVER_SIZES =
-  '(min-width: 83rem) 332px, (min-width: 1143px) calc(50vw - 331px), (min-width: 64rem) calc(96.62vw - 480px), (min-width: 51rem) calc(50vw - 168px), (min-width: 40rem) calc(100vw - 192px), calc(100vw - 144px)';
+  '(min-width: 83rem) 316px, (min-width: 1176px) calc(50vw - 348px), (min-width: 64rem) calc(96.62vw - 512px), (min-width: 51rem) calc(50vw - 168px), (min-width: 40rem) calc(100vw - 192px), calc(100vw - 144px)';
