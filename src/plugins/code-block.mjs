@@ -9,7 +9,7 @@ const LABEL = 'Code, scrolls sideways';
 /* After the language: "bash code, scrolls sideways". */
 const LABEL_IN_POST = 'code, scrolls sideways';
 
-export const CODE_BLOCK_CLASS = 'code-block';
+const CODE_BLOCK_CLASS = 'code-block';
 
 const languageOf = (code) =>
   [code.properties?.className ?? []]
