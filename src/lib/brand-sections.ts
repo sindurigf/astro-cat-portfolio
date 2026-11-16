@@ -6,9 +6,9 @@
 
 export const BRAND_PATH = '/brand/';
 
-export type BrandGroup = 'Foundations' | 'Components' | 'Resources';
+type BrandGroup = 'Foundations' | 'Components' | 'Resources';
 
-export interface BrandPart {
+interface BrandPart {
   id: string;
   name: string;
 }

@@ -3,6 +3,7 @@
  * pose it sits on is the cat's own, and the sprite frames draw a glance as the
  * look drawing.
  */
+import { clamp01 } from './about-cats-moves';
 
 const GLANCE_EVERY_MS = [2500, 6000] as const;
 export const GLANCE_MS = 700;
@@ -50,7 +51,7 @@ const smooth = (k: number): number => k * k * (3 - 2 * k);
 const glanceNow = (state: IdleState, now: number): number =>
   state.glanceFrom +
   (state.glanceTo - state.glanceFrom) *
-    smooth(Math.min(1, Math.max(0, (now - state.glanceAt) / GLANCE_MS)));
+    smooth(clamp01((now - state.glanceAt) / GLANCE_MS));
 
 const within = ([lo, hi]: Range, roll: number): number => lo + roll * (hi - lo);
 

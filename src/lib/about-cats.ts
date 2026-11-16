@@ -112,7 +112,7 @@ export interface CatSpot {
 export type Hold = 'pointer' | 'focus' | 'card';
 
 /** 'hidden' while the colony does not step the cat: off screen, not yet seen, or reduced motion. */
-export type CatMood = 'hidden' | 'playing' | 'holding' | 'asleep';
+type CatMood = 'hidden' | 'playing' | 'holding' | 'asleep';
 
 interface Playing {
   move: Move;
