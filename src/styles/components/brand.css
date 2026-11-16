@@ -19,7 +19,7 @@
 
     @variant lg {
       column-gap: var(--spacing-grid);
-      grid-template-columns: var(--container-rail) minmax(0, 1fr);
+      grid-template-columns: var(--container-brand-rail) minmax(0, 1fr);
     }
   }
 

@@ -456,6 +456,8 @@
    * track, so the reading column stays centered.
    */
   --container-rail: 18rem;
+  /* /brand's menu: its search placeholder needs 20rem to show in full. */
+  --container-brand-rail: 20rem;
   /*
    * The 80px header slab and 12px above and below it. Fixed px so it
    * stays small at 400% zoom; html's scroll-padding-top derives from it (SC

@@ -226,7 +226,9 @@ export const BUD_TIERS = [
 ] as const;
 
 export const STALK_WIDTH = { min: 0.55, bySize: 3.1 } as const;
-/** Share of its traced width a stalk is drawn at, never under `STALK_WIDTH.min`. */
+/** Device pixels: thinner, a stalk antialiases under 7:1 on a 1x screen (measured). */
+export const STALK_MIN_DEVICE_PX = 1.5;
+/** Share of its traced width a stalk is drawn at, never under either minimum. */
 export const STALK_WIDTH_SHARE = 0.5;
 /** Line width in CSS pixels of the outline around a filled bud. */
 export const FILL_OUTLINE = 1;
