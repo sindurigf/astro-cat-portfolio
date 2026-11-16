@@ -1,5 +1,6 @@
 import { execFileSync, spawnSync } from 'node:child_process';
 import { resolve } from 'node:path';
+import { CHILD_LIMITS } from './child-limits';
 import { expect, test } from './test';
 import { fixture } from './check-fixture';
 import { NODE } from './tags';
@@ -21,7 +22,10 @@ const GIT_CONFIG = [
 const repoWith = (message: string): string => {
   const root = fixture({});
   const git = (...args: string[]) =>
-    execFileSync('git', [...GIT_CONFIG, ...args], { cwd: root });
+    execFileSync('git', [...GIT_CONFIG, ...args], {
+      cwd: root,
+      ...CHILD_LIMITS,
+    });
   git('init', '--quiet');
   git('commit', '--quiet', '--allow-empty', '-m', message);
   return root;
@@ -31,6 +35,7 @@ const check = (root: string) => {
   const run = spawnSync('sh', [SCRIPT, 'HEAD'], {
     cwd: root,
     encoding: 'utf8',
+    ...CHILD_LIMITS,
   });
   if (run.error) throw run.error;
   return { status: run.status, output: `${run.stdout}${run.stderr}` };
