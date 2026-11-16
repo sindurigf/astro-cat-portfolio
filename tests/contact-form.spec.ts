@@ -170,3 +170,16 @@ test(
     ).toEqual([]);
   },
 );
+
+test(
+  'rejects an email with a direction override or zero-width space',
+  NODE,
+  () => {
+    for (const hidden of ['\u202E', '\u2066', '\u200B']) {
+      expect(
+        failing({ ...VALID, email: `ada${hidden}@example.com` }),
+        `U+${hidden.codePointAt(0)?.toString(16).toUpperCase()} in the email passed validation.`,
+      ).toEqual(['email']);
+    }
+  },
+);
