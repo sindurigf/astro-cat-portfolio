@@ -656,6 +656,25 @@ test.describe('the contact endpoint', WITH_CONTACT_FORM, () => {
     ).toBe('Contact form: Ada Bcc Eve');
   });
 
+  test('the notification subject drops direction overrides and keeps joiners in names', () => {
+    const subjectFor = (name: string) =>
+      notificationFor(
+        { name, email: 'ada@example.com', body: 'Hi.' },
+        NOTIFY_TO,
+        new Date(0),
+      ).subject;
+
+    expect(
+      subjectFor('Ada\u202EBcc\u2066Eve\u200B'),
+      'a bidi override, isolate or zero-width space in the name reached the subject.',
+    ).toBe('Contact form: Ada Bcc Eve');
+    const joined = '\u0915\u094D\u200D\u0937 \u{1F469}\u200D\u{1F4BB}';
+    expect(
+      subjectFor(joined),
+      'a zero-width joiner in a name was stripped, which breaks Indic and emoji names.',
+    ).toBe(`Contact form: ${joined}`);
+  });
+
   test('the notification sender is the one wrangler.jsonc allows', () => {
     const binding = wranglerConfig<WranglerConfig>().send_email?.find(
       (entry) => entry.name === 'CONTACT_MAILER',

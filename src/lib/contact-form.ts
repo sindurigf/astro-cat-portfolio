@@ -1,5 +1,7 @@
 /* Shared by the form page and the endpoint: a renamed field reads as blank. */
 
+import { HIDDEN_CHARACTERS } from './hidden-characters';
+
 export const FIELDS = {
   name: 'name',
   email: 'email',
@@ -55,7 +57,7 @@ type ValidationResult =
  * add a second `Reply-To` recipient, and `<>"():[]\` and control characters,
  * which a mailer may refuse as a `Reply-To`, failing every resend.
  */
-const NOT_IN_PART = String.raw`\s\p{Cc},;<>"():\[\]\\`;
+const NOT_IN_PART = String.raw`\s\p{Cc},;<>"():\[\]\\` + HIDDEN_CHARACTERS;
 const NOT_IN_ADDRESS = `${NOT_IN_PART}@`;
 /* A space, bracket, comma, name or second address beside the @. */
 const EXTRA_IN_ADDRESS = new RegExp(`[${NOT_IN_PART}]|@.*@`, 'u');
