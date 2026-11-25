@@ -138,11 +138,7 @@ const WEBKIT_SHORTFALL: Record<(typeof WINDOWS)[number]['width'], string[]> = {
     '--text-standfirst',
     '--text-menu',
   ],
-  1920: [
-    '--text-quote-mark',
-    '--text-display',
-    '--text-standfirst',
-  ],
+  1920: ['--text-quote-mark', '--text-display', '--text-standfirst'],
 };
 
 /** Tokens that never reach 2x by the engine's highest page zoom; the full report goes in an annotation. */
