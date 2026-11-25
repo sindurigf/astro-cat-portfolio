@@ -61,7 +61,7 @@ const WIDEST_DESKTOP_ASPECT = 3;
  */
 export const DENSITY_CAP = WIDEST_DESKTOP_ASPECT / REFERENCE_ASPECT;
 
-const HORIZON_RATIO = 398 / REFERENCE_HEIGHT;
+const HORIZON_RATIO = 250 / REFERENCE_HEIGHT;
 
 const GROUND_RATIO = 930 / REFERENCE_HEIGHT;
 
@@ -225,7 +225,7 @@ export const BUD_TIERS = [
   { above: 42, count: 2, spacing: 0.19 },
 ] as const;
 
-export const STALK_WIDTH = { min: 0.55, bySize: 3.1 } as const;
+export const STALK_WIDTH = { min: 0.55, bySize: 1.7 } as const;
 /** Device pixels: thinner, a stalk antialiases under 7:1 on a 1x screen (measured). */
 export const STALK_MIN_DEVICE_PX = 1.5;
 /** Share of its traced width a stalk is drawn at, never under either minimum. */
@@ -236,7 +236,11 @@ export const STEM_ALPHA = { base: 0.09, byScale: 0.5 } as const;
 export const BUD_ALPHA = { lift: 0.16, max: 0.82 } as const;
 /** Where the first bud sits, as a share of the stem from its root. */
 export const BUD_START = 0.55;
-export const BUD_SIZE = { min: 0.36, bySize: 2.3 } as const;
+/** CSS pixels: the `sm` breakpoint, under which the phone field applies. */
+export const PHONE_MAX_WIDTH = 640;
+/** On a phone: share of stems sown, and stem height over the desktop's. */
+export const PHONE_FIELD = { sow: 0.62, lift: 1.4 } as const;
+export const BUD_SIZE = { min: 0.4, bySize: 2.6 } as const;
 
 /* Horizon grass: too small for buds. Reference units. */
 export const BUD_MIN_HEIGHT = 13;
