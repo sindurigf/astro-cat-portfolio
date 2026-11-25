@@ -896,6 +896,37 @@ test.describe('the contact endpoint', WITH_CONTACT_FORM, () => {
     ).toContain(current);
   });
 
+  test('the daily job deletes an expired unsent message instead of emailing it', async ({
+    request,
+  }) => {
+    const now = Date.now();
+    const token = crypto.randomUUID();
+    const expired = `expired-unsent-${token}`;
+    const fresh = `fresh-unsent-${token}`;
+    await localD1(
+      'INSERT INTO messages (id, name, email, body, created_at) VALUES ' +
+        `('${expired}', 'Old', 'old@example.com', 'Expired ${token}', ${retentionCutoff(now) - DAY_MS}), ` +
+        `('${fresh}', 'New', 'new@example.com', 'Fresh ${token}', ${now - 2 * RESEND_AFTER_MS})`,
+    );
+
+    expect((await request.get(SCHEDULED_HANDLER)).status()).toBe(200);
+
+    await expect
+      .poll(() => emailWith(`Fresh ${token}`), {
+        ...POLL,
+        message: 'the resend never ran, so the expired message proves nothing.',
+      })
+      .toBeDefined();
+    expect(
+      emailWith(`Expired ${token}`),
+      'a message past retention was emailed instead of deleted.',
+    ).toBeUndefined();
+    expect(
+      await localD1(`SELECT id FROM messages WHERE id = '${expired}'`),
+      'a message past retention survived the sweep.',
+    ).not.toContain(expired);
+  });
+
   test("the response carries the site's security headers", async ({
     request,
     baseURL,
