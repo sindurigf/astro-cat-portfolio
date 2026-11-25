@@ -2,6 +2,8 @@
  * Let It Fall: everything on screen drops and stacks into a heap, and the footer mascot climbs onto the button.
  * The same button, Esc, keyboard focus elsewhere or a new window width puts it back.
  */
+import { REDUCED_MOTION } from '../lib/media-queries';
+import { SECOND_MS } from '../lib/time';
 import {
   createHopper,
   ignoreCancel,
@@ -64,14 +66,13 @@ if (!button || !status) {
   throw new Error('let-it-fall: the footer lacks its button or status.');
 }
 
-const motion = matchMedia('(prefers-reduced-motion: no-preference)');
+const reducedMotion = matchMedia(REDUCED_MOTION);
 const token = (name: string): string =>
   getComputedStyle(document.documentElement).getPropertyValue(name).trim();
-const MS_PER_S = 1000;
 /* Minified CSS may write the time in seconds, as `.9s`. */
 const fallTime = (): number => {
   const time = token('--fall-time');
-  return parseFloat(time) * (time.endsWith('ms') ? 1 : MS_PER_S);
+  return parseFloat(time) * (time.endsWith('ms') ? 1 : SECOND_MS);
 };
 
 /* reduced-motion.css gives every property a 0.01ms transition, which reads as the old value until it ends: end it before measuring. */
@@ -794,7 +795,7 @@ const hopTo = (spot: Hop | null): void => {
     mascot.removeAttribute('data-hopped');
     for (const name of HOP_VARS) mascot.style.removeProperty(name);
   }
-  if (!motion.matches) return;
+  if (reducedMotion.matches) return;
   const start = from === 'none' ? new DOMMatrix() : new DOMMatrix(from);
   const end = spot
     ? new DOMMatrix().translate(spot.x, spot.y).scale(spot.scale)
@@ -855,7 +856,7 @@ const drop = (
   el.setAttribute('data-fall-block', '');
   el.setAttribute('data-fell', '');
   if (raise !== null) el.setAttribute('data-fall-raised', raise);
-  if (!motion.matches) return null;
+  if (reducedMotion.matches) return null;
   const at = (lift: number) =>
     `translate(${x}px, ${y - lift}px) rotate(${turn}deg)`;
   return el.animate(
@@ -913,7 +914,7 @@ const floatButton = (): DOMRect => {
     own.width,
     own.height,
   );
-  if (motion.matches) {
+  if (!reducedMotion.matches) {
     button.animate([{ transform: from }, { transform: shift.toString() }], {
       duration: fallTime(),
       easing: RISE_EASING,
@@ -930,7 +931,7 @@ const sinkButton = (): void => {
   const clean = () => {
     for (const name of FLOAT_VARS) button.style.removeProperty(name);
   };
-  if (!motion.matches) {
+  if (reducedMotion.matches) {
     clean();
     return;
   }
@@ -1059,10 +1060,10 @@ const settle = async (
   await Promise.allSettled(settling.map((a) => a.finished));
   if (fallen !== pile) return;
   const climber = hopper;
-  if (motion.matches && climber) {
+  if (!reducedMotion.matches && climber) {
     const plan = await planClimb(pile, true);
     if (fallen !== pile) return;
-    if (plan && motion.matches) {
+    if (plan && !reducedMotion.matches) {
       try {
         await climber.climb(plan.path.map(climber.local), plan.spot.scale);
       } catch (error) {
@@ -1075,7 +1076,7 @@ const settle = async (
         if (hopper === climber) hopper = null;
       }
       if (fallen !== pile) return;
-      if (motion.matches && hopper === climber) {
+      if (!reducedMotion.matches && hopper === climber) {
         climbed = pile;
         return;
       }
@@ -1178,7 +1179,7 @@ const fall = (): void => {
     )
     .filter((a): a is Animation => a !== null)
     .map((a) => a.finished);
-  if (motion.matches && mascot) hopper ??= createHopper(mascot);
+  if (!reducedMotion.matches && mascot) hopper ??= createHopper(mascot);
   void settle(fallen, moves).catch(ignoreCancel);
   width = innerWidth;
   say(FELL);
@@ -1207,7 +1208,7 @@ const restore = (): void => {
             .toString()
         : lies;
     el.removeAttribute('data-fell');
-    if (!motion.matches) {
+    if (reducedMotion.matches) {
       home(el);
       continue;
     }
@@ -1234,8 +1235,8 @@ button.addEventListener('on-demand', () => {
   else fall();
 });
 /* Reduced motion switched on mid-fall or mid-climb: everything is where it ends at once, and the sticker takes the perch. */
-motion.addEventListener('change', () => {
-  if (motion.matches) return;
+reducedMotion.addEventListener('change', () => {
+  if (!reducedMotion.matches) return;
   for (const el of [
     button,
     ...document.querySelectorAll('[data-fall-block]'),

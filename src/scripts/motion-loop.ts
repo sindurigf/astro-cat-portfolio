@@ -1,4 +1,5 @@
-const REDUCED_MOTION = '(prefers-reduced-motion: reduce)';
+import { REDUCED_MOTION } from '../lib/media-queries';
+import { SECOND_MS } from '../lib/time';
 
 /** A `frame` result: draw again on the next animation frame. */
 export const NEXT_FRAME = 0;
@@ -54,7 +55,7 @@ const FRAME_SLACK_MS = 4;
 export const createMotionLoop = (options: MotionLoopOptions): MotionLoop => {
   let reduced = false;
   const minGapMs = options.maxFrameRate
-    ? 1000 / options.maxFrameRate - FRAME_SLACK_MS
+    ? SECOND_MS / options.maxFrameRate - FRAME_SLACK_MS
     : 0;
 
   let frame = 0;

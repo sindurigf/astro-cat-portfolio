@@ -3,6 +3,7 @@
  * in about-cats-moves.ts.
  * Units are CSS px, y down, the ground at y = 0 under the cat's origin.
  */
+import { clamp } from './clamp';
 import { PAD, SHEET } from './about-cats-sheet';
 import {
   DOWN_HOLD_MS,
@@ -92,8 +93,7 @@ const HIT_MIN_HEIGHT = 44;
 const WING_BEAT_MS = 16;
 
 const f = (n: number): string => n.toFixed(2);
-export const clamp = (v: number, lo: number, hi: number): number =>
-  Math.max(lo, Math.min(hi, v));
+export { clamp };
 
 type Attrs = Record<string, string | number>;
 

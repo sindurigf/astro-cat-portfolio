@@ -3,6 +3,8 @@
  * modifiers; x runs forward in the direction the cat faces when it starts, and
  * `face: -1` means turned round. about-cats.ts places moves on a track.
  */
+import { clamp } from './clamp';
+import { SECOND_MS } from './time';
 import type {
   CatId,
   Pair,
@@ -12,7 +14,7 @@ import type {
 } from './about-cats-types';
 import { WALK_SPEED } from './about-cats-frames';
 
-export const clamp01 = (v: number): number => Math.min(1, Math.max(0, v));
+export const clamp01 = (v: number): number => clamp(v, 0, 1);
 
 export type { Pose };
 
@@ -1147,12 +1149,12 @@ export const withApproach = (
   const trotMs = dash
     ? stepsDuration(dash.steps)
     : trot > 0
-      ? (trot / TROT_SPEED) * 1000
+      ? (trot / TROT_SPEED) * SECOND_MS
       : 0;
   const trotLead = trot > 0 ? TROT_READY_MS + trotMs : 0;
   const creep = Math.max(
     CREEP_MIN_MS,
-    ((distance - trot) / CREEP_SPEED) * 1000,
+    ((distance - trot) / CREEP_SPEED) * SECOND_MS,
   );
   const last = move.steps.at(-1)?.pose.x ?? 0;
   const lead = trotLead + CREEP_READY_MS + creep;
