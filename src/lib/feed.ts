@@ -42,7 +42,12 @@ const NAMESPACES = {
   atom: 'http://www.w3.org/2005/Atom',
   dc: 'http://purl.org/dc/elements/1.1/',
   media: 'http://search.yahoo.com/mrss/',
+  sy: 'http://purl.org/rss/1.0/modules/syndication/',
 };
+
+/* A hint to readers on how often to poll: about once a week. */
+const FEED_UPDATE_PERIOD = 'weekly';
+const FEED_UPDATE_FREQUENCY = 1;
 
 const FEED_COVER_WIDTH = 1200;
 const FEED_COVER_FORMAT = 'jpg';
@@ -98,6 +103,8 @@ export const feedResponse = async (
     xmlns: NAMESPACES,
     customData: [
       `<language>${FEED_LANGUAGE}</language>`,
+      `<sy:updatePeriod>${FEED_UPDATE_PERIOD}</sy:updatePeriod>`,
+      `<sy:updateFrequency>${FEED_UPDATE_FREQUENCY}</sy:updateFrequency>`,
       lastBuild
         ? `<lastBuildDate>${lastBuild.toUTCString()}</lastBuildDate>`
         : '',
