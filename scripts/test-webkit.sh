@@ -12,7 +12,7 @@ fi
 
 # Digest-pinned, as check:pins requires. Bump with @playwright/test:
 # docker buildx imagetools inspect mcr.microsoft.com/playwright:v<version>-noble
-IMAGE='mcr.microsoft.com/playwright:v1.63.0-noble@sha256:eff16c30e6f3f4af0a03fa4b706120d5e9b0891c344a27d64559aff5900a4a27'
+IMAGE='mcr.microsoft.com/playwright:v1.65.1-noble@sha256:1507cbfc550a63a6b7396791ca4f00df17beb56342d2447b3f106c306f525579'
 
 VERSION=$(node -p "require('@playwright/test/package.json').version")
 case "$IMAGE" in
