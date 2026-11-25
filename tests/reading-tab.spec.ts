@@ -7,6 +7,7 @@ import { NODE } from './tags';
 import { timedScan } from './axe';
 import {
   PERCENT,
+  TEXT_SCALE_DEFAULT,
   TEXT_SCALE_KEY,
   TEXT_SCALE_PROPERTY,
   TEXT_SCALE_STEPS,
@@ -169,12 +170,16 @@ test.describe('The reading tab: Smaller, Larger and Reset', () => {
     await page.getByRole('button', { name: 'Aa Text Size' }).click();
     const group = page.locator('#text-menu');
     const eat = group.getByRole('button', { name: /^Larger/ });
-    for (let i = 0; i < TEXT_SCALE_STEPS.length; i += 1) {
+    const status = group.locator('[data-size-status]');
+    /* Clicks before the script loads replay when it resolves, which can move Larger under a click already aimed. */
+    await eat.click({ force: true });
+    await expect(status).toHaveText(
+      `Text is ${TEXT_SCALE_STEPS[TEXT_SCALE_STEPS.indexOf(TEXT_SCALE_DEFAULT) + 1]}%.`,
+    );
+    for (let i = 1; i < TEXT_SCALE_STEPS.length; i += 1) {
       await eat.click({ force: true });
     }
-    await expect(group.locator('[data-size-status]')).toContainText(
-      'the most this page fits',
-    );
+    await expect(status).toContainText('the most this page fits');
     await expect(eat).toHaveAttribute('aria-disabled', 'true');
     expect(await sidewaysPx(page)).toBeLessThanOrEqual(0);
     await page.evaluate((key) => localStorage.removeItem(key), TEXT_SCALE_KEY);
