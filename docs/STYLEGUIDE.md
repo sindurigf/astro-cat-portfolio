@@ -39,21 +39,21 @@ blur, uppercase headings, tilted marks.
 - **A gold use not on this list adds a row, with its argument, in the same
   change.**
 
-| #   | Where gold is spent                                                                                                                              | Measured on                            |
-| --- | ------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------- |
-| 1a  | Ground, full slab: `/about`, `/career`, `/contact`, `/blog`, `/credits`, `/brand`                                                                | 6 routes                               |
-| 1b  | Ground, thin slab: `/contact/sent`, every post                                                                                                   | 6 routes                               |
-| 1c  | Ground, mid-page: a `Section surface="gold"`, the About quote, `/contact`'s closing band                                                         | `/career`, `/about`, `/`, `/contact`   |
-| 2   | The primary action: `.nav-cta`, `.btn-primary`                                                                                                   | 11 routes, 4 routes                    |
-| 3   | the logo marks: the homepage sticker; the box cat and the logo cat are cardboard and the cats' coats, not gold                                   | `/`                                    |
-| 4   | Card labels, `.label text-gold`; a form's field labels are `text`                                                                                | `/about`, `/accessibility`, `/contact` |
-| 5   | Category: the blog label and the homepage glyph tiles, ink-edged on gold                                                                         | 3 routes                               |
-| 6   | Display words: the homepage family name; section title bricks (`Section brick`)                                                                  | `/`, `/about`, `/career`, `/contact`   |
-| 7   | List markers in `.bullet-list`                                                                                                                   | wherever a bulleted list is            |
-| 8   | The `gold` swatch and the contrast samples on gold; fills, hex in both modes                                                                     | `/brand`                               |
-| 9   | Edges in dark mode: `border` on fields, controls, chips, rules and the outer edge of a gold area                                                 | every route                            |
-| 10  | The header bar: its `block-gold` fill in dark mode under ink bricks (11.32), and the current page's 4px underline on its ink brick in both modes | every route                            |
-| 11  | The footer motto band: the motto in ink on a `block-gold` band at every page's end, the mascot standing on it                                    | every route                            |
+| #   | Where gold is spent                                                                                                                              | Measured on                             |
+| --- | ------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------- |
+| 1a  | Ground, full slab: `/about`, `/career`, `/contact`, `/blog`, `/credits`, `/brand`                                                                | the routes listed                       |
+| 1b  | Ground, thin slab: `/contact/sent`, every post                                                                                                   | the routes listed                       |
+| 1c  | Ground, mid-page: a `Section surface="gold"`, the About quote, `/contact`'s closing band                                                         | `/career`, `/about`, `/`, `/contact`    |
+| 2   | The primary action: `.nav-cta`, `.btn-primary`                                                                                                   | every page; pages with a `.btn-primary` |
+| 3   | the logo marks: the homepage sticker; the box cat and the logo cat are cardboard and the cats' coats, not gold                                   | `/`                                     |
+| 4   | Card labels, `.label text-gold`; a form's field labels are `text`                                                                                | `/about`, `/accessibility`, `/contact`  |
+| 5   | Category: the blog label and the homepage glyph tiles, ink-edged on gold                                                                         | blog listings and `/`                   |
+| 6   | Display words: the homepage family name; section title bricks (`Section brick`)                                                                  | `/`, `/about`, `/career`, `/contact`    |
+| 7   | List markers in `.bullet-list`                                                                                                                   | wherever a bulleted list is             |
+| 8   | The `gold` swatch and the contrast samples on gold; fills, hex in both modes                                                                     | `/brand`                                |
+| 9   | Edges in dark mode: `border` on fields, controls, chips, rules and the outer edge of a gold area                                                 | every route                             |
+| 10  | The header bar: its `block-gold` fill in dark mode under ink bricks (11.32), and the current page's 4px underline on its ink brick in both modes | every route                             |
+| 11  | The footer motto band: the motto in ink on a `block-gold` band at every page's end, the mascot standing on it                                    | every route                             |
 
 - 9 is the edge because the only two colors are ink and gold: an ink edge
   vanishes on the dark page and a light one adds a third color. Gold reads as
