@@ -1,6 +1,4 @@
 /* Progressive: photos are plain links and strips scroll natively. */
-import { clamp } from '../lib/clamp';
-import { REDUCED_MOTION } from '../lib/media-queries';
 import { reflectFit, SCROLL_ROUNDING_PX } from './scroll-fit';
 
 /** Share of the strip's width. */
@@ -221,8 +219,10 @@ const setUpStrips = (): void => {
         strip.onscrollend = () => (strip.style.scrollSnapType = '');
       }
       strip.scrollTo({
-        left: clamp(direction * left, 0, end),
-        behavior: matchMedia(REDUCED_MOTION).matches ? 'auto' : 'smooth',
+        left: Math.min(Math.max(direction * left, 0), end),
+        behavior: matchMedia('(prefers-reduced-motion: reduce)').matches
+          ? 'auto'
+          : 'smooth',
       });
     });
   }

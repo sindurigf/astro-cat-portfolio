@@ -3,7 +3,6 @@
  * flush under their abbreviation so the pointer can cross onto them (SC 1.4.13).
  * Escape and a press elsewhere dismiss them natively.
  */
-import { clamp } from '../lib/clamp';
 
 const VIEWPORT_MARGIN_PX = 16;
 
@@ -31,7 +30,7 @@ const enhance = (
     tip.style.inset = 'auto';
     tip.style.margin = '0';
     tip.style.top = `${anchor.bottom}px`;
-    tip.style.left = `${clamp(anchor.left, VIEWPORT_MARGIN_PX, maxLeft)}px`;
+    tip.style.left = `${Math.max(VIEWPORT_MARGIN_PX, Math.min(anchor.left, maxLeft))}px`;
   };
   const show = () => {
     if (!isOpen()) tip.showPopover();
