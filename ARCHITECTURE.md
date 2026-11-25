@@ -276,6 +276,11 @@ Headings, alt text, focus rings and axe are checked on the rendered page by
   feed carries each post's opening, whole sentences up to 300 characters,
   stopping before a paragraph that ends in a colon (`src/lib/feed-excerpt.ts`),
   for an aggregator that reads one tag's feed. Every other feed carries the teaser.
+- Every item also carries `content:encoded` for reposts: the cover linked to
+  the post, the photo credit, the opening up to `FEED_CONTENT_MAX_CHARACTERS`
+  (1200) and a "Read the rest" link (`src/lib/feed-content.ts`). It is built
+  from escaped plain text only. The cover, 1200 px JPEG, is also in
+  `media:content` with its alt text and credit.
 - Placeholders are excluded. `tests/rss.spec.ts`.
 
 ### Markdown visitors
