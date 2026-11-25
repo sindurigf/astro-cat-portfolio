@@ -333,7 +333,7 @@
   );
   --text-standfirst--line-height: var(--leading-paragraph);
   /* Height-aware, so the stickers shrink on a short window. */
-  --text-hero-sticker: clamp(1.125rem, min(2.1vw, 3.4svh), 1.875rem);
+  --text-hero-sticker: clamp(1rem, min(1.4vw, 2.4svh), 1.25rem);
   --text-hero-sticker--line-height: 1.02;
   --text-menu: clamp(2.125rem, 8vw, 3.5rem);
   /* Under 20px: WAVE reads any short paragraph at 20px+ as a possible heading. */
