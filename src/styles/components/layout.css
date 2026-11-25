@@ -274,9 +274,15 @@
   .v-column .hero {
     padding-block: 0;
     min-height: calc(
-      100svh - var(--spacing-page-top) - var(--hero-name-overhang) -
-        var(--hero-pad-block) - var(--hero-column-edge) - --spacing(1)
+      var(--hero-screen-share, 1) * 100svh - var(--spacing-page-top) -
+        var(--hero-name-overhang) - var(--hero-pad-block) -
+        var(--hero-column-edge) - --spacing(1)
     );
+
+    /* Share of the screen the hero fills on a phone, so the block below shows in the first view. */
+    @media (width < 40rem) {
+      --hero-screen-share: 0.8;
+    }
   }
 
   /*
