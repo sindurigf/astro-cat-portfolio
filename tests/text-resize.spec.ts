@@ -142,7 +142,6 @@ const WEBKIT_SHORTFALL: Record<(typeof WINDOWS)[number]['width'], string[]> = {
     '--text-quote-mark',
     '--text-display',
     '--text-standfirst',
-    '--text-hero-sticker',
   ],
 };
 
