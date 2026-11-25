@@ -18,7 +18,7 @@ export interface FeedCredit {
   href?: string | undefined;
 }
 
-export interface FeedContent {
+interface FeedContent {
   url: string;
   siteName: string;
   opening: string;
