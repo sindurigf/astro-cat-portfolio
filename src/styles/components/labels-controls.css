@@ -5,7 +5,7 @@
   }
 
   .label {
-    @apply text-label font-black uppercase tracking-label;
+    @apply text-label font-black uppercase tracking-label text-balance;
   }
 
   /*
