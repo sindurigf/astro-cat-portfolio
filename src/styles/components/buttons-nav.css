@@ -15,6 +15,10 @@
     display: none;
   }
 
+  :is(.btn-primary, .btn-secondary, .btn-gold-primary, .btn-gold-secondary) {
+    @apply text-balance;
+  }
+
   /* A light block: quieter than the gold primary, in the same block language. */
   .btn-secondary {
     @apply lift-control inline-block border-4 border-block-ink bg-block-light px-8
