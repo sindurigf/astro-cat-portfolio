@@ -291,7 +291,8 @@ Dashboard settings that change what ships without a file change.
   1. Settings, Rules, Rulesets, the `main` ruleset, Require status checks to
      pass, Add checks, type `Test weakening`, pick the GitHub Actions source,
      Save. The name is offered once the check has run on a pull request.
-  2. Not done yet in this repository: add `.github/CODEOWNERS` naming the maintainer's GitHub account for
+  2. Add `.github/CODEOWNERS` (not in this repository yet) naming the
+     maintainer's GitHub account for
      `/.github/` and `/scripts/check-test-weakening.mjs`, and turn on Require
      review from Code Owners in the `main` ruleset. A workflow could report a
      job also named `Test weakening`; this keeps such a change from merging.

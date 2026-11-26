@@ -267,6 +267,9 @@ Headings, alt text, focus rings and axe are checked on the rendered page by
   `src/lib/feed.ts`, with `atom:link rel="self"` and RFC 822 dates.
 - `lastBuildDate` is the latest `updated`, else `date`, of the feed's posts
   (`src/lib/feed-date.ts`), so a post's `updated` date moves it.
+- Every feed carries `sy:updatePeriod` `weekly` and `sy:updateFrequency` `1`
+  (`FEED_UPDATE_PERIOD`, `FEED_UPDATE_FREQUENCY` in `src/lib/feed.ts`), so
+  readers poll about once a week.
 - A tag feed serves aggregators that follow one topic. The `openingFeedTag`
   feed carries each post's opening, whole sentences up to 300 characters,
   stopping before a paragraph that ends in a colon (`src/lib/feed-excerpt.ts`),
@@ -742,8 +745,6 @@ evidence.
 - **Remove `PLATFORM_FACTS`, which only a test imports:** it drives the
   /privacy and /contact staleness test, `tests/platform-facts.spec.ts`.
 - **Add AVIF:** `PHOTO_FORMATS` has it.
-- **Make the two "Primary" navs unique (`landmark-unique`):** `.noscript-nav`
-  is `display: none` with scripting on, so only one is exposed.
 - **Allow AI search bots by name in robots.txt:** an agent with no group of its
   own follows `User-agent: *`, which allows everything.
 - **Write /contact/sent's description in the first person:** the page's
