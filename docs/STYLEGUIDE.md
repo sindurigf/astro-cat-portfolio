@@ -372,7 +372,8 @@ The switch and what it scopes: [ARCHITECTURE.md](../ARCHITECTURE.md#light-mode).
 
 ## Type scale
 
-Lexend Variable, weights 400 and 900 only. Heading sizes are fixed so 200%
+Lexend Variable, weights 400 and 900 only: `--font-weight-normal` and
+`--font-weight-black`, the only weight tokens. Heading sizes are fixed so 200%
 zoom doubles them (SC 1.4.4); other sizes are `clamp()` tokens; the
 copyright and contents list are fixed, and `text-code` is `max(1rem, 0.92em)`,
 0.92 of the text around it with a 16px floor.
@@ -440,9 +441,8 @@ copyright and contents list are fixed, and `text-code` is `max(1rem, 0.92em)`,
 - Headings never skip levels; one `<h1>` per page. No heading is larger than
   the level above it (`tests/headings.spec.ts`); a /brand example, shown at
   another page's size, is exempt.
-- `text-hero-h1` is 36px so the homepage name stays two lines. `layout.css`
-  swaps in `--text-hero-h1-column` and `--text-hero-h1-column-phone`, both
-  36px (`tests/hero-fit.spec.ts`).
+- `text-hero-h1` is 36px so the homepage name stays two lines, in every
+  layout and at every width (`tests/hero-fit.spec.ts`).
 - `text-reading-h1` is for the Privacy and Accessibility titles only.
 - Posts use `text-post-*`. Do not raise them to the page scale.
 - The footer motto fills its band by container width (`--text-footer-name-fluid`, `-md`), one word a line below 48rem, one line from 48rem that wraps under SC 1.4.12 text spacing; no rem floor, so a larger default font never pushes it past the band. A fork sets both divisors from its motto.

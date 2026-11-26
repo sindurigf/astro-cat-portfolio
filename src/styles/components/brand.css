@@ -5,7 +5,7 @@
   /* The light half's copy holds no headings (mirror.ts); its divs keep their look. */
   [data-heading] {
     text-transform: uppercase;
-    font-weight: 900;
+    font-weight: var(--font-weight-black);
     letter-spacing: var(--tracking-heading);
   }
 }

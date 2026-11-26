@@ -214,11 +214,6 @@
     position: relative;
     background-color: var(--color-gold);
     /*
-     * Smaller name in the column: a wrapped family name moves the break off the
-     * rule.
-     */
-    --text-hero-h1: var(--text-hero-h1-column);
-    /*
      * Rule, clearance and the given name's line box above its letters. Here, not
      * @theme, because it reads the column's own --text-hero-h1.
      */
@@ -322,10 +317,6 @@
   @media (width < 40rem) {
     .gold-column {
       margin-inline: 0;
-    }
-
-    .v-column {
-      --text-hero-h1: var(--text-hero-h1-column-phone);
     }
   }
   /*
