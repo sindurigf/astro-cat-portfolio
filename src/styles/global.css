@@ -123,6 +123,9 @@
 @custom-variant stickers-wrap (@media (width < 17.5rem));
 
 @theme static {
+  --font-weight-*: initial;
+  --font-weight-normal: 400;
+  --font-weight-black: 900;
   --color-background: #0b0b0b;
   --color-surface: #1a1a1a;
   --color-border: #ffc000;
@@ -531,12 +534,6 @@
    */
   --hero-name-clearance: 8px;
 
-  /*
-   * The name in the column and below `sm`; layout.css swaps them into
-   * --text-hero-h1, so they hold literal values. tests/hero-fit.spec.ts.
-   */
-  --text-hero-h1-column: 2.25rem;
-  --text-hero-h1-column-phone: 2.25rem;
   /*
    * Reserved for the two sticker words at the top right, since `max-width` on
    * the name cannot see them. Holds the widest sticker plus border, padding,
