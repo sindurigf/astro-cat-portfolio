@@ -178,7 +178,7 @@ jobs:
     # Not ubuntu-latest: WebKit needs ICU 74, which only 24.04 has.
     runs-on: ubuntu-24.04
     # Above the slowest shard's run time, so only a hung run hits it.
-    timeout-minutes: 20
+    timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
