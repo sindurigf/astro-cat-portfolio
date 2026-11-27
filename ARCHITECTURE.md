@@ -42,11 +42,6 @@ conventions for this template. Design rules and values are in
   which sets the layer order, and `check:classes` fails a page that uses a
   class from a sheet it does not link.
 - `@astrojs/tailwind` peers at `astro ^3 || ^4 || ^5` and cannot be used.
-- `overrides.miniflare.undici` lifts miniflare's exact `undici@7.29.1` pin to
-  7.30.1, the fix for GHSA-xjj6-f33q-929c, GHSA-4qv8-2p9j-2685 and
-  GHSA-f72v-6w45-q472. miniflare runs only locally (dev, preview, `wrangler`,
-  `test:worker`); the deployed Worker bundles no undici. Drop it once miniflare
-  depends on 7.30.1 or later.
 - Collection config is `src/content.config.ts` with `glob()` loaders.
 
 ## Site config
@@ -272,6 +267,9 @@ Headings, alt text, focus rings and axe are checked on the rendered page by
   `src/lib/feed.ts`, with `atom:link rel="self"` and RFC 822 dates.
 - `lastBuildDate` is the latest `updated`, else `date`, of the feed's posts
   (`src/lib/feed-date.ts`), so a post's `updated` date moves it.
+- Every feed carries `sy:updatePeriod` `weekly` and `sy:updateFrequency` `1`
+  (`FEED_UPDATE_PERIOD`, `FEED_UPDATE_FREQUENCY` in `src/lib/feed.ts`), so
+  readers poll about once a week.
 - A tag feed serves aggregators that follow one topic. The `openingFeedTag`
   feed carries each post's opening, whole sentences up to 300 characters,
   stopping before a paragraph that ends in a colon (`src/lib/feed-excerpt.ts`),
@@ -744,6 +742,14 @@ An Astro upgrade can change a hash; the island then silently fails to hydrate
 Review findings investigated and rejected. Do not re-raise without new
 evidence.
 
+- **Remove `PLATFORM_FACTS`, which only a test imports:** it drives the
+  /privacy and /contact staleness test, `tests/platform-facts.spec.ts`.
+- **Add AVIF:** `PHOTO_FORMATS` has it.
+- **Allow AI search bots by name in robots.txt:** an agent with no group of its
+  own follows `User-agent: *`, which allows everything.
+- **Write /contact/sent's description in the first person:** the page's
+  own copy is impersonal ("A reply will come"); the description matches it.
+
 - **Fix axe's forced-colors `color-contrast` on `.sticker` in a `.card`:** axe
   reads the authored gold; the computed color there is CanvasText on Canvas,
   and `tests/forced-colors.spec.ts` passes.
@@ -855,8 +861,8 @@ evidence.
   duplicate:** it is the only sideways check at 336px (`--breakpoint-xs`), and
   it reads one number from the page state the test already measures.
 - **Change the contact endpoint for an over-cap chunked 500
-  (run 37695518322):** the dev proxy (`@cloudflare/vite-plugin` 1.62.5)
-  answers 500 after the endpoint's 413. It can recur in CI under
+  (run 37695518322):** the dev proxy (`@cloudflare/vite-plugin`, seen on
+  1.62.5) answers 500 after the endpoint's 413. It can recur in CI under
   `--fail-on-flaky-tests`: the log shows `POST /contact/send/ 413`, then
   undici "fetch failed". Keep the test strict.
 - **Give the logo cat and the mark alt text (Bing Webmaster Tools "Alt

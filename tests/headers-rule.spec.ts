@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { expect, test } from './test';
 import { parseGlobalRule } from '../src/lib/headers-rule';
 import { NODE } from './tags';
@@ -40,6 +41,15 @@ test.describe(
 
     test('returns nothing when no "/*" rule exists', () => {
       expect(parseGlobalRule('/a\n  X-A: 1\n')).toEqual({});
+    });
+
+    test('the shipped public/_headers gives the "/*" rule its CSP, so the build guard passes', () => {
+      expect(
+        parseGlobalRule(readFileSync('public/_headers', 'utf8'))[
+          'Content-Security-Policy'
+        ],
+        'public/_headers no longer parses; the Worker build would refuse it.',
+      ).toContain("default-src 'self'");
     });
   },
 );

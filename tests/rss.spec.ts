@@ -234,6 +234,21 @@ test.describe('the built feed lastBuildDate', NODE, () => {
       'a feed lastBuildDate is not the latest updated or date of its posts.',
     ).toEqual([]);
   });
+
+  test('every feed says it updates weekly', () => {
+    const paths = [SITE_FEED, ...TAG_ROUTES.map((route) => `${route}/rss.xml`)];
+    const wrong = paths.filter((path) => {
+      const xml = readFileSync(join(DIST_DIR, path), 'utf8');
+      return (
+        !xml.includes('<sy:updatePeriod>weekly</sy:updatePeriod>') ||
+        !xml.includes('<sy:updateFrequency>1</sy:updateFrequency>')
+      );
+    });
+    expect(
+      wrong,
+      `These feeds lack the weekly sy:updatePeriod and sy:updateFrequency: ${wrong.join(', ')}`,
+    ).toEqual([]);
+  });
 });
 
 test.describe('lastChanged, the feed lastBuildDate', NODE, () => {
